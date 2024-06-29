@@ -1,9 +1,9 @@
 use crate::conversion::Wrap;
 use crate::expr::ToExprs;
-use crate::{PlRDataFrame, PlRExpr, PlRSeries, RPolarsErr};
+use crate::{PlRDataFrame, PlRExpr, PlRSeries, RPolarsErr, PlRDataType};
 use polars::lazy::dsl;
 use polars::prelude::*;
-use savvy::{savvy, StringSexp};
+use savvy::{savvy, StringSexp, FunctionSexp};
 
 #[savvy]
 pub fn col(name: &str) -> savvy::Result<PlRExpr> {
@@ -47,3 +47,15 @@ pub fn lit_from_series(value: PlRSeries) -> savvy::Result<PlRExpr> {
 }
 
 // TODO: Raw type support <https://github.com/yutannihilation/savvy/issues/30>
+
+pub fn map_single(
+    rexpr: &PlRExpr,
+    lambda: FunctionSexp,
+    output_type: Option<PlRDataType>,
+    agg_list: bool,
+    // TODO: support these options
+    // is_elementwise: bool,
+    // returns_scalar: bool,
+) -> PlRExpr {
+    let output_type = output_type.map(|t| t.dt);
+}
