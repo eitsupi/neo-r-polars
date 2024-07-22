@@ -12,6 +12,7 @@ panic = "unwind"
 
 [dependencies]
 ciborium = "0.2"
+flume = "0.11"
 polars-core = { git = "https://github.com/pola-rs/polars.git", rev = "f73937ab5213a44eaaba8cfc799d8f837600f179", default-features = false }
 polars-error = { git = "https://github.com/pola-rs/polars.git", rev = "f73937ab5213a44eaaba8cfc799d8f837600f179", default-features = false }
 savvy = "0.6.4"
