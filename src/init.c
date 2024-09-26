@@ -714,6 +714,11 @@ SEXP savvy_PlRExpr_name_keep__impl(SEXP self__) {
     return handle_result(res);
 }
 
+SEXP savvy_PlRExpr_name_map__impl(SEXP self__, SEXP c_arg__lambda) {
+    SEXP res = savvy_PlRExpr_name_map__ffi(self__, c_arg__lambda);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRExpr_name_prefix__impl(SEXP self__, SEXP c_arg__prefix) {
     SEXP res = savvy_PlRExpr_name_prefix__ffi(self__, c_arg__prefix);
     return handle_result(res);
@@ -1192,6 +1197,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr__meta_selector_sub__impl", (DL_FUNC) &savvy_PlRExpr__meta_selector_sub__impl, 2},
     {"savvy_PlRExpr__meta_as_selector__impl", (DL_FUNC) &savvy_PlRExpr__meta_as_selector__impl, 1},
     {"savvy_PlRExpr_name_keep__impl", (DL_FUNC) &savvy_PlRExpr_name_keep__impl, 1},
+    {"savvy_PlRExpr_name_map__impl", (DL_FUNC) &savvy_PlRExpr_name_map__impl, 2},
     {"savvy_PlRExpr_name_prefix__impl", (DL_FUNC) &savvy_PlRExpr_name_prefix__impl, 2},
     {"savvy_PlRExpr_name_suffix__impl", (DL_FUNC) &savvy_PlRExpr_name_suffix__impl, 2},
     {"savvy_PlRExpr_name_to_lowercase__impl", (DL_FUNC) &savvy_PlRExpr_name_to_lowercase__impl, 1},

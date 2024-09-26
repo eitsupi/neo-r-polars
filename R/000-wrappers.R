@@ -1060,6 +1060,12 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   }
 }
 
+`PlRExpr_name_map` <- function(self) {
+  function(`lambda`) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_name_map__impl, `self`, `lambda`))
+  }
+}
+
 `PlRExpr_name_prefix` <- function(self) {
   function(`prefix`) {
     .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_name_prefix__impl, `self`, `prefix`))
@@ -1209,6 +1215,7 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   e$`_meta_selector_sub` <- `PlRExpr__meta_selector_sub`(ptr)
   e$`_meta_as_selector` <- `PlRExpr__meta_as_selector`(ptr)
   e$`name_keep` <- `PlRExpr_name_keep`(ptr)
+  e$`name_map` <- `PlRExpr_name_map`(ptr)
   e$`name_prefix` <- `PlRExpr_name_prefix`(ptr)
   e$`name_suffix` <- `PlRExpr_name_suffix`(ptr)
   e$`name_to_lowercase` <- `PlRExpr_name_to_lowercase`(ptr)

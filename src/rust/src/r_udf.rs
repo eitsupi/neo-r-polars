@@ -16,13 +16,13 @@ struct UnsafeToken(SEXP);
 unsafe impl Send for UnsafeToken {}
 unsafe impl Sync for UnsafeToken {}
 
-struct UnsafeFunctionSexp(FunctionSexp);
+pub struct UnsafeFunctionSexp(pub FunctionSexp);
 unsafe impl Send for UnsafeFunctionSexp {}
 unsafe impl Sync for UnsafeFunctionSexp {}
 
 #[derive(Clone)]
 pub struct RUdf {
-    function: Arc<Mutex<UnsafeFunctionSexp>>,
+    pub function: Arc<Mutex<UnsafeFunctionSexp>>,
     token: UnsafeToken,
 }
 

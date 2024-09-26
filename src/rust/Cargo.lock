@@ -1712,6 +1712,7 @@ dependencies = [
  "polars",
  "polars-core",
  "polars-error",
+ "polars-utils",
  "savvy",
  "serde_json",
  "state",

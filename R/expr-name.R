@@ -22,6 +22,14 @@ expr_name_keep <- function() {
     wrap()
 }
 
+expr_name_map <- function(lambda) {
+  wrap({
+    check_function(lambda)
+
+    self$`_rexpr`$name_map(\(name) lambda(name))
+  })
+}
+
 expr_name_prefix <- function(prefix) {
   self$`_rexpr`$name_prefix(prefix) |>
     wrap()

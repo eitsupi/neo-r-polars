@@ -144,6 +144,7 @@ SEXP savvy_PlRExpr__meta_selector_and__ffi(SEXP self__, SEXP c_arg__other);
 SEXP savvy_PlRExpr__meta_selector_sub__ffi(SEXP self__, SEXP c_arg__other);
 SEXP savvy_PlRExpr__meta_as_selector__ffi(SEXP self__);
 SEXP savvy_PlRExpr_name_keep__ffi(SEXP self__);
+SEXP savvy_PlRExpr_name_map__ffi(SEXP self__, SEXP c_arg__lambda);
 SEXP savvy_PlRExpr_name_prefix__ffi(SEXP self__, SEXP c_arg__prefix);
 SEXP savvy_PlRExpr_name_suffix__ffi(SEXP self__, SEXP c_arg__suffix);
 SEXP savvy_PlRExpr_name_to_lowercase__ffi(SEXP self__);

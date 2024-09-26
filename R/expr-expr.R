@@ -383,10 +383,8 @@ expr__map_batches <- function(
     agg_list = FALSE) {
   wrap({
     check_dots_empty0(...)
+    check_function(lambda)
 
-    if (!is_function(lambda)) {
-      abort("`lambda` must be a function")
-    }
     if (!is.null(return_dtype)) {
       return_dtype <- as_polars_dtype(return_dtype)$`_dt`
     }
