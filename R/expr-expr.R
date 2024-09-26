@@ -376,6 +376,31 @@ expr__filter <- function(...) {
     wrap()
 }
 
+expr__map_batches <- function(
+    lambda,
+    return_dtype = NULL,
+    ...,
+    agg_list = FALSE) {
+  wrap({
+    check_dots_empty0(...)
+
+    if (!is_function(lambda)) {
+      abort("`lambda` must be a function")
+    }
+    if (!is.null(return_dtype)) {
+      return_dtype <- as_polars_dtype(return_dtype)$`_dt`
+    }
+
+    self$`_rexpr`$map_batches(
+      lambda = function(series) {
+        as_polars_series(lambda(wrap(.savvy_wrap_PlRSeries(series))))$`_s`
+      },
+      output_type = return_dtype,
+      agg_list = agg_list
+    )
+  })
+}
+
 expr__and <- function(other) {
   wrap({
     other <- as_polars_expr(other)
