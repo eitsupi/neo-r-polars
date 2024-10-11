@@ -987,7 +987,7 @@ expr_str_contains_any <- function(patterns, ..., ascii_case_insensitive = FALSE)
 #'   fake_pronouns = pl$col("lyrics")$str$replace_many(c("you", "me"), c("foo", "bar"))
 #' )
 expr_str_replace_many <- function(patterns, replace_with, ascii_case_insensitive = FALSE) {
-  self$`_rexpr`$str_replace_many(patterns, replace_with, ascii_case_insensitive) |>
+  self$`_rexpr`$str_replace_many(as_polars_expr(patterns, as_lit = TRUE)$`_rexpr`, as_polars_expr(replace_with, as_lit = TRUE)$`_rexpr`, ascii_case_insensitive) |>
     wrap()
 }
 

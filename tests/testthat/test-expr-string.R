@@ -675,44 +675,44 @@
 #   )
 # })
 
-# test_that("str$replace_many", {
-#   expect_identical(
-#     pl$lit(c("HELLO there", "hi there", "good bye", NA))$
-#       str$
-#       replace_many(c("hi", "hello"), "foo")$
-#       to_r(),
-#     c("HELLO there", "foo there", "good bye", NA)
-#   )
+test_that("str$replace_many", {
+  dat <- pl$DataFrame(x = c("HELLO there", "hi there", "good bye", NA))
 
-#   # case insensitive
-#   expect_identical(
-#     pl$lit(c("HELLO there", "hi there", "good bye", NA))$
-#       str$
-#       replace_many(c("hi", "hello"), "foo", ascii_case_insensitive = TRUE)$
-#       to_r(),
-#     c("foo there", "foo there", "good bye", NA)
-#   )
+  expect_identical(
+    dat$with_columns(
+      pl$col("x")$str$replace_many(c("hi", "hello"), "foo")
+    ) |>
+      as.list(),
+    list(x = c("HELLO there", "foo there", "good bye", NA))
+  )
 
-#   # identical lengths of patterns and replacements
-#   expect_identical(
-#     pl$lit(c("hello there", "hi there", "good bye", NA))$
-#       str$
-#       replace_many(c("hi", "hello"), c("foo", "bar"))$
-#       to_r(),
-#     c("bar there", "foo there", "good bye", NA)
-#   )
+  # case insensitive
+  expect_identical(
+    dat$with_columns(
+      pl$col("x")$str$replace_many(c("hi", "hello"), "foo", ascii_case_insensitive = TRUE)
+    ) |>
+      as.list(),
+    list(x = c("foo there", "foo there", "good bye", NA))
+  )
 
-#   # error if different lengths
-#   expect_snapshot(pl$lit(c("hello there", "hi there", "good bye", NA))$
-#     str$
-#     replace_many(c("hi", "hello"), c("foo", "bar", "foo2"))$
-#     to_r(), error = TRUE)
+  # identical lengths of patterns and replacements
+  expect_identical(
+    dat$with_columns(
+      pl$col("x")$str$replace_many(c("hi", "hello"), c("foo", "bar"))
+    ) |>
+      as.list(),
+    list(x = c("HELLO there", "foo there", "good bye", NA))
+  )
 
-#   expect_snapshot(pl$lit(c("hello there", "hi there", "good bye", NA))$
-#     str$
-#     replace_many(c("hi", "hello", "good morning"), c("foo", "bar"))$
-#     to_r(), error = TRUE)
-# })
+  # error if different lengths
+  expect_snapshot(dat$with_columns(
+    pl$col("x")$str$replace_many(c("hi", "hello"), c("foo", "bar", "foo2"))
+  ), error = TRUE)
+
+  expect_snapshot(dat$with_columns(
+    pl$col("x")$str$replace_many(c("hi", "hello", "good morning"), c("foo", "bar"))
+  ), error = TRUE)
+})
 
 
 # make_datetime_format_cases <- function() {

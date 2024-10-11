@@ -1,3 +1,29 @@
+# str$replace_many
+
+    Code
+      dat$with_columns(pl$col("x")$str$replace_many(c("hi", "hello"), c("foo", "bar",
+        "foo2")))
+    Condition
+      Error in `dat$with_columns()`:
+      ! Evaluation failed in `$with_columns()`.
+      Caused by error:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! InvalidOperation(ErrString("expected the same amount of patterns as replacement strings"))
+
+---
+
+    Code
+      dat$with_columns(pl$col("x")$str$replace_many(c("hi", "hello", "good morning"),
+      c("foo", "bar")))
+    Condition
+      Error in `dat$with_columns()`:
+      ! Evaluation failed in `$with_columns()`.
+      Caused by error:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! InvalidOperation(ErrString("expected the same amount of patterns as replacement strings"))
+
 # str$find works
 
     Code
