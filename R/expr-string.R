@@ -102,25 +102,24 @@ expr_str_strptime <- function(
     exact = TRUE,
     cache = TRUE,
     ambiguous = "raise") {
-  if (!is_polars_dtype(dtype)) {
-    abort("`dtype` must be of class `RPolarsDataType`.")
-  }
+  wrap({
+    check_dots_empty0(...)
+    check_polars_dtype(dtype)
 
-  res <- if (pl$same_outer_dt(dtype, pl$Datetime())) {
-    datetime_type <- dtype$`_rexpr`$get_insides()
-    out <- self$`_rexpr`$str_to_datetime(
-      format, datetime_type$tu, datetime_type$tz, strict, exact, cache, ambiguous
-    )
-    out$`_rexpr`$dt_cast_time_unit(expr, datetime_type$tu)
-  } else if (dtype == pl$Date) {
-    self$`_rexpr`$str_to_date(format, strict, exact, cache)
-  } else if (dtype == pl$Time) {
-    self$`_rexpr`$str_to_time(format, strict, cache)
-  } else {
-    abort("`dtype` must be of type Date, Datetime, or Time.")
-  }
-
-  wrap(res)
+    if (pl$same_outer_dt(dtype, pl$Datetime())) {
+      datetime_type <- dtype$`_rexpr`$get_insides()
+      out <- self$`_rexpr`$str_to_datetime(
+        format, datetime_type$tu, datetime_type$tz, strict, exact, cache, ambiguous
+      )
+      out$`_rexpr`$dt_cast_time_unit(expr, datetime_type$tu)
+    } else if (dtype == pl$Date) {
+      self$`_rexpr`$str_to_date(format, strict, exact, cache)
+    } else if (dtype == pl$Time) {
+      self$`_rexpr`$str_to_time(format, strict, cache)
+    } else {
+      abort("`dtype` must be of type Date, Datetime, or Time.")
+    }
+  })
 }
 
 #' Convert a String column into a Date column
@@ -140,8 +139,10 @@ expr_str_strptime <- function(
 #' try(s$str$to_date())
 #' s$str$to_date(strict = FALSE)
 expr_str_to_date <- function(format = NULL, ..., strict = TRUE, exact = TRUE, cache = TRUE) {
-  self$`_rexpr`$str_to_date(format, strict, exact, cache) |>
-    wrap()
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$str_to_date(format, strict, exact, cache)
+  })
 }
 
 #' Convert a String column into a Time column
@@ -156,8 +157,10 @@ expr_str_to_date <- function(format = NULL, ..., strict = TRUE, exact = TRUE, ca
 #'
 #' s$str$to_time("%H:%M")
 expr_str_to_time <- function(format = NULL, ..., strict = TRUE, cache = TRUE) {
-  self$`_rexpr`$str_to_time(format, strict, cache) |>
-    wrap()
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$str_to_time(format, strict, cache)
+  })
 }
 
 #' Convert a String column into a Datetime column
@@ -188,10 +191,12 @@ expr_str_to_datetime <- function(
     exact = TRUE,
     cache = TRUE,
     ambiguous = "raise") {
-  self$`_rexpr`$str_to_datetime(
-    self, format, time_unit, time_zone, strict, exact, cache, ambiguous
-  ) |>
-    wrap()
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$str_to_datetime(
+      self, format, time_unit, time_zone, strict, exact, cache, ambiguous
+    )
+  })
 }
 
 #' Get the number of bytes in strings
@@ -247,8 +252,10 @@ expr_str_join <- function(
     delimiter = "",
     ...,
     ignore_nulls = TRUE) {
-  self$`_rexpr`$str_join(delimiter, ignore_nulls) |>
-    wrap()
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$str_join(delimiter, ignore_nulls)
+  })
 }
 
 expr_str_concat <- function(
@@ -482,8 +489,10 @@ expr_str_pad_start <- function(width, fillchar = " ") {
 #'   literal = pl$col("txt")$str$contains("rab$", literal = TRUE)
 #' )
 expr_str_contains <- function(pattern, ..., literal = FALSE, strict = TRUE) {
-  self$`_rexpr`$str_contains(self, pattern, literal, strict) |>
-    wrap()
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$str_contains(self, pattern, literal, strict)
+  })
 }
 
 
@@ -593,14 +602,15 @@ expr_str_json_path_match <- function(json_path) {
 #'   pl$col("hex")$str$decode("hex")$alias("hex_decoded")$cast(pl$String)
 #' )
 expr_str_decode <- function(encoding, ..., strict = TRUE) {
-  uw <- \(res) unwrap(res, "in $str$decode():")
-
-  pcase(
-    !is_string(encoding), stop("encoding must be a string, it was: ", encoding),
-    encoding == "hex", uw(self$`_rexpr`$str_hex_decode(strict)),
-    encoding == "base64", uw(self$`_rexpr`$str_base64_decode(strict)),
-    or_else = stop("encoding must be one of 'hex' or 'base64', got ", encoding)
-  )
+  wrap({
+    check_dots_empty0(...)
+    arg_match0(encoding, values = c("hex", "base64"))
+    if (encoding == "hex") {
+      self$`_rexpr`$str_hex_decode(strict)
+    } else if (encoding == "base64") {
+      self$`_rexpr`$str_base64_decode(strict)
+    }
+  })
 }
 
 #' Encode a value using the provided encoding
@@ -620,14 +630,15 @@ expr_str_decode <- function(encoding, ..., strict = TRUE) {
 #'   pl$col("hex")$str$decode("hex")$alias("hex_decoded")$cast(pl$String)
 #' )
 expr_str_encode <- function(encoding) {
-  uw <- \(res) unwrap(res, "in $str$$encode():")
-
-  pcase(
-    !is_string(encoding), stop("encoding must be a string, it was: ", encoding),
-    encoding == "hex", uw(self$`_rexpr`$str_hex_encode(self)),
-    encoding == "base64", uw(self$`_rexpr`$str_base64_encode(self)),
-    or_else = stop("encoding must be one of 'hex' or 'base64', got ", encoding)
-  )
+  wrap({
+    check_dots_empty0(...)
+    arg_match0(encoding, values = c("hex", "base64"))
+    if (encoding == "hex") {
+      self$`_rexpr`$str_hex_encode(strict)
+    } else if (encoding == "base64") {
+      self$`_rexpr`$str_base64_encode(strict)
+    }
+  })
 }
 
 
@@ -692,8 +703,10 @@ expr_str_extract_all <- function(pattern) {
 #'   count_slash_d = pl$col("foo")$str$count_matches(r"(\d)", literal = TRUE)
 #' )
 expr_str_count_matches <- function(pattern, ..., literal = FALSE) {
-  self$`_rexpr`$str_count_matches(pattern, literal) |>
-    wrap()
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$str_count_matches(pattern, literal)
+  })
 }
 
 
@@ -716,10 +729,8 @@ expr_str_count_matches <- function(pattern, ..., literal = FALSE) {
 #' df
 #' df$select(pl$col("s")$str$split(by = pl$col("by"))$alias("split"))
 expr_str_split <- function(by, inclusive = FALSE) {
-  unwrap(
-    self$`_rexpr`$str_split(result(by), result(inclusive)),
-    context = "in $str$split():"
-  )
+  self$`_rexpr`$str_split(result(by), result(inclusive)) |>
+    wrap()
 }
 
 #' Split the string by a substring using `n` splits
@@ -740,10 +751,8 @@ expr_str_split <- function(by, inclusive = FALSE) {
 #'   split_inclusive = pl$col("s")$str$split_exact(by = "_", 1, inclusive = TRUE)
 #' )
 expr_str_split_exact <- function(by, n, inclusive = FALSE) {
-  unwrap(
-    self$`_rexpr`$str_split_exact(by, result(n), result(inclusive)),
-    context = "in $str$split_exact():"
-  )
+  self$`_rexpr`$str_split_exact(by, result(n), result(inclusive)) |>
+    wrap()
 }
 
 
@@ -811,8 +820,10 @@ expr_str_splitn <- function(by, n) {
 #'   pl$col("weather")$str$replace("(?i)foggy|rainy|cloudy|snowy", "Sunny")
 #' )
 expr_str_replace <- function(pattern, value, ..., literal = FALSE, n = 1L) {
-  self$`_rexpr`$str_replace(pattern, value, literal, n) |>
-    wrap()
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$str_replace(pattern, value, literal, n)
+  })
 }
 
 
@@ -848,8 +859,10 @@ expr_str_replace <- function(pattern, value, ..., literal = FALSE, n = 1L) {
 #'   )
 #' )
 expr_str_replace_all <- function(pattern, value, ..., literal = FALSE) {
-  self$`_rexpr`$str_replace_all(pattern, value, literal) |>
-    wrap()
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$str_replace_all(pattern, value, literal)
+  })
 }
 
 
@@ -892,8 +905,10 @@ expr_str_slice <- function(offset, length = NULL) {
 #'   parsed = pl$col("hex")$str$to_integer(base = 16, strict = TRUE)
 #' )
 expr_str_to_integer <- function(..., base = 10L, strict = TRUE) {
-  self$`_rexpr`$str_to_integer(base, strict) |>
-    wrap()
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$str_to_integer(base, strict)
+  })
 }
 
 #' Returns string values in reversed order
@@ -932,8 +947,10 @@ expr_str_reverse <- function() {
 #'   contains_any = pl$col("lyrics")$str$contains_any(c("you", "me"))
 #' )
 expr_str_contains_any <- function(patterns, ..., ascii_case_insensitive = FALSE) {
-  self$`_rexpr`$str_contains_any(patterns, ascii_case_insensitive) |>
-    wrap()
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$str_contains_any(patterns, ascii_case_insensitive)
+  })
 }
 
 #' Use the aho-corasick algorithm to replace many matches
@@ -1032,8 +1049,10 @@ expr_str_extract_groups <- function(pattern) {
 #'   insensitive_match = pl$col("s")$str$find("(?i)Aa")
 #' )
 expr_str_find <- function(pattern, ..., literal = FALSE, strict = TRUE) {
-  self$`_rexpr`$str_find(pattern, literal, strict) |>
-    wrap()
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$str_find(pattern, literal, strict)
+  })
 }
 
 #' Return the first n characters of each string
@@ -1131,6 +1150,10 @@ expr_str__tail <- function(n) {
 #'
 #' df$select(pl$col("values")$str$extract_many("patterns"))
 expr_str_extract_many <- function(patterns, ..., ascii_case_insensitive = FALSE, overlapping = FALSE) {
-  self$`_rexpr`$str_extract_many(as_polars_expr(patterns)$`_rexpr`, ascii_case_insensitive, overlapping) |>
-    wrap()
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$str_extract_many(
+      as_polars_expr(patterns)$`_rexpr`, ascii_case_insensitive, overlapping
+    )
+  })
 }
