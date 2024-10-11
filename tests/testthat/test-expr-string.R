@@ -618,62 +618,73 @@
 # })
 
 
-# test_that("str$to_integer", {
-#   expect_identical(
-#     pl$lit(c("110", "101", "010"))$str$to_integer(base = 2)$to_r(),
-#     c(6, 5, 2)
-#   )
+test_that("str$to_integer", {
+  dat <- pl$DataFrame(x = c("110", "101", "010"))
+  expect_identical(
+    dat$with_columns(pl$col("x")$str$to_integer(base = 2)) |>
+      as.list(),
+    list(x = c(6, 5, 2))
+  )
 
-#   expect_identical(
-#     pl$lit(c("110", "101", "010"))$str$to_integer()$to_r(),
-#     c(110, 101, 10)
-#   )
+  expect_identical(
+    dat$with_columns(pl$col("x")$str$to_integer()) |>
+      as.list(),
+    list(x = c(110, 101, 10))
+  )
 
-#   expect_identical(
-#     pl$lit(c("110", "101", "010"))$str$to_integer(base = 10)$to_r(),
-#     c(110, 101, 10)
-#   )
+  expect_identical(
+    dat$with_columns(pl$col("x")$str$to_integer(base = 10)) |>
+      as.list(),
+    list(x = c(110, 101, 10))
+  )
 
-#   expect_identical(
-#     pl$lit(c("110", "101", "hej"))$str$to_integer(base = 10, strict = FALSE)$to_r(),
-#     c(110, 101, NA)
-#   )
+  dat2 <- pl$DataFrame(x = c("110", "101", "hej"))
+  expect_identical(
+    dat2$with_columns(pl$col("x")$str$to_integer(base = 10, strict = FALSE)) |>
+      as.list(),
+    list(x = c(110, 101, NA))
+  )
 
-#   expect_grepl_error(pl$lit("foo")$str$to_integer()$to_r(), "strict integer parsing failed for 1 value")
+  expect_snapshot(
+    dat2$with_columns(pl$col("x")$str$to_integer(base = 10)),
+    error = TRUE
+  )
 
-#   expect_identical(
-#     pl$DataFrame(base = c(2, 10), str = "10")$select(
-#       pl$col("str")$str$to_integer(base = "base")
-#     ) |> as.list()[[1]],
-#     c(2, 10)
-#   )
-# })
+  expect_identical(
+    pl$DataFrame(base = c(2, 10), x = c("10", "10"))$select(
+      pl$col("x")$str$to_integer(base = "base")
+    ) |> as.list(),
+    list(x = c(2, 10))
+  )
+})
 
-# test_that("str$reverse", {
-#   expect_identical(
-#     pl$lit(c("abc", "def", "mañana", NA))$str$reverse()$to_r(),
-#     c("cba", "fed", "anañam", NA)
-#   )
-# })
+test_that("str$reverse", {
+  expect_identical(
+    pl$DataFrame(x = c("abc", "def", "mañana", NA))$with_columns(
+      pl$col("x")$str$reverse()
+    ) |>
+      as.list(),
+    list(x = c("cba", "fed", "anañam", NA))
+  )
+})
 
-# test_that("str$contains_any", {
-#   expect_identical(
-#     pl$lit(c("HELLO there", "hi there", "good bye", NA))$
-#       str$
-#       contains_any(c("hi", "hello"))$
-#       to_r(),
-#     c(FALSE, TRUE, FALSE, NA)
-#   )
+test_that("str$contains_any", {
+  dat <- pl$DataFrame(x = c("HELLO there", "hi there", "good bye", NA))
+  expect_identical(
+    dat$with_columns(pl$col("x")$str$contains_any(c("hi", "hello"))) |>
+      as.list(),
+    list(x = c(FALSE, TRUE, FALSE, NA))
+  )
 
-#   # case insensitive
-#   expect_identical(
-#     pl$lit(c("HELLO there", "hi there", "good bye", NA))$
-#       str$
-#       contains_any(c("hi", "hello"), ascii_case_insensitive = TRUE)$
-#       to_r(),
-#     c(TRUE, TRUE, FALSE, NA)
-#   )
-# })
+  # case insensitive
+  expect_identical(
+    dat$with_columns(
+      pl$col("x")$str$contains_any(c("hi", "hello"), ascii_case_insensitive = TRUE)
+    ) |>
+      as.list(),
+    list(x = c(TRUE, TRUE, FALSE, NA))
+  )
+})
 
 test_that("str$replace_many", {
   dat <- pl$DataFrame(x = c("HELLO there", "hi there", "good bye", NA))

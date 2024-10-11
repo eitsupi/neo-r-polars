@@ -907,7 +907,7 @@ expr_str_slice <- function(offset, length = NULL) {
 expr_str_to_integer <- function(..., base = 10L, strict = TRUE) {
   wrap({
     check_dots_empty0(...)
-    self$`_rexpr`$str_to_integer(base, strict)
+    self$`_rexpr`$str_to_integer(as_polars_expr(base)$`_rexpr`, strict)
   })
 }
 
@@ -919,7 +919,7 @@ expr_str_to_integer <- function(..., base = 10L, strict = TRUE) {
 #' df <- pl$DataFrame(text = c("foo", "bar", NA))
 #' df$with_columns(reversed = pl$col("text")$str$reverse())
 expr_str_reverse <- function() {
-  self$`_rexpr`$str_reverse(self) |>
+  self$`_rexpr`$str_reverse() |>
     wrap()
 }
 
@@ -949,7 +949,7 @@ expr_str_reverse <- function() {
 expr_str_contains_any <- function(patterns, ..., ascii_case_insensitive = FALSE) {
   wrap({
     check_dots_empty0(...)
-    self$`_rexpr`$str_contains_any(patterns, ascii_case_insensitive)
+    self$`_rexpr`$str_contains_any(as_polars_expr(patterns, as_lit = TRUE)$`_rexpr`, ascii_case_insensitive)
   })
 }
 

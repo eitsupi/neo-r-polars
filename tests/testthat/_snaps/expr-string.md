@@ -1,3 +1,15 @@
+# str$to_integer
+
+    Code
+      dat2$with_columns(pl$col("x")$str$to_integer(base = 10))
+    Condition
+      Error in `dat2$with_columns()`:
+      ! Evaluation failed in `$with_columns()`.
+      Caused by error:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! ComputeError(ErrString("strict integer parsing failed for 1 value(s): [\"hej\"]; error message for the first shown value: 'invalid digit found in string' (consider non-strict parsing)"))
+
 # str$replace_many
 
     Code
