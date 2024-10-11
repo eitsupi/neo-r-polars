@@ -273,14 +273,14 @@ impl PlRExpr {
         Ok(self.inner.clone().str().splitn(by.inner.clone(), n).into())
     }
 
-    // fn str_replace(&self, pat: &PlRExpr, value: &PlRExpr, literal: bool, n: i64) -> Result<Self> {
-    //     Ok(self
-    //         .inner
-    //         .clone()
-    //         .str()
-    //         .replace_n(pat.inner.clone(), value.inner.clone(), literal, n)
-    //         .into())
-    // }
+    fn str_replace(&self, pat: &PlRExpr, value: &PlRExpr, literal: bool, n: i32) -> Result<Self> {
+        Ok(self
+            .inner
+            .clone()
+            .str()
+            .replace_n(pat.inner.clone(), value.inner.clone(), literal, n as i64)
+            .into())
+    }
 
     fn str_replace_all(&self, pat: &PlRExpr, value: &PlRExpr, literal: bool) -> Result<Self> {
         Ok(self

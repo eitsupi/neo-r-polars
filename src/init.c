@@ -884,6 +884,11 @@ SEXP savvy_PlRExpr_str_splitn__impl(SEXP self__, SEXP c_arg__by, SEXP c_arg__n) 
     return handle_result(res);
 }
 
+SEXP savvy_PlRExpr_str_replace__impl(SEXP self__, SEXP c_arg__pat, SEXP c_arg__value, SEXP c_arg__literal, SEXP c_arg__n) {
+    SEXP res = savvy_PlRExpr_str_replace__ffi(self__, c_arg__pat, c_arg__value, c_arg__literal, c_arg__n);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRExpr_str_replace_all__impl(SEXP self__, SEXP c_arg__pat, SEXP c_arg__value, SEXP c_arg__literal) {
     SEXP res = savvy_PlRExpr_str_replace_all__ffi(self__, c_arg__pat, c_arg__value, c_arg__literal);
     return handle_result(res);
@@ -1396,6 +1401,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_str_split__impl", (DL_FUNC) &savvy_PlRExpr_str_split__impl, 3},
     {"savvy_PlRExpr_str_split_exact__impl", (DL_FUNC) &savvy_PlRExpr_str_split_exact__impl, 4},
     {"savvy_PlRExpr_str_splitn__impl", (DL_FUNC) &savvy_PlRExpr_str_splitn__impl, 3},
+    {"savvy_PlRExpr_str_replace__impl", (DL_FUNC) &savvy_PlRExpr_str_replace__impl, 5},
     {"savvy_PlRExpr_str_replace_all__impl", (DL_FUNC) &savvy_PlRExpr_str_replace_all__impl, 4},
     {"savvy_PlRExpr_str_slice__impl", (DL_FUNC) &savvy_PlRExpr_str_slice__impl, 3},
     {"savvy_PlRExpr_str_to_integer__impl", (DL_FUNC) &savvy_PlRExpr_str_to_integer__impl, 3},

@@ -178,6 +178,7 @@ SEXP savvy_PlRExpr_str_count_matches__ffi(SEXP self__, SEXP c_arg__pat, SEXP c_a
 SEXP savvy_PlRExpr_str_split__ffi(SEXP self__, SEXP c_arg__by, SEXP c_arg__inclusive);
 SEXP savvy_PlRExpr_str_split_exact__ffi(SEXP self__, SEXP c_arg__by, SEXP c_arg__n, SEXP c_arg__inclusive);
 SEXP savvy_PlRExpr_str_splitn__ffi(SEXP self__, SEXP c_arg__by, SEXP c_arg__n);
+SEXP savvy_PlRExpr_str_replace__ffi(SEXP self__, SEXP c_arg__pat, SEXP c_arg__value, SEXP c_arg__literal, SEXP c_arg__n);
 SEXP savvy_PlRExpr_str_replace_all__ffi(SEXP self__, SEXP c_arg__pat, SEXP c_arg__value, SEXP c_arg__literal);
 SEXP savvy_PlRExpr_str_slice__ffi(SEXP self__, SEXP c_arg__offset, SEXP c_arg__length);
 SEXP savvy_PlRExpr_str_to_integer__ffi(SEXP self__, SEXP c_arg__base, SEXP c_arg__strict);

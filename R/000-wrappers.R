@@ -1266,6 +1266,14 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   }
 }
 
+`PlRExpr_str_replace` <- function(self) {
+  function(`pat`, `value`, `literal`, `n`) {
+    `pat` <- .savvy_extract_ptr(`pat`, "PlRExpr")
+    `value` <- .savvy_extract_ptr(`value`, "PlRExpr")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_str_replace__impl, `self`, `pat`, `value`, `literal`, `n`))
+  }
+}
+
 `PlRExpr_str_replace_all` <- function(self) {
   function(`pat`, `value`, `literal`) {
     `pat` <- .savvy_extract_ptr(`pat`, "PlRExpr")
@@ -1471,6 +1479,7 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   e$`str_split` <- `PlRExpr_str_split`(ptr)
   e$`str_split_exact` <- `PlRExpr_str_split_exact`(ptr)
   e$`str_splitn` <- `PlRExpr_str_splitn`(ptr)
+  e$`str_replace` <- `PlRExpr_str_replace`(ptr)
   e$`str_replace_all` <- `PlRExpr_str_replace_all`(ptr)
   e$`str_slice` <- `PlRExpr_str_slice`(ptr)
   e$`str_to_integer` <- `PlRExpr_str_to_integer`(ptr)

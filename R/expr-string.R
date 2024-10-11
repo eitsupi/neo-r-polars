@@ -822,7 +822,7 @@ expr_str_splitn <- function(by, n) {
 expr_str_replace <- function(pattern, value, ..., literal = FALSE, n = 1L) {
   wrap({
     check_dots_empty0(...)
-    self$`_rexpr`$str_replace(pattern, value, literal, n)
+    self$`_rexpr`$str_replace(as_polars_expr(pattern, as_lit = TRUE)$`_rexpr`, as_polars_expr(value, as_lit = TRUE)$`_rexpr`, literal, as.integer(n))
   })
 }
 
@@ -861,7 +861,7 @@ expr_str_replace <- function(pattern, value, ..., literal = FALSE, n = 1L) {
 expr_str_replace_all <- function(pattern, value, ..., literal = FALSE) {
   wrap({
     check_dots_empty0(...)
-    self$`_rexpr`$str_replace_all(pattern, value, literal)
+    self$`_rexpr`$str_replace_all(as_polars_expr(pattern, as_lit = TRUE)$`_rexpr`, as_polars_expr(value, as_lit = TRUE)$`_rexpr`, literal)
   })
 }
 
@@ -881,7 +881,7 @@ expr_str_replace_all <- function(pattern, value, ..., literal = FALSE) {
 #'   pl$col("s")$str$slice(-3)$alias("s_sliced")
 #' )
 expr_str_slice <- function(offset, length = NULL) {
-  self$`_rexpr`$str_slice(result(offset), result(length)) |>
+  self$`_rexpr`$str_slice(as_polars_expr(offset)$`_rexpr`, as_polars_expr(length)$`_rexpr`) |>
     wrap()
 }
 

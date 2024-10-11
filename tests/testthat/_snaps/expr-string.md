@@ -1,3 +1,16 @@
+# str$replace
+
+    Code
+      pl$DataFrame(x = c("1234"))$with_columns(pl$col("x")$str$replace("\\d", "foo",
+        n = 2))
+    Condition
+      Error:
+      ! Evaluation failed in `$with_columns()`.
+      Caused by error:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! ComputeError(ErrString("regex replacement with 'n > 1' not yet supported"))
+
 # str$to_integer
 
     Code

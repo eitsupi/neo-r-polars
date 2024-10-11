@@ -534,88 +534,110 @@
 # })
 
 
-# test_that("str$replace", {
-#   expect_identical(
-#     pl$lit(c("123abc", "abc456"))$str$replace(r"{abc\b}", "ABC")$to_r(),
-#     c("123ABC", "abc456")
-#   )
+test_that("str$replace", {
+  dat <- pl$DataFrame(x = c("123abc", "abc456"))
+  expect_identical(
+    dat$with_columns(pl$col("x")$str$replace(r"{abc\b}", "ABC")) |>
+      as.list(),
+    list(x = c("123ABC", "abc456"))
+  )
 
-#   expect_identical(
-#     pl$lit(c("123abc", "abc456"))$str$replace(r"{abc\b}", "ABC")$to_r(),
-#     c("123ABC", "abc456")
-#   )
+  expect_identical(
+    dat$with_columns(pl$col("x")$str$replace(r"{abc\b}", "ABC")) |>
+      as.list(),
+    list(x = c("123ABC", "abc456"))
+  )
 
-#   expect_identical(
-#     pl$lit(c("123abc", "abc456"))$str$replace(r"{abc\b}", "ABC", literal = TRUE)$to_r(),
-#     c("123abc", "abc456")
-#   )
+  expect_identical(
+    dat$with_columns(pl$col("x")$str$replace(r"{abc\b}", "ABC", literal = TRUE)) |>
+      as.list(),
+    list(x = c("123abc", "abc456"))
+  )
 
-#   e <- pl$lit(r"{(abc\b)}")
-#   expect_identical(
-#     pl$lit(c("123abc", "abc456"))$str$replace(e, "ABC", literal = FALSE)$to_r(),
-#     c("123ABC", "abc456")
-#   )
+  e <- pl$lit(r"{(abc\b)}")
+  expect_identical(
+    dat$with_columns(pl$col("x")$str$replace(e, "ABC", literal = FALSE)) |>
+      as.list(),
+    list(x = c("123ABC", "abc456"))
+  )
 
-#   expect_identical(
-#     pl$lit(c("abcabc", "123a123"))$str$replace("ab", "__")$to_r(),
-#     c("__cabc", "123a123")
-#   )
+  expect_identical(
+    pl$DataFrame(x = c("123abc", "abc456"))$with_columns(
+      pl$col("x")$str$replace("ab", "__")
+    ) |>
+      as.list(),
+    list(x = c("123__c", "__c456"))
+  )
 
-#   expect_identical(
-#     pl$lit(c("ababab", "123a123"))$str$replace("a", "_", n = 2)$to_r(),
-#     c("_b_bab", "123_123")
-#   )
+  expect_identical(
+    pl$DataFrame(x = c("ababab", "123a123"))$with_columns(
+      pl$col("x")$str$replace("a", "_", n = 2)
+    ) |>
+      as.list(),
+    list(x = c("_b_bab", "123_123"))
+  )
 
-#   expect_grepl_error(
-#     pl$lit("1234")$str$replace(r"{\d}", "foo", n = 2)$to_r(),
-#     "regex replacement with 'n > 1' not yet supported"
-#   )
-# })
+  expect_snapshot(
+    pl$DataFrame(x = c("1234"))$with_columns(
+      pl$col("x")$str$replace(r"{\d}", "foo", n = 2)
+    ),
+    error = TRUE
+  )
+})
 
-# test_that("str$replace_all", {
-#   expect_identical(
-#     pl$lit(c("abcabc", "123a123"))$str$replace_all("a", "-")$to_r(),
-#     c("-bc-bc", "123-123")
-#   )
+test_that("str$replace_all", {
+  dat <- pl$DataFrame(x = c("abcabc", "123a123"))
+  expect_identical(
+    dat$with_columns(pl$col("x")$str$replace_all("a", "-")) |>
+      as.list(),
+    list(x = c("-bc-bc", "123-123"))
+  )
 
-#   expect_identical(
-#     pl$lit(c("abcabc", "123a123"))$str$replace_all("a", "!")$to_r(),
-#     c("!bc!bc", "123!123")
-#   )
+  expect_identical(
+    dat$with_columns(pl$col("x")$str$replace_all("a", "!")) |>
+      as.list(),
+    list(x = c("!bc!bc", "123!123"))
+  )
 
-#   expect_identical(
-#     pl$lit(c("abcabc", "123a123"))$str$replace_all("^12", "-")$to_r(),
-#     c("abcabc", "-3a123")
-#   )
+  expect_identical(
+    dat$with_columns(pl$col("x")$str$replace_all("^12", "-")) |>
+      as.list(),
+    list(x = c("abcabc", "-3a123"))
+  )
 
-#   expect_identical(
-#     pl$lit(c("abcabc", "123a123"))$str$replace_all("^12", "-", literal = TRUE)$to_r(),
-#     c("abcabc", "123a123")
-#   )
-# })
+  expect_identical(
+    dat$with_columns(pl$col("x")$str$replace_all("^12", "-", literal = TRUE)) |>
+      as.list(),
+    list(x = c("abcabc", "123a123"))
+  )
+})
 
-# test_that("str$slice", {
-#   s <- c("pear", NA, "papaya", "dragonfruit")
-#   expect_identical(
-#     pl$lit(s)$str$slice(-3)$to_r(),
-#     c("ear", NA, "aya", "uit")
-#   )
+test_that("str$slice", {
+  dat <- pl$DataFrame(x = c("pear", NA, "papaya", "dragonfruit"))
+  expect_identical(
+    dat$with_columns(pl$col("x")$str$slice(-3)) |>
+      as.list(),
+    list(x = c("ear", NA, "aya", "uit"))
+  )
 
-#   expect_identical(
-#     pl$lit(s)$str$slice(3)$to_r(),
-#     c("r", NA, "aya", "gonfruit")
-#   )
+  expect_identical(
+    dat$with_columns(pl$col("x")$str$slice(3)) |>
+      as.list(),
+    list(x = c("r", NA, "aya", "gonfruit"))
+  )
 
-#   expect_identical(
-#     pl$lit(s)$str$slice(3, 1)$to_r(),
-#     c("r", NA, "a", "g")
-#   )
+  expect_identical(
+    dat$with_columns(pl$col("x")$str$slice(3, 1)) |>
+      as.list(),
+    list(x = c("r", NA, "a", "g"))
+  )
 
-#   expect_identical(
-#     pl$lit(s)$str$slice(1, 0)$to_r(),
-#     c("", NA, "", "")
-#   )
-# })
+  expect_identical(
+    dat$with_columns(pl$col("x")$str$slice(1, 0)) |>
+      as.list(),
+    list(x = c("", NA, "", ""))
+  )
+})
 
 
 test_that("str$to_integer", {
