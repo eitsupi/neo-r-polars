@@ -1051,7 +1051,7 @@ expr_str_extract_groups <- function(pattern) {
 expr_str_find <- function(pattern, ..., literal = FALSE, strict = TRUE) {
   wrap({
     check_dots_empty0(...)
-    self$`_rexpr`$str_find(pattern, literal, strict)
+    self$`_rexpr`$str_find(as_polars_expr(pattern, as_lit = TRUE)$`_rexpr`, literal, strict)
   })
 }
 
@@ -1086,14 +1086,14 @@ expr_str_find <- function(pattern, ..., literal = FALSE, strict = TRUE) {
 #'   s_head_n = pl$col("s")$str$head("n")
 #' )
 expr_str_head <- function(n) {
-  self$`_rexpr`$str_head(n) |>
+  self$`_rexpr`$str_head(as_polars_expr(n)$`_rexpr`) |>
     wrap()
 }
 
 #' Return the last n characters of each string
 #'
 #' @inheritParams expr_str_head
-#' @inherit expr_str__slice return
+#' @inherit expr_str_slice return
 #'
 #' @details
 #' The `n` input is defined in terms of the number of characters in the (UTF-8)
@@ -1118,8 +1118,8 @@ expr_str_head <- function(n) {
 #'   s_tail_5 = pl$col("s")$str$tail(5),
 #'   s_tail_n = pl$col("s")$str$tail("n")
 #' )
-expr_str__tail <- function(n) {
-  self$`_rexpr`$str_tail(n) |>
+expr_str_tail <- function(n) {
+  self$`_rexpr`$str_tail(as_polars_expr(n)$`_rexpr`) |>
     wrap()
 }
 
@@ -1128,11 +1128,11 @@ expr_str__tail <- function(n) {
 #'
 #' @param patterns String patterns to search. This can be an Expr or something
 #' coercible to an Expr. Strings are parsed as column names.
-#' @inheritParams expr_str__contains_any
+#' @inheritParams expr_str_contains_any
 #' @param ... Ignored.
 #' @param overlapping Whether matches can overlap.
 #'
-#' @inherit expr_str__slice return
+#' @inherit expr_str_slice return
 #'
 #' @examples
 #' df <- pl$DataFrame(values = "discontent")

@@ -777,68 +777,76 @@
 #   )
 # })
 
-# test_that("str$find works", {
-#   test <- pl$DataFrame(s = c("AAA", "aAa", "aaa", "(?i)Aa"))
+test_that("str$find works", {
+  test <- pl$DataFrame(s = c("AAA", "aAa", "aaa", "(?i)Aa"))
 
-#   expect_identical(
-#     test$select(
-#       default = pl$col("s")$str$find("Aa"),
-#       insensitive = pl$col("s")$str$find("(?i)Aa")
-#     ) |> as.list(),
-#     list(default = c(NA, 1, NA, 4), insensitive = c(0, 0, 0, 4))
-#   )
+  expect_identical(
+    test$select(
+      default = pl$col("s")$str$find("Aa"),
+      insensitive = pl$col("s")$str$find("(?i)Aa")
+    ) |> as.list(),
+    list(default = c(NA, 1, NA, 4), insensitive = c(0, 0, 0, 4))
+  )
 
-#   # arg "literal" works
-#   expect_identical(
-#     test$select(
-#       lit = pl$col("s")$str$find("(?i)Aa", literal = TRUE)
-#     ) |> as.list(),
-#     list(lit = c(NA, NA, NA, 0))
-#   )
+  # dots must be empty
+  expect_snapshot(
+    test$select(default = pl$col("s")$str$find("Aa", "b")),
+    error = TRUE
+  )
 
-#   # arg "strict" works
-#   expect_snapshot(test$select(lit = pl$col("s")$str$find("(?iAa")), error = TRUE)
+  # arg "literal" works
+  expect_identical(
+    test$select(
+      lit = pl$col("s")$str$find("(?i)Aa", literal = TRUE)
+    ) |> as.list(),
+    list(lit = c(NA, NA, NA, 0))
+  )
 
-#   expect_silent(
-#     test$select(lit = pl$col("s")$str$find("(?iAa", strict = FALSE))
-#   )
+  # arg "strict" works
+  expect_snapshot(
+    test$select(lit = pl$col("s")$str$find("(?iAa")),
+    error = TRUE
+  )
 
-#   # combining "literal" and "strict"
-#   expect_silent(
-#     test$select(lit = pl$col("s")$str$find("(?iAa", strict = TRUE, literal = TRUE))
-#   )
-# })
+  expect_silent(
+    test$select(lit = pl$col("s")$str$find("(?iAa", strict = FALSE))
+  )
 
-# test_that("$str$head works", {
-#   df <- pl$DataFrame(
-#     s = c("pear", NA, "papaya", "dragonfruit"),
-#     n = c(3, 4, -2, -5)
-#   )
+  # combining "literal" and "strict"
+  expect_silent(
+    test$select(lit = pl$col("s")$str$find("(?iAa", strict = TRUE, literal = TRUE))
+  )
+})
 
-#   expect_identical(df$select(
-#     s_head_5 = pl$col("s")$str$head(5),
-#     s_head_n = pl$col("s")$str$head("n")
-#   ) |> as.list(), list(
-#     s_head_5 = c("pear", NA, "papay", "drago"),
-#     s_head_n = c("pea", NA, "papa", "dragon")
-#   ))
-# })
+test_that("$str$head works", {
+  df <- pl$DataFrame(
+    s = c("pear", NA, "papaya", "dragonfruit"),
+    n = c(3, 4, -2, -5)
+  )
 
+  expect_identical(df$select(
+    s_head_5 = pl$col("s")$str$head(5),
+    s_head_n = pl$col("s")$str$head("n")
+  ) |> as.list(), list(
+    s_head_5 = c("pear", NA, "papay", "drago"),
+    s_head_n = c("pea", NA, "papa", "dragon")
+  ))
+})
 
-# test_that("$str$tail works", {
-#   df <- pl$DataFrame(
-#     s = c("pear", NA, "papaya", "dragonfruit"),
-#     n = c(3, 4, -2, -5)
-#   )
+test_that("$str$tail works", {
+  df <- pl$DataFrame(
+    s = c("pear", NA, "papaya", "dragonfruit"),
+    n = c(3, 4, -2, -5)
+  )
 
-#   expect_identical(df$select(
-#     s_tail_5 = pl$col("s")$str$tail(5),
-#     s_tail_n = pl$col("s")$str$tail("n")
-#   ) |> as.list(), list(
-#     s_tail_5 = c("pear", NA, "apaya", "fruit"),
-#     s_tail_n = c("ear", NA, "paya", "nfruit")
-#   ))
-# })
+  expect_identical(df$select(
+    s_tail_5 = pl$col("s")$str$tail(5),
+    s_tail_n = pl$col("s")$str$tail("n")
+  ) |> as.list(), list(
+    s_tail_5 = c("pear", NA, "apaya", "fruit"),
+    s_tail_n = c("ear", NA, "paya", "nfruit")
+  ))
+})
 
 test_that("$str$extract_many works", {
   df <- pl$DataFrame(values = c("discontent", "dollar $"))
@@ -854,6 +862,12 @@ test_that("$str$extract_many works", {
       matches_overlap = list(c("disco", "discontent"), "$")
     ),
     ignore_attr = TRUE
+  )
+
+  # dots must be empty
+  expect_snapshot(
+    df$select(matches = pl$col("values")$str$extract_many(patterns, "a")),
+    error = TRUE
   )
 
   # arg "ascii_case_insensitive" works
