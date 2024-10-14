@@ -1,5 +1,6 @@
 use crate::prelude::*;
 use crate::{PlRDataFrame, PlRDataType, PlRExpr};
+use polars::prelude::{ListToStructWidthStrategy, SetOperation};
 use polars::series::ops::NullBehavior;
 use savvy::{ListSexp, NumericScalar, NumericSexp, TypedSexp};
 mod chunked_array;
@@ -356,8 +357,44 @@ impl TryFrom<&str> for Wrap<WindowMapping> {
             "explode" => WindowMapping::Explode,
             v => {
                 return Err(format!(
-                "`mapping_strategy` must be one of ('group_to_rows', 'join', 'explode'), got '{v}'",
+                "`mapping_strategy` must be one of 'group_to_rows', 'join', 'explode'. Got '{v}'",
             ))
+            }
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
+impl TryFrom<&str> for Wrap<SetOperation> {
+    type Error = String;
+
+    fn try_from(operation: &str) -> Result<Self, String> {
+        let parsed = match operation {
+            "union" => SetOperation::Union,
+            "intersection" => SetOperation::Intersection,
+            "difference" => SetOperation::Difference,
+            "symmetric_difference" => SetOperation::SymmetricDifference,
+            v => {
+                return Err(format!(
+                    "`operation` must be one of 'union', 'intersection', 'difference', 'symmetric_difference'. Got '{v}'",
+                ))
+            }
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
+impl TryFrom<&str> for Wrap<ListToStructWidthStrategy> {
+    type Error = String;
+
+    fn try_from(operation: &str) -> Result<Self, String> {
+        let parsed = match operation {
+            "first_non_null" => ListToStructWidthStrategy::FirstNonNull,
+            "max_width" => ListToStructWidthStrategy::MaxWidth,
+            v => {
+                return Err(format!(
+                    "`n_field_strategy` must be one of 'first_non_null','max_width'. Got '{v}'",
+                ))
             }
         };
         Ok(Wrap(parsed))
