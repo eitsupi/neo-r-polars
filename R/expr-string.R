@@ -686,7 +686,7 @@ expr_str_extract <- function(pattern, group_index) {
 #'   pl$col("foo")$str$extract_all(r"((\d+))")$alias("extracted_nrs")
 #' )
 expr_str_extract_all <- function(pattern) {
-  self$`_rexpr`$str_extract_all(as_polars_expr(pattern, as_lit = TRUE)$`_rexpr`)
+  self$`_rexpr`$str_extract_all(as_polars_expr(pattern)$`_rexpr`)
 }
 
 #' Count all successive non-overlapping regex matches

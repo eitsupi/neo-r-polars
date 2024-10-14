@@ -168,18 +168,22 @@ test_that("to_uppercase, to_lowercase", {
   )
 })
 
+# TODO-REWRITE: uncomment when polars_info() is implemented
 # test_that("to_titlecase - enabled via the nightly feature", {
 #   skip_if_not(polars_info()$features$nightly)
 #   df2 <- pl$DataFrame(foo = c("hi there", "HI, THERE", NA))
 #   expect_equal(
-#     df2$select(pl$col("foo")$str$to_titlecase())$foo,
-#     c("Hi There", "Hi, There", NA)
+#     df2$select(pl$col("foo")$str$to_titlecase()),
+#     pl$DataFrame(x = c("Hi There", "Hi, There", NA))
 #   )
 # })
 
 # test_that("to_titlecase - enabled via the nightly feature", {
 #   skip_if(polars_info()$features$nightly)
-#   expect_grepl_error(pl$col("foo")$str$to_titlecase())
+#   expect_snapshot(
+#     pl$col("foo")$str$to_titlecase(),
+#     error = TRUE
+#   )
 # })
 
 
@@ -454,11 +458,13 @@ test_that("str$extract", {
   )
 })
 
+# TODO-REWRITE: why does it fail?
+# "Unsupported class for `as_polars_series()`: PlRExpr"
 # test_that("str$extract_all", {
-#   df <- pl$DataFrame(foo = c("123 bla 45 asd", "xyz 678 910t"))
+#   df <- pl$DataFrame(x = c("123 bla 45 asd", "xyz 678 910t"))
 #   expect_equal(
-#     df$select(pl$col("foo")$str$extract_all(r"((\d+))")),
-#     pl$DataFrame(foo = list(c("123", "45"), c("678", "910")))
+#     df$select(pl$col("x")$str$extract_all(r"((\d+))")),
+#     pl$DataFrame(x = list(c("123", "45"), c("678", "910")))
 #   )
 
 #   expect_snapshot(
@@ -488,6 +494,7 @@ test_that("str$count_matches", {
 })
 
 
+# TODO-REWRITE: requires better handling of struct in waldo
 # test_that("str$split", {
 #   expect_equal(
 #     pl$lit(c("foo bar", "foo-bar", "foo bar baz"))$str$split(by = " ")$to_r(),
