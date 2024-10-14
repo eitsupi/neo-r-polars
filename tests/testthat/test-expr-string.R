@@ -7,7 +7,7 @@
 
 #   expect_snapshot(pl$lit(txt_datetimes)$str$strptime(pl$Datetime(), format = "%Y-%m-%d %H:%M:%S")$to_series(), error = TRUE)
 
-#   expect_identical(
+#   expect_equal(
 #     pl$lit(txt_datetimes)$str$strptime(
 #       pl$Datetime(),
 #       format = "%Y-%m-%d %H:%M:%S %z", strict = FALSE
@@ -29,7 +29,7 @@
 
 #   expect_snapshot(pl$lit(txt_dates)$str$strptime(pl$Date, format = "%Y-%m-%d")$to_series(), error = TRUE)
 
-#   expect_identical(
+#   expect_equal(
 #     pl$lit(txt_dates)$str$strptime(
 #       pl$Date,
 #       format = "%Y-%m-%d ", exact = TRUE, strict = FALSE
@@ -37,7 +37,7 @@
 #     as.Date(c(NA, NA, "2022-1-1", NA))
 #   )
 
-#   expect_identical(
+#   expect_equal(
 #     pl$lit(txt_dates)$str$strptime(
 #       pl$Date,
 #       format = "%Y-%m-%d", exact = FALSE, strict = FALSE
@@ -57,7 +57,7 @@
 
 #   expect_snapshot(pl$lit(txt_times)$str$strptime(pl$Time, format = "%H:%M:%S %z")$to_series(), error = TRUE)
 
-#   expect_identical(pl$lit(txt_times)$str$strptime(
+#   expect_equal(pl$lit(txt_times)$str$strptime(
 #     pl$Time,
 #     format = "%H:%M:%S %z", strict = FALSE
 #   )$to_r(), pl$PTime(txt_times, tu = "ns"))
@@ -66,19 +66,19 @@
 # test_that("$str$to_date", {
 #   out <- pl$lit(c("2009-01-02", "2009-01-03", "2009-1-4"))$
 #     str$to_date()$to_r()
-#   expect_identical(out, as.Date(c("2009-01-02", "2009-01-03", "2009-01-04")))
+#   expect_equal(out, as.Date(c("2009-01-02", "2009-01-03", "2009-01-04")))
 #   expect_grepl_error(
 #     pl$lit(c("2009-01-02", "2009-01-03", "2009-1-4"))$
 #       str$to_date(format = "%Y / %m / %d")$to_r()
 #   )
-#   expect_identical(pl$lit(c("2009-01-02", "2009-01-03", "2009-1-4"))$
+#   expect_equal(pl$lit(c("2009-01-02", "2009-01-03", "2009-1-4"))$
 #     str$to_date(format = "%Y / %m / %d", strict = FALSE)$to_r(), as.Date(rep(NA_character_, 3)))
 # })
 
 # test_that("$str$to_time", {
 #   out <- pl$lit(c("01:20:01", "28:00:02", "03:00:02"))$
 #     str$to_time(strict = FALSE)$to_r()
-#   expect_identical(out, pl$PTime(c("01:20:01", "28:00:02", "03:00:02"), tu = "ns"))
+#   expect_equal(out, pl$PTime(c("01:20:01", "28:00:02", "03:00:02"), tu = "ns"))
 #   expect_grepl_error(
 #     ppl$lit(c("01:20:01", "28:00:02", "03:00:02"))$
 #       str$to_time()
@@ -88,12 +88,12 @@
 # test_that("$str$to_datetime", {
 #   out <- pl$lit(c("2009-01-02 01:00", "2009-01-03 02:00", "2009-1-4 03:00"))$
 #     str$to_datetime(time_zone = "UTC")$to_r()
-#   expect_identical(out, as.POSIXct(c("2009-01-02 01:00:00", "2009-01-03 02:00:00", "2009-01-04 03:00:00"), tz = "UTC"))
+#   expect_equal(out, as.POSIXct(c("2009-01-02 01:00:00", "2009-01-03 02:00:00", "2009-01-04 03:00:00"), tz = "UTC"))
 #   expect_grepl_error(
 #     pl$lit(c("2009-01-02 01:00", "2009-01-03 02:00", "2009-1-4"))$
 #       str$to_date(format = "%Y / %m / %d")$to_r()
 #   )
-#   expect_identical(pl$lit(c("2009-01-02 01:00", "2009-01-03 02:00", "2009-1-4"))$
+#   expect_equal(pl$lit(c("2009-01-02 01:00", "2009-01-03 02:00", "2009-1-4"))$
 #     str$to_date(format = "%Y / %m / %d", strict = FALSE)$to_r(), as.Date(rep(NA_character_, 3)))
 # })
 
@@ -109,8 +109,8 @@
 #     pl$col("s")$str$len_chars()$alias("n_chars")
 #   )
 
-#   expect_identical(
-#     df |>as.list() |> lapply(\(x) if (inherits(x, "integer64")) as.numeric(x) else x),
+#   expect_equal(
+#     df |> lapply(\(x) if (inherits(x, "integer64")) as.numeric(x) else x),
 #     list(
 #       s = test_str,
 #       lengths = c(5, NA_integer_, 3, 6),
@@ -122,22 +122,22 @@
 # test_that("str$concat", {
 #   # concatenate a Series of strings to a single string
 #   df <- pl$DataFrame(foo = c("1", "a", NA))
-#   expect_identical(
-#     df$select(pl$col("foo")$str$join()) |> as.list()[[1]],
+#   expect_equal(
+#     df$select(pl$col("foo")$str$join())[[1]],
 #     "1a"
 #   )
-#   expect_identical(
-#     df$select(pl$col("foo")$str$join("-")) |> as.list()[[1]],
+#   expect_equal(
+#     df$select(pl$col("foo")$str$join("-"))[[1]],
 #     "1-a"
 #   )
-#   expect_identical(
-#     df$select(pl$col("foo")$str$join(ignore_nulls = FALSE)) |> as.list()[[1]],
+#   expect_equal(
+#     df$select(pl$col("foo")$str$join(ignore_nulls = FALSE))[[1]],
 #     NA_character_
 #   )
 #   # deprecated
 #   expect_warning(
-#     expect_identical(
-#       df$select(pl$col("foo")$str$concat("-")) |> as.list()[[1]],
+#     expect_equal(
+#       df$select(pl$col("foo")$str$concat("-"))[[1]],
 #       "1-a"
 #     ),
 #     "deprecated"
@@ -145,9 +145,9 @@
 
 #   # Series list of strings to Series of concatenated strings
 #   df <- pl$DataFrame(list(bar = list(c("a", "b", "c"), c("1", "2", "æ"))))
-#   expect_identical(
-#     df$select(pl$col("bar")$list$eval(pl$element()$str$join())$list$first()) |> as.list()$bar,
-#     sapply(df |> as.list()[[1]], paste, collapse = "")
+#   expect_equal(
+#     df$select(pl$col("bar")$list$eval(pl$element()$str$join())$list$first())$bar,
+#     sapply(df[[1]], paste, collapse = "")
 #   )
 # })
 
@@ -156,22 +156,22 @@
 #   # concatenate a Series of strings to a single string
 #   df <- pl$DataFrame(foo = c("1", "æøå", letters, LETTERS))
 
-#   expect_identical(
-#     df$select(pl$col("foo")$str$to_uppercase()) |> as.list()$foo,
-#     toupper(df |> as.list()$foo)
+#   expect_equal(
+#     df$select(pl$col("foo")$str$to_uppercase())$foo,
+#     toupper(df$foo)
 #   )
 
-#   expect_identical(
-#     df$select(pl$col("foo")$str$to_lowercase()) |> as.list()$foo,
-#     tolower(df |> as.list()$foo)
+#   expect_equal(
+#     df$select(pl$col("foo")$str$to_lowercase())$foo,
+#     tolower(df$foo)
 #   )
 # })
 
 # test_that("to_titlecase - enabled via the nightly feature", {
 #   skip_if_not(polars_info()$features$nightly)
 #   df2 <- pl$DataFrame(foo = c("hi there", "HI, THERE", NA))
-#   expect_identical(
-#     df2$select(pl$col("foo")$str$to_titlecase()) |> as.list()$foo,
+#   expect_equal(
+#     df2$select(pl$col("foo")$str$to_titlecase())$foo,
 #     c("Hi There", "Hi, There", NA)
 #   )
 # })
@@ -186,34 +186,34 @@
 #   lit <- pl$lit(" 123abc ")
 
 #   # strip
-#   expect_identical(lit$str$strip_chars()$to_r(), "123abc")
-#   expect_identical(lit$str$strip_chars("1c")$to_r(), " 123abc ")
-#   expect_identical(lit$str$strip_chars("1c ")$to_r(), "23ab")
+#   expect_equal(lit$str$strip_chars()$to_r(), "123abc")
+#   expect_equal(lit$str$strip_chars("1c")$to_r(), " 123abc ")
+#   expect_equal(lit$str$strip_chars("1c ")$to_r(), "23ab")
 
 #   # lstrip
-#   expect_identical(lit$str$strip_chars_start()$to_r(), "123abc ")
-#   expect_identical(lit$str$strip_chars_start("1c")$to_r(), " 123abc ")
-#   expect_identical(lit$str$strip_chars_start("1c ")$to_r(), "23abc ")
+#   expect_equal(lit$str$strip_chars_start()$to_r(), "123abc ")
+#   expect_equal(lit$str$strip_chars_start("1c")$to_r(), " 123abc ")
+#   expect_equal(lit$str$strip_chars_start("1c ")$to_r(), "23abc ")
 
 #   # rstrip
-#   expect_identical(lit$str$strip_chars_end()$to_r(), " 123abc")
-#   expect_identical(lit$str$strip_chars_end("1c")$to_r(), " 123abc ")
-#   expect_identical(lit$str$strip_chars_end("1c ")$to_r(), " 123ab")
+#   expect_equal(lit$str$strip_chars_end()$to_r(), " 123abc")
+#   expect_equal(lit$str$strip_chars_end("1c")$to_r(), " 123abc ")
+#   expect_equal(lit$str$strip_chars_end("1c ")$to_r(), " 123ab")
 
 #   df <- pl$DataFrame(
 #     foo = c("hello", "world"),
 #     expr = c("heo", "wd")
 #   )
-#   expect_identical(
-#     df$select(pl$col("foo")$str$strip_chars(pl$col("expr"))) |> as.list(),
+#   expect_equal(
+#     df$select(pl$col("foo")$str$strip_chars(pl$col("expr"))),
 #     list(foo = c("ll", "orl"))
 #   )
-#   expect_identical(
-#     df$select(pl$col("foo")$str$strip_chars_start(pl$col("expr"))) |> as.list(),
+#   expect_equal(
+#     df$select(pl$col("foo")$str$strip_chars_start(pl$col("expr"))),
 #     list(foo = c("llo", "orld"))
 #   )
-#   expect_identical(
-#     df$select(pl$col("foo")$str$strip_chars_end(pl$col("expr"))) |> as.list(),
+#   expect_equal(
+#     df$select(pl$col("foo")$str$strip_chars_end(pl$col("expr"))),
 #     list(foo = c("hell", "worl"))
 #   )
 # })
@@ -223,10 +223,10 @@
 #   lit <- pl$lit(" 123abc ")
 
 #   # strip
-#   expect_identical(lit$str$zfill(9)$to_r(), "0 123abc ")
-#   expect_identical(lit$str$zfill(10)$to_r(), "00 123abc ")
-#   expect_identical(lit$str$zfill(10L)$to_r(), "00 123abc ")
-#   expect_identical(
+#   expect_equal(lit$str$zfill(9)$to_r(), "0 123abc ")
+#   expect_equal(lit$str$zfill(10)$to_r(), "00 123abc ")
+#   expect_equal(lit$str$zfill(10L)$to_r(), "00 123abc ")
+#   expect_equal(
 #     pl$lit(c(-1, 2, 10, "5"))$str$zfill(6)$to_r(),
 #     c("-00001", "000002", "000010", "000005")
 #   )
@@ -239,8 +239,8 @@
 
 #   # works with expr
 #   df <- pl$DataFrame(a = c(-1L, 123L, 999999L, NA), val = 4:7)
-#   expect_identical(
-#     df$select(zfill = pl$col("a")$cast(pl$String)$str$zfill("val")) |> as.list(),
+#   expect_equal(
+#     df$select(zfill = pl$col("a")$cast(pl$String)$str$zfill("val")),
 #     list(zfill = c("-001", "00123", "999999", NA))
 #   )
 # })
@@ -249,35 +249,35 @@
 # test_that("str$pad_start str$pad_start", {
 #   # ljust
 #   df <- pl$DataFrame(a = c("cow", "monkey", NA, "hippopotamus"))
-#   expect_identical(
-#     df$select(pl$col("a")$str$pad_end(8, "*")) |> as.list(),
+#   expect_equal(
+#     df$select(pl$col("a")$str$pad_end(8, "*")),
 #     list(a = c("cow*****", "monkey**", NA, "hippopotamus"))
 #   )
 
-#   expect_identical(
-#     df$select(pl$col("a")$str$pad_end(7, "w")) |> as.list(),
+#   expect_equal(
+#     df$select(pl$col("a")$str$pad_end(7, "w")),
 #     list(a = c("cowwwww", "monkeyw", NA, "hippopotamus"))
 #   )
 
-#   expect_snapshot(df$select(pl$col("a")$str$pad_end("wrong_string", "w")) |> as.list(), error = TRUE)
-#   expect_snapshot(df$select(pl$col("a")$str$pad_end(-2, "w")) |> as.list(), error = TRUE)
-#   expect_snapshot(df$select(pl$col("a")$str$pad_end(5, "multiple_chars")) |> as.list(), error = TRUE)
+#   expect_snapshot(df$select(pl$col("a")$str$pad_end("wrong_string", "w")), error = TRUE)
+#   expect_snapshot(df$select(pl$col("a")$str$pad_end(-2, "w")), error = TRUE)
+#   expect_snapshot(df$select(pl$col("a")$str$pad_end(5, "multiple_chars")), error = TRUE)
 
 
 #   # rjust
-#   expect_identical(
-#     df$select(pl$col("a")$str$pad_start(8, "*")) |> as.list(),
+#   expect_equal(
+#     df$select(pl$col("a")$str$pad_start(8, "*")),
 #     list(a = c("*****cow", "**monkey", NA, "hippopotamus"))
 #   )
 
-#   expect_identical(
-#     df$select(pl$col("a")$str$pad_start(7, "w")) |> as.list(),
+#   expect_equal(
+#     df$select(pl$col("a")$str$pad_start(7, "w")),
 #     list(a = c("wwwwcow", "wmonkey", NA, "hippopotamus"))
 #   )
 
-#   expect_snapshot(df$select(pl$col("a")$str$pad_start("wrong_string", "w")) |> as.list(), error = TRUE)
-#   expect_snapshot(df$select(pl$col("a")$str$pad_start(-2, "w")) |> as.list(), error = TRUE)
-#   expect_snapshot(df$select(pl$col("a")$str$pad_start(5, "multiple_chars")) |> as.list(), error = TRUE)
+#   expect_snapshot(df$select(pl$col("a")$str$pad_start("wrong_string", "w")), error = TRUE)
+#   expect_snapshot(df$select(pl$col("a")$str$pad_start(-2, "w")), error = TRUE)
+#   expect_snapshot(df$select(pl$col("a")$str$pad_start(5, "multiple_chars")), error = TRUE)
 # })
 
 
@@ -291,8 +291,8 @@
 #     pl$col("a")$str$contains("rab$", literal = TRUE)$alias("literal")
 #   )
 
-#   expect_identical(
-#     df_act |> as.list(),
+#   expect_equal(
+#     df_act,
 #     list(
 #       a = c("Crab", "cat and dog", "rab$bit", NA), regex = c(
 #         FALSE,
@@ -302,10 +302,10 @@
 #   )
 
 #   # not strict
-#   expect_identical(
+#   expect_equal(
 #     df$select(
 #       pl$col("a")$str$contains("($INVALIDREGEX$", literal = FALSE, strict = FALSE)
-#     ) |> as.list(),
+#     ),
 #     list(a = rep(NA, 4))
 #   )
 # })
@@ -319,8 +319,8 @@
 #     pl$col("a")$str$starts_with("foo")$alias("starts_foo"),
 #     pl$col("a")$str$ends_with("bar")$alias("ends_bar")
 #   )
-#   expect_identical(
-#     df_act |> as.list(),
+#   expect_equal(
+#     df_act,
 #     list(
 #       a = c("foobar", "fruitbar", "foofighers", NA),
 #       starts_foo = c(TRUE, FALSE, TRUE, NA),
@@ -333,8 +333,8 @@
 #   df <- pl$DataFrame(
 #     json_val = c('{"a":"1"}', NA, '{"a":2}', '{"a":2.1}', '{"a":true}')
 #   )
-#   expect_identical(
-#     df$select(pl$col("json_val")$str$json_path_match("$.a")) |> as.list(),
+#   expect_equal(
+#     df$select(pl$col("json_val")$str$json_path_match("$.a")),
 #     list(json_val = c("1", NA, "2", "2.1", "true"))
 #   )
 
@@ -343,8 +343,8 @@
 #     json_val = c('{"a":1, "b": true}', NA, '{"a":2, "b": false}')
 #   )
 #   dtype <- pl$Struct(pl$Field("a", pl$Float64), pl$Field("b", pl$Boolean))
-#   actual <- df$select(pl$col("json_val")$str$json_decode(dtype)) |> as.list()
-#   expect_identical(
+#   actual <- df$select(pl$col("json_val")$str$json_decode(dtype))
+#   expect_equal(
 #     actual,
 #     list(json_val = list(a = c(1, NA, 2), b = c(TRUE, NA, FALSE)))
 #   )
@@ -362,12 +362,12 @@
 #   )$with_columns(
 #     pl$col("base64")$str$decode("base64")$alias("base64_decoded")$cast(pl$String),
 #     pl$col("hex")$str$decode("hex")$alias("hex_decoded")$cast(pl$String)
-#   ) |> as.list()
+#   )
 
-#   expect_identical(l$strings, l$base64_decoded)
-#   expect_identical(l$strings, l$hex_decoded)
+#   expect_equal(l$strings, l$base64_decoded)
+#   expect_equal(l$strings, l$hex_decoded)
 
-#   expect_identical(
+#   expect_equal(
 #     pl$lit("?")$str$decode("base64", strict = FALSE)$cast(pl$String)$to_r(),
 #     NA_character_
 #   )
@@ -389,15 +389,15 @@
 #       "http://vote.com/ballon_dor?candidate=ronaldo&ref=polars"
 #     )
 #   )$str$extract(pl$lit(r"(candidate=(\w+))"), 1)$to_r()
-#   expect_identical(actual, c("messi", NA, "ronaldo"))
+#   expect_equal(actual, c("messi", NA, "ronaldo"))
 
 #   # wrong input
-#   expect_identical(
+#   expect_equal(
 #     pl$lit("abc")$str$extract(42, 42)$to_r(),
 #     NA_character_
 #   )
 
-#   expect_identical(
+#   expect_equal(
 #     pl$lit("abc")$str$extract(pl$lit("a"), "2")$to_r(),
 #     pl$lit("abc")$str$extract(pl$lit("a"), 2)$to_r()
 #   )
@@ -412,10 +412,10 @@
 #   df <- pl$DataFrame(foo = c("123 bla 45 asd", "xyz 678 910t"))
 #   actual <- df$select(
 #     pl$col("foo")$str$extract_all(r"((\d+))")$alias("extracted_nrs")
-#   ) |> as.list()
+#   )
 
 
-#   expect_identical(actual, list(extracted_nrs = list(c("123", "45"), c("678", "910"))))
+#   expect_equal(actual, list(extracted_nrs = list(c("123", "45"), c("678", "910"))))
 
 #   expect_grepl_error(
 #     pl$lit("abc")$str$extract_all(complex(2)),
@@ -429,8 +429,8 @@
 #   actual <- df$select(
 #     pl$col("foo")$str$count_matches(r"{(\d)}")$alias("count digits")
 #   )
-#   expect_identical(
-#     actual |>as.list() |> lapply(as.numeric),
+#   expect_equal(
+#     actual |> lapply(as.numeric),
 #     list(`count digits` = c(5, 6))
 #   )
 
@@ -444,25 +444,25 @@
 #     pl$col("foo")$str$count_matches(pl$col("pat"))$alias("reg_count")
 #   )
 
-#   expect_identical(
-#     actual |>as.list() |> lapply(as.numeric),
+#   expect_equal(
+#     actual |> lapply(as.numeric),
 #     list(reg_count = c(1, 2))
 #   )
 # })
 
 
 # test_that("str$split", {
-#   expect_identical(
+#   expect_equal(
 #     pl$lit(c("foo bar", "foo-bar", "foo bar baz"))$str$split(by = " ")$to_r(),
 #     list(c("foo", "bar"), "foo-bar", c("foo", "bar", "baz"))
 #   )
 
-#   expect_identical(
+#   expect_equal(
 #     pl$lit(c("foo bar", "foo-bar", "foo bar baz"))$str$split(by = " ", inclusive = TRUE)$to_r(),
 #     list(c("foo ", "bar"), "foo-bar", c("foo ", "bar ", "baz"))
 #   )
 
-#   expect_identical(
+#   expect_equal(
 #     pl$lit(c("foo bar", "foo-bar", "foo bar baz"))$str$split(by = "-", inclusive = TRUE)$to_r(),
 #     list("foo bar", c("foo-", "bar"), "foo bar baz")
 #   )
@@ -479,24 +479,24 @@
 
 #   # with expression in "by" arg
 #   df <- pl$DataFrame(s = c("foo^bar", "foo_bar", "foo*bar*baz"), "by" = c("_", "_", "*"))
-#   expect_identical(
-#     df$select(pl$col("s")$str$split(by = pl$col("by"))) |> as.list()[[1]],
+#   expect_equal(
+#     df$select(pl$col("s")$str$split(by = pl$col("by")))[[1]],
 #     list("foo^bar", c("foo", "bar"), c("foo", "bar", "baz"))
 #   )
 # })
 
 # test_that("str$split_exact", {
-#   expect_identical(
+#   expect_equal(
 #     pl$lit(c("foo bar", "bar foo", "foo bar baz"))$str$split_exact(by = " ", n = 1)$to_r(),
 #     structure(list(field_0 = c("foo", "bar", "foo"), field_1 = c("bar", "foo", "bar")), is_struct = TRUE)
 #   )
 
-#   expect_identical(
+#   expect_equal(
 #     pl$lit(c("foo bar", "bar foo", "foo bar baz"))$str$split_exact(by = " ", n = 2)$to_r(),
 #     structure(list(field_0 = c("foo", "bar", "foo"), field_1 = c("bar", "foo", "bar"), field_2 = c(NA, NA, "baz")), is_struct = TRUE)
 #   )
 
-#   expect_identical(
+#   expect_equal(
 #     pl$lit(c("foo bar", "foo-bar", "foo bar baz"))$str$split(by = "-", inclusive = TRUE)$to_r(),
 #     list("foo bar", c("foo-", "bar"), "foo bar baz")
 #   )
@@ -514,17 +514,17 @@
 
 
 # test_that("str$split_exact", {
-#   expect_identical(
+#   expect_equal(
 #     pl$lit(c("a_1", NA, "c", "d_4-5"))$str$splitn(by = "_", 1)$to_r(),
 #     structure(list(field_0 = c("a_1", NA, "c", "d_4-5")), is_struct = TRUE)
 #   )
 
-#   expect_identical(
+#   expect_equal(
 #     pl$lit(c("a_1", NA, "c", "d_4-5"))$str$splitn(by = "_", 2)$to_r(),
 #     structure(list(field_0 = c("a", NA, "c", "d"), field_1 = c("1", NA, NA, "4-5")), is_struct = TRUE)
 #   )
 
-#   expect_identical(
+#   expect_equal(
 #     pl$lit(c("a_1", NA, "c", "d_4-5"))$str$splitn(by = "-", 2)$to_r(),
 #     structure(list(
 #       field_0 = c("a_1", NA, "c", "d_4"),
@@ -536,45 +536,39 @@
 
 test_that("str$replace", {
   dat <- pl$DataFrame(x = c("123abc", "abc456"))
-  expect_identical(
-    dat$with_columns(pl$col("x")$str$replace(r"{abc\b}", "ABC")) |>
-      as.list(),
-    list(x = c("123ABC", "abc456"))
+  expect_equal(
+    dat$with_columns(pl$col("x")$str$replace(r"{abc\b}", "ABC")),
+    pl$DataFrame(x = c("123ABC", "abc456"))
   )
 
-  expect_identical(
-    dat$with_columns(pl$col("x")$str$replace(r"{abc\b}", "ABC")) |>
-      as.list(),
-    list(x = c("123ABC", "abc456"))
+  expect_equal(
+    dat$with_columns(pl$col("x")$str$replace(r"{abc\b}", "ABC")),
+    pl$DataFrame(x = c("123ABC", "abc456"))
   )
 
-  expect_identical(
-    dat$with_columns(pl$col("x")$str$replace(r"{abc\b}", "ABC", literal = TRUE)) |>
-      as.list(),
-    list(x = c("123abc", "abc456"))
+  expect_equal(
+    dat$with_columns(pl$col("x")$str$replace(r"{abc\b}", "ABC", literal = TRUE)),
+    pl$DataFrame(x = c("123abc", "abc456"))
   )
 
   e <- pl$lit(r"{(abc\b)}")
-  expect_identical(
-    dat$with_columns(pl$col("x")$str$replace(e, "ABC", literal = FALSE)) |>
-      as.list(),
-    list(x = c("123ABC", "abc456"))
+  expect_equal(
+    dat$with_columns(pl$col("x")$str$replace(e, "ABC", literal = FALSE)),
+    pl$DataFrame(x = c("123ABC", "abc456"))
   )
 
-  expect_identical(
+  expect_equal(
     pl$DataFrame(x = c("123abc", "abc456"))$with_columns(
       pl$col("x")$str$replace("ab", "__")
-    ) |>
-      as.list(),
-    list(x = c("123__c", "__c456"))
+    ),
+    pl$DataFrame(x = c("123__c", "__c456"))
   )
 
-  expect_identical(
+  expect_equal(
     pl$DataFrame(x = c("ababab", "123a123"))$with_columns(
       pl$col("x")$str$replace("a", "_", n = 2)
-    ) |>
-      as.list(),
-    list(x = c("_b_bab", "123_123"))
+    ),
+    pl$DataFrame(x = c("_b_bab", "123_123"))
   )
 
   expect_snapshot(
@@ -587,84 +581,72 @@ test_that("str$replace", {
 
 test_that("str$replace_all", {
   dat <- pl$DataFrame(x = c("abcabc", "123a123"))
-  expect_identical(
-    dat$with_columns(pl$col("x")$str$replace_all("a", "-")) |>
-      as.list(),
-    list(x = c("-bc-bc", "123-123"))
+  expect_equal(
+    dat$with_columns(pl$col("x")$str$replace_all("a", "-")),
+    pl$DataFrame(x = c("-bc-bc", "123-123"))
   )
 
-  expect_identical(
-    dat$with_columns(pl$col("x")$str$replace_all("a", "!")) |>
-      as.list(),
-    list(x = c("!bc!bc", "123!123"))
+  expect_equal(
+    dat$with_columns(pl$col("x")$str$replace_all("a", "!")),
+    pl$DataFrame(x = c("!bc!bc", "123!123"))
   )
 
-  expect_identical(
-    dat$with_columns(pl$col("x")$str$replace_all("^12", "-")) |>
-      as.list(),
-    list(x = c("abcabc", "-3a123"))
+  expect_equal(
+    dat$with_columns(pl$col("x")$str$replace_all("^12", "-")),
+    pl$DataFrame(x = c("abcabc", "-3a123"))
   )
 
-  expect_identical(
-    dat$with_columns(pl$col("x")$str$replace_all("^12", "-", literal = TRUE)) |>
-      as.list(),
-    list(x = c("abcabc", "123a123"))
+  expect_equal(
+    dat$with_columns(pl$col("x")$str$replace_all("^12", "-", literal = TRUE)),
+    pl$DataFrame(x = c("abcabc", "123a123"))
   )
 })
 
 test_that("str$slice", {
   dat <- pl$DataFrame(x = c("pear", NA, "papaya", "dragonfruit"))
-  expect_identical(
-    dat$with_columns(pl$col("x")$str$slice(-3)) |>
-      as.list(),
-    list(x = c("ear", NA, "aya", "uit"))
+  expect_equal(
+    dat$with_columns(pl$col("x")$str$slice(-3)),
+    pl$DataFrame(x = c("ear", NA, "aya", "uit"))
   )
 
-  expect_identical(
-    dat$with_columns(pl$col("x")$str$slice(3)) |>
-      as.list(),
-    list(x = c("r", NA, "aya", "gonfruit"))
+  expect_equal(
+    dat$with_columns(pl$col("x")$str$slice(3)),
+    pl$DataFrame(x = c("r", NA, "aya", "gonfruit"))
   )
 
-  expect_identical(
-    dat$with_columns(pl$col("x")$str$slice(3, 1)) |>
-      as.list(),
-    list(x = c("r", NA, "a", "g"))
+  expect_equal(
+    dat$with_columns(pl$col("x")$str$slice(3, 1)),
+    pl$DataFrame(x = c("r", NA, "a", "g"))
   )
 
-  expect_identical(
-    dat$with_columns(pl$col("x")$str$slice(1, 0)) |>
-      as.list(),
-    list(x = c("", NA, "", ""))
+  expect_equal(
+    dat$with_columns(pl$col("x")$str$slice(1, 0)),
+    pl$DataFrame(x = c("", NA, "", ""))
   )
 })
 
 
 test_that("str$to_integer", {
   dat <- pl$DataFrame(x = c("110", "101", "010"))
-  expect_identical(
-    dat$with_columns(pl$col("x")$str$to_integer(base = 2)) |>
-      as.list(),
-    list(x = c(6, 5, 2))
+  expect_equal(
+    dat$with_columns(pl$col("x")$str$to_integer(base = 2)),
+    pl$DataFrame(x = c(6L, 5L, 2L))$cast(x = pl$Int64)
   )
 
-  expect_identical(
-    dat$with_columns(pl$col("x")$str$to_integer()) |>
-      as.list(),
-    list(x = c(110, 101, 10))
+  expect_equal(
+    dat$with_columns(pl$col("x")$str$to_integer()),
+    pl$DataFrame(x = c(110, 101, 10))$cast(x = pl$Int64)
   )
 
-  expect_identical(
-    dat$with_columns(pl$col("x")$str$to_integer(base = 10)) |>
-      as.list(),
-    list(x = c(110, 101, 10))
+  expect_equal(
+    dat$with_columns(pl$col("x")$str$to_integer(base = 10)),
+    pl$DataFrame(x = c(110, 101, 10))$cast(x = pl$Int64)
   )
 
   dat2 <- pl$DataFrame(x = c("110", "101", "hej"))
-  expect_identical(
-    dat2$with_columns(pl$col("x")$str$to_integer(base = 10, strict = FALSE)) |>
-      as.list(),
-    list(x = c(110, 101, NA))
+  expect_equal(
+    dat2$with_columns(pl$col("x")$str$to_integer(base = 10, strict = FALSE)),
+    pl$DataFrame(x = c(110, 101, NA))$cast(x = pl$Int64)
   )
 
   expect_snapshot(
@@ -672,69 +654,63 @@ test_that("str$to_integer", {
     error = TRUE
   )
 
-  expect_identical(
+  expect_equal(
     pl$DataFrame(base = c(2, 10), x = c("10", "10"))$select(
       pl$col("x")$str$to_integer(base = "base")
-    ) |> as.list(),
-    list(x = c(2, 10))
+    ),
+    pl$DataFrame(x = c(2, 10))$cast(x = pl$Int64)
   )
 })
 
 test_that("str$reverse", {
-  expect_identical(
+  expect_equal(
     pl$DataFrame(x = c("abc", "def", "mañana", NA))$with_columns(
       pl$col("x")$str$reverse()
-    ) |>
-      as.list(),
-    list(x = c("cba", "fed", "anañam", NA))
+    ),
+    pl$DataFrame(x = c("cba", "fed", "anañam", NA))
   )
 })
 
 test_that("str$contains_any", {
   dat <- pl$DataFrame(x = c("HELLO there", "hi there", "good bye", NA))
-  expect_identical(
-    dat$with_columns(pl$col("x")$str$contains_any(c("hi", "hello"))) |>
-      as.list(),
-    list(x = c(FALSE, TRUE, FALSE, NA))
+  expect_equal(
+    dat$with_columns(pl$col("x")$str$contains_any(c("hi", "hello"))),
+    pl$DataFrame(x = c(FALSE, TRUE, FALSE, NA))
   )
 
   # case insensitive
-  expect_identical(
+  expect_equal(
     dat$with_columns(
       pl$col("x")$str$contains_any(c("hi", "hello"), ascii_case_insensitive = TRUE)
-    ) |>
-      as.list(),
-    list(x = c(TRUE, TRUE, FALSE, NA))
+    ),
+    pl$DataFrame(x = c(TRUE, TRUE, FALSE, NA))
   )
 })
 
 test_that("str$replace_many", {
   dat <- pl$DataFrame(x = c("HELLO there", "hi there", "good bye", NA))
 
-  expect_identical(
+  expect_equal(
     dat$with_columns(
       pl$col("x")$str$replace_many(c("hi", "hello"), "foo")
-    ) |>
-      as.list(),
-    list(x = c("HELLO there", "foo there", "good bye", NA))
+    ),
+    pl$DataFrame(x = c("HELLO there", "foo there", "good bye", NA))
   )
 
   # case insensitive
-  expect_identical(
+  expect_equal(
     dat$with_columns(
       pl$col("x")$str$replace_many(c("hi", "hello"), "foo", ascii_case_insensitive = TRUE)
-    ) |>
-      as.list(),
-    list(x = c("foo there", "foo there", "good bye", NA))
+    ),
+    pl$DataFrame(x = c("foo there", "foo there", "good bye", NA))
   )
 
   # identical lengths of patterns and replacements
-  expect_identical(
+  expect_equal(
     dat$with_columns(
       pl$col("x")$str$replace_many(c("hi", "hello"), c("foo", "bar"))
-    ) |>
-      as.list(),
-    list(x = c("HELLO there", "foo there", "good bye", NA))
+    ),
+    pl$DataFrame(x = c("HELLO there", "foo there", "good bye", NA))
   )
 
   # error if different lengths
@@ -784,28 +760,28 @@ test_that("str$replace_many", {
 
 #   # named patterns
 #   pattern <- r"(candidate=(?<candidate>\w+)&ref=(?<ref>\w+))"
-#   expect_identical(
+#   expect_equal(
 #     df$select(
 #       captures = pl$col("url")$str$extract_groups(pattern)
-#     )$unnest("captures") |> as.list(),
+#     )$unnest("captures"),
 #     list(candidate = c("messi", "weghorst", NA), ref = c("python", "polars", NA))
 #   )
 
 #   # unnamed patterns
 #   pattern <- r"(candidate=(\w+)&ref=(\w+))"
-#   expect_identical(
+#   expect_equal(
 #     df$select(
 #       captures = pl$col("url")$str$extract_groups(pattern)
-#     )$unnest("captures") |> as.list(),
+#     )$unnest("captures"),
 #     list("1" = c("messi", "weghorst", NA), "2" = c("python", "polars", NA))
 #   )
 
 #   # empty pattern
 #   pattern <- ""
-#   expect_identical(
+#   expect_equal(
 #     df$select(
 #       captures = pl$col("url")$str$extract_groups(pattern)
-#     )$unnest("captures") |> as.list(),
+#     )$unnest("captures"),
 #     list(url = NULL)
 #   )
 # })
@@ -813,12 +789,12 @@ test_that("str$replace_many", {
 test_that("str$find works", {
   test <- pl$DataFrame(s = c("AAA", "aAa", "aaa", "(?i)Aa"))
 
-  expect_identical(
+  expect_equal(
     test$select(
       default = pl$col("s")$str$find("Aa"),
       insensitive = pl$col("s")$str$find("(?i)Aa")
-    ) |> as.list(),
-    list(default = c(NA, 1, NA, 4), insensitive = c(0, 0, 0, 4))
+    ),
+    pl$DataFrame(default = c(NA, 1, NA, 4), insensitive = c(0, 0, 0, 4))$cast(default = pl$UInt32, insensitive = pl$UInt32)
   )
 
   # dots must be empty
@@ -828,11 +804,11 @@ test_that("str$find works", {
   )
 
   # arg "literal" works
-  expect_identical(
+  expect_equal(
     test$select(
       lit = pl$col("s")$str$find("(?i)Aa", literal = TRUE)
-    ) |> as.list(),
-    list(lit = c(NA, NA, NA, 0))
+    ),
+    pl$DataFrame(lit = c(NA, NA, NA, 0))$cast(lit = pl$UInt32)
   )
 
   # arg "strict" works
@@ -857,10 +833,10 @@ test_that("$str$head works", {
     n = c(3, 4, -2, -5)
   )
 
-  expect_identical(df$select(
+  expect_equal(df$select(
     s_head_5 = pl$col("s")$str$head(5),
     s_head_n = pl$col("s")$str$head("n")
-  ) |> as.list(), list(
+  ), pl$DataFrame(
     s_head_5 = c("pear", NA, "papay", "drago"),
     s_head_n = c("pea", NA, "papa", "dragon")
   ))
@@ -872,10 +848,10 @@ test_that("$str$tail works", {
     n = c(3, 4, -2, -5)
   )
 
-  expect_identical(df$select(
+  expect_equal(df$select(
     s_tail_5 = pl$col("s")$str$tail(5),
     s_tail_n = pl$col("s")$str$tail("n")
-  ) |> as.list(), list(
+  ), pl$DataFrame(
     s_tail_5 = c("pear", NA, "apaya", "fruit"),
     s_tail_n = c("ear", NA, "paya", "nfruit")
   ))
@@ -885,16 +861,15 @@ test_that("$str$extract_many works", {
   df <- pl$DataFrame(values = c("discontent", "dollar $"))
   patterns <- pl$lit(c("winter", "disco", "ONTE", "discontent", "$"))
 
-  expect_identical(
+  expect_equal(
     df$select(
       matches = pl$col("values")$str$extract_many(patterns),
       matches_overlap = pl$col("values")$str$extract_many(patterns, overlapping = TRUE)
-    ) |> as.list(),
-    list(
+    ),
+    pl$DataFrame(
       matches = list("disco", "$"),
       matches_overlap = list(c("disco", "discontent"), "$")
-    ),
-    ignore_attr = TRUE
+    )
   )
 
   # dots must be empty
@@ -904,17 +879,16 @@ test_that("$str$extract_many works", {
   )
 
   # arg "ascii_case_insensitive" works
-  expect_identical(
+  expect_equal(
     df$select(
       matches_overlap = pl$col("values")$str$extract_many(
         patterns,
         ascii_case_insensitive = TRUE, overlapping = TRUE
       )
-    ) |> as.list(),
-    list(
-      matches_overlap = list(c("disco", "onte", "discontent"), "$")
     ),
-    ignore_attr = TRUE
+    pl$DataFrame(
+      matches_overlap = list(c("disco", "onte", "discontent"), "$")
+    )
   )
 
   # can pass column names as strings
@@ -923,9 +897,8 @@ test_that("$str$extract_many works", {
     patterns = list(c("winter", "disco", "onte", "discontent"), c("rhap", "ody", "coalesce"))
   )
 
-  expect_identical(
-    df$select(pl$col("values")$str$extract_many("patterns")) |> as.list(),
-    list(values = list("disco", c("rhap", "ody"))),
-    ignore_attr = TRUE
+  expect_equal(
+    df$select(pl$col("values")$str$extract_many("patterns")),
+    pl$DataFrame(values = list("disco", c("rhap", "ody")))
   )
 })
