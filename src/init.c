@@ -809,6 +809,16 @@ SEXP savvy_PlRExpr_str_zfill__impl(SEXP self__, SEXP c_arg__alignment) {
     return handle_result(res);
 }
 
+SEXP savvy_PlRExpr_str_pad_end__impl(SEXP self__, SEXP c_arg__width, SEXP c_arg__fillchar) {
+    SEXP res = savvy_PlRExpr_str_pad_end__ffi(self__, c_arg__width, c_arg__fillchar);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_str_pad_start__impl(SEXP self__, SEXP c_arg__width, SEXP c_arg__fillchar) {
+    SEXP res = savvy_PlRExpr_str_pad_start__ffi(self__, c_arg__width, c_arg__fillchar);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRExpr_str_contains__impl(SEXP self__, SEXP c_arg__pat, SEXP c_arg__literal, SEXP c_arg__strict) {
     SEXP res = savvy_PlRExpr_str_contains__ffi(self__, c_arg__pat, c_arg__literal, c_arg__strict);
     return handle_result(res);
@@ -1386,6 +1396,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_str_strip_chars_end__impl", (DL_FUNC) &savvy_PlRExpr_str_strip_chars_end__impl, 2},
     {"savvy_PlRExpr_str_strip_chars_start__impl", (DL_FUNC) &savvy_PlRExpr_str_strip_chars_start__impl, 2},
     {"savvy_PlRExpr_str_zfill__impl", (DL_FUNC) &savvy_PlRExpr_str_zfill__impl, 2},
+    {"savvy_PlRExpr_str_pad_end__impl", (DL_FUNC) &savvy_PlRExpr_str_pad_end__impl, 3},
+    {"savvy_PlRExpr_str_pad_start__impl", (DL_FUNC) &savvy_PlRExpr_str_pad_start__impl, 3},
     {"savvy_PlRExpr_str_contains__impl", (DL_FUNC) &savvy_PlRExpr_str_contains__impl, 4},
     {"savvy_PlRExpr_str_ends_with__impl", (DL_FUNC) &savvy_PlRExpr_str_ends_with__impl, 2},
     {"savvy_PlRExpr_str_starts_with__impl", (DL_FUNC) &savvy_PlRExpr_str_starts_with__impl, 2},

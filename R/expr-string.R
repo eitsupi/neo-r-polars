@@ -218,7 +218,7 @@ expr_str_to_datetime <- function(
 #'   pl$col("s")$str$len_chars()$alias("n_chars")
 #' )
 expr_str_len_bytes <- function() {
-  self$`_rexpr`$str_len_bytes(self) |>
+  self$`_rexpr`$str_len_bytes() |>
     wrap()
 }
 
@@ -230,7 +230,7 @@ expr_str_len_bytes <- function() {
 #' @keywords ExprStr
 #' @inherit expr_str_len_bytes examples details return
 expr_str_len_chars <- function() {
-  self$`_rexpr`$str_len_chars(self) |>
+  self$`_rexpr`$str_len_chars() |>
     wrap()
 }
 
@@ -275,7 +275,7 @@ expr_str_concat <- function(
 #' @examples
 #' pl$lit(c("A", "b", "c", "1", NA))$str$to_uppercase()$to_series()
 expr_str_to_uppercase <- function() {
-  self$`_rexpr`$str_to_uppercase(self) |>
+  self$`_rexpr`$str_to_uppercase() |>
     wrap()
 }
 
@@ -287,7 +287,7 @@ expr_str_to_uppercase <- function() {
 #' @examples
 #' pl$lit(c("A", "b", "c", "1", NA))$str$to_lowercase()$to_series()
 expr_str_to_lowercase <- function() {
-  self$`_rexpr`$str_to_lowercase(self) |>
+  self$`_rexpr`$str_to_lowercase() |>
     wrap()
 }
 
@@ -331,7 +331,7 @@ expr_str_to_titlecase <- function() {
 #' df$select(pl$col("foo")$str$strip_chars())
 #' df$select(pl$col("foo")$str$strip_chars(" hel rld"))
 expr_str_strip_chars <- function(matches = NULL) {
-  self$`_rexpr`$str_strip_chars(matches) |>
+  self$`_rexpr`$str_strip_chars(as_polars_expr(matches, as_lit = TRUE)$`_rexpr`) |>
     wrap()
 }
 
@@ -355,7 +355,7 @@ expr_str_strip_chars <- function(matches = NULL) {
 #' df <- pl$DataFrame(foo = c(" hello", "\tworld"))
 #' df$select(pl$col("foo")$str$strip_chars_start(" hel rld"))
 expr_str_strip_chars_start <- function(matches = NULL) {
-  self$`_rexpr`$str_strip_chars_start(matches) |>
+  self$`_rexpr`$str_strip_chars_start(as_polars_expr(matches, as_lit = TRUE)$`_rexpr`) |>
     wrap()
 }
 
@@ -380,7 +380,7 @@ expr_str_strip_chars_start <- function(matches = NULL) {
 #' df$select(pl$col("foo")$str$strip_chars_end(" hel\trld"))
 #' df$select(pl$col("foo")$str$strip_chars_end("rldhel\t "))
 expr_str_strip_chars_end <- function(matches = NULL) {
-  self$`_rexpr`$str_strip_chars_end(matches) |>
+  self$`_rexpr`$str_strip_chars_end(as_polars_expr(matches, as_lit = TRUE)$`_rexpr`) |>
     wrap()
 }
 
@@ -412,7 +412,7 @@ expr_str_strip_chars_end <- function(matches = NULL) {
 #' # char vector
 #' some_floats_expr$cast(pl$Int64)$cast(pl$String)$str$zfill(5)$to_r()
 expr_str_zfill <- function(alignment) {
-  self$`_rexpr`$str_zfill(alignment) |>
+  self$`_rexpr`$str_zfill(as_polars_expr(alignment)$`_rexpr`) |>
     wrap()
 }
 
@@ -446,7 +446,7 @@ expr_str_pad_end <- function(width, fillchar = " ") {
 #' df <- pl$DataFrame(a = c("cow", "monkey", NA, "hippopotamus"))
 #' df$select(pl$col("a")$str$pad_start(8, "*"))
 expr_str_pad_start <- function(width, fillchar = " ") {
-  self$`_rexpr`$str_pad_start(self, width, fillchar) |>
+  self$`_rexpr`$str_pad_start(width, fillchar) |>
     wrap()
 }
 
@@ -491,7 +491,7 @@ expr_str_pad_start <- function(width, fillchar = " ") {
 expr_str_contains <- function(pattern, ..., literal = FALSE, strict = TRUE) {
   wrap({
     check_dots_empty0(...)
-    self$`_rexpr`$str_contains(self, pattern, literal, strict)
+    self$`_rexpr`$str_contains(as_polars_expr(pattern, as_lit = TRUE)$`_rexpr`, literal, strict)
   })
 }
 
@@ -576,7 +576,7 @@ expr_str_json_decode <- function(dtype, infer_schema_length = 100) {
 #' )
 #' df$select(pl$col("json_val")$str$json_path_match("$.a"))
 expr_str_json_path_match <- function(json_path) {
-  self$`_rexpr`$str_json_path_match(json_path) |>
+  self$`_rexpr`$str_json_path_match(as_polars_expr(json_path, as_lit = TRUE)$`_rexpr`) |>
     wrap()
 }
 

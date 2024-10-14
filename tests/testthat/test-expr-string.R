@@ -97,75 +97,76 @@
 #     str$to_date(format = "%Y / %m / %d", strict = FALSE)$to_r(), as.Date(rep(NA_character_, 3)))
 # })
 
-# test_that("str$len_bytes str$len_chars", {
-#   test_str <- c("Café", NA, "345", "東京") |> enc2utf8()
-#   Encoding(test_str)
+test_that("str$len_bytes str$len_chars", {
+  test_str <- c("Café", NA, "345", "東京") |> enc2utf8()
+  Encoding(test_str)
 
-#   df <- pl$DataFrame(
-#     s = test_str
-#   )$select(
-#     pl$col("s"),
-#     pl$col("s")$str$len_bytes()$alias("lengths"),
-#     pl$col("s")$str$len_chars()$alias("n_chars")
-#   )
+  df <- pl$DataFrame(s = test_str)$select(
+    pl$col("s"),
+    pl$col("s")$str$len_bytes()$alias("lengths"),
+    pl$col("s")$str$len_chars()$alias("n_chars")
+  )
 
-#   expect_equal(
-#     df |> lapply(\(x) if (inherits(x, "integer64")) as.numeric(x) else x),
-#     list(
-#       s = test_str,
-#       lengths = c(5, NA_integer_, 3, 6),
-#       n_chars = nchar(test_str) |> as.numeric()
-#     )
-#   )
-# })
+  expect_equal(
+    df,
+    pl$DataFrame(
+      s = test_str,
+      lengths = c(5, NA_integer_, 3, 6),
+      n_chars = nchar(test_str) |> as.numeric()
+    )$
+      cast(lengths = pl$UInt32, n_chars = pl$UInt32)
+  )
+})
 
-# test_that("str$concat", {
-#   # concatenate a Series of strings to a single string
-#   df <- pl$DataFrame(foo = c("1", "a", NA))
-#   expect_equal(
-#     df$select(pl$col("foo")$str$join())[[1]],
-#     "1a"
-#   )
-#   expect_equal(
-#     df$select(pl$col("foo")$str$join("-"))[[1]],
-#     "1-a"
-#   )
-#   expect_equal(
-#     df$select(pl$col("foo")$str$join(ignore_nulls = FALSE))[[1]],
-#     NA_character_
-#   )
-#   # deprecated
-#   expect_warning(
-#     expect_equal(
-#       df$select(pl$col("foo")$str$concat("-"))[[1]],
-#       "1-a"
-#     ),
-#     "deprecated"
-#   )
+test_that("str$concat", {
+  # concatenate a Series of strings to a single string
+  df <- pl$DataFrame(x = c("1", "a", NA))
+  expect_equal(
+    df$select(pl$col("x")$str$join()),
+    pl$DataFrame(x = "1a")
+  )
+  expect_equal(
+    df$select(pl$col("x")$str$join("-")),
+    pl$DataFrame(x = "1-a")
+  )
+  expect_equal(
+    df$select(pl$col("x")$str$join(ignore_nulls = FALSE)),
+    pl$DataFrame(x = NA_character_)
+  )
+  # deprecated
+  expect_warning(
+    expect_equal(
+      df$select(pl$col("x")$str$concat("-")),
+      pl$DataFrame(x = "1-a")
+    ),
+    "deprecated"
+  )
 
-#   # Series list of strings to Series of concatenated strings
-#   df <- pl$DataFrame(list(bar = list(c("a", "b", "c"), c("1", "2", "æ"))))
-#   expect_equal(
-#     df$select(pl$col("bar")$list$eval(pl$element()$str$join())$list$first())$bar,
-#     sapply(df[[1]], paste, collapse = "")
-#   )
-# })
+  # TODO-REWRITE: uncomment later
+  # Series list of strings to Series of concatenated strings
+  # df <- pl$DataFrame(x = list(c("a", "b", "c"), c("1", "2", "æ")))
+  # expect_equal(
+  #   df$select(pl$col("x")$list$eval(pl$element()$str$join())$list$first()),
+  #   pl$DataFrame(x = c("a b c", "1 2 æ"))
+  # )
+})
 
 
-# test_that("to_uppercase, to_lowercase", {
-#   # concatenate a Series of strings to a single string
-#   df <- pl$DataFrame(foo = c("1", "æøå", letters, LETTERS))
+test_that("to_uppercase, to_lowercase", {
+  # concatenate a Series of strings to a single string
+  vals <- c("1", "æøå", letters, LETTERS)
+  df <- pl$DataFrame(x = vals)
 
-#   expect_equal(
-#     df$select(pl$col("foo")$str$to_uppercase())$foo,
-#     toupper(df$foo)
-#   )
+  expect_equal(
+    df$select(pl$col("x")$str$to_uppercase()),
+    pl$DataFrame(x = toupper(vals))
+  )
 
-#   expect_equal(
-#     df$select(pl$col("foo")$str$to_lowercase())$foo,
-#     tolower(df$foo)
-#   )
-# })
+  expect_equal(
+    df$select(pl$col("x")$str$to_lowercase()),
+    pl$DataFrame(x = tolower(vals))
+  )
+})
 
 # test_that("to_titlecase - enabled via the nightly feature", {
 #   skip_if_not(polars_info()$features$nightly)
@@ -182,173 +183,216 @@
 # })
 
 
-# test_that("strip_chars_*()", {
-#   lit <- pl$lit(" 123abc ")
+test_that("strip_chars_*()", {
+  dat <- pl$DataFrame(x = " 123abc ")
 
-#   # strip
-#   expect_equal(lit$str$strip_chars()$to_r(), "123abc")
-#   expect_equal(lit$str$strip_chars("1c")$to_r(), " 123abc ")
-#   expect_equal(lit$str$strip_chars("1c ")$to_r(), "23ab")
+  # strip
+  expect_equal(
+    dat$with_columns(pl$col("x")$str$strip_chars()),
+    pl$DataFrame(x = "123abc")
+  )
+  expect_equal(
+    dat$with_columns(pl$col("x")$str$strip_chars("1c")),
+    pl$DataFrame(x = " 123abc ")
+  )
+  expect_equal(
+    dat$with_columns(pl$col("x")$str$strip_chars("1c ")),
+    pl$DataFrame(x = "23ab")
+  )
 
-#   # lstrip
-#   expect_equal(lit$str$strip_chars_start()$to_r(), "123abc ")
-#   expect_equal(lit$str$strip_chars_start("1c")$to_r(), " 123abc ")
-#   expect_equal(lit$str$strip_chars_start("1c ")$to_r(), "23abc ")
+  # lstrip
+  expect_equal(
+    dat$with_columns(pl$col("x")$str$strip_chars_start()),
+    pl$DataFrame(x = "123abc ")
+  )
+  expect_equal(
+    dat$with_columns(pl$col("x")$str$strip_chars_start("1c")),
+    pl$DataFrame(x = " 123abc ")
+  )
+  expect_equal(
+    dat$with_columns(pl$col("x")$str$strip_chars_start("1c ")),
+    pl$DataFrame(x = "23abc ")
+  )
 
-#   # rstrip
-#   expect_equal(lit$str$strip_chars_end()$to_r(), " 123abc")
-#   expect_equal(lit$str$strip_chars_end("1c")$to_r(), " 123abc ")
-#   expect_equal(lit$str$strip_chars_end("1c ")$to_r(), " 123ab")
+  # rstrip
+  expect_equal(
+    dat$with_columns(pl$col("x")$str$strip_chars_end()),
+    pl$DataFrame(x = " 123abc")
+  )
+  expect_equal(
+    dat$with_columns(pl$col("x")$str$strip_chars_end("1c")),
+    pl$DataFrame(x = " 123abc ")
+  )
+  expect_equal(
+    dat$with_columns(pl$col("x")$str$strip_chars_end("1c ")),
+    pl$DataFrame(x = " 123ab")
+  )
 
-#   df <- pl$DataFrame(
-#     foo = c("hello", "world"),
-#     expr = c("heo", "wd")
-#   )
-#   expect_equal(
-#     df$select(pl$col("foo")$str$strip_chars(pl$col("expr"))),
-#     list(foo = c("ll", "orl"))
-#   )
-#   expect_equal(
-#     df$select(pl$col("foo")$str$strip_chars_start(pl$col("expr"))),
-#     list(foo = c("llo", "orld"))
-#   )
-#   expect_equal(
-#     df$select(pl$col("foo")$str$strip_chars_end(pl$col("expr"))),
-#     list(foo = c("hell", "worl"))
-#   )
-# })
-
-
-# test_that("zfill", {
-#   lit <- pl$lit(" 123abc ")
-
-#   # strip
-#   expect_equal(lit$str$zfill(9)$to_r(), "0 123abc ")
-#   expect_equal(lit$str$zfill(10)$to_r(), "00 123abc ")
-#   expect_equal(lit$str$zfill(10L)$to_r(), "00 123abc ")
-#   expect_equal(
-#     pl$lit(c(-1, 2, 10, "5"))$str$zfill(6)$to_r(),
-#     c("-00001", "000002", "000010", "000005")
-#   )
-
-#   # test wrong input type
-#   expect_snapshot(pl$lit(c(-1, 2, 10, "5"))$str$zfill(pl$lit("a"))$to_r(), error = TRUE)
-
-#   # test wrong input range
-#   expect_snapshot(pl$lit(c(-1, 2, 10, "5"))$str$zfill(-3)$to_r(), error = TRUE)
-
-#   # works with expr
-#   df <- pl$DataFrame(a = c(-1L, 123L, 999999L, NA), val = 4:7)
-#   expect_equal(
-#     df$select(zfill = pl$col("a")$cast(pl$String)$str$zfill("val")),
-#     list(zfill = c("-001", "00123", "999999", NA))
-#   )
-# })
-
-# # patrick package could be justified here
-# test_that("str$pad_start str$pad_start", {
-#   # ljust
-#   df <- pl$DataFrame(a = c("cow", "monkey", NA, "hippopotamus"))
-#   expect_equal(
-#     df$select(pl$col("a")$str$pad_end(8, "*")),
-#     list(a = c("cow*****", "monkey**", NA, "hippopotamus"))
-#   )
-
-#   expect_equal(
-#     df$select(pl$col("a")$str$pad_end(7, "w")),
-#     list(a = c("cowwwww", "monkeyw", NA, "hippopotamus"))
-#   )
-
-#   expect_snapshot(df$select(pl$col("a")$str$pad_end("wrong_string", "w")), error = TRUE)
-#   expect_snapshot(df$select(pl$col("a")$str$pad_end(-2, "w")), error = TRUE)
-#   expect_snapshot(df$select(pl$col("a")$str$pad_end(5, "multiple_chars")), error = TRUE)
+  df <- pl$DataFrame(
+    foo = c("hello", "world"),
+    expr = c("heo", "wd")
+  )
+  expect_equal(
+    df$select(pl$col("foo")$str$strip_chars(pl$col("expr"))),
+    pl$DataFrame(foo = c("ll", "orl"))
+  )
+  expect_equal(
+    df$select(pl$col("foo")$str$strip_chars_start(pl$col("expr"))),
+    pl$DataFrame(foo = c("llo", "orld"))
+  )
+  expect_equal(
+    df$select(pl$col("foo")$str$strip_chars_end(pl$col("expr"))),
+    pl$DataFrame(foo = c("hell", "worl"))
+  )
+})
 
 
-#   # rjust
-#   expect_equal(
-#     df$select(pl$col("a")$str$pad_start(8, "*")),
-#     list(a = c("*****cow", "**monkey", NA, "hippopotamus"))
-#   )
+test_that("zfill", {
+  dat <- pl$DataFrame(x = " 123abc ")
 
-#   expect_equal(
-#     df$select(pl$col("a")$str$pad_start(7, "w")),
-#     list(a = c("wwwwcow", "wmonkey", NA, "hippopotamus"))
-#   )
+  # strip
+  expect_equal(
+    dat$with_columns(pl$col("x")$str$zfill(9)),
+    pl$DataFrame(x = "0 123abc ")
+  )
+  expect_equal(
+    dat$with_columns(pl$col("x")$str$zfill(10)),
+    pl$DataFrame(x = "00 123abc ")
+  )
+  expect_equal(
+    dat$with_columns(pl$col("x")$str$zfill(10L)),
+    pl$DataFrame(x = "00 123abc ")
+  )
+  expect_equal(
+    pl$DataFrame(x = c(-1, 2, 10, "5"))$with_columns(pl$col("x")$str$zfill(6)),
+    pl$DataFrame(x = c("-00001", "000002", "000010", "000005"))
+  )
 
-#   expect_snapshot(df$select(pl$col("a")$str$pad_start("wrong_string", "w")), error = TRUE)
-#   expect_snapshot(df$select(pl$col("a")$str$pad_start(-2, "w")), error = TRUE)
-#   expect_snapshot(df$select(pl$col("a")$str$pad_start(5, "multiple_chars")), error = TRUE)
-# })
+  # test wrong input type
+  expect_snapshot(
+    pl$DataFrame(x = c(-1, 2, 10, "5"))$with_columns(pl$col("x")$str$zfill(pl$lit("a"))),
+    error = TRUE
+  )
 
+  # test wrong input range
+  expect_snapshot(
+    pl$DataFrame(x = c(-1, 2, 10, "5"))$with_columns(pl$col("x")$str$zfill(-3)),
+    error = TRUE
+  )
 
+  # works with expr
+  df <- pl$DataFrame(a = c(-1L, 123L, 999999L, NA), val = 4:7)
+  expect_equal(
+    df$select(zfill = pl$col("a")$cast(pl$String)$str$zfill("val")),
+    pl$DataFrame(zfill = c("-001", "00123", "999999", NA))
+  )
+})
 
-# test_that("str$contains", {
-#   df <- pl$DataFrame(a = c("Crab", "cat and dog", "rab$bit", NA))
+# patrick package could be justified here
+test_that("str$pad_start str$pad_start", {
+  # ljust
+  df <- pl$DataFrame(a = c("cow", "monkey", NA, "hippopotamus"))
+  expect_equal(
+    df$select(pl$col("a")$str$pad_end(8, "*")),
+    pl$DataFrame(a = c("cow*****", "monkey**", NA, "hippopotamus"))
+  )
 
-#   df_act <- df$select(
-#     pl$col("a"),
-#     pl$col("a")$str$contains("cat|bit")$alias("regex"),
-#     pl$col("a")$str$contains("rab$", literal = TRUE)$alias("literal")
-#   )
+  expect_equal(
+    df$select(pl$col("a")$str$pad_end(7, "w")),
+    pl$DataFrame(a = c("cowwwww", "monkeyw", NA, "hippopotamus"))
+  )
 
-#   expect_equal(
-#     df_act,
-#     list(
-#       a = c("Crab", "cat and dog", "rab$bit", NA), regex = c(
-#         FALSE,
-#         TRUE, TRUE, NA
-#       ), literal = c(FALSE, FALSE, TRUE, NA)
-#     )
-#   )
-
-#   # not strict
-#   expect_equal(
-#     df$select(
-#       pl$col("a")$str$contains("($INVALIDREGEX$", literal = FALSE, strict = FALSE)
-#     ),
-#     list(a = rep(NA, 4))
-#   )
-# })
-
-
-# test_that("str$starts_with str$ends_with", {
-#   df <- pl$DataFrame(a = c("foobar", "fruitbar", "foofighers", NA))
-
-#   df_act <- df$select(
-#     pl$col("a"),
-#     pl$col("a")$str$starts_with("foo")$alias("starts_foo"),
-#     pl$col("a")$str$ends_with("bar")$alias("ends_bar")
-#   )
-#   expect_equal(
-#     df_act,
-#     list(
-#       a = c("foobar", "fruitbar", "foofighers", NA),
-#       starts_foo = c(TRUE, FALSE, TRUE, NA),
-#       ends_bar = c(TRUE, TRUE, FALSE, NA)
-#     )
-#   )
-# })
-
-# test_that("str$json_path. json_decode", {
-#   df <- pl$DataFrame(
-#     json_val = c('{"a":"1"}', NA, '{"a":2}', '{"a":2.1}', '{"a":true}')
-#   )
-#   expect_equal(
-#     df$select(pl$col("json_val")$str$json_path_match("$.a")),
-#     list(json_val = c("1", NA, "2", "2.1", "true"))
-#   )
+  expect_snapshot(df$select(pl$col("a")$str$pad_end("wrong_string", "w")), error = TRUE)
+  expect_snapshot(df$select(pl$col("a")$str$pad_end(-2, "w")), error = TRUE)
+  expect_snapshot(df$select(pl$col("a")$str$pad_end(5, "multiple_chars")), error = TRUE)
 
 
-#   df <- pl$DataFrame(
-#     json_val = c('{"a":1, "b": true}', NA, '{"a":2, "b": false}')
-#   )
-#   dtype <- pl$Struct(pl$Field("a", pl$Float64), pl$Field("b", pl$Boolean))
-#   actual <- df$select(pl$col("json_val")$str$json_decode(dtype))
-#   expect_equal(
-#     actual,
-#     list(json_val = list(a = c(1, NA, 2), b = c(TRUE, NA, FALSE)))
-#   )
-# })
+  # rjust
+  expect_equal(
+    df$select(pl$col("a")$str$pad_start(8, "*")),
+    pl$DataFrame(a = c("*****cow", "**monkey", NA, "hippopotamus"))
+  )
+
+  expect_equal(
+    df$select(pl$col("a")$str$pad_start(7, "w")),
+    pl$DataFrame(a = c("wwwwcow", "wmonkey", NA, "hippopotamus"))
+  )
+
+  expect_snapshot(df$select(pl$col("a")$str$pad_start("wrong_string", "w")), error = TRUE)
+  expect_snapshot(df$select(pl$col("a")$str$pad_start(-2, "w")), error = TRUE)
+  # TODO-REWRITE: this should error
+  # expect_snapshot(df$select(pl$col("a")$str$pad_start(5, "multiple_chars")), error = TRUE)
+})
+
+
+
+test_that("str$contains", {
+  df <- pl$DataFrame(a = c("Crab", "cat and dog", "rab$bit", NA))
+
+  df_act <- df$select(
+    pl$col("a"),
+    pl$col("a")$str$contains("cat|bit")$alias("regex"),
+    pl$col("a")$str$contains("rab$", literal = TRUE)$alias("literal")
+  )
+
+  expect_equal(
+    df_act,
+    pl$DataFrame(
+      a = c("Crab", "cat and dog", "rab$bit", NA), regex = c(
+        FALSE,
+        TRUE, TRUE, NA
+      ), literal = c(FALSE, FALSE, TRUE, NA)
+    )
+  )
+
+  # not strict
+  expect_equal(
+    df$select(
+      pl$col("a")$str$contains("($INVALIDREGEX$", literal = FALSE, strict = FALSE)
+    ),
+    pl$DataFrame(a = rep(NA, 4))
+  )
+})
+
+
+test_that("str$starts_with str$ends_with", {
+  df <- pl$DataFrame(a = c("foobar", "fruitbar", "foofighers", NA))
+
+  df_act <- df$select(
+    pl$col("a"),
+    pl$col("a")$str$starts_with("foo")$alias("starts_foo"),
+    pl$col("a")$str$ends_with("bar")$alias("ends_bar")
+  )
+  expect_equal(
+    df_act,
+    pl$DataFrame(
+      a = c("foobar", "fruitbar", "foofighers", NA),
+      starts_foo = c(TRUE, FALSE, TRUE, NA),
+      ends_bar = c(TRUE, TRUE, FALSE, NA)
+    )
+  )
+})
+
+test_that("str$json_path, str$json_decode", {
+  df <- pl$DataFrame(
+    json_val = c('{"a":"1"}', NA, '{"a":2}', '{"a":2.1}', '{"a":true}')
+  )
+  expect_equal(
+    df$select(pl$col("json_val")$str$json_path_match("$.a")),
+    pl$DataFrame(json_val = c("1", NA, "2", "2.1", "true"))
+  )
+
+  # TODO-REWRITE: uncomment when Field is implemented
+  # df <- pl$DataFrame(
+  #   json_val = c('{"a":1, "b": true}', NA, '{"a":2, "b": false}')
+  # )
+  # dtype <- pl$Struct(pl$Field("a", pl$Float64), pl$Field("b", pl$Boolean))
+  # actual <- df$select(pl$col("json_val")$str$json_decode(dtype))
+  # expect_equal(
+  #   actual,
+  #   pl$DataFrame(json_val = list(a = c(1, NA, 2), b = c(TRUE, NA, FALSE)))
+  # )
+})
 
 
 test_that("encode decode", {
@@ -398,7 +442,7 @@ test_that("str$extract", {
     pl$DataFrame(x = NA_character_)
   )
 
-  # TODO: REWRITE -> breaking change, this used to work
+  # TODO-REWRITE: -> breaking change, this used to work
   expect_snapshot(
     pl$DataFrame(x = "abc")$with_columns(pl$col("x")$str$extract(pl$lit("a"), "2")),
     error = TRUE

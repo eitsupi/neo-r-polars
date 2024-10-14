@@ -69,13 +69,17 @@ impl PlRExpr {
             .into())
     }
 
-    // fn str_pad_end(&self, width: usize, fillchar: &char) -> Result<Self> {
-    //     Ok(self.inner.clone().str().pad_end(width, fillchar).into())
-    // }
+    fn str_pad_end(&self, width: NumericScalar, fillchar: &str) -> Result<Self> {
+        let width = <Wrap<usize>>::try_from(width)?.0;
+        let fillchar = fillchar.chars().nth(0).unwrap();
+        Ok(self.inner.clone().str().pad_end(width, fillchar).into())
+    }
 
-    // fn str_pad_start(&self, width: usize, fillchar: &str) -> Result<Self> {
-    //     Ok(self.inner.clone().str().pad_start(width, fillchar).into())
-    // }
+    fn str_pad_start(&self, width: NumericScalar, fillchar: &str) -> Result<Self> {
+        let width = <Wrap<usize>>::try_from(width)?.0;
+        let fillchar = fillchar.chars().nth(0).unwrap();
+        Ok(self.inner.clone().str().pad_start(width, fillchar).into())
+    }
 
     fn str_contains(&self, pat: &PlRExpr, literal: bool, strict: bool) -> Result<Self> {
         if literal {
@@ -135,6 +139,7 @@ impl PlRExpr {
     fn str_hex_decode(&self, strict: bool) -> Result<Self> {
         Ok(self.inner.clone().str().hex_decode(strict).into())
     }
+
     fn str_base64_encode(&self) -> Result<Self> {
         Ok(self.inner.clone().str().base64_encode().into())
     }

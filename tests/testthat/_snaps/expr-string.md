@@ -1,3 +1,84 @@
+# zfill
+
+    Code
+      pl$DataFrame(x = c(-1, 2, 10, "5"))$with_columns(pl$col("x")$str$zfill(pl$lit(
+        "a")))
+    Condition
+      Error:
+      ! Evaluation failed in `$with_columns()`.
+      Caused by error:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! InvalidOperation(ErrString("conversion from `str` to `u64` failed in column 'literal' for 1 out of 1 values: [\"a\"]"))
+
+---
+
+    Code
+      pl$DataFrame(x = c(-1, 2, 10, "5"))$with_columns(pl$col("x")$str$zfill(-3))
+    Condition
+      Error:
+      ! Evaluation failed in `$with_columns()`.
+      Caused by error:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! InvalidOperation(ErrString("conversion from `f64` to `u64` failed in column 'literal' for 1 out of 1 values: [-3.0]"))
+
+# str$pad_start str$pad_start
+
+    Code
+      df$select(pl$col("a")$str$pad_end("wrong_string", "w"))
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$select()`.
+      Caused by error in `pl$col("a")$str$pad_end()`:
+      ! Evaluation failed in `$pad_end()`.
+      Caused by error:
+      ! Argument `width` must be numeric, not character
+
+---
+
+    Code
+      df$select(pl$col("a")$str$pad_end(-2, "w"))
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$select()`.
+      Caused by error in `pl$col("a")$str$pad_end()`:
+      ! Evaluation failed in `$pad_end()`.
+      Caused by error:
+      ! Nevative value `-2.0` cannot be converted to usize
+
+---
+
+    Code
+      df$select(pl$col("a")$str$pad_start("wrong_string", "w"))
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$select()`.
+      Caused by error in `pl$col("a")$str$pad_start()`:
+      ! Evaluation failed in `$pad_start()`.
+      Caused by error:
+      ! Argument `width` must be numeric, not character
+
+---
+
+    Code
+      df$select(pl$col("a")$str$pad_start(-2, "w"))
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$select()`.
+      Caused by error in `pl$col("a")$str$pad_start()`:
+      ! Evaluation failed in `$pad_start()`.
+      Caused by error:
+      ! Nevative value `-2.0` cannot be converted to usize
+
 # encode decode
 
     Code
