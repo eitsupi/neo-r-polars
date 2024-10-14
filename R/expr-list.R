@@ -25,7 +25,10 @@ namespace_expr_list <- function(x) {
 #' @examples
 #' df <- pl$DataFrame(list(list_of_strs = list(c("a", "b", NA), "c")))
 #' df$with_columns(len_list = pl$col("list_of_strs")$list$len())
-expr_list_len <- function() self$list_len()
+expr_list_len <- function() {
+  self$`_rexpr`$list_len() |>
+    wrap()
+}
 
 #' Sum all elements in a list
 #'
@@ -34,7 +37,10 @@ expr_list_len <- function() self$list_len()
 #' @examples
 #' df <- pl$DataFrame(values = list(c(1, 2, 3, NA), c(2, 3), NA_real_))
 #' df$with_columns(sum = pl$col("values")$list$sum())
-expr_list_sum <- function() self$list_sum()
+expr_list_sum <- function() {
+  self$`_rexpr`$list_sum() |>
+    wrap()
+}
 
 #' Find the maximum value in a list
 #'
@@ -43,7 +49,10 @@ expr_list_sum <- function() self$list_sum()
 #' @examples
 #' df <- pl$DataFrame(values = list(c(1, 2, 3, NA), c(2, 3), NA_real_))
 #' df$with_columns(max = pl$col("values")$list$max())
-expr_list_max <- function() self$list_max()
+expr_list_max <- function() {
+  self$`_rexpr`$list_max() |>
+    wrap()
+}
 
 #' Find the minimum value in a list
 #'
@@ -52,7 +61,10 @@ expr_list_max <- function() self$list_max()
 #' @examples
 #' df <- pl$DataFrame(values = list(c(1, 2, 3, NA), c(2, 3), NA_real_))
 #' df$with_columns(min = pl$col("values")$list$min())
-expr_list_min <- function() self$list_min()
+expr_list_min <- function() {
+  self$`_rexpr`$list_min() |>
+    wrap()
+}
 
 #' Compute the mean value of a list
 #'
@@ -61,7 +73,10 @@ expr_list_min <- function() self$list_min()
 #' @examples
 #' df <- pl$DataFrame(values = list(c(1, 2, 3, NA), c(2, 3), NA_real_))
 #' df$with_columns(mean = pl$col("values")$list$mean())
-expr_list_mean <- function() self$list_mean()
+expr_list_mean <- function() {
+  self$`_rexpr`$list_mean() |>
+    wrap()
+}
 
 #' Sort values in a list
 #'
@@ -71,7 +86,10 @@ expr_list_mean <- function() self$list_mean()
 #' @examples
 #' df <- pl$DataFrame(values = list(c(NA, 2, 1, 3), c(Inf, 2, 3, NaN), NA_real_))
 #' df$with_columns(sort = pl$col("values")$list$sort())
-expr_list_sort <- function(descending = FALSE) self$list_sort(self, descending)
+expr_list_sort <- function(descending = FALSE) {
+  self$`_rexpr`$list_sort(descending) |>
+    wrap()
+}
 
 #' Reverse values in a list
 #'
@@ -80,7 +98,10 @@ expr_list_sort <- function(descending = FALSE) self$list_sort(self, descending)
 #' @examples
 #' df <- pl$DataFrame(values = list(c(1, 2, 3, NA), c(2, 3), NA_real_))
 #' df$with_columns(reverse = pl$col("values")$list$reverse())
-expr_list_reverse <- function() self$list_reverse()
+expr_list_reverse <- function() {
+  self$`_rexpr`$list_reverse() |>
+    wrap()
+}
 
 #' Get unique values in a list
 #'
@@ -92,8 +113,8 @@ expr_list_reverse <- function() self$list_reverse()
 #' df <- pl$DataFrame(values = list(c(2, 2, NA), c(1, 2, 3), NA_real_))
 #' df$with_columns(unique = pl$col("values")$list$unique())
 expr_list_unique <- function(maintain_order = FALSE) {
-  self$list_unique(self, maintain_order) |>
-    unwrap("in $list$unique():")
+  self$`_rexpr`$list_unique(maintain_order) |>
+    wrap()
 }
 
 #' Get the number of unique values in a list
@@ -103,7 +124,10 @@ expr_list_unique <- function(maintain_order = FALSE) {
 #' @examples
 #' df <- pl$DataFrame(values = list(c(2, 2, NA), c(1, 2, 3), NA_real_))
 #' df$with_columns(unique = pl$col("values")$list$n_unique())
-expr_list_n_unique <- function() self$list_n_unique()
+expr_list_n_unique <- function() {
+  self$`_rexpr`$list_n_unique() |>
+    wrap()
+}
 
 #' Concat two list variables
 #'
@@ -123,7 +147,8 @@ expr_list_n_unique <- function() self$list_n_unique()
 #'   conc_to_lit_list = pl$col("a")$list$concat(pl$lit(list("hello", c("hello", "world"))))
 #' )
 expr_list_concat <- function(other) {
-  pl$concat_list(list(self, other))
+  pl$concat_list(list(other)) |>
+    wrap()
 }
 
 #' Get the value by index in a list
@@ -151,8 +176,8 @@ expr_list_concat <- function(other) {
 #'   val_oob = pl$col("values")$list$get(10)
 #' )
 expr_list_get <- function(index, ..., null_on_oob = TRUE) {
-  self$list_get(self, index, null_on_oob) |>
-    unwrap("in $list$get():")
+  self$`_rexpr`$list_get(as_polars_df(index)$`_rexpr`, null_on_oob) |>
+    wrap()
 }
 
 #' Get several values by index in a list
@@ -187,8 +212,8 @@ expr_list_get <- function(index, ..., null_on_oob = TRUE) {
 #'   gathered = pl$col("a")$list$gather(pl$col("a")$cast(pl$List(pl$UInt64)), null_on_oob = TRUE)
 #' )
 expr_list_gather <- function(index, null_on_oob = FALSE) {
-  self$list_gather(self, index, null_on_oob) |>
-    unwrap("in $gather()")
+  self$`_rexpr`$list_gather(as_polars_expr(index)$`_rexpr`, null_on_oob) |>
+    wrap()
 }
 
 #' Gather every nth element in a list
@@ -208,8 +233,8 @@ expr_list_gather <- function(index, null_on_oob = FALSE) {
 #'   gather_every = pl$col("a")$list$gather_every(pl$col("n"), offset = pl$col("offset"))
 #' )
 expr_list_gather_every <- function(n, offset = 0) {
-  self$list_gather_every(self, n, offset) |>
-    unwrap("in $gather_every()")
+  self$`_rexpr`$list_gather_every(as_polars_expr(n)$`_rexpr`, as_polars_expr(n)$`_rexpr`) |>
+    wrap()
 }
 
 #' Get the first value in a list
@@ -222,8 +247,8 @@ expr_list_gather_every <- function(n, offset = 0) {
 #'   first = pl$col("a")$list$first()
 #' )
 expr_list_first <- function() {
-  self$list_get(self, 0, null_on_oob = TRUE) |>
-    unwrap("in $list$first():")
+  self$`_rexpr`$list_get(pl$lit(0)$`_rexpr`, null_on_oob = TRUE) |>
+    wrap()
 }
 
 #' Get the last value in a list
@@ -236,8 +261,8 @@ expr_list_first <- function() {
 #'   last = pl$col("a")$list$last()
 #' )
 expr_list_last <- function() {
-  self$list_get(self, -1, null_on_oob = TRUE) |>
-    unwrap("in $list$last():")
+  self$`_rexpr`$list_get(pl$lit(-1)$`_rexpr`, null_on_oob = TRUE) |>
+    wrap()
 }
 
 #' Check if list contains a given value
@@ -256,7 +281,10 @@ expr_list_last <- function() {
 #'   with_expr = pl$col("a")$list$contains(pl$col("item")),
 #'   with_lit = pl$col("a")$list$contains(1)
 #' )
-expr_list_contains <- function(item) self$list_contains(self, wrap_e(item))
+expr_list_contains <- function(item) {
+  self$`_rexpr`$list_contains(as_polars_df(item)$`_rexpr`) |>
+    wrap()
+}
 
 #' Join elements of a list
 #'
@@ -280,8 +308,8 @@ expr_list_contains <- function(item) self$list_contains(self, wrap_e(item))
 #'   join_ignore_null = pl$col("s")$list$join(" ", ignore_nulls = TRUE)
 #' )
 expr_list_join <- function(separator, ignore_nulls = FALSE) {
-  self$list_join(self, separator, ignore_nulls) |>
-    unwrap("in $list$join():")
+  self$`_rexpr`$list_join(as_polars_df(separator)$`_rexpr`, ignore_nulls) |>
+    wrap()
 }
 
 #' Get the index of the minimal value in list
@@ -293,7 +321,10 @@ expr_list_join <- function(separator, ignore_nulls = FALSE) {
 #' df$with_columns(
 #'   arg_min = pl$col("s")$list$arg_min()
 #' )
-expr_list_arg_min <- function() self$list_arg_min()
+expr_list_arg_min <- function() {
+  self$`_rexpr`$list_arg_min() |>
+    wrap()
+}
 
 #' Get the index of the maximal value in list
 #'
@@ -304,7 +335,10 @@ expr_list_arg_min <- function() self$list_arg_min()
 #' df$with_columns(
 #'   arg_max = pl$col("s")$list$arg_max()
 #' )
-expr_list_arg_max <- function() self$list_arg_max()
+expr_list_arg_max <- function() {
+  self$`_rexpr`$list_arg_max() |>
+    wrap()
+}
 
 
 #' Compute difference between list values
@@ -327,8 +361,8 @@ expr_list_arg_max <- function() self$list_arg_max()
 #' # negative value starts shifting from the end
 #' df$with_columns(diff = pl$col("s")$list$diff(-2))
 expr_list_diff <- function(n = 1, null_behavior = c("ignore", "drop")) {
-  self$list_diff(self, n, null_behavior) |>
-    unwrap("in $list$diff()")
+  self$`_rexpr`$list_diff(n, null_behavior) |>
+    wrap()
 }
 
 #' Shift list values by `n` indices
@@ -347,8 +381,8 @@ expr_list_diff <- function(n = 1, null_behavior = c("ignore", "drop")) {
 #'   shift_by_lit = pl$col("s")$list$shift(2)
 #' )
 expr_list_shift <- function(n = 1) {
-  self$list_shift(self, n) |>
-    unwrap("in $list$shift():")
+  self$`_rexpr`$list_shift(n) |>
+    wrap()
 }
 
 #' Slice list
@@ -379,7 +413,8 @@ expr_list_slice <- function(offset, length = NULL) {
   if (!is.null(length)) {
     length <- wrap_e(length, str_to_lit = FALSE)
   }
-  self$list_slice(self, offset, length)
+  self$`_rexpr`$list_slice(as_polars_df(offset, as_lit = TRUE)$`_rexpr`, as_polars_df(length, as_lit = TRUE)$`_rexpr`) |>
+    wrap()
 }
 
 #' Get the first `n` values of a list
@@ -399,7 +434,8 @@ expr_list_slice <- function(offset, length = NULL) {
 #'   head_by_lit = pl$col("s")$list$head(2)
 #' )
 expr_list_head <- function(n = 5L) {
-  self$list$slice(0L, n)
+  self$`_rexpr`$list_slice(pl$lit(0)$`_rexpr`, as_polars_expr(n)$`_rexpr`) |>
+    wrap()
 }
 
 #' Get the last `n` values of a list
@@ -419,8 +455,9 @@ expr_list_head <- function(n = 5L) {
 #'   tail_by_lit = pl$col("s")$list$tail(2)
 #' )
 expr_list_tail <- function(n = 5L) {
-  offset <- -wrap_e(n, str_to_lit = FALSE)
-  self$list$slice(offset, n)
+  offset <- -as_polars_expr(n)
+  self$`_rexpr`$list_slice(offset$`_rexpr`, as_polars_expr(n)$`_rexpr`) |>
+    wrap()
 }
 
 #' Convert a Series of type `List` to `Struct`
@@ -475,8 +512,8 @@ expr_list_to_struct <- function(
     n_field_strategy = c("first_non_null", "max_width"),
     fields = NULL,
     upper_bound = 0) {
-  self$list_to_struct(self, n_field_strategy, fields, upper_bound) |>
-    unwrap("in $list$to_struct():")
+  self$`_rexpr`$list_to_struct(n_field_strategy, fields, upper_bound) |>
+    wrap()
 }
 
 #' Run any polars expression on the list values
@@ -518,7 +555,8 @@ expr_list_to_struct <- function(
 #'   pl$col("b")$list$eval(pl$element()$str$join(" "))$list$first()
 #' )
 expr_list_eval <- function(expr, parallel = FALSE) {
-  self$list_eval(self, expr, parallel)
+  self$`_rexpr`$list_eval(expr, parallel) |>
+    wrap()
 }
 
 #' Evaluate whether all boolean values in a list are true
@@ -529,7 +567,10 @@ expr_list_eval <- function(expr, parallel = FALSE) {
 #'   list(a = list(c(TRUE, TRUE), c(FALSE, TRUE), c(FALSE, FALSE), NA, c()))
 #' )
 #' df$with_columns(all = pl$col("a")$list$all())
-expr_list_all <- function() self$list_all()
+expr_list_all <- function() {
+  self$`_rexpr`$list_all() |>
+    wrap()
+}
 
 #' Evaluate whether any boolean values in a list are true
 #'
@@ -539,7 +580,10 @@ expr_list_all <- function() self$list_all()
 #'   list(a = list(c(TRUE, TRUE), c(FALSE, TRUE), c(FALSE, FALSE), NA, c()))
 #' )
 #' df$with_columns(any = pl$col("a")$list$any())
-expr_list_any <- function() self$list_any()
+expr_list_any <- function() {
+  self$`_rexpr`$list_any() |>
+    wrap()
+}
 
 #' Get the union of two list variables
 #'
@@ -561,8 +605,8 @@ expr_list_any <- function() self$list_any()
 #'
 #' df$with_columns(union = pl$col("a")$list$set_union("b"))
 expr_list_set_union <- function(other) {
-  self$list_set_operation(self, other, "union") |>
-    unwrap("in $list$set_union():")
+  self$`_rexpr`$list_set_operation(as_polars_expr(other)$`_rexpr`, "union") |>
+    wrap()
 }
 
 #' Get the intersection of two list variables
@@ -577,8 +621,8 @@ expr_list_set_union <- function(other) {
 #'
 #' df$with_columns(intersection = pl$col("a")$list$set_intersection("b"))
 expr_list_set_intersection <- function(other) {
-  self$list_set_operation(self, other, "intersection") |>
-    unwrap("in $list$set_intersection():")
+  self$`_rexpr`$list_set_operation(as_polars_expr(other)$`_rexpr`, "intersection") |>
+    wrap()
 }
 
 #' Get the difference of two list variables
@@ -598,8 +642,8 @@ expr_list_set_intersection <- function(other) {
 #'
 #' df$with_columns(difference = pl$col("a")$list$set_difference("b"))
 expr_list_set_difference <- function(other) {
-  self$list_set_operation(self, other, "difference") |>
-    unwrap("in $list$set_difference():")
+  self$`_rexpr`$list_set_operation(as_polars_expr(other)$`_rexpr`, "difference") |>
+    wrap()
 }
 
 #' Get the symmetric difference of two list variables
@@ -620,8 +664,8 @@ expr_list_set_difference <- function(other) {
 #'   symmetric_difference = pl$col("a")$list$set_symmetric_difference("b")
 #' )
 expr_list_set_symmetric_difference <- function(other) {
-  self$list_set_operation(self, other, "symmetric_difference") |>
-    unwrap("in $list$set_symmetric_difference():")
+  self$`_rexpr`$list_set_operation(as_polars_expr(other)$`_rexpr`, "symmetric_difference") |>
+    wrap()
 }
 
 #' Returns a column with a separate row for every list element
@@ -632,7 +676,8 @@ expr_list_set_symmetric_difference <- function(other) {
 #' df <- pl$DataFrame(a = list(c(1, 2, 3), c(4, 5, 6)))
 #' df$select(pl$col("a")$list$explode())
 expr_list_explode <- function() {
-  self$explode()
+  self$`_rexpr`$explode() |>
+    wrap()
 }
 
 #' Sample from this list
@@ -656,10 +701,10 @@ expr_list_sample <- function(
     !is.null(n) && !is.null(fraction), {
       Err(.pr$Err$new()$plain("either arg `n` or `fraction` must be NULL"))
     },
-    !is.null(n), self$list_sample_n(self, n, with_replacement, shuffle, seed),
+    !is.null(n), self$`_rexpr`$list_sample_n(n, with_replacement, shuffle, seed),
     or_else = {
-      self$list_sample_frac(self, fraction %||% 1, with_replacement, shuffle, seed)
+      self$`_rexpr`$list_sample_frac(fraction %||% 1, with_replacement, shuffle, seed)
     }
   ) |>
-    unwrap("in $list$sample():")
+    wrap()
 }
