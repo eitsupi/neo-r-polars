@@ -1,6 +1,7 @@
+use crate::conversion::Wrap;
 use crate::{PlRExpr, RPolarsErr};
 // use polars::prelude::StrptimeOptions;
-use savvy::{savvy, Result, Sexp};
+use savvy::{savvy, NumericScalar, Result, Sexp};
 
 #[savvy]
 impl PlRExpr {
@@ -273,12 +274,19 @@ impl PlRExpr {
         Ok(self.inner.clone().str().splitn(by.inner.clone(), n).into())
     }
 
-    fn str_replace(&self, pat: &PlRExpr, value: &PlRExpr, literal: bool, n: i32) -> Result<Self> {
+    fn str_replace(
+        &self,
+        pat: &PlRExpr,
+        value: &PlRExpr,
+        literal: bool,
+        n: NumericScalar,
+    ) -> Result<Self> {
+        let n = <Wrap<i64>>::try_from(n)?.0;
         Ok(self
             .inner
             .clone()
             .str()
-            .replace_n(pat.inner.clone(), value.inner.clone(), literal, n as i64)
+            .replace_n(pat.inner.clone(), value.inner.clone(), literal, n)
             .into())
     }
 

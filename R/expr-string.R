@@ -822,7 +822,7 @@ expr_str_splitn <- function(by, n) {
 expr_str_replace <- function(pattern, value, ..., literal = FALSE, n = 1L) {
   wrap({
     check_dots_empty0(...)
-    self$`_rexpr`$str_replace(as_polars_expr(pattern, as_lit = TRUE)$`_rexpr`, as_polars_expr(value, as_lit = TRUE)$`_rexpr`, literal, as.integer(n))
+    self$`_rexpr`$str_replace(as_polars_expr(pattern, as_lit = TRUE)$`_rexpr`, as_polars_expr(value, as_lit = TRUE)$`_rexpr`, literal, n)
   })
 }
 
