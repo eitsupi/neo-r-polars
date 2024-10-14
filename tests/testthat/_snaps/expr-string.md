@@ -1,3 +1,71 @@
+# encode decode
+
+    Code
+      pl$lit("?")$str$decode("base64")$to_r()
+    Condition
+      Error in `pl$lit("?")$str$decode("base64")$to_r`:
+      ! $ - syntax error: `to_r` is not a member of this polars object
+
+---
+
+    Code
+      pl$lit("?")$str$decode("invalid_name")
+    Condition
+      Error in `pl$lit("?")$str$decode()`:
+      ! Evaluation failed in `$decode()`.
+      Caused by error in `pl$lit("?")$str$decode()`:
+      ! `encoding` must be one of "hex" or "base64", not "invalid_name".
+
+---
+
+    Code
+      pl$lit("?")$str$encode("invalid_name")
+    Condition
+      Error in `pl$lit("?")$str$encode()`:
+      ! Evaluation failed in `$encode()`.
+      Caused by error in `pl$lit("?")$str$encode()`:
+      ! `encoding` must be one of "hex" or "base64", not "invalid_name".
+
+# str$extract
+
+    Code
+      pl$DataFrame(x = "abc")$with_columns(pl$col("x")$str$extract(pl$lit("a"), "2"))
+    Condition
+      Error:
+      ! Evaluation failed in `$with_columns()`.
+      Caused by error:
+      ! Evaluation failed in `$with_columns()`.
+      Caused by error in `pl$col("x")$str$extract()`:
+      ! Evaluation failed in `$extract()`.
+      Caused by error:
+      ! Argument `group_index` must be numeric, not character
+
+---
+
+    Code
+      pl$DataFrame(x = "abc")$with_columns(pl$col("x")$str$extract("a", "a"))
+    Condition
+      Error:
+      ! Evaluation failed in `$with_columns()`.
+      Caused by error:
+      ! Evaluation failed in `$with_columns()`.
+      Caused by error in `pl$col("x")$str$extract()`:
+      ! Evaluation failed in `$extract()`.
+      Caused by error:
+      ! Argument `group_index` must be numeric, not character
+
+# str$count_matches
+
+    Code
+      df$select(pl$col("foo")$str$count_matches(5))
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! SchemaMismatch(ErrString("invalid series dtype: expected `String`, got `f64`"))
+
 # str$replace
 
     Code

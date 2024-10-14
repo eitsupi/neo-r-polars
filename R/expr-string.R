@@ -631,12 +631,11 @@ expr_str_decode <- function(encoding, ..., strict = TRUE) {
 #' )
 expr_str_encode <- function(encoding) {
   wrap({
-    check_dots_empty0(...)
     arg_match0(encoding, values = c("hex", "base64"))
     if (encoding == "hex") {
-      self$`_rexpr`$str_hex_encode(strict)
+      self$`_rexpr`$str_hex_encode()
     } else if (encoding == "base64") {
-      self$`_rexpr`$str_base64_encode(strict)
+      self$`_rexpr`$str_base64_encode()
     }
   })
 }
@@ -665,7 +664,7 @@ expr_str_encode <- function(encoding) {
 #'   extracted = pl$col("a")$str$extract(pl$lit(r"(candidate=(\w+))"), 1)
 #' )
 expr_str_extract <- function(pattern, group_index) {
-  self$`_rexpr`$str_extract(pattern, group_index) |>
+  self$`_rexpr`$str_extract(as_polars_expr(pattern)$`_rexpr`, group_index) |>
     wrap()
 }
 
@@ -687,7 +686,7 @@ expr_str_extract <- function(pattern, group_index) {
 #'   pl$col("foo")$str$extract_all(r"((\d+))")$alias("extracted_nrs")
 #' )
 expr_str_extract_all <- function(pattern) {
-  self$`_rexpr`$str_extract_all(wrap_e(pattern))
+  self$`_rexpr`$str_extract_all(as_polars_expr(pattern, as_lit = TRUE)$`_rexpr`)
 }
 
 #' Count all successive non-overlapping regex matches
@@ -705,7 +704,7 @@ expr_str_extract_all <- function(pattern) {
 expr_str_count_matches <- function(pattern, ..., literal = FALSE) {
   wrap({
     check_dots_empty0(...)
-    self$`_rexpr`$str_count_matches(pattern, literal)
+    self$`_rexpr`$str_count_matches(as_polars_expr(pattern, as_lit = TRUE)$`_rexpr`, literal)
   })
 }
 
@@ -777,7 +776,7 @@ expr_str_split_exact <- function(by, n, inclusive = FALSE) {
 #'   s3 = pl$col("s")$str$splitn(by = "_", 3)
 #' )
 expr_str_splitn <- function(by, n) {
-  self$`_rexpr`$str_splitn(result(by), result(n)) |> wrap()
+  self$`_rexpr`$str_splitn(as_polars_expr(by, as_lit = TRUE)$`_rexpr`, n) |> wrap()
 }
 
 

@@ -143,7 +143,8 @@ impl PlRExpr {
         Ok(self.inner.clone().str().base64_decode(strict).into())
     }
 
-    fn str_extract(&self, pattern: &PlRExpr, group_index: usize) -> Result<Self> {
+    fn str_extract(&self, pattern: &PlRExpr, group_index: NumericScalar) -> Result<Self> {
+        let group_index = <Wrap<usize>>::try_from(group_index)?.0;
         Ok(self
             .inner
             .clone()
@@ -269,7 +270,8 @@ impl PlRExpr {
         .into())
     }
 
-    fn str_splitn(&self, by: &PlRExpr, n: usize) -> Result<Self> {
+    fn str_splitn(&self, by: &PlRExpr, n: NumericScalar) -> Result<Self> {
+        let n = <Wrap<usize>>::try_from(n)?.0;
         Ok(self.inner.clone().str().splitn(by.inner.clone(), n).into())
     }
 

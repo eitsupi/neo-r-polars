@@ -351,104 +351,97 @@
 # })
 
 
-# test_that("encode decode", {
-#   l <- pl$DataFrame(
-#     strings = c("foo", "bar", NA)
-#   )$select(
-#     pl$col("strings")$str$encode("hex")
-#   )$with_columns(
-#     pl$col("strings")$str$encode("base64")$alias("base64"), # notice DataType is not encoded
-#     pl$col("strings")$str$encode("hex")$alias("hex") # ... and must restored with cast
-#   )$with_columns(
-#     pl$col("base64")$str$decode("base64")$alias("base64_decoded")$cast(pl$String),
-#     pl$col("hex")$str$decode("hex")$alias("hex_decoded")$cast(pl$String)
-#   )
+test_that("encode decode", {
+  l <- pl$DataFrame(
+    strings = c("foo", "bar", NA)
+  )$select(
+    pl$col("strings")$str$encode("hex")
+  )$with_columns(
+    pl$col("strings")$str$encode("base64")$alias("base64"), # notice DataType is not encoded
+    pl$col("strings")$str$encode("hex")$alias("hex") # ... and must restored with cast
+  )$with_columns(
+    pl$col("base64")$str$decode("base64")$alias("base64_decoded")$cast(pl$String),
+    pl$col("hex")$str$decode("hex")$alias("hex_decoded")$cast(pl$String)
+  )
 
-#   expect_equal(l$strings, l$base64_decoded)
-#   expect_equal(l$strings, l$hex_decoded)
+  expect_equal(l$select(foo = "strings"), l$select(foo = "base64_decoded"))
+  expect_equal(l$select(foo = "strings"), l$select(foo = "hex_decoded"))
 
-#   expect_equal(
-#     pl$lit("?")$str$decode("base64", strict = FALSE)$cast(pl$String)$to_r(),
-#     NA_character_
-#   )
+  expect_equal(
+    pl$DataFrame(x = "?")$with_columns(pl$col("x")$str$decode("base64", strict = FALSE)$cast(pl$String)),
+    pl$DataFrame(x = NA_character_)
+  )
 
-#   expect_snapshot(pl$lit("?")$str$decode("base64")$to_r(), error = TRUE)
-
-#   expect_snapshot(pl$lit("?")$str$decode("invalid_name"), error = TRUE)
-
-#   expect_snapshot(pl$lit("?")$str$encode("invalid_name"), error = TRUE)
-# })
+  expect_snapshot(pl$lit("?")$str$decode("base64")$to_r(), error = TRUE)
+  expect_snapshot(pl$lit("?")$str$decode("invalid_name"), error = TRUE)
+  expect_snapshot(pl$lit("?")$str$encode("invalid_name"), error = TRUE)
+})
 
 
 
-# test_that("str$extract", {
-#   actual <- pl$lit(
-#     c(
-#       "http://vote.com/ballon_dor?candidate=messi&ref=polars",
-#       "http://vote.com/ballon_dor?candidat=jorginho&ref=polars",
-#       "http://vote.com/ballon_dor?candidate=ronaldo&ref=polars"
-#     )
-#   )$str$extract(pl$lit(r"(candidate=(\w+))"), 1)$to_r()
-#   expect_equal(actual, c("messi", NA, "ronaldo"))
+test_that("str$extract", {
+  df <- pl$DataFrame(
+    x = c(
+      "http://vote.com/ballon_dor?candidate=messi&ref=polars",
+      "http://vote.com/ballon_dor?candidat=jorginho&ref=polars",
+      "http://vote.com/ballon_dor?candidate=ronaldo&ref=polars"
+    )
+  )
+  expect_equal(
+    df$with_columns(pl$col("x")$str$extract(pl$lit(r"(candidate=(\w+))"), 1)),
+    pl$DataFrame(x = c("messi", NA, "ronaldo"))
+  )
 
-#   # wrong input
-#   expect_equal(
-#     pl$lit("abc")$str$extract(42, 42)$to_r(),
-#     NA_character_
-#   )
+  # wrong input
+  expect_equal(
+    pl$DataFrame(x = "abc")$with_columns(pl$col("x")$str$extract(42, 42)),
+    pl$DataFrame(x = NA_character_)
+  )
 
-#   expect_equal(
-#     pl$lit("abc")$str$extract(pl$lit("a"), "2")$to_r(),
-#     pl$lit("abc")$str$extract(pl$lit("a"), 2)$to_r()
-#   )
+  # TODO: REWRITE -> breaking change, this used to work
+  expect_snapshot(
+    pl$DataFrame(x = "abc")$with_columns(pl$col("x")$str$extract(pl$lit("a"), "2")),
+    error = TRUE
+  )
 
-#   expect_grepl_error(
-#     pl$lit("abc")$str$extract("a", "a"),
-#     "i64"
-#   )
-# })
+  expect_snapshot(
+    pl$DataFrame(x = "abc")$with_columns(pl$col("x")$str$extract("a", "a")),
+    error = TRUE
+  )
+})
 
 # test_that("str$extract_all", {
 #   df <- pl$DataFrame(foo = c("123 bla 45 asd", "xyz 678 910t"))
-#   actual <- df$select(
-#     pl$col("foo")$str$extract_all(r"((\d+))")$alias("extracted_nrs")
+#   expect_equal(
+#     df$select(pl$col("foo")$str$extract_all(r"((\d+))")),
+#     pl$DataFrame(foo = list(c("123", "45"), c("678", "910")))
 #   )
 
-
-#   expect_equal(actual, list(extracted_nrs = list(c("123", "45"), c("678", "910"))))
-
-#   expect_grepl_error(
+#   expect_snapshot(
 #     pl$lit("abc")$str$extract_all(complex(2)),
-#     "cannot be converted into an Expr",
+#     snapshot = TRUE
 #   )
 # })
 
 
-# test_that("str$count_matches", {
-#   df <- pl$DataFrame(foo = c("123 bla 45 asd", "xyz 678 910t"))
-#   actual <- df$select(
-#     pl$col("foo")$str$count_matches(r"{(\d)}")$alias("count digits")
-#   )
-#   expect_equal(
-#     actual |> lapply(as.numeric),
-#     list(`count digits` = c(5, 6))
-#   )
+test_that("str$count_matches", {
+  df <- pl$DataFrame(foo = c("123 bla 45 asd", "xyz 678 910t"))
+  expect_equal(
+    df$select(pl$col("foo")$str$count_matches(r"{(\d)}")),
+    pl$DataFrame(foo = c(5, 6))$cast(foo = pl$UInt32)
+  )
 
-#   expect_grepl_error(
-#     df$select(pl$col("foo")$str$count_matches(5)),
-#     "invalid series dtype"
-#   )
+  expect_snapshot(
+    df$select(pl$col("foo")$str$count_matches(5)),
+    error = TRUE
+  )
 
-#   df2 <- pl$DataFrame(foo = c("hello", "hi there"), pat = c("ell", "e"))
-#   actual <- df2$select(
-#     pl$col("foo")$str$count_matches(pl$col("pat"))$alias("reg_count")
-#   )
-
-#   expect_equal(
-#     actual |> lapply(as.numeric),
-#     list(reg_count = c(1, 2))
-#   )
-# })
+  df2 <- pl$DataFrame(foo = c("hello", "hi there"), pat = c("ell", "e"))
+  expect_equal(
+    df2$select(pl$col("foo")$str$count_matches(pl$col("pat"))),
+    pl$DataFrame(foo = c(1, 2))$cast(foo = pl$UInt32)
+  )
+})
 
 
 # test_that("str$split", {
@@ -514,22 +507,23 @@
 
 
 # test_that("str$split_exact", {
+#   dat <- pl$DataFrame(x = c("a_1", NA, "c", "d_4-5"))
 #   expect_equal(
-#     pl$lit(c("a_1", NA, "c", "d_4-5"))$str$splitn(by = "_", 1)$to_r(),
-#     structure(list(field_0 = c("a_1", NA, "c", "d_4-5")), is_struct = TRUE)
+#     dat$with_columns(pl$col("x")$str$splitn(by = "_", 1)),
+#     pl$DataFrame(field_0 = c("a_1", NA, "c", "d_4-5"))
 #   )
 
 #   expect_equal(
-#     pl$lit(c("a_1", NA, "c", "d_4-5"))$str$splitn(by = "_", 2)$to_r(),
-#     structure(list(field_0 = c("a", NA, "c", "d"), field_1 = c("1", NA, NA, "4-5")), is_struct = TRUE)
+#     dat$with_columns(pl$col("x")$str$splitn(by = "_", 2)),
+#     pl$DataFrame(field_0 = c("a", NA, "c", "d"), field_1 = c("1", NA, NA, "4-5"))
 #   )
 
 #   expect_equal(
-#     pl$lit(c("a_1", NA, "c", "d_4-5"))$str$splitn(by = "-", 2)$to_r(),
-#     structure(list(
+#     dat$with_columns(pl$col("x")$str$splitn(by = "-", 2)),
+#     pl$DataFrame(
 #       field_0 = c("a_1", NA, "c", "d_4"),
 #       field_1 = c(NA, NA, NA, "5")
-#     ), is_struct = TRUE)
+#     )
 #   )
 # })
 
