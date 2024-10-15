@@ -38,6 +38,15 @@ cleaning your data beforehand will almost certainly be more performant.}
 
 \item{cache}{Use a cache of unique, converted dates to apply the datetime
 conversion.}
+
+\item{ambiguous}{Determine how to deal with ambiguous datetimes.
+Character vector or \link{expression} containing the followings:
+\itemize{
+\item \code{"raise"} (default): Throw an error
+\item \code{"earliest"}: Use the earliest datetime
+\item \code{"latest"}: Use the latest datetime
+\item \code{"null"}: Return a null value
+}}
 }
 \value{
 A polars \link{expression}

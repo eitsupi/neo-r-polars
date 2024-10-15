@@ -43,7 +43,7 @@ namespace_expr_str <- function(x) {
 #' cleaning your data beforehand will almost certainly be more performant.
 #' @param cache Use a cache of unique, converted dates to apply the datetime
 #' conversion.
-#' @inheritParams ExprDT_replace_time_zone
+#' @inheritParams expr_dt_replace_time_zone
 #' @inherit as_polars_expr return
 #' @seealso
 #' - [`<Expr>$str$to_date()`][expr_str_to_date]
