@@ -12,7 +12,7 @@ expr_str_pad_end(width, fillchar = " ")
 \item{fillchar}{Fill with this ASCII character.}
 }
 \value{
-Expr of String
+A polars \link{expression}
 }
 \description{
 Return the string left justified in a string of length \code{width}.
@@ -25,4 +25,3 @@ is returned if \code{width} is less than or equal to \code{len(s)}.
 df <- pl$DataFrame(a = c("cow", "monkey", NA, "hippopotamus"))
 df$select(pl$col("a")$str$pad_end(8, "*"))
 }
-\keyword{ExprStr}

@@ -19,7 +19,7 @@ not as a regular expression.}
 not a valid regex, otherwise mask out with a null value.}
 }
 \value{
-An Expr of data type UInt32
+A polars \link{expression}
 }
 \description{
 Return the index position of the first substring matching a pattern

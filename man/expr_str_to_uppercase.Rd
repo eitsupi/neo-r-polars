@@ -7,7 +7,7 @@
 expr_str_to_uppercase()
 }
 \value{
-Expr of String uppercase chars
+A polars \link{expression}
 }
 \description{
 Transform to uppercase variant.
@@ -15,4 +15,3 @@ Transform to uppercase variant.
 \examples{
 pl$lit(c("A", "b", "c", "1", NA))$str$to_uppercase()$to_series()
 }
-\keyword{ExprStr}

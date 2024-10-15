@@ -23,7 +23,7 @@ be parsed. If \code{FALSE}, produce a polars \code{null}.}
 conversion.}
 }
 \value{
-\link[=Expr_class]{Expr} of Time type
+A polars \link{expression}
 }
 \description{
 Convert a String column into a Time column

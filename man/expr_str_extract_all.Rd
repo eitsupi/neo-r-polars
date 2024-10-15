@@ -10,8 +10,7 @@ expr_str_extract_all(pattern)
 \item{pattern}{A valid regex pattern}
 }
 \value{
-\code{List[String]} array. Contain null if original value is null or regex capture
-nothing.
+A polars \link{expression}
 }
 \description{
 Extracts all matches for the given regex pattern. Extracts each
@@ -23,4 +22,3 @@ df$select(
   pl$col("foo")$str$extract_all(r"((\d+))")$alias("extracted_nrs")
 )
 }
-\keyword{ExprStr}

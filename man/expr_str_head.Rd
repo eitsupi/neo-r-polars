@@ -11,7 +11,7 @@ expr_str_head(n)
 column names. Negative indexing is supported.}
 }
 \value{
-Expr: Series of dtype String.
+A polars \link{expression}
 }
 \description{
 Return the first n characters of each string

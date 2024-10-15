@@ -40,7 +40,7 @@ cleaning your data beforehand will almost certainly be more performant.}
 conversion.}
 }
 \value{
-\link[=Expr_class]{Expr} of Date, Datetime or Time type
+A polars \link{expression}
 }
 \description{
 Similar to the \code{\link[=strptime]{strptime()}} function.

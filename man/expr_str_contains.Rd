@@ -19,7 +19,7 @@ not as a regular expression.}
 not a valid regex, otherwise mask out with a null value.}
 }
 \value{
-\link[=Expr_class]{Expr} of Boolean data type
+A polars \link{expression}
 }
 \description{
 Check if string contains a substring that matches a pattern

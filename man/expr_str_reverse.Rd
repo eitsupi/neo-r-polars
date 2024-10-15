@@ -7,7 +7,7 @@
 expr_str_reverse()
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 Returns string values in reversed order

@@ -15,7 +15,7 @@ expr_str_decode(encoding, ..., strict = TRUE)
 cannot be decoded. Otherwise, replace it with a null value.}
 }
 \value{
-String array with values decoded using provided encoding
+A polars \link{expression}
 }
 \description{
 Decode a value using the provided encoding
@@ -31,4 +31,3 @@ df$with_columns(
   pl$col("hex")$str$decode("hex")$alias("hex_decoded")$cast(pl$String)
 )
 }
-\keyword{ExprStr}

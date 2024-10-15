@@ -14,7 +14,7 @@ will be inferred from the JSON value.}
 If \code{NULL}, all rows are used.}
 }
 \value{
-Expr returning a struct
+A polars \link{expression}
 }
 \description{
 Parse string values as JSON.
@@ -29,4 +29,3 @@ df <- pl$DataFrame(
 dtype <- pl$Struct(pl$Field("a", pl$Int64), pl$Field("b", pl$Boolean))
 df$select(pl$col("json_val")$str$json_decode(dtype))
 }
-\keyword{ExprStr}

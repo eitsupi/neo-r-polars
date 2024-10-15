@@ -7,7 +7,7 @@
 expr_str_to_titlecase()
 }
 \value{
-Expr of String titlecase chars
+A polars \link{expression}
 }
 \description{
 Transform to titlecase variant.
@@ -21,4 +21,3 @@ See \code{\link[=polars_info]{polars_info()}} for more details.
 pl$lit(c("hello there", "HI, THERE", NA))$str$to_titlecase()$to_series()
 \dontshow{\}) # examplesIf}
 }
-\keyword{ExprStr}

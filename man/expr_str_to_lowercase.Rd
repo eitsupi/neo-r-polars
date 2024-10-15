@@ -7,7 +7,7 @@
 expr_str_to_lowercase()
 }
 \value{
-Expr of String lowercase chars
+A polars \link{expression}
 }
 \description{
 Transform to lowercase variant.
@@ -15,4 +15,3 @@ Transform to lowercase variant.
 \examples{
 pl$lit(c("A", "b", "c", "1", NA))$str$to_lowercase()$to_series()
 }
-\keyword{ExprStr}

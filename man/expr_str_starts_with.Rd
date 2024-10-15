@@ -10,7 +10,7 @@ expr_str_starts_with(sub)
 \item{sub}{Prefix substring or Expr.}
 }
 \value{
-\link[=Expr_class]{Expr} of Boolean data type
+A polars \link{expression}
 }
 \description{
 Check if string values starts with a substring.
@@ -25,4 +25,3 @@ df$select(
   pl$col("fruits")$str$starts_with("app")$alias("has_suffix")
 )
 }
-\keyword{ExprStr}

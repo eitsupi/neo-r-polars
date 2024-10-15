@@ -10,7 +10,7 @@ expr_str_encode(encoding)
 \item{encoding}{Either 'hex' or 'base64'.}
 }
 \value{
-String array with values encoded using provided encoding
+A polars \link{expression}
 }
 \description{
 Encode a value using the provided encoding
@@ -26,4 +26,3 @@ df$with_columns(
   pl$col("hex")$str$decode("hex")$alias("hex_decoded")$cast(pl$String)
 )
 }
-\keyword{ExprStr}

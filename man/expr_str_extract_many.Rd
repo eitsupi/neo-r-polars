@@ -24,7 +24,7 @@ case for ASCII letters (a-z and A-Z) only.}
 \item{overlapping}{Whether matches can overlap.}
 }
 \value{
-Expr: Series of dtype String.
+A polars \link{expression}
 }
 \description{
 Use the aho-corasick algorithm to extract matches

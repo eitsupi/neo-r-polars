@@ -14,7 +14,7 @@ expr_str_split_exact(by, n, inclusive = FALSE)
 \item{inclusive}{If \code{TRUE}, include the split character/string in the results.}
 }
 \value{
-Struct where each of n+1 fields is of String type
+A polars \link{expression}
 }
 \description{
 This results in a struct of \code{n+1} fields. If it cannot make \code{n}
@@ -27,4 +27,3 @@ df$with_columns(
   split_inclusive = pl$col("s")$str$split_exact(by = "_", 1, inclusive = TRUE)
 )
 }
-\keyword{ExprStr}

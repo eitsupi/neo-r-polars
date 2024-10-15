@@ -10,8 +10,7 @@ expr_str_json_path_match(json_path)
 \item{json_path}{A valid JSON path query string.}
 }
 \value{
-String array. Contain null if original value is null or the json_path
-return nothing.
+A polars \link{expression}
 }
 \description{
 Extract the first match of JSON string with the provided JSONPath expression
@@ -28,4 +27,3 @@ df <- pl$DataFrame(
 )
 df$select(pl$col("json_val")$str$json_path_match("$.a"))
 }
-\keyword{ExprStr}

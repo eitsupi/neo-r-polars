@@ -44,7 +44,7 @@ namespace_expr_str <- function(x) {
 #' @param cache Use a cache of unique, converted dates to apply the datetime
 #' conversion.
 #' @inheritParams ExprDT_replace_time_zone
-#' @return [Expr][Expr_class] of Date, Datetime or Time type
+#' @inherit as_polars_expr return
 #' @seealso
 #' - [`<Expr>$str$to_date()`][expr_str_to_date]
 #' - [`<Expr>$str$to_datetime()`][expr_str_to_datetime]
@@ -127,7 +127,7 @@ expr_str_strptime <- function(
 #'
 #' @inheritParams expr_str_strptime
 #'
-#' @return [Expr][Expr_class] of Date type
+#' @inherit as_polars_expr return
 #' @seealso
 #' - [`<Expr>$str$strptime()`][expr_str_strptime]
 #' @examples
@@ -150,7 +150,7 @@ expr_str_to_date <- function(format = NULL, ..., strict = TRUE, exact = TRUE, ca
 #'
 #' @inheritParams expr_str_strptime
 #'
-#' @return [Expr][Expr_class] of Time type
+#' @inherit as_polars_expr return
 #' @seealso
 #' - [`<Expr>$str$strptime()`][expr_str_strptime]
 #' @examples
@@ -175,7 +175,7 @@ expr_str_to_time <- function(format = NULL, ..., strict = TRUE, cache = TRUE) {
 #' @param exact If `TRUE` (default), require an exact format match. If `FALSE`, allow the format to match
 #' anywhere in the target string. Note that using `exact = FALSE` introduces a performance
 #' penalty - cleaning your data beforehand will almost certainly be more performant.
-#' @return [Expr][Expr_class] of [Datetime][pl_Datetime] type
+#' @inherit as_polars_expr return
 #' @seealso
 #' - [`<Expr>$str$strptime()`][expr_str_strptime]
 #' @examples
@@ -205,11 +205,10 @@ expr_str_to_datetime <- function(
 #' Get length of the strings as UInt32 (as number of bytes). Use `$str$len_chars()`
 #' to get the number of characters.
 #'
-#' @keywords ExprStr
 #' @details
 #' If you know that you are working with ASCII text, `lengths` will be
 #' equivalent, and faster (returns length in terms of the number of bytes).
-#' @return Expr of u32
+#' @inherit as_polars_expr return
 #' @examples
 #' pl$DataFrame(
 #'   s = c("Café", NA, "345", "æøå")
@@ -228,7 +227,6 @@ expr_str_len_bytes <- function() {
 #' Get length of the strings as UInt32 (as number of characters). Use
 #' `$str$len_bytes()` to get the number of bytes.
 #'
-#' @keywords ExprStr
 #' @inherit expr_str_len_bytes examples details return
 expr_str_len_chars <- function() {
   self$`_rexpr`$str_len_chars() |>
@@ -241,7 +239,7 @@ expr_str_len_chars <- function() {
 #' @inheritParams rlang::args_dots_empty
 #' @param ignore_nulls Ignore null values (default). If `FALSE`, null values will be
 #' propagated: if the column contains any null values, the output is null.
-#' @return Expr of String concatenated
+#' @inherit as_polars_expr return
 #' @examples
 #' # concatenate a Series of strings to a single string
 #' df <- pl$DataFrame(foo = c(1, NA, 2))
@@ -271,8 +269,7 @@ expr_str_concat <- function(
 #' Convert a string to uppercase
 #'
 #' @description Transform to uppercase variant.
-#' @keywords ExprStr
-#' @return Expr of String uppercase chars
+#' @inherit as_polars_expr return
 #' @examples
 #' pl$lit(c("A", "b", "c", "1", NA))$str$to_uppercase()$to_series()
 expr_str_to_uppercase <- function() {
@@ -283,8 +280,7 @@ expr_str_to_uppercase <- function() {
 #' Convert a string to lowercase
 #'
 #' @description Transform to lowercase variant.
-#' @keywords ExprStr
-#' @return Expr of String lowercase chars
+#' @inherit as_polars_expr return
 #' @examples
 #' pl$lit(c("A", "b", "c", "1", NA))$str$to_lowercase()$to_series()
 expr_str_to_lowercase <- function() {
@@ -295,8 +291,7 @@ expr_str_to_lowercase <- function() {
 #' Convert a string to titlecase
 #'
 #' @description Transform to titlecase variant.
-#' @keywords ExprStr
-#' @return Expr of String titlecase chars
+#' @inherit as_polars_expr return
 #' @details
 #' This method is only available with the "nightly" feature.
 #' See [polars_info()] for more details.
@@ -316,7 +311,6 @@ expr_str_to_titlecase <- function() {
 #' @aliases expr_str_strip_chars
 #' @description  Remove leading and trailing characters.
 #'
-#' @keywords ExprStr
 #' @param matches The set of characters to be removed. All combinations of this
 #' set of characters will be stripped. If `NULL` (default), all whitespace is
 #' removed instead. This can be an Expr.
@@ -326,7 +320,7 @@ expr_str_to_titlecase <- function() {
 #' `strip_chars()` removes characters at the beginning and the end of the string.
 #' Use `strip_chars_start()` and `strip_chars_end()` to remove characters only
 #' from left and right respectively.
-#' @return Expr of String lowercase chars
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(foo = c(" hello", "\tworld"))
 #' df$select(pl$col("foo")$str$strip_chars())
@@ -351,7 +345,7 @@ expr_str_strip_chars <- function(matches = NULL) {
 #' `strip_chars_start()` removes characters at the beginning of the string only.
 #' Use `strip_chars()` and `strip_chars_end()` to remove characters from the left
 #' and right or only from the right respectively.
-#' @return Expr of String lowercase chars
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(foo = c(" hello", "\tworld"))
 #' df$select(pl$col("foo")$str$strip_chars_start(" hel rld"))
@@ -375,7 +369,7 @@ expr_str_strip_chars_start <- function(matches = NULL) {
 #' `strip_chars_end()` removes characters at the end of the string only.
 #' Use `strip_chars()` and `strip_chars_start()` to remove characters from the left
 #' and right or only from the left respectively.
-#' @return Expr of String lowercase chars
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(foo = c(" hello", "\tworld"))
 #' df$select(pl$col("foo")$str$strip_chars_end(" hel\trld"))
@@ -391,7 +385,6 @@ expr_str_strip_chars_end <- function(matches = NULL) {
 #' @aliases expr_str_zfill
 #' @description Add zeroes to a string until it reaches `n` characters. If the
 #' number of characters is already greater than `n`, the string is not modified.
-#' @keywords ExprStr
 #' @param alignment Fill the value up to this length. This can be an Expr or
 #' something coercible to an Expr. Strings are parsed as column names.
 #' @details
@@ -402,7 +395,7 @@ expr_str_strip_chars_end <- function(matches = NULL) {
 #' sign character rather than before. The original string is returned if width is
 #' less than or equal to `len(s)`.
 #'
-#' @return Expr
+#' @inherit as_polars_expr return
 #' @examples
 #' some_floats_expr <- pl$lit(c(0, 10, -5, 5))
 #'
@@ -421,12 +414,11 @@ expr_str_zfill <- function(alignment) {
 #' Left justify strings
 #'
 #' @description Return the string left justified in a string of length `width`.
-#' @keywords ExprStr
 #' @param width Justify left to this length.
 #' @param fillchar Fill with this ASCII character.
 #' @details Padding is done using the specified `fillchar`. The original string
 #' is returned if `width` is less than or equal to `len(s)`.
-#' @return Expr of String
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(a = c("cow", "monkey", NA, "hippopotamus"))
 #' df$select(pl$col("a")$str$pad_end(8, "*"))
@@ -439,7 +431,6 @@ expr_str_pad_end <- function(width, fillchar = " ") {
 #' Right justify strings
 #'
 #' @description Return the string right justified in a string of length `width`.
-#' @keywords ExprStr
 #' @param width Justify right to this length.
 #' @param fillchar Fill with this ASCII character.
 #' @inherit expr_str_pad_end details return
@@ -467,7 +458,7 @@ expr_str_pad_start <- function(width, fillchar = " ") {
 #' @param strict Logical. If `TRUE` (default), raise an error if the underlying pattern is
 #' not a valid regex, otherwise mask out with a null value.
 #'
-#' @return [Expr][Expr_class] of Boolean data type
+#' @inherit as_polars_expr return
 #' @seealso
 #' - [`$str$start_with()`][expr_str_starts_with]: Check if string values
 #'   start with a substring.
@@ -500,7 +491,6 @@ expr_str_contains <- function(pattern, ..., literal = FALSE, strict = TRUE) {
 #' Check if string ends with a regex
 #'
 #' @description Check if string values end with a substring.
-#' @keywords ExprStr
 #' @param sub Suffix substring or Expr.
 #' @details
 #' See also `$str$starts_with()` and `$str$contains()`.
@@ -522,7 +512,6 @@ expr_str_ends_with <- function(sub) {
 #' Check if string starts with a regex
 #'
 #' @description Check if string values starts with a substring.
-#' @keywords ExprStr
 #' @param sub Prefix substring or Expr.
 #' @details
 #' See also `$str$contains()` and `$str$ends_with()`.
@@ -542,7 +531,6 @@ expr_str_starts_with <- function(sub) {
 
 #' Parse string values as JSON.
 #'
-#' @keywords ExprStr
 #' @param dtype The dtype to cast the extracted value to. If `NULL`, the dtype
 #' will be inferred from the JSON value.
 #' @param infer_schema_length How many rows to parse to determine the schema.
@@ -550,7 +538,7 @@ expr_str_starts_with <- function(sub) {
 #' @details
 #' Throw errors if encounter invalid json strings.
 #'
-#' @return Expr returning a struct
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   json_val = c('{"a":1, "b": true}', NA, '{"a":2, "b": false}')
@@ -564,15 +552,13 @@ expr_str_json_decode <- function(dtype, infer_schema_length = 100) {
 
 #' Extract the first match of JSON string with the provided JSONPath expression
 #'
-#' @keywords ExprStr
 #' @param json_path A valid JSON path query string.
 #' @details
 #' Throw errors if encounter invalid JSON strings. All return value will be
 #' cast to String regardless of the original value.
 #'
 #' Documentation on JSONPath standard can be found here: <https://goessner.net/articles/JsonPath/>.
-#' @return String array. Contain null if original value is null or the json_path
-#' return nothing.
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   json_val = c('{"a":"1"}', NA, '{"a":2}', '{"a":2.1}', '{"a":true}')
@@ -586,13 +572,12 @@ expr_str_json_path_match <- function(json_path) {
 
 #' Decode a value using the provided encoding
 #'
-#' @keywords ExprStr
 #' @param encoding Either 'hex' or 'base64'.
 #' @inheritParams rlang::args_dots_empty
 #' @param strict If `TRUE` (default), raise an error if the underlying value
 #' cannot be decoded. Otherwise, replace it with a null value.
 #'
-#' @return String array with values decoded using provided encoding
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(strings = c("foo", "bar", NA))
@@ -618,9 +603,8 @@ expr_str_decode <- function(encoding, ..., strict = TRUE) {
 
 #' Encode a value using the provided encoding
 #'
-#' @keywords ExprStr
 #' @param encoding Either 'hex' or 'base64'.
-#' @return String array with values encoded using provided encoding
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(strings = c("foo", "bar", NA))
@@ -646,14 +630,12 @@ expr_str_encode <- function(encoding) {
 
 #' Extract the target capture group from provided patterns
 #'
-#' @keywords ExprStr
 #' @param pattern A valid regex pattern. Can be an Expr or something coercible
 #' to an Expr. Strings are parsed as column names.
 #' @param group_index Index of the targeted capture group. Group 0 means the whole
 #' pattern, first group begin at index 1 (default).
 #'
-#' @return
-#' String array. Contains null if original value is null or regex capture nothing.
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(
@@ -676,12 +658,9 @@ expr_str_extract <- function(pattern, group_index) {
 #'
 #' @description Extracts all matches for the given regex pattern. Extracts each
 #' successive non-overlapping regex match in an individual string as an array.
-#' @keywords ExprStr
 #' @param pattern A valid regex pattern
 #'
-#' @return
-#' `List[String]` array. Contain null if original value is null or regex capture
-#' nothing.
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(foo = c("123 bla 45 asd", "xyz 678 910t"))
@@ -696,8 +675,7 @@ expr_str_extract_all <- function(pattern) {
 #' Count all successive non-overlapping regex matches
 #'
 #' @inheritParams expr_str_contains
-#' @return [Expr][Expr_class] of data type `UInt32`.
-#' Returns `null` if the original value is `null`.
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(foo = c("12 dbc 3xy", "cat\\w", "1zy3\\d\\d", NA))
 #'
@@ -718,8 +696,7 @@ expr_str_count_matches <- function(pattern, ..., literal = FALSE) {
 #' @param by Substring to split by. Can be an Expr.
 #' @param inclusive If `TRUE`, include the split character/string in the results.
 #'
-#' @return
-#' List of String type
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(s = c("foo bar", "foo-bar", "foo bar baz"))
@@ -740,12 +717,11 @@ expr_str_split <- function(by, inclusive = FALSE) {
 #'
 #' @description This results in a struct of `n+1` fields. If it cannot make `n`
 #' splits, the remaining field elements will be null.
-#' @keywords ExprStr
 #' @param by Substring to split by.
 #' @param n Number of splits to make.
 #' @param inclusive If `TRUE`, include the split character/string in the results.
 #'
-#' @return Struct where each of n+1 fields is of String type
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(s = c("a_1", NA, "c", "d_4"))
@@ -765,12 +741,10 @@ expr_str_split_exact <- function(by, n, inclusive = FALSE) {
 #' If the number of possible splits is less than `n-1`, the remaining field
 #' elements will be null. If the number of possible splits is `n-1` or greater,
 #' the last (nth) substring will contain the remainder of the string.
-#' @keywords ExprStr
 #' @param by Substring to split by.
 #' @param n Number of splits to make.
 #'
-#' @return
-#' Struct where each of `n` fields is of String type
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(s = c("a_1", NA, "c", "d_4_e"))
@@ -796,7 +770,7 @@ expr_str_splitn <- function(by, n) {
 #' Note that regex replacement with `n > 1` not yet supported,
 #' so raise an error if `n > 1` and `pattern` includes regex pattern
 #' and `literal = FALSE`.
-#' @return [Expr][Expr_class] of String type
+#' @inherit as_polars_expr return
 #' @seealso
 #' - [`<Expr>$str$replace_all()`][expr_str_replace_all]
 #' @examples
@@ -871,12 +845,11 @@ expr_str_replace_all <- function(pattern, value, ..., literal = FALSE) {
 
 #' Create subslices of the string values of a String Series
 #'
-#' @keywords ExprStr
 #' @param offset Start index. Negative indexing is supported.
 #' @param length Length of the slice. If `NULL` (default), the slice is taken to
 #' the end of the string.
 #'
-#' @return Expr: Series of dtype String.
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(s = c("pear", NA, "papaya", "dragonfruit"))
@@ -896,7 +869,7 @@ expr_str_slice <- function(offset, length = NULL) {
 #' we are parsing. Characters are parsed as column names. Default: `10L`.
 #' @param strict A logical. If `TRUE` (default), parsing errors or integer overflow will
 #' raise an error. If `FALSE`, silently convert to `null`.
-#' @return [Expression][Expr_class] of data type `Int64`.
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(bin = c("110", "101", "010", "invalid"))
 #' df$with_columns(
@@ -916,7 +889,7 @@ expr_str_to_integer <- function(..., base = 10L, strict = TRUE) {
 
 #' Returns string values in reversed order
 #'
-#' @return Expr
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(text = c("foo", "bar", NA))
@@ -968,7 +941,7 @@ expr_str_contains_any <- function(patterns, ..., ascii_case_insensitive = FALSE)
 #' When this option is enabled, searching will be performed without respect to
 #' case for ASCII letters (a-z and A-Z) only.
 #'
-#' @return Expr
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(
@@ -1006,8 +979,7 @@ expr_str_replace_many <- function(patterns, replace_with, ascii_case_insensitive
 #' numerical position is converted to a string. See examples.
 #' @param pattern A character of a valid regular expression pattern containing
 #' at least one capture group, compatible with the [regex crate](https://docs.rs/regex/latest/regex/).
-#' @return Expr of data type [Struct][DataType_Struct] with fields of data type
-#' `String`.
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(
@@ -1040,7 +1012,7 @@ expr_str_extract_groups <- function(pattern) {
 #'
 #' @inherit expr_str_contains params details
 #'
-#' @return An Expr of data type UInt32
+#' @inherit as_polars_expr return
 #'
 #' @seealso
 #' - [`$str$start_with()`][expr_str_starts_with]: Check if string values

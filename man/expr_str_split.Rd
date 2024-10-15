@@ -12,7 +12,7 @@ expr_str_split(by, inclusive = FALSE)
 \item{inclusive}{If \code{TRUE}, include the split character/string in the results.}
 }
 \value{
-List of String type
+A polars \link{expression}
 }
 \description{
 Split the string by a substring

@@ -7,7 +7,7 @@
 expr_str_len_chars()
 }
 \value{
-Expr of u32
+A polars \link{expression}
 }
 \description{
 Get length of the strings as UInt32 (as number of characters). Use
@@ -26,4 +26,3 @@ pl$DataFrame(
   pl$col("s")$str$len_chars()$alias("n_chars")
 )
 }
-\keyword{ExprStr}

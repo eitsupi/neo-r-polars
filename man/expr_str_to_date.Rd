@@ -29,7 +29,7 @@ cleaning your data beforehand will almost certainly be more performant.}
 conversion.}
 }
 \value{
-\link[=Expr_class]{Expr} of Date type
+A polars \link{expression}
 }
 \description{
 Convert a String column into a Date column

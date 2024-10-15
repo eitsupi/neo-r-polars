@@ -13,7 +13,7 @@ expr_str_slice(offset, length = NULL)
 the end of the string.}
 }
 \value{
-Expr: Series of dtype String.
+A polars \link{expression}
 }
 \description{
 Create subslices of the string values of a String Series
@@ -24,4 +24,3 @@ df$with_columns(
   pl$col("s")$str$slice(-3)$alias("s_sliced")
 )
 }
-\keyword{ExprStr}

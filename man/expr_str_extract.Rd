@@ -14,7 +14,7 @@ to an Expr. Strings are parsed as column names.}
 pattern, first group begin at index 1 (default).}
 }
 \value{
-String array. Contains null if original value is null or regex capture nothing.
+A polars \link{expression}
 }
 \description{
 Extract the target capture group from provided patterns
@@ -31,4 +31,3 @@ df$with_columns(
   extracted = pl$col("a")$str$extract(pl$lit(r"(candidate=(\w+))"), 1)
 )
 }
-\keyword{ExprStr}

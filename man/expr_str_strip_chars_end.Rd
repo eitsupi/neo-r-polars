@@ -12,7 +12,7 @@ set of characters will be stripped. If \code{NULL} (default), all whitespace is
 removed instead. This can be an Expr.}
 }
 \value{
-Expr of String lowercase chars
+A polars \link{expression}
 }
 \description{
 Remove trailing characters.

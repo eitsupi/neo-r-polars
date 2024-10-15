@@ -11,8 +11,7 @@ expr_str_extract_groups(pattern)
 at least one capture group, compatible with the \href{https://docs.rs/regex/latest/regex/}{regex crate}.}
 }
 \value{
-Expr of data type \link[=DataType_Struct]{Struct} with fields of data type
-\code{String}.
+A polars \link{expression}
 }
 \description{
 Extract all capture groups for the given regex pattern

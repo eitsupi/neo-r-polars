@@ -11,7 +11,7 @@ expr_str_zfill(alignment)
 something coercible to an Expr. Strings are parsed as column names.}
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 Add zeroes to a string until it reaches \code{n} characters. If the
@@ -35,4 +35,3 @@ some_floats_expr$cast(pl$String)$str$zfill(5)$to_r()
 # char vector
 some_floats_expr$cast(pl$Int64)$cast(pl$String)$str$zfill(5)$to_r()
 }
-\keyword{ExprStr}

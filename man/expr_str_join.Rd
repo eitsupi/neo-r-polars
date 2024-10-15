@@ -15,7 +15,7 @@ expr_str_join(delimiter = "", ..., ignore_nulls = TRUE)
 propagated: if the column contains any null values, the output is null.}
 }
 \value{
-Expr of String concatenated
+A polars \link{expression}
 }
 \description{
 Vertically concatenate the string values in the column to a single string value.

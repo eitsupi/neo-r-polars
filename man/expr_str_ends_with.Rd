@@ -10,7 +10,7 @@ expr_str_ends_with(sub)
 \item{sub}{Suffix substring or Expr.}
 }
 \value{
-\link[=Expr_class]{Expr} of Boolean data type
+A polars \link{expression}
 }
 \description{
 Check if string values end with a substring.
@@ -25,4 +25,3 @@ df$select(
   pl$col("fruits")$str$ends_with("go")$alias("has_suffix")
 )
 }
-\keyword{ExprStr}

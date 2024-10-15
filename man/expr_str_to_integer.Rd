@@ -16,7 +16,7 @@ we are parsing. Characters are parsed as column names. Default: \code{10L}.}
 raise an error. If \code{FALSE}, silently convert to \code{null}.}
 }
 \value{
-\link[=Expr_class]{Expression} of data type \code{Int64}.
+A polars \link{expression}
 }
 \description{
 Convert a String column into an Int64 column with base radix

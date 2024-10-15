@@ -18,7 +18,7 @@ When this option is enabled, searching will be performed without respect to
 case for ASCII letters (a-z and A-Z) only.}
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 This function replaces several matches at once.

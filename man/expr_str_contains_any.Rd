@@ -17,7 +17,7 @@ When this option is enabled, searching will be performed without respect to
 case for ASCII letters (a-z and A-Z) only.}
 }
 \value{
-\link[=Expr_class]{Expr} of Boolean data type
+A polars \link{expression}
 }
 \description{
 This function determines if any of the patterns find a match.

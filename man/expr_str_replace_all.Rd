@@ -19,7 +19,7 @@ that will replace the matched substring.}
 not as a regular expression.}
 }
 \value{
-\link[=Expr_class]{Expr} of String type
+A polars \link{expression}
 }
 \description{
 Replace all matching regex/literal substrings with a new string value

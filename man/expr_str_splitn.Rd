@@ -12,7 +12,7 @@ expr_str_splitn(by, n)
 \item{n}{Number of splits to make.}
 }
 \value{
-Struct where each of \code{n} fields is of String type
+A polars \link{expression}
 }
 \description{
 If the number of possible splits is less than \code{n-1}, the remaining field
@@ -27,4 +27,3 @@ df$with_columns(
   s3 = pl$col("s")$str$splitn(by = "_", 3)
 )
 }
-\keyword{ExprStr}

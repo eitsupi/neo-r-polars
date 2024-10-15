@@ -24,7 +24,7 @@ so raise an error if \code{n > 1} and \code{pattern} includes regex pattern
 and \code{literal = FALSE}.}
 }
 \value{
-\link[=Expr_class]{Expr} of String type
+A polars \link{expression}
 }
 \description{
 Replace first matching regex/literal substring with a new string value
