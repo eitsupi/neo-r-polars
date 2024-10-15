@@ -164,13 +164,12 @@ test_that("gather_every", {
     offset = c(0, 1, 0)
   )
 
-  # TODO-REWRITE: this fails
-  # expect_equal(
-  #   df$select(
-  #     out = pl$col("a")$list$gather_every("n", offset = pl$col("offset"))
-  #   ),
-  #   pl$DataFrame(out = list(c(1L, 3L, 5L), c(7L, 8L), c(9L, 12L)))
-  # )
+  expect_equal(
+    df$select(
+      out = pl$col("a")$list$gather_every("n", offset = pl$col("offset"))
+    ),
+    pl$DataFrame(out = list(c(1L, 3L, 5L), c(7L, 8L), c(9L, 12L)))
+  )
 
   # wrong n
   expect_snapshot(df$select(
