@@ -312,6 +312,28 @@ impl TryFrom<NumericScalar> for Wrap<u32> {
     }
 }
 
+impl TryFrom<NumericScalar> for Wrap<u64> {
+    type Error = savvy::Error;
+
+    fn try_from(v: NumericScalar) -> Result<Self, savvy::Error> {
+        const TOLERANCE: f64 = 0.01; // same as savvy
+        let v = v.as_f64();
+        if v.is_nan() {
+            Err("`NaN` cannot be converted to u64".to_string())?
+        } else if v < 0_f64 {
+            Err(format!("Value `{v:?}` is too small to be converted to u64"))?
+        } else if v > u64::MAX as f64 {
+            Err(format!("Value `{v:?}` is too large to be converted to u64"))?
+        } else if (v - v.round()).abs() > TOLERANCE {
+            Err(format!(
+                "Value `{v:?}` is not integer-ish enough to be converted to u64"
+            ))?
+        } else {
+            Ok(Wrap(v as u64))
+        }
+    }
+}
+
 impl TryFrom<&str> for Wrap<NonExistent> {
     type Error = String;
 

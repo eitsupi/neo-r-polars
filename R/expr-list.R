@@ -701,14 +701,13 @@ expr_list_explode <- function() {
 expr_list_sample <- function(
     n = NULL, ..., fraction = NULL, with_replacement = FALSE, shuffle = FALSE,
     seed = NULL) {
-  pcase(
-    !is.null(n) && !is.null(fraction), {
-      Err(.pr$Err$new()$plain("either arg `n` or `fraction` must be NULL"))
-    },
-    !is.null(n), self$`_rexpr`$list_sample_n(n, with_replacement, shuffle, seed),
-    or_else = {
-      self$`_rexpr`$list_sample_frac(fraction %||% 1, with_replacement, shuffle, seed)
+  wrap({
+    if (!is.null(n) && !is.null(fraction)) {
+      abort("Provide either `n` or `fraction`, not both.")
+    } else if (!is.null(n)) {
+      self$`_rexpr`$list_sample_n(as_polars_expr(n)$`_rexpr`, with_replacement, shuffle, seed)
+    } else {
+      self$`_rexpr`$list_sample_frac(as_polars_expr(fraction %||% 1)$`_rexpr`, with_replacement, shuffle, seed)
     }
-  ) |>
-    wrap()
+  })
 }

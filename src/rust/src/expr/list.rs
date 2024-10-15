@@ -187,35 +187,41 @@ impl PlRExpr {
         .into())
     }
 
-    // pub fn list_sample_n(
-    //     &self,
-    //     n: &PlRExpr,
-    //     with_replacement: bool,
-    //     shuffle: bool,
-    //     seed: NumericScalar,
-    // ) -> Result<Self> {
-    //     let seed = <Wrap<u64>>::try_from(seed)?.0;
-    //     Ok(self
-    //         .inner
-    //         .clone()
-    //         .list()
-    //         .sample_n(n.inner.clone(), with_replacement, shuffle, seed)
-    //         .into())
-    // }
+    pub fn list_sample_n(
+        &self,
+        n: &PlRExpr,
+        with_replacement: bool,
+        shuffle: bool,
+        seed: Option<NumericScalar>,
+    ) -> Result<Self> {
+        let seed: Option<u64> = match seed {
+            Some(x) => Some(<Wrap<u64>>::try_from(x)?.0),
+            None => None,
+        };
+        Ok(self
+            .inner
+            .clone()
+            .list()
+            .sample_n(n.inner.clone(), with_replacement, shuffle, seed)
+            .into())
+    }
 
-    // pub fn list_sample_frac(
-    //     &self,
-    //     frac: &PlRExpr,
-    //     with_replacement: bool,
-    //     shuffle: bool,
-    //     seed: NumericScalar,
-    // ) -> Result<Self> {
-    //     let seed = <Wrap<u64>>::try_from(seed)?.0;
-    //     Ok(self
-    //         .inner
-    //         .clone()
-    //         .list()
-    //         .sample_fraction(frac.inner.clone(), with_replacement, shuffle, seed)
-    //         .into())
-    // }
+    pub fn list_sample_frac(
+        &self,
+        frac: &PlRExpr,
+        with_replacement: bool,
+        shuffle: bool,
+        seed: Option<NumericScalar>,
+    ) -> Result<Self> {
+        let seed: Option<u64> = match seed {
+            Some(x) => Some(<Wrap<u64>>::try_from(x)?.0),
+            None => None,
+        };
+        Ok(self
+            .inner
+            .clone()
+            .list()
+            .sample_fraction(frac.inner.clone(), with_replacement, shuffle, seed)
+            .into())
+    }
 }

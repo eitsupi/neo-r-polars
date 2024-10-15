@@ -60,3 +60,15 @@
       Caused by error:
       ! ShapeMismatch(ErrString("unable to add a column of length 6 to a DataFrame of height 2"))
 
+# $list$sample() works
+
+    Code
+      df$select(pl$col("values")$list$sample(fraction = 2))
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! ShapeMismatch(ErrString("cannot take a larger sample than the total population when `with_replacement=false`"))
+

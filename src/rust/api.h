@@ -162,6 +162,8 @@ SEXP savvy_PlRExpr_list_eval__ffi(SEXP self__, SEXP c_arg__expr, SEXP c_arg__par
 SEXP savvy_PlRExpr_list_all__ffi(SEXP self__);
 SEXP savvy_PlRExpr_list_any__ffi(SEXP self__);
 SEXP savvy_PlRExpr_list_set_operation__ffi(SEXP self__, SEXP c_arg__other, SEXP c_arg__operation);
+SEXP savvy_PlRExpr_list_sample_n__ffi(SEXP self__, SEXP c_arg__n, SEXP c_arg__with_replacement, SEXP c_arg__shuffle, SEXP c_arg__seed);
+SEXP savvy_PlRExpr_list_sample_frac__ffi(SEXP self__, SEXP c_arg__frac, SEXP c_arg__with_replacement, SEXP c_arg__shuffle, SEXP c_arg__seed);
 SEXP savvy_PlRExpr_meta_output_name__ffi(SEXP self__);
 SEXP savvy_PlRExpr_meta_undo_aliases__ffi(SEXP self__);
 SEXP savvy_PlRExpr_meta_has_multiple_outputs__ffi(SEXP self__);
