@@ -23,7 +23,7 @@ namespace_expr_list <- function(x) {
 #' @inherit as_polars_expr return
 #'
 #' @examples
-#' df <- pl$DataFrame(list(list_of_strs = list(c("a", "b", NA), "c")))
+#' df <- pl$DataFrame(list_of_strs = list(c("a", "b", NA), "c"))
 #' df$with_columns(len_list = pl$col("list_of_strs")$list$len())
 expr_list_len <- function() {
   self$`_rexpr`$list_len() |>
@@ -242,7 +242,7 @@ expr_list_gather_every <- function(n, offset = 0) {
 #' @inherit as_polars_expr return
 #'
 #' @examples
-#' df <- pl$DataFrame(list(a = list(3:1, NULL, 1:2)))
+#' df <- pl$DataFrame(a = list(3:1, NULL, 1:2))
 #' df$with_columns(
 #'   first = pl$col("a")$list$first()
 #' )
@@ -256,7 +256,7 @@ expr_list_first <- function() {
 #' @inherit as_polars_expr return
 #'
 #' @examples
-#' df <- pl$DataFrame(list(a = list(3:1, NULL, 1:2)))
+#' df <- pl$DataFrame(a = list(3:1, NULL, 1:2))
 #' df$with_columns(
 #'   last = pl$col("a")$list$last()
 #' )
@@ -317,7 +317,7 @@ expr_list_join <- function(separator, ignore_nulls = FALSE) {
 #' @inherit as_polars_expr return
 #'
 #' @examples
-#' df <- pl$DataFrame(list(s = list(1:2, 2:1)))
+#' df <- pl$DataFrame(s = list(1:2, 2:1))
 #' df$with_columns(
 #'   arg_min = pl$col("s")$list$arg_min()
 #' )
@@ -331,7 +331,7 @@ expr_list_arg_min <- function() {
 #' @inherit as_polars_expr return
 #'
 #' @examples
-#' df <- pl$DataFrame(list(s = list(1:2, 2:1)))
+#' df <- pl$DataFrame(s = list(1:2, 2:1))
 #' df$with_columns(
 #'   arg_max = pl$col("s")$list$arg_max()
 #' )
@@ -355,7 +355,7 @@ expr_list_arg_max <- function() {
 #' @inherit as_polars_expr return
 #'
 #' @examples
-#' df <- pl$DataFrame(list(s = list(1:4, c(10L, 2L, 1L))))
+#' df <- pl$DataFrame(s = list(1:4, c(10L, 2L, 1L)))
 #' df$with_columns(diff = pl$col("s")$list$diff(2))
 #'
 #' # negative value starts shifting from the end
@@ -487,7 +487,7 @@ expr_list_tail <- function(n = 5L) {
 #' @inherit as_polars_expr return
 #'
 #' @examples
-#' df <- pl$DataFrame(list(a = list(1:2, 1:3)))
+#' df <- pl$DataFrame(a = list(1:2, 1:3))
 #'
 #' # this discards the third value of the second list as the struct length is
 #' # determined based on the length of the first non-empty list
@@ -509,8 +509,6 @@ expr_list_tail <- function(n = 5L) {
 #' df2
 #'
 #' df2$unnest()
-#'
-#' df2$to_list()
 expr_list_to_struct <- function(
     n_field_strategy = "first_non_null",
     fields = NULL,
@@ -569,7 +567,7 @@ expr_list_eval <- function(expr, parallel = FALSE) {
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
-#'   list(a = list(c(TRUE, TRUE), c(FALSE, TRUE), c(FALSE, FALSE), NA, c()))
+#'   a = list(c(TRUE, TRUE), c(FALSE, TRUE), c(FALSE, FALSE), NA, c())
 #' )
 #' df$with_columns(all = pl$col("a")$list$all())
 expr_list_all <- function() {
@@ -582,7 +580,7 @@ expr_list_all <- function() {
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
-#'   list(a = list(c(TRUE, TRUE), c(FALSE, TRUE), c(FALSE, FALSE), NA, c()))
+#'   a = list(c(TRUE, TRUE), c(FALSE, TRUE), c(FALSE, FALSE), NA, c())
 #' )
 #' df$with_columns(any = pl$col("a")$list$any())
 expr_list_any <- function() {

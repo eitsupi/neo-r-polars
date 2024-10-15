@@ -14,7 +14,7 @@ Evaluate whether any boolean values in a list are true
 }
 \examples{
 df <- pl$DataFrame(
-  list(a = list(c(TRUE, TRUE), c(FALSE, TRUE), c(FALSE, FALSE), NA, c()))
+  a = list(c(TRUE, TRUE), c(FALSE, TRUE), c(FALSE, FALSE), NA, c())
 )
 df$with_columns(any = pl$col("a")$list$any())
 }
