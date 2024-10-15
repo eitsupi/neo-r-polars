@@ -20,7 +20,7 @@ namespace_expr_list <- function(x) {
 #' Return the number of elements in each list. Null values are counted in the
 #' total.
 #'
-#' @return Expr
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(list(list_of_strs = list(c("a", "b", NA), "c")))
@@ -32,7 +32,7 @@ expr_list_len <- function() {
 
 #' Sum all elements in a list
 #'
-#' @return Expr
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(values = list(c(1, 2, 3, NA), c(2, 3), NA_real_))
@@ -44,7 +44,7 @@ expr_list_sum <- function() {
 
 #' Find the maximum value in a list
 #'
-#' @return Expr
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(values = list(c(1, 2, 3, NA), c(2, 3), NA_real_))
@@ -56,7 +56,7 @@ expr_list_max <- function() {
 
 #' Find the minimum value in a list
 #'
-#' @return Expr
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(values = list(c(1, 2, 3, NA), c(2, 3), NA_real_))
@@ -68,7 +68,7 @@ expr_list_min <- function() {
 
 #' Compute the mean value of a list
 #'
-#' @return Expr
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(values = list(c(1, 2, 3, NA), c(2, 3), NA_real_))
@@ -81,7 +81,7 @@ expr_list_mean <- function() {
 #' Sort values in a list
 #'
 #' @param descending Sort values in descending order
-#' @return Expr
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(values = list(c(NA, 2, 1, 3), c(Inf, 2, 3, NaN), NA_real_))
@@ -93,7 +93,7 @@ expr_list_sort <- function(descending = FALSE) {
 
 #' Reverse values in a list
 #'
-#' @return Expr
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(values = list(c(1, 2, 3, NA), c(2, 3), NA_real_))
@@ -107,7 +107,7 @@ expr_list_reverse <- function() {
 #'
 #' @param maintain_order Maintain order of data. This requires more work.
 #'
-#' @return Expr
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(values = list(c(2, 2, NA), c(1, 2, 3), NA_real_))
@@ -119,7 +119,7 @@ expr_list_unique <- function(maintain_order = FALSE) {
 
 #' Get the number of unique values in a list
 #'
-#' @return Expr
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(values = list(c(2, 2, NA), c(1, 2, 3), NA_real_))
@@ -134,7 +134,7 @@ expr_list_n_unique <- function() {
 #' @param other Values to concat with. Can be an Expr or something coercible to
 #' an Expr.
 #'
-#' @return Expr
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(
@@ -163,7 +163,7 @@ expr_list_concat <- function(other) {
 #' @param ... Ignored.
 #' @param null_on_oob If `TRUE`, return `null` if an index is out of bounds.
 #' Otherwise, raise an error.
-#' @return [Expr][Expr_class]
+#' @return [Expr][expr_class]
 #' @examples
 #' df <- pl$DataFrame(
 #'   values = list(c(2, 2, NA), c(1, 2, 3), NA_real_, NULL),
@@ -192,7 +192,7 @@ expr_list_get <- function(index, ..., null_on_oob = TRUE) {
 #'   a `null`. Strings are parsed as column names.
 #' @inheritParams expr_list_get
 #'
-#' @return Expr
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(
@@ -218,9 +218,9 @@ expr_list_gather <- function(index, null_on_oob = FALSE) {
 
 #' Gather every nth element in a list
 #'
-#' @inheritParams Expr_gather_every
+#' @inheritParams expr_gather_every
 #'
-#' @return Expr
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(
@@ -239,7 +239,7 @@ expr_list_gather_every <- function(n, offset = 0) {
 
 #' Get the first value in a list
 #'
-#' @return Expr
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(list(a = list(3:1, NULL, 1:2)))
@@ -253,7 +253,7 @@ expr_list_first <- function() {
 
 #' Get the last value in a list
 #'
-#' @return Expr
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(list(a = list(3:1, NULL, 1:2)))
@@ -270,7 +270,7 @@ expr_list_last <- function() {
 #' @param item Expr or something coercible to an Expr. Strings are *not* parsed
 #' as columns.
 #'
-#' @return Expr
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(
@@ -295,7 +295,7 @@ expr_list_contains <- function(item) {
 #'   are *not* parsed as columns.
 #' @inheritParams pl_concat_str
 #'
-#' @return Expr
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(
@@ -314,7 +314,7 @@ expr_list_join <- function(separator, ignore_nulls = FALSE) {
 
 #' Get the index of the minimal value in list
 #'
-#' @return Expr
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(list(s = list(1:2, 2:1)))
@@ -328,7 +328,7 @@ expr_list_arg_min <- function() {
 
 #' Get the index of the maximal value in list
 #'
-#' @return Expr
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(list(s = list(1:2, 2:1)))
@@ -352,7 +352,7 @@ expr_list_arg_max <- function() {
 #' @param null_behavior How to handle `null` values. Either `"ignore"` (default)
 #'   or `"drop"`.
 #'
-#' @return Expr
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(list(s = list(1:4, c(10L, 2L, 1L))))
@@ -371,7 +371,7 @@ expr_list_diff <- function(n = 1, null_behavior = "ignore") {
 #'
 #' @inheritParams DataFrame_shift
 #'
-#' @return Expr
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(
@@ -398,7 +398,7 @@ expr_list_shift <- function(n = 1) {
 #' @param length Length of the slice. If `NULL` (default), the slice is taken to
 #'   the end of the list. Can be an Expr. Strings are parsed as column names.
 #'
-#' @return Expr
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(
@@ -425,7 +425,7 @@ expr_list_slice <- function(offset, length = NULL) {
 #' @param n Number of values to return for each sublist. Can be an Expr. Strings
 #'   are parsed as column names.
 #'
-#' @return Expr
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(
@@ -437,7 +437,7 @@ expr_list_slice <- function(offset, length = NULL) {
 #'   head_by_lit = pl$col("s")$list$head(2)
 #' )
 expr_list_head <- function(n = 5L) {
-  self$`_rexpr`$list_slice(pl$lit(0)$`_rexpr`, as_polars_expr(n)$`_rexpr`) |>
+  self$`_rexpr`$list_slice(as_polars_expr(0)$`_rexpr`, as_polars_expr(n)$`_rexpr`) |>
     wrap()
 }
 
@@ -446,7 +446,7 @@ expr_list_head <- function(n = 5L) {
 #' @param n Number of values to return for each sublist. Can be an Expr. Strings
 #'   are parsed as column names.
 #'
-#' @return Expr
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(
@@ -484,7 +484,7 @@ expr_list_tail <- function(n = 5L) {
 #'   need to be tracked or pre-determined, as the result will be eagerly
 #'   evaluated, so you can leave this parameter unset.
 #'
-#' @return Expr
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(list(a = list(1:2, 1:3)))
@@ -512,12 +512,13 @@ expr_list_tail <- function(n = 5L) {
 #'
 #' df2$to_list()
 expr_list_to_struct <- function(
-    n_field_strategy = c("first_non_null", "max_width"),
+    n_field_strategy = "first_non_null",
     fields = NULL,
     upper_bound = 0) {
-  browser()
-  self$`_rexpr`$list_to_struct(n_field_strategy, fields, upper_bound) |>
-    wrap()
+  wrap({
+    arg_match0(n_field_strategy, values = c("first_non_null", "max_width"))
+    self$`_rexpr`$list_to_struct(n_field_strategy, fields, upper_bound)
+  })
 }
 
 #' Run any polars expression on the list values
@@ -529,7 +530,7 @@ expr_list_to_struct <- function(
 #'   likely should not be used in the `$group_by()` context, because we already
 #'   do parallel execution per group.
 #'
-#' @return Expr
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(
@@ -565,7 +566,7 @@ expr_list_eval <- function(expr, parallel = FALSE) {
 
 #' Evaluate whether all boolean values in a list are true
 #'
-#' @return Expr
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   list(a = list(c(TRUE, TRUE), c(FALSE, TRUE), c(FALSE, FALSE), NA, c()))
@@ -578,7 +579,7 @@ expr_list_all <- function() {
 
 #' Evaluate whether any boolean values in a list are true
 #'
-#' @return Expr
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   list(a = list(c(TRUE, TRUE), c(FALSE, TRUE), c(FALSE, FALSE), NA, c()))
@@ -600,7 +601,7 @@ expr_list_any <- function() {
 #' `list[i8]` because it can be cast to `list[i32]`. However, the second column
 #' cannot be e.g `list[f32]`.
 #'
-#' @return Expr
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   a = list(1:3, NA_integer_, c(NA_integer_, 3L), 5:7),
@@ -686,9 +687,9 @@ expr_list_explode <- function() {
 
 #' Sample from this list
 #'
-#' @inheritParams Expr_sample
+#' @inheritParams expr_sample
 #'
-#' @return Expr
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   values = list(1:3, NA_integer_, c(NA_integer_, 3L), 5:7),

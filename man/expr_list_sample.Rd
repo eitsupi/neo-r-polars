@@ -14,7 +14,7 @@ expr_list_sample(
 )
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 Sample from this list

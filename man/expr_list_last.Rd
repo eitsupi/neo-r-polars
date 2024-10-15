@@ -7,7 +7,7 @@
 expr_list_last()
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 Get the last value in a list

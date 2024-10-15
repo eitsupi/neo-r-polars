@@ -7,7 +7,7 @@
 expr_list_n_unique()
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 Get the number of unique values in a list

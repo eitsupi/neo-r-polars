@@ -7,7 +7,7 @@
 expr_list_all()
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 Evaluate whether all boolean values in a list are true

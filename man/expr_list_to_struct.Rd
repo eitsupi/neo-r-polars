@@ -5,7 +5,7 @@
 \title{Convert a Series of type \code{List} to \code{Struct}}
 \usage{
 expr_list_to_struct(
-  n_field_strategy = c("first_non_null", "max_width"),
+  n_field_strategy = "first_non_null",
   fields = NULL,
   upper_bound = 0
 )
@@ -31,7 +31,7 @@ need to be tracked or pre-determined, as the result will be eagerly
 evaluated, so you can leave this parameter unset.}
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 Convert a Series of type \code{List} to \code{Struct}

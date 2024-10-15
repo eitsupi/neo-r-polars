@@ -7,7 +7,7 @@
 expr_list_min()
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 Find the minimum value in a list

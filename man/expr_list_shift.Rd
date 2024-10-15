@@ -7,7 +7,7 @@
 expr_list_shift(n = 1)
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 Shift list values by \code{n} indices

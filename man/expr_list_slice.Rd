@@ -14,7 +14,7 @@ Strings are parsed as column names.}
 the end of the list. Can be an Expr. Strings are parsed as column names.}
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 This extracts \code{length} values at most, starting at index \code{offset}. This can

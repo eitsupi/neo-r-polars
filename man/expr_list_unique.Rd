@@ -10,7 +10,7 @@ expr_list_unique(maintain_order = FALSE)
 \item{maintain_order}{Maintain order of data. This requires more work.}
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 Get unique values in a list

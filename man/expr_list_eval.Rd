@@ -16,7 +16,7 @@ likely should not be used in the \verb{$group_by()} context, because we already
 do parallel execution per group.}
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 Run any polars expression on the list values

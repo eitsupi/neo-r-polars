@@ -11,7 +11,7 @@ expr_list_set_difference(other)
 Expr.}
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 This returns the "asymmetric difference", meaning only the elements of the

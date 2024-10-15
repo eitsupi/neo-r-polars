@@ -7,7 +7,7 @@
 expr_list_first()
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 Get the first value in a list

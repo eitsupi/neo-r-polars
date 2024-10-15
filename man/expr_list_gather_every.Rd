@@ -7,7 +7,7 @@
 expr_list_gather_every(n, offset = 0)
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 Gather every nth element in a list

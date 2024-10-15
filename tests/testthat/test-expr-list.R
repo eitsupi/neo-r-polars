@@ -74,7 +74,6 @@ test_that("list$sum max min mean", {
   expect_equal(p_res, r_res)
 })
 
-# TODO-REWRITE: "!!!" shouldn't be necessary here, #10
 test_that("list$reverse", {
   l <- list(
     l_i32 = list(1:5, c(NA_integer_, 3:1)),
@@ -116,7 +115,6 @@ test_that("list$n_unique", {
     pl$DataFrame(l_i32 = c(2, 4), l_f64 = c(5, 1), l_char = c(26, 2))$cast(pl$UInt32)
   )
 })
-
 
 test_that("list$get", {
   l <- list(
@@ -190,39 +188,39 @@ test_that("gather_every", {
   ), error = TRUE)
 })
 
-# test_that("first last head tail", {
-#   l <- list(
-#     l_i32 = list(1:5, 1:3, 1:10),
-#     l_f64 = list(c(1, 1, 2, 3, NA, Inf, NA, Inf), c(1), numeric()),
-#     l_char = list(letters, c("a", "a", "b"), character())
-#   )
-#   df <- pl$DataFrame(!!!l)
+test_that("first last head tail", {
+  l <- list(
+    l_i32 = list(1:5, 1:3, 1:10),
+    l_f64 = list(c(1, 1, 2, 3, NA, Inf, NA, Inf), c(1), numeric()),
+    l_char = list(letters, c("a", "a", "b"), character())
+  )
+  df <- pl$DataFrame(!!!l)
 
-#   # first
+  # first
 
-#   p_res <- df$select(pl$all()$list$first())
-#   r_res <- pl$DataFrame(!!!lapply(l, sapply, function(x) x[1]))
-#   expect_equal(p_res, r_res)
+  p_res <- df$select(pl$all()$list$first())
+  r_res <- pl$DataFrame(!!!lapply(l, sapply, function(x) x[1]))
+  expect_equal(p_res, r_res)
 
-#   # last
-#   p_res <- df$select(pl$all()$list$last())
-#   r_res <- pl$DataFrame(!!!lapply(l, sapply, function(x) rev(x)[1]))
-#   expect_equal(p_res, r_res)
+  # last
+  p_res <- df$select(pl$all()$list$last())
+  r_res <- pl$DataFrame(!!!lapply(l, sapply, function(x) rev(x)[1]))
+  expect_equal(p_res, r_res)
 
-#   for (i in 0:5) {
-#     p_res <- df$select(pl$all()$list$head(i))
-#     r_res <- pl$DataFrame(!!!lapply(l, lapply, \(x) {
-#       head(x, i)
-#     }))
-#     expect_equal(p_res, r_res)
-#   }
+  for (i in 0:5) {
+    p_res <- df$select(pl$all()$list$head(i))
+    r_res <- pl$DataFrame(!!!lapply(l, lapply, \(x) {
+      head(x, i)
+    }))
+    expect_equal(p_res, r_res)
+  }
 
-#   for (i in 0:5) {
-#     p_res <- df$select(pl$all()$list$tail(i))
-#     r_res <- pl$DataFrame(!!!lapply(l, lapply, \(x) tail(x, i)))
-#     expect_equal(p_res, r_res)
-#   }
-# })
+  for (i in 0:5) {
+    p_res <- df$select(pl$all()$list$tail(i))
+    r_res <- pl$DataFrame(!!!lapply(l, lapply, \(x) tail(x, i)))
+    expect_equal(p_res, r_res)
+  }
+})
 
 
 test_that("join", {
@@ -338,53 +336,53 @@ test_that("shift", {
   expect_equal(l_act_diff_m1, l_exp_diff_m1)
 })
 
-# test_that("slice", {
-#   l <- list(
-#     l_i32 = list(1:5, 1:3, c(4L, 2L, 1L, 7L, 42L)),
-#     l_f64 = list(c(1, 1, 2, 3, NA, Inf, NA, Inf), c(1), numeric())
-#   )
-#   df <- pl$DataFrame(!!!l)
+test_that("slice", {
+  l <- list(
+    l_i32 = list(1:5, 1:3, c(4L, 2L, 1L, 7L, 42L)),
+    l_f64 = list(c(1, 1, 2, 3, NA, Inf, NA, Inf), c(1), numeric())
+  )
+  df <- pl$DataFrame(!!!l)
 
-#   r_slice <- function(x, o, n = NULL) {
-#     if (is.null(n)) n <- max(length(x) - o, 1L)
-#     if (o >= 0) {
-#       o <- o + 1
-#     } else {
-#       o <- length(x) + o + 1
-#     }
-#     s <- seq(o, o + n - 1)
-#     s <- s[s %in% seq_along(x)]
-#     x[s]
-#   }
+  r_slice <- function(x, o, n = NULL) {
+    if (is.null(n)) n <- max(length(x) - o, 1L)
+    if (o >= 0) {
+      o <- o + 1
+    } else {
+      o <- length(x) + o + 1
+    }
+    s <- seq(o, o + n - 1)
+    s <- s[s %in% seq_along(x)]
+    x[s]
+  }
 
-#   l_act_slice <- df$select(pl$all()$list$slice(0, 3))
-#   l_exp_slice <- pl$DataFrame(!!!lapply(l, lapply, r_slice, 0, 3))
-#   expect_equal(l_act_slice, l_exp_slice)
-
-
-#   l_act_slice <- df$select(pl$all()$list$slice(1, 3))
-#   l_exp_slice <- lapply(l, lapply, r_slice, 1, 3)
-#   expect_equal(l_act_slice, l_exp_slice)
+  l_act_slice <- df$select(pl$all()$list$slice(0, 3))
+  l_exp_slice <- pl$DataFrame(!!!lapply(l, lapply, r_slice, 0, 3))
+  expect_equal(l_act_slice, l_exp_slice)
 
 
-#   l_act_slice <- df$select(pl$all()$list$slice(1, 5))
-#   l_exp_slice <- lapply(l, lapply, r_slice, 1, 5)
-#   expect_equal(l_act_slice, l_exp_slice)
+  l_act_slice <- df$select(pl$all()$list$slice(1, 3))
+  l_exp_slice <- pl$DataFrame(!!!lapply(l, lapply, r_slice, 1, 3))
+  expect_equal(l_act_slice, l_exp_slice)
 
-#   l_act_slice <- df$select(pl$all()$list$slice(-1, 1))
-#   l_exp_slice <- lapply(l, lapply, r_slice, -1, 1)
-#   expect_equal(l_act_slice, l_exp_slice)
 
-#   l2 <- list(a = list(1:3, 1:2, 1:1, integer()))
-#   df2 <- pl$DataFrame(l2)
-#   l_act_slice <- df2$select(pl$all()$list$slice(-2, 2))
-#   l_exp_slice <- lapply(l2, lapply, r_slice, -2, 2)
-#   expect_equal(l_act_slice, l_exp_slice)
+  l_act_slice <- df$select(pl$all()$list$slice(1, 5))
+  l_exp_slice <- pl$DataFrame(!!!lapply(l, lapply, r_slice, 1, 5))
+  expect_equal(l_act_slice, l_exp_slice)
 
-#   l_act_slice <- df2$select(pl$all()$list$slice(1, ))
-#   l_exp_slice <- lapply(l2, lapply, r_slice, 1)
-#   expect_equal(l_act_slice, l_exp_slice)
-# })
+  l_act_slice <- df$select(pl$all()$list$slice(-1, 1))
+  l_exp_slice <- pl$DataFrame(!!!lapply(l, lapply, r_slice, -1, 1))
+  expect_equal(l_act_slice, l_exp_slice)
+
+  l2 <- list(a = list(1:3, 1:2, 1:1, integer()))
+  df2 <- pl$DataFrame(!!!l2)
+  l_act_slice <- df2$select(pl$all()$list$slice(-2, 2))
+  l_exp_slice <- pl$DataFrame(!!!lapply(l2, lapply, r_slice, -2, 2))
+  expect_equal(l_act_slice, l_exp_slice)
+
+  l_act_slice <- df2$select(pl$all()$list$slice(1, ))
+  l_exp_slice <- pl$DataFrame(!!!lapply(l2, lapply, r_slice, 1))
+  expect_equal(l_act_slice, l_exp_slice)
+})
 
 test_that("contains", {
   l <- list(
@@ -448,7 +446,7 @@ test_that("contains with categorical", {
 # })
 
 
-
+# TODO-REWRITE: don't know how to adapt Rust code
 # test_that("to_struct", {
 #   l <- list(integer(), 1:2, 1:3, 1:2)
 #   df <- pl$DataFrame(a = l)
@@ -519,7 +517,7 @@ test_that("$list$any() works", {
   )
 })
 
-# TODO-REWRITE: uncomment after pl$DataFrame() accepts schema
+# TODO-REWRITE: uncomment after pl$DataFrame() accepts schema, #13
 # test_that("$list$set_*() work with integers", {
 #   df <- pl$DataFrame(
 #     a = list(1:3, NA_integer_, c(NA_integer_, 3L), 5:7),

@@ -128,7 +128,12 @@ impl PlRExpr {
             Some(i) => i.inner.clone(),
             None => lit(i64::MAX),
         };
-        Ok(self.inner.clone().list().arg_max().into())
+        Ok(self
+            .inner
+            .clone()
+            .list()
+            .slice(offset.inner.clone(), length)
+            .into())
     }
 
     fn list_eval(&self, expr: &PlRExpr, parallel: bool) -> Result<Self> {

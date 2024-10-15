@@ -7,7 +7,7 @@
 expr_list_len()
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 Return the number of elements in each list. Null values are counted in the

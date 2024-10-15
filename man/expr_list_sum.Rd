@@ -7,7 +7,7 @@
 expr_list_sum()
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 Sum all elements in a list

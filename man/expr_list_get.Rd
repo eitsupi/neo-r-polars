@@ -18,7 +18,7 @@ returns the last item).}
 Otherwise, raise an error.}
 }
 \value{
-\link[=Expr_class]{Expr}
+\link[=expr_class]{Expr}
 }
 \description{
 This allows to extract one value per list only. To extract several values by

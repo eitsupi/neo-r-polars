@@ -11,7 +11,7 @@ expr_list_set_symmetric_difference(other)
 Expr.}
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 This returns all elements that are in only one of the two lists. To get only

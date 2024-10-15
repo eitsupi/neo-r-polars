@@ -11,7 +11,7 @@ expr_list_head(n = 5L)
 are parsed as column names.}
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 Get the first \code{n} values of a list

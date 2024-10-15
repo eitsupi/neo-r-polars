@@ -17,7 +17,7 @@ a \code{null}. Strings are parsed as column names.}
 Otherwise, raise an error.}
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 This allows to extract several values per list. To extract a single value by

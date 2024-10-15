@@ -7,7 +7,7 @@
 expr_list_reverse()
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 Reverse values in a list

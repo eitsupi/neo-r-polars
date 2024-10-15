@@ -11,7 +11,7 @@ expr_list_set_union(other)
 Expr.}
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 Get the union of two list variables

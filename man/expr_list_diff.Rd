@@ -13,7 +13,7 @@ expr_list_diff(n = 1, null_behavior = "ignore")
 or \code{"drop"}.}
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 This computes the first discrete difference between shifted items of every

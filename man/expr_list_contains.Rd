@@ -11,7 +11,7 @@ expr_list_contains(item)
 as columns.}
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 Check if list contains a given value

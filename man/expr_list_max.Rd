@@ -7,7 +7,7 @@
 expr_list_max()
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 Find the maximum value in a list

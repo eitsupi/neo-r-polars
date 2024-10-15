@@ -7,7 +7,7 @@
 expr_list_mean()
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 Compute the mean value of a list

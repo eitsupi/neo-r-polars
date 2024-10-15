@@ -7,7 +7,7 @@
 expr_list_arg_min()
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 Get the index of the minimal value in list

@@ -11,7 +11,7 @@ expr_list_concat(other)
 an Expr.}
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 Concat two list variables

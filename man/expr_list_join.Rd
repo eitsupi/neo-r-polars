@@ -11,7 +11,7 @@ expr_list_join(separator, ignore_nulls = FALSE)
 are \emph{not} parsed as columns.}
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 Join all string items in a sublist and place a separator between them. This

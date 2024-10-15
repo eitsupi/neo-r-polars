@@ -7,7 +7,7 @@
 expr_list_explode()
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 Returns a column with a separate row for every list element

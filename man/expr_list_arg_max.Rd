@@ -7,7 +7,7 @@
 expr_list_arg_max()
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 Get the index of the maximal value in list

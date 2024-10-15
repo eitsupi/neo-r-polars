@@ -10,7 +10,7 @@ expr_list_sort(descending = FALSE)
 \item{descending}{Sort values in descending order}
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 Sort values in a list

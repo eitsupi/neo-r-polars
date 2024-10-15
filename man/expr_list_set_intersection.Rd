@@ -11,7 +11,7 @@ expr_list_set_intersection(other)
 Expr.}
 }
 \value{
-Expr
+A polars \link{expression}
 }
 \description{
 Get the intersection of two list variables
