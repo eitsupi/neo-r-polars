@@ -60,19 +60,25 @@ pl__Decimal <- function(precision = NULL, scale = 0L) {
     wrap()
 }
 
-pl__Datetime <- function(time_unit = "us", time_zone = NULL) {
-  PlRDataType$new_datetime(time_unit, time_zone) |>
-    wrap()
+pl__Datetime <- function(time_unit = c("us", "ns", "ms"), time_zone = NULL) {
+  wrap({
+    time_unit <- arg_match0(time_unit, c("us", "ns", "ms"))
+    PlRDataType$new_datetime(time_unit, time_zone)
+  })
 }
 
-pl__Duration <- function(time_unit = "us") {
-  PlRDataType$new_duration(time_unit) |>
-    wrap()
+pl__Duration <- function(time_unit = c("us", "ns", "ms")) {
+  wrap({
+    time_unit <- arg_match0(time_unit, c("us", "ns", "ms"))
+    PlRDataType$new_duration(time_unit)
+  })
 }
 
-pl__Categorical <- function(ordering = "physical") {
-  PlRDataType$new_categorical(ordering) |>
-    wrap()
+pl__Categorical <- function(ordering = c("physical", "lexical")) {
+  wrap({
+    ordering <- arg_match0(ordering, c("physical", "lexical"))
+    PlRDataType$new_categorical(ordering)
+  })
 }
 
 pl__Enum <- function(categories) {
@@ -126,64 +132,40 @@ datatype__ne <- function(other) {
   })
 }
 
-datatype__is_temporal <- function() {
-  self$`_dt`$is_temporal()
-}
-
-datatype__is_enum <- function() {
-  self$`_dt`$is_enum()
-}
-
-datatype__is_categorical <- function() {
-  self$`_dt`$is_categorical()
-}
-
-datatype__is_string <- function() {
-  self$`_dt`$is_string()
-}
-
-datatype__is_logical <- function() {
-  self$`_dt`$is_bool()
-}
-
-datatype__is_float <- function() {
-  self$`_dt`$is_float()
-}
-
-datatype__is_numeric <- function() {
-  self$`_dt`$is_numeric()
-}
-
-datatype__is_integer <- function() {
-  self$`_dt`$is_integer()
-}
-
-datatype__is_signed_integer <- function() {
-  self$`_dt`$is_signed_integer()
-}
-
-datatype__is_unsigned_integer <- function() {
-  self$`_dt`$is_unsigned_integer()
-}
-
-datatype__is_null <- function() {
-  self$`_dt`$is_null()
+datatype__is_array <- function() {
+  self$`_dt`$is_array()
 }
 
 datatype__is_binary <- function() {
   self$`_dt`$is_binary()
 }
 
-datatype__is_primitive <- function() {
-  self$`_dt`$is_primitive()
+datatype__is_categorical <- function() {
+  self$`_dt`$is_categorical()
 }
 
-datatype__is_bool <- function() {
+datatype__is_date <- function() {
+  self$`_dt`$is_date()
+}
+
+datatype__is_enum <- function() {
+  self$`_dt`$is_enum()
+}
+
+datatype__is_float <- function() {
+  self$`_dt`$is_float()
+}
+
+datatype__is_integer <- function() {
+  self$`_dt`$is_integer()
+}
+
+datatype__is_known <- function() {
+  self$`_dt`$is_known()
+}
+
+datatype__is_logical <- function() {
   self$`_dt`$is_bool()
-}
-
-datatype__is_array <- function() {
-  self$`_dt`$is_array()
 }
 
 datatype__is_list <- function() {
@@ -194,14 +176,42 @@ datatype__is_nested <- function() {
   self$`_dt`$is_nested()
 }
 
-datatype__is_struct <- function() {
-  self$`_dt`$is_struct()
+datatype__is_nested_null <- function() {
+  self$`_dt`$is_nested_null()
+}
+
+datatype__is_null <- function() {
+  self$`_dt`$is_null()
+}
+
+datatype__is_numeric <- function() {
+  self$`_dt`$is_numeric()
 }
 
 datatype__is_ord <- function() {
   self$`_dt`$is_ord()
 }
 
-datatype__is_known <- function() {
-  self$`_dt`$is_known()
+datatype__is_primitive <- function() {
+  self$`_dt`$is_primitive()
+}
+
+datatype__is_signed_integer <- function() {
+  self$`_dt`$is_signed_integer()
+}
+
+datatype__is_string <- function() {
+  self$`_dt`$is_string()
+}
+
+datatype__is_struct <- function() {
+  self$`_dt`$is_struct()
+}
+
+datatype__is_temporal <- function() {
+  self$`_dt`$is_temporal()
+}
+
+datatype__is_unsigned_integer <- function() {
+  self$`_dt`$is_unsigned_integer()
 }
