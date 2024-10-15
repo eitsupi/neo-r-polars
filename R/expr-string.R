@@ -112,9 +112,9 @@ expr_str_strptime <- function(
         format, datetime_type$tu, datetime_type$tz, strict, exact, cache, ambiguous
       )
       out$`_rexpr`$dt_cast_time_unit(expr, datetime_type$tu)
-    } else if (dtype == pl$Date) {
+    } else if (dtype$is_date()) {
       self$`_rexpr`$str_to_date(format, strict, exact, cache)
-    } else if (dtype == pl$Time) {
+    } else if (dtype$is_temporal()) {
       self$`_rexpr`$str_to_time(format, strict, cache)
     } else {
       abort("`dtype` must be of type Date, Datetime, or Time.")
