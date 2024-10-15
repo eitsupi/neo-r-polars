@@ -107,13 +107,11 @@ series__slice <- function(offset, length = NULL) {
     wrap()
 }
 
-series__equals <- function(other, ..., check_dtypes = FALSE, check_names = FALSE, null_equal = FALSE) {
+series__equals <- function(
+    other, ..., check_dtypes = FALSE, check_names = FALSE, null_equal = TRUE) {
   wrap({
     check_dots_empty0(...)
-
-    if (!isTRUE(is_polars_series(other))) {
-      abort("`other` must be a polars series")
-    }
+    check_polars_series(other)
 
     self$`_s`$equals(other$`_s`, check_dtypes, check_names, null_equal)
   })
