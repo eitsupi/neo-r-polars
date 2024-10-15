@@ -138,6 +138,7 @@ SEXP savvy_PlRExpr_reshape__ffi(SEXP self__, SEXP c_arg__dimensions);
 SEXP savvy_PlRExpr_any__ffi(SEXP self__, SEXP c_arg__ignore_nulls);
 SEXP savvy_PlRExpr_all__ffi(SEXP self__, SEXP c_arg__ignore_nulls);
 SEXP savvy_PlRExpr_map_batches__ffi(SEXP self__, SEXP c_arg__lambda, SEXP c_arg__agg_list, SEXP c_arg__output_type);
+SEXP savvy_PlRExpr_explode__ffi(SEXP self__);
 SEXP savvy_PlRExpr_list_len__ffi(SEXP self__);
 SEXP savvy_PlRExpr_list_contains__ffi(SEXP self__, SEXP c_arg__other);
 SEXP savvy_PlRExpr_list_max__ffi(SEXP self__);

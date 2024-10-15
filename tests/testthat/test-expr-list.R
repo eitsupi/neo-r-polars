@@ -113,7 +113,7 @@ test_that("list$n_unique", {
   )
   expect_equal(
     df$select(pl$all()$list$n_unique()),
-    list(l_i32 = c(2, 4), l_f64 = c(5, 1), l_char = c(26, 2))
+    pl$DataFrame(l_i32 = c(2, 4), l_f64 = c(5, 1), l_char = c(26, 2))$cast(pl$UInt32)
   )
 })
 
@@ -225,133 +225,125 @@ test_that("gather_every", {
 # })
 
 
-# test_that("join", {
-#   l <- list(letters, as.character(1:5))
-#   s <- as_polars_series(l)
-#   l_act <- pl$select(s$to_lit()$list$join("-"))
-#   l_exp <- list(sapply(l, paste, collapse = "-"))
-#   names(l_exp) <- ""
-#   expect_equal(l_act, l_exp)
+test_that("join", {
+  l <- list(letters, as.character(1:5))
+  l_act <- pl$DataFrame(x = l)$with_columns(pl$col("x")$list$join("-"))
+  l_exp <- pl$DataFrame(x = sapply(l, paste, collapse = "-"))
+  expect_equal(l_act, l_exp)
 
-#   df <- pl$DataFrame(
-#     s = list(c("a", "b", "c"), c("x", "y"), c("foo", NA, "bar")),
-#     separator = c("*", "_", "*")
-#   )
-#   expect_equal(
-#     df$select(pl$col("s")$list$join(pl$col("separator"))),
-#     list(s = c("a*b*c", "x_y", NA))
-#   )
-#   # ignore_nulls
-#   expect_equal(
-#     df$select(pl$col("s")$list$join(pl$col("separator"), ignore_nulls = TRUE)),
-#     list(s = c("a*b*c", "x_y", "foo*bar"))
-#   )
-# })
+  df <- pl$DataFrame(
+    s = list(c("a", "b", "c"), c("x", "y"), c("foo", NA, "bar")),
+    separator = c("*", "_", "*")
+  )
+  expect_equal(
+    df$select(pl$col("s")$list$join(pl$col("separator"))),
+    pl$DataFrame(s = c("a*b*c", "x_y", NA))
+  )
+  # ignore_nulls
+  expect_equal(
+    df$select(pl$col("s")$list$join(pl$col("separator"), ignore_nulls = TRUE)),
+    pl$DataFrame(s = c("a*b*c", "x_y", "foo*bar"))
+  )
+})
 
-# test_that("arg_min arg_max", {
-#   l <- list(
-#     l_i32 = list(1:5, 1:3, 1:10),
-#     l_f64 = list(c(1, 1, 2, 3, NA, Inf, NA, Inf), c(1), numeric()),
-#     l_char = list(letters, c("a", "a", "b"), character())
-#   )
-#   df <- pl$DataFrame(l)
+test_that("arg_min arg_max", {
+  l <- list(
+    l_i32 = list(1:5, 1:3, 1:10),
+    l_f64 = list(c(1, 1, 2, 3, NA, Inf, NA, Inf), c(1), numeric()),
+    l_char = list(letters, c("a", "a", "b"), character())
+  )
+  df <- pl$DataFrame(!!!l)
 
-#   l_act_arg_min <- df$select(pl$all()$list$arg_min())
-#   l_act_arg_max <- df$select(pl$all()$list$arg_max())
+  l_act_arg_min <- df$select(pl$all()$list$arg_min())
+  l_act_arg_max <- df$select(pl$all()$list$arg_max())
 
-#   # not the same as R NA is min
-#   l_exp_arg_min <- list(
-#     l_i32 = c(0, 0, 0),
-#     l_f64 = c(0, 0, NA),
-#     l_char = c(0, 0, NA)
-#   )
-#   l_exp_arg_max <- list(
-#     l_i32 = c(4, 2, 9),
-#     l_f64 = c(5, 0, NA),
-#     l_char = c(25, 2, NA)
-#   )
+  # not the same as R NA is min
+  l_exp_arg_min <- pl$DataFrame(
+    l_i32 = c(0, 0, 0),
+    l_f64 = c(0, 0, NA),
+    l_char = c(0, 0, NA)
+  )$cast(pl$UInt32)
+  l_exp_arg_max <- pl$DataFrame(
+    l_i32 = c(4, 2, 9),
+    l_f64 = c(5, 0, NA),
+    l_char = c(25, 2, NA)
+  )$cast(pl$UInt32)
 
-#   expect_equal(l_act_arg_min |> lapply(as.numeric), l_exp_arg_min)
-#   expect_equal(l_act_arg_max |> lapply(as.numeric), l_exp_arg_max)
-# })
+  expect_equal(l_act_arg_min, l_exp_arg_min)
+  expect_equal(l_act_arg_max, l_exp_arg_max)
+})
 
+test_that("diff", {
+  l <- list(
+    l_i32 = list(1:5, 1:3, c(4L, 2L, 1L, 7L, 42L)),
+    l_f64 = list(c(1, 1, 2, 3, NA, Inf, NA, Inf), c(1), numeric())
+  )
+  df <- pl$DataFrame(!!!l)
 
+  l_act_diff_1 <- df$select(pl$all()$list$diff())
+  l_exp_diff_1 <- pl$DataFrame(
+    l_i32 = list(c(NA, rep(1L, 4)), c(NA, 1L, 1L), c(NA, -2L, -1L, 6L, 35L)),
+    l_f64 = list(c(NA, 0, 1, 1, NA, NA, NA, NA), NA_real_, numeric())
+  )
+  expect_equal(l_act_diff_1, l_exp_diff_1)
 
-# test_that("diff", {
-#   l <- list(
-#     l_i32 = list(1:5, 1:3, c(4L, 2L, 1L, 7L, 42L)),
-#     l_f64 = list(c(1, 1, 2, 3, NA, Inf, NA, Inf), c(1), numeric())
-#   )
-#   df <- pl$DataFrame(l)
+  l_act_diff_2 <- df$select(pl$all()$list$diff(n = 2))
+  l_exp_diff_2 <- pl$DataFrame(
+    l_i32 = list(c(NA, NA, rep(2L, 3)), c(NA, NA, 2L), c(NA, NA, -3L, 5L, 41L)),
+    l_f64 = list(c(NA, NA, 1, 2, NA, Inf, NA, NaN), NA_real_, numeric())
+  )
+  expect_equal(l_act_diff_2, l_exp_diff_2)
 
-#   l_act_diff_1 <- df$select(pl$all()$list$diff())
-#   l_exp_diff_1 <- list(
-#     l_i32 = list(c(NA, rep(1L, 4)), c(NA, 1L, 1L), c(NA, -2L, -1L, 6L, 35L)),
-#     l_f64 = list(c(NA, 0, 1, 1, NA, NA, NA, NA), NA_real_, numeric())
-#   )
-#   expect_equal(l_act_diff_1, l_exp_diff_1)
+  l_act_diff_0 <- df$select(pl$all()$list$diff(n = 0))
+  l_exp_diff_0 <- pl$DataFrame(
+    l_i32 = list(rep(0L, 5), rep(0L, 3), rep(0L, 5)),
+    l_f64 = list(c(rep(0, 4), NA, NaN, NA, NaN), 0, numeric())
+  )
+  expect_equal(l_act_diff_0, l_exp_diff_0)
+})
 
-#   l_act_diff_2 <- df$select(pl$all()$list$diff(n = 2))
-#   l_exp_diff_2 <- list(
-#     l_i32 = list(c(NA, NA, rep(2L, 3)), c(NA, NA, 2L), c(NA, NA, -3L, 5L, 41L)),
-#     l_f64 = list(c(NA, NA, 1, 2, NA, Inf, NA, NaN), NA_real_, numeric())
-#   )
-#   expect_equal(l_act_diff_2, l_exp_diff_2)
+test_that("shift", {
+  l <- list(
+    l_i32 = list(1:5, 1:3, c(4L, 2L, 1L, 7L, 42L)),
+    l_f64 = list(c(1, 1, 2, 3, NA, Inf, NA, Inf), c(1), numeric())
+  )
+  df <- pl$DataFrame(!!!l)
 
-#   l_act_diff_0 <- df$select(pl$all()$list$diff(n = 0))
-#   l_exp_diff_0 <- list(
-#     l_i32 = list(rep(0L, 5), rep(0L, 3), rep(0L, 5)),
-#     l_f64 = list(c(rep(0, 4), NA, NaN, NA, NaN), 0, numeric())
-#   )
-#   expect_equal(l_act_diff_0, l_exp_diff_0)
-# })
+  l_act_diff_1 <- df$select(pl$all()$list$shift())
+  l_exp_diff_1 <- pl$DataFrame(
+    l_i32 = list(c(NA, 1L:4L), c(NA, 1L, 2L), c(NA, 4L, 2L, 1L, 7L)),
+    l_f64 = list(c(NA, 1, 1, 2, 3, NA, Inf, NA), NA_real_, numeric())
+  )
+  expect_equal(l_act_diff_1, l_exp_diff_1)
 
+  l_act_diff_2 <- df$select(pl$all()$list$shift(2))
+  l_exp_diff_2 <- pl$DataFrame(
+    l_i32 = list(c(NA, NA, 1L:3L), c(NA, NA, 1L), c(NA, NA, 4L, 2L, 1L)),
+    l_f64 = list(c(NA, NA, 1, 1, 2, 3, NA, Inf), NA_real_, numeric())
+  )
+  expect_equal(l_act_diff_2, l_exp_diff_2)
 
+  l_act_diff_0 <- df$select(pl$all()$list$shift(0))
+  l_exp_diff_0 <- pl$DataFrame(
+    l_i32 = list(1L:5L, 1L:3L, c(4L, 2L, 1L, 7L, 42L)),
+    l_f64 = list(c(1, 1, 2, 3, NA, Inf, NA, Inf), 1, numeric())
+  )
+  expect_equal(l_act_diff_0, l_exp_diff_0)
 
-# test_that("shift", {
-#   l <- list(
-#     l_i32 = list(1:5, 1:3, c(4L, 2L, 1L, 7L, 42L)),
-#     l_f64 = list(c(1, 1, 2, 3, NA, Inf, NA, Inf), c(1), numeric())
-#   )
-#   df <- pl$DataFrame(l)
-
-#   l_act_diff_1 <- df$select(pl$all()$list$shift())
-#   l_exp_diff_1 <- list(
-#     l_i32 = list(c(NA, 1L:4L), c(NA, 1L, 2L), c(NA, 4L, 2L, 1L, 7L)),
-#     l_f64 = list(c(NA, 1, 1, 2, 3, NA, Inf, NA), NA_real_, numeric())
-#   )
-#   expect_equal(l_act_diff_1, l_exp_diff_1)
-
-#   l_act_diff_2 <- df$select(pl$all()$list$shift(2))
-#   l_exp_diff_2 <- list(
-#     l_i32 = list(c(NA, NA, 1L:3L), c(NA, NA, 1L), c(NA, NA, 4L, 2L, 1L)),
-#     l_f64 = list(c(NA, NA, 1, 1, 2, 3, NA, Inf), NA_real_, numeric())
-#   )
-#   expect_equal(l_act_diff_2, l_exp_diff_2)
-
-#   l_act_diff_0 <- df$select(pl$all()$list$shift(0))
-#   l_exp_diff_0 <- list(
-#     l_i32 = list(1L:5L, 1L:3L, c(4L, 2L, 1L, 7L, 42L)),
-#     l_f64 = list(c(1, 1, 2, 3, NA, Inf, NA, Inf), 1, numeric())
-#   )
-#   expect_equal(l_act_diff_0, l_exp_diff_0)
-
-#   l_act_diff_m1 <- df$select(pl$all()$list$shift(-1))
-#   l_exp_diff_m1 <- list(
-#     l_i32 = list(c(2L:5L, NA), c(2L, 3L, NA), c(2L, 1L, 7L, 42L, NA)),
-#     l_f64 = list(c(1, 2, 3, NA, Inf, NA, Inf, NA), NA_real_, numeric())
-#   )
-#   expect_equal(l_act_diff_m1, l_exp_diff_m1)
-# })
-
-
+  l_act_diff_m1 <- df$select(pl$all()$list$shift(-1))
+  l_exp_diff_m1 <- pl$DataFrame(
+    l_i32 = list(c(2L:5L, NA), c(2L, 3L, NA), c(2L, 1L, 7L, 42L, NA)),
+    l_f64 = list(c(1, 2, 3, NA, Inf, NA, Inf, NA), NA_real_, numeric())
+  )
+  expect_equal(l_act_diff_m1, l_exp_diff_m1)
+})
 
 # test_that("slice", {
 #   l <- list(
 #     l_i32 = list(1:5, 1:3, c(4L, 2L, 1L, 7L, 42L)),
 #     l_f64 = list(c(1, 1, 2, 3, NA, Inf, NA, Inf), c(1), numeric())
 #   )
-#   df <- pl$DataFrame(l)
+#   df <- pl$DataFrame(!!!l)
 
 #   r_slice <- function(x, o, n = NULL) {
 #     if (is.null(n)) n <- max(length(x) - o, 1L)
@@ -366,7 +358,7 @@ test_that("gather_every", {
 #   }
 
 #   l_act_slice <- df$select(pl$all()$list$slice(0, 3))
-#   l_exp_slice <- lapply(l, lapply, r_slice, 0, 3)
+#   l_exp_slice <- pl$DataFrame(!!!lapply(l, lapply, r_slice, 0, 3))
 #   expect_equal(l_act_slice, l_exp_slice)
 
 
@@ -394,44 +386,45 @@ test_that("gather_every", {
 #   expect_equal(l_act_slice, l_exp_slice)
 # })
 
-# test_that("contains", {
-#   l <- list(
-#     i32 = list(1:4, 1:3, 1:1),
-#     f64 = list(c(1, 2, 3, NaN), c(NaN, 1, NA), c(Inf)),
-#     utf = list(letters, LETTERS, c(NA_character_, "a"))
-#   )
-#   df <- pl$DataFrame(l)
+test_that("contains", {
+  l <- list(
+    i32 = list(1:4, 1:3, 1:1),
+    f64 = list(c(1, 2, 3, NaN), c(NaN, 1, NA), c(Inf)),
+    utf = list(letters, LETTERS, c(NA_character_, "a"))
+  )
+  df <- pl$DataFrame(!!!l)
 
-#   l_act <- df$select(
-#     pl$col("i32")$list$contains(2L),
-#     pl$col("f64")$list$contains(Inf),
-#     pl$col("utf")$list$contains("a")
-#   )
+  l_act <- df$select(
+    pl$col("i32")$list$contains(2L),
+    pl$col("f64")$list$contains(Inf),
+    pl$col("utf")$list$contains("a")
+  )
 
-#   l_exp <- list(
-#     i32 = sapply(l$i32, \(x) 2L %in% x),
-#     f64 = sapply(l$f64, \(x) Inf %in% x),
-#     utf = sapply(l$utf, \(x) "a" %in% x)
-#   )
+  l_exp <- pl$DataFrame(
+    i32 = sapply(l$i32, \(x) 2L %in% x),
+    f64 = sapply(l$f64, \(x) Inf %in% x),
+    utf = sapply(l$utf, \(x) "a" %in% x)
+  )
 
-#   expect_equal(l_act, l_exp)
-# })
+  expect_equal(l_act, l_exp)
+})
 
-# test_that("contains with categorical", {
-#   df <- pl$DataFrame(
-#     a = list(factor(c("a", "b")), factor(c("c", "d"))),
-#     item = c("a", "a")
-#   )
-#   expect_equal(
-#     df$select(
-#       with_expr = pl$col("a")$list$contains(pl$col("item")),
-#       with_lit = pl$col("a")$list$contains("e")
-#     ),
-#     list(with_expr = c(TRUE, FALSE), with_lit = c(FALSE, FALSE))
-#   )
-# })
+test_that("contains with categorical", {
+  df <- pl$DataFrame(
+    a = list(factor(c("a", "b")), factor(c("c", "d"))),
+    item = c("a", "a")
+  )
+  expect_equal(
+    df$select(
+      with_expr = pl$col("a")$list$contains(pl$col("item")),
+      with_lit = pl$col("a")$list$contains("e")
+    ),
+    pl$DataFrame(with_expr = c(TRUE, FALSE), with_lit = c(FALSE, FALSE))
+  )
+})
 
 
+# TODO-REWRITE: uncomment after pl$concat_list() is implemented
 # test_that("concat", {
 #   df <- pl$DataFrame(
 #     a = list("a", "x"),
@@ -440,17 +433,17 @@ test_that("gather_every", {
 
 #   expect_equal(
 #     df$select(pl$col("a")$list$concat(pl$col("b"))),
-#     list(a = list(c("a", "b", "c"), c("x", "y", "z")))
+#     pl$DataFrame(a = list(c("a", "b", "c"), c("x", "y", "z")))
 #   )
 
 #   expect_equal(
 #     df$select(pl$col("a")$list$concat(pl$lit("hello from R"))),
-#     list(a = list(c("a", "hello from R"), c("x", "hello from R")))
+#     pl$DataFrame(a = list(c("a", "hello from R"), c("x", "hello from R")))
 #   )
 
 #   expect_equal(
 #     df$select(pl$col("a")$list$concat(pl$lit(c("hello", "world")))),
-#     list(a = list(c("a", "hello"), c("x", "world")))
+#     pl$DataFrame(a = list(c("a", "hello"), c("x", "world")))
 #   )
 # })
 
@@ -490,7 +483,7 @@ test_that("gather_every", {
 # })
 
 
-
+# TODO-REWRITE: uncomment after pl$concat_list() is implemented
 # test_that("eval", {
 #   df <- pl$DataFrame(a = c(1, 8, 3), b = c(4, 5, 2))
 #   l_act <- df$with_columns(
@@ -498,7 +491,7 @@ test_that("gather_every", {
 #   )
 #   expect_equal(
 #     l_act,
-#     list(
+#     pl$DataFrame(
 #       a = c(1, 8, 3),
 #       b = c(4, 5, 2),
 #       rank = list(c(1, 2), c(2, 1), c(2, 1))
@@ -506,26 +499,27 @@ test_that("gather_every", {
 #   )
 # })
 
-# test_that("$list$all() works", {
-#   df <- pl$DataFrame(
-#     a = list(c(TRUE, TRUE), c(FALSE, TRUE), c(FALSE, FALSE), NA, c())
-#   )
-#   expect_equal(
-#     df$select(all = pl$col("a")$list$all()),
-#     list(all = c(TRUE, FALSE, FALSE, TRUE, TRUE))
-#   )
-# })
+test_that("$list$all() works", {
+  df <- pl$DataFrame(
+    a = list(c(TRUE, TRUE), c(FALSE, TRUE), c(FALSE, FALSE), NA, c(), logical())
+  )
+  expect_equal(
+    df$select(all = pl$col("a")$list$all()),
+    pl$DataFrame(all = c(TRUE, FALSE, FALSE, TRUE, NA, TRUE))
+  )
+})
 
-# test_that("$list$any() works", {
-#   df <- pl$DataFrame(
-#     a = list(c(TRUE, TRUE), c(FALSE, TRUE), c(FALSE, FALSE), NA, c())
-#   )
-#   expect_equal(
-#     df$select(any = pl$col("a")$list$any()),
-#     list(any = c(TRUE, TRUE, FALSE, FALSE, FALSE))
-#   )
-# })
+test_that("$list$any() works", {
+  df <- pl$DataFrame(
+    a = list(c(TRUE, TRUE), c(FALSE, TRUE), c(FALSE, FALSE), NA, c(), logical())
+  )
+  expect_equal(
+    df$select(any = pl$col("a")$list$any()),
+    pl$DataFrame(any = c(TRUE, TRUE, FALSE, FALSE, NA, FALSE))
+  )
+})
 
+# TODO-REWRITE: uncomment after pl$DataFrame() accepts schema
 # test_that("$list$set_*() work with integers", {
 #   df <- pl$DataFrame(
 #     a = list(1:3, NA_integer_, c(NA_integer_, 3L), 5:7),
@@ -535,80 +529,80 @@ test_that("gather_every", {
 
 #   expect_equal(
 #     df$select(pl$col("a")$list$set_union("b")),
-#     list(a = list(1:4, c(NA, 3L), c(NA, 3L, 4L), 5:8))
+#     pl$DataFrame(a = list(1:4, c(NA, 3L), c(NA, 3L, 4L), 5:8))
 #   )
 #   expect_equal(
 #     df$select(pl$col("a")$list$set_intersection("b")),
-#     list(a = list(2:3, integer(0), c(NA, 3L), 6L))
+#     pl$DataFrame(a = list(2:3, integer(0), c(NA, 3L), 6L))
 #   )
 #   expect_equal(
 #     df$select(pl$col("a")$list$set_difference("b")),
-#     list(a = list(1L, NA_integer_, integer(0), c(5L, 7L)))
+#     pl$DataFrame(a = list(1L, NA_integer_, integer(0), c(5L, 7L)))
 #   )
 #   expect_equal(
 #     df$select(pl$col("a")$list$set_symmetric_difference("b")),
-#     list(a = list(c(1L, 4L), c(NA, 3L), 4L, c(5L, 7L, 8L)))
+#     pl$DataFrame(a = list(c(1L, 4L), c(NA, 3L), 4L, c(5L, 7L, 8L)))
 #   )
 # })
 
-# test_that("$list$set_*() work with strings", {
-#   df <- pl$DataFrame(
-#     a = list(letters[1:3], NA_character_, c(NA_character_, letters[3]), letters[5:7]),
-#     b = list(letters[2:4], letters[3], c(letters[3:4], NA_character_), letters[c(6, 8)])
-#   )
+test_that("$list$set_*() work with strings", {
+  df <- pl$DataFrame(
+    a = list(letters[1:3], NA_character_, c(NA_character_, letters[3]), letters[5:7]),
+    b = list(letters[2:4], letters[3], c(letters[3:4], NA_character_), letters[c(6, 8)])
+  )
 
-#   expect_equal(
-#     df$select(pl$col("a")$list$set_union("b")),
-#     list(a = list(letters[1:4], c(NA, "c"), c(NA, "c", "d"), letters[5:8]))
-#   )
-#   expect_equal(
-#     df$select(pl$col("a")$list$set_intersection("b")),
-#     list(a = list(c("b", "c"), character(0), c(NA, "c"), "f"))
-#   )
-#   expect_equal(
-#     df$select(pl$col("a")$list$set_difference("b")),
-#     list(a = list("a", NA_character_, character(0), c("e", "g")))
-#   )
-#   expect_equal(
-#     df$select(pl$col("a")$list$set_symmetric_difference("b")),
-#     list(a = list(c("a", "d"), c(NA, "c"), "d", c("e", "g", "h")))
-#   )
-# })
+  expect_equal(
+    df$select(pl$col("a")$list$set_union("b")),
+    pl$DataFrame(a = list(letters[1:4], c(NA, "c"), c(NA, "c", "d"), letters[5:8]))
+  )
+  expect_equal(
+    df$select(pl$col("a")$list$set_intersection("b")),
+    pl$DataFrame(a = list(c("b", "c"), character(0), c(NA, "c"), "f"))
+  )
+  expect_equal(
+    df$select(pl$col("a")$list$set_difference("b")),
+    pl$DataFrame(a = list("a", NA_character_, character(0), c("e", "g")))
+  )
+  expect_equal(
+    df$select(pl$col("a")$list$set_symmetric_difference("b")),
+    pl$DataFrame(a = list(c("a", "d"), c(NA, "c"), "d", c("e", "g", "h")))
+  )
+})
 
-# test_that("$list$set_*() casts to common supertype", {
-#   df <- pl$DataFrame(
-#     a = list(c(1, 2), NA_real_),
-#     b = list(c("a", "b"), NA_character_)
-#   )
-#   expect_equal(
-#     df$select(pl$col("a")$list$set_union("b")),
-#     list(a = list(c("1.0", "2.0", "a", "b"), NA_character_))
-#   )
-#   expect_equal(
-#     df$select(pl$col("a")$list$set_intersection("b")),
-#     list(a = list(character(0), NA_character_))
-#   )
-#   expect_equal(
-#     df$select(pl$col("a")$list$set_difference("b")),
-#     list(a = list(c("1.0", "2.0"), character(0)))
-#   )
-#   expect_equal(
-#     df$select(pl$col("a")$list$set_symmetric_difference("b")),
-#     list(a = list(c("1.0", "2.0", "a", "b"), character(0)))
-#   )
-# })
+test_that("$list$set_*() casts to common supertype", {
+  df <- pl$DataFrame(
+    a = list(c(1, 2), NA_real_),
+    b = list(c("a", "b"), NA_character_)
+  )
+  expect_equal(
+    df$select(pl$col("a")$list$set_union("b")),
+    pl$DataFrame(a = list(c("1.0", "2.0", "a", "b"), NA_character_))
+  )
+  expect_equal(
+    df$select(pl$col("a")$list$set_intersection("b")),
+    pl$DataFrame(a = list(character(0), NA_character_))
+  )
+  expect_equal(
+    df$select(pl$col("a")$list$set_difference("b")),
+    pl$DataFrame(a = list(c("1.0", "2.0"), character(0)))
+  )
+  expect_equal(
+    df$select(pl$col("a")$list$set_symmetric_difference("b")),
+    pl$DataFrame(a = list(c("1.0", "2.0", "a", "b"), character(0)))
+  )
+})
 
-# test_that("$list$explode() works", {
-#   df <- pl$DataFrame(a = list(c(1, 2, 3), c(4, 5, 6)))
-#   expect_equal(
-#     df$select(pl$col("a")$list$explode()),
-#     list(a = c(1, 2, 3, 4, 5, 6))
-#   )
-#   expect_error(
-#     df$with_columns(pl$col("a")$list$explode()),
-#     "lengths don't match"
-#   )
-# })
+test_that("$list$explode() works", {
+  df <- pl$DataFrame(a = list(c(1, 2, 3), c(4, 5, 6)))
+  expect_equal(
+    df$select(pl$col("a")$list$explode()),
+    pl$DataFrame(a = c(1, 2, 3, 4, 5, 6))
+  )
+  expect_snapshot(
+    df$with_columns(pl$col("a")$list$explode()),
+    error = TRUE
+  )
+})
 
 # test_that("$list$sample() works", {
 #   df <- pl$DataFrame(

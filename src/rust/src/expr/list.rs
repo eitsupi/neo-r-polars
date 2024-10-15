@@ -126,8 +126,8 @@ impl PlRExpr {
         Ok(self.inner.clone().list().arg_max().into())
     }
 
-    fn list_diff(&self, n: i32, null_behavior: &str) -> Result<Self> {
-        let n = n as i64;
+    fn list_diff(&self, n: NumericScalar, null_behavior: &str) -> Result<Self> {
+        let n = <Wrap<i64>>::try_from(n)?.0;
         let null_behavior = <Wrap<NullBehavior>>::try_from(null_behavior)?.0;
 
         Ok(self.inner.clone().list().diff(n, null_behavior).into())

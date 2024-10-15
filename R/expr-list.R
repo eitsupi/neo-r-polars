@@ -176,7 +176,7 @@ expr_list_concat <- function(other) {
 #'   val_oob = pl$col("values")$list$get(10)
 #' )
 expr_list_get <- function(index, ..., null_on_oob = TRUE) {
-  self$`_rexpr`$list_get(as_polars_df(index)$`_rexpr`, null_on_oob) |>
+  self$`_rexpr`$list_get(as_polars_expr(index)$`_rexpr`, null_on_oob) |>
     wrap()
 }
 
@@ -233,7 +233,7 @@ expr_list_gather <- function(index, null_on_oob = FALSE) {
 #'   gather_every = pl$col("a")$list$gather_every(pl$col("n"), offset = pl$col("offset"))
 #' )
 expr_list_gather_every <- function(n, offset = 0) {
-  self$`_rexpr`$list_gather_every(as_polars_expr(n)$`_rexpr`, as_polars_expr(n)$`_rexpr`) |>
+  self$`_rexpr`$list_gather_every(as_polars_expr(n)$`_rexpr`, as_polars_expr(offset)$`_rexpr`) |>
     wrap()
 }
 
@@ -282,7 +282,7 @@ expr_list_last <- function() {
 #'   with_lit = pl$col("a")$list$contains(1)
 #' )
 expr_list_contains <- function(item) {
-  self$`_rexpr`$list_contains(as_polars_df(item)$`_rexpr`) |>
+  self$`_rexpr`$list_contains(as_polars_expr(item, as_lit = TRUE)$`_rexpr`) |>
     wrap()
 }
 
@@ -308,7 +308,7 @@ expr_list_contains <- function(item) {
 #'   join_ignore_null = pl$col("s")$list$join(" ", ignore_nulls = TRUE)
 #' )
 expr_list_join <- function(separator, ignore_nulls = FALSE) {
-  self$`_rexpr`$list_join(as_polars_df(separator)$`_rexpr`, ignore_nulls) |>
+  self$`_rexpr`$list_join(as_polars_expr(separator, as_lit = TRUE)$`_rexpr`, ignore_nulls) |>
     wrap()
 }
 
@@ -360,9 +360,11 @@ expr_list_arg_max <- function() {
 #'
 #' # negative value starts shifting from the end
 #' df$with_columns(diff = pl$col("s")$list$diff(-2))
-expr_list_diff <- function(n = 1, null_behavior = c("ignore", "drop")) {
-  self$`_rexpr`$list_diff(n, null_behavior) |>
-    wrap()
+expr_list_diff <- function(n = 1, null_behavior = "ignore") {
+  wrap({
+    arg_match0(null_behavior, values = c("ignore", "drop"))
+    self$`_rexpr`$list_diff(n, null_behavior)
+  })
 }
 
 #' Shift list values by `n` indices
@@ -381,7 +383,7 @@ expr_list_diff <- function(n = 1, null_behavior = c("ignore", "drop")) {
 #'   shift_by_lit = pl$col("s")$list$shift(2)
 #' )
 expr_list_shift <- function(n = 1) {
-  self$`_rexpr`$list_shift(n) |>
+  self$`_rexpr`$list_shift(as_polars_expr(n)$`_rexpr`) |>
     wrap()
 }
 
@@ -409,12 +411,13 @@ expr_list_shift <- function(n = 1) {
 #'   slice_by_lit = pl$col("s")$list$slice(2, 3)
 #' )
 expr_list_slice <- function(offset, length = NULL) {
-  offset <- wrap_e(offset, str_to_lit = FALSE)
-  if (!is.null(length)) {
-    length <- wrap_e(length, str_to_lit = FALSE)
-  }
-  self$`_rexpr`$list_slice(as_polars_df(offset, as_lit = TRUE)$`_rexpr`, as_polars_df(length, as_lit = TRUE)$`_rexpr`) |>
-    wrap()
+  wrap({
+    offset <- as_polars_expr(offset, as_lit = FALSE)$`_rexpr`
+    if (!is.null(length)) {
+      length <- as_polars_expr(length, as_lit = FALSE)$`_rexpr`
+    }
+    self$`_rexpr`$list_slice(offset, length)
+  })
 }
 
 #' Get the first `n` values of a list
@@ -512,6 +515,7 @@ expr_list_to_struct <- function(
     n_field_strategy = c("first_non_null", "max_width"),
     fields = NULL,
     upper_bound = 0) {
+  browser()
   self$`_rexpr`$list_to_struct(n_field_strategy, fields, upper_bound) |>
     wrap()
 }
