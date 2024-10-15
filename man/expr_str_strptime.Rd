@@ -16,7 +16,7 @@ expr_str_strptime(
 }
 \arguments{
 \item{dtype}{The data type to convert into. Can be either \code{pl$Date},
-\code{\link[=DataType_Datetime]{pl$Datetime()}}, or \code{pl$Time}.}
+\code{pl$Datetime}, or \code{pl$Time}.}
 
 \item{format}{Format to use for conversion. Refer to
 \href{https://docs.rs/chrono/latest/chrono/format/strftime/index.html}{the chrono crate documentation}
@@ -40,7 +40,7 @@ cleaning your data beforehand will almost certainly be more performant.}
 conversion.}
 }
 \value{
-A polars \link{expression}
+\link[=Expr_class]{Expr} of Date, Datetime or Time type
 }
 \description{
 Similar to the \code{\link[=strptime]{strptime()}} function.

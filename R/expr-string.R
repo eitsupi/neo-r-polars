@@ -24,8 +24,9 @@ namespace_expr_str <- function(x) {
 #' When parsing a Datetime the column precision will be inferred from the format
 #' string, if given, e.g.: `"%F %T%.3f"` => [`pl$Datetime("ms")`][pl_Datetime].
 #' If no fractional second component is found then the default is `"us"` (microsecond).
+# TODO: link to data type docs
 #' @param dtype The data type to convert into. Can be either `pl$Date`,
-#' [`pl$Datetime()`][DataType_Datetime], or `pl$Time`.
+#' `pl$Datetime`, or `pl$Time`.
 #' @param format Format to use for conversion. Refer to
 #' [the chrono crate documentation](https://docs.rs/chrono/latest/chrono/format/strftime/index.html)
 #' for the full specification. Example: `"%Y-%m-%d %H:%M:%S"`.
