@@ -26,17 +26,11 @@ impl PlRExpr {
     }
 
     fn list_sum(&self) -> Result<Self> {
-        Ok(self.inner.clone().list().sum().with_fmt("list.sum").into())
+        Ok(self.inner.clone().list().sum().into())
     }
 
     fn list_mean(&self) -> Result<Self> {
-        Ok(self
-            .inner
-            .clone()
-            .list()
-            .mean()
-            .with_fmt("list.mean")
-            .into())
+        Ok(self.inner.clone().list().mean().into())
     }
 
     fn list_sort(&self, descending: bool) -> Result<Self> {
@@ -48,18 +42,11 @@ impl PlRExpr {
                 descending,
                 ..Default::default()
             })
-            .with_fmt("list.sort")
             .into())
     }
 
     fn list_reverse(&self) -> Result<Self> {
-        Ok(self
-            .inner
-            .clone()
-            .list()
-            .reverse()
-            .with_fmt("list.reverse")
-            .into())
+        Ok(self.inner.clone().list().reverse().into())
     }
 
     fn list_unique(&self, maintain_order: bool) -> Result<Self> {
@@ -73,13 +60,7 @@ impl PlRExpr {
     }
 
     fn list_n_unique(&self) -> Result<Self> {
-        Ok(self
-            .inner
-            .clone()
-            .list()
-            .n_unique()
-            .with_fmt("list.n_unique")
-            .into())
+        Ok(self.inner.clone().list().n_unique().into())
     }
 
     fn list_gather(&self, index: &PlRExpr, null_on_oob: bool) -> Result<Self> {
