@@ -9,7 +9,7 @@ expr_str_decode(encoding, ..., strict = TRUE)
 \arguments{
 \item{encoding}{Either 'hex' or 'base64'.}
 
-\item{...}{Not used currently.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{strict}{If \code{TRUE} (default), raise an error if the underlying value
 cannot be decoded. Otherwise, replace it with a null value.}

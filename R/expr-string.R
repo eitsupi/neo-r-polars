@@ -32,7 +32,7 @@ namespace_expr_str <- function(x) {
 #' If `NULL` (default), the format is inferred from the data.
 #' Notice that time zone `%Z` is not supported and will just ignore timezones.
 #' Numeric time zones like `%z` or `%:z` are supported.
-#' @param ... Not used.
+#' @inheritParams rlang::args_dots_empty
 #' @param strict If `TRUE` (default), raise an error if a single string cannot
 #' be parsed. If `FALSE`, produce a polars `null`.
 #' @param exact If `TRUE` (default), require an exact format match. If `FALSE`,
@@ -237,7 +237,7 @@ expr_str_len_chars <- function() {
 #' Vertically concatenate the string values in the column to a single string value.
 #'
 #' @param delimiter The delimiter to insert between consecutive string values.
-#' @param ... Ignored.
+#' @inheritParams rlang::args_dots_empty
 #' @param ignore_nulls Ignore null values (default). If `FALSE`, null values will be
 #' propagated: if the column contains any null values, the output is null.
 #' @return Expr of String concatenated
@@ -460,7 +460,7 @@ expr_str_pad_start <- function(width, fillchar = " ") {
 #'
 #' @param pattern A character or something can be coerced to a string [Expr][Expr_class]
 #' of a valid regex pattern, compatible with the [regex crate](https://docs.rs/regex/latest/regex/).
-#' @param ... Ignored.
+#' @inheritParams rlang::args_dots_empty
 #' @param literal Logical. If `TRUE` (default), treat `pattern` as a literal string,
 #' not as a regular expression.
 #' @param strict Logical. If `TRUE` (default), raise an error if the underlying pattern is
@@ -585,7 +585,7 @@ expr_str_json_path_match <- function(json_path) {
 #'
 #' @keywords ExprStr
 #' @param encoding Either 'hex' or 'base64'.
-#' @param ... Not used currently.
+#' @inheritParams rlang::args_dots_empty
 #' @param strict If `TRUE` (default), raise an error if the underlying value
 #' cannot be decoded. Otherwise, replace it with a null value.
 #'
@@ -605,11 +605,11 @@ expr_str_decode <- function(encoding, ..., strict = TRUE) {
   wrap({
     check_dots_empty0(...)
     arg_match0(encoding, values = c("hex", "base64"))
-    if (encoding == "hex") {
-      self$`_rexpr`$str_hex_decode(strict)
-    } else if (encoding == "base64") {
-      self$`_rexpr`$str_base64_decode(strict)
-    }
+    switch(encoding,
+      "hex" = self$`_rexpr`$str_hex_decode(strict),
+      "base64" = self$`_rexpr`$str_base64_decode(strict),
+      abort("Unreachable")
+    )
   })
 }
 
@@ -632,11 +632,11 @@ expr_str_decode <- function(encoding, ..., strict = TRUE) {
 expr_str_encode <- function(encoding) {
   wrap({
     arg_match0(encoding, values = c("hex", "base64"))
-    if (encoding == "hex") {
-      self$`_rexpr`$str_hex_encode()
-    } else if (encoding == "base64") {
-      self$`_rexpr`$str_base64_encode()
-    }
+    switch(encoding,
+      "hex" = self$`_rexpr`$str_hex_encode(strict),
+      "base64" = self$`_rexpr`$str_base64_encode(strict),
+      abort("Unreachable")
+    )
   })
 }
 
@@ -887,7 +887,7 @@ expr_str_slice <- function(offset, length = NULL) {
 
 #' Convert a String column into an Int64 column with base radix
 #'
-#' @param ... Ignored.
+#' @inheritParams rlang::args_dots_empty
 #' @param base A positive integer or expression which is the base of the string
 #' we are parsing. Characters are parsed as column names. Default: `10L`.
 #' @param strict A logical. If `TRUE` (default), parsing errors or integer overflow will
@@ -1128,7 +1128,7 @@ expr_str_tail <- function(n) {
 #' @param patterns String patterns to search. This can be an Expr or something
 #' coercible to an Expr. Strings are parsed as column names.
 #' @inheritParams expr_str_contains_any
-#' @param ... Ignored.
+#' @inheritParams rlang::args_dots_empty
 #' @param overlapping Whether matches can overlap.
 #'
 #' @inherit expr_str_slice return

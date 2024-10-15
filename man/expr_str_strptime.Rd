@@ -25,7 +25,7 @@ If \code{NULL} (default), the format is inferred from the data.
 Notice that time zone \verb{\%Z} is not supported and will just ignore timezones.
 Numeric time zones like \verb{\%z} or \verb{\%:z} are supported.}
 
-\item{...}{Not used.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{strict}{If \code{TRUE} (default), raise an error if a single string cannot
 be parsed. If \code{FALSE}, produce a polars \code{null}.}
@@ -40,7 +40,7 @@ cleaning your data beforehand will almost certainly be more performant.}
 conversion.}
 }
 \value{
-\link[=Expr_class]{Expr} of Date, Datetime or Time type
+A polars \link{expression}
 }
 \description{
 Similar to the \code{\link[=strptime]{strptime()}} function.

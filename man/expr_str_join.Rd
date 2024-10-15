@@ -9,7 +9,7 @@ expr_str_join(delimiter = "", ..., ignore_nulls = TRUE)
 \arguments{
 \item{delimiter}{The delimiter to insert between consecutive string values.}
 
-\item{...}{Ignored.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{ignore_nulls}{Ignore null values (default). If \code{FALSE}, null values will be
 propagated: if the column contains any null values, the output is null.}

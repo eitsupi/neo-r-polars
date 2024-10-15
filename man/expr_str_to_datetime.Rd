@@ -23,7 +23,7 @@ If \code{NULL} (default), the format is inferred from the data.
 Notice that time zone \verb{\%Z} is not supported and will just ignore timezones.
 Numeric time zones like \verb{\%z} or \verb{\%:z} are supported.}
 
-\item{...}{Not used.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{time_unit}{Unit of time for the resulting Datetime column. If \code{NULL} (default),
 the time unit is inferred from the format string if given,

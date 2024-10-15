@@ -7,7 +7,7 @@
 expr_str_to_integer(..., base = 10L, strict = TRUE)
 }
 \arguments{
-\item{...}{Ignored.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{base}{A positive integer or expression which is the base of the string
 we are parsing. Characters are parsed as column names. Default: \code{10L}.}

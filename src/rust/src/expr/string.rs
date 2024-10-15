@@ -1,5 +1,4 @@
 use crate::{prelude::*, PlRExpr, RPolarsErr};
-// use polars::prelude::StrptimeOptions;
 use savvy::{savvy, NumericScalar, Result, Sexp};
 
 #[savvy]

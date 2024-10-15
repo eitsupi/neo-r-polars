@@ -14,7 +14,7 @@ If \code{NULL} (default), the format is inferred from the data.
 Notice that time zone \verb{\%Z} is not supported and will just ignore timezones.
 Numeric time zones like \verb{\%z} or \verb{\%:z} are supported.}
 
-\item{...}{Not used.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{strict}{If \code{TRUE} (default), raise an error if a single string cannot
 be parsed. If \code{FALSE}, produce a polars \code{null}.}

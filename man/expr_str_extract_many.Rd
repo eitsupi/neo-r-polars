@@ -15,9 +15,16 @@ expr_str_extract_many(
 \item{patterns}{String patterns to search. This can be an Expr or something
 coercible to an Expr. Strings are parsed as column names.}
 
-\item{...}{Ignored.}
+\item{...}{These dots are for future extensions and must be empty.}
+
+\item{ascii_case_insensitive}{Enable ASCII-aware case insensitive matching.
+When this option is enabled, searching will be performed without respect to
+case for ASCII letters (a-z and A-Z) only.}
 
 \item{overlapping}{Whether matches can overlap.}
+}
+\value{
+Expr: Series of dtype String.
 }
 \description{
 Use the aho-corasick algorithm to extract matches

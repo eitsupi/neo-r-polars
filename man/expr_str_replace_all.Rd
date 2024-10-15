@@ -13,7 +13,7 @@ of a valid regex pattern, compatible with the \href{https://docs.rs/regex/latest
 \item{value}{A character or an \link[=Expr_class]{Expr} of string
 that will replace the matched substring.}
 
-\item{...}{Ignored.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{literal}{Logical. If \code{TRUE} (default), treat \code{pattern} as a literal string,
 not as a regular expression.}
