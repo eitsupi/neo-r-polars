@@ -274,58 +274,8 @@ SEXP savvy_PlRDataType_ne__impl(SEXP self__, SEXP c_arg__other) {
     return handle_result(res);
 }
 
-SEXP savvy_PlRDataType_is_temporal__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_temporal__ffi(self__);
-    return handle_result(res);
-}
-
-SEXP savvy_PlRDataType_is_enum__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_enum__ffi(self__);
-    return handle_result(res);
-}
-
-SEXP savvy_PlRDataType_is_categorical__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_categorical__ffi(self__);
-    return handle_result(res);
-}
-
-SEXP savvy_PlRDataType_is_string__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_string__ffi(self__);
-    return handle_result(res);
-}
-
-SEXP savvy_PlRDataType_is_logical__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_logical__ffi(self__);
-    return handle_result(res);
-}
-
-SEXP savvy_PlRDataType_is_float__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_float__ffi(self__);
-    return handle_result(res);
-}
-
-SEXP savvy_PlRDataType_is_numeric__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_numeric__ffi(self__);
-    return handle_result(res);
-}
-
-SEXP savvy_PlRDataType_is_integer__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_integer__ffi(self__);
-    return handle_result(res);
-}
-
-SEXP savvy_PlRDataType_is_signed_integer__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_signed_integer__ffi(self__);
-    return handle_result(res);
-}
-
-SEXP savvy_PlRDataType_is_unsigned_integer__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_unsigned_integer__ffi(self__);
-    return handle_result(res);
-}
-
-SEXP savvy_PlRDataType_is_null__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_null__ffi(self__);
+SEXP savvy_PlRDataType_is_array__impl(SEXP self__) {
+    SEXP res = savvy_PlRDataType_is_array__ffi(self__);
     return handle_result(res);
 }
 
@@ -334,18 +284,38 @@ SEXP savvy_PlRDataType_is_binary__impl(SEXP self__) {
     return handle_result(res);
 }
 
-SEXP savvy_PlRDataType_is_primitive__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_primitive__ffi(self__);
-    return handle_result(res);
-}
-
 SEXP savvy_PlRDataType_is_bool__impl(SEXP self__) {
     SEXP res = savvy_PlRDataType_is_bool__ffi(self__);
     return handle_result(res);
 }
 
-SEXP savvy_PlRDataType_is_array__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_array__ffi(self__);
+SEXP savvy_PlRDataType_is_categorical__impl(SEXP self__) {
+    SEXP res = savvy_PlRDataType_is_categorical__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRDataType_is_date__impl(SEXP self__) {
+    SEXP res = savvy_PlRDataType_is_date__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRDataType_is_enum__impl(SEXP self__) {
+    SEXP res = savvy_PlRDataType_is_enum__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRDataType_is_float__impl(SEXP self__) {
+    SEXP res = savvy_PlRDataType_is_float__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRDataType_is_integer__impl(SEXP self__) {
+    SEXP res = savvy_PlRDataType_is_integer__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRDataType_is_known__impl(SEXP self__) {
+    SEXP res = savvy_PlRDataType_is_known__ffi(self__);
     return handle_result(res);
 }
 
@@ -354,13 +324,28 @@ SEXP savvy_PlRDataType_is_list__impl(SEXP self__) {
     return handle_result(res);
 }
 
+SEXP savvy_PlRDataType_is_logical__impl(SEXP self__) {
+    SEXP res = savvy_PlRDataType_is_logical__ffi(self__);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRDataType_is_nested__impl(SEXP self__) {
     SEXP res = savvy_PlRDataType_is_nested__ffi(self__);
     return handle_result(res);
 }
 
-SEXP savvy_PlRDataType_is_struct__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_struct__ffi(self__);
+SEXP savvy_PlRDataType_is_nested_null__impl(SEXP self__) {
+    SEXP res = savvy_PlRDataType_is_nested_null__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRDataType_is_null__impl(SEXP self__) {
+    SEXP res = savvy_PlRDataType_is_null__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRDataType_is_numeric__impl(SEXP self__) {
+    SEXP res = savvy_PlRDataType_is_numeric__ffi(self__);
     return handle_result(res);
 }
 
@@ -369,8 +354,128 @@ SEXP savvy_PlRDataType_is_ord__impl(SEXP self__) {
     return handle_result(res);
 }
 
-SEXP savvy_PlRDataType_is_known__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_known__ffi(self__);
+SEXP savvy_PlRDataType_is_primitive__impl(SEXP self__) {
+    SEXP res = savvy_PlRDataType_is_primitive__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRDataType_is_signed_integer__impl(SEXP self__) {
+    SEXP res = savvy_PlRDataType_is_signed_integer__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRDataType_is_string__impl(SEXP self__) {
+    SEXP res = savvy_PlRDataType_is_string__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRDataType_is_struct__impl(SEXP self__) {
+    SEXP res = savvy_PlRDataType_is_struct__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRDataType_is_temporal__impl(SEXP self__) {
+    SEXP res = savvy_PlRDataType_is_temporal__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRDataType_is_unsigned_integer__impl(SEXP self__) {
+    SEXP res = savvy_PlRDataType_is_unsigned_integer__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_arr_max__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_arr_max__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_arr_min__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_arr_min__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_arr_sum__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_arr_sum__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_arr_std__impl(SEXP self__, SEXP c_arg__ddof) {
+    SEXP res = savvy_PlRExpr_arr_std__ffi(self__, c_arg__ddof);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_arr_var__impl(SEXP self__, SEXP c_arg__ddof) {
+    SEXP res = savvy_PlRExpr_arr_var__ffi(self__, c_arg__ddof);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_arr_median__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_arr_median__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_arr_unique__impl(SEXP self__, SEXP c_arg__maintain_order) {
+    SEXP res = savvy_PlRExpr_arr_unique__ffi(self__, c_arg__maintain_order);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_arr_to_list__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_arr_to_list__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_arr_all__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_arr_all__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_arr_any__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_arr_any__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_arr_sort__impl(SEXP self__, SEXP c_arg__descending, SEXP c_arg__nulls_last) {
+    SEXP res = savvy_PlRExpr_arr_sort__ffi(self__, c_arg__descending, c_arg__nulls_last);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_arr_reverse__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_arr_reverse__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_arr_arg_min__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_arr_arg_min__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_arr_arg_max__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_arr_arg_max__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_arr_get__impl(SEXP self__, SEXP c_arg__index, SEXP c_arg__null_on_oob) {
+    SEXP res = savvy_PlRExpr_arr_get__ffi(self__, c_arg__index, c_arg__null_on_oob);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_arr_join__impl(SEXP self__, SEXP c_arg__separator, SEXP c_arg__ignore_nulls) {
+    SEXP res = savvy_PlRExpr_arr_join__ffi(self__, c_arg__separator, c_arg__ignore_nulls);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_arr_contains__impl(SEXP self__, SEXP c_arg__other) {
+    SEXP res = savvy_PlRExpr_arr_contains__ffi(self__, c_arg__other);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_arr_count_matches__impl(SEXP self__, SEXP c_arg__expr) {
+    SEXP res = savvy_PlRExpr_arr_count_matches__ffi(self__, c_arg__expr);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_arr_shift__impl(SEXP self__, SEXP c_arg__n) {
+    SEXP res = savvy_PlRExpr_arr_shift__ffi(self__, c_arg__n);
     return handle_result(res);
 }
 
@@ -1104,26 +1209,47 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRDataType__get_datatype_fields__impl", (DL_FUNC) &savvy_PlRDataType__get_datatype_fields__impl, 1},
     {"savvy_PlRDataType_eq__impl", (DL_FUNC) &savvy_PlRDataType_eq__impl, 2},
     {"savvy_PlRDataType_ne__impl", (DL_FUNC) &savvy_PlRDataType_ne__impl, 2},
-    {"savvy_PlRDataType_is_temporal__impl", (DL_FUNC) &savvy_PlRDataType_is_temporal__impl, 1},
-    {"savvy_PlRDataType_is_enum__impl", (DL_FUNC) &savvy_PlRDataType_is_enum__impl, 1},
-    {"savvy_PlRDataType_is_categorical__impl", (DL_FUNC) &savvy_PlRDataType_is_categorical__impl, 1},
-    {"savvy_PlRDataType_is_string__impl", (DL_FUNC) &savvy_PlRDataType_is_string__impl, 1},
-    {"savvy_PlRDataType_is_logical__impl", (DL_FUNC) &savvy_PlRDataType_is_logical__impl, 1},
-    {"savvy_PlRDataType_is_float__impl", (DL_FUNC) &savvy_PlRDataType_is_float__impl, 1},
-    {"savvy_PlRDataType_is_numeric__impl", (DL_FUNC) &savvy_PlRDataType_is_numeric__impl, 1},
-    {"savvy_PlRDataType_is_integer__impl", (DL_FUNC) &savvy_PlRDataType_is_integer__impl, 1},
-    {"savvy_PlRDataType_is_signed_integer__impl", (DL_FUNC) &savvy_PlRDataType_is_signed_integer__impl, 1},
-    {"savvy_PlRDataType_is_unsigned_integer__impl", (DL_FUNC) &savvy_PlRDataType_is_unsigned_integer__impl, 1},
-    {"savvy_PlRDataType_is_null__impl", (DL_FUNC) &savvy_PlRDataType_is_null__impl, 1},
-    {"savvy_PlRDataType_is_binary__impl", (DL_FUNC) &savvy_PlRDataType_is_binary__impl, 1},
-    {"savvy_PlRDataType_is_primitive__impl", (DL_FUNC) &savvy_PlRDataType_is_primitive__impl, 1},
-    {"savvy_PlRDataType_is_bool__impl", (DL_FUNC) &savvy_PlRDataType_is_bool__impl, 1},
     {"savvy_PlRDataType_is_array__impl", (DL_FUNC) &savvy_PlRDataType_is_array__impl, 1},
-    {"savvy_PlRDataType_is_list__impl", (DL_FUNC) &savvy_PlRDataType_is_list__impl, 1},
-    {"savvy_PlRDataType_is_nested__impl", (DL_FUNC) &savvy_PlRDataType_is_nested__impl, 1},
-    {"savvy_PlRDataType_is_struct__impl", (DL_FUNC) &savvy_PlRDataType_is_struct__impl, 1},
-    {"savvy_PlRDataType_is_ord__impl", (DL_FUNC) &savvy_PlRDataType_is_ord__impl, 1},
+    {"savvy_PlRDataType_is_binary__impl", (DL_FUNC) &savvy_PlRDataType_is_binary__impl, 1},
+    {"savvy_PlRDataType_is_bool__impl", (DL_FUNC) &savvy_PlRDataType_is_bool__impl, 1},
+    {"savvy_PlRDataType_is_categorical__impl", (DL_FUNC) &savvy_PlRDataType_is_categorical__impl, 1},
+    {"savvy_PlRDataType_is_date__impl", (DL_FUNC) &savvy_PlRDataType_is_date__impl, 1},
+    {"savvy_PlRDataType_is_enum__impl", (DL_FUNC) &savvy_PlRDataType_is_enum__impl, 1},
+    {"savvy_PlRDataType_is_float__impl", (DL_FUNC) &savvy_PlRDataType_is_float__impl, 1},
+    {"savvy_PlRDataType_is_integer__impl", (DL_FUNC) &savvy_PlRDataType_is_integer__impl, 1},
     {"savvy_PlRDataType_is_known__impl", (DL_FUNC) &savvy_PlRDataType_is_known__impl, 1},
+    {"savvy_PlRDataType_is_list__impl", (DL_FUNC) &savvy_PlRDataType_is_list__impl, 1},
+    {"savvy_PlRDataType_is_logical__impl", (DL_FUNC) &savvy_PlRDataType_is_logical__impl, 1},
+    {"savvy_PlRDataType_is_nested__impl", (DL_FUNC) &savvy_PlRDataType_is_nested__impl, 1},
+    {"savvy_PlRDataType_is_nested_null__impl", (DL_FUNC) &savvy_PlRDataType_is_nested_null__impl, 1},
+    {"savvy_PlRDataType_is_null__impl", (DL_FUNC) &savvy_PlRDataType_is_null__impl, 1},
+    {"savvy_PlRDataType_is_numeric__impl", (DL_FUNC) &savvy_PlRDataType_is_numeric__impl, 1},
+    {"savvy_PlRDataType_is_ord__impl", (DL_FUNC) &savvy_PlRDataType_is_ord__impl, 1},
+    {"savvy_PlRDataType_is_primitive__impl", (DL_FUNC) &savvy_PlRDataType_is_primitive__impl, 1},
+    {"savvy_PlRDataType_is_signed_integer__impl", (DL_FUNC) &savvy_PlRDataType_is_signed_integer__impl, 1},
+    {"savvy_PlRDataType_is_string__impl", (DL_FUNC) &savvy_PlRDataType_is_string__impl, 1},
+    {"savvy_PlRDataType_is_struct__impl", (DL_FUNC) &savvy_PlRDataType_is_struct__impl, 1},
+    {"savvy_PlRDataType_is_temporal__impl", (DL_FUNC) &savvy_PlRDataType_is_temporal__impl, 1},
+    {"savvy_PlRDataType_is_unsigned_integer__impl", (DL_FUNC) &savvy_PlRDataType_is_unsigned_integer__impl, 1},
+    {"savvy_PlRExpr_arr_max__impl", (DL_FUNC) &savvy_PlRExpr_arr_max__impl, 1},
+    {"savvy_PlRExpr_arr_min__impl", (DL_FUNC) &savvy_PlRExpr_arr_min__impl, 1},
+    {"savvy_PlRExpr_arr_sum__impl", (DL_FUNC) &savvy_PlRExpr_arr_sum__impl, 1},
+    {"savvy_PlRExpr_arr_std__impl", (DL_FUNC) &savvy_PlRExpr_arr_std__impl, 2},
+    {"savvy_PlRExpr_arr_var__impl", (DL_FUNC) &savvy_PlRExpr_arr_var__impl, 2},
+    {"savvy_PlRExpr_arr_median__impl", (DL_FUNC) &savvy_PlRExpr_arr_median__impl, 1},
+    {"savvy_PlRExpr_arr_unique__impl", (DL_FUNC) &savvy_PlRExpr_arr_unique__impl, 2},
+    {"savvy_PlRExpr_arr_to_list__impl", (DL_FUNC) &savvy_PlRExpr_arr_to_list__impl, 1},
+    {"savvy_PlRExpr_arr_all__impl", (DL_FUNC) &savvy_PlRExpr_arr_all__impl, 1},
+    {"savvy_PlRExpr_arr_any__impl", (DL_FUNC) &savvy_PlRExpr_arr_any__impl, 1},
+    {"savvy_PlRExpr_arr_sort__impl", (DL_FUNC) &savvy_PlRExpr_arr_sort__impl, 3},
+    {"savvy_PlRExpr_arr_reverse__impl", (DL_FUNC) &savvy_PlRExpr_arr_reverse__impl, 1},
+    {"savvy_PlRExpr_arr_arg_min__impl", (DL_FUNC) &savvy_PlRExpr_arr_arg_min__impl, 1},
+    {"savvy_PlRExpr_arr_arg_max__impl", (DL_FUNC) &savvy_PlRExpr_arr_arg_max__impl, 1},
+    {"savvy_PlRExpr_arr_get__impl", (DL_FUNC) &savvy_PlRExpr_arr_get__impl, 3},
+    {"savvy_PlRExpr_arr_join__impl", (DL_FUNC) &savvy_PlRExpr_arr_join__impl, 3},
+    {"savvy_PlRExpr_arr_contains__impl", (DL_FUNC) &savvy_PlRExpr_arr_contains__impl, 2},
+    {"savvy_PlRExpr_arr_count_matches__impl", (DL_FUNC) &savvy_PlRExpr_arr_count_matches__impl, 2},
+    {"savvy_PlRExpr_arr_shift__impl", (DL_FUNC) &savvy_PlRExpr_arr_shift__impl, 2},
     {"savvy_PlRExpr_bin_contains__impl", (DL_FUNC) &savvy_PlRExpr_bin_contains__impl, 2},
     {"savvy_PlRExpr_bin_ends_with__impl", (DL_FUNC) &savvy_PlRExpr_bin_ends_with__impl, 2},
     {"savvy_PlRExpr_bin_starts_with__impl", (DL_FUNC) &savvy_PlRExpr_bin_starts_with__impl, 2},
