@@ -511,9 +511,10 @@ expr_str_contains <- function(pattern, ..., literal = FALSE, strict = TRUE) {
 #'   pl$col("fruits")$str$ends_with("go")$alias("has_suffix")
 #' )
 expr_str_ends_with <- function(sub) {
-  sub <- as_polars_expr(sub, as_lit = TRUE)
-  self$`_rexpr`$str_ends_with(sub$`_rexpr`) |>
-    wrap()
+  wrap({
+    sub <- as_polars_expr(sub, as_lit = TRUE)
+    self$`_rexpr`$str_ends_with(sub$`_rexpr`)
+  })
 }
 
 
@@ -532,9 +533,10 @@ expr_str_ends_with <- function(sub) {
 #'   pl$col("fruits")$str$starts_with("app")$alias("has_suffix")
 #' )
 expr_str_starts_with <- function(sub) {
-  sub <- as_polars_expr(sub, as_lit = TRUE)
-  self$`_rexpr`$str_starts_with(sub$`_rexpr`) |>
-    wrap()
+  wrap({
+    sub <- as_polars_expr(sub, as_lit = TRUE)
+    self$`_rexpr`$str_starts_with(sub$`_rexpr`)
+  })
 }
 
 #' Parse string values as JSON.
@@ -686,7 +688,8 @@ expr_str_extract <- function(pattern, group_index) {
 #'   pl$col("foo")$str$extract_all(r"((\d+))")$alias("extracted_nrs")
 #' )
 expr_str_extract_all <- function(pattern) {
-  self$`_rexpr`$str_extract_all(as_polars_expr(pattern)$`_rexpr`)
+  self$`_rexpr`$str_extract_all(as_polars_expr(pattern)$`_rexpr`) |>
+    wrap()
 }
 
 #' Count all successive non-overlapping regex matches
@@ -986,7 +989,11 @@ expr_str_contains_any <- function(patterns, ..., ascii_case_insensitive = FALSE)
 #'   fake_pronouns = pl$col("lyrics")$str$replace_many(c("you", "me"), c("foo", "bar"))
 #' )
 expr_str_replace_many <- function(patterns, replace_with, ascii_case_insensitive = FALSE) {
-  self$`_rexpr`$str_replace_many(as_polars_expr(patterns, as_lit = TRUE)$`_rexpr`, as_polars_expr(replace_with, as_lit = TRUE)$`_rexpr`, ascii_case_insensitive) |>
+  self$`_rexpr`$str_replace_many(
+    as_polars_expr(patterns, as_lit = TRUE)$`_rexpr`,
+    as_polars_expr(replace_with, as_lit = TRUE)$`_rexpr`,
+    ascii_case_insensitive
+  ) |>
     wrap()
 }
 
