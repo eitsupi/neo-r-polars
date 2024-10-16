@@ -47,7 +47,8 @@ pl__date_range <- function(
     date_range(
       as_polars_expr(start)$`_rexpr`,
       as_polars_expr(end)$`_rexpr`,
-      interval, closed,
+      interval,
+      closed
     )
   })
 }

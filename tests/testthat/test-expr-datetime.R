@@ -2,7 +2,7 @@ test_that("pl$datetime_range", {
   t1 <- as.POSIXct("2022-01-01")
   t2 <- as.POSIXct("2022-01-02")
 
-  expect_identical(
+  expect_equal(
     pl$DataFrame(x = pl$datetime_range(start = t1, end = t2, interval = "6h")),
     pl$DataFrame(x = seq(t1, t2, by = as.difftime(6, units = "hours")))
   )
@@ -34,7 +34,7 @@ test_that("pl$datetime_range", {
     pl$DataFrame(x = seq(t1, t2, by = as.difftime(6, units = "hours")))
   )
 
-  expect_identical(
+  expect_equal(
     pl$DataFrame(x = pl$datetime_range(start = t1, end = t2, interval = "6h", time_zone = "GMT")),
     pl$DataFrame(x = (seq(t1, t2, by = as.difftime(6, units = "hours")) |> "attr<-"("tzone", "GMT")))
   )
@@ -85,14 +85,14 @@ test_that("pl$datetime_range", {
   # }
 })
 
-# test_that("pl$date_range", {
-#   expect_identical(
-#     pl$date_range(
-#       as.Date("2022-01-01"), as.Date("2022-03-01"), "1mo"
-#     )$to_series()$to_vector(),
-#     seq(as.Date("2022-01-01"), as.Date("2022-03-01"), by = "1 month")
-#   )
-# })
+test_that("pl$date_range", {
+  expect_equal(
+    pl$DataFrame(x = pl$date_range(
+      as.Date("2022-01-01"), as.Date("2022-03-01"), "1mo"
+    )),
+    pl$DataFrame(x = seq(as.Date("2022-01-01"), as.Date("2022-03-01"), by = "1 month"))
+  )
+})
 
 # test_that("dt$truncate", {
 #   # make a datetime
@@ -106,7 +106,7 @@ test_that("pl$datetime_range", {
 #   )
 
 #   l_actual <- df$to_list()
-#   expect_identical(
+#   expect_equal(
 #     lapply(l_actual, \(x) diff(x) |> as.numeric()),
 #     list(
 #       datetime = rep(2, 12),
@@ -128,7 +128,7 @@ test_that("pl$datetime_range", {
 #   )
 
 #   l_actual <- df$to_list()
-#   expect_identical(
+#   expect_equal(
 #     lapply(l_actual, \(x) diff(x) |> as.numeric()),
 #     list(
 #       datetime = rep(2, 12),
@@ -148,7 +148,7 @@ test_that("pl$datetime_range", {
 
 # test_that("dt$combine", {
 #   # Using pl$PTime
-#   expect_identical(
+#   expect_equal(
 #     (
 #       pl$lit(as.Date("2021-01-01"))
 #       $dt$combine(pl$PTime("02:34:12"))
@@ -158,7 +158,7 @@ test_that("pl$datetime_range", {
 #     as.POSIXct("2021-01-01 02:34:12", tz = "GMT")
 #   )
 
-#   expect_identical(
+#   expect_equal(
 #     (
 #       pl$lit(as.Date("2021-01-01"))
 #       $dt$combine(pl$PTime(3600 * 1.5E3, tu = "ms"))
@@ -168,7 +168,7 @@ test_that("pl$datetime_range", {
 #     as.POSIXct("2021-01-01 01:30:00", tz = "GMT")
 #   )
 
-#   expect_identical(
+#   expect_equal(
 #     (
 #       pl$lit(as.Date("2021-01-01"))
 #       $dt$combine(3600 * 1.5E9, time_unit = "ns")
@@ -178,7 +178,7 @@ test_that("pl$datetime_range", {
 #     as.POSIXct("2021-01-01 01:30:00", tz = "GMT")
 #   )
 
-#   expect_identical(
+#   expect_equal(
 #     (
 #       pl$lit(as.Date("2021-01-01"))
 #       $dt$combine(-3600 * 1.5E9, time_unit = "ns")
@@ -195,120 +195,118 @@ test_that("pl$datetime_range", {
 
 
 # test_that("dt$strftime", {
-#   expect_identical(
+#   expect_equal(
 #     pl$lit(as.POSIXct("2021-01-02 12:13:14", tz = "GMT"))$dt$strftime("this is the year: %Y")$to_r(),
 #     "this is the year: 2021"
 #   )
 # })
 
 
-# test_that("dt$year iso_year", {
-#   df <- pl$DataFrame(
-#     date = pl$datetime_range(
-#       as.Date("2020-12-25"),
-#       as.Date("2021-1-05"),
-#       interval = "1d",
-#       time_zone = "GMT"
-#     )
-#   )$with_columns(
-#     pl$col("date")$dt$year()$alias("year"),
-#     pl$col("date")$dt$iso_year()$alias("iso_year")
-#   )
+test_that("dt$year iso_year", {
+  df <- pl$DataFrame(
+    date = pl$datetime_range(
+      as.Date("2020-12-25"),
+      as.Date("2021-1-05"),
+      interval = "1d",
+      time_zone = "GMT"
+    )
+  )$with_columns(
+    pl$col("date")$dt$year()$alias("year"),
+    pl$col("date")$dt$iso_year()$alias("iso_year")
+  )
 
-#   # dput(lubridate::isoyear(df$to_list()$date))
-#   lubridate_iso_year <- c(2020, 2020, 2020, 2020, 2020, 2020, 2020, 2020, 2020, 2020, 2021, 2021)
-#   # dput(lubridate::year(df$to_list()$date))
-#   lubridate_year <- c(2020, 2020, 2020, 2020, 2020, 2020, 2020, 2021, 2021, 2021, 2021, 2021)
-#   expect_identical(
-#     df$get_column("iso_year")$to_r(),
-#     as.integer(lubridate_iso_year)
-#   )
+  # dput(lubridate::isoyear(df$to_list()$date))
+  lubridate_iso_year <- c(2020L, 2020L, 2020L, 2020L, 2020L, 2020L, 2020L, 2020L, 2020L, 2020L, 2021L, 2021L)
+  # dput(lubridate::year(df$to_list()$date))
+  lubridate_year <- c(2020L, 2020L, 2020L, 2020L, 2020L, 2020L, 2020L, 2021L, 2021L, 2021L, 2021L, 2021L)
+  expect_equal(
+    df$select("iso_year"),
+    pl$DataFrame(iso_year = lubridate_iso_year)
+  )
 
-#   expect_identical(
-#     df$get_column("year")$to_r(),
-#     as.integer(lubridate_year)
-#   )
-# })
-
-
-# test_that("dt$quarter, month, day", {
-#   df <- pl$DataFrame(
-#     date = pl$datetime_range(
-#       as.Date("2020-12-25"),
-#       as.Date("2021-1-05"),
-#       interval = "1d",
-#       time_zone = "GMT"
-#     )
-#   )$with_columns(
-#     pl$col("date")$dt$quarter()$alias("quarter"),
-#     pl$col("date")$dt$month()$alias("month"),
-#     pl$col("date")$dt$day()$alias("day")
-#   )
+  expect_equal(
+    df$select("year"),
+    pl$DataFrame(year = lubridate_year)
+  )
+})
 
 
-#   # dput(df$to_list()$date |> (\(x) list(
-#   #   quarter = lubridate::quarter(x),
-#   #   month = lubridate::month(x),
-#   #   day = lubridate::day(x)
-#   # ))() |> lapply(as.numeric))
-#   l_exp <- list(
-#     quarter = c(4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 1),
-#     month = c(12, 12, 12, 12, 12, 12, 12, 1, 1, 1, 1, 1),
-#     day = c(25, 26, 27, 28, 29, 30, 31, 1, 2, 3, 4, 5)
-#   )
+test_that("dt$quarter, month, day", {
+  df <- pl$DataFrame(
+    date = pl$datetime_range(
+      as.Date("2020-12-25"),
+      as.Date("2021-1-05"),
+      interval = "1d",
+      time_zone = "GMT"
+    )
+  )$with_columns(
+    pl$col("date")$dt$quarter()$alias("quarter"),
+    pl$col("date")$dt$month()$alias("month"),
+    pl$col("date")$dt$day()$alias("day")
+  )
 
-#   expect_identical(
-#     df$select(pl$col(c("quarter", "month", "day")))$to_list() |> lapply(as.numeric),
-#     l_exp
-#   )
-# })
+  # dput(df$to_list()$date |> (\(x) list(
+  #   quarter = lubridate::quarter(x),
+  #   month = lubridate::month(x),
+  #   day = lubridate::day(x)
+  # ))() |> lapply(as.numeric))
+  l_exp <- list(
+    quarter = c(4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 1),
+    month = c(12, 12, 12, 12, 12, 12, 12, 1, 1, 1, 1, 1),
+    day = c(25, 26, 27, 28, 29, 30, 31, 1, 2, 3, 4, 5)
+  )
+
+  expect_equal(
+    df$select(pl$col("quarter", "month", "day")$cast(pl$Float64)),
+    pl$DataFrame(!!!l_exp)
+  )
+})
 
 
-# test_that("hour minute", {
-#   df <- pl$DataFrame(
-#     date = pl$datetime_range(
-#       as.Date("2020-12-25"),
-#       as.Date("2021-05-05"),
-#       interval = "1d2h3m4s",
-#       time_zone = "GMT"
-#     )
-#   )$with_columns(
-#     pl$col("date")$dt$hour()$alias("hour"),
-#     pl$col("date")$dt$minute()$alias("minute")
-#   )
+test_that("hour minute", {
+  df <- pl$DataFrame(
+    date = pl$datetime_range(
+      as.Date("2020-12-25"),
+      as.Date("2021-05-05"),
+      interval = "1d2h3m4s",
+      time_zone = "GMT"
+    )
+  )$with_columns(
+    pl$col("date")$dt$hour()$alias("hour"),
+    pl$col("date")$dt$minute()$alias("minute")
+  )
 
-#   # dput(df$to_list()$date |> (\(x) list(
-#   #   hour = lubridate::hour(x),
-#   #   minute = lubridate::minute(x)
-#   # ))() |> lapply(as.numeric))
-#   l_exp <- list(
-#     hour = c(
-#       0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 0, 2,
-#       4, 6, 8, 10, 12, 14, 17, 19, 21, 23, 1, 3, 5, 7, 9, 11, 13, 15,
-#       17, 19, 21, 23, 1, 3, 5, 7, 10, 12, 14, 16, 18, 20, 22, 0, 2,
-#       4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 1, 3, 5, 7, 9, 11, 13, 15,
-#       17, 19, 21, 23, 1, 3, 5, 7, 9, 11, 13, 15, 18, 20, 22, 0, 2,
-#       4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 0, 2, 4, 6, 9, 11, 13, 15,
-#       17, 19, 21, 23, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 2,
-#       4, 6
-#     ),
-#     minute = c(
-#       0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33,
-#       36, 39, 42, 46, 49, 52, 55, 58, 1, 4, 7, 10, 13, 16, 19, 22,
-#       25, 28, 32, 35, 38, 41, 44, 47, 50, 53, 56, 59, 2, 5, 8, 11,
-#       14, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57, 0,
-#       4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 37, 40, 43, 46, 50,
-#       53, 56, 59, 2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 36, 39,
-#       42, 45, 48, 51, 54, 57, 0, 3, 6, 9, 12, 15, 18, 22, 25, 28, 31,
-#       34, 37, 40, 43, 46, 49, 52, 55, 58, 1, 4, 8
-#     )
-#   )
-#   expect_identical(
-#     df$select(pl$col(c("hour", "minute")))$to_list() |> lapply(as.numeric),
-#     l_exp
-#   )
-# })
-
+  # dput(df$to_list()$date |> (\(x) list(
+  #   hour = lubridate::hour(x),
+  #   minute = lubridate::minute(x)
+  # ))() |> lapply(as.numeric))
+  l_exp <- list(
+    hour = c(
+      0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 0, 2,
+      4, 6, 8, 10, 12, 14, 17, 19, 21, 23, 1, 3, 5, 7, 9, 11, 13, 15,
+      17, 19, 21, 23, 1, 3, 5, 7, 10, 12, 14, 16, 18, 20, 22, 0, 2,
+      4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 1, 3, 5, 7, 9, 11, 13, 15,
+      17, 19, 21, 23, 1, 3, 5, 7, 9, 11, 13, 15, 18, 20, 22, 0, 2,
+      4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 0, 2, 4, 6, 9, 11, 13, 15,
+      17, 19, 21, 23, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 2,
+      4, 6
+    ),
+    minute = c(
+      0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33,
+      36, 39, 42, 46, 49, 52, 55, 58, 1, 4, 7, 10, 13, 16, 19, 22,
+      25, 28, 32, 35, 38, 41, 44, 47, 50, 53, 56, 59, 2, 5, 8, 11,
+      14, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57, 0,
+      4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 37, 40, 43, 46, 50,
+      53, 56, 59, 2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 36, 39,
+      42, 45, 48, 51, 54, 57, 0, 3, 6, 9, 12, 15, 18, 22, 25, 28, 31,
+      34, 37, 40, 43, 46, 49, 52, 55, 58, 1, 4, 8
+    )
+  )
+  expect_equal(
+    df$select(pl$col(c("hour", "minute"))$cast(pl$Float64)),
+    pl$DataFrame(!!!l_exp)
+  )
+})
 
 
 # test_that("second, milli, micro, nano", {
@@ -330,7 +328,7 @@ test_that("pl$datetime_range", {
 #   )
 
 #   # check s
-#   expect_identical(
+#   expect_equal(
 #     as.numeric(df$get_column("second")$to_r()),
 #     as.numeric(format(df$get_column("date")$to_r(), "%S"))
 #   )
@@ -342,11 +340,11 @@ test_that("pl$datetime_range", {
 #   )
 
 #   # check millisecond versus micro nano
-#   expect_identical(
+#   expect_equal(
 #     floor(df$get_column("microsecond")$to_r() / 1000),
 #     as.numeric(df$get_column("millisecond")$to_r())
 #   )
-#   expect_identical(
+#   expect_equal(
 #     floor(df$get_column("nanosecond")$to_r() / 1000),
 #     as.numeric(df$get_column("microsecond")$to_r())
 #   )
@@ -355,11 +353,11 @@ test_that("pl$datetime_range", {
 #   # TODO No longer TRUE since rust-polars 0.30 -> 0.32. Don't know why or of less or more correct.
 #   # check milli micro versus
 #   # n = df$get_column("f64")$to_r() / 1E9
-#   # expect_identical(
+#   # expect_equal(
 #   #   round((n - floor(n)) * 1E3),
 #   #   as.numeric(df$get_column("millisecond")$to_r())
 #   # )
-#   # expect_identical(
+#   # expect_equal(
 #   #   round((n - floor(n)) * 1E6),
 #   #   as.numeric(df$get_column("microsecond")$to_r())
 #   # )
@@ -413,7 +411,7 @@ test_that("pl$datetime_range", {
 #   )
 
 #   # compare
-#   expect_identical(
+#   expect_equal(
 #     l_actual,
 #     l_expected
 #   )
@@ -427,7 +425,7 @@ test_that("pl$datetime_range", {
 #     )$to_r(),
 #     offset = c("1d", "-2d", "1mo", NA, "1y")
 #   )
-#   expect_identical(
+#   expect_equal(
 #     df$with_columns(pl$col("dates")$dt$offset_by(pl$col("offset")))$to_data_frame()[["dates"]],
 #     as.POSIXct(
 #       c(
@@ -452,13 +450,13 @@ test_that("pl$datetime_range", {
 #   l_act <- df$to_list()
 
 #   base_r_s_epochs <- as.numeric(as.POSIXct("2022-1-1", tz = "GMT"))
-#   expect_identical(as.numeric(l_act$e_s), base_r_s_epochs)
-#   expect_identical(as.numeric(l_act$e_ms), base_r_s_epochs * 1E3)
-#   expect_identical(as.numeric(l_act$e_us), base_r_s_epochs * 1E6)
-#   expect_identical(suppressWarnings(as.numeric(l_act$e_ns)), base_r_s_epochs * 1E9)
+#   expect_equal(as.numeric(l_act$e_s), base_r_s_epochs)
+#   expect_equal(as.numeric(l_act$e_ms), base_r_s_epochs * 1E3)
+#   expect_equal(as.numeric(l_act$e_us), base_r_s_epochs * 1E6)
+#   expect_equal(suppressWarnings(as.numeric(l_act$e_ns)), base_r_s_epochs * 1E9)
 
 #   base_r_d_epochs <- as.integer(as.Date("2022-1-1"))
-#   expect_identical(l_act$e_d, base_r_d_epochs)
+#   expect_equal(l_act$e_d, base_r_d_epochs)
 
 #   expect_grepl_error(
 #     as_polars_series(as.Date("2022-1-1"))$dt$epoch("bob"),
@@ -471,38 +469,43 @@ test_that("pl$datetime_range", {
 # })
 
 
-# test_that("dt$timestamp", {
-#   df <- pl$DataFrame(
-#     date = pl$date_range(
-#       start = as.Date("2001-1-1"), end = as.Date("2001-1-3"), interval = "1d"
-#     )
-#   )
-#   l_exp <- df$select(
-#     pl$col("date"),
-#     pl$col("date")$dt$timestamp()$alias("timestamp_ns"),
-#     pl$col("date")$dt$timestamp(tu = "us")$alias("timestamp_us"),
-#     pl$col("date")$dt$timestamp(tu = "ms")$alias("timestamp_ms")
-#   )$to_list()
+test_that("dt$timestamp", {
+  df <- pl$DataFrame(
+    date = pl$date_range(
+      start = as.Date("2001-1-1"), end = as.Date("2001-1-3"), interval = "1d"
+    )
+  )
+  l_exp <- df$select(
+    pl$col("date")$dt$timestamp()$alias("timestamp_ns"),
+    pl$col("date")$dt$timestamp(tu = "us")$alias("timestamp_us"),
+    pl$col("date")$dt$timestamp(tu = "ms")$alias("timestamp_ms")
+  )
 
-#   base_r_s_timestamp <- as.numeric(seq(
-#     as.POSIXct("2001-1-1", tz = "GMT"),
-#     as.POSIXct("2001-1-3", tz = "GMT"),
-#     by = as.difftime(1, units = "days")
-#   ))
+  base_r_s_timestamp <- as.numeric(seq(
+    as.POSIXct("2001-1-1", tz = "GMT"),
+    as.POSIXct("2001-1-3", tz = "GMT"),
+    by = as.difftime(1, units = "days")
+  ))
 
+  expect_equal(
+    l_exp,
+    pl$DataFrame(
+      timestamp_ns = base_r_s_timestamp * 1e9,
+      timestamp_us = base_r_s_timestamp * 1e6,
+      timestamp_ms = base_r_s_timestamp * 1e3,
+    )$cast(pl$Int64)
+  )
 
-#   expect_identical(as.numeric(l_exp$timestamp_ms), base_r_s_timestamp * 1E3)
-#   expect_identical(as.numeric(l_exp$timestamp_us), base_r_s_timestamp * 1E6)
-#   expect_identical(suppressWarnings(as.numeric(l_exp$timestamp_ns)), base_r_s_timestamp * 1E9)
+  expect_snapshot(
+    as_polars_series(as.Date("2022-1-1"))$dt$timestamp("bob"),
+    error = TRUE
+  )
 
-#   expect_grepl_error(
-#     as_polars_series(as.Date("2022-1-1"))$dt$timestamp("bob")
-#   )
-
-#   expect_grepl_error(
-#     as_polars_series(as.Date("2022-1-1"))$dt$timestamp(42)
-#   )
-# })
+  expect_snapshot(
+    as_polars_series(as.Date("2022-1-1"))$dt$timestamp(42),
+    error = TRUE
+  )
+})
 
 
 # test_that("dt$with_time_unit cast_time_unit", {
@@ -526,12 +529,12 @@ test_that("pl$datetime_range", {
 
 
 #   # cast time unit changes the value
-#   expect_identical(l_exp$cast_time_unit_ns, l_exp$cast_time_unit_us * 1E3)
-#   expect_identical(l_exp$cast_time_unit_us, l_exp$cast_time_unit_ms * 1E3)
+#   expect_equal(l_exp$cast_time_unit_ns, l_exp$cast_time_unit_us * 1E3)
+#   expect_equal(l_exp$cast_time_unit_us, l_exp$cast_time_unit_ms * 1E3)
 
 #   # with does not
-#   expect_identical(l_exp$with_time_unit_ns, l_exp$with_time_unit_us)
-#   expect_identical(l_exp$with_time_unit_us, l_exp$with_time_unit_ms)
+#   expect_equal(l_exp$with_time_unit_ns, l_exp$with_time_unit_us)
+#   expect_equal(l_exp$with_time_unit_us, l_exp$with_time_unit_ms)
 
 #   # both with and cast change the value
 #   types <- df_time$schema
@@ -610,7 +613,7 @@ test_that("pl$datetime_range", {
 #   )
 #   l <- df$to_list()
 
-#   expect_identical(
+#   expect_equal(
 #     as.numeric(l$london_timezone - l$Amsterdam),
 #     rep(1, 5)
 #   )
@@ -618,7 +621,7 @@ test_that("pl$datetime_range", {
 #   r_amst_tz <- l$london_timezone - 3600
 #   attr(r_amst_tz, "tzone") <- "Europe/Amsterdam"
 
-#   expect_identical(
+#   expect_equal(
 #     l$Amsterdam,
 #     r_amst_tz
 #   )
@@ -655,7 +658,7 @@ test_that("pl$datetime_range", {
 #   ))$with_columns(
 #     pl$col("date")$diff()$dt$total_days()$alias("diff")
 #   )$to_list()
-#   expect_identical(df$diff, c(NA, diffy(df$date, "days")))
+#   expect_equal(df$diff, c(NA, diffy(df$date, "days")))
 
 #   # hours
 #   df <- pl$DataFrame(date = pl$date_range(
@@ -663,7 +666,7 @@ test_that("pl$datetime_range", {
 #   ))$with_columns(
 #     pl$col("date")$diff()$dt$total_hours()$alias("diff")
 #   )$to_list()
-#   expect_identical(df$diff, c(NA, diffy(df$date, "hours")))
+#   expect_equal(df$diff, c(NA, diffy(df$date, "hours")))
 
 #   # minutes
 #   df <- pl$DataFrame(date = pl$date_range(
@@ -671,7 +674,7 @@ test_that("pl$datetime_range", {
 #   ))$with_columns(
 #     pl$col("date")$diff()$dt$total_minutes()$alias("diff")
 #   )$to_list()
-#   expect_identical(df$diff, c(NA, diffy(df$date, "mins")))
+#   expect_equal(df$diff, c(NA, diffy(df$date, "mins")))
 
 #   # seconds
 #   df <- pl$DataFrame(date = pl$datetime_range(
@@ -680,7 +683,7 @@ test_that("pl$datetime_range", {
 #   ))$with_columns(
 #     pl$col("date")$diff()$dt$total_seconds()$alias("diff")
 #   )$to_list()
-#   expect_identical(df$diff, c(NA, diffy(df$date, "secs")))
+#   expect_equal(df$diff, c(NA, diffy(df$date, "secs")))
 
 
 #   # milliseconds
@@ -690,7 +693,7 @@ test_that("pl$datetime_range", {
 #   ))$with_columns(
 #     pl$col("date")$diff()$dt$total_milliseconds()$alias("diff")
 #   )$to_list()
-#   expect_identical(df$diff, c(NA, diffy(df$date, "secs")) * 1000)
+#   expect_equal(df$diff, c(NA, diffy(df$date, "secs")) * 1000)
 
 #   # microseconds
 #   df <- pl$DataFrame(date = pl$datetime_range(
@@ -699,7 +702,7 @@ test_that("pl$datetime_range", {
 #   ))$with_columns(
 #     pl$col("date")$diff()$dt$total_microseconds()$alias("diff")
 #   )$to_list()
-#   expect_identical(df$diff, c(NA, diffy(df$date, "secs")) * 1E6)
+#   expect_equal(df$diff, c(NA, diffy(df$date, "secs")) * 1E6)
 
 #   # nanoseconds
 #   df <- pl$DataFrame(date = pl$datetime_range(
@@ -708,7 +711,7 @@ test_that("pl$datetime_range", {
 #   ))$with_columns(
 #     pl$col("date")$diff()$dt$total_nanoseconds()$alias("diff")
 #   )$to_list()
-#   expect_identical(df$diff, c(NA, diffy(df$date, "secs")) * 1E9)
+#   expect_equal(df$diff, c(NA, diffy(df$date, "secs")) * 1E9)
 # })
 
 # test_that("$dt$time()", {
@@ -719,7 +722,7 @@ test_that("pl$datetime_range", {
 #       "6h"
 #     )
 #   )
-#   expect_identical(
+#   expect_equal(
 #     as.numeric(df$select(times = pl$col("dates")$dt$time())$to_list()[[1]]),
 #     c(0.00e+00, 2.16e+13, 4.32e+13, 6.48e+13, 0.00e+00)
 #   )

@@ -136,7 +136,7 @@ expr_dt_replace_time_zone <- function(
 #' df
 expr_dt_truncate <- function(every) {
   every <- parse_as_polars_duration_string(every, default = "0ns")
-  self$`_rexpr`$dt_truncate(every) |>
+  self$`_rexpr`$dt_truncate(as_polars_expr(every, as_lit = TRUE)$`_rexpr`) |>
     wrap()
 }
 
@@ -160,7 +160,7 @@ expr_dt_truncate <- function(every) {
 #' df
 expr_dt_round <- function(every) {
   every <- parse_as_polars_duration_string(every, default = "0ns")
-  self$`_rexpr`$dt_round(every) |>
+  self$`_rexpr`$dt_round(as_polars_expr(every, as_lit = TRUE)$`_rexpr`) |>
     wrap()
 }
 
@@ -605,16 +605,16 @@ expr_dt_nanosecond <- function() {
 #'   epoch_s = pl$col("date")$dt$epoch(time_unit = "s")
 #' )
 expr_dt_epoch <- function(time_unit = "us") {
-  time_unit <- match.arg(time_unit, choices = c("us", "ns", "ms", "s", "d"))
-  uw <- \(res) unwrap(res, "in $dt$epoch:")
-
-  switch(time_unit,
-    "ms" = ,
-    "us" = ,
-    "ns" = self$`_rexpr`$dt_timestamp(time_unit) |> uw(),
-    "s" = self$`_rexpr`$dt_epoch_seconds(),
-    "d" = self$cast(pl$Date)$cast(pl$Int32)
-  )
+  wrap({
+    time_unit <- arg_match0(time_unit, values = c("us", "ns", "ms", "s", "d"))
+    switch(time_unit,
+      "ms" = ,
+      "us" = ,
+      "ns" = self$`_rexpr`$dt_timestamp(time_unit),
+      "s" = self$`_rexpr`$dt_epoch_seconds(),
+      "d" = self$`_rexpr`$cast(pl$Date)$cast(pl$Int32)
+    )
+  })
 }
 
 
@@ -637,10 +637,11 @@ expr_dt_epoch <- function(time_unit = "us") {
 #'   pl$col("date")$dt$timestamp()$alias("timestamp_ns"),
 #'   pl$col("date")$dt$timestamp(tu = "ms")$alias("timestamp_ms")
 #' )
-expr_dt_timestamp <- function(tu = c("ns", "us", "ms")) {
-  self$`_rexpr`$dt_timestamp(tu[1]) |>
-    map_err(\(err) paste("in $dt$timestamp:", err)) |>
-    unwrap()
+expr_dt_timestamp <- function(tu = "ns") {
+  wrap({
+    arg_match0(tu, values = c("ns", "us", "ms"))
+    self$`_rexpr`$dt_timestamp(tu)
+  })
 }
 
 
@@ -666,9 +667,10 @@ expr_dt_timestamp <- function(tu = c("ns", "us", "ms")) {
 #'   pl$col("date")$dt$with_time_unit(tu = "ms")$alias("with_time_unit_ms")
 #' )
 expr_dt_with_time_unit <- function(tu = c("ns", "us", "ms")) {
-  self$`_rexpr`$dt_with_time_unit(tu[1]) |>
-    map_err(\(err) paste("in $dt$with_time_unit:", err)) |>
-    unwrap()
+  wrap({
+    arg_match0(tu, values = c("ns", "us", "ms"))
+    self$`_rexpr`$  self$`_rexpr`$dt_with_time_unit(tu)
+  })
 }
 
 
@@ -695,9 +697,10 @@ expr_dt_with_time_unit <- function(tu = c("ns", "us", "ms")) {
 #'   pl$col("date")$dt$cast_time_unit(tu = "ms")$alias("cast_time_unit_ms")
 #' )
 expr_dt_cast_time_unit <- function(tu = c("ns", "us", "ms")) {
-  self$`_rexpr`$dt_cast_time_unit(tu[1]) |>
-    map_err(\(err) paste("in $dt$cast_time_unit:", err)) |>
-    unwrap()
+  wrap({
+    arg_match0(tu, values = c("ns", "us", "ms"))
+    self$`_rexpr`$dt_cast_time_unit(tu)
+  })
 }
 
 
