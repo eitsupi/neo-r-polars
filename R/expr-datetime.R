@@ -612,7 +612,7 @@ expr_dt_epoch <- function(time_unit = "us") {
       "us" = ,
       "ns" = self$`_rexpr`$dt_timestamp(time_unit),
       "s" = self$`_rexpr`$dt_epoch_seconds(),
-      "d" = self$`_rexpr`$cast(pl$Date)$cast(pl$Int32)
+      "d" = self$`_rexpr`$cast(pl$Date$`_dt`, strict = TRUE, wrap_numerical = FALSE)$cast(pl$Int32$`_dt`, strict = TRUE, wrap_numerical = FALSE)
     )
   })
 }

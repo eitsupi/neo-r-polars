@@ -439,34 +439,48 @@ test_that("hour minute", {
 
 
 
-# test_that("dt$epoch", {
-#   df <- pl$select(
-#     as_polars_series(as.Date("2022-1-1"))$dt$epoch("ns")$alias("e_ns"),
-#     as_polars_series(as.Date("2022-1-1"))$dt$epoch("us")$alias("e_us"),
-#     as_polars_series(as.Date("2022-1-1"))$dt$epoch("ms")$alias("e_ms"),
-#     as_polars_series(as.Date("2022-1-1"))$dt$epoch("s")$alias("e_s"),
-#     as_polars_series(as.Date("2022-1-1"))$dt$epoch("d")$alias("e_d")
-#   )
-#   l_act <- df$to_list()
+test_that("dt$epoch", {
+  df <- pl$DataFrame(x = as.Date("2022-1-1"))$select(
+    pl$col("x")$dt$epoch("ns")$alias("e_ns"),
+    pl$col("x")$dt$epoch("us")$alias("e_us"),
+    pl$col("x")$dt$epoch("ms")$alias("e_ms"),
+    pl$col("x")$dt$epoch("s")$alias("e_s"),
+    pl$col("x")$dt$epoch("d")$alias("e_d")
+  )
 
-#   base_r_s_epochs <- as.numeric(as.POSIXct("2022-1-1", tz = "GMT"))
-#   expect_equal(as.numeric(l_act$e_s), base_r_s_epochs)
-#   expect_equal(as.numeric(l_act$e_ms), base_r_s_epochs * 1E3)
-#   expect_equal(as.numeric(l_act$e_us), base_r_s_epochs * 1E6)
-#   expect_equal(suppressWarnings(as.numeric(l_act$e_ns)), base_r_s_epochs * 1E9)
+  base_r_s_epochs <- as.numeric(as.POSIXct("2022-1-1", tz = "GMT"))
+  expect_equal(
+    df$select("e_s"),
+    pl$DataFrame(e_s = base_r_s_epochs)$cast(pl$Int64)
+  )
+  expect_equal(
+    df$select("e_ms"),
+    pl$DataFrame(e_ms = base_r_s_epochs * 1E3)$cast(pl$Int64)
+  )
+  expect_equal(
+    df$select("e_us"),
+    pl$DataFrame(e_us = base_r_s_epochs * 1E6)$cast(pl$Int64)
+  )
+  expect_equal(
+    df$select("e_ns"),
+    pl$DataFrame(e_ns = base_r_s_epochs * 1E9)$cast(pl$Int64)
+  )
 
-#   base_r_d_epochs <- as.integer(as.Date("2022-1-1"))
-#   expect_equal(l_act$e_d, base_r_d_epochs)
+  base_r_d_epochs <- as.integer(as.Date("2022-1-1"))
+  expect_equal(
+    df$select("e_d"),
+    pl$DataFrame(e_d = base_r_d_epochs)$cast(pl$Int32)
+  )
+  expect_snapshot(
+    as_polars_series(as.Date("2022-1-1"))$dt$epoch("bob"),
+    error = TRUE
+  )
 
-#   expect_grepl_error(
-#     as_polars_series(as.Date("2022-1-1"))$dt$epoch("bob"),
-#     "should be one of"
-#   )
-#   expect_grepl_error(
-#     as_polars_series(as.Date("2022-1-1"))$dt$epoch(42),
-#     "must be NULL or a character vector"
-#   )
-# })
+  expect_snapshot(
+    as_polars_series(as.Date("2022-1-1"))$dt$epoch(42),
+    error = TRUE
+  )
+})
 
 
 test_that("dt$timestamp", {

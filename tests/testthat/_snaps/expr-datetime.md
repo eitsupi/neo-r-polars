@@ -1,3 +1,27 @@
+# dt$epoch
+
+    Code
+      as_polars_series(as.Date("2022-1-1"))$dt$epoch("bob")
+    Condition
+      Error in `as_polars_series(as.Date("2022-1-1"))$dt$epoch()`:
+      ! Evaluation failed in `$epoch()`.
+      Caused by error:
+      ! Evaluation failed.
+      Caused by error:
+      ! `time_unit` must be one of "us", "ns", "ms", "s", or "d", not "bob".
+
+---
+
+    Code
+      as_polars_series(as.Date("2022-1-1"))$dt$epoch(42)
+    Condition
+      Error in `as_polars_series(as.Date("2022-1-1"))$dt$epoch()`:
+      ! Evaluation failed in `$epoch()`.
+      Caused by error:
+      ! Evaluation failed.
+      Caused by error:
+      ! `time_unit` must be a string or character vector.
+
 # dt$timestamp
 
     Code
