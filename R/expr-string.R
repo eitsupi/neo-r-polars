@@ -288,6 +288,7 @@ expr_str_to_lowercase <- function() {
     wrap()
 }
 
+# TODO-REWRITE: uncomment this
 # #' Convert a string to titlecase
 # #'
 # #' @description Transform to titlecase variant.
