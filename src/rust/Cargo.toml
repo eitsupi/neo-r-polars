@@ -34,6 +34,7 @@ features = [
     "json",
     "lazy",
     "meta",
+    "offset_by",
     "parquet",
     "propagate_nans",
     "serde",
