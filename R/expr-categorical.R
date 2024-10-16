@@ -63,7 +63,7 @@ expr_cat_get_categories <- function() {
 #' )$sort("cats", "vals")
 expr_cat_set_ordering <- function(ordering) {
   wrap({
-    arg_match0(ordering, values = c("lexical", "physical"))
+    ordering <- arg_match0(ordering, values = c("lexical", "physical"))
     self$`_rexpr`$cat_set_ordering(ordering)
   })
 }
