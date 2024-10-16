@@ -593,33 +593,34 @@ test_that("dt$with_time_unit cast_time_unit", {
   )
 })
 
-# test_that("$convert_time_zone() works", {
-#   df_time <- pl$DataFrame(
-#     date = pl$datetime_range(
-#       start = as.Date("2001-3-1"),
-#       end = as.Date("2001-5-1"),
-#       interval = "1mo",
-#       time_zone = "UTC"
-#     )
-#   )
-#   df_casts <- df_time$with_columns(
-#     pl$col("date")
-#     $dt$convert_time_zone("Europe/London")
-#     $alias("London")
-#   )
+test_that("$convert_time_zone() works", {
+  df_time <- pl$DataFrame(
+    date = pl$datetime_range(
+      start = as.Date("2001-3-1"),
+      end = as.Date("2001-5-1"),
+      interval = "1mo",
+      time_zone = "UTC",
+      time_unit = "ms"
+    )
+  )
+  df_casts <- df_time$with_columns(
+    pl$col("date")
+    $dt$convert_time_zone("Europe/London")
+    $alias("London")
+  )
 
-#   orig_r <- as.POSIXct(
-#     c("2001-03-01 00:00:00", "2001-04-01 00:00:00", "2001-05-01 00:00:00"),
-#     tz = "UTC"
-#   )
-#   new_r <- orig_r
-#   attributes(new_r)$tzone <- "Europe/London"
+  orig_r <- as.POSIXct(
+    c("2001-03-01 00:00:00", "2001-04-01 00:00:00", "2001-05-01 00:00:00"),
+    tz = "UTC"
+  )
+  new_r <- orig_r
+  attributes(new_r)$tzone <- "Europe/London"
 
-#   expect_equal(
-#     df_casts$to_list()[["London"]],
-#     new_r
-#   )
-# })
+  expect_equal(
+    df_casts,
+    pl$DataFrame(date = orig_r, London = new_r)
+  )
+})
 
 # test_that("dt$replace_time_zone() works", {
 #   df <- pl$DataFrame(
@@ -652,26 +653,26 @@ test_that("dt$with_time_unit cast_time_unit", {
 #   )
 # })
 
-# test_that("replace_time_zone for ambiguous time", {
-#   skip_if_not_installed("lubridate")
+test_that("replace_time_zone for ambiguous time", {
+  skip_if_not_installed("lubridate")
 
-#   x <- seq(as.POSIXct("2018-10-28 01:30", tz = "UTC"), as.POSIXct("2018-10-28 02:30", tz = "UTC"), by = "30 min")
+  x <- seq(as.POSIXct("2018-10-28 01:30", tz = "UTC"), as.POSIXct("2018-10-28 02:30", tz = "UTC"), by = "30 min")
 
-#   pl_out <- pl$DataFrame(x = x)$with_columns(
-#     pl$col("x")$dt$replace_time_zone("Europe/Brussels", ambiguous = "earliest")$alias("earliest"),
-#     pl$col("x")$dt$replace_time_zone("Europe/Brussels", ambiguous = "latest")$alias("latest"),
-#     pl$col("x")$dt$replace_time_zone("Europe/Brussels", ambiguous = "null")$alias("null")
-#   )$to_data_frame()
+  pl_out <- pl$DataFrame(x = x)$with_columns(
+    pl$col("x")$dt$replace_time_zone("Europe/Brussels", ambiguous = "earliest")$alias("earliest"),
+    pl$col("x")$dt$replace_time_zone("Europe/Brussels", ambiguous = "latest")$alias("latest"),
+    pl$col("x")$dt$replace_time_zone("Europe/Brussels", ambiguous = "null")$alias("null")
+  )
 
-#   lubridate_out <- data.frame(
-#     x = x,
-#     earliest = lubridate::force_tz(x, "Europe/Brussels", roll_dst = c("NA", "pre")),
-#     latest = lubridate::force_tz(x, "Europe/Brussels", roll_dst = c("NA", "post")),
-#     null = as.POSIXct(c("2018-10-28 01:30:00 CEST", NA, NA), tz = "Europe/Brussels")
-#   )
+  lubridate_out <- pl$DataFrame(
+    x = x,
+    earliest = lubridate::force_tz(x, "Europe/Brussels", roll_dst = c("NA", "pre")),
+    latest = lubridate::force_tz(x, "Europe/Brussels", roll_dst = c("NA", "post")),
+    null = as.POSIXct(c("2018-10-28 01:30:00 CEST", NA, NA), tz = "Europe/Brussels")
+  )
 
-#   expect_equal(pl_out, lubridate_out)
-# })
+  expect_equal(pl_out, lubridate_out)
+})
 
 
 test_that("dt$days, dt$hours, dt$mminutes, dt$seconds, + ms, us, ns", {
