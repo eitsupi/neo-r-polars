@@ -296,4 +296,24 @@ impl PlRExpr {
     ) -> Result<Self> {
         map_single(self, lambda, output_type, agg_list)
     }
+
+    fn cum_sum(&self, reverse: bool) -> Result<Self> {
+        Ok(self.inner.clone().cum_sum(reverse).into())
+    }
+
+    fn cum_prod(&self, reverse: bool) -> Result<Self> {
+        Ok(self.inner.clone().cum_prod(reverse).into())
+    }
+
+    fn cum_min(&self, reverse: bool) -> Result<Self> {
+        Ok(self.inner.clone().cum_min(reverse).into())
+    }
+
+    fn cum_max(&self, reverse: bool) -> Result<Self> {
+        Ok(self.inner.clone().cum_max(reverse).into())
+    }
+
+    fn cum_count(&self, reverse: bool) -> Result<Self> {
+        Ok(self.inner.clone().cum_count(reverse).into())
+    }
 }

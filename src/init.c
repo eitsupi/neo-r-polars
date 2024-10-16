@@ -689,6 +689,31 @@ SEXP savvy_PlRExpr_map_batches__impl(SEXP self__, SEXP c_arg__lambda, SEXP c_arg
     return handle_result(res);
 }
 
+SEXP savvy_PlRExpr_cum_sum__impl(SEXP self__, SEXP c_arg__reverse) {
+    SEXP res = savvy_PlRExpr_cum_sum__ffi(self__, c_arg__reverse);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_cum_prod__impl(SEXP self__, SEXP c_arg__reverse) {
+    SEXP res = savvy_PlRExpr_cum_prod__ffi(self__, c_arg__reverse);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_cum_min__impl(SEXP self__, SEXP c_arg__reverse) {
+    SEXP res = savvy_PlRExpr_cum_min__ffi(self__, c_arg__reverse);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_cum_max__impl(SEXP self__, SEXP c_arg__reverse) {
+    SEXP res = savvy_PlRExpr_cum_max__ffi(self__, c_arg__reverse);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_cum_count__impl(SEXP self__, SEXP c_arg__reverse) {
+    SEXP res = savvy_PlRExpr_cum_count__ffi(self__, c_arg__reverse);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRExpr_meta_output_name__impl(SEXP self__) {
     SEXP res = savvy_PlRExpr_meta_output_name__ffi(self__);
     return handle_result(res);
@@ -1387,6 +1412,11 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_any__impl", (DL_FUNC) &savvy_PlRExpr_any__impl, 2},
     {"savvy_PlRExpr_all__impl", (DL_FUNC) &savvy_PlRExpr_all__impl, 2},
     {"savvy_PlRExpr_map_batches__impl", (DL_FUNC) &savvy_PlRExpr_map_batches__impl, 4},
+    {"savvy_PlRExpr_cum_sum__impl", (DL_FUNC) &savvy_PlRExpr_cum_sum__impl, 2},
+    {"savvy_PlRExpr_cum_prod__impl", (DL_FUNC) &savvy_PlRExpr_cum_prod__impl, 2},
+    {"savvy_PlRExpr_cum_min__impl", (DL_FUNC) &savvy_PlRExpr_cum_min__impl, 2},
+    {"savvy_PlRExpr_cum_max__impl", (DL_FUNC) &savvy_PlRExpr_cum_max__impl, 2},
+    {"savvy_PlRExpr_cum_count__impl", (DL_FUNC) &savvy_PlRExpr_cum_count__impl, 2},
     {"savvy_PlRExpr_meta_output_name__impl", (DL_FUNC) &savvy_PlRExpr_meta_output_name__impl, 1},
     {"savvy_PlRExpr_meta_undo_aliases__impl", (DL_FUNC) &savvy_PlRExpr_meta_undo_aliases__impl, 1},
     {"savvy_PlRExpr_meta_has_multiple_outputs__impl", (DL_FUNC) &savvy_PlRExpr_meta_has_multiple_outputs__impl, 1},

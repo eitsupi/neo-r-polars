@@ -1029,6 +1029,36 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   }
 }
 
+`PlRExpr_cum_sum` <- function(self) {
+  function(`reverse`) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_cum_sum__impl, `self`, `reverse`))
+  }
+}
+
+`PlRExpr_cum_prod` <- function(self) {
+  function(`reverse`) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_cum_prod__impl, `self`, `reverse`))
+  }
+}
+
+`PlRExpr_cum_min` <- function(self) {
+  function(`reverse`) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_cum_min__impl, `self`, `reverse`))
+  }
+}
+
+`PlRExpr_cum_max` <- function(self) {
+  function(`reverse`) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_cum_max__impl, `self`, `reverse`))
+  }
+}
+
+`PlRExpr_cum_count` <- function(self) {
+  function(`reverse`) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_cum_count__impl, `self`, `reverse`))
+  }
+}
+
 `PlRExpr_meta_output_name` <- function(self) {
   function() {
     .Call(savvy_PlRExpr_meta_output_name__impl, `self`)
@@ -1472,6 +1502,11 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   e$`any` <- `PlRExpr_any`(ptr)
   e$`all` <- `PlRExpr_all`(ptr)
   e$`map_batches` <- `PlRExpr_map_batches`(ptr)
+  e$`cum_sum` <- `PlRExpr_cum_sum`(ptr)
+  e$`cum_prod` <- `PlRExpr_cum_prod`(ptr)
+  e$`cum_min` <- `PlRExpr_cum_min`(ptr)
+  e$`cum_max` <- `PlRExpr_cum_max`(ptr)
+  e$`cum_count` <- `PlRExpr_cum_count`(ptr)
   e$`meta_output_name` <- `PlRExpr_meta_output_name`(ptr)
   e$`meta_undo_aliases` <- `PlRExpr_meta_undo_aliases`(ptr)
   e$`meta_has_multiple_outputs` <- `PlRExpr_meta_has_multiple_outputs`(ptr)

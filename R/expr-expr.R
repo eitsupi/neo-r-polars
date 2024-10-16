@@ -1161,3 +1161,96 @@ expr__all <- function(..., ignore_nulls = TRUE) {
     self$`_rexpr`$all(ignore_nulls)
   })
 }
+
+#' Cumulative sum
+#'
+#' Get an array with the cumulative sum computed at every element.
+#'
+#' @param reverse If `TRUE`, start with the total sum of elements and substract
+#' each row one by one.
+#'
+#' @inherit as_polars_expr return
+#' @details
+#' The Dtypes Int8, UInt8, Int16 and UInt16 are cast to Int64 before summing to
+#' prevent overflow issues.
+#' @examples
+#' pl$DataFrame(a = 1:4)$with_columns(
+#'   pl$col("a")$cum_sum()$alias("cum_sum"),
+#'   pl$col("a")$cum_sum(reverse = TRUE)$alias("cum_sum_reversed")
+#' )
+expr__cum_sum <- function(reverse = FALSE) {
+  self$`_rexpr`$cum_sum(reverse) |>
+    wrap()
+}
+
+
+#' Cumulative product
+#'
+#' Get an array with the cumulative product computed at every element.
+#'
+#' @param reverse If `TRUE`, start with the total product of elements and divide
+#' each row one by one.
+#' @inherit expr__cum_sum return details
+#' @examples
+#' pl$DataFrame(a = 1:4)$with_columns(
+#'   pl$col("a")$cum_prod()$alias("cum_prod"),
+#'   pl$col("a")$cum_prod(reverse = TRUE)$alias("cum_prod_reversed")
+#' )
+expr__cum_prod <- function(reverse = FALSE) {
+  self$`_rexpr`$cum_prod(reverse) |>
+    wrap()
+}
+
+#' Cumulative minimum
+#'
+#' Get an array with the cumulative min computed at every element.
+#'
+#' @param reverse If `TRUE`, start from the last value.
+#' @inherit expr__cum_sum return details
+#' @examples
+#' pl$DataFrame(a = c(1:4, 2L))$with_columns(
+#'   pl$col("a")$cum_min()$alias("cum_min"),
+#'   pl$col("a")$cum_min(reverse = TRUE)$alias("cum_min_reversed")
+#' )
+expr__cum_min <- function(reverse = FALSE) {
+  self$`_rexpr`$cum_min(reverse) |>
+    wrap()
+}
+
+#' Cumulative maximum
+#'
+#' Get an array with the cumulative max computed at every element.
+#'
+#' @inheritParams expr__cum_min
+#' @inherit expr__cum_sum return details
+#' @examples
+#' pl$DataFrame(a = c(1:4, 2L))$with_columns(
+#'   pl$col("a")$cum_max()$alias("cummux"),
+#'   pl$col("a")$cum_max(reverse = TRUE)$alias("cum_max_reversed")
+#' )
+expr__cum_max <- function(reverse = FALSE) {
+  self$`_rexpr`$cum_max(reverse) |>
+    wrap()
+}
+
+#' Cumulative count
+#'
+#' Get an array with the cumulative count (zero-indexed) computed at every element.
+#'
+#' @param reverse If `TRUE`, reverse the count.
+#' @inherit as_polars_expr return
+#' @details
+#' The Dtypes Int8, UInt8, Int16 and UInt16 are cast to Int64 before summing to
+#' prevent overflow issues.
+#'
+#' `$cum_count()` does not seem to count within lists.
+#'
+#' @examples
+#' pl$DataFrame(a = 1:4)$with_columns(
+#'   pl$col("a")$cum_count()$alias("cum_count"),
+#'   pl$col("a")$cum_count(reverse = TRUE)$alias("cum_count_reversed")
+#' )
+expr__cum_count <- function(reverse = FALSE) {
+  self$`_rexpr`$cum_count(reverse) |>
+    wrap()
+}
