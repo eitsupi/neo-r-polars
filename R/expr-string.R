@@ -288,21 +288,21 @@ expr_str_to_lowercase <- function() {
     wrap()
 }
 
-#' Convert a string to titlecase
-#'
-#' @description Transform to titlecase variant.
-#' @inherit as_polars_expr return
-#' @details
-#' This method is only available with the "nightly" feature.
-#' See [polars_info()] for more details.
-#' @examplesIf polars_info()$features$nightly
-#' pl$lit(c("hello there", "HI, THERE", NA))$str$to_titlecase()$to_series()
-expr_str_to_titlecase <- function() {
-  check_feature("nightly", "in $to_titlecase():")
+# #' Convert a string to titlecase
+# #'
+# #' @description Transform to titlecase variant.
+# #' @inherit as_polars_expr return
+# #' @details
+# #' This method is only available with the "nightly" feature.
+# #' See [polars_info()] for more details.
+# #' @examplesIf polars_info()$features$nightly
+# #' pl$lit(c("hello there", "HI, THERE", NA))$str$to_titlecase()$to_series()
+# expr_str_to_titlecase <- function() {
+#   check_feature("nightly", "in $to_titlecase():")
 
-  self$`_rexpr`$str_to_titlecase(self) |>
-    wrap()
-}
+#   self$`_rexpr`$str_to_titlecase(self) |>
+#     wrap()
+# }
 
 
 #' Strip leading and trailing characters
