@@ -83,7 +83,7 @@ difftime_to_duration_string <- function(dft) {
     "days" = "d",
     "weeks" = "w",
     "years" = "y",
-    abort("unknown difftime units: ", u)
+    abort(paste0("unknown difftime units: ", u))
   )
   paste0(value, unit)
 }
