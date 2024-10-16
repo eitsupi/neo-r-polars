@@ -261,7 +261,7 @@ expr_str_concat <- function(
     delimiter = "",
     ...,
     ignore_nulls = TRUE) {
-  lifecycle::deprecate_warn("0.18.0", what = I("$str$concat()"), with = I("$str$join()"))
+  deprecate_warn("$str$concat() is deprecated as of 0.18.0. Use $str$join() instead.")
   self$`_rexpr`$str_join(delimiter, ignore_nulls) |>
     wrap()
 }
