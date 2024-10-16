@@ -54,6 +54,20 @@
 ---
 
     Code
+      df$select(pl$col("a")$str$pad_end(5, "multiple_chars"))
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$select()`.
+      Caused by error in `pl$col("a")$str$pad_end()`:
+      ! Evaluation failed in `$pad_end()`.
+      Caused by error:
+      ! Expected a string with one character only, currently has 14 (from "multiple_chars").
+
+---
+
+    Code
       df$select(pl$col("a")$str$pad_start("wrong_string", "w"))
     Condition
       Error in `df$select()`:
@@ -78,6 +92,46 @@
       ! Evaluation failed in `$pad_start()`.
       Caused by error:
       ! Negative value `-2.0` cannot be converted to usize
+
+# encode decode
+
+    Code
+      pl$DataFrame(x = "?")$with_columns(pl$col("x")$str$decode("base64"))
+    Condition
+      Error:
+      ! Evaluation failed in `$with_columns()`.
+      Caused by error:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! ComputeError(ErrString("invalid `base64` encoding found; try setting `strict=false` to ignore"))
+
+---
+
+    Code
+      pl$DataFrame(x = "?")$with_columns(pl$col("x")$str$decode("invalid_name"))
+    Condition
+      Error:
+      ! Evaluation failed in `$with_columns()`.
+      Caused by error:
+      ! Evaluation failed in `$with_columns()`.
+      Caused by error in `pl$col("x")$str$decode()`:
+      ! Evaluation failed in `$decode()`.
+      Caused by error in `pl$col("x")$str$decode()`:
+      ! `encoding` must be one of "hex" or "base64", not "invalid_name".
+
+---
+
+    Code
+      pl$DataFrame(x = "?")$with_columns(pl$col("x")$str$encode("invalid_name"))
+    Condition
+      Error:
+      ! Evaluation failed in `$with_columns()`.
+      Caused by error:
+      ! Evaluation failed in `$with_columns()`.
+      Caused by error in `pl$col("x")$str$encode()`:
+      ! Evaluation failed in `$encode()`.
+      Caused by error in `pl$col("x")$str$encode()`:
+      ! `encoding` must be one of "hex" or "base64", not "invalid_name".
 
 # str$extract
 

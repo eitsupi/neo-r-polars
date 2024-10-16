@@ -420,9 +420,18 @@ test_that("encode decode", {
     pl$DataFrame(x = NA_character_)
   )
 
-  expect_snapshot(pl$lit("?")$str$decode("base64")$to_r(), error = TRUE)
-  expect_snapshot(pl$lit("?")$str$decode("invalid_name"), error = TRUE)
-  expect_snapshot(pl$lit("?")$str$encode("invalid_name"), error = TRUE)
+  expect_snapshot(
+    pl$DataFrame(x = "?")$with_columns(pl$col("x")$str$decode("base64")),
+    error = TRUE
+  )
+  expect_snapshot(
+    pl$DataFrame(x = "?")$with_columns(pl$col("x")$str$decode("invalid_name")),
+    error = TRUE
+  )
+  expect_snapshot(
+    pl$DataFrame(x = "?")$with_columns(pl$col("x")$str$encode("invalid_name")),
+    error = TRUE
+  )
 })
 
 

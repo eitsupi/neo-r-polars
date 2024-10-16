@@ -70,13 +70,13 @@ impl PlRExpr {
 
     fn str_pad_end(&self, width: NumericScalar, fillchar: &str) -> Result<Self> {
         let width = <Wrap<usize>>::try_from(width)?.0;
-        let fillchar = fillchar.chars().nth(0).unwrap();
+        let fillchar = <Wrap<char>>::try_from(fillchar)?.0;
         Ok(self.inner.clone().str().pad_end(width, fillchar).into())
     }
 
     fn str_pad_start(&self, width: NumericScalar, fillchar: &str) -> Result<Self> {
         let width = <Wrap<usize>>::try_from(width)?.0;
-        let fillchar = fillchar.chars().nth(0).unwrap();
+        let fillchar = <Wrap<char>>::try_from(fillchar)?.0;
         Ok(self.inner.clone().str().pad_start(width, fillchar).into())
     }
 

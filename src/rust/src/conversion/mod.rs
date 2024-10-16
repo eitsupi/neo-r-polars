@@ -312,6 +312,21 @@ impl TryFrom<NumericScalar> for Wrap<u32> {
     }
 }
 
+impl TryFrom<&str> for Wrap<char> {
+    type Error = savvy::Error;
+
+    fn try_from(v: &str) -> Result<Self, savvy::Error> {
+        let n_chars = v.len();
+        if n_chars == 1 {
+            Ok(Wrap(v.chars().nth(0).unwrap()))
+        } else {
+            Err(format!(
+                "Expected a string with one character only, currently has {n_chars:?} (from {v:?})."
+            ))?
+        }
+    }
+}
+
 impl TryFrom<&str> for Wrap<NonExistent> {
     type Error = String;
 
