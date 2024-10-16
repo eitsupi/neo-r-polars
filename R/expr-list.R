@@ -160,7 +160,7 @@ expr_list_concat <- function(other) {
 #'   single index. Values are 0-indexed (so index 0 would return the first item
 #'   of every sublist) and negative values start from the end (index `-1`
 #'   returns the last item).
-#' @param ... Ignored.
+#' @inheritParams rlang::check_dots_empty0
 #' @param null_on_oob If `TRUE`, return `null` if an index is out of bounds.
 #' Otherwise, raise an error.
 #' @return [Expr][expr_class]
