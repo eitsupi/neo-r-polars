@@ -7,7 +7,7 @@
 expr_cat_get_categories()
 }
 \value{
-A polars DataFrame with the categories for each categorical Series.
+A polars \link{expression}
 }
 \description{
 Get the categories stored in this data type

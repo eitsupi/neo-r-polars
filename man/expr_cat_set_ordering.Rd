@@ -15,7 +15,7 @@ determine the order (default).
 }}
 }
 \value{
-An Expr of datatype Categorical
+A polars \link{expression}
 }
 \description{
 Determine how this categorical series should be sorted.

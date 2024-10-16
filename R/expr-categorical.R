@@ -17,7 +17,7 @@ namespace_expr_cat <- function(x) {
 
 #' Get the categories stored in this data type
 #'
-#' @return A polars DataFrame with the categories for each categorical Series.
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   cats = factor(c("z", "z", "k", "a", "b")),
@@ -45,7 +45,7 @@ expr_cat_get_categories <- function() {
 #'   determine the order (default).
 #' - `"lexical"`: use the string values to determine the order.
 #'
-#' @return An Expr of datatype Categorical
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   cats = factor(c("z", "z", "k", "a", "b")),
