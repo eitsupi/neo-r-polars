@@ -56,6 +56,18 @@ test_that("bin$encode and bin$decode", {
   )
 })
 
+test_that("bin$size()", {
+  dat <- pl$DataFrame(x = "a")$cast(pl$Binary)
+  expect_equal(
+    dat$select(pl$col("x")$bin$size()),
+    pl$DataFrame(x = 1)$cast(pl$UInt32)
+  )
+  expect_snapshot(
+    dat$select(pl$col("x")$bin$size("foo")),
+    error = TRUE
+  )
+})
+
 # TODO-REWRITE: not sure this is worth keeping
 # test_that("Raw to lit and series", {
 #   # craete a rpolars_raw_list
