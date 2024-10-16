@@ -262,7 +262,8 @@ impl PlRExpr {
         }
     }
 
-    fn str_split_exact(&self, by: &PlRExpr, n: usize, inclusive: bool) -> Result<Self> {
+    fn str_split_exact(&self, by: &PlRExpr, n: NumericScalar, inclusive: bool) -> Result<Self> {
+        let n = <Wrap<usize>>::try_from(n)?.0;
         Ok(if inclusive {
             self.inner
                 .clone()
