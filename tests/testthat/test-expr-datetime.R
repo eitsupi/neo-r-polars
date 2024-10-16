@@ -547,25 +547,29 @@ test_that("dt$timestamp", {
 #   expect_true(types$cast_time_unit_ms == pl$Datetime("ms"))
 
 #   # cast wrong inputs
-#   expect_grepl_error(
-#     as_polars_series(as.Date("2022-1-1"))$dt$cast_time_unit("bob"),
-#     r"{The argument \[tu\] caused an error}"
-#   )
-#   expect_grepl_error(
-#     as_polars_series(as.Date("2022-1-1"))$dt$cast_time_unit(42),
-#     r"{Expected a value of type \[\&str\]}"
-#   )
+#   expect_snapshot(
+#   as_polars_series(as.Date("2022-1-1"))$dt$cast_time_unit("bob"),
+#   error = TRUE
+# )
+
+#   expect_snapshot(
+#   as_polars_series(as.Date("2022-1-1"))$dt$cast_time_unit(42),
+#   error = TRUE
+# )
+
 
 #   # with wrong inputs
-#   expect_grepl_error(
-#     as_polars_series(as.Date("2022-1-1"))$dt$with_time_unit("bob"),
-#     r"{The argument \[tu\] caused an error}"
-#   )
+#   expect_snapshot(
+#   as_polars_series(as.Date("2022-1-1"))$dt$with_time_unit("bob"),
+#   error = TRUE
+# )
 
-#   expect_grepl_error(
-#     as_polars_series(as.Date("2022-1-1"))$dt$with_time_unit(42),
-#     r"{Expected a value of type \[\&str\]}"
-#   )
+
+#   expect_snapshot(
+#   as_polars_series(as.Date("2022-1-1"))$dt$with_time_unit(42),
+#   error = TRUE
+# )
+
 # })
 
 # test_that("$convert_time_zone() works", {
