@@ -718,32 +718,32 @@ test_that("dt$timestamp", {
 #   expect_equal(df$diff, c(NA, diffy(df$date, "secs")) * 1E9)
 # })
 
-# test_that("$dt$time()", {
-#   df <- pl$DataFrame(
-#     dates = pl$datetime_range(
-#       as.Date("2000-1-1"),
-#       as.Date("2000-1-2"),
-#       "6h"
-#     )
-#   )
-#   expect_equal(
-#     as.numeric(df$select(times = pl$col("dates")$dt$time())$to_list()[[1]]),
-#     c(0.00e+00, 2.16e+13, 4.32e+13, 6.48e+13, 0.00e+00)
-#   )
-# })
+test_that("$dt$time()", {
+  df <- pl$DataFrame(
+    dates = pl$datetime_range(
+      as.Date("2000-1-1"),
+      as.Date("2000-1-2"),
+      "6h"
+    )
+  )
+  expect_equal(
+    df$select(times = pl$col("dates")$dt$time()$cast(pl$Float64)),
+    pl$DataFrame(times = c(0.00e+00, 2.16e+13, 4.32e+13, 6.48e+13, 0.00e+00))
+  )
+})
 
-# test_that("$dt$is_leap_year()", {
-#   df <- pl$DataFrame(
-#     date = as.Date(c("2000-01-01", "2001-01-01", "2002-01-01")),
-#     datetime = pl$datetime_range(as.Date("2000-01-01"), as.Date("2002-01-01"), "1y")
-#   )
+test_that("$dt$is_leap_year()", {
+  df <- pl$DataFrame(
+    date = as.Date(c("2000-01-01", "2001-01-01", "2002-01-01")),
+    datetime = pl$datetime_range(as.Date("2000-01-01"), as.Date("2002-01-01"), "1y")
+  )
 
-#   expect_equal(
-#     df$select(leap_year = pl$col("date")$dt$is_leap_year())$to_list(),
-#     list(leap_year = c(TRUE, FALSE, FALSE))
-#   )
-#   expect_equal(
-#     df$select(leap_year = pl$col("datetime")$dt$is_leap_year())$to_list(),
-#     list(leap_year = c(TRUE, FALSE, FALSE))
-#   )
-# })
+  expect_equal(
+    df$select(leap_year = pl$col("date")$dt$is_leap_year()),
+    pl$DataFrame(leap_year = c(TRUE, FALSE, FALSE))
+  )
+  expect_equal(
+    df$select(leap_year = pl$col("datetime")$dt$is_leap_year()),
+    pl$DataFrame(leap_year = c(TRUE, FALSE, FALSE))
+  )
+})
