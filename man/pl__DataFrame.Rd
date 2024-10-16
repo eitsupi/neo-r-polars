@@ -2,8 +2,6 @@
 % Please edit documentation in R/dataframe-frame.R
 \name{pl__DataFrame}
 \alias{pl__DataFrame}
-\alias{polars_data_frame}
-\alias{DataFrame}
 \title{Polars DataFrame class (\code{polars_data_frame})}
 \usage{
 pl__DataFrame(...)
