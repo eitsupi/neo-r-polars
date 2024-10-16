@@ -54,6 +54,7 @@ POLARS_STORE_ENVS <- list(
   "expr_meta_" = polars_expr_meta_methods,
   "expr_list_" = polars_expr_list_methods,
   "expr_name_" = polars_expr_name_methods,
+  "expr_str_" = polars_expr_str_methods,
   "expr_struct_" = polars_expr_struct_methods,
   "then__" = polars_then__methods,
   "chainedthen__" = polars_chainedthen__methods,
