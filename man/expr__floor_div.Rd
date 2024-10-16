@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-expr.R
 \name{expr__floor_div}
 \alias{expr__floor_div}
-\title{Floor divide two expressions}
+\title{Floor divide using two expressions}
 \usage{
 expr__floor_div(other)
 }

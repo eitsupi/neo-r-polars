@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-expr.R
 \name{expr__mod}
 \alias{expr__mod}
-\title{Modulo two expressions}
+\title{Modulo using two expressions}
 \usage{
 expr__mod(other)
 }

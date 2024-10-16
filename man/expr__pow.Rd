@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-expr.R
 \name{expr__pow}
 \alias{expr__pow}
-\title{Exponentiation two expressions}
+\title{Exponentiation using two expressions}
 \usage{
 expr__pow(other)
 }

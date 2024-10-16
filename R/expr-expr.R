@@ -169,7 +169,7 @@ expr__truediv <- function(other) {
   })
 }
 
-#' Exponentiation two expressions
+#' Exponentiation using two expressions
 #'
 #' Method equivalent of exponentiation operator `expr ^ exponent`.
 #'
@@ -191,7 +191,7 @@ expr__pow <- function(other) {
   })
 }
 
-#' Modulo two expressions
+#' Modulo using two expressions
 #'
 #' Method equivalent of modulus operator `expr %% other`.
 #' @inherit expr__truediv params return
@@ -211,7 +211,7 @@ expr__mod <- function(other) {
   })
 }
 
-#' Floor divide two expressions
+#' Floor divide using two expressions
 #'
 #' Method equivalent of floor division operator `expr %/% other`.
 #' @inherit expr__truediv params return
