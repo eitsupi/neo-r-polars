@@ -669,70 +669,84 @@ test_that("dt$with_time_unit cast_time_unit", {
 # })
 
 
-# test_that("dt$days, dt$hours, dt$mminutes, dt$seconds, + ms, us, ns", {
-#   # diff with settable units
-#   diffy <- \(x, units) as.numeric(diff(x), units = units)
-#   # days
-#   df <- pl$DataFrame(date = pl$date_range(
-#     start = as.Date("2020-3-1"), end = as.Date("2020-5-1"), interval = "1mo"
-#   ))$with_columns(
-#     pl$col("date")$diff()$dt$total_days()$alias("diff")
-#   )$to_list()
-#   expect_equal(df$diff, c(NA, diffy(df$date, "days")))
+test_that("dt$days, dt$hours, dt$mminutes, dt$seconds, + ms, us, ns", {
+  # diff with settable units
+  diffy <- \(x, units) as.numeric(diff(x), units = units)
+  # days
+  vals <- c(as.Date("2020-3-1"), as.Date("2020-4-1"), as.Date("2020-5-1"))
+  df <- pl$DataFrame(date = vals)$select(
+    diff = pl$col("date")$diff()$dt$total_days()
+  )
+  expect_equal(
+    df,
+    pl$DataFrame(diff = c(NA, diffy(vals, "days")))$cast(pl$Int64)
+  )
 
-#   # hours
-#   df <- pl$DataFrame(date = pl$date_range(
-#     start = as.Date("2020-1-1"), end = as.Date("2020-1-4"), interval = "1d"
-#   ))$with_columns(
-#     pl$col("date")$diff()$dt$total_hours()$alias("diff")
-#   )$to_list()
-#   expect_equal(df$diff, c(NA, diffy(df$date, "hours")))
+  # hours
+  vals <- c(as.Date("2020-1-1"), as.Date("2020-1-2"), as.Date("2020-1-3"), as.Date("2020-1-4"))
+  df <- pl$DataFrame(date = vals)$select(
+    pl$col("date")$diff()$dt$total_hours()$alias("diff")
+  )
+  expect_equal(
+    df,
+    pl$DataFrame(diff = c(NA, diffy(vals, "hours")))$cast(pl$Int64)
+  )
 
-#   # minutes
-#   df <- pl$DataFrame(date = pl$date_range(
-#     start = as.Date("2020-1-1"), end = as.Date("2020-1-4"), interval = "1d"
-#   ))$with_columns(
-#     pl$col("date")$diff()$dt$total_minutes()$alias("diff")
-#   )$to_list()
-#   expect_equal(df$diff, c(NA, diffy(df$date, "mins")))
+  # minutes
+  vals <- c(as.Date("2020-1-1"), as.Date("2020-1-2"), as.Date("2020-1-3"), as.Date("2020-1-4"))
+  df <- pl$DataFrame(date = pl$date_range(
+    start = as.Date("2020-1-1"), end = as.Date("2020-1-4"), interval = "1d"
+  ))$select(
+    pl$col("date")$diff()$dt$total_minutes()$alias("diff")
+  )
+  expect_equal(
+    df,
+    pl$DataFrame(diff = c(NA, diffy(vals, "mins")))$cast(pl$Int64)
+  )
 
-#   # seconds
-#   df <- pl$DataFrame(date = pl$datetime_range(
-#     start = as.Date("2020-1-1"), end = as.POSIXct("2020-1-1 00:04:00", tz = "GMT"),
-#     interval = "1m"
-#   ))$with_columns(
-#     pl$col("date")$diff()$dt$total_seconds()$alias("diff")
-#   )$to_list()
-#   expect_equal(df$diff, c(NA, diffy(df$date, "secs")))
+  # seconds
+  vals <- as.POSIXct(
+    c(
+      "2020-01-01 00:00:00", "2020-01-01 00:01:00", "2020-01-01 00:02:00",
+      "2020-01-01 00:03:00", "2020-01-01 00:04:00"
+    )
+  )
+  df <- pl$DataFrame(date = vals)$select(
+    pl$col("date")$diff()$dt$total_seconds()$alias("diff")
+  )
+  expect_equal(
+    df,
+    pl$DataFrame(diff = c(NA, diffy(vals, "secs")))$cast(pl$Int64)
+  )
 
 
-#   # milliseconds
-#   df <- pl$DataFrame(date = pl$datetime_range(
-#     start = as.Date("2020-1-1"), end = as.POSIXct("2020-1-1 00:04:00", tz = "GMT"),
-#     interval = "1m"
-#   ))$with_columns(
-#     pl$col("date")$diff()$dt$total_milliseconds()$alias("diff")
-#   )$to_list()
-#   expect_equal(df$diff, c(NA, diffy(df$date, "secs")) * 1000)
+  # milliseconds
+  df <- pl$DataFrame(date = vals)$select(
+    pl$col("date")$diff()$dt$total_milliseconds()$alias("diff")
+  )
+  expect_equal(
+    df,
+    pl$DataFrame(diff = c(NA, diffy(vals, "secs")) * 1000)$cast(pl$Int64)
+  )
 
-#   # microseconds
-#   df <- pl$DataFrame(date = pl$datetime_range(
-#     start = as.Date("2020-1-1"), end = as.POSIXct("2020-1-1 00:04:00", tz = "GMT"),
-#     interval = "1m"
-#   ))$with_columns(
-#     pl$col("date")$diff()$dt$total_microseconds()$alias("diff")
-#   )$to_list()
-#   expect_equal(df$diff, c(NA, diffy(df$date, "secs")) * 1E6)
+  # microseconds
+  df <- pl$DataFrame(date = vals)$select(
+    pl$col("date")$diff()$dt$total_microseconds()$alias("diff")
+  )
+  expect_equal(
+    df,
+    pl$DataFrame(diff = c(NA, diffy(vals, "secs")) * 1E6)$cast(pl$Int64)
+  )
 
-#   # nanoseconds
-#   df <- pl$DataFrame(date = pl$datetime_range(
-#     start = as.Date("2020-1-1"), end = as.POSIXct("2020-1-1 00:04:00", tz = "GMT"),
-#     interval = "1m"
-#   ))$with_columns(
-#     pl$col("date")$diff()$dt$total_nanoseconds()$alias("diff")
-#   )$to_list()
-#   expect_equal(df$diff, c(NA, diffy(df$date, "secs")) * 1E9)
-# })
+  # nanoseconds
+  df <- pl$DataFrame(date = vals)$select(
+    pl$col("date")$diff()$dt$total_nanoseconds()$alias("diff")
+  )
+  expect_equal(
+    df,
+    pl$DataFrame(diff = c(NA, diffy(vals, "secs")) * 1E9)$cast(pl$Int64)
+  )
+})
 
 test_that("$dt$time()", {
   df <- pl$DataFrame(

@@ -639,7 +639,7 @@ expr_dt_epoch <- function(time_unit = "us") {
 #' )
 expr_dt_timestamp <- function(tu = "ns") {
   wrap({
-    arg_match0(tu, values = c("ns", "us", "ms"))
+    tu <- arg_match0(tu, values = c("ns", "us", "ms"))
     self$`_rexpr`$dt_timestamp(tu)
   })
 }
@@ -668,7 +668,7 @@ expr_dt_timestamp <- function(tu = "ns") {
 #' )
 expr_dt_with_time_unit <- function(tu = "ns") {
   wrap({
-    arg_match0(tu, values = c("ns", "us", "ms"))
+    tu <- arg_match0(tu, values = c("ns", "us", "ms"))
     self$`_rexpr`$dt_with_time_unit(tu)
   })
 }
@@ -698,7 +698,7 @@ expr_dt_with_time_unit <- function(tu = "ns") {
 #' )
 expr_dt_cast_time_unit <- function(tu = "ns") {
   wrap({
-    arg_match0(tu, values = c("ns", "us", "ms"))
+    tu <- arg_match0(tu, values = c("ns", "us", "ms"))
     self$`_rexpr`$dt_cast_time_unit(tu)
   })
 }
