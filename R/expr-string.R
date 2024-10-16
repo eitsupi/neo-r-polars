@@ -621,8 +621,8 @@ expr_str_encode <- function(encoding) {
   wrap({
     arg_match0(encoding, values = c("hex", "base64"))
     switch(encoding,
-      "hex" = self$`_rexpr`$str_hex_encode(strict),
-      "base64" = self$`_rexpr`$str_base64_encode(strict),
+      "hex" = self$`_rexpr`$str_hex_encode(),
+      "base64" = self$`_rexpr`$str_base64_encode(),
       abort("Unreachable")
     )
   })

@@ -49,7 +49,7 @@
       Caused by error in `pl$col("a")$str$pad_end()`:
       ! Evaluation failed in `$pad_end()`.
       Caused by error:
-      ! Nevative value `-2.0` cannot be converted to usize
+      ! Negative value `-2.0` cannot be converted to usize
 
 ---
 
@@ -77,35 +77,7 @@
       Caused by error in `pl$col("a")$str$pad_start()`:
       ! Evaluation failed in `$pad_start()`.
       Caused by error:
-      ! Nevative value `-2.0` cannot be converted to usize
-
-# encode decode
-
-    Code
-      pl$lit("?")$str$decode("base64")$to_r()
-    Condition
-      Error in `pl$lit("?")$str$decode("base64")$to_r`:
-      ! $ - syntax error: `to_r` is not a member of this polars object
-
----
-
-    Code
-      pl$lit("?")$str$decode("invalid_name")
-    Condition
-      Error in `pl$lit("?")$str$decode()`:
-      ! Evaluation failed in `$decode()`.
-      Caused by error in `pl$lit("?")$str$decode()`:
-      ! `encoding` must be one of "hex" or "base64", not "invalid_name".
-
----
-
-    Code
-      pl$lit("?")$str$encode("invalid_name")
-    Condition
-      Error in `pl$lit("?")$str$encode()`:
-      ! Evaluation failed in `$encode()`.
-      Caused by error in `pl$lit("?")$str$encode()`:
-      ! `encoding` must be one of "hex" or "base64", not "invalid_name".
+      ! Negative value `-2.0` cannot be converted to usize
 
 # str$extract
 
