@@ -193,14 +193,12 @@ test_that("pl$date_range", {
 #   )
 # })
 
-
-# test_that("dt$strftime", {
-#   expect_equal(
-#     pl$lit(as.POSIXct("2021-01-02 12:13:14", tz = "GMT"))$dt$strftime("this is the year: %Y")$to_r(),
-#     "this is the year: 2021"
-#   )
-# })
-
+test_that("dt$strftime", {
+  expect_equal(
+    pl$DataFrame(x = as.POSIXct("2021-01-02 12:13:14", tz = "GMT"))$with_columns(pl$col("x")$dt$strftime("this is the year: %Y")),
+    pl$DataFrame(x = "this is the year: 2021")
+  )
+})
 
 test_that("dt$year iso_year", {
   df <- pl$DataFrame(
@@ -309,59 +307,66 @@ test_that("hour minute", {
 })
 
 
-# test_that("second, milli, micro, nano", {
-#   df <- pl$DataFrame(
-#     date = pl$datetime_range(
-#       as.Date("2020-12-25"),
-#       as.Date("2021-05-05"),
-#       interval = "2h3m4s555ms666us777ns",
-#       time_zone = "GMT",
-#       time_unit = "ns"
-#     )$to_series()
-#   )$with_columns(
-#     pl$col("date")$dt$second()$alias("second"),
-#     pl$col("date")$dt$second(fractional = TRUE)$alias("second_frac"),
-#     pl$col("date")$dt$millisecond()$alias("millisecond"),
-#     pl$col("date")$dt$microsecond()$alias("microsecond"),
-#     pl$col("date")$dt$nanosecond()$alias("nanosecond"),
-#     pl$col("date")$cast(pl$Float64)$alias("f64")
-#   )
+test_that("second, milli, micro, nano", {
+  df <- pl$DataFrame(
+    date = pl$datetime_range(
+      as.Date("2020-12-25"),
+      as.Date("2021-05-05"),
+      interval = "2h3m4s555ms666us777ns",
+      time_zone = "GMT",
+      time_unit = "ns"
+    )
+  )$with_columns(
+    pl$col("date")$dt$second()$alias("second"),
+    pl$col("date")$dt$second(fractional = TRUE)$alias("second_frac"),
+    pl$col("date")$dt$millisecond()$alias("millisecond"),
+    pl$col("date")$dt$microsecond()$alias("microsecond"),
+    pl$col("date")$dt$nanosecond()$alias("nanosecond"),
+    pl$col("date")$cast(pl$Float64)$alias("f64")
+  )
 
-#   # check s
-#   expect_equal(
-#     as.numeric(df$get_column("second")$to_r()),
-#     as.numeric(format(df$get_column("date")$to_r(), "%S"))
-#   )
-#   n <- df$get_column("f64")$to_r() / 1E9
-#   expect_equal(
-#     df$get_column("second_frac")$to_r(),
-#     as.numeric(format(df$get_column("date")$to_r(), "%S"))
-#     + n - floor(n)
-#   )
+  # check s
+  expect_equal(
+    df$select("second"),
+    pl$DataFrame(
+      !!!df$select(second = "date") |>
+        as.list() |>
+        lapply(format, "%S") |>
+        lapply(as.numeric)
+    )$cast(pl$Int8)
+  )
 
-#   # check millisecond versus micro nano
-#   expect_equal(
-#     floor(df$get_column("microsecond")$to_r() / 1000),
-#     as.numeric(df$get_column("millisecond")$to_r())
-#   )
-#   expect_equal(
-#     floor(df$get_column("nanosecond")$to_r() / 1000),
-#     as.numeric(df$get_column("microsecond")$to_r())
-#   )
+  # TODO-REWRITE: annoying to test
+  # n <- df$get_column("f64") / 1E9
+  # expect_equal(
+  #   df$get_column("second_frac"),
+  #   as.numeric(format(df$get_column("date"), "%S"))
+  #   + n - floor(n)
+  # )
+
+  # check millisecond versus micro nano
+  expect_equal(
+    df$select(millisecond = pl$col("microsecond") / 1000)$cast(pl$Int64),
+    df$select(pl$col("millisecond"))$cast(pl$Int64)
+  )
+  expect_equal(
+    df$select(microsecond = pl$col("nanosecond") / 1000)$cast(pl$Int64),
+    df$select(pl$col("microsecond"))$cast(pl$Int64)
+  )
 
 
-#   # TODO No longer TRUE since rust-polars 0.30 -> 0.32. Don't know why or of less or more correct.
-#   # check milli micro versus
-#   # n = df$get_column("f64")$to_r() / 1E9
-#   # expect_equal(
-#   #   round((n - floor(n)) * 1E3),
-#   #   as.numeric(df$get_column("millisecond")$to_r())
-#   # )
-#   # expect_equal(
-#   #   round((n - floor(n)) * 1E6),
-#   #   as.numeric(df$get_column("microsecond")$to_r())
-#   # )
-# })
+  # TODO No longer TRUE since rust-polars 0.30 -> 0.32. Don't know why or of less or more correct.
+  # check milli micro versus
+  # n = df$get_column("f64")$to_r() / 1E9
+  # expect_equal(
+  #   round((n - floor(n)) * 1E3),
+  #   as.numeric(df$get_column("millisecond")$to_r())
+  # )
+  # expect_equal(
+  #   round((n - floor(n)) * 1E6),
+  #   as.numeric(df$get_column("microsecond")$to_r())
+  # )
+})
 
 # test_that("offset_by", {
 #   df <- pl$DataFrame(

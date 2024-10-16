@@ -103,6 +103,7 @@ expr_dt_replace_time_zone <- function(
   })
 }
 
+
 #' Truncate datetime
 #' @description  Divide the date/datetime range into buckets.
 #' Each date/datetime is mapped to the start of its bucket.
@@ -511,7 +512,7 @@ expr_dt_second <- function(fractional = FALSE) {
   wrap({
     sec <- self$`_rexpr`$dt_second()
     if (fractional) {
-      sec + self$`_rexpr`$dt_nanosecond() / pl$lit(1E9)
+      sec$add(self$`_rexpr`$dt_nanosecond()$div(pl$lit(1E9)$`_rexpr`))
     } else {
       sec
     }
