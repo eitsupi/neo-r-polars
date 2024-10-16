@@ -2,14 +2,12 @@
 % Please edit documentation in R/expr-expr.R
 \name{polars_expr}
 \alias{polars_expr}
-\alias{Expr}
-\alias{expression}
 \title{Polars expression class (\code{polars_expr})}
 \description{
 An expression is a tree of operations that describe how to construct one or more \link{Series}.
 As the outputs are \link{Series}, it is straightforward to apply a sequence of expressions each of
 which transforms the output from the previous step.
-See examples for details.
+See examples for details. expression
 }
 \examples{
 # An expression:
