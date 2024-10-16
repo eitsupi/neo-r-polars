@@ -4,11 +4,11 @@
 \alias{expr_bin_size}
 \title{Get the size of binary values in the given unit}
 \usage{
-expr_bin_size(unit = "b")
+expr_bin_size(unit = c("b", "kb", "mb", "gb", "tb"))
 }
 \arguments{
 \item{unit}{Scale the returned size to the given unit. Can be \code{"b"}, \code{"kb"},
-\code{"mb"}, \code{"gb"}, \code{"tb"}, or their full names (\code{"kilobytes"}, etc.).}
+\code{"mb"}, \code{"gb"}, \code{"tb"}.}
 }
 \value{
 A polars \link{expression}

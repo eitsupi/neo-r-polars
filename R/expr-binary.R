@@ -153,7 +153,7 @@ expr_bin_encode <- function(encoding) {
 #' Get the size of binary values in the given unit
 #'
 #' @param unit Scale the returned size to the given unit. Can be `"b"`, `"kb"`,
-#' `"mb"`, `"gb"`, `"tb"`, or their full names (`"kilobytes"`, etc.).
+#' `"mb"`, `"gb"`, `"tb"`.
 #'
 #' @inherit as_polars_expr return
 #'
@@ -167,27 +167,16 @@ expr_bin_encode <- function(encoding) {
 #'   n_bytes = pl$col("code_hex")$bin$size(),
 #'   n_kilobytes = pl$col("code_hex")$bin$size("kb")
 #' )
-expr_bin_size <- function(unit = "b") {
+expr_bin_size <- function(unit = c("b", "kb", "mb", "gb", "tb")) {
   wrap({
-    arg_match0(unit, values = c(
-      "b", "bytes",
-      "kb", "kilobytes",
-      "mb", "megabytes",
-      "gb", "gigabytes",
-      "tb", "terabytes"
-    ))
+    unit <- arg_match0(unit, values = c("b", "kb", "mb", "gb", "tb"))
     sz <- self$`_rexpr`$bin_size_bytes()
     switch(unit,
-      "b" = ,
-      "bytes" = sz,
-      "kb" = ,
-      "kilobytes" = sz$div(as_polars_expr(1024)$`_rexpr`),
-      "mb" = ,
-      "megabytes" = sz$div(as_polars_expr(1024**2)$`_rexpr`),
-      "gb" = ,
-      "gigabytes" = sz$div(as_polars_expr(1024**3)$`_rexpr`),
-      "tb" = ,
-      "terabytes" = sz$div(as_polars_expr(1024**4)$`_rexpr`),
+      "b" = sz,
+      "kb" = sz$div(as_polars_expr(1024)$`_rexpr`),
+      "mb" = sz$div(as_polars_expr(1024**2)$`_rexpr`),
+      "gb" = sz$div(as_polars_expr(1024**3)$`_rexpr`),
+      "tb" = sz$div(as_polars_expr(1024**4)$`_rexpr`),
       abort("unreachable")
     )
   })
