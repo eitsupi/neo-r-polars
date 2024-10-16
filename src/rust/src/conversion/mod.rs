@@ -363,3 +363,18 @@ impl TryFrom<&str> for Wrap<WindowMapping> {
         Ok(Wrap(parsed))
     }
 }
+
+impl TryFrom<&str> for Wrap<ClosedWindow> {
+    type Error = String;
+
+    fn try_from(closed: &str) -> Result<Self, String> {
+        let parsed = match closed {
+            "both" => ClosedWindow::Both,
+            "left" => ClosedWindow::Left,
+            "none" => ClosedWindow::None,
+            "right" => ClosedWindow::Right,
+            v => return Err(format!("unreachable",)),
+        };
+        Ok(Wrap(parsed))
+    }
+}

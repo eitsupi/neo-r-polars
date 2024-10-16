@@ -37,6 +37,7 @@ features = [
     "offset_by",
     "parquet",
     "propagate_nans",
+    "range",
     "serde",
     "serde-lazy",
     "streaming",

@@ -12,6 +12,14 @@ SEXP savvy_lit_from_raw__ffi(SEXP c_arg__value);
 SEXP savvy_lit_null__ffi(void);
 SEXP savvy_lit_from_series__ffi(SEXP c_arg__value);
 SEXP savvy_lit_from_series_first__ffi(SEXP c_arg__value);
+SEXP savvy_int_range__ffi(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__step, SEXP c_arg__dtype);
+SEXP savvy_int_ranges__ffi(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__step, SEXP c_arg__dtype);
+SEXP savvy_date_range__ffi(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__interval, SEXP c_arg__closed);
+SEXP savvy_date_ranges__ffi(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__interval, SEXP c_arg__closed);
+SEXP savvy_datetime_range__ffi(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__every, SEXP c_arg__closed, SEXP c_arg__time_unit, SEXP c_arg__time_zone);
+SEXP savvy_datetime_ranges__ffi(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__every, SEXP c_arg__closed, SEXP c_arg__time_unit, SEXP c_arg__time_zone);
+SEXP savvy_time_range__ffi(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__every, SEXP c_arg__closed);
+SEXP savvy_time_ranges__ffi(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__every, SEXP c_arg__closed);
 SEXP savvy_when__ffi(SEXP c_arg__condition);
 
 // methods and associated functions for PlRChainedThen

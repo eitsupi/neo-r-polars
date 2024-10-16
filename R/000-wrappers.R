@@ -96,6 +96,63 @@ NULL
 }
 
 
+`int_range` <- function(`start`, `end`, `step`, `dtype`) {
+  `start` <- .savvy_extract_ptr(`start`, "PlRExpr")
+  `end` <- .savvy_extract_ptr(`end`, "PlRExpr")
+  .savvy_wrap_PlRExpr(.Call(savvy_int_range__impl, `start`, `end`, `step`, `dtype`))
+}
+
+
+`int_ranges` <- function(`start`, `end`, `step`, `dtype`) {
+  `start` <- .savvy_extract_ptr(`start`, "PlRExpr")
+  `end` <- .savvy_extract_ptr(`end`, "PlRExpr")
+  `step` <- .savvy_extract_ptr(`step`, "PlRExpr")
+  .savvy_wrap_PlRExpr(.Call(savvy_int_ranges__impl, `start`, `end`, `step`, `dtype`))
+}
+
+
+`date_range` <- function(`start`, `end`, `interval`, `closed`) {
+  `start` <- .savvy_extract_ptr(`start`, "PlRExpr")
+  `end` <- .savvy_extract_ptr(`end`, "PlRExpr")
+  .savvy_wrap_PlRExpr(.Call(savvy_date_range__impl, `start`, `end`, `interval`, `closed`))
+}
+
+
+`date_ranges` <- function(`start`, `end`, `interval`, `closed`) {
+  `start` <- .savvy_extract_ptr(`start`, "PlRExpr")
+  `end` <- .savvy_extract_ptr(`end`, "PlRExpr")
+  .savvy_wrap_PlRExpr(.Call(savvy_date_ranges__impl, `start`, `end`, `interval`, `closed`))
+}
+
+
+`datetime_range` <- function(`start`, `end`, `every`, `closed`, `time_unit` = NULL, `time_zone` = NULL) {
+  `start` <- .savvy_extract_ptr(`start`, "PlRExpr")
+  `end` <- .savvy_extract_ptr(`end`, "PlRExpr")
+  .savvy_wrap_PlRExpr(.Call(savvy_datetime_range__impl, `start`, `end`, `every`, `closed`, `time_unit`, `time_zone`))
+}
+
+
+`datetime_ranges` <- function(`start`, `end`, `every`, `closed`, `time_unit` = NULL, `time_zone` = NULL) {
+  `start` <- .savvy_extract_ptr(`start`, "PlRExpr")
+  `end` <- .savvy_extract_ptr(`end`, "PlRExpr")
+  .savvy_wrap_PlRExpr(.Call(savvy_datetime_ranges__impl, `start`, `end`, `every`, `closed`, `time_unit`, `time_zone`))
+}
+
+
+`time_range` <- function(`start`, `end`, `every`, `closed`) {
+  `start` <- .savvy_extract_ptr(`start`, "PlRExpr")
+  `end` <- .savvy_extract_ptr(`end`, "PlRExpr")
+  .savvy_wrap_PlRExpr(.Call(savvy_time_range__impl, `start`, `end`, `every`, `closed`))
+}
+
+
+`time_ranges` <- function(`start`, `end`, `every`, `closed`) {
+  `start` <- .savvy_extract_ptr(`start`, "PlRExpr")
+  `end` <- .savvy_extract_ptr(`end`, "PlRExpr")
+  .savvy_wrap_PlRExpr(.Call(savvy_time_ranges__impl, `start`, `end`, `every`, `closed`))
+}
+
+
 `when` <- function(`condition`) {
   `condition` <- .savvy_extract_ptr(`condition`, "PlRExpr")
   .savvy_wrap_PlRWhen(.Call(savvy_when__impl, `condition`))

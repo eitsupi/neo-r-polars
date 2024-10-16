@@ -104,6 +104,46 @@ SEXP savvy_lit_from_series_first__impl(SEXP c_arg__value) {
     return handle_result(res);
 }
 
+SEXP savvy_int_range__impl(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__step, SEXP c_arg__dtype) {
+    SEXP res = savvy_int_range__ffi(c_arg__start, c_arg__end, c_arg__step, c_arg__dtype);
+    return handle_result(res);
+}
+
+SEXP savvy_int_ranges__impl(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__step, SEXP c_arg__dtype) {
+    SEXP res = savvy_int_ranges__ffi(c_arg__start, c_arg__end, c_arg__step, c_arg__dtype);
+    return handle_result(res);
+}
+
+SEXP savvy_date_range__impl(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__interval, SEXP c_arg__closed) {
+    SEXP res = savvy_date_range__ffi(c_arg__start, c_arg__end, c_arg__interval, c_arg__closed);
+    return handle_result(res);
+}
+
+SEXP savvy_date_ranges__impl(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__interval, SEXP c_arg__closed) {
+    SEXP res = savvy_date_ranges__ffi(c_arg__start, c_arg__end, c_arg__interval, c_arg__closed);
+    return handle_result(res);
+}
+
+SEXP savvy_datetime_range__impl(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__every, SEXP c_arg__closed, SEXP c_arg__time_unit, SEXP c_arg__time_zone) {
+    SEXP res = savvy_datetime_range__ffi(c_arg__start, c_arg__end, c_arg__every, c_arg__closed, c_arg__time_unit, c_arg__time_zone);
+    return handle_result(res);
+}
+
+SEXP savvy_datetime_ranges__impl(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__every, SEXP c_arg__closed, SEXP c_arg__time_unit, SEXP c_arg__time_zone) {
+    SEXP res = savvy_datetime_ranges__ffi(c_arg__start, c_arg__end, c_arg__every, c_arg__closed, c_arg__time_unit, c_arg__time_zone);
+    return handle_result(res);
+}
+
+SEXP savvy_time_range__impl(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__every, SEXP c_arg__closed) {
+    SEXP res = savvy_time_range__ffi(c_arg__start, c_arg__end, c_arg__every, c_arg__closed);
+    return handle_result(res);
+}
+
+SEXP savvy_time_ranges__impl(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__every, SEXP c_arg__closed) {
+    SEXP res = savvy_time_ranges__ffi(c_arg__start, c_arg__end, c_arg__every, c_arg__closed);
+    return handle_result(res);
+}
+
 SEXP savvy_when__impl(SEXP c_arg__condition) {
     SEXP res = savvy_when__ffi(c_arg__condition);
     return handle_result(res);
@@ -1240,6 +1280,14 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_lit_null__impl", (DL_FUNC) &savvy_lit_null__impl, 0},
     {"savvy_lit_from_series__impl", (DL_FUNC) &savvy_lit_from_series__impl, 1},
     {"savvy_lit_from_series_first__impl", (DL_FUNC) &savvy_lit_from_series_first__impl, 1},
+    {"savvy_int_range__impl", (DL_FUNC) &savvy_int_range__impl, 4},
+    {"savvy_int_ranges__impl", (DL_FUNC) &savvy_int_ranges__impl, 4},
+    {"savvy_date_range__impl", (DL_FUNC) &savvy_date_range__impl, 4},
+    {"savvy_date_ranges__impl", (DL_FUNC) &savvy_date_ranges__impl, 4},
+    {"savvy_datetime_range__impl", (DL_FUNC) &savvy_datetime_range__impl, 6},
+    {"savvy_datetime_ranges__impl", (DL_FUNC) &savvy_datetime_ranges__impl, 6},
+    {"savvy_time_range__impl", (DL_FUNC) &savvy_time_range__impl, 4},
+    {"savvy_time_ranges__impl", (DL_FUNC) &savvy_time_ranges__impl, 4},
     {"savvy_when__impl", (DL_FUNC) &savvy_when__impl, 1},
     {"savvy_PlRChainedThen_when__impl", (DL_FUNC) &savvy_PlRChainedThen_when__impl, 2},
     {"savvy_PlRChainedThen_otherwise__impl", (DL_FUNC) &savvy_PlRChainedThen_otherwise__impl, 2},
