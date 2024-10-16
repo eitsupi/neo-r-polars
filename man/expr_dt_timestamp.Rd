@@ -5,7 +5,7 @@
 \alias{(Expr)$dt$timestamp}
 \title{timestamp}
 \usage{
-expr_dt_timestamp(tu = c("ns", "us", "ms"))
+expr_dt_timestamp(tu = "ns")
 }
 \arguments{
 \item{tu}{string option either 'ns', 'us', or 'ms'}

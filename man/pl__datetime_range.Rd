@@ -37,7 +37,7 @@ data type. One of \code{"ns"}, \code{"us"}, \code{"ms"} or \code{NULL}}
 data type.}
 }
 \value{
-An \link[=Expr_class]{Expr} of data type \link[=DataType_Datetime]{Datetime}
+A polars \link{expression}
 }
 \description{
 Generate a datetime range

@@ -5,7 +5,7 @@
 \alias{(Expr)$dt$cast_time_unit}
 \title{cast_time_unit}
 \usage{
-expr_dt_cast_time_unit(tu = c("ns", "us", "ms"))
+expr_dt_cast_time_unit(tu = "ns")
 }
 \arguments{
 \item{tu}{string option either 'ns', 'us', or 'ms'}

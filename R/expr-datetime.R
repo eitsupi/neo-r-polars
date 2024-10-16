@@ -666,10 +666,10 @@ expr_dt_timestamp <- function(tu = "ns") {
 #'   pl$col("date")$dt$with_time_unit()$alias("with_time_unit_ns"),
 #'   pl$col("date")$dt$with_time_unit(tu = "ms")$alias("with_time_unit_ms")
 #' )
-expr_dt_with_time_unit <- function(tu = c("ns", "us", "ms")) {
+expr_dt_with_time_unit <- function(tu = "ns") {
   wrap({
     arg_match0(tu, values = c("ns", "us", "ms"))
-    self$`_rexpr`$  self$`_rexpr`$dt_with_time_unit(tu)
+    self$`_rexpr`$dt_with_time_unit(tu)
   })
 }
 
@@ -696,7 +696,7 @@ expr_dt_with_time_unit <- function(tu = c("ns", "us", "ms")) {
 #'   pl$col("date")$dt$cast_time_unit()$alias("cast_time_unit_ns"),
 #'   pl$col("date")$dt$cast_time_unit(tu = "ms")$alias("cast_time_unit_ms")
 #' )
-expr_dt_cast_time_unit <- function(tu = c("ns", "us", "ms")) {
+expr_dt_cast_time_unit <- function(tu = "ns") {
   wrap({
     arg_match0(tu, values = c("ns", "us", "ms"))
     self$`_rexpr`$dt_cast_time_unit(tu)

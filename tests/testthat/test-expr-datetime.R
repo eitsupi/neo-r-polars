@@ -508,69 +508,71 @@ test_that("dt$timestamp", {
 })
 
 
-# test_that("dt$with_time_unit cast_time_unit", {
-#   df_time <- pl$DataFrame(
-#     date = pl$datetime_range(
-#       start = as.POSIXct("2001-1-1"), end = as.POSIXct("2001-1-3"), interval = "1d", time_unit = "us"
-#     )
-#   )$select(
-#     pl$col("date"),
-#     pl$col("date")$dt$cast_time_unit()$alias("cast_time_unit_ns"),
-#     pl$col("date")$dt$cast_time_unit(tu = "us")$alias("cast_time_unit_us"),
-#     pl$col("date")$dt$cast_time_unit(tu = "ms")$alias("cast_time_unit_ms"),
-#     pl$col("date")$dt$with_time_unit()$alias("with_time_unit_ns"),
-#     pl$col("date")$dt$with_time_unit(tu = "us")$alias("with_time_unit_us"),
-#     pl$col("date")$dt$with_time_unit(tu = "ms")$alias("with_time_unit_ms")
-#   )
+test_that("dt$with_time_unit cast_time_unit", {
+  df_time <- pl$DataFrame(
+    date = pl$datetime_range(
+      start = as.POSIXct("2001-1-1"), end = as.POSIXct("2001-1-3"), interval = "1d", time_unit = "us"
+    )
+  )$select(
+    pl$col("date"),
+    pl$col("date")$dt$cast_time_unit()$alias("cast_time_unit_ns"),
+    pl$col("date")$dt$cast_time_unit(tu = "us")$alias("cast_time_unit_us"),
+    pl$col("date")$dt$cast_time_unit(tu = "ms")$alias("cast_time_unit_ms"),
+    pl$col("date")$dt$with_time_unit()$alias("with_time_unit_ns"),
+    pl$col("date")$dt$with_time_unit(tu = "us")$alias("with_time_unit_us"),
+    pl$col("date")$dt$with_time_unit(tu = "ms")$alias("with_time_unit_ms")
+  )
 
-#   l_exp <- df_time$select(
-#     pl$all()$cast(pl$Float64)
-#   )$to_list()
+  df_time_num <- df_time$cast(pl$Float64)
 
+  # cast time unit changes the value
+  expect_equal(
+    df_time_num$select("cast_time_unit_ns"),
+    df_time_num$select(cast_time_unit_ns = pl$col("cast_time_unit_us") * 1E3)
+  )
+  expect_equal(
+    df_time_num$select("cast_time_unit_us"),
+    df_time_num$select(cast_time_unit_us = pl$col("cast_time_unit_ms") * 1E3)
+  )
+  # with does not
+  expect_equal(
+    df_time_num$select("with_time_unit_ns"),
+    df_time_num$select(with_time_unit_ns = "with_time_unit_us")
+  )
+  expect_equal(
+    df_time_num$select("with_time_unit_us"),
+    df_time_num$select(with_time_unit_us = "with_time_unit_ms")
+  )
 
-#   # cast time unit changes the value
-#   expect_equal(l_exp$cast_time_unit_ns, l_exp$cast_time_unit_us * 1E3)
-#   expect_equal(l_exp$cast_time_unit_us, l_exp$cast_time_unit_ms * 1E3)
+  # both with and cast change the value
+  types <- df_time$schema
+  expect_true(types$with_time_unit_ns$eq(pl$Datetime("ns")))
+  expect_true(types$with_time_unit_us$eq(pl$Datetime("us")))
+  expect_true(types$with_time_unit_ms$eq(pl$Datetime("ms")))
 
-#   # with does not
-#   expect_equal(l_exp$with_time_unit_ns, l_exp$with_time_unit_us)
-#   expect_equal(l_exp$with_time_unit_us, l_exp$with_time_unit_ms)
+  expect_true(types$cast_time_unit_ns$eq(pl$Datetime("ns")))
+  expect_true(types$cast_time_unit_us$eq(pl$Datetime("us")))
+  expect_true(types$cast_time_unit_ms$eq(pl$Datetime("ms")))
 
-#   # both with and cast change the value
-#   types <- df_time$schema
-#   expect_true(types$with_time_unit_ns == pl$Datetime("ns"))
-#   expect_true(types$with_time_unit_us == pl$Datetime("us"))
-#   expect_true(types$with_time_unit_ms == pl$Datetime("ms"))
-
-#   expect_true(types$cast_time_unit_ns == pl$Datetime("ns"))
-#   expect_true(types$cast_time_unit_us == pl$Datetime("us"))
-#   expect_true(types$cast_time_unit_ms == pl$Datetime("ms"))
-
-#   # cast wrong inputs
-#   expect_snapshot(
-#   as_polars_series(as.Date("2022-1-1"))$dt$cast_time_unit("bob"),
-#   error = TRUE
-# )
-
-#   expect_snapshot(
-#   as_polars_series(as.Date("2022-1-1"))$dt$cast_time_unit(42),
-#   error = TRUE
-# )
-
-
-#   # with wrong inputs
-#   expect_snapshot(
-#   as_polars_series(as.Date("2022-1-1"))$dt$with_time_unit("bob"),
-#   error = TRUE
-# )
-
-
-#   expect_snapshot(
-#   as_polars_series(as.Date("2022-1-1"))$dt$with_time_unit(42),
-#   error = TRUE
-# )
-
-# })
+  # cast wrong inputs
+  expect_snapshot(
+    as_polars_series(as.Date("2022-1-1"))$dt$cast_time_unit("bob"),
+    error = TRUE
+  )
+  expect_snapshot(
+    as_polars_series(as.Date("2022-1-1"))$dt$cast_time_unit(42),
+    error = TRUE
+  )
+  # with wrong inputs
+  expect_snapshot(
+    as_polars_series(as.Date("2022-1-1"))$dt$with_time_unit("bob"),
+    error = TRUE
+  )
+  expect_snapshot(
+    as_polars_series(as.Date("2022-1-1"))$dt$with_time_unit(42),
+    error = TRUE
+  )
+})
 
 # test_that("$convert_time_zone() works", {
 #   df_time <- pl$DataFrame(

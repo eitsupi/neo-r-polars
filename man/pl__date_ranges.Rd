@@ -23,8 +23,7 @@ See the \verb{Polars duration string language} section for details.}
 One of the followings: \code{"both"} (default), \code{"left"}, \code{"right"}, \code{"none"}.}
 }
 \value{
-An \link[=Expr_class]{Expr} of data type List(Date) or
-List(\link[=DataType_Datetime]{Datetime})
+A polars \link{expression}
 }
 \description{
 If both \code{start} and \code{end} are passed as the Date types (not Datetime), and
