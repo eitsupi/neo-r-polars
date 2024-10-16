@@ -59,6 +59,4 @@ df2 <- df$with_columns(
 df2
 
 df2$unnest()
-
-df2$to_list()
 }
