@@ -1,3 +1,19 @@
+# dt$round
+
+    Code
+      pl$col("datetime")$dt$round(42)
+    Condition
+      Error in `pl$col("datetime")$dt$round()`:
+      ! `every` must be a single non-NA character or difftime.
+
+---
+
+    Code
+      pl$col("datetime")$dt$round(c("2s", "1h"))
+    Condition
+      Error in `pl$col("datetime")$dt$round()`:
+      ! `every` must be a single non-NA character or difftime.
+
 # dt$epoch
 
     Code

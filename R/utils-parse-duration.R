@@ -51,13 +51,19 @@ parse_as_polars_duration_string <- function(x, default = NULL, ...) {
 
 #' @exportS3Method
 parse_as_polars_duration_string.default <- function(x, default = NULL, ...) {
-  abort(paste0("`", deparse(substitute(x)), "` must be a single non-NA character or difftime."))
+  abort(
+    paste0("`", deparse(substitute(x)), "` must be a single non-NA character or difftime."),
+    call = caller_env()
+  )
 }
 
 #' @exportS3Method
 parse_as_polars_duration_string.character <- function(x, default = NULL, ...) {
   if (length(x) != 1L) {
-    abort(paste0("`", deparse(substitute(x)), "` must be a single non-NA character or difftime."))
+    abort(
+      paste0("`", deparse(substitute(x)), "` must be a single non-NA character or difftime."),
+      call = caller_env()
+    )
   }
   x
 }
@@ -65,7 +71,10 @@ parse_as_polars_duration_string.character <- function(x, default = NULL, ...) {
 #' @exportS3Method
 parse_as_polars_duration_string.difftime <- function(x, default = NULL, ...) {
   if (length(x) != 1L) {
-    abort(paste0("`", deparse(substitute(x)), "` must be a single non-NA character or difftime."))
+    abort(
+      paste0("`", deparse(substitute(x)), "` must be a single non-NA character or difftime."),
+      call = caller_env()
+    )
   }
   difftime_to_duration_string(x)
 }

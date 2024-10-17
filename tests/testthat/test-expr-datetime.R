@@ -94,57 +94,41 @@ test_that("pl$date_range", {
   )
 })
 
-# test_that("dt$truncate", {
-#   # make a datetime
-#   t1 <- as.POSIXct("3040-01-01", tz = "GMT")
-#   t2 <- t1 + as.difftime(25, units = "secs")
-#   s <- pl$datetime_range(t1, t2, interval = "2s", time_unit = "ms")
+test_that("dt$truncate", {
+  t1 <- as.POSIXct("2020-01-01", tz = "GMT")
+  t2 <- t1 + as.difftime(59, units = "secs")
+  s <- pl$datetime_range(t1, t2, interval = "5s", time_unit = "ms")
+  df <- pl$DataFrame(datetime = s)$with_columns(
+    pl$col("datetime")$dt$truncate("15s")$alias("truncated_15s")
+  )
 
-#   # use a dt namespace function
-#   df <- pl$DataFrame(datetime = s)$with_columns(
-#     pl$col("datetime")$dt$truncate("4s")$alias("truncated_4s")
-#   )
+  expect_equal(
+    df$select(pl$col("truncated_15s")$dt$second()),
+    pl$DataFrame(truncated_15s = rep(seq(0, 45, by = 15), each = 3))$cast(pl$Int8)
+  )
+})
 
-#   l_actual <- df$to_list()
-#   expect_equal(
-#     lapply(l_actual, \(x) diff(x) |> as.numeric()),
-#     list(
-#       datetime = rep(2, 12),
-#       truncated_4s = rep(c(0, 4), 6)
-#     )
-#   )
-# })
+test_that("dt$round", {
+  t1 <- as.POSIXct("2020-01-01", tz = "GMT")
+  t2 <- t1 + as.difftime(59, units = "secs")
+  s <- pl$datetime_range(t1, t2, interval = "5s", time_unit = "ms")
+  df <- pl$DataFrame(datetime = s)$with_columns(
+    pl$col("datetime")$dt$round("15s")$alias("rounded_15s")
+  )
+  expect_equal(
+    df$select(pl$col("rounded_15s")$dt$second()),
+    pl$DataFrame(rounded_15s = c(0, 0, 15, 15, 15, 30, 30, 30, 45, 45, 45, 0))$cast(pl$Int8)
+  )
 
-
-# test_that("dt$round", {
-#   # make a datetime
-#   t1 <- as.POSIXct("3040-01-01", tz = "GMT")
-#   t2 <- t1 + as.difftime(24, units = "secs")
-#   s <- pl$datetime_range(t1, t2, interval = "2s", time_unit = "ms")
-
-#   # use a dt namespace function
-#   df <- pl$DataFrame(datetime = s)$with_columns(
-#     pl$col("datetime")$dt$round("8s")$alias("truncated_4s")
-#   )
-
-#   l_actual <- df$to_list()
-#   expect_equal(
-#     lapply(l_actual, \(x) diff(x) |> as.numeric()),
-#     list(
-#       datetime = rep(2, 12),
-#       truncated_4s = rep(c(0, 8, 0, 0), 3)
-#     )
-#   )
-
-#   expect_grepl_error(
-#     pl$col("datetime")$dt$round(42),
-#     "`every` must be a single non-NA character or difftime"
-#   )
-#   expect_grepl_error(
-#     pl$col("datetime")$dt$round(c("2s", "1h")),
-#     "`every` must be a single non-NA character or difftime"
-#   )
-# })
+  expect_snapshot(
+    pl$col("datetime")$dt$round(42),
+    error = TRUE
+  )
+  expect_snapshot(
+    pl$col("datetime")$dt$round(c("2s", "1h")),
+    error = TRUE
+  )
+})
 
 # test_that("dt$combine", {
 #   # Using pl$PTime
