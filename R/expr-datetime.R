@@ -900,7 +900,7 @@ expr_dt_total_nanoseconds <- function() {
 #'
 #' df$with_columns(new_dates = pl$col("dates")$dt$offset_by(pl$col("offset")))
 expr_dt_offset_by <- function(by) {
-  self$`_rexpr`$dt_offset_by(by) |>
+  self$`_rexpr`$dt_offset_by(as_polars_expr(by, as_lit = TRUE)$`_rexpr`) |>
     wrap()
 }
 

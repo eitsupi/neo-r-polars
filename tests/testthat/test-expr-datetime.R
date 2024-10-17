@@ -130,14 +130,13 @@ test_that("dt$round", {
   )
 })
 
+# TODO-REWRITE: requires pl$PTime
 # test_that("dt$combine", {
 #   # Using pl$PTime
 #   expect_equal(
 #     (
-#       pl$lit(as.Date("2021-01-01"))
-#       $dt$combine(pl$PTime("02:34:12"))
-#       $cast(pl$Datetime("us", "GMT"))
-#       $to_r()
+#       pl$DataFrame(x = as.Date("2021-01-01"))$with_columns(pl$col("x")$dt$combine(pl$PTime("02:34:12"))
+#       $cast(pl$Datetime("us", "GMT")))
 #     ),
 #     as.POSIXct("2021-01-01 02:34:12", tz = "GMT")
 #   )
@@ -147,7 +146,6 @@ test_that("dt$round", {
 #       pl$lit(as.Date("2021-01-01"))
 #       $dt$combine(pl$PTime(3600 * 1.5E3, tu = "ms"))
 #       $cast(pl$Datetime("us", "GMT"))
-#       $to_r()
 #     ),
 #     as.POSIXct("2021-01-01 01:30:00", tz = "GMT")
 #   )
@@ -157,7 +155,6 @@ test_that("dt$round", {
 #       pl$lit(as.Date("2021-01-01"))
 #       $dt$combine(3600 * 1.5E9, time_unit = "ns")
 #       $cast(pl$Datetime("us", "GMT"))
-#       $to_r()
 #     ),
 #     as.POSIXct("2021-01-01 01:30:00", tz = "GMT")
 #   )
@@ -172,8 +169,9 @@ test_that("dt$round", {
 #     as.POSIXct("2020-12-31 22:30:00", tz = "GMT")
 #   )
 
-#   expect_grepl_error(
-#     pl$lit(as.Date("2021-01-01"))$dt$combine(1, time_unit = "s")
+#   expect_snapshot(
+#     pl$lit(as.Date("2021-01-01"))$dt$combine(1, time_unit = "s"),
+#     error = TRUE
 #   )
 # })
 
@@ -352,81 +350,74 @@ test_that("second, milli, micro, nano", {
   # )
 })
 
-# test_that("offset_by", {
-#   df <- pl$DataFrame(
-#     dates = pl$date_range(
-#       as.Date("2000-1-1"), as.Date("2005-1-1"), "1y"
-#     )
-#   )
-#   l_actual <- df$with_columns(
-#     pl$col("dates")$dt$offset_by("1y")$alias("date_plus_1y"),
-#     pl$col("dates")$dt$offset_by("-1y2mo")$alias("date_min")
-#   )$to_list()
+test_that("offset_by", {
+  vals <- c(
+    as.Date("2000-1-1"), as.Date("2000-1-2"), as.Date("2000-1-3"),
+    as.Date("2000-1-4"), as.Date("2000-1-5")
+  )
+  df <- pl$DataFrame(dates = vals)
+  l_actual <- df$with_columns(
+    pl$col("dates")$dt$offset_by("1y")$alias("date_plus_1y"),
+    pl$col("dates")$dt$offset_by("-1y2mo")$alias("date_min")
+  )
 
+  # helper function to add whole years and months
+  add_yemo <- \(dates, years, months) {
+    as.POSIXlt(dates) |>
+      unclass() |>
+      (\(x) {
+        l_ym <- mapply(y = x$year, m = x$mon, FUN = \(y, m) {
+          y <- y + years
+          m <- m + months
+          if (m < 0L) {
+            y <- y - 1L
+            m <- m + 12L
+          }
+          if (m >= 12L) {
+            y <- y + 1L
+            m <- m - 12L
+          }
+          c(y, m)
+        }, SIMPLIFY = FALSE)
 
-#   # helper function to add whole years and months
-#   add_yemo <- \(dates, years, months) {
-#     as.POSIXlt(dates) |>
-#       unclass() |>
-#       (\(x) {
-#         l_ym <- mapply(y = x$year, m = x$mon, FUN = \(y, m) {
-#           y <- y + years
-#           m <- m + months
-#           if (m < 0L) {
-#             y <- y - 1L
-#             m <- m + 12L
-#           }
-#           if (m >= 12L) {
-#             y <- y + 1L
-#             m <- m - 12L
-#           }
-#           c(y, m)
-#         }, SIMPLIFY = FALSE)
+        x$year <- l_ym |> sapply(head, 1)
+        x$mon <- l_ym |> sapply(tail, 1)
+        class(x) <- "POSIXlt"
+        x
+      })() |>
+      as.Date()
+  }
 
-#         x$year <- l_ym |> sapply(head, 1)
-#         x$mon <- l_ym |> sapply(tail, 1)
-#         class(x) <- "POSIXlt"
-#         x
-#       })() |>
-#       as.Date()
-#   }
+  # compute offset_by with base R
+  l_expected <- pl$DataFrame(
+    dates = vals,
+    date_plus_1y = add_yemo(vals, 1, 0),
+    date_min = add_yemo(vals, -1, -2)
+  )
 
-#   # compute offset_by with base R
-#   dates <- df$to_list()$dates
-#   l_expected <- list(
-#     dates = dates,
-#     date_plus_1y = add_yemo(dates, 1, 0),
-#     date_min = add_yemo(dates, -1, -2)
-#   )
+  # compare
+  expect_equal(l_actual, l_expected)
 
-#   # compare
-#   expect_equal(
-#     l_actual,
-#     l_expected
-#   )
-
-#   # using expression in arg "by"
-#   df <- pl$DataFrame(
-#     dates = pl$datetime_range(
-#       as.POSIXct("2022-01-01", tz = "GMT"),
-#       as.POSIXct("2022-01-02", tz = "GMT"),
-#       interval = "6h", time_unit = "ms", time_zone = "GMT"
-#     )$to_r(),
-#     offset = c("1d", "-2d", "1mo", NA, "1y")
-#   )
-#   expect_equal(
-#     df$with_columns(pl$col("dates")$dt$offset_by(pl$col("offset")))$to_data_frame()[["dates"]],
-#     as.POSIXct(
-#       c(
-#         "2022-01-02 00:00:00", "2021-12-30 06:00:00", "2022-02-01 12:00:00", NA,
-#         "2023-01-02 00:00:00"
-#       ),
-#       tz = "GMT"
-#     )
-#   )
-# })
-
-
+  # using expression in arg "by"
+  df <- pl$DataFrame(
+    dates = pl$datetime_range(
+      as.POSIXct("2022-01-01", tz = "GMT"),
+      as.POSIXct("2022-01-02", tz = "GMT"),
+      interval = "6h", time_unit = "ms", time_zone = "GMT"
+    ),
+    offset = c("1d", "-2d", "1mo", NA, "1y")
+  )
+  expect_equal(
+    df$select(pl$col("dates")$dt$offset_by(pl$col("offset"))),
+    pl$DataFrame(dates = as.POSIXct(
+      c(
+        "2022-01-02 00:00:00", "2021-12-30 06:00:00", "2022-02-01 12:00:00", NA,
+        "2023-01-02 00:00:00"
+      ),
+      tz = "GMT"
+    ))
+  )
+})
 
 test_that("dt$epoch", {
   df <- pl$DataFrame(x = as.Date("2022-1-1"))$select(
