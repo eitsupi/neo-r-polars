@@ -2,13 +2,12 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_weekday}
 \alias{expr_dt_weekday}
-\alias{(Expr)$dt$weekday}
 \title{Weekday}
 \usage{
 expr_dt_weekday()
 }
 \value{
-Expr of weekday as UInt32
+A polars \link{expression}
 }
 \description{
 Extract the week day from the underlying Date representation.

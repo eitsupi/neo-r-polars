@@ -2,7 +2,6 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_timestamp}
 \alias{expr_dt_timestamp}
-\alias{(Expr)$dt$timestamp}
 \title{timestamp}
 \usage{
 expr_dt_timestamp(tu = "ns")
@@ -11,7 +10,7 @@ expr_dt_timestamp(tu = "ns")
 \item{tu}{string option either 'ns', 'us', or 'ms'}
 }
 \value{
-Expr of i64
+A polars \link{expression}
 }
 \description{
 Return a timestamp in the given time unit.

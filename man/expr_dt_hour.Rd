@@ -2,13 +2,12 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_hour}
 \alias{expr_dt_hour}
-\alias{(Expr)$dt$hour}
 \title{Hour}
 \usage{
 expr_dt_hour()
 }
 \value{
-Expr of hour as UInt32
+A polars \link{expression}
 }
 \description{
 Extract hour from underlying Datetime representation.

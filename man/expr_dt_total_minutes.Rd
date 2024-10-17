@@ -7,7 +7,7 @@
 expr_dt_total_minutes()
 }
 \value{
-Expr of i64
+A polars \link{expression}
 }
 \description{
 Extract the minutes from a Duration type.

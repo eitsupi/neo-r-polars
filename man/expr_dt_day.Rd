@@ -2,13 +2,12 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_day}
 \alias{expr_dt_day}
-\alias{(Expr)$dt$day}
 \title{Day}
 \usage{
 expr_dt_day()
 }
 \value{
-Expr of day as UInt32
+A polars \link{expression}
 }
 \description{
 Extract day from underlying Date representation.

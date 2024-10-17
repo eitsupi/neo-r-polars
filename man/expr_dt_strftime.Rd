@@ -2,7 +2,6 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_strftime}
 \alias{expr_dt_strftime}
-\alias{(Expr)$dt$strftime}
 \title{strftime}
 \usage{
 expr_dt_strftime(format)
@@ -11,7 +10,7 @@ expr_dt_strftime(format)
 \item{format}{string format very much like in R passed to chrono}
 }
 \value{
-Date/Datetime expr
+A polars \link{expression}
 }
 \description{
 Format Date/Datetime with a formatting rule.

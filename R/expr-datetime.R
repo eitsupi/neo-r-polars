@@ -21,7 +21,7 @@ namespace_expr_dt <- function(x) {
 #' then conversion will happen as if converting from UTC,
 #' regardless of your system’s time zone.
 #' @param time_zone String time zone from [base::OlsonNames()]
-#' @return Expr of i64
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   date = pl$datetime_range(
@@ -125,7 +125,7 @@ expr_dt_replace_time_zone <- function(
 #' - 1y  # 1 calendar year
 #' These strings can be combined:
 #'   - 3d12h4m25s # 3 days, 12 hours, 4 minutes, and 25 seconds
-#' @return   Date/Datetime expr
+#' @inherit as_polars_expr return
 #' @examples
 #' t1 <- as.POSIXct("3040-01-01", tz = "GMT")
 #' t2 <- t1 + as.difftime(25, units = "secs")
@@ -209,8 +209,7 @@ expr_dt_combine <- function(time, time_unit = "us") {
 #'
 #' @param format string format very much like in R passed to chrono
 #'
-#' @return   Date/Datetime expr
-#' @aliases (Expr)$dt$strftime
+#' @inherit as_polars_expr return
 #' @examples
 #' pl$lit(as.POSIXct("2021-01-02 12:13:14", tz = "GMT"))$dt$strftime("this is the year: %Y")$to_r()
 expr_dt_strftime <- function(format) {
@@ -226,8 +225,7 @@ expr_dt_strftime <- function(format) {
 #' Returns the year number in the calendar date.
 #'
 #'
-#' @return Expr of Year as Int32
-#' @aliases (Expr)$dt$year
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   date = pl$date_range(
@@ -255,8 +253,7 @@ expr_dt_year <- function() {
 #'
 #'
 #'
-#' @return Expr of iso_year as Int32
-#' @aliases (Expr)$dt$iso_year
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   date = pl$date_range(
@@ -282,8 +279,7 @@ expr_dt_iso_year <- function() {
 #' Applies to Date and Datetime columns.
 #' Returns the quarter ranging from 1 to 4.
 #'
-#' @return Expr of quarter as UInt32
-#' @aliases (Expr)$dt$quarter
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   date = pl$date_range(
@@ -308,8 +304,7 @@ expr_dt_quarter <- function() {
 #' Returns the month number starting from 1.
 #' The return value ranges from 1 to 12.
 #'
-#' @return Expr of month as UInt32
-#' @aliases (Expr)$dtmonth
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   date = pl$date_range(
@@ -335,8 +330,7 @@ expr_dt_month <- function() {
 #' Returns the ISO week number starting from 1.
 #' The return value ranges from 1 to 53. (The last week of year differs by years.)
 #'
-#' @return Expr of week as UInt32
-#' @aliases (Expr)$dt$week
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   date = pl$date_range(
@@ -360,8 +354,7 @@ expr_dt_week <- function() {
 #' Applies to Date and Datetime columns.
 #' Returns the ISO weekday number where monday = 1 and sunday = 7
 #'
-#' @return Expr of weekday as UInt32
-#' @aliases (Expr)$dt$weekday
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   date = pl$date_range(
@@ -387,8 +380,7 @@ expr_dt_weekday <- function() {
 #' Returns the day of month starting from 1.
 #' The return value ranges from 1 to 31. (The last day of month differs by months.)
 #'
-#' @return Expr of day as UInt32
-#' @aliases (Expr)$dt$day
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   date = pl$date_range(
@@ -413,8 +405,7 @@ expr_dt_day <- function() {
 #' Returns the day of year starting from 1.
 #' The return value ranges from 1 to 366. (The last day of year differs by years.)
 #'
-#' @return Expr of ordinal_day as UInt32
-#' @aliases (Expr)$dt$ordinal_day
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   date = pl$date_range(
@@ -439,8 +430,7 @@ expr_dt_ordinal_day <- function() {
 #' Applies to Datetime columns.
 #' Returns the hour number from 0 to 23.
 #'
-#' @return Expr of hour as UInt32
-#' @aliases (Expr)$dt$hour
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   date = pl$datetime_range(
@@ -464,8 +454,7 @@ expr_dt_hour <- function() {
 #' Applies to Datetime columns.
 #' Returns the minute number from 0 to 59.
 #'
-#' @return Expr of minute as UInt32
-#' @aliases (Expr)$dt$minute
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   date = pl$datetime_range(
@@ -491,7 +480,7 @@ expr_dt_minute <- function() {
 #' any milli/micro/nanosecond component.
 #' @param fractional A logical.
 #' Whether to include the fractional component of the second.
-#' @return [Expr][Expr_class] of data type Int8 or Float64
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   datetime = as.POSIXct(
@@ -523,7 +512,7 @@ expr_dt_second <- function(fractional = FALSE) {
 #' Extract milliseconds from underlying Datetime representation
 #'
 #' Applies to Datetime columns.
-#' @return [Expr][Expr_class] of data type Int32
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   datetime = as.POSIXct(
@@ -597,7 +586,7 @@ expr_dt_nanosecond <- function() {
 #'
 #' @param time_unit Time unit, one of `"ns"`, `"us"`, `"ms"`, `"s"` or  `"d"`.
 #'
-#' @return Expr with datatype Int64
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(date = pl$date_range(as.Date("2001-1-1"), as.Date("2001-1-3")))
 #'
@@ -623,8 +612,7 @@ expr_dt_epoch <- function(time_unit = "us") {
 #' @description Return a timestamp in the given time unit.
 #'
 #' @param tu string option either 'ns', 'us', or 'ms'
-#' @return Expr of i64
-#' @aliases (Expr)$dt$timestamp
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   date = pl$datetime_range(
@@ -652,8 +640,7 @@ expr_dt_timestamp <- function(tu = "ns") {
 #' The corresponding global timepoint will change.
 #'
 #' @param tu string option either 'ns', 'us', or 'ms'
-#' @return Expr of i64
-#' @aliases (Expr)$dt$with_time_unit
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   date = pl$datetime_range(
@@ -682,8 +669,7 @@ expr_dt_with_time_unit <- function(tu = "ns") {
 #'
 #'
 #' @param tu string option either 'ns', 'us', or 'ms'
-#' @return Expr of i64
-#' @aliases (Expr)$dt$cast_time_unit
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   date = pl$datetime_range(
@@ -708,7 +694,7 @@ expr_dt_cast_time_unit <- function(tu = "ns") {
 #' Days
 #' @description Extract the days from a Duration type.
 #'
-#' @return Expr of i64
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   date = pl$datetime_range(
@@ -729,7 +715,7 @@ expr_dt_total_days <- function() {
 #' Hours
 #' @description Extract the hours from a Duration type.
 #'
-#' @return Expr of i64
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   date = pl$date_range(
@@ -750,7 +736,7 @@ expr_dt_total_hours <- function() {
 #' Minutes
 #' @description Extract the minutes from a Duration type.
 #'
-#' @return Expr of i64
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   date = pl$date_range(
@@ -771,7 +757,7 @@ expr_dt_total_minutes <- function() {
 #' Seconds
 #' @description Extract the seconds from a Duration type.
 #'
-#' @return Expr of i64
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(date = pl$datetime_range(
 #'   start = as.POSIXct("2020-1-1", tz = "GMT"),
@@ -790,7 +776,7 @@ expr_dt_total_seconds <- function() {
 #' milliseconds
 #' @description Extract the milliseconds from a Duration type.
 #'
-#' @return Expr of i64
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(date = pl$datetime_range(
 #'   start = as.POSIXct("2020-1-1", tz = "GMT"),
@@ -809,7 +795,7 @@ expr_dt_total_milliseconds <- function() {
 #' microseconds
 #' @description Extract the microseconds from a Duration type.
 #'
-#' @return Expr of i64
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(date = pl$datetime_range(
 #'   start = as.POSIXct("2020-1-1", tz = "GMT"),
@@ -828,7 +814,7 @@ expr_dt_total_microseconds <- function() {
 #' nanoseconds
 #' @description Extract the nanoseconds from a Duration type.
 #'
-#' @return Expr of i64
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(date = pl$datetime_range(
 #'   start = as.POSIXct("2020-1-1", tz = "GMT"),
@@ -871,8 +857,7 @@ expr_dt_total_nanoseconds <- function() {
 #' These strings can be combined:
 #'   - 3d12h4m25s # 3 days, 12 hours, 4 minutes, and 25 seconds
 #'
-#' @return   Date/Datetime expr
-#' @aliases (Expr)$dt$offset_by
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   dates = pl$date_range(
@@ -909,7 +894,7 @@ expr_dt_offset_by <- function(by) {
 #'
 #' This only works on Datetime Series, it will error on Date Series.
 #'
-#' @return A Time Expr
+#' @inherit as_polars_expr return
 #'
 #'
 #' @examples
@@ -927,7 +912,7 @@ expr_dt_time <- function() {
 
 #' Determine whether the year of the underlying date is a leap year
 #'
-#' @return An Expr of datatype Bool
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(date = as.Date(c("2000-01-01", "2001-01-01", "2002-01-01")))

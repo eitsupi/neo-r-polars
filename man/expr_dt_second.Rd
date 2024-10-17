@@ -11,7 +11,7 @@ expr_dt_second(fractional = FALSE)
 Whether to include the fractional component of the second.}
 }
 \value{
-\link[=Expr_class]{Expr} of data type Int8 or Float64
+A polars \link{expression}
 }
 \description{
 Applies to Datetime columns.

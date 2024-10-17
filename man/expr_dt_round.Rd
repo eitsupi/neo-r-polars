@@ -11,7 +11,7 @@ expr_dt_round(every)
 duration (see Details).}
 }
 \value{
-Date/Datetime expr
+A polars \link{expression}
 }
 \description{
 Divide the date/datetime range into buckets.

@@ -2,7 +2,6 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_cast_time_unit}
 \alias{expr_dt_cast_time_unit}
-\alias{(Expr)$dt$cast_time_unit}
 \title{cast_time_unit}
 \usage{
 expr_dt_cast_time_unit(tu = "ns")
@@ -11,7 +10,7 @@ expr_dt_cast_time_unit(tu = "ns")
 \item{tu}{string option either 'ns', 'us', or 'ms'}
 }
 \value{
-Expr of i64
+A polars \link{expression}
 }
 \description{
 Cast the underlying data to another time unit. This may lose precision.

@@ -2,13 +2,12 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_quarter}
 \alias{expr_dt_quarter}
-\alias{(Expr)$dt$quarter}
 \title{Quarter}
 \usage{
 expr_dt_quarter()
 }
 \value{
-Expr of quarter as UInt32
+A polars \link{expression}
 }
 \description{
 Extract quarter from underlying Date representation.

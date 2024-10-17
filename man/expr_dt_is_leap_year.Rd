@@ -7,7 +7,7 @@
 expr_dt_is_leap_year()
 }
 \value{
-An Expr of datatype Bool
+A polars \link{expression}
 }
 \description{
 Determine whether the year of the underlying date is a leap year

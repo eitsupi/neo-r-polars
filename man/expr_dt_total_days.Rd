@@ -7,7 +7,7 @@
 expr_dt_total_days()
 }
 \value{
-Expr of i64
+A polars \link{expression}
 }
 \description{
 Extract the days from a Duration type.

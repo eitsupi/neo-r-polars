@@ -11,7 +11,7 @@ expr_dt_combine(time, time_unit = "us")
 an Expr or a PTime.}
 }
 \value{
-Date/Datetime expr
+A polars \link{expression}
 }
 \description{
 If the underlying expression is a Datetime then its time component is

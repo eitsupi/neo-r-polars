@@ -2,13 +2,12 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_minute}
 \alias{expr_dt_minute}
-\alias{(Expr)$dt$minute}
 \title{Minute}
 \usage{
 expr_dt_minute()
 }
 \value{
-Expr of minute as UInt32
+A polars \link{expression}
 }
 \description{
 Extract minutes from underlying Datetime representation.

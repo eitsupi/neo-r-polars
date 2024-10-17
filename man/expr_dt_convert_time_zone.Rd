@@ -10,7 +10,7 @@ expr_dt_convert_time_zone(time_zone)
 \item{time_zone}{String time zone from \code{\link[base:timezones]{base::OlsonNames()}}}
 }
 \value{
-Expr of i64
+A polars \link{expression}
 }
 \description{
 If converting from a time-zone-naive datetime,

@@ -7,7 +7,7 @@
 expr_dt_total_nanoseconds()
 }
 \value{
-Expr of i64
+A polars \link{expression}
 }
 \description{
 Extract the nanoseconds from a Duration type.

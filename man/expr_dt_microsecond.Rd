@@ -7,7 +7,7 @@
 expr_dt_microsecond()
 }
 \value{
-\link[=Expr_class]{Expr} of data type Int32
+A polars \link{expression}
 }
 \description{
 Applies to Datetime columns.

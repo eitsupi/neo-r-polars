@@ -2,13 +2,12 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_month}
 \alias{expr_dt_month}
-\alias{(Expr)$dtmonth}
 \title{Month}
 \usage{
 expr_dt_month()
 }
 \value{
-Expr of month as UInt32
+A polars \link{expression}
 }
 \description{
 Extract month from underlying Date representation.

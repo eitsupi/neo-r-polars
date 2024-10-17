@@ -7,7 +7,7 @@
 expr_dt_time()
 }
 \value{
-A Time Expr
+A polars \link{expression}
 }
 \description{
 This only works on Datetime Series, it will error on Date Series.

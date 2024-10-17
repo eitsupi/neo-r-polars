@@ -2,7 +2,6 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_offset_by}
 \alias{expr_dt_offset_by}
-\alias{(Expr)$dt$offset_by}
 \title{Offset By}
 \usage{
 expr_dt_offset_by(by)
@@ -11,7 +10,7 @@ expr_dt_offset_by(by)
 \item{by}{optional string encoding duration see details.}
 }
 \value{
-Date/Datetime expr
+A polars \link{expression}
 }
 \description{
 Offset this date by a relative time offset.

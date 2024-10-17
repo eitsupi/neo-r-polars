@@ -7,7 +7,7 @@
 expr_dt_total_microseconds()
 }
 \value{
-Expr of i64
+A polars \link{expression}
 }
 \description{
 Extract the microseconds from a Duration type.

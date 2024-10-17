@@ -2,13 +2,12 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_year}
 \alias{expr_dt_year}
-\alias{(Expr)$dt$year}
 \title{Year}
 \usage{
 expr_dt_year()
 }
 \value{
-Expr of Year as Int32
+A polars \link{expression}
 }
 \description{
 Extract year from underlying Date representation.

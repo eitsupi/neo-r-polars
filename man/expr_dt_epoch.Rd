@@ -10,7 +10,7 @@ expr_dt_epoch(time_unit = "us")
 \item{time_unit}{Time unit, one of \code{"ns"}, \code{"us"}, \code{"ms"}, \code{"s"} or  \code{"d"}.}
 }
 \value{
-Expr with datatype Int64
+A polars \link{expression}
 }
 \description{
 Get the time passed since the Unix EPOCH in the give time unit.

@@ -2,13 +2,12 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_ordinal_day}
 \alias{expr_dt_ordinal_day}
-\alias{(Expr)$dt$ordinal_day}
 \title{Ordinal Day}
 \usage{
 expr_dt_ordinal_day()
 }
 \value{
-Expr of ordinal_day as UInt32
+A polars \link{expression}
 }
 \description{
 Extract ordinal day from underlying Date representation.

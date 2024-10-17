@@ -7,7 +7,7 @@
 expr_dt_total_seconds()
 }
 \value{
-Expr of i64
+A polars \link{expression}
 }
 \description{
 Extract the seconds from a Duration type.

@@ -2,13 +2,12 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_week}
 \alias{expr_dt_week}
-\alias{(Expr)$dt$week}
 \title{Week}
 \usage{
 expr_dt_week()
 }
 \value{
-Expr of week as UInt32
+A polars \link{expression}
 }
 \description{
 Extract the week from the underlying Date representation.

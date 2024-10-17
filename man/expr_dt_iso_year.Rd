@@ -2,13 +2,12 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_iso_year}
 \alias{expr_dt_iso_year}
-\alias{(Expr)$dt$iso_year}
 \title{Iso-Year}
 \usage{
 expr_dt_iso_year()
 }
 \value{
-Expr of iso_year as Int32
+A polars \link{expression}
 }
 \description{
 Extract ISO year from underlying Date representation.

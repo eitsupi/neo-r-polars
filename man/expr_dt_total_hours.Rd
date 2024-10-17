@@ -7,7 +7,7 @@
 expr_dt_total_hours()
 }
 \value{
-Expr of i64
+A polars \link{expression}
 }
 \description{
 Extract the hours from a Duration type.
