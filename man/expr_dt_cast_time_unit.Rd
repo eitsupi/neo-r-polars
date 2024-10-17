@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_cast_time_unit}
 \alias{expr_dt_cast_time_unit}
-\title{cast_time_unit}
+\title{Change time unit}
 \usage{
 expr_dt_cast_time_unit(tu = "ns")
 }

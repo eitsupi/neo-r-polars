@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_total_nanoseconds}
 \alias{expr_dt_total_nanoseconds}
-\title{nanoseconds}
+\title{Nanoseconds}
 \usage{
 expr_dt_total_nanoseconds()
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_iso_year}
 \alias{expr_dt_iso_year}
-\title{Iso-Year}
+\title{Extract ISO year from underlying Date representation}
 \usage{
 expr_dt_iso_year()
 }
@@ -10,10 +10,8 @@ expr_dt_iso_year()
 A polars \link{expression}
 }
 \description{
-Extract ISO year from underlying Date representation.
-Applies to Date and Datetime columns.
-Returns the year number in the ISO standard.
-This may not correspond with the calendar year.
+Returns the year number in the ISO standard. This may not correspond with
+the calendar year.
 }
 \examples{
 df <- pl$DataFrame(

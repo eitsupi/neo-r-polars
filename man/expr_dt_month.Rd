@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_month}
 \alias{expr_dt_month}
-\title{Month}
+\title{Extract month from underlying Date representation}
 \usage{
 expr_dt_month()
 }
@@ -10,10 +10,7 @@ expr_dt_month()
 A polars \link{expression}
 }
 \description{
-Extract month from underlying Date representation.
-Applies to Date and Datetime columns.
-Returns the month number starting from 1.
-The return value ranges from 1 to 12.
+Returns the month number between 1 and 12.
 }
 \examples{
 df <- pl$DataFrame(

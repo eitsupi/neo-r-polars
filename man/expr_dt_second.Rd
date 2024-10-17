@@ -7,17 +7,15 @@
 expr_dt_second(fractional = FALSE)
 }
 \arguments{
-\item{fractional}{A logical.
-Whether to include the fractional component of the second.}
+\item{fractional}{If \code{TRUE}, include the fractional component of the second.}
 }
 \value{
 A polars \link{expression}
 }
 \description{
-Applies to Datetime columns.
-Returns the integer second number from 0 to 59, or a floating
-point number from 0 < 60 if \code{fractional=TRUE} that includes
-any milli/micro/nanosecond component.
+Returns the integer second number from 0 to 59, or a floating point number
+from 0 to 60 if \code{fractional = TRUE} that includes any milli/micro/nanosecond
+component.
 }
 \examples{
 df <- pl$DataFrame(

@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_strftime}
 \alias{expr_dt_strftime}
-\title{strftime}
+\title{Convert date/time/datetime to string}
 \usage{
 expr_dt_strftime(format)
 }
@@ -13,8 +13,11 @@ expr_dt_strftime(format)
 A polars \link{expression}
 }
 \description{
-Format Date/Datetime with a formatting rule.
-See \verb{chrono strftime/strptime <https://docs.rs/chrono/latest/chrono/format/strftime/index.html>}_.
+Convert a Date/Time/Datetime column into a String column with the given
+format. Similar to \code{cast(pl$String)}, but this method allows you to
+customize the formatting of the resulting string. See \code{chrono}
+docs for specifying the format:
+\url{https://docs.rs/chrono/latest/chrono/format/strftime/index.html}`_.
 }
 \examples{
 pl$lit(as.POSIXct("2021-01-02 12:13:14", tz = "GMT"))$dt$strftime("this is the year: \%Y")$to_r()

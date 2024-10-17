@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_hour}
 \alias{expr_dt_hour}
-\title{Hour}
+\title{Extract hour from underlying Datetime representation}
 \usage{
 expr_dt_hour()
 }
@@ -10,8 +10,6 @@ expr_dt_hour()
 A polars \link{expression}
 }
 \description{
-Extract hour from underlying Datetime representation.
-Applies to Datetime columns.
 Returns the hour number from 0 to 23.
 }
 \examples{

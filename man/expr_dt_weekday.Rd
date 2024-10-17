@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_weekday}
 \alias{expr_dt_weekday}
-\title{Weekday}
+\title{Extract weekday from underlying Date representation}
 \usage{
 expr_dt_weekday()
 }
@@ -10,9 +10,7 @@ expr_dt_weekday()
 A polars \link{expression}
 }
 \description{
-Extract the week day from the underlying Date representation.
-Applies to Date and Datetime columns.
-Returns the ISO weekday number where monday = 1 and sunday = 7
+Returns the ISO weekday number where Monday = 1 and Sunday = 7.
 }
 \examples{
 df <- pl$DataFrame(

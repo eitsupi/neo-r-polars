@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_epoch}
 \alias{expr_dt_epoch}
-\title{Epoch}
+\title{Get epoch of given Datetime}
 \usage{
 expr_dt_epoch(time_unit = "us")
 }

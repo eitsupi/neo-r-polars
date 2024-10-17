@@ -34,8 +34,8 @@ One of the followings:
 }}
 }
 \description{
-Different from \code{convert_time_zone}, this will also modify the underlying timestamp
-and will ignore the original time zone.
+Different from \code{convert_time_zone}, this will also modify the underlying
+timestamp and will ignore the original time zone.
 }
 \examples{
 # You can use `ambiguous` to deal with ambiguous datetimes:

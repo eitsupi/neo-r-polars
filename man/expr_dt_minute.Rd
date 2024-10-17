@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_minute}
 \alias{expr_dt_minute}
-\title{Minute}
+\title{Extract minute from underlying Datetime representation}
 \usage{
 expr_dt_minute()
 }
@@ -10,8 +10,6 @@ expr_dt_minute()
 A polars \link{expression}
 }
 \description{
-Extract minutes from underlying Datetime representation.
-Applies to Datetime columns.
 Returns the minute number from 0 to 59.
 }
 \examples{

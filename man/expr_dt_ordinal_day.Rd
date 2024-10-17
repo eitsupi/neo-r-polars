@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_ordinal_day}
 \alias{expr_dt_ordinal_day}
-\title{Ordinal Day}
+\title{Extract ordinal day from underlying Date representation}
 \usage{
 expr_dt_ordinal_day()
 }
@@ -10,10 +10,8 @@ expr_dt_ordinal_day()
 A polars \link{expression}
 }
 \description{
-Extract ordinal day from underlying Date representation.
-Applies to Date and Datetime columns.
-Returns the day of year starting from 1.
-The return value ranges from 1 to 366. (The last day of year differs by years.)
+Returns the day of year starting from 1. The return value ranges from 1 to
+366 (the last day of year differs across years).
 }
 \examples{
 df <- pl$DataFrame(

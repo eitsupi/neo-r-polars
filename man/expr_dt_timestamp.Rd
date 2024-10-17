@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_timestamp}
 \alias{expr_dt_timestamp}
-\title{timestamp}
+\title{Get timestamp of given Datetime}
 \usage{
 expr_dt_timestamp(tu = "ns")
 }

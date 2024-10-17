@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_year}
 \alias{expr_dt_year}
-\title{Year}
+\title{Extract year from underlying Date representation}
 \usage{
 expr_dt_year()
 }

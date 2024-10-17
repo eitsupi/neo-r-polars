@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_quarter}
 \alias{expr_dt_quarter}
-\title{Quarter}
+\title{Extract quarter from underlying Date representation}
 \usage{
 expr_dt_quarter()
 }
@@ -10,8 +10,6 @@ expr_dt_quarter()
 A polars \link{expression}
 }
 \description{
-Extract quarter from underlying Date representation.
-Applies to Date and Datetime columns.
 Returns the quarter ranging from 1 to 4.
 }
 \examples{

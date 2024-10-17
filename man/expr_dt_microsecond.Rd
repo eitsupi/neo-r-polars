@@ -10,7 +10,7 @@ expr_dt_microsecond()
 A polars \link{expression}
 }
 \description{
-Applies to Datetime columns.
+Extract microseconds from underlying Datetime representation.
 }
 \examples{
 df <- pl$DataFrame(

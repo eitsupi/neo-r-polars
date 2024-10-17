@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_week}
 \alias{expr_dt_week}
-\title{Week}
+\title{Extract week from underlying Date representation}
 \usage{
 expr_dt_week()
 }
@@ -10,10 +10,8 @@ expr_dt_week()
 A polars \link{expression}
 }
 \description{
-Extract the week from the underlying Date representation.
-Applies to Date and Datetime columns.
-Returns the ISO week number starting from 1.
-The return value ranges from 1 to 53. (The last week of year differs by years.)
+Returns the ISO week number starting from 1. The return value ranges from 1
+to 53 (the last week of year differs across years).
 }
 \examples{
 df <- pl$DataFrame(

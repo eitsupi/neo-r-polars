@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_offset_by}
 \alias{expr_dt_offset_by}
-\title{Offset By}
+\title{Offset a date by a relative time offset}
 \usage{
 expr_dt_offset_by(by)
 }
@@ -13,7 +13,6 @@ expr_dt_offset_by(by)
 A polars \link{expression}
 }
 \description{
-Offset this date by a relative time offset.
 This differs from \code{pl$col("foo_datetime_tu") + value_tu} in that it can
 take months and leap years into account. Note that only a single minus
 sign is allowed in the \code{by} string, as the first character.

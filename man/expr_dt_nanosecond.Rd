@@ -10,7 +10,7 @@ expr_dt_nanosecond()
 A polars \link{expression}
 }
 \description{
-Applies to Datetime columns.
+Extract nanoseconds from underlying Datetime representation
 }
 \examples{
 df <- pl$DataFrame(

@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_day}
 \alias{expr_dt_day}
-\title{Day}
+\title{Extract day from underlying Date representation}
 \usage{
 expr_dt_day()
 }
@@ -10,10 +10,8 @@ expr_dt_day()
 A polars \link{expression}
 }
 \description{
-Extract day from underlying Date representation.
-Applies to Date and Datetime columns.
-Returns the day of month starting from 1.
-The return value ranges from 1 to 31. (The last day of month differs by months.)
+Returns the day of month starting from 1. The return value ranges from 1 to
+31 (the last day of month differs across months).
 }
 \examples{
 df <- pl$DataFrame(

@@ -44,8 +44,8 @@ expr_dt_convert_time_zone <- function(time_zone) {
 # TODO: return, examples
 #' Replace time zone for an expression of type Datetime
 #'
-#' Different from `convert_time_zone`, this will also modify the underlying timestamp
-#' and will ignore the original time zone.
+#' Different from `convert_time_zone`, this will also modify the underlying
+#' timestamp and will ignore the original time zone.
 #'
 #' @inheritParams rlang::args_dots_empty
 #' @param time_zone `NULL` or a character time zone from [base::OlsonNames()].
@@ -200,10 +200,12 @@ expr_dt_combine <- function(time, time_unit = "us") {
     wrap()
 }
 
-#' strftime
+#' Convert date/time/datetime to string
 #' @description
-#' Format Date/Datetime with a formatting rule.
-#' See `chrono strftime/strptime
+#' Convert a Date/Time/Datetime column into a String column with the given
+#' format. Similar to `cast(pl$String)`, but this method allows you to
+#' customize the formatting of the resulting string. See `chrono`
+#' docs for specifying the format:
 #' <https://docs.rs/chrono/latest/chrono/format/strftime/index.html>`_.
 #'
 #'
@@ -218,7 +220,7 @@ expr_dt_strftime <- function(format) {
 }
 
 
-#' Year
+#' Extract year from underlying Date representation
 #' @description
 #' Extract year from underlying Date representation.
 #' Applies to Date and Datetime columns.
@@ -244,14 +246,10 @@ expr_dt_year <- function() {
     wrap()
 }
 
-#' Iso-Year
+#' Extract ISO year from underlying Date representation
 #' @description
-#' Extract ISO year from underlying Date representation.
-#' Applies to Date and Datetime columns.
-#' Returns the year number in the ISO standard.
-#' This may not correspond with the calendar year.
-#'
-#'
+#' Returns the year number in the ISO standard. This may not correspond with
+#' the calendar year.
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -273,10 +271,8 @@ expr_dt_iso_year <- function() {
 }
 
 
-#' Quarter
+#' Extract quarter from underlying Date representation
 #' @description
-#' Extract quarter from underlying Date representation.
-#' Applies to Date and Datetime columns.
 #' Returns the quarter ranging from 1 to 4.
 #'
 #' @inherit as_polars_expr return
@@ -297,12 +293,9 @@ expr_dt_quarter <- function() {
     wrap()
 }
 
-#' Month
+#' Extract month from underlying Date representation
 #' @description
-#' Extract month from underlying Date representation.
-#' Applies to Date and Datetime columns.
-#' Returns the month number starting from 1.
-#' The return value ranges from 1 to 12.
+#' Returns the month number between 1 and 12.
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -323,12 +316,10 @@ expr_dt_month <- function() {
 }
 
 
-#' Week
+#' Extract week from underlying Date representation
 #' @description
-#' Extract the week from the underlying Date representation.
-#' Applies to Date and Datetime columns.
-#' Returns the ISO week number starting from 1.
-#' The return value ranges from 1 to 53. (The last week of year differs by years.)
+#' Returns the ISO week number starting from 1. The return value ranges from 1
+#' to 53 (the last week of year differs across years).
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -348,11 +339,9 @@ expr_dt_week <- function() {
     wrap()
 }
 
-#' Weekday
+#' Extract weekday from underlying Date representation
 #' @description
-#' Extract the week day from the underlying Date representation.
-#' Applies to Date and Datetime columns.
-#' Returns the ISO weekday number where monday = 1 and sunday = 7
+#' Returns the ISO weekday number where Monday = 1 and Sunday = 7.
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -373,12 +362,10 @@ expr_dt_weekday <- function() {
 }
 
 
-#' Day
+#' Extract day from underlying Date representation
 #' @description
-#' Extract day from underlying Date representation.
-#' Applies to Date and Datetime columns.
-#' Returns the day of month starting from 1.
-#' The return value ranges from 1 to 31. (The last day of month differs by months.)
+#' Returns the day of month starting from 1. The return value ranges from 1 to
+#' 31 (the last day of month differs across months).
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -398,12 +385,10 @@ expr_dt_day <- function() {
     wrap()
 }
 
-#' Ordinal Day
+#' Extract ordinal day from underlying Date representation
 #' @description
-#' Extract ordinal day from underlying Date representation.
-#' Applies to Date and Datetime columns.
-#' Returns the day of year starting from 1.
-#' The return value ranges from 1 to 366. (The last day of year differs by years.)
+#' Returns the day of year starting from 1. The return value ranges from 1 to
+#' 366 (the last day of year differs across years).
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -424,10 +409,8 @@ expr_dt_ordinal_day <- function() {
 }
 
 
-#' Hour
+#' Extract hour from underlying Datetime representation
 #' @description
-#' Extract hour from underlying Datetime representation.
-#' Applies to Datetime columns.
 #' Returns the hour number from 0 to 23.
 #'
 #' @inherit as_polars_expr return
@@ -448,10 +431,8 @@ expr_dt_hour <- function() {
     wrap()
 }
 
-#' Minute
+#' Extract minute from underlying Datetime representation
 #' @description
-#' Extract minutes from underlying Datetime representation.
-#' Applies to Datetime columns.
 #' Returns the minute number from 0 to 59.
 #'
 #' @inherit as_polars_expr return
@@ -474,12 +455,11 @@ expr_dt_minute <- function() {
 
 #' Extract seconds from underlying Datetime representation
 #'
-#' Applies to Datetime columns.
-#' Returns the integer second number from 0 to 59, or a floating
-#' point number from 0 < 60 if `fractional=TRUE` that includes
-#' any milli/micro/nanosecond component.
-#' @param fractional A logical.
-#' Whether to include the fractional component of the second.
+#' Returns the integer second number from 0 to 59, or a floating point number
+#' from 0 to 60 if `fractional = TRUE` that includes any milli/micro/nanosecond
+#' component.
+#'
+#' @param fractional If `TRUE`, include the fractional component of the second.
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
@@ -511,7 +491,6 @@ expr_dt_second <- function(fractional = FALSE) {
 
 #' Extract milliseconds from underlying Datetime representation
 #'
-#' Applies to Datetime columns.
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
@@ -580,7 +559,7 @@ expr_dt_nanosecond <- function() {
 }
 
 
-#' Epoch
+#' Get epoch of given Datetime
 #'
 #' Get the time passed since the Unix EPOCH in the give time unit.
 #'
@@ -608,7 +587,7 @@ expr_dt_epoch <- function(time_unit = "us") {
 }
 
 
-#' timestamp
+#' Get timestamp of given Datetime
 #' @description Return a timestamp in the given time unit.
 #'
 #' @param tu string option either 'ns', 'us', or 'ms'
@@ -633,7 +612,7 @@ expr_dt_timestamp <- function(tu = "ns") {
   })
 }
 
-
+# TODO: mark deprecated in news before next release
 #' with_time_unit
 #' @description  Set time unit of a Series of dtype Datetime or Duration.
 #' This does not modify underlying data, and should be used to fix an incorrect time unit.
@@ -656,17 +635,17 @@ expr_dt_timestamp <- function(tu = "ns") {
 #' )
 expr_dt_with_time_unit <- function(tu = "ns") {
   wrap({
+    deprecate_warn("$dt$with_time_unit() is deprecated. Cast to Int64 and to Datetime(<desired unit>) instead.")
     tu <- arg_match0(tu, values = c("ns", "us", "ms"))
     self$`_rexpr`$dt_with_time_unit(tu)
   })
 }
 
 
-#' cast_time_unit
+#' Change time unit
 #' @description
 #' Cast the underlying data to another time unit. This may lose precision.
 #' The corresponding global timepoint will stay unchanged +/- precision.
-#'
 #'
 #' @param tu string option either 'ns', 'us', or 'ms'
 #' @inherit as_polars_expr return
@@ -773,7 +752,7 @@ expr_dt_total_seconds <- function() {
     wrap()
 }
 
-#' milliseconds
+#' Milliseconds
 #' @description Extract the milliseconds from a Duration type.
 #'
 #' @inherit as_polars_expr return
@@ -792,7 +771,7 @@ expr_dt_total_milliseconds <- function() {
     wrap()
 }
 
-#' microseconds
+#' Microseconds
 #' @description Extract the microseconds from a Duration type.
 #'
 #' @inherit as_polars_expr return
@@ -811,7 +790,7 @@ expr_dt_total_microseconds <- function() {
     wrap()
 }
 
-#' nanoseconds
+#' Nanoseconds
 #' @description Extract the nanoseconds from a Duration type.
 #'
 #' @inherit as_polars_expr return
@@ -830,15 +809,13 @@ expr_dt_total_nanoseconds <- function() {
     wrap()
 }
 
-#' Offset By
-#' @description  Offset this date by a relative time offset.
-#' This differs from ``pl$col("foo_datetime_tu") + value_tu`` in that it can
-#' take months and leap years into account. Note that only a single minus
-#' sign is allowed in the ``by`` string, as the first character.
+#' Offset a date by a relative time offset
 #'
+#' This differs from `pl$col("foo_datetime_tu") + value_tu` in that it can
+#' take months and leap years into account. Note that only a single minus
+#' sign is allowed in the `by` string, as the first character.
 #'
 #' @param by optional string encoding duration see details.
-#'
 #'
 #' @details
 #' The ``by`` are created with the the following string language:
@@ -895,7 +872,6 @@ expr_dt_offset_by <- function(by) {
 #' This only works on Datetime Series, it will error on Date Series.
 #'
 #' @inherit as_polars_expr return
-#'
 #'
 #' @examples
 #' df <- pl$DataFrame(dates = pl$datetime_range(

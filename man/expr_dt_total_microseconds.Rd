@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_total_microseconds}
 \alias{expr_dt_total_microseconds}
-\title{microseconds}
+\title{Microseconds}
 \usage{
 expr_dt_total_microseconds()
 }
