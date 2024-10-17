@@ -318,13 +318,27 @@ test_that("second, milli, micro, nano", {
     )$cast(pl$Int8)
   )
 
-  # TODO-REWRITE: annoying to test
-  # n <- df$get_column("f64") / 1E9
-  # expect_equal(
-  #   df$get_column("second_frac"),
-  #   as.numeric(format(df$get_column("date"), "%S"))
-  #   + n - floor(n)
-  # )
+  # check fractional second
+  vals <- df$select("f64") |>
+    as_polars_series() |>
+    as.vector()
+  vals <- vals$f64
+  n <- vals / 1E9
+
+  frac <- df$select("second_frac") |>
+    as_polars_series() |>
+    as.vector()
+  frac <- frac$second_frac
+
+  dts <- df$select("date") |>
+    as_polars_series() |>
+    as.vector()
+  dts <- dts$date
+
+  expect_equal(
+    frac,
+    as.numeric(format(dts, "%S")) + n - floor(n)
+  )
 
   # check millisecond versus micro nano
   expect_equal(
@@ -597,36 +611,32 @@ test_that("$convert_time_zone() works", {
   )
 })
 
-# test_that("dt$replace_time_zone() works", {
-#   df <- pl$DataFrame(
-#     london_timezone = pl$datetime_range(
-#       start = as.POSIXct("2001-3-1"),
-#       end = as.POSIXct("2001-7-1"),
-#       interval = "1mo",
-#       time_zone = "Europe/London"
-#     )
-#   )
+test_that("dt$replace_time_zone() works", {
+  df <- pl$DataFrame(
+    London = pl$datetime_range(
+      start = as.POSIXct("2001-3-1"),
+      end = as.POSIXct("2001-7-1"),
+      interval = "1mo",
+      time_zone = "Europe/London"
+    )
+  )
 
-#   df <- df$with_columns(
-#     pl$col("london_timezone")
-#     $dt$replace_time_zone("Europe/Amsterdam")
-#     $alias("Amsterdam")
-#   )
-#   l <- df$to_list()
+  df <- df$with_columns(
+    pl$col("London")
+    $dt$replace_time_zone("Europe/Amsterdam")
+    $alias("Amsterdam")
+  )
 
-#   expect_equal(
-#     as.numeric(l$london_timezone - l$Amsterdam),
-#     rep(1, 5)
-#   )
+  r_vals <- as.list(df)
 
-#   r_amst_tz <- l$london_timezone - 3600
-#   attr(r_amst_tz, "tzone") <- "Europe/Amsterdam"
+  expect_equal(
+    r_vals |> lapply(attr, "tz"),
+    list(London = "Europe/London", Amsterdam = "Europe/Amsterdam")
+  )
 
-#   expect_equal(
-#     l$Amsterdam,
-#     r_amst_tz
-#   )
-# })
+  r_vals <- lapply(r_vals, as.numeric)
+  expect_equal(r_vals[["London"]], r_vals[["Amsterdam"]] + 3600)
+})
 
 test_that("replace_time_zone for ambiguous time", {
   skip_if_not_installed("lubridate")
