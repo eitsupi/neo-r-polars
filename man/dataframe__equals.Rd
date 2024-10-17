@@ -2,7 +2,7 @@
 % Please edit documentation in R/dataframe-frame.R
 \name{dataframe__equals}
 \alias{dataframe__equals}
-\title{Compare two DataFrames}
+\title{Check whether the DataFrame is equal to another DataFrame}
 \usage{
 dataframe__equals(other, ..., null_equal = TRUE)
 }
@@ -13,12 +13,12 @@ dataframe__equals(other, ..., null_equal = TRUE)
 A logical value
 }
 \description{
-Check if two DataFrames are equal.
+Check whether the DataFrame is equal to another DataFrame
 }
 \examples{
-dat1 <- pl$DataFrame(iris)
-dat2 <- pl$DataFrame(iris)
-dat3 <- pl$DataFrame(mtcars)
+dat1 <- as_polars_df(iris)
+dat2 <- as_polars_df(iris)
+dat3 <- as_polars_df(mtcars)
 dat1$equals(dat2)
 dat1$equals(dat3)
 }

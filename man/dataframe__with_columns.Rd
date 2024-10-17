@@ -19,9 +19,9 @@ the equivalent of \code{dplyr::mutate()} as it keeps unmentioned columns (unlike
 \verb{$select()}).
 }
 \examples{
-pl$DataFrame(iris)$with_columns(
-  pl$col("Sepal.Length")$abs()$alias("abs_SL"),
-  (pl$col("Sepal.Length") + 2)$alias("add_2_SL")
+as_polars_df(iris)$with_columns(
+  abs_SL = pl$col("Sepal.Length")$abs()$alias(""),
+  add_2_SL = pl$col("Sepal.Length") + 2$alias("")
 )
 
 # same query
@@ -29,10 +29,11 @@ l_expr <- list(
   pl$col("Sepal.Length")$abs()$alias("abs_SL"),
   (pl$col("Sepal.Length") + 2)$alias("add_2_SL")
 )
-pl$DataFrame(iris)$with_columns(l_expr)
+as_polars_df(iris)$with_columns(l_expr)
 
-pl$DataFrame(iris)$with_columns(
-  pl$col("Sepal.Length")$abs(), # not named expr will keep name "Sepal.Length"
-  SW_add_2 = (pl$col("Sepal.Width") + 2)
+as_polars_df(iris)$with_columns(
+  SW_add_2 = (pl$col("Sepal.Width") + 2),
+  # unnamed expr will keep name "Sepal.Length"
+  pl$col("Sepal.Length")$abs()
 )
 }

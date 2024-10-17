@@ -13,7 +13,7 @@ A polars \link{DataFrame}
 Filter rows of a DataFrame
 }
 \examples{
-df <- pl$DataFrame(iris)
+df <- as_polars_df(iris)
 
 df$filter(pl$col("Sepal.Length") > 5)
 
@@ -24,7 +24,7 @@ df$filter(pl$col("Sepal.Length") > 5, pl$col("Petal.Width") < 1)
 # rows where condition is NA are dropped
 iris2 <- iris
 iris2[c(1, 3, 5), "Species"] <- NA
-df <- pl$DataFrame(iris2)
+df <- as_polars_df(iris2)
 
 df$filter(pl$col("Species") == "setosa")
 }

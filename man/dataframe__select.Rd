@@ -19,8 +19,8 @@ Similar to \code{dplyr::mutate()}. However, it discards unmentioned
 columns (like \code{.()} in \code{data.table}).
 }
 \examples{
-pl$DataFrame(iris)$select(
-  pl$col("Sepal.Length")$abs()$alias("abs_SL"),
-  (pl$col("Sepal.Length") + 2)$alias("add_2_SL")
+as_polars_df(iris)$select(
+  abs_SL = pl$col("Sepal.Length")$abs(),
+  add_2_SL = pl$col("Sepal.Length") + 2
 )
 }

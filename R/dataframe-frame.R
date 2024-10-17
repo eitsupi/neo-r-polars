@@ -133,7 +133,7 @@ dataframe__lazy <- function() {
 #'
 #' @inherit as_polars_df return
 #' @examples
-#' df1 <- pl$DataFrame(iris)
+#' df1 <- as_polars_df(iris)
 #'
 #' # Make a function to take a DataFrame, add an attribute, and return a DataFrame
 #' give_attr <- function(data) {
@@ -151,7 +151,7 @@ dataframe__lazy <- function() {
 #'   attr(data, "created_on") <- "2024-01-29"
 #'   data
 #' }
-#' df1 <- pl$DataFrame(iris)
+#' df1 <- as_polars_df(iris)
 #' df2 <- give_attr(df1)
 #'
 #' # now, the original DataFrame doesn't get this attribute
@@ -161,7 +161,7 @@ dataframe__clone <- function() {
     wrap()
 }
 
-#' Get the DataFrame as a List of Series
+#' Get the DataFrame as a list of Series
 #'
 #' @return A list of [Series]
 #' @seealso
@@ -201,7 +201,8 @@ dataframe__get_columns <- function() {
 #'
 #' df$group_by("a")$agg(pl$col("b")$sum())
 #'
-#' # Set `maintain_order = TRUE` to ensure the order of the groups is consistent with the input.
+#' # Set `maintain_order = TRUE` to ensure the order of the groups is
+#' # consistent with the input.
 #' df$group_by("a", maintain_order = TRUE)$agg(pl$col("c"))
 #'
 #' # Group by multiple columns by passing a list of column names.
@@ -231,9 +232,9 @@ dataframe__group_by <- function(..., maintain_order = FALSE) {
 #'
 #' @inherit as_polars_df return
 #' @examples
-#' pl$DataFrame(iris)$select(
-#'   pl$col("Sepal.Length")$abs()$alias("abs_SL"),
-#'   (pl$col("Sepal.Length") + 2)$alias("add_2_SL")
+#' as_polars_df(iris)$select(
+#'   abs_SL = pl$col("Sepal.Length")$abs(),
+#'   add_2_SL = pl$col("Sepal.Length") + 2
 #' )
 dataframe__select <- function(...) {
   self$lazy()$select(...)$collect(`_eager` = TRUE) |>
@@ -250,9 +251,9 @@ dataframe__select <- function(...) {
 #' If first and only element is a list, it is unwrapped as a list of args.
 #' @inherit as_polars_df return
 #' @examples
-#' pl$DataFrame(iris)$with_columns(
-#'   pl$col("Sepal.Length")$abs()$alias("abs_SL"),
-#'   (pl$col("Sepal.Length") + 2)$alias("add_2_SL")
+#' as_polars_df(iris)$with_columns(
+#'   abs_SL = pl$col("Sepal.Length")$abs()$alias(""),
+#'   add_2_SL = pl$col("Sepal.Length") + 2$alias("")
 #' )
 #'
 #' # same query
@@ -260,54 +261,50 @@ dataframe__select <- function(...) {
 #'   pl$col("Sepal.Length")$abs()$alias("abs_SL"),
 #'   (pl$col("Sepal.Length") + 2)$alias("add_2_SL")
 #' )
-#' pl$DataFrame(iris)$with_columns(l_expr)
+#' as_polars_df(iris)$with_columns(l_expr)
 #'
-#' pl$DataFrame(iris)$with_columns(
-#'   pl$col("Sepal.Length")$abs(), # not named expr will keep name "Sepal.Length"
-#'   SW_add_2 = (pl$col("Sepal.Width") + 2)
+#' as_polars_df(iris)$with_columns(
+#'   SW_add_2 = (pl$col("Sepal.Width") + 2),
+#'   # unnamed expr will keep name "Sepal.Length"
+#'   pl$col("Sepal.Length")$abs()
 #' )
 dataframe__with_columns <- function(...) {
   self$lazy()$with_columns(...)$collect(`_eager` = TRUE) |>
     wrap()
 }
 
-#' Get column by index
+# TODO-REWRITE: before release, add in news that param idx was renamed "index"
+# and mention that it errors if out of bounds
+#' Select column as Series at index location
 #'
-#' @description Extract a DataFrame column (by index) as a Polars series. Unlike
-#' `get_column()`, this method will not fail but will return a `NULL` if the
-#' index doesn't exist in the DataFrame. Keep in mind that Polars is 0-indexed
-#' so "0" is the first column.
-#'
-#' @param idx Index of the column to return as Series. Defaults to 0, which is
+#' @param index Index of the column to return as Series. Defaults to 0, which is
 #' the first column.
 #'
 #' @return Series or NULL
 #' @examples
-#' df <- pl$DataFrame(iris[1:10, ])
+#' df <- as_polars_df(iris[1:10, ])
 #'
 #' # default is to extract the first column
 #' df$to_series()
 #'
-#' # Polars is 0-indexed, so we use idx = 1 to extract the *2nd* column
-#' df$to_series(idx = 1)
+#' # Polars is 0-indexed, so we use index = 1 to extract the *2nd* column
+#' df$to_series(index = 1)
 #'
 #' # doesn't error if the column isn't there
-#' df$to_series(idx = 8)
+#' df$to_series(index = 8)
 dataframe__to_series <- function(index = 0) {
   self$`_df`$to_series(index) |>
     wrap()
 }
 
-#' Compare two DataFrames
-#'
-#' @description Check if two DataFrames are equal.
+#' Check whether the DataFrame is equal to another DataFrame
 #'
 #' @param other DataFrame to compare with.
 #' @return A logical value
 #' @examples
-#' dat1 <- pl$DataFrame(iris)
-#' dat2 <- pl$DataFrame(iris)
-#' dat3 <- pl$DataFrame(mtcars)
+#' dat1 <- as_polars_df(iris)
+#' dat2 <- as_polars_df(iris)
+#' dat3 <- as_polars_df(mtcars)
 #' dat1$equals(dat2)
 #' dat1$equals(dat3)
 dataframe__equals <- function(other, ..., null_equal = TRUE) {
@@ -319,16 +316,16 @@ dataframe__equals <- function(other, ..., null_equal = TRUE) {
   })
 }
 
-#' @title Slice
-#' @description Get a slice of the DataFrame.
+#' Get a slice of the DataFrame.
+#'
 #' @inherit as_polars_df return
 #' @param offset Start index, can be a negative value. This is 0-indexed, so
-#' `offset = 1` doesn't include the first row.
+#' `offset = 1` skips the first row.
 #' @param length Length of the slice. If `NULL` (default), all rows starting at
 #' the offset will be selected.
 #' @examples
 #' # skip the first 2 rows and take the 4 following rows
-#' pl$DataFrame(mtcars)$slice(2, 4)
+#' as_polars_df(mtcars)$slice(2, 4)
 #'
 #' # this is equivalent to:
 #' mtcars[3:6, ]
@@ -390,10 +387,10 @@ dataframe__tail <- function(n = 5) {
 #'
 #' @inherit as_polars_df return
 #' @examples
-#' pl$DataFrame(mtcars)$drop(c("mpg", "hp"))
+#' as_polars_df(mtcars)$drop(c("mpg", "hp"))
 #'
 #' # equivalent
-#' pl$DataFrame(mtcars)$drop("mpg", "hp")
+#' as_polars_df(mtcars)$drop("mpg", "hp")
 dataframe__drop <- function(..., strict = TRUE) {
   self$lazy()$drop(..., strict = strict)$collect(`_eager` = TRUE) |>
     wrap()
@@ -429,7 +426,7 @@ dataframe__cast <- function(..., strict = TRUE) {
 #'
 #' @inherit as_polars_df return
 #' @examples
-#' df <- pl$DataFrame(iris)
+#' df <- as_polars_df(iris)
 #'
 #' df$filter(pl$col("Sepal.Length") > 5)
 #'
@@ -440,7 +437,7 @@ dataframe__cast <- function(..., strict = TRUE) {
 #' # rows where condition is NA are dropped
 #' iris2 <- iris
 #' iris2[c(1, 3, 5), "Species"] <- NA
-#' df <- pl$DataFrame(iris2)
+#' df <- as_polars_df(iris2)
 #'
 #' df$filter(pl$col("Species") == "setosa")
 dataframe__filter <- function(...) {
@@ -455,7 +452,7 @@ dataframe__filter <- function(...) {
 #' @examples
 #' df <- mtcars
 #' df$mpg[1] <- NA
-#' df <- pl$DataFrame(df)
+#' df <- as_polars_df(df)
 #' df$sort("mpg")
 #' df$sort("mpg", nulls_last = TRUE)
 #' df$sort("cyl", "mpg")

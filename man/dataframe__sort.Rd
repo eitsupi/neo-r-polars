@@ -21,7 +21,7 @@ Sort a DataFrame
 \examples{
 df <- mtcars
 df$mpg[1] <- NA
-df <- pl$DataFrame(df)
+df <- as_polars_df(df)
 df$sort("mpg")
 df$sort("mpg", nulls_last = TRUE)
 df$sort("cyl", "mpg")
