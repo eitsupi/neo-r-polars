@@ -1,5 +1,5 @@
 use crate::{prelude::*, PlRExpr};
-use savvy::{savvy, Result};
+use savvy::{savvy, NumericScalar, Result};
 
 #[savvy]
 impl PlRExpr {
@@ -15,11 +15,13 @@ impl PlRExpr {
         Ok(self.inner.clone().arr().sum().into())
     }
 
-    fn arr_std(&self, ddof: u8) -> Result<Self> {
+    fn arr_std(&self, ddof: NumericScalar) -> Result<Self> {
+        let ddof = <Wrap<u8>>::try_from(ddof)?.0;
         Ok(self.inner.clone().arr().std(ddof).into())
     }
 
-    fn arr_var(&self, ddof: u8) -> Result<Self> {
+    fn arr_var(&self, ddof: NumericScalar) -> Result<Self> {
+        let ddof = <Wrap<u8>>::try_from(ddof)?.0;
         Ok(self.inner.clone().arr().var(ddof).into())
     }
 

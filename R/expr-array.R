@@ -171,8 +171,10 @@ expr_arr_unique <- function(maintain_order = FALSE) {
 #'   val_oob = pl$col("values")$arr$get(10)
 #' )
 expr_arr_get <- function(index, ..., null_on_oob = TRUE) {
-  self$`_rexpr`$arr_get(index, null_on_oob) |>
-    wrap()
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$arr_get(as_polars_expr(index)$`_rexpr`, null_on_oob)
+  })
 }
 
 #' Check if array contains a given value
@@ -192,7 +194,7 @@ expr_arr_get <- function(index, ..., null_on_oob = TRUE) {
 #'   with_lit = pl$col("values")$arr$contains(1)
 #' )
 expr_arr_contains <- function(item) {
-  self$`_rexpr`$arr_contains(item) |>
+  self$`_rexpr`$arr_contains(as_polars_expr(item, as_lit = TRUE)$`_rexpr`) |>
     wrap()
 }
 
@@ -218,7 +220,7 @@ expr_arr_contains <- function(item) {
 #'   join_ignore_null = pl$col("values")$arr$join(" ", ignore_nulls = TRUE)
 #' )
 expr_arr_join <- function(separator, ignore_nulls = FALSE) {
-  self$`_rexpr`$arr_join(separator, ignore_nulls) |>
+  self$`_rexpr`$arr_join(as_polars_expr(separator, as_lit = TRUE)$`_rexpr`, ignore_nulls) |>
     wrap()
 }
 
@@ -298,7 +300,7 @@ expr_arr_any <- function() {
 #'   shift_by_lit = pl$col("values")$arr$shift(2)
 #' )
 expr_arr_shift <- function(n = 1) {
-  self$`_rexpr`$arr_shift(n) |>
+  self$`_rexpr`$arr_shift(as_polars_expr(n, as_lit = TRUE)$`_rexpr`) |>
     wrap()
 }
 
