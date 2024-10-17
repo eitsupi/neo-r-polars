@@ -11,7 +11,7 @@ A polars \link{DataFrame}
 }
 \description{
 This makes a very cheap deep copy/clone of an existing
-\code{\link[=DataFrame_class]{DataFrame}}. Rarely useful as \code{DataFrame}s are nearly 100\%
+\code{\link{DataFrame}}. Rarely useful as \code{DataFrame}s are nearly 100\%
 immutable. Any modification of a \code{DataFrame} should lead to a clone anyways,
 but this can be useful when dealing with attributes (see examples).
 }

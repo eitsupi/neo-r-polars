@@ -126,7 +126,7 @@ dataframe__lazy <- function() {
 #' Clone a DataFrame
 #'
 #' This makes a very cheap deep copy/clone of an existing
-#' [`DataFrame`][DataFrame_class]. Rarely useful as `DataFrame`s are nearly 100%
+#' [`DataFrame`]. Rarely useful as `DataFrame`s are nearly 100%
 #' immutable. Any modification of a `DataFrame` should lead to a clone anyways,
 #' but this can be useful when dealing with attributes (see examples).
 #'
