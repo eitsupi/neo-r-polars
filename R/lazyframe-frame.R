@@ -6,7 +6,7 @@
 #' and is the preferred (and highest-performance) mode of operation for polars.
 #'
 #' The `pl$LazyFrame(...)` function is a shortcut for `pl$DataFrame(...)$lazy()`.
-#' @aliases plars_lazy_frame LazyFrame
+#' @aliases polars_lazy_frame LazyFrame
 #' @inheritParams pl__DataFrame
 #' @return A polars [LazyFrame]
 #' @seealso

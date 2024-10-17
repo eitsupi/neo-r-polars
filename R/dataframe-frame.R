@@ -10,6 +10,7 @@
 #' This function is basically a shortcut for `list(...) |> as_polars_df()`,
 #' so each argument in `...` is converted to a Polars Series by [as_polars_series()]
 #' and then passed to [as_polars_df()].
+#' @aliases polars_data_frame DataFrame
 #'
 #' @section Active bindings:
 #' - `columns`: `$columns` returns a character vector with the names of the columns.
