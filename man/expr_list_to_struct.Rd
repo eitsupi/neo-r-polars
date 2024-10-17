@@ -5,7 +5,7 @@
 \title{Convert a Series of type \code{List} to \code{Struct}}
 \usage{
 expr_list_to_struct(
-  n_field_strategy = "first_non_null",
+  n_field_strategy = c("first_non_null", "max_width"),
   fields = NULL,
   upper_bound = 0
 )

@@ -4,7 +4,7 @@
 \alias{expr_list_diff}
 \title{Compute difference between list values}
 \usage{
-expr_list_diff(n = 1, null_behavior = "ignore")
+expr_list_diff(n = 1, null_behavior = c("ignore", "drop"))
 }
 \arguments{
 \item{n}{Number of slots to shift. If negative, then it starts from the end.}
