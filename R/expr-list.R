@@ -362,7 +362,7 @@ expr_list_arg_max <- function() {
 #'
 #' # negative value starts shifting from the end
 #' df$with_columns(diff = pl$col("s")$list$diff(-2))
-expr_list_diff <- function(n = 1, null_behavior = "ignore") {
+expr_list_diff <- function(n = 1, null_behavior = c("ignore", "drop")) {
   wrap({
     null_behavior <- arg_match0(null_behavior, values = c("ignore", "drop"))
     self$`_rexpr`$list_diff(n, null_behavior)
@@ -512,7 +512,7 @@ expr_list_tail <- function(n = 5L) {
 #'
 #' df2$unnest()
 expr_list_to_struct <- function(
-    n_field_strategy = "first_non_null",
+    n_field_strategy = c("first_non_null", "max_width"),
     fields = NULL,
     upper_bound = 0) {
   wrap({
