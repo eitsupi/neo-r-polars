@@ -1,4 +1,5 @@
 test_that("pl$datetime_range", {
+  # no TZ -------------------------------------------
   t1 <- as.POSIXct("2022-01-01")
   t2 <- as.POSIXct("2022-01-02")
 
@@ -21,11 +22,12 @@ test_that("pl$datetime_range", {
     pl$DataFrame(x = seq(t1, t2, by = as.difftime(3, units = "hours")))
   )
 
-  # TODO-REWRITE: fails
-  # expect_equal(
-  #   pl$DataFrame(x = pl$datetime_range(start = t1, end = t2, interval = "3h", time_unit = "ns")),
-  #   pl$DataFrame(x = seq(t1, t2, by = as.difftime(3, units = "hours")))
-  # )
+  expect_equal(
+    pl$DataFrame(x = pl$datetime_range(start = t1, end = t2, interval = "3h", time_unit = "ns")),
+    pl$DataFrame(x = seq(t1, t2, by = as.difftime(3, units = "hours")))$cast(pl$Datetime("ns"))
+  )
+
+  # GMT -------------------------------------------
 
   t1 <- as.POSIXct("2022-01-01", tz = "GMT")
   t2 <- as.POSIXct("2022-01-02", tz = "GMT")
@@ -43,11 +45,12 @@ test_that("pl$datetime_range", {
     pl$DataFrame(x = seq(t1, t2, by = as.difftime(3, units = "hours")))
   )
 
-  # TODO-REWRITE: fails
-  # expect_equal(
-  #   pl$DataFrame(x = pl$datetime_range(start = t1, end = t2, interval = "3h", time_unit = "ns")),
-  #   pl$DataFrame(x = seq(t1, t2, by = as.difftime(3, units = "hours")))
-  # )
+  expect_equal(
+    pl$DataFrame(x = pl$datetime_range(start = t1, end = t2, interval = "3h", time_unit = "ns")),
+    pl$DataFrame(x = seq(t1, t2, by = as.difftime(3, units = "hours")))$cast(pl$Datetime("ns", time_zone = "GMT"))
+  )
+
+  # CET -------------------------------------------
 
   t1 <- as.POSIXct("2022-01-01", tz = "CET")
   t2 <- as.POSIXct("2022-01-02", tz = "CET")
@@ -61,28 +64,25 @@ test_that("pl$datetime_range", {
     pl$DataFrame(x = seq(t1, t2, by = as.difftime(6, units = "hours")))
   )
 
-
   expect_equal(
     pl$DataFrame(x = pl$datetime_range(start = t1, end = t2, interval = "3h", time_unit = "ms")),
     pl$DataFrame(x = seq(t1, t2, by = as.difftime(3, units = "hours")))
   )
 
-  # TODO-REWRITE: fails
-  # expect_equal(
-  #   pl$DataFrame(x = pl$datetime_range(start = t1, end = t2, interval = "3h", time_unit = "ns")),
-  #   pl$DataFrame(x = seq(t1, t2, by = as.difftime(3, units = "hours")))
-  # )
+  expect_equal(
+    pl$DataFrame(x = pl$datetime_range(start = t1, end = t2, interval = "3h", time_unit = "ns")),
+    pl$DataFrame(x = seq(t1, t2, by = as.difftime(3, units = "hours")))$cast(pl$Datetime("ns", time_zone = "CET"))
+  )
 
-  # TODO-REWRITE: fails
   # test difftime conversion to pl_duration
-  # t1 <- as.POSIXct("2022-01-01", tz = "GMT")
-  # t2 <- as.POSIXct("2022-01-10", tz = "GMT")
-  # for (i_diff_time in c("secs", "mins", "hours", "days", "weeks")) {
-  #   expect_equal(
-  #     pl$DataFrame(x = pl$datetime_range(start = t1, end = t2, as.difftime(25, units = i_diff_time), time_unit = "ns")),
-  #     pl$DataFrame(x = seq(t1, t2, by = as.difftime(25, units = i_diff_time)))
-  #   )
-  # }
+  t1 <- as.POSIXct("2022-01-01", tz = "GMT")
+  t2 <- as.POSIXct("2022-01-10", tz = "GMT")
+  for (i_diff_time in c("secs", "mins", "hours", "days", "weeks")) {
+    expect_equal(
+      pl$DataFrame(x = pl$datetime_range(start = t1, end = t2, as.difftime(25, units = i_diff_time), time_unit = "ns")),
+      pl$DataFrame(x = seq(t1, t2, by = as.difftime(25, units = i_diff_time)))$cast(pl$Datetime("ns", "GMT"))
+    )
+  }
 })
 
 test_that("pl$date_range", {
@@ -349,19 +349,6 @@ test_that("second, milli, micro, nano", {
     df$select(microsecond = pl$col("nanosecond") / 1000)$cast(pl$Int64),
     df$select(pl$col("microsecond"))$cast(pl$Int64)
   )
-
-
-  # TODO No longer TRUE since rust-polars 0.30 -> 0.32. Don't know why or of less or more correct.
-  # check milli micro versus
-  # n = df$get_column("f64")$to_r() / 1E9
-  # expect_equal(
-  #   round((n - floor(n)) * 1E3),
-  #   as.numeric(df$get_column("millisecond")$to_r())
-  # )
-  # expect_equal(
-  #   round((n - floor(n)) * 1E6),
-  #   as.numeric(df$get_column("microsecond")$to_r())
-  # )
 })
 
 test_that("offset_by", {
