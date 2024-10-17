@@ -188,11 +188,7 @@ impl TryFrom<&str> for Wrap<TimeUnit> {
             "ns" => TimeUnit::Nanoseconds,
             "us" => TimeUnit::Microseconds,
             "ms" => TimeUnit::Milliseconds,
-            v => {
-                return Err(format!(
-                    "`time_unit` must be one of ('ns', 'us', 'ms'), got '{v}'",
-                ))
-            }
+            v => return Err(format!("unsupported value: '{v}'",)),
         };
         Ok(Wrap(time_unit))
     }
@@ -208,7 +204,7 @@ impl TryFrom<NumericScalar> for Wrap<usize> {
         match n {
             _ if n.is_nan() => Err("`NaN` cannot be converted to usize".to_string()),
             _ if n < 0_f64 => Err(format!(
-                "Nevative value `{n:?}` cannot be converted to usize"
+                "Negative value `{n:?}` cannot be converted to usize"
             )),
             _ if n > usize::MAX as f64 => Err(format!(
                 "Value `{n:?}` is too large to be converted to usize"
@@ -239,7 +235,7 @@ impl TryFrom<NumericSexp> for Wrap<Vec<usize>> {
                     Err("`NaN` cannot be converted to usize".to_string())
                 } else if n < 0_f64 {
                     Err(format!(
-                        "Nevative value `{n:?}` cannot be converted to usize"
+                        "Negative value `{n:?}` cannot be converted to usize"
                     ))
                 } else if n > usize::MAX as f64 {
                     Err(format!(
@@ -312,6 +308,42 @@ impl TryFrom<NumericScalar> for Wrap<u32> {
     }
 }
 
+impl TryFrom<NumericScalar> for Wrap<u64> {
+    type Error = savvy::Error;
+
+    fn try_from(v: NumericScalar) -> Result<Self, savvy::Error> {
+        const TOLERANCE: f64 = 0.01; // same as savvy
+        let v = v.as_f64();
+        if v.is_nan() {
+            Err("`NaN` cannot be converted to u64".to_string())?
+        } else if v < 0_f64 {
+            Err(format!("Value `{v:?}` is too small to be converted to u64"))?
+        } else if v > u64::MAX as f64 {
+            Err(format!("Value `{v:?}` is too large to be converted to u64"))?
+        } else if (v - v.round()).abs() > TOLERANCE {
+            Err(format!(
+                "Value `{v:?}` is not integer-ish enough to be converted to u64"
+            ))?
+        } else {
+            Ok(Wrap(v as u64))
+        }
+    }
+}
+impl TryFrom<&str> for Wrap<char> {
+    type Error = savvy::Error;
+
+    fn try_from(v: &str) -> Result<Self, savvy::Error> {
+        let n_chars = v.len();
+        if n_chars == 1 {
+            Ok(Wrap(v.chars().nth(0).unwrap()))
+        } else {
+            Err(format!(
+                "Expected a string with one character only, currently has {n_chars:?} (from {v:?})."
+            ))?
+        }
+    }
+}
+
 impl TryFrom<&str> for Wrap<NonExistent> {
     type Error = String;
 
@@ -319,11 +351,7 @@ impl TryFrom<&str> for Wrap<NonExistent> {
         let parsed = match non_existent {
             "null" => NonExistent::Null,
             "raise" => NonExistent::Raise,
-            v => {
-                return Err(format!(
-                    "`non_existent` must be one of ('null', 'raise'), got '{v}'",
-                ))
-            }
+            v => return Err(format!("unsupported value: '{v}'",)),
         };
         Ok(Wrap(parsed))
     }
@@ -336,11 +364,7 @@ impl TryFrom<&str> for Wrap<NullBehavior> {
         let parsed = match null_behavior {
             "drop" => NullBehavior::Drop,
             "ignore" => NullBehavior::Ignore,
-            v => {
-                return Err(format!(
-                    "`null_behavior` must be one of ('drop', 'ignore'), got '{v}'",
-                ))
-            }
+            v => return Err(format!("unsupported value: '{v}'",)),
         };
         Ok(Wrap(parsed))
     }
@@ -354,11 +378,35 @@ impl TryFrom<&str> for Wrap<WindowMapping> {
             "group_to_rows" => WindowMapping::GroupsToRows,
             "join" => WindowMapping::Join,
             "explode" => WindowMapping::Explode,
-            v => {
-                return Err(format!(
-                "`mapping_strategy` must be one of ('group_to_rows', 'join', 'explode'), got '{v}'",
-            ))
-            }
+            v => return Err(format!("unsupported value: '{v}'",)),
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
+impl TryFrom<&str> for Wrap<SetOperation> {
+    type Error = String;
+
+    fn try_from(operation: &str) -> Result<Self, String> {
+        let parsed = match operation {
+            "union" => SetOperation::Union,
+            "intersection" => SetOperation::Intersection,
+            "difference" => SetOperation::Difference,
+            "symmetric_difference" => SetOperation::SymmetricDifference,
+            v => return Err(format!("unsupported value: '{v}'",)),
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
+impl TryFrom<&str> for Wrap<ListToStructWidthStrategy> {
+    type Error = String;
+
+    fn try_from(operation: &str) -> Result<Self, String> {
+        let parsed = match operation {
+            "first_non_null" => ListToStructWidthStrategy::FirstNonNull,
+            "max_width" => ListToStructWidthStrategy::MaxWidth,
+            v => return Err(format!("unsupported value: '{v}'",)),
         };
         Ok(Wrap(parsed))
     }
