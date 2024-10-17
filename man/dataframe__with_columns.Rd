@@ -20,8 +20,8 @@ the equivalent of \code{dplyr::mutate()} as it keeps unmentioned columns (unlike
 }
 \examples{
 as_polars_df(iris)$with_columns(
-  abs_SL = pl$col("Sepal.Length")$abs()$alias(""),
-  add_2_SL = pl$col("Sepal.Length") + 2$alias("")
+  abs_SL = pl$col("Sepal.Length")$abs(),
+  add_2_SL = pl$col("Sepal.Length") + 2
 )
 
 # same query
