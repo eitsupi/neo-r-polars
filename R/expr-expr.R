@@ -159,13 +159,13 @@ expr__mul <- function(other) {
 #' )
 #'
 #' df$with_columns(
-#'   `x/2` = pl$col("x")$div(2),
-#'   `x/y` = pl$col("x")$div(pl$col("y"))
+#'   `x/2` = pl$col("x")$truediv(2),
+#'   `x/y` = pl$col("x")$truediv(pl$col("y"))
 #' )
 expr__truediv <- function(other) {
   wrap({
     other <- as_polars_expr(other, as_lit = TRUE)
-    self$`_rexpr`$div(other$`_rexpr`)
+    self$`_rexpr`$true_div(other$`_rexpr`)
   })
 }
 
@@ -217,17 +217,26 @@ expr__mod <- function(other) {
 #' @inherit expr__truediv params return
 #' @seealso
 #' - [Arithmetic operators][S3_arithmetic]
-#' - [`<Expr>$div()`][expr__truediv]
+#' - [`<Expr>$truediv()`][expr__truediv]
 #' - [`<Expr>$mod()`][expr__mod]
 #' @examples
 #' df <- pl$DataFrame(x = 1:5)
 #'
 #' df$with_columns(
-#'   `x/2` = pl$col("x")$div(2),
-#'   `x%/%2` = pl$col("x")$floor_div(2)
+#'   `x/2` = pl$col("x")$truediv(2),
+#'   `x%/%2` = pl$col("x")$floordiv(2)
 #' )
+expr__floordiv <- function(other) {
+  wrap({
+    other <- as_polars_expr(other, as_lit = TRUE)
+    self$`_rexpr`$floor_div(other$`_rexpr`)
+  })
+}
+
+# TODO-REWRITE: remove before next release
 expr__floor_div <- function(other) {
   wrap({
+    deprecate_warn("$floor_div() is deprecated. Use $floordiv() instead.")
     other <- as_polars_expr(other, as_lit = TRUE)
     self$`_rexpr`$floor_div(other$`_rexpr`)
   })

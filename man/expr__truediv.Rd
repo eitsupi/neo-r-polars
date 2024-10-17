@@ -29,8 +29,8 @@ df <- pl$DataFrame(
 )
 
 df$with_columns(
-  `x/2` = pl$col("x")$div(2),
-  `x/y` = pl$col("x")$div(pl$col("y"))
+  `x/2` = pl$col("x")$truediv(2),
+  `x/y` = pl$col("x")$truediv(pl$col("y"))
 )
 }
 \seealso{
