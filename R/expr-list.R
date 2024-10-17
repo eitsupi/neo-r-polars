@@ -176,8 +176,10 @@ expr_list_concat <- function(other) {
 #'   val_oob = pl$col("values")$list$get(10)
 #' )
 expr_list_get <- function(index, ..., null_on_oob = TRUE) {
-  self$`_rexpr`$list_get(as_polars_expr(index)$`_rexpr`, null_on_oob) |>
-    wrap()
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$list_get(as_polars_expr(index)$`_rexpr`, null_on_oob)
+  })
 }
 
 #' Get several values by index in a list
@@ -362,7 +364,7 @@ expr_list_arg_max <- function() {
 #' df$with_columns(diff = pl$col("s")$list$diff(-2))
 expr_list_diff <- function(n = 1, null_behavior = "ignore") {
   wrap({
-    arg_match0(null_behavior, values = c("ignore", "drop"))
+    null_behavior <- arg_match0(null_behavior, values = c("ignore", "drop"))
     self$`_rexpr`$list_diff(n, null_behavior)
   })
 }
@@ -514,7 +516,7 @@ expr_list_to_struct <- function(
     fields = NULL,
     upper_bound = 0) {
   wrap({
-    arg_match0(n_field_strategy, values = c("first_non_null", "max_width"))
+    n_field_strategy <- arg_match0(n_field_strategy, values = c("first_non_null", "max_width"))
     self$`_rexpr`$list_to_struct(n_field_strategy, fields, upper_bound)
   })
 }
@@ -701,6 +703,7 @@ expr_list_sample <- function(
     n = NULL, ..., fraction = NULL, with_replacement = FALSE, shuffle = FALSE,
     seed = NULL) {
   wrap({
+    check_dots_empty0(...)
     if (!is.null(n) && !is.null(fraction)) {
       abort("Provide either `n` or `fraction`, not both.")
     } else if (!is.null(n)) {

@@ -188,11 +188,7 @@ impl TryFrom<&str> for Wrap<TimeUnit> {
             "ns" => TimeUnit::Nanoseconds,
             "us" => TimeUnit::Microseconds,
             "ms" => TimeUnit::Milliseconds,
-            v => {
-                return Err(format!(
-                    "`time_unit` must be one of ('ns', 'us', 'ms'), got '{v}'",
-                ))
-            }
+            v => return Err(format!("unsupported value: '{v}'",)),
         };
         Ok(Wrap(time_unit))
     }
@@ -355,11 +351,7 @@ impl TryFrom<&str> for Wrap<NonExistent> {
         let parsed = match non_existent {
             "null" => NonExistent::Null,
             "raise" => NonExistent::Raise,
-            v => {
-                return Err(format!(
-                    "`non_existent` must be one of ('null', 'raise'), got '{v}'",
-                ))
-            }
+            v => return Err(format!("unsupported value: '{v}'",)),
         };
         Ok(Wrap(parsed))
     }
@@ -372,11 +364,7 @@ impl TryFrom<&str> for Wrap<NullBehavior> {
         let parsed = match null_behavior {
             "drop" => NullBehavior::Drop,
             "ignore" => NullBehavior::Ignore,
-            v => {
-                return Err(format!(
-                    "`null_behavior` must be one of ('drop', 'ignore'), got '{v}'",
-                ))
-            }
+            v => return Err(format!("unsupported value: '{v}'",)),
         };
         Ok(Wrap(parsed))
     }
@@ -390,11 +378,7 @@ impl TryFrom<&str> for Wrap<WindowMapping> {
             "group_to_rows" => WindowMapping::GroupsToRows,
             "join" => WindowMapping::Join,
             "explode" => WindowMapping::Explode,
-            v => {
-                return Err(format!(
-                "`mapping_strategy` must be one of ('group_to_rows', 'join', 'explode'), got '{v}'",
-            ))
-            }
+            v => return Err(format!("unsupported value: '{v}'",)),
         };
         Ok(Wrap(parsed))
     }
@@ -409,11 +393,8 @@ impl TryFrom<&str> for Wrap<SetOperation> {
             "intersection" => SetOperation::Intersection,
             "difference" => SetOperation::Difference,
             "symmetric_difference" => SetOperation::SymmetricDifference,
-            v => {
-                return Err(format!(
-                    "`operation` must be one of 'union', 'intersection', 'difference', 'symmetric_difference'. Got '{v}'",
-                ))
-            }        };
+            v => return Err(format!("unsupported value: '{v}'",)),
+        };
         Ok(Wrap(parsed))
     }
 }
@@ -425,11 +406,7 @@ impl TryFrom<&str> for Wrap<ListToStructWidthStrategy> {
         let parsed = match operation {
             "first_non_null" => ListToStructWidthStrategy::FirstNonNull,
             "max_width" => ListToStructWidthStrategy::MaxWidth,
-            v => {
-                return Err(format!(
-                    "`n_field_strategy` must be one of 'first_non_null','max_width'. Got '{v}'",
-                ))
-            }
+            v => return Err(format!("unsupported value: '{v}'",)),
         };
         Ok(Wrap(parsed))
     }
