@@ -716,6 +716,9 @@ SEXP savvy_PlRExpr_cum_max__impl(SEXP self__, SEXP c_arg__reverse) {
 
 SEXP savvy_PlRExpr_cum_count__impl(SEXP self__, SEXP c_arg__reverse) {
     SEXP res = savvy_PlRExpr_cum_count__ffi(self__, c_arg__reverse);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRExpr_explode__impl(SEXP self__) {
     SEXP res = savvy_PlRExpr_explode__ffi(self__);
     return handle_result(res);

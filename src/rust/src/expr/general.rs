@@ -315,6 +315,8 @@ impl PlRExpr {
 
     fn cum_count(&self, reverse: bool) -> Result<Self> {
         Ok(self.inner.clone().cum_count(reverse).into())
+    }
+
     fn explode(&self) -> Result<Self> {
         Ok(self.inner.clone().explode().into())
     }

@@ -1062,6 +1062,9 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
 `PlRExpr_cum_count` <- function(self) {
   function(`reverse`) {
     .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_cum_count__impl, `self`, `reverse`))
+  }
+}
+
 `PlRExpr_explode` <- function(self) {
   function() {
     .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_explode__impl, `self`))

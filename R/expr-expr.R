@@ -151,7 +151,7 @@ expr__mul <- function(other) {
 #' @param other Numeric literal or expression value.
 #' @seealso
 #' - [Arithmetic operators][S3_arithmetic]
-#' - [`<Expr>$floor_div()`][Expr_floor_div]
+#' - [`<Expr>$floordiv()`][Expr_floordiv]
 #' @examples
 #' df <- pl$DataFrame(
 #'   x = -2:2,
