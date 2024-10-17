@@ -22,7 +22,7 @@ prevent overflow issues.
 }
 \examples{
 pl$DataFrame(a = 1:4)$with_columns(
-  pl$col("a")$cum_prod()$alias("cum_prod"),
-  pl$col("a")$cum_prod(reverse = TRUE)$alias("cum_prod_reversed")
+  cum_prod = pl$col("a")$cum_prod(),
+  cum_prod_reversed = pl$col("a")$cum_prod(reverse = TRUE)
 )
 }

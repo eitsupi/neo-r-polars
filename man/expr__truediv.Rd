@@ -10,7 +10,7 @@ expr__truediv(other)
 \item{other}{Numeric literal or expression value.}
 }
 \value{
-\link[=expr__class]{Expr}
+A polars \link{expression}
 }
 \description{
 Method equivalent of float division operator \code{expr / other}.

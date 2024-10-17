@@ -21,7 +21,7 @@ prevent overflow issues.
 }
 \examples{
 pl$DataFrame(a = c(1:4, 2L))$with_columns(
-  pl$col("a")$cum_min()$alias("cum_min"),
-  pl$col("a")$cum_min(reverse = TRUE)$alias("cum_min_reversed")
+  cum_min = pl$col("a")$cum_min(),
+  cum_min_reversed = pl$col("a")$cum_min(reverse = TRUE)
 )
 }

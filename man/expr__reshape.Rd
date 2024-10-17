@@ -16,13 +16,15 @@ supports 2 dimensions, whereas \link[=DataType_Array]{Array} supports an arbitra
 number of dimensions.}
 }
 \value{
-\link[=expr__class]{Expr}.
-If a single dimension is given, results in an expression of the original data
-type. If a multiple dimensions are given, results in an expression of data
-type List with shape equal to the dimensions.
+A polars \link{expression}
 }
 \description{
 Reshape this Expr to a flat Series or a Series of Lists
+}
+\details{
+If a single dimension is given, results in an expression of the original data
+type. If a multiple dimensions are given, results in an expression of data
+type List with shape equal to the dimensions.
 }
 \examples{
 df <- pl$DataFrame(foo = 1:9)

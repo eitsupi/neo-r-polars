@@ -6,11 +6,12 @@
 #' An expression is a tree of operations that describe how to construct one or more [Series].
 #' As the outputs are [Series], it is straightforward to apply a sequence of expressions each of
 #' which transforms the output from the previous step.
-#' See examples for details. expression
+#' See examples for details.
+#' @name polars_expr
+#' @aliases Expr expression
 #' @seealso
 #' - [`pl$lit()`][pl__lit]: Create a literal expression.
 #' - [`pl$col()`][pl__col]: Create an expression representing column(s) in a [DataFrame].
-#' @name polars_expr
 #' @examples
 #' # An expression:
 #' # 1. Select column `foo`,
@@ -72,8 +73,9 @@ pl__deserialize_expr <- function(data, ..., format = c("binary", "json")) {
 #' Add two expressions
 #'
 #' Method equivalent of addition operator `expr + other`.
-#' @param other numeric or string value; accepts expression input.
-#' @return [Expr][expr__class]
+#' @param other Element to add. Can be a string (only if `expr` is a string), a
+#' numeric value or an other expression.
+#' @inherit as_polars_expr return
 #' @seealso
 #' - [Arithmetic operators][S3_arithmetic]
 #' @examples
@@ -996,6 +998,8 @@ expr__filter <- function(...) {
 #'     s * 2
 #'   }, in_background = TRUE)
 #' )$collect() |> system.time()
+# TODO: remove the noRd tag
+#' @noRd
 expr__map_batches <- function(
     lambda,
     return_dtype = NULL,
@@ -1087,7 +1091,9 @@ expr__diff <- function(n = 1, null_behavior = c("ignore", "drop")) {
 #' @param nested_type The nested data type to create. [List][DataType_List] only
 #' supports 2 dimensions, whereas [Array][DataType_Array] supports an arbitrary
 #' number of dimensions.
-#' @return [Expr][expr__class].
+#' @inherit as_polars_expr return
+#'
+#' @details
 #' If a single dimension is given, results in an expression of the original data
 #' type. If a multiple dimensions are given, results in an expression of data
 #' type List with shape equal to the dimensions.
@@ -1184,8 +1190,8 @@ expr__all <- function(..., ignore_nulls = TRUE) {
 #' prevent overflow issues.
 #' @examples
 #' pl$DataFrame(a = 1:4)$with_columns(
-#'   pl$col("a")$cum_sum()$alias("cum_sum"),
-#'   pl$col("a")$cum_sum(reverse = TRUE)$alias("cum_sum_reversed")
+#'   cum_sum = pl$col("a")$cum_sum(),
+#'   cum_sum_reversed = pl$col("a")$cum_sum(reverse = TRUE)
 #' )
 expr__cum_sum <- function(reverse = FALSE) {
   self$`_rexpr`$cum_sum(reverse) |>
@@ -1202,8 +1208,8 @@ expr__cum_sum <- function(reverse = FALSE) {
 #' @inherit expr__cum_sum return details
 #' @examples
 #' pl$DataFrame(a = 1:4)$with_columns(
-#'   pl$col("a")$cum_prod()$alias("cum_prod"),
-#'   pl$col("a")$cum_prod(reverse = TRUE)$alias("cum_prod_reversed")
+#'   cum_prod = pl$col("a")$cum_prod(),
+#'   cum_prod_reversed = pl$col("a")$cum_prod(reverse = TRUE)
 #' )
 expr__cum_prod <- function(reverse = FALSE) {
   self$`_rexpr`$cum_prod(reverse) |>
@@ -1218,8 +1224,8 @@ expr__cum_prod <- function(reverse = FALSE) {
 #' @inherit expr__cum_sum return details
 #' @examples
 #' pl$DataFrame(a = c(1:4, 2L))$with_columns(
-#'   pl$col("a")$cum_min()$alias("cum_min"),
-#'   pl$col("a")$cum_min(reverse = TRUE)$alias("cum_min_reversed")
+#'   cum_min = pl$col("a")$cum_min(),
+#'   cum_min_reversed = pl$col("a")$cum_min(reverse = TRUE)
 #' )
 expr__cum_min <- function(reverse = FALSE) {
   self$`_rexpr`$cum_min(reverse) |>
@@ -1234,8 +1240,8 @@ expr__cum_min <- function(reverse = FALSE) {
 #' @inherit expr__cum_sum return details
 #' @examples
 #' pl$DataFrame(a = c(1:4, 2L))$with_columns(
-#'   pl$col("a")$cum_max()$alias("cummux"),
-#'   pl$col("a")$cum_max(reverse = TRUE)$alias("cum_max_reversed")
+#'   cum_max = pl$col("a")$cum_max(),
+#'   cum_max_reversed = pl$col("a")$cum_max(reverse = TRUE)
 #' )
 expr__cum_max <- function(reverse = FALSE) {
   self$`_rexpr`$cum_max(reverse) |>
@@ -1256,8 +1262,8 @@ expr__cum_max <- function(reverse = FALSE) {
 #'
 #' @examples
 #' pl$DataFrame(a = 1:4)$with_columns(
-#'   pl$col("a")$cum_count()$alias("cum_count"),
-#'   pl$col("a")$cum_count(reverse = TRUE)$alias("cum_count_reversed")
+#'   cum_count = pl$col("a")$cum_count(),
+#'   cum_count_reversed = pl$col("a")$cum_count(reverse = TRUE)
 #' )
 expr__cum_count <- function(reverse = FALSE) {
   self$`_rexpr`$cum_count(reverse) |>

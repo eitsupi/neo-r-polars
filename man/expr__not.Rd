@@ -7,7 +7,7 @@
 expr__not()
 }
 \value{
-\link[=expr__class]{Expr}
+A polars \link{expression}
 }
 \description{
 Method equivalent of negation operator \code{!expr}.

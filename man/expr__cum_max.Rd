@@ -21,7 +21,7 @@ prevent overflow issues.
 }
 \examples{
 pl$DataFrame(a = c(1:4, 2L))$with_columns(
-  pl$col("a")$cum_max()$alias("cummux"),
-  pl$col("a")$cum_max(reverse = TRUE)$alias("cum_max_reversed")
+  cum_max = pl$col("a")$cum_max(),
+  cum_max_reversed = pl$col("a")$cum_max(reverse = TRUE)
 )
 }

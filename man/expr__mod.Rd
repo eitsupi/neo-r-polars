@@ -10,7 +10,7 @@ expr__mod(other)
 \item{other}{Numeric literal or expression value.}
 }
 \value{
-\link[=expr__class]{Expr}
+A polars \link{expression}
 }
 \description{
 Method equivalent of modulus operator \code{expr \%\% other}.

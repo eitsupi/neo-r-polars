@@ -7,10 +7,11 @@
 expr__gt(other)
 }
 \arguments{
-\item{other}{numeric or string value; accepts expression input.}
+\item{other}{Element to add. Can be a string (only if \code{expr} is a string), a
+numeric value or an other expression.}
 }
 \value{
-\link[=expr__class]{Expr}
+A polars \link{expression}
 }
 \description{
 Method equivalent of addition operator \code{expr + other}.
