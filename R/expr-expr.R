@@ -105,7 +105,8 @@ expr__add <- function(other) {
 #' Substract two expressions
 #'
 #' Method equivalent of subtraction operator `expr - other`.
-#' @inherit expr__truediv params return
+#' @inheritParams expr__truediv
+#' @inherit as_polars_expr return
 #' @seealso
 #' - [Arithmetic operators][S3_arithmetic]
 #' @examples
@@ -125,7 +126,8 @@ expr__sub <- function(other) {
 #' Multiply two expressions
 #'
 #' Method equivalent of multiplication operator `expr * other`.
-#' @inherit expr__truediv params return
+#' @inheritParams expr__truediv
+#' @inherit as_polars_expr return
 #' @seealso
 #' - [Arithmetic operators][S3_arithmetic]
 #' @examples
@@ -149,7 +151,7 @@ expr__mul <- function(other) {
 #' Zero-division behaviour follows IEEE-754:
 #' - `0/0`: Invalid operation - mathematically undefined, returns `NaN`.
 #' - `n/0`: On finite operands gives an exact infinite result, e.g.: ±infinity.
-#' @inherit expr__add return
+#' @inherit as_polars_expr return
 #' @param other Numeric literal or expression value.
 #' @seealso
 #' - [Arithmetic operators][S3_arithmetic]
@@ -176,7 +178,7 @@ expr__truediv <- function(other) {
 #' Method equivalent of exponentiation operator `expr ^ exponent`.
 #'
 #' @param exponent Numeric literal or expression value.
-#' @inherit expr__truediv return
+#' @inherit as_polars_expr return
 #' @seealso
 #' - [Arithmetic operators][S3_arithmetic]
 #' @examples
@@ -196,7 +198,8 @@ expr__pow <- function(other) {
 #' Modulo using two expressions
 #'
 #' Method equivalent of modulus operator `expr %% other`.
-#' @inherit expr__truediv params return
+#' @inheritParams expr__truediv
+#' @inherit as_polars_expr return
 #' @seealso
 #' - [Arithmetic operators][S3_arithmetic]
 #' - [`<Expr>$floor_div()`][expr__floor_div]
@@ -216,7 +219,8 @@ expr__mod <- function(other) {
 #' Floor divide using two expressions
 #'
 #' Method equivalent of floor division operator `expr %/% other`.
-#' @inherit expr__truediv params return
+#' @inheritParams expr__truediv
+#' @inherit as_polars_expr return
 #' @seealso
 #' - [Arithmetic operators][S3_arithmetic]
 #' - [`<Expr>$truediv()`][expr__truediv]
@@ -252,7 +256,8 @@ expr__neg <- function() {
 
 #' Check equality
 #'
-#' @inherit expr__add description params return
+#' @inherit expr__add description params
+#' @inherit as_polars_expr return
 #'
 #' @seealso [expr__eq_missing]
 #' @examples
@@ -268,7 +273,8 @@ expr__eq <- function(other) {
 
 #' Check equality without `null` propagation
 #'
-#' @inherit expr__add description params return
+#' @inherit expr__add description params
+#' @inherit as_polars_expr return
 #'
 #' @seealso [expr__eq]
 #' @examples
@@ -286,7 +292,8 @@ expr__eq_missing <- function(other) {
 
 #' Check inequality
 #'
-#' @inherit expr__add description params return
+#' @inherit expr__add description params
+#' @inherit as_polars_expr return
 #'
 #' @seealso [expr__neq_missing]
 #' @examples
@@ -302,7 +309,8 @@ expr__neq <- function(other) {
 
 #' Check inequality without `null` propagation
 #'
-#' @inherit expr__add description params return
+#' @inherit expr__add description params
+#' @inherit as_polars_expr return
 #'
 #' @seealso [expr__neq]
 #' @examples
@@ -320,7 +328,8 @@ expr__neq_missing <- function(other) {
 
 #' Check greater or equal inequality
 #'
-#' @inherit expr__add description params return
+#' @inherit expr__add description params
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' pl$lit(2) >= 2
@@ -335,7 +344,8 @@ expr__gt <- function(other) {
 
 #' Check greater or equal inequality
 #'
-#' @inherit expr__add description params return
+#' @inherit expr__add description params
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' pl$lit(2) >= 2
@@ -350,7 +360,8 @@ expr__gt_eq <- function(other) {
 
 #' Check lower or equal inequality
 #'
-#' @inherit expr__add description params return
+#' @inherit expr__add description params
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' pl$lit(2) <= 2
@@ -365,7 +376,8 @@ expr__lt_eq <- function(other) {
 
 #' Check strictly lower inequality
 #'
-#' @inherit expr__add description params return
+#' @inherit expr__add description params
+#' @inherit as_polars_expr return
 #'
 #' @examples
 #' pl$lit(5) < 10
@@ -395,7 +407,7 @@ expr__alias <- function(name) {
 #' Negate a boolean expression
 #'
 #' Method equivalent of negation operator `!expr`.
-#' @inherit expr__add return
+#' @inherit as_polars_expr return
 #' @examples
 #' # two syntaxes same result
 #' pl$lit(TRUE)$not()
@@ -627,7 +639,8 @@ expr__sort <- function(..., descending = FALSE, nulls_last = FALSE) {
 #'
 #' Get the index values that would sort this column.
 #'
-#' @inherit expr__sort params return
+#' @inheritParams expr__sort
+#' @inherit as_polars_expr return
 #' @seealso [pl$arg_sort_by()][pl_arg_sort_by()] to find the row indices that would
 #' sort multiple columns.
 #' @examples
@@ -1023,7 +1036,8 @@ expr__map_batches <- function(
 #' Apply logical AND on two expressions
 #'
 #' Combine two boolean expressions with AND.
-#' @inherit expr__add params return
+#' @inheritParams expr__add
+#' @inherit as_polars_expr return
 #' @examples
 #' pl$lit(TRUE) & TRUE
 #' pl$lit(TRUE)$and(pl$lit(TRUE))
@@ -1038,7 +1052,8 @@ expr__and <- function(other) {
 #'
 #' Combine two boolean expressions with OR.
 #'
-#' @inherit expr__add params return
+#' @inheritParams expr__add
+#' @inherit as_polars_expr return
 #' @examples
 #' pl$lit(TRUE) | FALSE
 #' pl$lit(TRUE)$or(pl$lit(TRUE))
@@ -1052,7 +1067,8 @@ expr__or <- function(other) {
 #' Apply logical XOR on two expressions
 #'
 #' Combine two boolean expressions with XOR.
-#' @inherit expr__add params return
+#' @inheritParams expr__add
+#' @inherit as_polars_expr return
 #' @examples
 #' pl$lit(TRUE)$xor(pl$lit(FALSE))
 expr__xor <- function(other) {
@@ -1121,7 +1137,8 @@ expr__reshape <- function(dimensions) {
 #'
 #' Check if any boolean value in a Boolean column is `TRUE`.
 #'
-#' @inherit expr__all params return
+#' @inheritParams expr__all
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   a = c(TRUE, FALSE),
