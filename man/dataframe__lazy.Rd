@@ -13,5 +13,5 @@ A polars \link{LazyFrame}
 Start a new lazy query from a DataFrame.
 }
 \examples{
-pl$DataFrame(iris)$lazy()
+pl$DataFrame(a = 1:2, b = c(NA, "a"))$lazy()
 }

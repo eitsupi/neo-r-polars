@@ -7,7 +7,7 @@
 dataframe__get_columns()
 }
 \value{
-A \link{list} of \link{Series}
+A list of \link{Series}
 }
 \description{
 Get the DataFrame as a List of Series

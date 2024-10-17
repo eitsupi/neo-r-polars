@@ -118,7 +118,7 @@ dataframe__to_struct <- function(name = "") {
 #'
 #' @inherit as_polars_lf return
 #' @examples
-#' pl$DataFrame(iris)$lazy()
+#' pl$DataFrame(a = 1:2, b = c(NA, "a"))$lazy()
 dataframe__lazy <- function() {
   self$`_df`$lazy() |>
     wrap()
@@ -126,10 +126,10 @@ dataframe__lazy <- function() {
 
 #' Clone a DataFrame
 #'
-#' This makes a very cheap deep copy/clone of an existing
-#' [`DataFrame`]. Rarely useful as `DataFrame`s are nearly 100%
-#' immutable. Any modification of a `DataFrame` should lead to a clone anyways,
-#' but this can be useful when dealing with attributes (see examples).
+#' This is a cheap operation that does not copy data. Rarely useful as
+#' `DataFrame`s are nearly 100% immutable. Any modification of a `DataFrame`
+#' should lead to a clone anyways, but this can be useful when dealing with
+#' attributes (see examples).
 #'
 #' @inherit as_polars_df return
 #' @examples
@@ -161,10 +161,9 @@ dataframe__clone <- function() {
     wrap()
 }
 
-# TODO-REWRITE: fix link to Series
 #' Get the DataFrame as a List of Series
 #'
-#' @return A [list] of [Series]
+#' @return A list of [Series]
 #' @seealso
 #' - [`as.list(<polars_data_frame>)`][as.list.polars_data_frame]
 #' @examples
