@@ -126,10 +126,10 @@ dataframe__lazy <- function() {
 
 #' Clone a DataFrame
 #'
-#' This is a cheap operation that does not copy data. Rarely useful as
-#' `DataFrame`s are nearly 100% immutable. Any modification of a `DataFrame`
-#' should lead to a clone anyways, but this can be useful when dealing with
-#' attributes (see examples).
+#' This is a cheap operation that does not copy data. It is rarely useful as
+#' `DataFrame`s are nearly 100% immutable, meaning that any modification of a
+#' `DataFrame` would lead to a clone anyways, but this can be useful when
+#' dealing with attributes (see examples).
 #'
 #' @inherit as_polars_df return
 #' @examples
@@ -400,7 +400,6 @@ dataframe__drop <- function(..., strict = TRUE) {
 #' Cast DataFrame column(s) to the specified dtype
 #'
 #' @inherit LazyFrame_cast description params
-#'
 #'
 #' @inherit as_polars_df return
 #' @examples

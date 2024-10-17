@@ -10,10 +10,10 @@ dataframe__clone()
 A polars \link{DataFrame}
 }
 \description{
-This is a cheap operation that does not copy data. Rarely useful as
-\code{DataFrame}s are nearly 100\% immutable. Any modification of a \code{DataFrame}
-should lead to a clone anyways, but this can be useful when dealing with
-attributes (see examples).
+This is a cheap operation that does not copy data. It is rarely useful as
+\code{DataFrame}s are nearly 100\% immutable, meaning that any modification of a
+\code{DataFrame} would lead to a clone anyways, but this can be useful when
+dealing with attributes (see examples).
 }
 \examples{
 df1 <- as_polars_df(iris)
