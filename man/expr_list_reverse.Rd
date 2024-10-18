@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-list.R
 \name{expr_list_reverse}
 \alias{expr_list_reverse}
-\title{Reverse values in a list}
+\title{Reverse values in every sublist}
 \usage{
 expr_list_reverse()
 }
@@ -10,9 +10,9 @@ expr_list_reverse()
 A polars \link{expression}
 }
 \description{
-Reverse values in a list
+Reverse values in every sublist
 }
 \examples{
-df <- pl$DataFrame(values = list(c(1, 2, 3, NA), c(2, 3), NA_real_))
+df <- pl$DataFrame(values = list(c(1, 2, 3, NA), c(2, 3), NA))
 df$with_columns(reverse = pl$col("values")$list$reverse())
 }

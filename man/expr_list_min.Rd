@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-list.R
 \name{expr_list_min}
 \alias{expr_list_min}
-\title{Find the minimum value in a list}
+\title{Compute the miminum value in every sublist}
 \usage{
 expr_list_min()
 }
@@ -10,9 +10,9 @@ expr_list_min()
 A polars \link{expression}
 }
 \description{
-Find the minimum value in a list
+Compute the miminum value in every sublist
 }
 \examples{
-df <- pl$DataFrame(values = list(c(1, 2, 3, NA), c(2, 3), NA_real_))
+df <- pl$DataFrame(values = list(c(1, 2, 3, NA), c(2, 3), NA))
 df$with_columns(min = pl$col("values")$list$min())
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-list.R
 \name{expr_list_n_unique}
 \alias{expr_list_n_unique}
-\title{Get the number of unique values in a list}
+\title{Count the number of unique values in every sub-lists}
 \usage{
 expr_list_n_unique()
 }
@@ -10,9 +10,9 @@ expr_list_n_unique()
 A polars \link{expression}
 }
 \description{
-Get the number of unique values in a list
+Count the number of unique values in every sub-lists
 }
 \examples{
-df <- pl$DataFrame(values = list(c(2, 2, NA), c(1, 2, 3), NA_real_))
+df <- pl$DataFrame(values = list(c(2, 2, NA), c(1, 2, 3), NA))
 df$with_columns(unique = pl$col("values")$list$n_unique())
 }

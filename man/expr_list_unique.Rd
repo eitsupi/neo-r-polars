@@ -4,9 +4,11 @@
 \alias{expr_list_unique}
 \title{Get unique values in a list}
 \usage{
-expr_list_unique(maintain_order = FALSE)
+expr_list_unique(..., maintain_order = FALSE)
 }
 \arguments{
+\item{...}{Dots which should be empty.}
+
 \item{maintain_order}{Maintain order of data. This requires more work.}
 }
 \value{
@@ -16,6 +18,6 @@ A polars \link{expression}
 Get unique values in a list
 }
 \examples{
-df <- pl$DataFrame(values = list(c(2, 2, NA), c(1, 2, 3), NA_real_))
+df <- pl$DataFrame(values = list(c(2, 2, NA), c(1, 2, 3), NA))
 df$with_columns(unique = pl$col("values")$list$unique())
 }

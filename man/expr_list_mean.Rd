@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-list.R
 \name{expr_list_mean}
 \alias{expr_list_mean}
-\title{Compute the mean value of a list}
+\title{Compute the mean value in every sublist}
 \usage{
 expr_list_mean()
 }
@@ -10,9 +10,9 @@ expr_list_mean()
 A polars \link{expression}
 }
 \description{
-Compute the mean value of a list
+Compute the mean value in every sublist
 }
 \examples{
-df <- pl$DataFrame(values = list(c(1, 2, 3, NA), c(2, 3), NA_real_))
+df <- pl$DataFrame(values = list(c(1, 2, 3, NA), c(2, 3), NA))
 df$with_columns(mean = pl$col("values")$list$mean())
 }
