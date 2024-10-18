@@ -7,16 +7,18 @@
 dataframe__select(...)
 }
 \arguments{
-\item{...}{Columns to keep. Those can be expressions (e.g \code{pl$col("a")}),
-column names  (e.g \code{"a"}), or list containing expressions or column names
-(e.g \code{list(pl$col("a"))}).}
+\item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}>
+Name-value pairs of objects to be converted to polars \link[=Expr]{expressions}
+by the \code{\link[=as_polars_expr]{as_polars_expr()}} function.
+Characters are parsed as column names, other non-expression inputs are parsed as \link[=pl__lit]{literals}.
+Each name will be used as the expression name.}
 }
 \value{
 A polars \link{DataFrame}
 }
 \description{
-Similar to \code{dplyr::mutate()}. However, it discards unmentioned
-columns (like \code{.()} in \code{data.table}).
+Similar to \code{dplyr::mutate()}. However, it discards unmentioned columns (like
+\code{.()} in \code{data.table}).
 }
 \examples{
 as_polars_df(iris)$select(

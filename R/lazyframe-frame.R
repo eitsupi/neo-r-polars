@@ -46,7 +46,10 @@ wrap.PlRLazyFrame <- function(x, ...) {
 }
 
 # TODO: link to pl__select
-#' Select columns from this LazyFrame
+#' Select and modify columns of a LazyFrame
+#'
+#' Similar to `dplyr::mutate()`. However, it discards unmentioned columns (like
+#' `.()` in `data.table`).
 #'
 #' @inherit pl__LazyFrame return
 #' @param ... <[`dynamic-dots`][rlang::dyn-dots]>

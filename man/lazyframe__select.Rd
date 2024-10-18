@@ -2,7 +2,7 @@
 % Please edit documentation in R/lazyframe-frame.R
 \name{lazyframe__select}
 \alias{lazyframe__select}
-\title{Select columns from this LazyFrame}
+\title{Select and modify columns of a LazyFrame}
 \usage{
 lazyframe__select(...)
 }
@@ -17,7 +17,8 @@ Each name will be used as the expression name.}
 A polars \link{LazyFrame}
 }
 \description{
-Select columns from this LazyFrame
+Similar to \code{dplyr::mutate()}. However, it discards unmentioned columns (like
+\code{.()} in \code{data.table}).
 }
 \examples{
 # Pass the name of a column to select that column.

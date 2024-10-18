@@ -233,13 +233,8 @@ dataframe__group_by <- function(..., maintain_order = FALSE) {
 }
 
 #' Select and modify columns of a DataFrame
-#' @description Similar to `dplyr::mutate()`. However, it discards unmentioned
-#' columns (like `.()` in `data.table`).
 #'
-#' @param ... Columns to keep. Those can be expressions (e.g `pl$col("a")`),
-#' column names  (e.g `"a"`), or list containing expressions or column names
-#' (e.g `list(pl$col("a"))`).
-#'
+#' @inherit lazyframe__select description params
 #' @inherit as_polars_df return
 #' @examples
 #' as_polars_df(iris)$select(
