@@ -126,23 +126,33 @@ dataframe__lazy <- function() {
 
 #' Clone a DataFrame
 #'
-#' This is a cheap operation that does not copy data. It is rarely useful as
-#' `DataFrame`s are nearly 100% immutable, meaning that any modification of a
-#' `DataFrame` would lead to a clone anyways, but this can be useful when
+#' This is a cheap operation that does not copy data. This can be useful when
 #' dealing with attributes (see examples).
 #'
 #' @inherit as_polars_df return
 #' @examples
 #' df1 <- as_polars_df(iris)
 #'
-#' # Make a function to take a DataFrame, add an attribute, and return a DataFrame
+#' # Assigning doesn't change the memory address of the environment, but
+#' # cloning does.
+#' df2 <- df1
+#' df3 <- df1$clone()
+#' rlang::env_label(df1)
+#' rlang::env_label(df2)
+#' rlang::env_label(df3)
+#'
+#' # Cloning can be useful to add attributes to data used in a function without
+#' # adding those attributes to the original object.
+#'
+#' # Make a function to take a DataFrame, add an attribute, and return a
+#' # DataFrame:
 #' give_attr <- function(data) {
 #'   attr(data, "created_on") <- "2024-01-29"
 #'   data
 #' }
 #' df2 <- give_attr(df1)
 #'
-#' # Problem: the original DataFrame also gets the attribute while it shouldn't!
+#' # Problem: the original DataFrame also gets the attribute while it shouldn't
 #' attributes(df1)
 #'
 #' # Use $clone() inside the function to avoid that
