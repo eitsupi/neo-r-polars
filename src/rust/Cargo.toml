@@ -29,6 +29,7 @@ features = [
     "binary_encoding",
     "concat_str",
     "cse",
+    "cum_agg",
     "diff",
     "dtype-full",
     "extract_groups",
