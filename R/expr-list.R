@@ -704,7 +704,7 @@ expr_list_explode <- function() {
     wrap()
 }
 
-#' Sample from this list
+#' Sample values from every sub-list
 #'
 #' @inheritParams expr_sample
 #'
