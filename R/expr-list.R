@@ -15,11 +15,6 @@ namespace_expr_list <- function(x) {
   self
 }
 
-# TODO-REWRITE: add in NEWS that some arguments in $list$join(), $list$sort(),
-# $list$unique(), $list$gather(), $list$eval() now must be named, https://github.com/eitsupi/neo-r-polars/pull/21
-
-# TODO-REWRITE: mention new $list$count_matches(), $list$drop_nulls(), $list$median(), $list$std(), $list$var() in NEWS
-
 #' Return the number of elements in each sub-list
 #'
 #' Null values are counted in the total.
@@ -159,7 +154,8 @@ expr_list_n_unique <- function() {
 #'   conc_to_lit_list = pl$col("a")$list$concat(pl$lit(list("hello", c("hello", "world"))))
 #' )
 expr_list_concat <- function(other) {
-  # TODO-REWRITE: py-polars internals are more complicated than that
+  # TODO-REWRITE: py-polars internals are more complicated than that but need
+  # pl$concat_list() to be implemented before finishing this.
   pl$concat_list(list(other)) |>
     wrap()
 }
