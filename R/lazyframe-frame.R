@@ -6,7 +6,7 @@
 #' and is the preferred (and highest-performance) mode of operation for polars.
 #'
 #' The `pl$LazyFrame(...)` function is a shortcut for `pl$DataFrame(...)$lazy()`.
-#' @aliases plars_lazy_frame LazyFrame
+#' @aliases polars_lazy_frame LazyFrame
 #' @inheritParams pl__DataFrame
 #' @return A polars [LazyFrame]
 #' @seealso
@@ -46,7 +46,10 @@ wrap.PlRLazyFrame <- function(x, ...) {
 }
 
 # TODO: link to pl__select
-#' Select columns from this LazyFrame
+#' Select and modify columns of a LazyFrame
+#'
+#' Similar to `dplyr::mutate()`. However, it discards unmentioned columns (like
+#' `.()` in `data.table`).
 #'
 #' @inherit pl__LazyFrame return
 #' @param ... <[`dynamic-dots`][rlang::dyn-dots]>
@@ -264,14 +267,14 @@ lazyframe__sort <- function(
   })
 }
 
-#' Add columns to this LazyFrame
+#' Modify/append column(s) of a LazyFrame
 #'
-#' Added columns will replace existing columns with the same name.
+#' Add columns or modify existing ones with expressions. This is
+#' the equivalent of `dplyr::mutate()` as it keeps unmentioned columns (unlike
+#' `$select()`).
 #'
-#' Creating a new LazyFrame using this method does not create a new copy of
-#' existing data.
-#' @inherit pl__LazyFrame return
 #' @inheritParams lazyframe__select
+#' @inherit pl__LazyFrame return
 #' @examples
 #' # Pass an expression to add it as a new column.
 #' lf <- pl$LazyFrame(
