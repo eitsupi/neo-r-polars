@@ -65,7 +65,7 @@ test_that("arr$unique", {
     pl$DataFrame(a = list(c(2, Inf), c(2, 4, NaN)))$cast(pl$List(pl$Float32))
   )
   expect_snapshot(
-    df$select(pl$col("a")$arr$sort(TRUE)),
+    df$select(pl$col("a")$arr$unique(TRUE)),
     error = TRUE
   )
 })

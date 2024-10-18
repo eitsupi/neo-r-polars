@@ -1,15 +1,15 @@
 # arr$unique
 
     Code
-      df$select(pl$col("a")$arr$sort(TRUE))
+      df$select(pl$col("a")$arr$unique(TRUE))
     Condition
       Error in `df$select()`:
       ! Evaluation failed in `$select()`.
       Caused by error:
       ! Evaluation failed in `$select()`.
-      Caused by error in `pl$col("a")$arr$sort()`:
-      ! Evaluation failed in `$sort()`.
-      Caused by error in `pl$col("a")$arr$sort()`:
+      Caused by error in `pl$col("a")$arr$unique()`:
+      ! Evaluation failed in `$unique()`.
+      Caused by error in `pl$col("a")$arr$unique()`:
       ! `...` must be empty.
       x Problematic argument:
       * ..1 = TRUE
