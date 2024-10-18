@@ -36,7 +36,7 @@ expr_arr_sum <- function() {
 #' Find the maximum value in an array
 #'
 #' @inherit as_polars_expr return
-#' @inherit ExprStr_to_titlecase details
+#' @inherit expr_str_to_titlecase details
 #' @examples
 #' df <- pl$DataFrame(
 #'   values = list(c(1, 2), c(3, 4), c(NA, NA))
@@ -49,7 +49,7 @@ expr_arr_max <- function() {
 
 #' Find the minimum value in an array
 #'
-#' @inherit ExprStr_to_titlecase details
+#' @inherit expr_str_to_titlecase details
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
@@ -303,7 +303,7 @@ expr_arr_shift <- function(n = 1) {
 
 #' Convert an Array column into a List column with the same inner data type
 #'
-#' @return [Expr][Expr_class] of [data type List][DataType_List]
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   a = list(c(1, 2), c(3, 4))

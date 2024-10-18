@@ -7,7 +7,7 @@
 expr_arr_to_list()
 }
 \value{
-\link[=Expr_class]{Expr} of \link[=DataType_List]{data type List}
+A polars \link{expression}
 }
 \description{
 Convert an Array column into a List column with the same inner data type
