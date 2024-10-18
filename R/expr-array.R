@@ -17,8 +17,6 @@ namespace_expr_arr <- function(x) {
   self
 }
 
-# TODO-REWRITE: add in NEWS that some arguments in $arr$join(), $arr$sort(),
-# $arr$unique() now must be named, https://github.com/eitsupi/neo-r-polars/pull/14
 
 # TODO-REWRITE: mention new $arr$count_matches(), $arr$explode(), $arr$first(), $arr$last(), $arr$n_unique() in NEWS
 
