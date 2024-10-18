@@ -14,7 +14,7 @@ Shift array values by \code{n} indices
 }
 \examples{
 df <- pl$DataFrame(
-  values = list(1:3, c(2L, NA_integer_, 5L)),
+  values = list(1:3, c(2L, NA, 5L)),
   idx = 1:2,
 )$cast(values = pl$Array(pl$Int32, 3))
 df$with_columns(

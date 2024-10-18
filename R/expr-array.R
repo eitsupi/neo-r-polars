@@ -22,7 +22,7 @@ namespace_expr_arr <- function(x) {
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
-#'   values = list(c(1, 2), c(3, 4), c(NA_real_, 6))
+#'   values = list(c(1, 2), c(3, 4), c(NA, 6))
 #' )$cast(pl$Array(pl$Float64, 2))
 #' df$with_columns(sum = pl$col("values")$arr$sum())
 expr_arr_sum <- function() {
@@ -36,7 +36,7 @@ expr_arr_sum <- function() {
 #' @inherit ExprStr_to_titlecase details
 #' @examples
 #' df <- pl$DataFrame(
-#'   values = list(c(1, 2), c(3, 4), c(NA_real_, NA_real_))
+#'   values = list(c(1, 2), c(3, 4), c(NA, NA))
 #' )$cast(pl$Array(pl$Float64, 2))
 #' df$with_columns(max = pl$col("values")$arr$max())
 expr_arr_max <- function() {
@@ -50,7 +50,7 @@ expr_arr_max <- function() {
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
-#'   values = list(c(1, 2), c(3, 4), c(NA_real_, NA_real_))
+#'   values = list(c(1, 2), c(3, 4), c(NA, NA))
 #' )$cast(pl$Array(pl$Float64, 2))
 #' df$with_columns(min = pl$col("values")$arr$min())
 expr_arr_min <- function() {
@@ -104,7 +104,7 @@ expr_arr_var <- function(ddof = 1) {
 #' @inheritParams expr_sort
 #' @examples
 #' df <- pl$DataFrame(
-#'   values = list(c(2, 1), c(3, 4), c(NA_real_, 6))
+#'   values = list(c(2, 1), c(3, 4), c(NA, 6))
 #' )$cast(pl$Array(pl$Float64, 2))
 #' df$with_columns(sort = pl$col("values")$arr$sort(nulls_last = TRUE))
 expr_arr_sort <- function(descending = FALSE, nulls_last = FALSE) {
@@ -117,7 +117,7 @@ expr_arr_sort <- function(descending = FALSE, nulls_last = FALSE) {
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
-#'   values = list(c(1, 2), c(3, 4), c(NA_real_, 6))
+#'   values = list(c(1, 2), c(3, 4), c(NA, 6))
 #' )$cast(pl$Array(pl$Float64, 2))
 #' df$with_columns(reverse = pl$col("values")$arr$reverse())
 expr_arr_reverse <- function() {
@@ -131,7 +131,7 @@ expr_arr_reverse <- function() {
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
-#'   values = list(c(1, 1, 2), c(4, 4, 4), c(NA_real_, 6, 7)),
+#'   values = list(c(1, 1, 2), c(4, 4, 4), c(NA, 6, 7)),
 #' )$cast(pl$Array(pl$Float64, 3))
 #' df$with_columns(unique = pl$col("values")$arr$unique())
 expr_arr_unique <- function(maintain_order = FALSE) {
@@ -151,7 +151,7 @@ expr_arr_unique <- function(maintain_order = FALSE) {
 #'   returns the last item).
 #' @examples
 #' df <- pl$DataFrame(
-#'   values = list(c(1, 2), c(3, 4), c(NA_real_, 6)),
+#'   values = list(c(1, 2), c(3, 4), c(NA, 6)),
 #'   idx = c(1, NA, 3)
 #' )$cast(values = pl$Array(pl$Float64, 2))
 #' df$with_columns(
@@ -176,7 +176,7 @@ expr_arr_get <- function(index, ..., null_on_oob = TRUE) {
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
-#'   values = list(0:2, 4:6, c(NA_integer_, NA_integer_, NA_integer_)),
+#'   values = list(0:2, 4:6, c(NA, NA, NA)),
 #'   item = c(0L, 4L, 2L),
 #' )$cast(values = pl$Array(pl$Float64, 3))
 #' df$with_columns(
@@ -276,7 +276,7 @@ expr_arr_any <- function() {
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
-#'   values = list(1:3, c(2L, NA_integer_, 5L)),
+#'   values = list(1:3, c(2L, NA, 5L)),
 #'   idx = 1:2,
 #' )$cast(values = pl$Array(pl$Int32, 3))
 #' df$with_columns(
@@ -306,29 +306,30 @@ expr_arr_to_list <- function() {
 }
 
 
-#' Convert array to struct
-#'
-#' @inheritParams expr_list_to_struct
-#'
-#' @inherit as_polars_expr return
-#' @examples
-#' df <- pl$DataFrame(
-#'   values = list(1:3, c(2L, NA_integer_, 5L))
-#' )$cast(pl$Array(pl$Int32, 3))
-#' df$with_columns(
-#'   struct = pl$col("values")$arr$to_struct()
-#' )
-#'
-#' # pass a custom function that will name all fields by adding a prefix
-#' df2 <- df$with_columns(
-#'   pl$col("values")$arr$to_struct(
-#'     fields = \(idx) paste0("col_", idx)
-#'   )
-#' )
-#' df2
-#'
-#' df2$unnest()
-expr_arr_to_struct <- function(fields = NULL) {
-  self$`_rexpr`$arr_to_struct(fields) |>
-    wrap()
-}
+# TODO-REWRITE: implement this
+# #' Convert array to struct
+# #'
+# #' @inheritParams expr_list_to_struct
+# #'
+# #' @inherit as_polars_expr return
+# #' @examples
+# #' df <- pl$DataFrame(
+# #'   values = list(1:3, c(2L, NA, 5L))
+# #' )$cast(pl$Array(pl$Int32, 3))
+# #' df$with_columns(
+# #'   struct = pl$col("values")$arr$to_struct()
+# #' )
+# #'
+# #' # pass a custom function that will name all fields by adding a prefix
+# #' df2 <- df$with_columns(
+# #'   pl$col("values")$arr$to_struct(
+# #'     fields = \(idx) paste0("col_", idx)
+# #'   )
+# #' )
+# #' df2
+# #'
+# #' df2$unnest()
+# expr_arr_to_struct <- function(fields = NULL) {
+#   self$`_rexpr`$arr_to_struct(fields) |>
+#     wrap()
+# }

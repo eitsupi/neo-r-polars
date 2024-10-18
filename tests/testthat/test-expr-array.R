@@ -1,7 +1,7 @@
 test_that("arr$sum", {
   df <- pl$DataFrame(
-    ints = list(1:2, c(1L, NA_integer_), c(NA_integer_, NA_integer_)),
-    floats = list(c(1, 2), c(1, NA_real_), c(NA_real_, NA_real_)),
+    ints = list(1:2, c(1L, NA), c(NA, NA)),
+    floats = list(c(1, 2), c(1, NA), c(NA, NA)),
   )$cast(
     ints = pl$Array(pl$Int32, 2),
     floats = pl$Array(pl$Float64, 2)
@@ -19,8 +19,8 @@ test_that("arr$sum", {
 
 test_that("arr$max and arr$min", {
   df <- pl$DataFrame(
-    ints = list(1:2, c(1L, NA_integer_), c(NA_integer_, NA_integer_)),
-    floats = list(c(1, 2), c(1, NA_real_), c(NA_real_, NA_real_))
+    ints = list(1:2, c(1L, NA), c(NA, NA)),
+    floats = list(c(1, 2), c(1, NA), c(NA, NA))
   )$cast(
     ints = pl$Array(pl$Int32, 2),
     floats = pl$Array(pl$Float64, 2)
@@ -28,21 +28,21 @@ test_that("arr$max and arr$min", {
   # max ---
   expect_equal(
     df$select(pl$col("ints")$arr$max()),
-    pl$DataFrame(ints = c(2L, 1L, NA_integer_))
+    pl$DataFrame(ints = c(2L, 1L, NA))
   )
   expect_equal(
     df$select(pl$col("floats")$arr$max()),
-    pl$DataFrame(floats = c(2, 1, NA_real_))
+    pl$DataFrame(floats = c(2, 1, NA))
   )
 
   # min ---
   expect_equal(
     df$select(pl$col("ints")$arr$min()),
-    pl$DataFrame(ints = c(1L, 1L, NA_integer_))
+    pl$DataFrame(ints = c(1L, 1L, NA))
   )
   expect_equal(
     df$select(pl$col("floats")$arr$min()),
-    pl$DataFrame(floats = c(1, 1, NA_real_))
+    pl$DataFrame(floats = c(1, 1, NA))
   )
 })
 
@@ -116,25 +116,25 @@ test_that("join", {
 
 test_that("arr$arg_max and arr$arg_min", {
   df <- pl$DataFrame(
-    a = list(c(1, 2), c(1, NA_real_), c(NA_real_, NA_real_))
+    a = list(c(1, 2), c(1, NA), c(NA, NA))
   )$cast(a = pl$Array(pl$Float32, 2))
   # arg_max ---
   expect_equal(
     df$select(pl$col("a")$arr$arg_max()),
-    pl$DataFrame(a = c(1, 0, NA_integer_))$cast(pl$UInt32)
+    pl$DataFrame(a = c(1, 0, NA))$cast(pl$UInt32)
   )
 
   # arg_min ---
   expect_equal(
     df$select(pl$col("a")$arr$arg_min()),
-    pl$DataFrame(a = c(0, 0, NA_real_))$cast(pl$UInt32)
+    pl$DataFrame(a = c(0, 0, NA))$cast(pl$UInt32)
   )
 })
 
 
 test_that("arr$contains", {
   df <- pl$DataFrame(
-    values = list(0:2, 4:6, c(NA_integer_, NA_integer_, NA_integer_)),
+    values = list(0:2, 4:6, c(NA, NA, NA)),
     item = 0:2
   )$cast(values = pl$Array(pl$Float64, 3))
   out <- df$select(
@@ -172,8 +172,8 @@ test_that("$arr$any() works", {
 
 test_that("arr$var", {
   df <- pl$DataFrame(
-    ints = list(1:3, c(3L, 5L, 8L), c(1L, NA_integer_, NA_integer_)),
-    floats = list(c(1, 2, 3), c(3, 5, 8), c(1, NA_real_, NA_real_)),
+    ints = list(1:3, c(3L, 5L, 8L), c(1L, NA, NA)),
+    floats = list(c(1, 2, 3), c(3, 5, 8), c(1, NA, NA)),
     strings = list(c("a", "b"), c("c", "d"), c("e", "f")),
   )$cast(
     ints = pl$Array(pl$Int32, 3),
@@ -192,7 +192,7 @@ test_that("arr$var", {
   )
   expect_equal(
     df$select(pl$col("strings")$arr$var()),
-    pl$DataFrame(strings = c(NA_real_, NA_real_, NA_real_))
+    pl$DataFrame(strings = c(NA, NA, NA))
   )
   expect_snapshot(
     df$select(pl$col("strings")$arr$var(ddof = 1000)),
@@ -202,8 +202,8 @@ test_that("arr$var", {
 
 test_that("arr$std", {
   df <- pl$DataFrame(
-    ints = list(1:3, c(3L, 5L, 8L), c(1L, NA_integer_, NA_integer_)),
-    floats = list(c(1, 2, 3), c(3, 5, 8), c(1, NA_real_, NA_real_)),
+    ints = list(1:3, c(3L, 5L, 8L), c(1L, NA, NA)),
+    floats = list(c(1, 2, 3), c(3, 5, 8), c(1, NA, NA)),
     strings = list(c("a", "b"), c("c", "d"), c("e", "f"))
   )$cast(
     ints = pl$Array(pl$Int32, 3),
@@ -222,7 +222,7 @@ test_that("arr$std", {
   )
   expect_equal(
     df$select(pl$col("strings")$arr$std()),
-    pl$DataFrame(strings = c(NA_real_, NA_real_, NA_real_))
+    pl$DataFrame(strings = c(NA, NA, NA))
   )
   expect_snapshot(
     df$select(pl$col("strings")$arr$std(ddof = 1000)),
@@ -232,8 +232,8 @@ test_that("arr$std", {
 
 test_that("arr$median", {
   df <- pl$DataFrame(
-    ints = list(1:3, c(3L, 5L, 8L), c(1L, NA_integer_, NA_integer_)),
-    floats = list(c(1, 2, 3), c(3, 5, 8), c(1, NA_real_, NA_real_)),
+    ints = list(1:3, c(3L, 5L, 8L), c(1L, NA, NA)),
+    floats = list(c(1, 2, 3), c(3, 5, 8), c(1, NA, NA)),
     strings = list(c("a", "b"), c("c", "d"), c("e", "f")),
   )$cast(
     ints = pl$Array(pl$Int32, 3),
@@ -252,7 +252,7 @@ test_that("arr$median", {
   )
   expect_equal(
     df$select(pl$col("strings")$arr$median()),
-    pl$DataFrame(strings = c(NA_real_, NA_real_, NA_real_))
+    pl$DataFrame(strings = c(NA, NA, NA))
   )
 })
 

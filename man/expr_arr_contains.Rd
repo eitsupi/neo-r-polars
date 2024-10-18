@@ -18,7 +18,7 @@ Check if array contains a given value
 }
 \examples{
 df <- pl$DataFrame(
-  values = list(0:2, 4:6, c(NA_integer_, NA_integer_, NA_integer_)),
+  values = list(0:2, 4:6, c(NA, NA, NA)),
   item = c(0L, 4L, 2L),
 )$cast(values = pl$Array(pl$Float64, 3))
 df$with_columns(
