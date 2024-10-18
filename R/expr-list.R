@@ -484,61 +484,62 @@ expr_list_tail <- function(n = 5L) {
   })
 }
 
-#' Convert a Series of type `List` to `Struct`
-#'
-#' @param n_field_strategy Strategy to determine the number of fields of the
-#'   struct. If `"first_non_null"` (default), set number of fields equal to the
-#'   length of the first non zero-length list. If `"max_width"`, the number of
-#'   fields is the maximum length of a list.
-#'
-#' @param fields If the name and number of the desired fields is known in
-#'   advance, a list of field names can be given, which will be assigned by
-#'   index. Otherwise, to dynamically assign field names, a custom R function
-#'   that takes an R double and outputs a string value can be used. If
-#'   `NULL` (default), fields will be `field_0`, `field_1` ... `field_n`.
+# TODO-REWRITE: implement this
+# #' Convert a Series of type `List` to `Struct`
+# #'
+# #' @param n_field_strategy Strategy to determine the number of fields of the
+# #'   struct. If `"first_non_null"` (default), set number of fields equal to the
+# #'   length of the first non zero-length list. If `"max_width"`, the number of
+# #'   fields is the maximum length of a list.
+# #'
+# #' @param fields If the name and number of the desired fields is known in
+# #'   advance, a list of field names can be given, which will be assigned by
+# #'   index. Otherwise, to dynamically assign field names, a custom R function
+# #'   that takes an R double and outputs a string value can be used. If
+# #'   `NULL` (default), fields will be `field_0`, `field_1` ... `field_n`.
 
-#' @param upper_bound A `LazyFrame` needs to know the schema at all time. The
-#'   caller therefore must provide an `upper_bound` of struct fields that will
-#'   be set. If set incorrectly, downstream operation may fail. For instance an
-#'   `all()$sum()` expression will look in the current schema to determine which
-#'   columns to select. When operating on a `DataFrame`, the schema does not
-#'   need to be tracked or pre-determined, as the result will be eagerly
-#'   evaluated, so you can leave this parameter unset.
-#'
-#' @inherit as_polars_expr return
-#'
-#' @examples
-#' df <- pl$DataFrame(a = list(1:2, 1:3))
-#'
-#' # this discards the third value of the second list as the struct length is
-#' # determined based on the length of the first non-empty list
-#' df$with_columns(
-#'   struct = pl$col("a")$list$to_struct()
-#' )
-#'
-#' # we can use "max_width" to keep all values
-#' df$with_columns(
-#'   struct = pl$col("a")$list$to_struct(n_field_strategy = "max_width")
-#' )
-#'
-#' # pass a custom function that will name all fields by adding a prefix
-#' df2 <- df$with_columns(
-#'   pl$col("a")$list$to_struct(
-#'     fields = \(idx) paste0("col_", idx)
-#'   )
-#' )
-#' df2
-#'
-#' df2$unnest()
-expr_list_to_struct <- function(
-    n_field_strategy = c("first_non_null", "max_width"),
-    fields = NULL,
-    upper_bound = 0) {
-  wrap({
-    n_field_strategy <- arg_match0(n_field_strategy, values = c("first_non_null", "max_width"))
-    self$`_rexpr`$list_to_struct(n_field_strategy, fields, upper_bound)
-  })
-}
+# #' @param upper_bound A `LazyFrame` needs to know the schema at all time. The
+# #'   caller therefore must provide an `upper_bound` of struct fields that will
+# #'   be set. If set incorrectly, downstream operation may fail. For instance an
+# #'   `all()$sum()` expression will look in the current schema to determine which
+# #'   columns to select. When operating on a `DataFrame`, the schema does not
+# #'   need to be tracked or pre-determined, as the result will be eagerly
+# #'   evaluated, so you can leave this parameter unset.
+# #'
+# #' @inherit as_polars_expr return
+# #'
+# #' @examples
+# #' df <- pl$DataFrame(a = list(1:2, 1:3))
+# #'
+# #' # this discards the third value of the second list as the struct length is
+# #' # determined based on the length of the first non-empty list
+# #' df$with_columns(
+# #'   struct = pl$col("a")$list$to_struct()
+# #' )
+# #'
+# #' # we can use "max_width" to keep all values
+# #' df$with_columns(
+# #'   struct = pl$col("a")$list$to_struct(n_field_strategy = "max_width")
+# #' )
+# #'
+# #' # pass a custom function that will name all fields by adding a prefix
+# #' df2 <- df$with_columns(
+# #'   pl$col("a")$list$to_struct(
+# #'     fields = \(idx) paste0("col_", idx)
+# #'   )
+# #' )
+# #' df2
+# #'
+# #' df2$unnest()
+# expr_list_to_struct <- function(
+#     n_field_strategy = c("first_non_null", "max_width"),
+#     fields = NULL,
+#     upper_bound = 0) {
+#   wrap({
+#     n_field_strategy <- arg_match0(n_field_strategy, values = c("first_non_null", "max_width"))
+#     self$`_rexpr`$list_to_struct(n_field_strategy, fields, upper_bound)
+#   })
+# }
 
 #' Run any polars expression on the sub-lists' values
 #'
@@ -625,8 +626,8 @@ expr_list_any <- function() {
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
-#'   a = list(1:3, NA_integer_, c(NA_integer_, 3L), 5:7),
-#'   b = list(2:4, 3L, c(3L, 4L, NA_integer_), c(6L, 8L))
+#'   a = list(1:3, NA, c(NA, 3L), 5:7),
+#'   b = list(2:4, 3L, c(3L, 4L, NA), c(6L, 8L))
 #' )
 #'
 #' df$with_columns(union = pl$col("a")$list$set_union("b"))
@@ -641,8 +642,8 @@ expr_list_set_union <- function(other) {
 #'
 #' @examples
 #' df <- pl$DataFrame(
-#'   a = list(1:3, NA_integer_, c(NA_integer_, 3L), 5:7),
-#'   b = list(2:4, 3L, c(3L, 4L, NA_integer_), c(6L, 8L))
+#'   a = list(1:3, NA, c(NA, 3L), 5:7),
+#'   b = list(2:4, 3L, c(3L, 4L, NA), c(6L, 8L))
 #' )
 #'
 #' df$with_columns(intersection = pl$col("a")$list$set_intersection("b"))
@@ -662,8 +663,8 @@ expr_list_set_intersection <- function(other) {
 #'
 #' @examples
 #' df <- pl$DataFrame(
-#'   a = list(1:3, NA_integer_, c(NA_integer_, 3L), 5:7),
-#'   b = list(2:4, 3L, c(3L, 4L, NA_integer_), c(6L, 8L))
+#'   a = list(1:3, NA, c(NA, 3L), 5:7),
+#'   b = list(2:4, 3L, c(3L, 4L, NA), c(6L, 8L))
 #' )
 #'
 #' df$with_columns(difference = pl$col("a")$list$set_difference("b"))
@@ -682,8 +683,8 @@ expr_list_set_difference <- function(other) {
 #'
 #' @examples
 #' df <- pl$DataFrame(
-#'   a = list(1:3, NA_integer_, c(NA_integer_, 3L), 5:7),
-#'   b = list(2:4, 3L, c(3L, 4L, NA_integer_), c(6L, 8L))
+#'   a = list(1:3, NA, c(NA, 3L), 5:7),
+#'   b = list(2:4, 3L, c(3L, 4L, NA), c(6L, 8L))
 #' )
 #'
 #' df$with_columns(
@@ -713,7 +714,7 @@ expr_list_explode <- function() {
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
-#'   values = list(1:3, NA_integer_, c(NA_integer_, 3L), 5:7),
+#'   values = list(1:3, NA, c(NA, 3L), 5:7),
 #'   n = c(1, 1, 1, 2)
 #' )
 #'
