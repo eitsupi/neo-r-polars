@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-list.R
 \name{expr_list_gather}
 \alias{expr_list_gather}
-\title{Get several values by index in every sublist}
+\title{Get several values by index in every sub-list}
 \usage{
 expr_list_gather(index, ..., null_on_oob = FALSE)
 }
@@ -24,7 +24,7 @@ A polars \link{expression}
 \description{
 This allows to extract several values per list. To extract a single value by
 index, use \code{\link[=expr_list_get]{$list$get()}}. The indices may be defined in a
-single column, or by sublists in another column of dtype List.
+single column, or by sub-lists in another column of dtype List.
 }
 \examples{
 df <- pl$DataFrame(

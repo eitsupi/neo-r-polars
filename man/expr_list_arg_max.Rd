@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-list.R
 \name{expr_list_arg_max}
 \alias{expr_list_arg_max}
-\title{Retrieve the index of the maximum value in every sublist}
+\title{Retrieve the index of the maximum value in every sub-list}
 \usage{
 expr_list_arg_max()
 }
@@ -10,7 +10,7 @@ expr_list_arg_max()
 A polars \link{expression}
 }
 \description{
-Retrieve the index of the maximum value in every sublist
+Retrieve the index of the maximum value in every sub-list
 }
 \examples{
 df <- pl$DataFrame(s = list(1:2, 2:1))

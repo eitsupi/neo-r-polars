@@ -7,6 +7,8 @@
 expr_list_sort(..., descending = FALSE, nulls_last = FALSE)
 }
 \arguments{
+\item{...}{Dots which should be empty.}
+
 \item{descending}{Sort values in descending order.}
 
 \item{nulls_last}{Place null values last.}

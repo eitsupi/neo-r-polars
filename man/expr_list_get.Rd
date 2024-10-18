@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-list.R
 \name{expr_list_get}
 \alias{expr_list_get}
-\title{Get the value by index in every sublist}
+\title{Get the value by index in every sub-list}
 \usage{
 expr_list_get(index, ..., null_on_oob = TRUE)
 }

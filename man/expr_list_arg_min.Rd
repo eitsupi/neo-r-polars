@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-list.R
 \name{expr_list_arg_min}
 \alias{expr_list_arg_min}
-\title{Retrieve the index of the minimum value in every sublist}
+\title{Retrieve the index of the minimum value in every sub-list}
 \usage{
 expr_list_arg_min()
 }
@@ -10,7 +10,7 @@ expr_list_arg_min()
 A polars \link{expression}
 }
 \description{
-Retrieve the index of the minimum value in every sublist
+Retrieve the index of the minimum value in every sub-list
 }
 \examples{
 df <- pl$DataFrame(s = list(1:2, 2:1))

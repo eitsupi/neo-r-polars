@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-list.R
 \name{expr_list_head}
 \alias{expr_list_head}
-\title{Slice the first \code{n} values of every sublist}
+\title{Slice the first \code{n} values of every sub-list}
 \usage{
 expr_list_head(n = 5L)
 }
@@ -14,7 +14,7 @@ Strings are parsed as column names.}
 A polars \link{expression}
 }
 \description{
-Slice the first \code{n} values of every sublist
+Slice the first \code{n} values of every sub-list
 }
 \examples{
 df <- pl$DataFrame(

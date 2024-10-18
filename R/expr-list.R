@@ -86,12 +86,13 @@ expr_list_mean <- function() {
 #'
 #' @param descending Sort values in descending order.
 #' @param nulls_last Place null values last.
+#' @inheritParams rlang::check_dots_empty0
 #'
 #' @inherit as_polars_expr return
 #'
 #' @examples
 #' df <- pl$DataFrame(values = list(c(NA, 2, 1, 3), c(Inf, 2, 3, NaN), NA))
-#' df$with_columns(..., sort = pl$col("values")$list$sort())
+#' df$with_columns(sort = pl$col("values")$list$sort())
 expr_list_sort <- function(..., descending = FALSE, nulls_last = FALSE) {
   wrap({
     check_dots_empty0(...)
