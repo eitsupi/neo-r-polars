@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-array.R
 \name{expr_arr_join}
 \alias{expr_arr_join}
-\title{Join elements of an array}
+\title{Join elements in every sub-array}
 \usage{
 expr_arr_join(separator, ..., ignore_nulls = FALSE)
 }

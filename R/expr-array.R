@@ -347,7 +347,8 @@ expr_arr_to_list <- function() {
 
 #' Count how often a value occurs in every sub-array
 #'
-#' @param element An expression that produces a single value.
+#' @param element An Expr or something coercible to an Expr that produces a
+#' single value.
 #' @inherit as_polars_expr return
 #'
 #' @examples

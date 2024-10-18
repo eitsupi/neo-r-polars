@@ -7,7 +7,8 @@
 expr_arr_count_matches(element)
 }
 \arguments{
-\item{element}{An expression that produces a single value.}
+\item{element}{An Expr or something coercible to an Expr that produces a
+single value.}
 }
 \value{
 A polars \link{expression}
