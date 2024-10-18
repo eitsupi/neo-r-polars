@@ -22,9 +22,8 @@ namespace_expr_arr <- function(x) {
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
-#'   values = list(c(1, 2), c(3, 4), c(NA_real_, 6)),
-#'   schema = list(values = pl$Array(pl$Float64, 2))
-#' )
+#'   values = list(c(1, 2), c(3, 4), c(NA_real_, 6))
+#' )$cast(pl$Array(pl$Float64, 2))
 #' df$with_columns(sum = pl$col("values")$arr$sum())
 expr_arr_sum <- function() {
   self$`_rexpr`$arr_sum() |>
@@ -37,9 +36,8 @@ expr_arr_sum <- function() {
 #' @inherit ExprStr_to_titlecase details
 #' @examples
 #' df <- pl$DataFrame(
-#'   values = list(c(1, 2), c(3, 4), c(NA_real_, NA_real_)),
-#'   schema = list(values = pl$Array(pl$Float64, 2))
-#' )
+#'   values = list(c(1, 2), c(3, 4), c(NA_real_, NA_real_))
+#' )$cast(pl$Array(pl$Float64, 2))
 #' df$with_columns(max = pl$col("values")$arr$max())
 expr_arr_max <- function() {
   self$`_rexpr`$arr_max() |>
@@ -52,9 +50,8 @@ expr_arr_max <- function() {
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
-#'   values = list(c(1, 2), c(3, 4), c(NA_real_, NA_real_)),
-#'   schema = list(values = pl$Array(pl$Float64, 2))
-#' )
+#'   values = list(c(1, 2), c(3, 4), c(NA_real_, NA_real_))
+#' )$cast(pl$Array(pl$Float64, 2))
 #' df$with_columns(min = pl$col("values")$arr$min())
 expr_arr_min <- function() {
   self$`_rexpr`$arr_min() |>
@@ -67,8 +64,7 @@ expr_arr_min <- function() {
 #' @examples
 #' df <- pl$DataFrame(
 #'   values = list(c(2, 1, 4), c(8.4, 3.2, 1)),
-#'   schema = list(values = pl$Array(pl$Float64, 3))
-#' )
+#' )$cast(pl$Array(pl$Float64, 3))
 #' df$with_columns(median = pl$col("values")$arr$median())
 expr_arr_median <- function() {
   self$`_rexpr`$arr_median() |>
@@ -82,8 +78,7 @@ expr_arr_median <- function() {
 #' @examples
 #' df <- pl$DataFrame(
 #'   values = list(c(2, 1, 4), c(8.4, 3.2, 1)),
-#'   schema = list(values = pl$Array(pl$Float64, 3))
-#' )
+#' )$cast(pl$Array(pl$Float64, 3))
 #' df$with_columns(std = pl$col("values")$arr$std())
 expr_arr_std <- function(ddof = 1) {
   self$`_rexpr`$arr_std(ddof) |>
@@ -97,8 +92,7 @@ expr_arr_std <- function(ddof = 1) {
 #' @examples
 #' df <- pl$DataFrame(
 #'   values = list(c(2, 1, 4), c(8.4, 3.2, 1)),
-#'   schema = list(values = pl$Array(pl$Float64, 3))
-#' )
+#' )$cast(pl$Array(pl$Float64, 3))
 #' df$with_columns(var = pl$col("values")$arr$var())
 expr_arr_var <- function(ddof = 1) {
   self$`_rexpr`$arr_var(ddof) |>
@@ -110,9 +104,8 @@ expr_arr_var <- function(ddof = 1) {
 #' @inheritParams expr_sort
 #' @examples
 #' df <- pl$DataFrame(
-#'   values = list(c(2, 1), c(3, 4), c(NA_real_, 6)),
-#'   schema = list(values = pl$Array(pl$Float64, 2))
-#' )
+#'   values = list(c(2, 1), c(3, 4), c(NA_real_, 6))
+#' )$cast(pl$Array(pl$Float64, 2))
 #' df$with_columns(sort = pl$col("values")$arr$sort(nulls_last = TRUE))
 expr_arr_sort <- function(descending = FALSE, nulls_last = FALSE) {
   self$`_rexpr`$arr_sort(descending, nulls_last) |>
@@ -124,9 +117,8 @@ expr_arr_sort <- function(descending = FALSE, nulls_last = FALSE) {
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
-#'   values = list(c(1, 2), c(3, 4), c(NA_real_, 6)),
-#'   schema = list(values = pl$Array(pl$Float64, 2))
-#' )
+#'   values = list(c(1, 2), c(3, 4), c(NA_real_, 6))
+#' )$cast(pl$Array(pl$Float64, 2))
 #' df$with_columns(reverse = pl$col("values")$arr$reverse())
 expr_arr_reverse <- function() {
   self$`_rexpr`$arr_reverse() |>
@@ -140,8 +132,7 @@ expr_arr_reverse <- function() {
 #' @examples
 #' df <- pl$DataFrame(
 #'   values = list(c(1, 1, 2), c(4, 4, 4), c(NA_real_, 6, 7)),
-#'   schema = list(values = pl$Array(pl$Float64, 3))
-#' )
+#' )$cast(pl$Array(pl$Float64, 3))
 #' df$with_columns(unique = pl$col("values")$arr$unique())
 expr_arr_unique <- function(maintain_order = FALSE) {
   self$`_rexpr`$arr_unique(maintain_order) |>
@@ -161,9 +152,8 @@ expr_arr_unique <- function(maintain_order = FALSE) {
 #' @examples
 #' df <- pl$DataFrame(
 #'   values = list(c(1, 2), c(3, 4), c(NA_real_, 6)),
-#'   idx = c(1, NA, 3),
-#'   schema = list(values = pl$Array(pl$Float64, 2))
-#' )
+#'   idx = c(1, NA, 3)
+#' )$cast(pl$Array(pl$Float64, 2))
 #' df$with_columns(
 #'   using_expr = pl$col("values")$arr$get("idx"),
 #'   val_0 = pl$col("values")$arr$get(0),
@@ -187,8 +177,7 @@ expr_arr_get <- function(index, ..., null_on_oob = TRUE) {
 #' df <- pl$DataFrame(
 #'   values = list(0:2, 4:6, c(NA_integer_, NA_integer_, NA_integer_)),
 #'   item = c(0L, 4L, 2L),
-#'   schema = list(values = pl$Array(pl$Float64, 3))
-#' )
+#' )$cast(pl$Array(pl$Float64, 3))
 #' df$with_columns(
 #'   with_expr = pl$col("values")$arr$contains(pl$col("item")),
 #'   with_lit = pl$col("values")$arr$contains(1)
@@ -212,8 +201,7 @@ expr_arr_contains <- function(item) {
 #' df <- pl$DataFrame(
 #'   values = list(c("a", "b", "c"), c("x", "y", "z"), c("e", NA, NA)),
 #'   separator = c("-", "+", "/"),
-#'   schema = list(values = pl$Array(pl$String, 3))
-#' )
+#' )$cast(values = pl$Array(pl$String, 3))
 #' df$with_columns(
 #'   join_with_expr = pl$col("values")$arr$join(pl$col("separator")),
 #'   join_with_lit = pl$col("values")$arr$join(" "),
@@ -230,8 +218,7 @@ expr_arr_join <- function(separator, ignore_nulls = FALSE) {
 #' @examples
 #' df <- pl$DataFrame(
 #'   values = list(1:2, 2:1),
-#'   schema = list(values = pl$Array(pl$Int32, 2))
-#' )
+#' $cast(values = pl$Array(pl$Int32, 2))
 #' df$with_columns(
 #'   arg_min = pl$col("values")$arr$arg_min()
 #' )
@@ -246,8 +233,7 @@ expr_arr_arg_min <- function() {
 #' @examples
 #' df <- pl$DataFrame(
 #'   values = list(1:2, 2:1),
-#'   schema = list(values = pl$Array(pl$Int32, 2))
-#' )
+#' $cast(values = pl$Array(pl$Int32, 2))
 #' df$with_columns(
 #'   arg_max = pl$col("values")$arr$arg_max()
 #' )
@@ -262,8 +248,7 @@ expr_arr_arg_max <- function() {
 #' @examples
 #' df <- pl$DataFrame(
 #'   values = list(c(TRUE, TRUE), c(FALSE, TRUE), c(FALSE, FALSE), c(NA, NA)),
-#'   schema = list(values = pl$Array(pl$Boolean, 2))
-#' )
+#' )$cast(pl$Array(pl$Boolean, 2))
 #' df$with_columns(all = pl$col("values")$arr$all())
 expr_arr_all <- function() {
   self$`_rexpr`$arr_all() |>
@@ -276,8 +261,7 @@ expr_arr_all <- function() {
 #' @examples
 #' df <- pl$DataFrame(
 #'   values = list(c(TRUE, TRUE), c(FALSE, TRUE), c(FALSE, FALSE), c(NA, NA)),
-#'   schema = list(values = pl$Array(pl$Boolean, 2))
-#' )
+#' )$cast(pl$Array(pl$Boolean, 2))
 #' df$with_columns(any = pl$col("values")$arr$any())
 expr_arr_any <- function() {
   self$`_rexpr`$arr_any() |>
@@ -293,8 +277,7 @@ expr_arr_any <- function() {
 #' df <- pl$DataFrame(
 #'   values = list(1:3, c(2L, NA_integer_, 5L)),
 #'   idx = 1:2,
-#'   schema = list(values = pl$Array(pl$Int32, 3))
-#' )
+#' $cast(pl$Array(pl$Int32, 3))
 #' df$with_columns(
 #'   shift_by_expr = pl$col("values")$arr$shift(pl$col("idx")),
 #'   shift_by_lit = pl$col("values")$arr$shift(2)
@@ -310,9 +293,8 @@ expr_arr_shift <- function(n = 1) {
 #' @return [Expr][Expr_class] of [data type List][DataType_List]
 #' @examples
 #' df <- pl$DataFrame(
-#'   a = list(c(1, 2), c(3, 4)),
-#'   schema = list(a = pl$Array(pl$Int8, 2))
-#' )
+#'   a = list(c(1, 2), c(3, 4))
+#' )$cast(pl$Array(pl$Int8, 2))
 #'
 #' df$with_columns(
 #'   list = pl$col("a")$arr$to_list()
@@ -331,8 +313,7 @@ expr_arr_to_list <- function() {
 #' @examples
 #' df <- pl$DataFrame(
 #'   values = list(1:3, c(2L, NA_integer_, 5L)),
-#'   schema = list(values = pl$Array(pl$Int32, 3))
-#' )
+#' $cast(pl$Array(pl$Int32, 3))
 #' df$with_columns(
 #'   struct = pl$col("values")$arr$to_struct()
 #' )

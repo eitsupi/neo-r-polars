@@ -14,8 +14,7 @@ Find the maximum value in an array
 }
 \examples{
 df <- pl$DataFrame(
-  values = list(c(1, 2), c(3, 4), c(NA_real_, NA_real_)),
-  schema = list(values = pl$Array(pl$Float64, 2))
-)
+  values = list(c(1, 2), c(3, 4), c(NA_real_, NA_real_))
+)$cast(pl$Array(pl$Float64, 2))
 df$with_columns(max = pl$col("values")$arr$max())
 }

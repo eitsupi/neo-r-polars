@@ -26,9 +26,8 @@ This allows to extract one value per array only.
 \examples{
 df <- pl$DataFrame(
   values = list(c(1, 2), c(3, 4), c(NA_real_, 6)),
-  idx = c(1, NA, 3),
-  schema = list(values = pl$Array(pl$Float64, 2))
-)
+  idx = c(1, NA, 3)
+)$cast(pl$Array(pl$Float64, 2))
 df$with_columns(
   using_expr = pl$col("values")$arr$get("idx"),
   val_0 = pl$col("values")$arr$get(0),

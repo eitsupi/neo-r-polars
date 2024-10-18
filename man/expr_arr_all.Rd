@@ -15,7 +15,6 @@ Evaluate whether all boolean values in an array are true
 \examples{
 df <- pl$DataFrame(
   values = list(c(TRUE, TRUE), c(FALSE, TRUE), c(FALSE, FALSE), c(NA, NA)),
-  schema = list(values = pl$Array(pl$Boolean, 2))
-)
+)$cast(pl$Array(pl$Boolean, 2))
 df$with_columns(all = pl$col("values")$arr$all())
 }

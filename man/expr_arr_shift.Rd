@@ -16,8 +16,7 @@ Shift array values by \code{n} indices
 df <- pl$DataFrame(
   values = list(1:3, c(2L, NA_integer_, 5L)),
   idx = 1:2,
-  schema = list(values = pl$Array(pl$Int32, 3))
-)
+$cast(pl$Array(pl$Int32, 3))
 df$with_columns(
   shift_by_expr = pl$col("values")$arr$shift(pl$col("idx")),
   shift_by_lit = pl$col("values")$arr$shift(2)

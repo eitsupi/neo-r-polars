@@ -20,8 +20,7 @@ Check if array contains a given value
 df <- pl$DataFrame(
   values = list(0:2, 4:6, c(NA_integer_, NA_integer_, NA_integer_)),
   item = c(0L, 4L, 2L),
-  schema = list(values = pl$Array(pl$Float64, 3))
-)
+)$cast(pl$Array(pl$Float64, 3))
 df$with_columns(
   with_expr = pl$col("values")$arr$contains(pl$col("item")),
   with_lit = pl$col("values")$arr$contains(1)

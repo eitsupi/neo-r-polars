@@ -22,8 +22,7 @@ Convert array to struct
 \examples{
 df <- pl$DataFrame(
   values = list(1:3, c(2L, NA_integer_, 5L)),
-  schema = list(values = pl$Array(pl$Int32, 3))
-)
+$cast(pl$Array(pl$Int32, 3))
 df$with_columns(
   struct = pl$col("values")$arr$to_struct()
 )

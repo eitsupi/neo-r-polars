@@ -14,9 +14,8 @@ Convert an Array column into a List column with the same inner data type
 }
 \examples{
 df <- pl$DataFrame(
-  a = list(c(1, 2), c(3, 4)),
-  schema = list(a = pl$Array(pl$Int8, 2))
-)
+  a = list(c(1, 2), c(3, 4))
+)$cast(pl$Array(pl$Int8, 2))
 
 df$with_columns(
   list = pl$col("a")$arr$to_list()

@@ -15,7 +15,6 @@ Find the median in an array
 \examples{
 df <- pl$DataFrame(
   values = list(c(2, 1, 4), c(8.4, 3.2, 1)),
-  schema = list(values = pl$Array(pl$Float64, 3))
-)
+)$cast(pl$Array(pl$Float64, 3))
 df$with_columns(median = pl$col("values")$arr$median())
 }

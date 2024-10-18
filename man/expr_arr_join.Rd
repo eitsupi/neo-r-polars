@@ -21,8 +21,7 @@ only works on columns of type \code{list[str]}.
 df <- pl$DataFrame(
   values = list(c("a", "b", "c"), c("x", "y", "z"), c("e", NA, NA)),
   separator = c("-", "+", "/"),
-  schema = list(values = pl$Array(pl$String, 3))
-)
+)$cast(values = pl$Array(pl$String, 3))
 df$with_columns(
   join_with_expr = pl$col("values")$arr$join(pl$col("separator")),
   join_with_lit = pl$col("values")$arr$join(" "),
