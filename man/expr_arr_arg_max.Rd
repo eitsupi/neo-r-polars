@@ -14,8 +14,8 @@ Get the index of the maximal value in an array
 }
 \examples{
 df <- pl$DataFrame(
-  values = list(1:2, 2:1),
-$cast(values = pl$Array(pl$Int32, 2))
+  values = list(1:2, 2:1)
+)$cast(pl$Array(pl$Int32, 2))
 df$with_columns(
   arg_max = pl$col("values")$arr$arg_max()
 )

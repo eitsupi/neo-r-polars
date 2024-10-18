@@ -153,7 +153,7 @@ expr_arr_unique <- function(maintain_order = FALSE) {
 #' df <- pl$DataFrame(
 #'   values = list(c(1, 2), c(3, 4), c(NA_real_, 6)),
 #'   idx = c(1, NA, 3)
-#' )$cast(pl$Array(pl$Float64, 2))
+#' )$cast(values = pl$Array(pl$Float64, 2))
 #' df$with_columns(
 #'   using_expr = pl$col("values")$arr$get("idx"),
 #'   val_0 = pl$col("values")$arr$get(0),
@@ -167,6 +167,7 @@ expr_arr_get <- function(index, ..., null_on_oob = TRUE) {
   })
 }
 
+
 #' Check if array contains a given value
 #'
 #' @param item Expr or something coercible to an Expr. Strings are *not* parsed
@@ -177,7 +178,7 @@ expr_arr_get <- function(index, ..., null_on_oob = TRUE) {
 #' df <- pl$DataFrame(
 #'   values = list(0:2, 4:6, c(NA_integer_, NA_integer_, NA_integer_)),
 #'   item = c(0L, 4L, 2L),
-#' )$cast(pl$Array(pl$Float64, 3))
+#' )$cast(values = pl$Array(pl$Float64, 3))
 #' df$with_columns(
 #'   with_expr = pl$col("values")$arr$contains(pl$col("item")),
 #'   with_lit = pl$col("values")$arr$contains(1)
@@ -217,8 +218,8 @@ expr_arr_join <- function(separator, ignore_nulls = FALSE) {
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
-#'   values = list(1:2, 2:1),
-#' $cast(values = pl$Array(pl$Int32, 2))
+#'   values = list(1:2, 2:1)
+#' )$cast(pl$Array(pl$Int32, 2))
 #' df$with_columns(
 #'   arg_min = pl$col("values")$arr$arg_min()
 #' )
@@ -232,8 +233,8 @@ expr_arr_arg_min <- function() {
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
-#'   values = list(1:2, 2:1),
-#' $cast(values = pl$Array(pl$Int32, 2))
+#'   values = list(1:2, 2:1)
+#' )$cast(pl$Array(pl$Int32, 2))
 #' df$with_columns(
 #'   arg_max = pl$col("values")$arr$arg_max()
 #' )
@@ -277,7 +278,7 @@ expr_arr_any <- function() {
 #' df <- pl$DataFrame(
 #'   values = list(1:3, c(2L, NA_integer_, 5L)),
 #'   idx = 1:2,
-#' $cast(pl$Array(pl$Int32, 3))
+#' )$cast(values = pl$Array(pl$Int32, 3))
 #' df$with_columns(
 #'   shift_by_expr = pl$col("values")$arr$shift(pl$col("idx")),
 #'   shift_by_lit = pl$col("values")$arr$shift(2)
@@ -312,8 +313,8 @@ expr_arr_to_list <- function() {
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
-#'   values = list(1:3, c(2L, NA_integer_, 5L)),
-#' $cast(pl$Array(pl$Int32, 3))
+#'   values = list(1:3, c(2L, NA_integer_, 5L))
+#' )$cast(pl$Array(pl$Int32, 3))
 #' df$with_columns(
 #'   struct = pl$col("values")$arr$to_struct()
 #' )
