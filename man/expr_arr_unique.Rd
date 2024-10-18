@@ -4,7 +4,10 @@
 \alias{expr_arr_unique}
 \title{Get unique values in an array}
 \usage{
-expr_arr_unique(maintain_order = FALSE)
+expr_arr_unique(..., maintain_order = FALSE)
+}
+\arguments{
+\item{...}{Dots which should be empty.}
 }
 \value{
 A polars \link{expression}

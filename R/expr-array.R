@@ -17,6 +17,9 @@ namespace_expr_arr <- function(x) {
   self
 }
 
+# TODO-REWRITE: add in NEWS that some arguments in $arr$join(), $arr$sort(),
+# $arr$unique() now must be named, https://github.com/eitsupi/neo-r-polars/pull/14
+
 #' Sum all elements in an array
 #'
 #' @inherit as_polars_expr return
@@ -101,15 +104,18 @@ expr_arr_var <- function(ddof = 1) {
 
 #' Sort values in an array
 #'
+#' @inheritParams rlang::check_dots_empty0
 #' @inheritParams expr_sort
 #' @examples
 #' df <- pl$DataFrame(
 #'   values = list(c(2, 1), c(3, 4), c(NA, 6))
 #' )$cast(pl$Array(pl$Float64, 2))
 #' df$with_columns(sort = pl$col("values")$arr$sort(nulls_last = TRUE))
-expr_arr_sort <- function(descending = FALSE, nulls_last = FALSE) {
-  self$`_rexpr`$arr_sort(descending, nulls_last) |>
-    wrap()
+expr_arr_sort <- function(..., descending = FALSE, nulls_last = FALSE) {
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$arr_sort(descending, nulls_last)
+  })
 }
 
 #' Reverse values in an array
@@ -127,6 +133,7 @@ expr_arr_reverse <- function() {
 
 #' Get unique values in an array
 #'
+#' @inheritParams rlang::check_dots_empty0
 #' @inheritParams expr_unique
 #' @inherit as_polars_expr return
 #' @examples
@@ -134,9 +141,11 @@ expr_arr_reverse <- function() {
 #'   values = list(c(1, 1, 2), c(4, 4, 4), c(NA, 6, 7)),
 #' )$cast(pl$Array(pl$Float64, 3))
 #' df$with_columns(unique = pl$col("values")$arr$unique())
-expr_arr_unique <- function(maintain_order = FALSE) {
-  self$`_rexpr`$arr_unique(maintain_order) |>
-    wrap()
+expr_arr_unique <- function(..., maintain_order = FALSE) {
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$arr_unique(maintain_order)
+  })
 }
 
 
@@ -195,6 +204,7 @@ expr_arr_contains <- function(item) {
 #'
 #' @param separator String to separate the items with. Can be an Expr. Strings
 #'   are *not* parsed as columns.
+#' @inheritParams rlang::check_dots_empty0
 #' @inheritParams pl_concat_str
 #'
 #' @inherit as_polars_expr return
@@ -208,9 +218,11 @@ expr_arr_contains <- function(item) {
 #'   join_with_lit = pl$col("values")$arr$join(" "),
 #'   join_ignore_null = pl$col("values")$arr$join(" ", ignore_nulls = TRUE)
 #' )
-expr_arr_join <- function(separator, ignore_nulls = FALSE) {
-  self$`_rexpr`$arr_join(as_polars_expr(separator, as_lit = TRUE)$`_rexpr`, ignore_nulls) |>
-    wrap()
+expr_arr_join <- function(separator, ..., ignore_nulls = FALSE) {
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$arr_join(as_polars_expr(separator, as_lit = TRUE)$`_rexpr`, ignore_nulls)
+  })
 }
 
 #' Get the index of the minimal value in an array

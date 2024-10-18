@@ -4,11 +4,13 @@
 \alias{expr_arr_join}
 \title{Join elements of an array}
 \usage{
-expr_arr_join(separator, ignore_nulls = FALSE)
+expr_arr_join(separator, ..., ignore_nulls = FALSE)
 }
 \arguments{
 \item{separator}{String to separate the items with. Can be an Expr. Strings
 are \emph{not} parsed as columns.}
+
+\item{...}{Dots which should be empty.}
 }
 \value{
 A polars \link{expression}

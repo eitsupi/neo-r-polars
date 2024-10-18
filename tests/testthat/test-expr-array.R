@@ -64,6 +64,10 @@ test_that("arr$unique", {
     df$select(pl$col("a")$arr$unique()),
     pl$DataFrame(a = list(c(2, Inf), c(2, 4, NaN)))$cast(pl$List(pl$Float32))
   )
+  expect_snapshot(
+    df$select(pl$col("a")$arr$sort(TRUE)),
+    error = TRUE
+  )
 })
 
 test_that("arr$sort", {
@@ -73,6 +77,14 @@ test_that("arr$sort", {
   expect_equal(
     df$select(pl$col("a")$arr$sort()),
     pl$DataFrame(a = list(c(2, 2, Inf), c(2, 4, NaN)))$cast(pl$Array(pl$Float32, 3))
+  )
+  expect_equal(
+    df$select(pl$col("a")$arr$sort(descending = TRUE)),
+    pl$DataFrame(a = list(c(Inf, 2, 2), c(NaN, 4, 2)))$cast(pl$Array(pl$Float32, 3))
+  )
+  expect_snapshot(
+    df$select(pl$col("a")$arr$sort(TRUE)),
+    error = TRUE
   )
 })
 
@@ -111,6 +123,11 @@ test_that("join", {
       join_with_lit = c("a b c", "x y z", NA),
       join_ignore_null = c("a b c", "x y z", "e")
     )
+  )
+
+  expect_snapshot(
+    df$select(pl$col("values")$arr$join(pl$col("separator"), FALSE)),
+    error = TRUE
   )
 })
 
@@ -192,7 +209,7 @@ test_that("arr$var", {
   )
   expect_equal(
     df$select(pl$col("strings")$arr$var()),
-    pl$DataFrame(strings = c(NA, NA, NA))
+    pl$DataFrame(strings = c(NA, NA, NA))$cast(pl$Float64)
   )
   expect_snapshot(
     df$select(pl$col("strings")$arr$var(ddof = 1000)),
@@ -222,7 +239,7 @@ test_that("arr$std", {
   )
   expect_equal(
     df$select(pl$col("strings")$arr$std()),
-    pl$DataFrame(strings = c(NA, NA, NA))
+    pl$DataFrame(strings = c(NA, NA, NA))$cast(pl$Float64)
   )
   expect_snapshot(
     df$select(pl$col("strings")$arr$std(ddof = 1000)),
@@ -252,7 +269,7 @@ test_that("arr$median", {
   )
   expect_equal(
     df$select(pl$col("strings")$arr$median()),
-    pl$DataFrame(strings = c(NA, NA, NA))
+    pl$DataFrame(strings = c(NA, NA, NA))$cast(pl$Float64)
   )
 })
 
