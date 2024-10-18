@@ -18,7 +18,6 @@ namespace_expr_arr <- function(x) {
 }
 
 
-# TODO-REWRITE: mention new $arr$count_matches(), $arr$explode(), $arr$first(), $arr$last(), $arr$n_unique() in NEWS
 
 #' Compute the sum of the sub-arrays
 #'
