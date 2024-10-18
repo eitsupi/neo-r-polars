@@ -99,6 +99,7 @@ NULL
 `int_range` <- function(`start`, `end`, `step`, `dtype`) {
   `start` <- .savvy_extract_ptr(`start`, "PlRExpr")
   `end` <- .savvy_extract_ptr(`end`, "PlRExpr")
+  `dtype` <- .savvy_extract_ptr(`dtype`, "PlRDataType")
   .savvy_wrap_PlRExpr(.Call(savvy_int_range__impl, `start`, `end`, `step`, `dtype`))
 }
 
@@ -107,6 +108,7 @@ NULL
   `start` <- .savvy_extract_ptr(`start`, "PlRExpr")
   `end` <- .savvy_extract_ptr(`end`, "PlRExpr")
   `step` <- .savvy_extract_ptr(`step`, "PlRExpr")
+  `dtype` <- .savvy_extract_ptr(`dtype`, "PlRDataType")
   .savvy_wrap_PlRExpr(.Call(savvy_int_ranges__impl, `start`, `end`, `step`, `dtype`))
 }
 

@@ -91,6 +91,8 @@
     Code
       as_polars_series(as.Date("2022-1-1"))$dt$with_time_unit("bob")
     Condition
+      Warning:
+      $dt$with_time_unit() is deprecated. Cast to Int64 and to Datetime(<desired unit>) instead.
       Error in `as_polars_series(as.Date("2022-1-1"))$dt$with_time_unit()`:
       ! Evaluation failed in `$with_time_unit()`.
       Caused by error:
@@ -103,6 +105,8 @@
     Code
       as_polars_series(as.Date("2022-1-1"))$dt$with_time_unit(42)
     Condition
+      Warning:
+      $dt$with_time_unit() is deprecated. Cast to Int64 and to Datetime(<desired unit>) instead.
       Error in `as_polars_series(as.Date("2022-1-1"))$dt$with_time_unit()`:
       ! Evaluation failed in `$with_time_unit()`.
       Caused by error:

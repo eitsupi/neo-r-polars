@@ -1,4 +1,4 @@
-use crate::{datatypes::PlRDataType, prelude::*, PlRExpr, PlRSeries, RPolarsErr};
+use crate::{datatypes::PlRDataType, prelude::*, PlRExpr, RPolarsErr};
 use polars::lazy::dsl;
 use savvy::{savvy, NumericScalar, Result};
 
@@ -7,11 +7,11 @@ pub fn int_range(
     start: &PlRExpr,
     end: &PlRExpr,
     step: NumericScalar,
-    dtype: &str,
+    dtype: &PlRDataType,
 ) -> Result<PlRExpr> {
     let start = start.inner.clone();
     let end = end.inner.clone();
-    let dtype = PlRDataType::try_from(dtype)?.dt;
+    let dtype = dtype.dt.clone();
     let step = <Wrap<i64>>::try_from(step)?.0;
     Ok(dsl::int_range(start, end, step, dtype).into())
 }
@@ -22,9 +22,9 @@ pub fn int_range(
 //     lower: &Bound<'_, PyAny>,
 //     upper: &Bound<'_, PyAny>,
 //     step: &Bound<'_, PyAny>,
-//     dtype: &str,
+//     dtype: &PlRDataType,
 // ) -> Result<PlRSeries> {
-//     let dtype = PlRDataType::try_from(dtype)?.dt;
+//     let dtype = dtype.dt.clone();
 //     if !dtype.is_integer() {
 //         return Err(RPolarsErr::from(
 //             polars_err!(ComputeError: "non-integer `dtype` passed to `int_range`: {:?}", dtype),
@@ -44,8 +44,13 @@ pub fn int_range(
 // }
 
 #[savvy]
-pub fn int_ranges(start: &PlRExpr, end: &PlRExpr, step: &PlRExpr, dtype: &str) -> Result<PlRExpr> {
-    let dtype = PlRDataType::try_from(dtype)?.dt;
+pub fn int_ranges(
+    start: &PlRExpr,
+    end: &PlRExpr,
+    step: &PlRExpr,
+    dtype: &PlRDataType,
+) -> Result<PlRExpr> {
+    let dtype = dtype.dt.clone();
     if !dtype.is_integer() {
         return Err(RPolarsErr::from(
             polars_err!(ComputeError: "non-integer `dtype` passed to `int_ranges`: {:?}", dtype),
