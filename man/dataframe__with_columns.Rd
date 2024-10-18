@@ -2,13 +2,16 @@
 % Please edit documentation in R/dataframe-frame.R
 \name{dataframe__with_columns}
 \alias{dataframe__with_columns}
-\title{Modify/append column(s)}
+\title{Modify/append column(s) of a DataFrame}
 \usage{
 dataframe__with_columns(...)
 }
 \arguments{
-\item{...}{Any expressions or string column name, or same wrapped in a list.
-If first and only element is a list, it is unwrapped as a list of args.}
+\item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}>
+Name-value pairs of objects to be converted to polars \link[=Expr]{expressions}
+by the \code{\link[=as_polars_expr]{as_polars_expr()}} function.
+Characters are parsed as column names, other non-expression inputs are parsed as \link[=pl__lit]{literals}.
+Each name will be used as the expression name.}
 }
 \value{
 A polars \link{DataFrame}

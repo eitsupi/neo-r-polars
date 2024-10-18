@@ -246,14 +246,9 @@ dataframe__select <- function(...) {
     wrap()
 }
 
-#' Modify/append column(s)
+#' Modify/append column(s) of a DataFrame
 #'
-#' Add columns or modify existing ones with expressions. This is
-#' the equivalent of `dplyr::mutate()` as it keeps unmentioned columns (unlike
-#' `$select()`).
-#'
-#' @param ... Any expressions or string column name, or same wrapped in a list.
-#' If first and only element is a list, it is unwrapped as a list of args.
+#' @inherit lazyframe__with_columns description params
 #' @inherit as_polars_df return
 #' @examples
 #' as_polars_df(iris)$with_columns(

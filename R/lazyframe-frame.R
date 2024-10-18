@@ -267,14 +267,14 @@ lazyframe__sort <- function(
   })
 }
 
-#' Add columns to this LazyFrame
+#' Modify/append column(s) of a LazyFrame
 #'
-#' Added columns will replace existing columns with the same name.
+#' Add columns or modify existing ones with expressions. This is
+#' the equivalent of `dplyr::mutate()` as it keeps unmentioned columns (unlike
+#' `$select()`).
 #'
-#' Creating a new LazyFrame using this method does not create a new copy of
-#' existing data.
-#' @inherit pl__LazyFrame return
 #' @inheritParams lazyframe__select
+#' @inherit pl__LazyFrame return
 #' @examples
 #' # Pass an expression to add it as a new column.
 #' lf <- pl$LazyFrame(
