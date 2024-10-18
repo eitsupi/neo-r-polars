@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-array.R
 \name{expr_arr_get}
 \alias{expr_arr_get}
-\title{Get the value by index in an array}
+\title{Get the value by index in every sub-array}
 \usage{
 expr_arr_get(index, ..., null_on_oob = TRUE)
 }

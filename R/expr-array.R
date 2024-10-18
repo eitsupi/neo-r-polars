@@ -151,7 +151,7 @@ expr_arr_unique <- function(..., maintain_order = FALSE) {
 }
 
 
-#' Get the value by index in an array
+#' Get the value by index in every sub-array
 #'
 #' This allows to extract one value per array only. Values are 0-indexed (so
 #' index `0` would return the first item of every sub-array) and negative values
@@ -199,7 +199,7 @@ expr_arr_contains <- function(item) {
     wrap()
 }
 
-#' Join elements of an array
+#' Join elements in every sub-array
 #'
 #' Join all string items in a sub-array and place a separator between them. This
 #' only works if the inner type of the array is `String`.
