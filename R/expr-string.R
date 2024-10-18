@@ -107,12 +107,13 @@ expr_str_strptime <- function(
     check_dots_empty0(...)
     check_polars_dtype(dtype)
 
-    if (pl$same_outer_dt(dtype, pl$Datetime())) {
-      datetime_type <- dtype$`_rexpr`$get_insides()
-      out <- self$`_rexpr`$str_to_datetime(
-        format, datetime_type$tu, datetime_type$tz, strict, exact, cache, ambiguous
+    if (dtype$eq(pl$Datetime())) {
+      datetime_type <- dtype$`_dt`$`_get_datatype_fields`()
+      time_unit <- datetime_type[["time_unit"]]
+      time_zone <- datetime_type[["time_zone"]]
+      self$`_rexpr`$str_to_datetime(
+        format, time_unit, time_zone, strict, exact, cache, ambiguous
       )
-      out$`_rexpr`$dt_cast_time_unit(expr, datetime_type$tu)
     } else if (dtype$is_date()) {
       self$`_rexpr`$str_to_date(format, strict, exact, cache)
     } else if (dtype$eq(pl$Time)) {
