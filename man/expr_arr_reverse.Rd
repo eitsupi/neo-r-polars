@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-array.R
 \name{expr_arr_reverse}
 \alias{expr_arr_reverse}
-\title{Reverse values in an array}
+\title{Reverse values in every sub-array}
 \usage{
 expr_arr_reverse()
 }
@@ -10,7 +10,7 @@ expr_arr_reverse()
 A polars \link{expression}
 }
 \description{
-Reverse values in an array
+Reverse values in every sub-array
 }
 \examples{
 df <- pl$DataFrame(

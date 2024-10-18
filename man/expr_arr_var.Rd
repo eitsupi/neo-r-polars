@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-array.R
 \name{expr_arr_var}
 \alias{expr_arr_var}
-\title{Find the variance in an array}
+\title{Compute the variance of the sub-arrays}
 \usage{
 expr_arr_var(ddof = 1)
 }
@@ -10,7 +10,7 @@ expr_arr_var(ddof = 1)
 A polars \link{expression}
 }
 \description{
-Find the variance in an array
+Compute the variance of the sub-arrays
 }
 \examples{
 df <- pl$DataFrame(

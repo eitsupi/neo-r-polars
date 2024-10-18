@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-array.R
 \name{expr_arr_sum}
 \alias{expr_arr_sum}
-\title{Sum all elements in an array}
+\title{Compute the sum of the sub-arrays}
 \usage{
 expr_arr_sum()
 }
@@ -10,7 +10,7 @@ expr_arr_sum()
 A polars \link{expression}
 }
 \description{
-Sum all elements in an array
+Compute the sum of the sub-arrays
 }
 \examples{
 df <- pl$DataFrame(

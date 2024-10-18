@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-array.R
 \name{expr_arr_all}
 \alias{expr_arr_all}
-\title{Evaluate whether all boolean values in an array are true}
+\title{Evaluate whether all boolean values are true for every sub-array}
 \usage{
 expr_arr_all()
 }
@@ -10,7 +10,7 @@ expr_arr_all()
 A polars \link{expression}
 }
 \description{
-Evaluate whether all boolean values in an array are true
+Evaluate whether all boolean values are true for every sub-array
 }
 \examples{
 df <- pl$DataFrame(

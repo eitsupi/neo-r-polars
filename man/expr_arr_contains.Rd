@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-array.R
 \name{expr_arr_contains}
 \alias{expr_arr_contains}
-\title{Check if array contains a given value}
+\title{Check if sub-arrays contain the given item}
 \usage{
 expr_arr_contains(item)
 }
@@ -14,7 +14,7 @@ as columns.}
 A polars \link{expression}
 }
 \description{
-Check if array contains a given value
+Check if sub-arrays contain the given item
 }
 \examples{
 df <- pl$DataFrame(

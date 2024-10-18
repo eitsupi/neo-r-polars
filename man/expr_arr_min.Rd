@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-array.R
 \name{expr_arr_min}
 \alias{expr_arr_min}
-\title{Find the minimum value in an array}
+\title{Compute the min value of the sub-arrays}
 \usage{
 expr_arr_min()
 }
@@ -10,7 +10,7 @@ expr_arr_min()
 A polars \link{expression}
 }
 \description{
-Find the minimum value in an array
+Compute the min value of the sub-arrays
 }
 \examples{
 df <- pl$DataFrame(

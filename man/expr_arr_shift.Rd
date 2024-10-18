@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-array.R
 \name{expr_arr_shift}
 \alias{expr_arr_shift}
-\title{Shift array values by \code{n} indices}
+\title{Shift values in every sub-array by the given number of indices}
 \usage{
 expr_arr_shift(n = 1)
 }
@@ -10,7 +10,7 @@ expr_arr_shift(n = 1)
 A polars \link{expression}
 }
 \description{
-Shift array values by \code{n} indices
+Shift values in every sub-array by the given number of indices
 }
 \examples{
 df <- pl$DataFrame(

@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-array.R
 \name{expr_arr_max}
 \alias{expr_arr_max}
-\title{Find the maximum value in an array}
+\title{Compute the max value of the sub-arrays}
 \usage{
 expr_arr_max()
 }
@@ -10,7 +10,7 @@ expr_arr_max()
 A polars \link{expression}
 }
 \description{
-Find the maximum value in an array
+Compute the max value of the sub-arrays
 }
 \examples{
 df <- pl$DataFrame(

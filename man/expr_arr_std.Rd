@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-array.R
 \name{expr_arr_std}
 \alias{expr_arr_std}
-\title{Find the standard deviation in an array}
+\title{Compute the standard deviation of the sub-arrays}
 \usage{
 expr_arr_std(ddof = 1)
 }
@@ -10,7 +10,7 @@ expr_arr_std(ddof = 1)
 A polars \link{expression}
 }
 \description{
-Find the standard deviation in an array
+Compute the standard deviation of the sub-arrays
 }
 \examples{
 df <- pl$DataFrame(

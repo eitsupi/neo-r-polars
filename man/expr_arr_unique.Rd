@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-array.R
 \name{expr_arr_unique}
 \alias{expr_arr_unique}
-\title{Get unique values in an array}
+\title{Get the unique values in every sub-array}
 \usage{
 expr_arr_unique(..., maintain_order = FALSE)
 }
@@ -13,7 +13,7 @@ expr_arr_unique(..., maintain_order = FALSE)
 A polars \link{expression}
 }
 \description{
-Get unique values in an array
+Get the unique values in every sub-array
 }
 \examples{
 df <- pl$DataFrame(

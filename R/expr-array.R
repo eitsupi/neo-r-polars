@@ -20,7 +20,9 @@ namespace_expr_arr <- function(x) {
 # TODO-REWRITE: add in NEWS that some arguments in $arr$join(), $arr$sort(),
 # $arr$unique() now must be named, https://github.com/eitsupi/neo-r-polars/pull/14
 
-#' Sum all elements in an array
+# TODO-REWRITE: mention new $arr$count_matches(), $arr$explode(), $arr$first(), $arr$last(), $arr$n_unique() in NEWS
+
+#' Compute the sum of the sub-arrays
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -33,7 +35,7 @@ expr_arr_sum <- function() {
     wrap()
 }
 
-#' Find the maximum value in an array
+#' Compute the max value of the sub-arrays
 #'
 #' @inherit as_polars_expr return
 #' @inherit expr_str_to_titlecase details
@@ -47,7 +49,7 @@ expr_arr_max <- function() {
     wrap()
 }
 
-#' Find the minimum value in an array
+#' Compute the min value of the sub-arrays
 #'
 #' @inherit expr_str_to_titlecase details
 #' @inherit as_polars_expr return
@@ -61,7 +63,7 @@ expr_arr_min <- function() {
     wrap()
 }
 
-#' Find the median in an array
+#' Compute the median value of the sub-arrays
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -74,7 +76,7 @@ expr_arr_median <- function() {
     wrap()
 }
 
-#' Find the standard deviation in an array
+#' Compute the standard deviation of the sub-arrays
 #'
 #' @inheritParams DataFrame_std
 #' @inherit as_polars_expr return
@@ -88,7 +90,7 @@ expr_arr_std <- function(ddof = 1) {
     wrap()
 }
 
-#' Find the variance in an array
+#' Compute the variance of the sub-arrays
 #'
 #' @inheritParams DataFrame_var
 #' @inherit as_polars_expr return
@@ -102,7 +104,7 @@ expr_arr_var <- function(ddof = 1) {
     wrap()
 }
 
-#' Sort values in an array
+#' Sort values in every sub-array
 #'
 #' @inheritParams rlang::check_dots_empty0
 #' @inheritParams expr_sort
@@ -118,7 +120,7 @@ expr_arr_sort <- function(..., descending = FALSE, nulls_last = FALSE) {
   })
 }
 
-#' Reverse values in an array
+#' Reverse values in every sub-array
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -131,7 +133,7 @@ expr_arr_reverse <- function() {
     wrap()
 }
 
-#' Get unique values in an array
+#' Get the unique values in every sub-array
 #'
 #' @inheritParams rlang::check_dots_empty0
 #' @inheritParams expr_unique
@@ -151,13 +153,13 @@ expr_arr_unique <- function(..., maintain_order = FALSE) {
 
 #' Get the value by index in an array
 #'
-#' This allows to extract one value per array only.
+#' This allows to extract one value per array only. Values are 0-indexed (so
+#' index `0` would return the first item of every sub-array) and negative values
+#' start from the end (so index `-1` returns the last item).
 #'
 #' @inherit expr_list_get params return
 #' @param index An Expr or something coercible to an Expr, that must return a
-#'   single index. Values are 0-indexed (so index 0 would return the first item
-#'   of every sub-array) and negative values start from the end (index `-1`
-#'   returns the last item).
+#'   single index.
 #' @examples
 #' df <- pl$DataFrame(
 #'   values = list(c(1, 2), c(3, 4), c(NA, 6)),
@@ -177,7 +179,7 @@ expr_arr_get <- function(index, ..., null_on_oob = TRUE) {
 }
 
 
-#' Check if array contains a given value
+#' Check if sub-arrays contain the given item
 #'
 #' @param item Expr or something coercible to an Expr. Strings are *not* parsed
 #' as columns.
@@ -200,10 +202,10 @@ expr_arr_contains <- function(item) {
 #' Join elements of an array
 #'
 #' Join all string items in a sub-array and place a separator between them. This
-#' only works on columns of type `list[str]`.
+#' only works if the inner type of the array is `String`.
 #'
 #' @param separator String to separate the items with. Can be an Expr. Strings
-#'   are *not* parsed as columns.
+#'   are not parsed as columns.
 #' @inheritParams rlang::check_dots_empty0
 #' @inheritParams pl_concat_str
 #'
@@ -225,7 +227,7 @@ expr_arr_join <- function(separator, ..., ignore_nulls = FALSE) {
   })
 }
 
-#' Get the index of the minimal value in an array
+#' Retrieve the index of the minimum value in every sub-array
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -240,7 +242,7 @@ expr_arr_arg_min <- function() {
     wrap()
 }
 
-#' Get the index of the maximal value in an array
+#' Retrieve the index of the maximum value in every sub-array
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -255,7 +257,7 @@ expr_arr_arg_max <- function() {
     wrap()
 }
 
-#' Evaluate whether all boolean values in an array are true
+#' Evaluate whether all boolean values are true for every sub-array
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -268,7 +270,7 @@ expr_arr_all <- function() {
     wrap()
 }
 
-#' Evaluate whether any boolean values in an array are true
+#' Evaluate whether any boolean value is true for every sub-array
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -281,7 +283,7 @@ expr_arr_any <- function() {
     wrap()
 }
 
-#' Shift array values by `n` indices
+#' Shift values in every sub-array by the given number of indices
 #'
 #' @inheritParams DataFrame_shift
 #'
@@ -345,3 +347,72 @@ expr_arr_to_list <- function() {
 #   self$`_rexpr`$arr_to_struct(fields) |>
 #     wrap()
 # }
+
+#' Count how often a value occurs in every sub-array
+#'
+#' @param element An expression that produces a single value.
+#' @inherit as_polars_expr return
+#'
+#' @examples
+#' df <- pl$DataFrame(
+#'   values = list(c(1, 2), c(1, 1), c(2, 2))
+#' )$cast(pl$Array(pl$Int64, 2))
+#' df$with_columns(number_of_twos = pl$col("values")$arr$count_matches(2))
+expr_arr_count_matches <- function(element) {
+  self$`_rexpr`$arr_count_matches(as_polars_expr(element, as_lit = TRUE)$`_rexpr`) |>
+    wrap()
+}
+
+#' Explode array in separate rows
+#'
+#' Returns a column with a separate row for every array element.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = list(c(1, 2, 3), c(4, 5, 6))
+#' )$cast(pl$Array(pl$Int64, 3))
+#' df$select(pl$col("a")$arr$explode())
+expr_arr_explode <- function() {
+  self$`_rexpr`$explode() |>
+    wrap()
+}
+
+#' Get the first value of the sub-arrays
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = list(c(1, 2, 3), c(4, 5, 6))
+#' )$cast(pl$Array(pl$Int64, 3))
+#' df$with_columns(first = pl$col("a")$arr$first())
+expr_arr_first <- function() {
+  self$`_rexpr`$arr_get(pl$lit(0)$`_rexpr`, null_on_oob = TRUE) |>
+    wrap()
+}
+
+#' Get the last value of the sub-arrays
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = list(c(1, 2, 3), c(4, 5, 6))
+#' )$cast(pl$Array(pl$Int64, 3))
+#' df$with_columns(last = pl$col("a")$arr$last())
+expr_arr_last <- function() {
+  self$`_rexpr`$arr_get(pl$lit(-1)$`_rexpr`, null_on_oob = TRUE) |>
+    wrap()
+}
+
+#' Count the number of unique values in every sub-array
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = list(c(1, 1, 2), c(2, 3, 4))
+#' )$cast(pl$Array(pl$Int64, 3))
+#' df$with_columns(n_unique = pl$col("a")$arr$n_unique())
+expr_arr_n_unique <- function() {
+  self$`_rexpr`$arr_n_unique() |>
+    wrap()
+}

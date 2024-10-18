@@ -479,6 +479,11 @@ SEXP savvy_PlRExpr_arr_shift__impl(SEXP self__, SEXP c_arg__n) {
     return handle_result(res);
 }
 
+SEXP savvy_PlRExpr_arr_n_unique__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_arr_n_unique__ffi(self__);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRExpr_bin_contains__impl(SEXP self__, SEXP c_arg__literal) {
     SEXP res = savvy_PlRExpr_bin_contains__ffi(self__, c_arg__literal);
     return handle_result(res);
@@ -1575,6 +1580,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_arr_contains__impl", (DL_FUNC) &savvy_PlRExpr_arr_contains__impl, 2},
     {"savvy_PlRExpr_arr_count_matches__impl", (DL_FUNC) &savvy_PlRExpr_arr_count_matches__impl, 2},
     {"savvy_PlRExpr_arr_shift__impl", (DL_FUNC) &savvy_PlRExpr_arr_shift__impl, 2},
+    {"savvy_PlRExpr_arr_n_unique__impl", (DL_FUNC) &savvy_PlRExpr_arr_n_unique__impl, 1},
     {"savvy_PlRExpr_bin_contains__impl", (DL_FUNC) &savvy_PlRExpr_bin_contains__impl, 2},
     {"savvy_PlRExpr_bin_ends_with__impl", (DL_FUNC) &savvy_PlRExpr_bin_ends_with__impl, 2},
     {"savvy_PlRExpr_bin_starts_with__impl", (DL_FUNC) &savvy_PlRExpr_bin_starts_with__impl, 2},

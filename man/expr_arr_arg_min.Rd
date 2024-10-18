@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-array.R
 \name{expr_arr_arg_min}
 \alias{expr_arr_arg_min}
-\title{Get the index of the minimal value in an array}
+\title{Retrieve the index of the minimum value in every sub-array}
 \usage{
 expr_arr_arg_min()
 }
@@ -10,7 +10,7 @@ expr_arr_arg_min()
 A polars \link{expression}
 }
 \description{
-Get the index of the minimal value in an array
+Retrieve the index of the minimum value in every sub-array
 }
 \examples{
 df <- pl$DataFrame(

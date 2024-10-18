@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-array.R
 \name{expr_arr_sort}
 \alias{expr_arr_sort}
-\title{Sort values in an array}
+\title{Sort values in every sub-array}
 \usage{
 expr_arr_sort(..., descending = FALSE, nulls_last = FALSE)
 }
@@ -10,7 +10,7 @@ expr_arr_sort(..., descending = FALSE, nulls_last = FALSE)
 \item{...}{Dots which should be empty.}
 }
 \description{
-Sort values in an array
+Sort values in every sub-array
 }
 \examples{
 df <- pl$DataFrame(

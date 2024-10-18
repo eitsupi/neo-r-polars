@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-array.R
 \name{expr_arr_median}
 \alias{expr_arr_median}
-\title{Find the median in an array}
+\title{Compute the median value of the sub-arrays}
 \usage{
 expr_arr_median()
 }
@@ -10,7 +10,7 @@ expr_arr_median()
 A polars \link{expression}
 }
 \description{
-Find the median in an array
+Compute the median value of the sub-arrays
 }
 \examples{
 df <- pl$DataFrame(

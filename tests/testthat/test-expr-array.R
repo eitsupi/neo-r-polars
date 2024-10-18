@@ -318,3 +318,62 @@ test_that("arr$to_list", {
 #     pl$DataFrame(strings = list(col_0 = c("a", "c"), col_1 = c("b", "d")))
 #   )
 # })
+
+test_that("arr$count_matches", {
+  df <- pl$DataFrame(
+    x = list(c(1, 2), c(1, 1), c(2, 2))
+  )$cast(pl$Array(pl$Int64, 2))
+
+  expect_equal(
+    df$select(pl$col("x")$arr$count_matches(2)),
+    pl$DataFrame(x = c(1, 0, 2))$cast(pl$UInt32)
+  )
+  expect_snapshot(
+    df$select(pl$col("x")$arr$count_matches("foo")),
+    error = TRUE
+  )
+})
+
+test_that("arr$explode", {
+  df <- pl$DataFrame(
+    x = list(c(1, 2, 3), c(4, 5, 6))
+  )$cast(pl$Array(pl$Int64, 3))
+
+  expect_equal(
+    df$select(pl$col("x")$arr$explode()),
+    pl$DataFrame(x = 1:6)$cast(pl$Int64)
+  )
+})
+
+test_that("arr$first", {
+  df <- pl$DataFrame(
+    x = list(c(1, 2, 3), c(4, 5, 6))
+  )$cast(pl$Array(pl$Int64, 3))
+
+  expect_equal(
+    df$select(pl$col("x")$arr$first()),
+    pl$DataFrame(x = c(1, 4))$cast(pl$Int64)
+  )
+})
+
+test_that("arr$last", {
+  df <- pl$DataFrame(
+    x = list(c(1, 2, 3), c(4, 5, 6))
+  )$cast(pl$Array(pl$Int64, 3))
+
+  expect_equal(
+    df$select(pl$col("x")$arr$last()),
+    pl$DataFrame(x = c(3, 6))$cast(pl$Int64)
+  )
+})
+
+test_that("arr$n_unique", {
+  df <- pl$DataFrame(
+    x = list(c(1, 1, 2), c(2, 3, 4))
+  )$cast(pl$Array(pl$Int64, 3))
+
+  expect_equal(
+    df$select(pl$col("x")$arr$n_unique()),
+    pl$DataFrame(x = c(2, 3))$cast(pl$UInt32)
+  )
+})

@@ -97,6 +97,7 @@ SEXP savvy_PlRExpr_arr_join__ffi(SEXP self__, SEXP c_arg__separator, SEXP c_arg_
 SEXP savvy_PlRExpr_arr_contains__ffi(SEXP self__, SEXP c_arg__other);
 SEXP savvy_PlRExpr_arr_count_matches__ffi(SEXP self__, SEXP c_arg__expr);
 SEXP savvy_PlRExpr_arr_shift__ffi(SEXP self__, SEXP c_arg__n);
+SEXP savvy_PlRExpr_arr_n_unique__ffi(SEXP self__);
 SEXP savvy_PlRExpr_bin_contains__ffi(SEXP self__, SEXP c_arg__literal);
 SEXP savvy_PlRExpr_bin_ends_with__ffi(SEXP self__, SEXP c_arg__suffix);
 SEXP savvy_PlRExpr_bin_starts_with__ffi(SEXP self__, SEXP c_arg__prefix);

@@ -77,3 +77,15 @@
       Caused by error:
       ! Value `1000.0` is too large to be converted to u8
 
+# arr$count_matches
+
+    Code
+      df$select(pl$col("x")$arr$count_matches("foo"))
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! ComputeError(ErrString("cannot compare string with numeric type (i64)"))
+
