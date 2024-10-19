@@ -10,14 +10,16 @@ dataframe__clone()
 A polars \link{DataFrame}
 }
 \description{
-This is a cheap operation that does not copy data. This can be useful when
-dealing with attributes (see examples).
+This is a cheap operation that does not copy data. Assigning does not copy
+the DataFrame (environment object). This is because environment objects have
+reference semantics. Calling $clone() creates a new environment, which can
+be useful when dealing with attributes (see examples).
 }
 \examples{
 df1 <- as_polars_df(iris)
 
-# Assigning doesn't change the memory address of the environment, but
-# cloning does.
+# Assigning does not copy the DataFrame (environment object), calling
+# $clone() creates a new environment.
 df2 <- df1
 df3 <- df1$clone()
 rlang::env_label(df1)
