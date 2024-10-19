@@ -4,26 +4,26 @@ test_that("pl$datetime_range", {
   t2 <- as.POSIXct("2022-01-02")
 
   expect_equal(
-    pl$DataFrame(x = pl$datetime_range(start = t1, end = t2, interval = "6h")),
+    pl$select(x = pl$datetime_range(start = t1, end = t2, interval = "6h")),
     pl$DataFrame(x = seq(t1, t2, by = as.difftime(6, units = "hours")))
   )
   expect_equal(
-    pl$DataFrame(x = pl$datetime_range(start = t1, end = t2, interval = "6h", time_zone = NULL)),
+    pl$select(x = pl$datetime_range(start = t1, end = t2, interval = "6h", time_zone = NULL)),
     pl$DataFrame(x = seq(t1, t2, by = as.difftime(6, units = "hours")))
   )
 
   expect_equal(
-    pl$DataFrame(x = pl$datetime_range(start = t1, end = t2, interval = "6h", time_zone = "GMT")),
+    pl$select(x = pl$datetime_range(start = t1, end = t2, interval = "6h", time_zone = "GMT")),
     pl$DataFrame(x = seq(as.POSIXct("2022-01-01", tz = "GMT"), as.POSIXct("2022-01-02", tz = "GMT"), by = as.difftime(6, units = "hours")))
   )
 
   expect_equal(
-    pl$DataFrame(x = pl$datetime_range(start = t1, end = t2, interval = "3h", time_unit = "ms")),
+    pl$select(x = pl$datetime_range(start = t1, end = t2, interval = "3h", time_unit = "ms")),
     pl$DataFrame(x = seq(t1, t2, by = as.difftime(3, units = "hours")))
   )
 
   expect_equal(
-    pl$DataFrame(x = pl$datetime_range(start = t1, end = t2, interval = "3h", time_unit = "ns")),
+    pl$select(x = pl$datetime_range(start = t1, end = t2, interval = "3h", time_unit = "ns")),
     pl$DataFrame(x = seq(t1, t2, by = as.difftime(3, units = "hours")))$cast(pl$Datetime("ns"))
   )
 
@@ -32,21 +32,21 @@ test_that("pl$datetime_range", {
   t1 <- as.POSIXct("2022-01-01", tz = "GMT")
   t2 <- as.POSIXct("2022-01-02", tz = "GMT")
   expect_equal(
-    pl$DataFrame(x = pl$datetime_range(start = t1, end = t2, interval = "6h", time_zone = NULL)),
+    pl$select(x = pl$datetime_range(start = t1, end = t2, interval = "6h", time_zone = NULL)),
     pl$DataFrame(x = seq(t1, t2, by = as.difftime(6, units = "hours")))
   )
 
   expect_equal(
-    pl$DataFrame(x = pl$datetime_range(start = t1, end = t2, interval = "6h", time_zone = "GMT")),
+    pl$select(x = pl$datetime_range(start = t1, end = t2, interval = "6h", time_zone = "GMT")),
     pl$DataFrame(x = (seq(t1, t2, by = as.difftime(6, units = "hours")) |> "attr<-"("tzone", "GMT")))
   )
   expect_equal(
-    pl$DataFrame(x = pl$datetime_range(start = t1, end = t2, interval = "3h", time_unit = "ms")),
+    pl$select(x = pl$datetime_range(start = t1, end = t2, interval = "3h", time_unit = "ms")),
     pl$DataFrame(x = seq(t1, t2, by = as.difftime(3, units = "hours")))
   )
 
   expect_equal(
-    pl$DataFrame(x = pl$datetime_range(start = t1, end = t2, interval = "3h", time_unit = "ns")),
+    pl$select(x = pl$datetime_range(start = t1, end = t2, interval = "3h", time_unit = "ns")),
     pl$DataFrame(x = seq(t1, t2, by = as.difftime(3, units = "hours")))$cast(pl$Datetime("ns", time_zone = "GMT"))
   )
 
@@ -55,22 +55,22 @@ test_that("pl$datetime_range", {
   t1 <- as.POSIXct("2022-01-01", tz = "CET")
   t2 <- as.POSIXct("2022-01-02", tz = "CET")
   expect_equal(
-    pl$DataFrame(x = pl$datetime_range(start = t1, end = t2, interval = "6h", time_zone = NULL)),
+    pl$select(x = pl$datetime_range(start = t1, end = t2, interval = "6h", time_zone = NULL)),
     pl$DataFrame(x = seq(t1, t2, by = as.difftime(6, units = "hours")))
   )
 
   expect_equal(
-    pl$DataFrame(x = pl$datetime_range(start = t1, end = t2, interval = "6h", time_zone = NULL)),
+    pl$select(x = pl$datetime_range(start = t1, end = t2, interval = "6h", time_zone = NULL)),
     pl$DataFrame(x = seq(t1, t2, by = as.difftime(6, units = "hours")))
   )
 
   expect_equal(
-    pl$DataFrame(x = pl$datetime_range(start = t1, end = t2, interval = "3h", time_unit = "ms")),
+    pl$select(x = pl$datetime_range(start = t1, end = t2, interval = "3h", time_unit = "ms")),
     pl$DataFrame(x = seq(t1, t2, by = as.difftime(3, units = "hours")))
   )
 
   expect_equal(
-    pl$DataFrame(x = pl$datetime_range(start = t1, end = t2, interval = "3h", time_unit = "ns")),
+    pl$select(x = pl$datetime_range(start = t1, end = t2, interval = "3h", time_unit = "ns")),
     pl$DataFrame(x = seq(t1, t2, by = as.difftime(3, units = "hours")))$cast(pl$Datetime("ns", time_zone = "CET"))
   )
 
@@ -79,7 +79,7 @@ test_that("pl$datetime_range", {
   t2 <- as.POSIXct("2022-01-10", tz = "GMT")
   for (i_diff_time in c("secs", "mins", "hours", "days", "weeks")) {
     expect_equal(
-      pl$DataFrame(x = pl$datetime_range(start = t1, end = t2, as.difftime(25, units = i_diff_time), time_unit = "ns")),
+      pl$select(x = pl$datetime_range(start = t1, end = t2, as.difftime(25, units = i_diff_time), time_unit = "ns")),
       pl$DataFrame(x = seq(t1, t2, by = as.difftime(25, units = i_diff_time)))$cast(pl$Datetime("ns", "GMT"))
     )
   }
@@ -87,7 +87,7 @@ test_that("pl$datetime_range", {
 
 test_that("pl$date_range", {
   expect_equal(
-    pl$DataFrame(x = pl$date_range(
+    pl$select(x = pl$date_range(
       as.Date("2022-01-01"), as.Date("2022-03-01"), "1mo"
     )),
     pl$DataFrame(x = seq(as.Date("2022-01-01"), as.Date("2022-03-01"), by = "1 month"))
@@ -98,7 +98,7 @@ test_that("dt$truncate", {
   t1 <- as.POSIXct("2020-01-01", tz = "GMT")
   t2 <- t1 + as.difftime(59, units = "secs")
   s <- pl$datetime_range(t1, t2, interval = "5s", time_unit = "ms")
-  df <- pl$DataFrame(datetime = s)$with_columns(
+  df <- pl$select(datetime = s)$with_columns(
     pl$col("datetime")$dt$truncate("15s")$alias("truncated_15s")
   )
 
@@ -112,7 +112,7 @@ test_that("dt$round", {
   t1 <- as.POSIXct("2020-01-01", tz = "GMT")
   t2 <- t1 + as.difftime(59, units = "secs")
   s <- pl$datetime_range(t1, t2, interval = "5s", time_unit = "ms")
-  df <- pl$DataFrame(datetime = s)$with_columns(
+  df <- pl$select(datetime = s)$with_columns(
     pl$col("datetime")$dt$round("15s")$alias("rounded_15s")
   )
   expect_equal(
@@ -183,7 +183,7 @@ test_that("dt$strftime", {
 })
 
 test_that("dt$year iso_year", {
-  df <- pl$DataFrame(
+  df <- pl$select(
     date = pl$datetime_range(
       as.Date("2020-12-25"),
       as.Date("2021-1-05"),
@@ -212,7 +212,7 @@ test_that("dt$year iso_year", {
 
 
 test_that("dt$quarter, month, day", {
-  df <- pl$DataFrame(
+  df <- pl$select(
     date = pl$datetime_range(
       as.Date("2020-12-25"),
       as.Date("2021-1-05"),
@@ -244,7 +244,7 @@ test_that("dt$quarter, month, day", {
 
 
 test_that("hour minute", {
-  df <- pl$DataFrame(
+  df <- pl$select(
     date = pl$datetime_range(
       as.Date("2020-12-25"),
       as.Date("2021-05-05"),
@@ -290,7 +290,7 @@ test_that("hour minute", {
 
 
 test_that("second, milli, micro, nano", {
-  df <- pl$DataFrame(
+  df <- pl$select(
     date = pl$datetime_range(
       as.Date("2020-12-25"),
       as.Date("2021-05-05"),
@@ -400,13 +400,13 @@ test_that("offset_by", {
   expect_equal(l_actual, l_expected)
 
   # using expression in arg "by"
-  df <- pl$DataFrame(
+  df <- pl$select(
     dates = pl$datetime_range(
       as.POSIXct("2022-01-01", tz = "GMT"),
       as.POSIXct("2022-01-02", tz = "GMT"),
       interval = "6h", time_unit = "ms", time_zone = "GMT"
     ),
-    offset = c("1d", "-2d", "1mo", NA, "1y")
+    offset = pl$lit(c("1d", "-2d", "1mo", NA, "1y"))
   )
   expect_equal(
     df$select(pl$col("dates")$dt$offset_by(pl$col("offset"))),
@@ -465,7 +465,7 @@ test_that("dt$epoch", {
 
 
 test_that("dt$timestamp", {
-  df <- pl$DataFrame(
+  df <- pl$select(
     date = pl$date_range(
       start = as.Date("2001-1-1"), end = as.Date("2001-1-3"), interval = "1d"
     )
@@ -504,7 +504,7 @@ test_that("dt$timestamp", {
 
 
 test_that("dt$with_time_unit cast_time_unit", {
-  df_time <- pl$DataFrame(
+  df_time <- pl$select(
     date = pl$datetime_range(
       start = as.POSIXct("2001-1-1"), end = as.POSIXct("2001-1-3"), interval = "1d", time_unit = "us"
     )
@@ -570,7 +570,7 @@ test_that("dt$with_time_unit cast_time_unit", {
 })
 
 test_that("$convert_time_zone() works", {
-  df_time <- pl$DataFrame(
+  df_time <- pl$select(
     date = pl$datetime_range(
       start = as.Date("2001-3-1"),
       end = as.Date("2001-5-1"),
@@ -599,7 +599,7 @@ test_that("$convert_time_zone() works", {
 })
 
 test_that("dt$replace_time_zone() works", {
-  df <- pl$DataFrame(
+  df <- pl$select(
     London = pl$datetime_range(
       start = as.POSIXct("2001-3-1"),
       end = as.POSIXct("2001-7-1"),
@@ -672,7 +672,7 @@ test_that("dt$days, dt$hours, dt$mminutes, dt$seconds, + ms, us, ns", {
 
   # minutes
   vals <- c(as.Date("2020-1-1"), as.Date("2020-1-2"), as.Date("2020-1-3"), as.Date("2020-1-4"))
-  df <- pl$DataFrame(date = pl$date_range(
+  df <- pl$select(date = pl$date_range(
     start = as.Date("2020-1-1"), end = as.Date("2020-1-4"), interval = "1d"
   ))$select(
     pl$col("date")$diff()$dt$total_minutes()$alias("diff")
@@ -727,7 +727,7 @@ test_that("dt$days, dt$hours, dt$mminutes, dt$seconds, + ms, us, ns", {
 })
 
 test_that("$dt$time()", {
-  df <- pl$DataFrame(
+  df <- pl$select(
     dates = pl$datetime_range(
       as.Date("2000-1-1"),
       as.Date("2000-1-2"),
@@ -741,7 +741,7 @@ test_that("$dt$time()", {
 })
 
 test_that("$dt$is_leap_year()", {
-  df <- pl$DataFrame(
+  df <- pl$select(
     date = as.Date(c("2000-01-01", "2001-01-01", "2002-01-01")),
     datetime = pl$datetime_range(as.Date("2000-01-01"), as.Date("2002-01-01"), "1y")
   )

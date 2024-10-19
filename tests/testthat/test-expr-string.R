@@ -1,101 +1,138 @@
-# test_that("str$strptime datetime", {
-#   txt_datetimes <- c(
-#     "2023-01-01 11:22:33 -0100",
-#     "2023-01-01 11:22:33 +0300",
-#     "invalid time"
-#   )
+test_that("str$strptime datetime", {
+  vals <- c(
+    "2023-01-01 11:22:33 -0100",
+    "2023-01-01 11:22:33 +0300",
+    "invalid time"
+  )
+  df <- pl$DataFrame(x = vals)
 
-#   expect_snapshot(pl$lit(txt_datetimes)$str$strptime(pl$Datetime(), format = "%Y-%m-%d %H:%M:%S")$to_series(), error = TRUE)
+  expect_snapshot(
+    df$select(
+      pl$col("x")$str$strptime(pl$Datetime(), format = "%Y-%m-%d %H:%M:%S")
+    ),
+    error = TRUE
+  )
 
-#   expect_equal(
-#     pl$lit(txt_datetimes)$str$strptime(
-#       pl$Datetime(),
-#       format = "%Y-%m-%d %H:%M:%S %z", strict = FALSE
-#     )$to_r(),
-#     as.POSIXct(txt_datetimes, format = "%Y-%m-%d %H:%M:%S %z", tz = "UTC")
-#   )
-# })
+  expect_equal(
+    df$select(pl$col("x")$str$strptime(
+      pl$Datetime(time_unit = "ms"),
+      format = "%Y-%m-%d %H:%M:%S %z", strict = FALSE
+    )),
+    pl$DataFrame(x = as.POSIXct(vals, format = "%Y-%m-%d %H:%M:%S %z", tz = "UTC"))
+  )
+})
 
+test_that("str$strptime date", {
+  vals <- c(
+    "2023-01-01 11:22:33 -0100",
+    "2023-01-01 11:22:33 +0300",
+    "2022-01-01",
+    "invalid time"
+  )
+  df <- pl$DataFrame(x = vals)
 
-# test_that("str$strptime date", {
-#   txt_dates <- c(
-#     "2023-01-01 11:22:33 -0100",
-#     "2023-01-01 11:22:33 +0300",
-#     "2022-01-01",
-#     "invalid time"
-#   )
+  expect_snapshot(
+    df$select(pl$col("x")$str$strptime(pl$Int32, format = "%Y-%m-%d")),
+    error = TRUE
+  )
 
-#   expect_snapshot(pl$lit(txt_dates)$str$strptime(pl$Int32, format = "%Y-%m-%d")$to_series(), error = TRUE)
+  expect_snapshot(
+    df$select(pl$col("x")$str$strptime(pl$Date, format = "%Y-%m-%d")),
+    error = TRUE
+  )
 
-#   expect_snapshot(pl$lit(txt_dates)$str$strptime(pl$Date, format = "%Y-%m-%d")$to_series(), error = TRUE)
+  expect_equal(
+    df$select(pl$col("x")$str$strptime(
+      pl$Date,
+      format = "%Y-%m-%d ", exact = TRUE, strict = FALSE
+    )),
+    pl$DataFrame(x = as.Date(c(NA, NA, "2022-1-1", NA)))
+  )
 
-#   expect_equal(
-#     pl$lit(txt_dates)$str$strptime(
-#       pl$Date,
-#       format = "%Y-%m-%d ", exact = TRUE, strict = FALSE
-#     )$to_r(),
-#     as.Date(c(NA, NA, "2022-1-1", NA))
-#   )
+  expect_equal(
+    df$select(pl$col("x")$str$strptime(
+      pl$Date,
+      format = "%Y-%m-%d", exact = FALSE, strict = FALSE
+    )),
+    pl$DataFrame(x = as.Date(vals))
+  )
+})
 
-#   expect_equal(
-#     pl$lit(txt_dates)$str$strptime(
-#       pl$Date,
-#       format = "%Y-%m-%d", exact = FALSE, strict = FALSE
-#     )$to_r(),
-#     as.Date(txt_dates)
-#   )
-# })
+test_that("str$strptime time", {
+  vals <- c(
+    "11:22:33 -0100",
+    "11:22:33 +0300",
+    "invalid time"
+  )
+  df <- pl$DataFrame(x = vals)
 
-# test_that("str$strptime time", {
-#   txt_times <- c(
-#     "11:22:33 -0100",
-#     "11:22:33 +0300",
-#     "invalid time"
-#   )
+  # TODO-REWRITE: requires pl$PTime
+  # expect_equal(
+  #   df$select(pl$col("x")$str$strptime(pl$Time, format = "%H:%M:%S %z", strict = FALSE)),
+  #   pl$DataFrame(x = pl$PTime(vals, tu = "ns"))
+  # )
 
-#   expect_snapshot(pl$lit(txt_times)$str$strptime(pl$Int32, format = "%H:%M:%S %z")$to_series(), error = TRUE)
+  expect_snapshot(
+    df$select(pl$col("x")$str$strptime(pl$Int32, format = "%H:%M:%S %z")),
+    error = TRUE
+  )
 
-#   expect_snapshot(pl$lit(txt_times)$str$strptime(pl$Time, format = "%H:%M:%S %z")$to_series(), error = TRUE)
+  expect_snapshot(
+    df$select(pl$col("x")$str$strptime(pl$Time, format = "%H:%M:%S %z")),
+    error = TRUE
+  )
+})
 
-#   expect_equal(pl$lit(txt_times)$str$strptime(
-#     pl$Time,
-#     format = "%H:%M:%S %z", strict = FALSE
-#   )$to_r(), pl$PTime(txt_times, tu = "ns"))
-# })
+test_that("$str$to_date", {
+  df <- pl$DataFrame(x = c("2009-01-02", "2009-01-03", "2009-1-4"))
+  expect_equal(
+    df$select(pl$col("x")$str$to_date()),
+    pl$DataFrame(x = as.Date(c("2009-01-02", "2009-01-03", "2009-01-04")))
+  )
 
-# test_that("$str$to_date", {
-#   out <- pl$lit(c("2009-01-02", "2009-01-03", "2009-1-4"))$
-#     str$to_date()$to_r()
-#   expect_equal(out, as.Date(c("2009-01-02", "2009-01-03", "2009-01-04")))
-#   expect_grepl_error(
-#     pl$lit(c("2009-01-02", "2009-01-03", "2009-1-4"))$
-#       str$to_date(format = "%Y / %m / %d")$to_r()
-#   )
-#   expect_equal(pl$lit(c("2009-01-02", "2009-01-03", "2009-1-4"))$
-#     str$to_date(format = "%Y / %m / %d", strict = FALSE)$to_r(), as.Date(rep(NA_character_, 3)))
-# })
+  df <- pl$DataFrame(x = c("2009-01-02", "2009-01-03", "2009-1-4"))
+  expect_equal(
+    df$select(pl$col("x")$str$to_date(format = "%Y / %m / %d", strict = FALSE)),
+    pl$DataFrame(x = as.Date(c(NA, NA, NA)))
+  )
 
-# test_that("$str$to_time", {
-#   out <- pl$lit(c("01:20:01", "28:00:02", "03:00:02"))$
-#     str$to_time(strict = FALSE)$to_r()
-#   expect_equal(out, pl$PTime(c("01:20:01", "28:00:02", "03:00:02"), tu = "ns"))
-#   expect_grepl_error(
-#     ppl$lit(c("01:20:01", "28:00:02", "03:00:02"))$
-#       str$to_time()
-#   )
-# })
+  expect_snapshot(
+    df$select(pl$col("x")$str$to_date(format = "%Y / %m / %d")),
+    error = TRUE
+  )
+})
 
-# test_that("$str$to_datetime", {
-#   out <- pl$lit(c("2009-01-02 01:00", "2009-01-03 02:00", "2009-1-4 03:00"))$
-#     str$to_datetime(time_zone = "UTC")$to_r()
-#   expect_equal(out, as.POSIXct(c("2009-01-02 01:00:00", "2009-01-03 02:00:00", "2009-01-04 03:00:00"), tz = "UTC"))
-#   expect_grepl_error(
-#     pl$lit(c("2009-01-02 01:00", "2009-01-03 02:00", "2009-1-4"))$
-#       str$to_date(format = "%Y / %m / %d")$to_r()
-#   )
-#   expect_equal(pl$lit(c("2009-01-02 01:00", "2009-01-03 02:00", "2009-1-4"))$
-#     str$to_date(format = "%Y / %m / %d", strict = FALSE)$to_r(), as.Date(rep(NA_character_, 3)))
-# })
+test_that("$str$to_time", {
+  df <- pl$DataFrame(x = c("01:20:01", "28:00:02", "03:00:02"))
+  # TODO-REWRITE: requires pl$PTime()
+  # expect_equal(
+  #   df$select(pl$col("x")$str$to_time(strict = FALSE)),
+  #   pl$DataFrame(x = pl$PTime(c("01:20:01", "28:00:02", "03:00:02"), tu = "ns"))
+  # )
+  expect_snapshot(
+    df$select(pl$col("x")$str$to_time()),
+    error = TRUE
+  )
+})
+
+test_that("$str$to_datetime", {
+  df <- pl$DataFrame(x = c("2009-01-02 01:00", "2009-01-03 02:00", "2009-1-4 03:00"))
+  expect_equal(
+    df$select(pl$col("x")$str$to_datetime(time_zone = "UTC", time_unit = "ms")),
+    pl$DataFrame(x = as.POSIXct(c("2009-01-02 01:00:00", "2009-01-03 02:00:00", "2009-01-04 03:00:00"), tz = "UTC"))
+  )
+
+  df <- pl$DataFrame(x = c("2009-01-02 01:00", "2009-01-03 02:00", "2009-1-4"))
+  expect_equal(
+    df$select(pl$col("x")$str$to_datetime(format = "%Y / %m / %d", strict = FALSE, time_unit = "ms")),
+    pl$DataFrame(x = as.POSIXct(c(NA, NA, NA)))
+  )
+
+  expect_snapshot(
+    df$select(pl$col("x")$str$to_datetime(format = "%Y / %m / %d")),
+    error = TRUE
+  )
+})
 
 test_that("str$len_bytes str$len_chars", {
   test_str <- c("Café", NA, "345", "東京") |> enc2utf8()

@@ -1259,6 +1259,21 @@ SEXP savvy_PlRExpr_str_count_matches__impl(SEXP self__, SEXP c_arg__pat, SEXP c_
     return handle_result(res);
 }
 
+SEXP savvy_PlRExpr_str_to_date__impl(SEXP self__, SEXP c_arg__strict, SEXP c_arg__exact, SEXP c_arg__cache, SEXP c_arg__format) {
+    SEXP res = savvy_PlRExpr_str_to_date__ffi(self__, c_arg__strict, c_arg__exact, c_arg__cache, c_arg__format);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_str_to_datetime__impl(SEXP self__, SEXP c_arg__strict, SEXP c_arg__exact, SEXP c_arg__cache, SEXP c_arg__ambiguous, SEXP c_arg__format, SEXP c_arg__time_unit, SEXP c_arg__time_zone) {
+    SEXP res = savvy_PlRExpr_str_to_datetime__ffi(self__, c_arg__strict, c_arg__exact, c_arg__cache, c_arg__ambiguous, c_arg__format, c_arg__time_unit, c_arg__time_zone);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_str_to_time__impl(SEXP self__, SEXP c_arg__strict, SEXP c_arg__cache, SEXP c_arg__format) {
+    SEXP res = savvy_PlRExpr_str_to_time__ffi(self__, c_arg__strict, c_arg__cache, c_arg__format);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRExpr_str_split__impl(SEXP self__, SEXP c_arg__by, SEXP c_arg__inclusive) {
     SEXP res = savvy_PlRExpr_str_split__ffi(self__, c_arg__by, c_arg__inclusive);
     return handle_result(res);
@@ -1866,6 +1881,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_str_extract_all__impl", (DL_FUNC) &savvy_PlRExpr_str_extract_all__impl, 2},
     {"savvy_PlRExpr_str_extract_groups__impl", (DL_FUNC) &savvy_PlRExpr_str_extract_groups__impl, 2},
     {"savvy_PlRExpr_str_count_matches__impl", (DL_FUNC) &savvy_PlRExpr_str_count_matches__impl, 3},
+    {"savvy_PlRExpr_str_to_date__impl", (DL_FUNC) &savvy_PlRExpr_str_to_date__impl, 5},
+    {"savvy_PlRExpr_str_to_datetime__impl", (DL_FUNC) &savvy_PlRExpr_str_to_datetime__impl, 8},
+    {"savvy_PlRExpr_str_to_time__impl", (DL_FUNC) &savvy_PlRExpr_str_to_time__impl, 4},
     {"savvy_PlRExpr_str_split__impl", (DL_FUNC) &savvy_PlRExpr_str_split__impl, 3},
     {"savvy_PlRExpr_str_split_exact__impl", (DL_FUNC) &savvy_PlRExpr_str_split_exact__impl, 4},
     {"savvy_PlRExpr_str_splitn__impl", (DL_FUNC) &savvy_PlRExpr_str_splitn__impl, 3},

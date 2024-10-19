@@ -253,6 +253,9 @@ SEXP savvy_PlRExpr_str_extract__ffi(SEXP self__, SEXP c_arg__pattern, SEXP c_arg
 SEXP savvy_PlRExpr_str_extract_all__ffi(SEXP self__, SEXP c_arg__pattern);
 SEXP savvy_PlRExpr_str_extract_groups__ffi(SEXP self__, SEXP c_arg__pattern);
 SEXP savvy_PlRExpr_str_count_matches__ffi(SEXP self__, SEXP c_arg__pat, SEXP c_arg__literal);
+SEXP savvy_PlRExpr_str_to_date__ffi(SEXP self__, SEXP c_arg__strict, SEXP c_arg__exact, SEXP c_arg__cache, SEXP c_arg__format);
+SEXP savvy_PlRExpr_str_to_datetime__ffi(SEXP self__, SEXP c_arg__strict, SEXP c_arg__exact, SEXP c_arg__cache, SEXP c_arg__ambiguous, SEXP c_arg__format, SEXP c_arg__time_unit, SEXP c_arg__time_zone);
+SEXP savvy_PlRExpr_str_to_time__ffi(SEXP self__, SEXP c_arg__strict, SEXP c_arg__cache, SEXP c_arg__format);
 SEXP savvy_PlRExpr_str_split__ffi(SEXP self__, SEXP c_arg__by, SEXP c_arg__inclusive);
 SEXP savvy_PlRExpr_str_split_exact__ffi(SEXP self__, SEXP c_arg__by, SEXP c_arg__n, SEXP c_arg__inclusive);
 SEXP savvy_PlRExpr_str_splitn__ffi(SEXP self__, SEXP c_arg__by, SEXP c_arg__n);

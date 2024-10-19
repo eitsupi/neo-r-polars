@@ -1744,6 +1744,25 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   }
 }
 
+`PlRExpr_str_to_date` <- function(self) {
+  function(`strict`, `exact`, `cache`, `format` = NULL) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_str_to_date__impl, `self`, `strict`, `exact`, `cache`, `format`))
+  }
+}
+
+`PlRExpr_str_to_datetime` <- function(self) {
+  function(`strict`, `exact`, `cache`, `ambiguous`, `format` = NULL, `time_unit` = NULL, `time_zone` = NULL) {
+    `ambiguous` <- .savvy_extract_ptr(`ambiguous`, "PlRExpr")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_str_to_datetime__impl, `self`, `strict`, `exact`, `cache`, `ambiguous`, `format`, `time_unit`, `time_zone`))
+  }
+}
+
+`PlRExpr_str_to_time` <- function(self) {
+  function(`strict`, `cache`, `format` = NULL) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_str_to_time__impl, `self`, `strict`, `cache`, `format`))
+  }
+}
+
 `PlRExpr_str_split` <- function(self) {
   function(`by`, `inclusive`) {
     `by` <- .savvy_extract_ptr(`by`, "PlRExpr")
@@ -2043,6 +2062,9 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   e$`str_extract_all` <- `PlRExpr_str_extract_all`(ptr)
   e$`str_extract_groups` <- `PlRExpr_str_extract_groups`(ptr)
   e$`str_count_matches` <- `PlRExpr_str_count_matches`(ptr)
+  e$`str_to_date` <- `PlRExpr_str_to_date`(ptr)
+  e$`str_to_datetime` <- `PlRExpr_str_to_datetime`(ptr)
+  e$`str_to_time` <- `PlRExpr_str_to_time`(ptr)
   e$`str_split` <- `PlRExpr_str_split`(ptr)
   e$`str_split_exact` <- `PlRExpr_str_split_exact`(ptr)
   e$`str_splitn` <- `PlRExpr_str_splitn`(ptr)

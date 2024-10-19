@@ -173,6 +173,16 @@ datatype__is_date <- function() {
   self$`_dt`$is_date()
 }
 
+datatype__is_date <- function() {
+  self$`_dt`$is_date()
+}
+
+# TODO-REWRITE: do we have an equivalent of dtype == pl$Datetime, no matter the
+# unit / timezone?
+datatype__is_datetime <- function() {
+  !is.null(self$`_dt`$`_get_datatype_fields`()[["time_unit"]])
+}
+
 datatype__is_enum <- function() {
   self$`_dt`$is_enum()
 }
