@@ -29,7 +29,6 @@
 \alias{as_polars_series.clock_sys_time}
 \alias{as_polars_series.clock_zoned_time}
 \alias{as_polars_series.clock_duration}
-\alias{as_polars_series.polars_expr}
 \title{Create a Polars Series from an R object}
 \usage{
 as_polars_series(x, name = NULL, ...)
@@ -87,8 +86,6 @@ as_polars_series(x, name = NULL, ...)
 \method{as_polars_series}{clock_zoned_time}(x, name = NULL, ...)
 
 \method{as_polars_series}{clock_duration}(x, name = NULL, ...)
-
-\method{as_polars_series}{polars_expr}(x, name = NULL, ...)
 }
 \arguments{
 \item{x}{An R object.}

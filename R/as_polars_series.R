@@ -475,14 +475,3 @@ as_polars_series.clock_duration <- function(x, name = NULL, ...) {
   ) |>
     wrap()
 }
-
-# TODO-REWRITE: hack to improve
-#' @rdname as_polars_series
-#' @export
-as_polars_series.polars_expr <- function(x, name = NULL, ...) {
-  if (is.null(name)) {
-    pl$select(x)$get_columns()[[1]]$rename("")
-  } else {
-    pl$select(x)$get_columns()[[1]]$rename(name)
-  }
-}
