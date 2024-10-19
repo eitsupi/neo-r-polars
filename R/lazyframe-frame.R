@@ -48,8 +48,14 @@ wrap.PlRLazyFrame <- function(x, ...) {
 # TODO: link to pl__select
 #' Select and modify columns of a LazyFrame
 #'
-#' Similar to `dplyr::mutate()`. However, it discards unmentioned columns (like
-#' `.()` in `data.table`).
+#' @description
+#' Select and perform operations on a subset of columns only. This discards
+#' unmentioned columns (like `.()` in `data.table` and contrarily to
+#' `dplyr::mutate()`).
+#'
+#' One cannot use new variables in subsequent expressions in the same
+#' `$select()` call. For instance, if you create a variable `x`, you will only
+#' be able to use it in another `$select()` or `$with_columns()` call.
 #'
 #' @inherit pl__LazyFrame return
 #' @param ... <[`dynamic-dots`][rlang::dyn-dots]>
@@ -269,12 +275,17 @@ lazyframe__sort <- function(
 
 #' Modify/append column(s) of a LazyFrame
 #'
-#' Add columns or modify existing ones with expressions. This is
-#' the equivalent of `dplyr::mutate()` as it keeps unmentioned columns (unlike
-#' `$select()`).
+#' @description
+#' Add columns or modify existing ones with expressions. This is similar to
+#' `dplyr::mutate()` as it keeps unmentioned columns (unlike `$select()`).
 #'
-#' @inheritParams lazyframe__select
+#' However, unlike `dplyr::mutate()`, one cannot use new variables in subsequent
+#' expressions in the same `$with_columns()`call. For instance, if you create a
+#' variable `x`, you will only be able to use it in another `$with_columns()`
+#' or `$select()` call.
+#'
 #' @inherit pl__LazyFrame return
+#' @inheritParams lazyframe__select
 #' @examples
 #' # Pass an expression to add it as a new column.
 #' lf <- pl$LazyFrame(

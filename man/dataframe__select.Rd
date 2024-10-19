@@ -17,8 +17,13 @@ Each name will be used as the expression name.}
 A polars \link{DataFrame}
 }
 \description{
-Similar to \code{dplyr::mutate()}. However, it discards unmentioned columns (like
-\code{.()} in \code{data.table}).
+Select and perform operations on a subset of columns only. This discards
+unmentioned columns (like \code{.()} in \code{data.table} and contrarily to
+\code{dplyr::mutate()}).
+
+One cannot use new variables in subsequent expressions in the same
+\verb{$select()} call. For instance, if you create a variable \code{x}, you will only
+be able to use it in another \verb{$select()} or \verb{$with_columns()} call.
 }
 \examples{
 as_polars_df(iris)$select(

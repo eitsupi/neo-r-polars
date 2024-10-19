@@ -17,9 +17,13 @@ Each name will be used as the expression name.}
 A polars \link{DataFrame}
 }
 \description{
-Add columns or modify existing ones with expressions. This is
-the equivalent of \code{dplyr::mutate()} as it keeps unmentioned columns (unlike
-\verb{$select()}).
+Add columns or modify existing ones with expressions. This is similar to
+\code{dplyr::mutate()} as it keeps unmentioned columns (unlike \verb{$select()}).
+
+However, unlike \code{dplyr::mutate()}, one cannot use new variables in subsequent
+expressions in the same \verb{$with_columns()}call. For instance, if you create a
+variable \code{x}, you will only be able to use it in another \verb{$with_columns()}
+or \verb{$select()} call.
 }
 \examples{
 as_polars_df(iris)$with_columns(

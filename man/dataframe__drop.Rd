@@ -7,7 +7,8 @@
 dataframe__drop(..., strict = TRUE)
 }
 \arguments{
-\item{...}{Characters of column names to drop. Passed to \code{\link[=pl_col]{pl$col()}}.}
+\item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> Characters of column names to
+drop. Passed to \code{\link[=pl__col]{pl$col()}}.}
 
 \item{strict}{Validate that all column names exist in the schema and throw an
 exception if a column name does not exist in the schema.}

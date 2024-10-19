@@ -210,7 +210,7 @@ dataframe__get_columns <- function() {
 }
 
 #' Group a DataFrame
-#' @inheritParams LazyFrame_group_by
+#'
 #' @inherit LazyFrame_group_by description params
 #' @details Within each group, the order of the rows is always preserved,
 #' regardless of the `maintain_order` argument.
@@ -396,7 +396,8 @@ dataframe__tail <- function(n = 5) {
 
 #' Drop columns of a DataFrame
 #'
-#' @param ... Characters of column names to drop. Passed to [`pl$col()`][pl_col].
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Characters of column names to
+#' drop. Passed to [`pl$col()`][pl__col].
 #' @param strict Validate that all column names exist in the schema and throw an
 #' exception if a column name does not exist in the schema.
 #'
