@@ -399,8 +399,8 @@ SEXP savvy_PlRExpr_dt_combine__impl(SEXP self__, SEXP c_arg__time, SEXP c_arg__t
     return handle_result(res);
 }
 
-SEXP savvy_PlRExpr_dt_strftime__impl(SEXP self__, SEXP c_arg__fmt) {
-    SEXP res = savvy_PlRExpr_dt_strftime__ffi(self__, c_arg__fmt);
+SEXP savvy_PlRExpr_dt_to_string__impl(SEXP self__, SEXP c_arg__format) {
+    SEXP res = savvy_PlRExpr_dt_to_string__ffi(self__, c_arg__format);
     return handle_result(res);
 }
 
@@ -1604,7 +1604,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_dt_round__impl", (DL_FUNC) &savvy_PlRExpr_dt_round__impl, 2},
     {"savvy_PlRExpr_dt_time__impl", (DL_FUNC) &savvy_PlRExpr_dt_time__impl, 1},
     {"savvy_PlRExpr_dt_combine__impl", (DL_FUNC) &savvy_PlRExpr_dt_combine__impl, 3},
-    {"savvy_PlRExpr_dt_strftime__impl", (DL_FUNC) &savvy_PlRExpr_dt_strftime__impl, 2},
+    {"savvy_PlRExpr_dt_to_string__impl", (DL_FUNC) &savvy_PlRExpr_dt_to_string__impl, 2},
     {"savvy_PlRExpr_dt_year__impl", (DL_FUNC) &savvy_PlRExpr_dt_year__impl, 1},
     {"savvy_PlRExpr_dt_iso_year__impl", (DL_FUNC) &savvy_PlRExpr_dt_iso_year__impl, 1},
     {"savvy_PlRExpr_dt_quarter__impl", (DL_FUNC) &savvy_PlRExpr_dt_quarter__impl, 1},

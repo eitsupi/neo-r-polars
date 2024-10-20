@@ -51,8 +51,8 @@ impl PlRExpr {
             .into())
     }
 
-    fn dt_strftime(&self, fmt: &str) -> Result<Self> {
-        Ok(self.inner.clone().dt().strftime(fmt).into())
+    fn dt_to_string(&self, format: &str) -> Result<Self> {
+        Ok(self.inner.clone().dt().to_string(format).into())
     }
     fn dt_year(&self) -> Result<Self> {
         Ok(self.clone().inner.dt().year().into())

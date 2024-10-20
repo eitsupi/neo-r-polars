@@ -175,9 +175,13 @@ test_that("dt$round", {
 #   )
 # })
 
-test_that("dt$strftime", {
+test_that("dt$strftime and dt$to_string", {
   expect_equal(
     pl$DataFrame(x = as.POSIXct("2021-01-02 12:13:14", tz = "GMT"))$with_columns(pl$col("x")$dt$strftime("this is the year: %Y")),
+    pl$DataFrame(x = "this is the year: 2021")
+  )
+  expect_equal(
+    pl$DataFrame(x = as.POSIXct("2021-01-02 12:13:14", tz = "GMT"))$with_columns(pl$col("x")$dt$to_string("this is the year: %Y")),
     pl$DataFrame(x = "this is the year: 2021")
   )
 })

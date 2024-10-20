@@ -651,9 +651,9 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   }
 }
 
-`PlRExpr_dt_strftime` <- function(self) {
-  function(`fmt`) {
-    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_dt_strftime__impl, `self`, `fmt`))
+`PlRExpr_dt_to_string` <- function(self) {
+  function(`format`) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_dt_to_string__impl, `self`, `format`))
   }
 }
 
@@ -1766,7 +1766,7 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   e$`dt_round` <- `PlRExpr_dt_round`(ptr)
   e$`dt_time` <- `PlRExpr_dt_time`(ptr)
   e$`dt_combine` <- `PlRExpr_dt_combine`(ptr)
-  e$`dt_strftime` <- `PlRExpr_dt_strftime`(ptr)
+  e$`dt_to_string` <- `PlRExpr_dt_to_string`(ptr)
   e$`dt_year` <- `PlRExpr_dt_year`(ptr)
   e$`dt_iso_year` <- `PlRExpr_dt_iso_year`(ptr)
   e$`dt_quarter` <- `PlRExpr_dt_quarter`(ptr)

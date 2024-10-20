@@ -81,7 +81,7 @@ SEXP savvy_PlRExpr_dt_truncate__ffi(SEXP self__, SEXP c_arg__every);
 SEXP savvy_PlRExpr_dt_round__ffi(SEXP self__, SEXP c_arg__every);
 SEXP savvy_PlRExpr_dt_time__ffi(SEXP self__);
 SEXP savvy_PlRExpr_dt_combine__ffi(SEXP self__, SEXP c_arg__time, SEXP c_arg__time_unit);
-SEXP savvy_PlRExpr_dt_strftime__ffi(SEXP self__, SEXP c_arg__fmt);
+SEXP savvy_PlRExpr_dt_to_string__ffi(SEXP self__, SEXP c_arg__format);
 SEXP savvy_PlRExpr_dt_year__ffi(SEXP self__);
 SEXP savvy_PlRExpr_dt_iso_year__ffi(SEXP self__);
 SEXP savvy_PlRExpr_dt_quarter__ffi(SEXP self__);

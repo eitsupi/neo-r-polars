@@ -201,21 +201,42 @@ expr_dt_combine <- function(time, time_unit = "us") {
 }
 
 #' Convert date/time/datetime to string
-#' @description
-#' Convert a Date/Time/Datetime column into a String column with the given
-#' format. Similar to `cast(pl$String)`, but this method allows you to
-#' customize the formatting of the resulting string. See `chrono`
-#' docs for specifying the format:
-#' <https://docs.rs/chrono/latest/chrono/format/strftime/index.html>`_.
 #'
+#' Similar to `$cast(pl$String)`, but this method allows you to customize the
+#' formatting of the resulting string. This is an alias for `$dt$strftime()`.
 #'
-#' @param format string format very much like in R passed to chrono
+#' @param format Format to use. See `chrono` docs for specifying the format:
+#' <https://docs.rs/chrono/latest/chrono/format/strftime/index.html>`.
 #'
 #' @inherit as_polars_expr return
 #' @examples
-#' pl$lit(as.POSIXct("2021-01-02 12:13:14", tz = "GMT"))$dt$strftime("this is the year: %Y")$to_r()
+#' pl$DataFrame(
+#'   datetime = c(as.POSIXct(c("2021-01-02 00:00:00", "2021-01-03 00:00:00")))
+#' )$
+#'   with_columns(
+#'   datetime_string = pl$col("datetime")$dt$to_string("%Y/%m/%d %H:%M:%S")
+#' )
+expr_dt_to_string <- function(format) {
+  self$`_rexpr`$dt_to_string(format) |>
+    wrap()
+}
+
+#' @inherit expr_dt_to_string title params
+#'
+#' @description
+#' Similar to `$cast(pl$String)`, but this method allows you to customize the
+#' formatting of the resulting string. This is an alias for `$dt$to_string()`.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' pl$DataFrame(
+#'   datetime = c(as.POSIXct(c("2021-01-02 00:00:00", "2021-01-03 00:00:00")))
+#' )$
+#'   with_columns(
+#'   datetime_string = pl$col("datetime")$dt$strftime("%Y/%m/%d %H:%M:%S")
+#' )
 expr_dt_strftime <- function(format) {
-  self$`_rexpr`$dt_strftime(format) |>
+  self$to_string(format) |>
     wrap()
 }
 
