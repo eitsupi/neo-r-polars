@@ -945,6 +945,18 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   }
 }
 
+`PlRExpr_dt_dst_offset` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_dt_dst_offset__impl, `self`))
+  }
+}
+
+`PlRExpr_dt_base_utc_offset` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_dt_base_utc_offset__impl, `self`))
+  }
+}
+
 `PlRExpr_print` <- function(self) {
   function() {
     invisible(.Call(savvy_PlRExpr_print__impl, `self`))
@@ -1939,6 +1951,8 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   e$`dt_total_nanoseconds` <- `PlRExpr_dt_total_nanoseconds`(ptr)
   e$`dt_offset_by` <- `PlRExpr_dt_offset_by`(ptr)
   e$`dt_is_leap_year` <- `PlRExpr_dt_is_leap_year`(ptr)
+  e$`dt_dst_offset` <- `PlRExpr_dt_dst_offset`(ptr)
+  e$`dt_base_utc_offset` <- `PlRExpr_dt_base_utc_offset`(ptr)
   e$`print` <- `PlRExpr_print`(ptr)
   e$`add` <- `PlRExpr_add`(ptr)
   e$`sub` <- `PlRExpr_sub`(ptr)

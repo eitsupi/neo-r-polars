@@ -129,6 +129,8 @@ SEXP savvy_PlRExpr_dt_total_microseconds__ffi(SEXP self__);
 SEXP savvy_PlRExpr_dt_total_nanoseconds__ffi(SEXP self__);
 SEXP savvy_PlRExpr_dt_offset_by__ffi(SEXP self__, SEXP c_arg__by);
 SEXP savvy_PlRExpr_dt_is_leap_year__ffi(SEXP self__);
+SEXP savvy_PlRExpr_dt_dst_offset__ffi(SEXP self__);
+SEXP savvy_PlRExpr_dt_base_utc_offset__ffi(SEXP self__);
 SEXP savvy_PlRExpr_print__ffi(SEXP self__);
 SEXP savvy_PlRExpr_add__ffi(SEXP self__, SEXP c_arg__rhs);
 SEXP savvy_PlRExpr_sub__ffi(SEXP self__, SEXP c_arg__rhs);

@@ -921,3 +921,39 @@ expr_dt_is_leap_year <- function() {
   self$`_rexpr`$dt_is_leap_year() |>
     wrap()
 }
+
+#' Daylight savings offset from UTC
+#'
+#' This computes the offset between a time zone and UTC, taking into account
+#' daylight saving time. Use [$dt$base_utc_offset()][expr_dt_base_utc_offset]
+#' to avoid counting DST.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(
+#'   x = as.POSIXct(c("2020-10-25", "2020-10-26"), tz = "Europe/London")
+#' )
+#' df$with_columns(dst_offset = pl$col("x")$dt$dst_offset())
+expr_dt_dst_offset <- function() {
+  self$`_rexpr`$dt_dst_offset() |>
+    wrap()
+}
+
+#' Base offset from UTC
+#'
+#' This computes the offset between a time zone and UTC. This is usually
+#' constant for all datetimes in a given time zone, but may vary in the rare
+#' case that a country switches time zone, like Samoa (Apia) did at the end of
+#' 2011. Use [$dt$dst_offset()][expr_dt_dst_offset] to take daylight
+#' saving time into account.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(
+#'   x = as.POSIXct(c("2011-12-29", "2012-01-01"), tz = "Pacific/Apia")
+#' )
+#' df$with_columns(base_utc_offset = pl$col("x")$dt$base_utc_offset())
+expr_dt_base_utc_offset <- function() {
+  self$`_rexpr`$dt_base_utc_offset() |>
+    wrap()
+}

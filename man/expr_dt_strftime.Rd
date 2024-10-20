@@ -18,7 +18,9 @@ Similar to \verb{$cast(pl$String)}, but this method allows you to customize the
 formatting of the resulting string. This is an alias for \verb{$dt$to_string()}.
 }
 \examples{
-pl$DataFrame(datetime = c(as.Date("2021-01-02"), as.Date("2021-01-03")))$
+pl$DataFrame(
+  datetime = c(as.POSIXct(c("2021-01-02 00:00:00", "2021-01-03 00:00:00")))
+)$
   with_columns(
   datetime_string = pl$col("datetime")$dt$strftime("\%Y/\%m/\%d \%H:\%M:\%S")
 )

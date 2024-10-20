@@ -168,4 +168,12 @@ impl PlRExpr {
     fn dt_is_leap_year(&self) -> Result<Self> {
         Ok(self.inner.clone().dt().is_leap_year().into())
     }
+
+    fn dt_dst_offset(&self) -> Result<Self> {
+        Ok(self.inner.clone().dt().dst_offset().into())
+    }
+
+    fn dt_base_utc_offset(&self) -> Result<Self> {
+        Ok(self.inner.clone().dt().base_utc_offset().into())
+    }
 }
