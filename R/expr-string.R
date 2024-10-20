@@ -106,23 +106,20 @@ expr_str_strptime <- function(
   wrap({
     check_dots_empty0(...)
     check_polars_dtype(dtype)
-
-    if (dtype$is_datetime()) {
-      datetime_type <- dtype$`_dt`$`_get_datatype_fields`()
-      time_unit <- datetime_type[["time_unit"]]
-      time_zone <- datetime_type[["time_zone"]]
+    dtype_class <- class(dtype)
+    if ("polars_dtype_datetime" %in% dtype_class) {
       # TODO-REWRITE: why is this needed?
-      if (time_unit == "μs") {
-        time_unit <- "us"
+      if (dtype$time_unit == "μs") {
+        dtype$time_unit <- "us"
       }
       self$`_rexpr`$str_to_datetime(
-        format = format, time_unit = time_unit, time_zone = time_zone,
+        format = format, time_unit = dtype$time_unit, time_zone = dtype$time_zone,
         strict = strict, exact = exact, cache = cache,
         ambiguous = as_polars_expr(ambiguous, as_lit = TRUE)$`_rexpr`
       )
-    } else if (dtype$is_date()) {
+    } else if ("polars_dtype_date" %in% dtype_class) {
       self$`_rexpr`$str_to_date(format = format, strict = strict, exact = exact, cache = cache)
-    } else if (dtype$eq(pl$Time)) {
+    } else if ("polars_dtype_time" %in% dtype_class) {
       self$`_rexpr`$str_to_time(format = format, strict = strict, cache = cache)
     } else {
       abort("`dtype` must be of type Date, Datetime, or Time.")
