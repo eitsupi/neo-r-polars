@@ -97,12 +97,12 @@ impl PlRExpr {
         Ok(self.clone().inner.dt().nanosecond().into())
     }
 
-    fn dt_timestamp(&self, tu: &str) -> Result<Self> {
+    fn dt_timestamp(&self, time_unit: &str) -> Result<Self> {
         Ok(self
             .clone()
             .inner
             .dt()
-            .timestamp(<Wrap<TimeUnit>>::try_from(tu)?.0)
+            .timestamp(<Wrap<TimeUnit>>::try_from(time_unit)?.0)
             .into())
     }
 
@@ -121,21 +121,21 @@ impl PlRExpr {
             .into())
     }
 
-    fn dt_with_time_unit(&self, tu: &str) -> Result<Self> {
+    fn dt_with_time_unit(&self, time_unit: &str) -> Result<Self> {
         Ok(self
             .inner
             .clone()
             .dt()
-            .with_time_unit(<Wrap<TimeUnit>>::try_from(tu)?.0)
+            .with_time_unit(<Wrap<TimeUnit>>::try_from(time_unit)?.0)
             .into())
     }
 
-    fn dt_cast_time_unit(&self, tu: &str) -> Result<Self> {
+    fn dt_cast_time_unit(&self, time_unit: &str) -> Result<Self> {
         Ok(self
             .inner
             .clone()
             .dt()
-            .cast_time_unit(<Wrap<TimeUnit>>::try_from(tu)?.0)
+            .cast_time_unit(<Wrap<TimeUnit>>::try_from(time_unit)?.0)
             .into())
     }
 

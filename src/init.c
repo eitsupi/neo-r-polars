@@ -474,8 +474,8 @@ SEXP savvy_PlRExpr_dt_nanosecond__impl(SEXP self__) {
     return handle_result(res);
 }
 
-SEXP savvy_PlRExpr_dt_timestamp__impl(SEXP self__, SEXP c_arg__tu) {
-    SEXP res = savvy_PlRExpr_dt_timestamp__ffi(self__, c_arg__tu);
+SEXP savvy_PlRExpr_dt_timestamp__impl(SEXP self__, SEXP c_arg__time_unit) {
+    SEXP res = savvy_PlRExpr_dt_timestamp__ffi(self__, c_arg__time_unit);
     return handle_result(res);
 }
 
@@ -484,13 +484,13 @@ SEXP savvy_PlRExpr_dt_epoch_seconds__impl(SEXP self__) {
     return handle_result(res);
 }
 
-SEXP savvy_PlRExpr_dt_with_time_unit__impl(SEXP self__, SEXP c_arg__tu) {
-    SEXP res = savvy_PlRExpr_dt_with_time_unit__ffi(self__, c_arg__tu);
+SEXP savvy_PlRExpr_dt_with_time_unit__impl(SEXP self__, SEXP c_arg__time_unit) {
+    SEXP res = savvy_PlRExpr_dt_with_time_unit__ffi(self__, c_arg__time_unit);
     return handle_result(res);
 }
 
-SEXP savvy_PlRExpr_dt_cast_time_unit__impl(SEXP self__, SEXP c_arg__tu) {
-    SEXP res = savvy_PlRExpr_dt_cast_time_unit__ffi(self__, c_arg__tu);
+SEXP savvy_PlRExpr_dt_cast_time_unit__impl(SEXP self__, SEXP c_arg__time_unit) {
+    SEXP res = savvy_PlRExpr_dt_cast_time_unit__ffi(self__, c_arg__time_unit);
     return handle_result(res);
 }
 

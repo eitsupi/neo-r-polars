@@ -742,8 +742,8 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
 }
 
 `PlRExpr_dt_timestamp` <- function(self) {
-  function(`tu`) {
-    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_dt_timestamp__impl, `self`, `tu`))
+  function(`time_unit`) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_dt_timestamp__impl, `self`, `time_unit`))
   }
 }
 
@@ -754,14 +754,14 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
 }
 
 `PlRExpr_dt_with_time_unit` <- function(self) {
-  function(`tu`) {
-    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_dt_with_time_unit__impl, `self`, `tu`))
+  function(`time_unit`) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_dt_with_time_unit__impl, `self`, `time_unit`))
   }
 }
 
 `PlRExpr_dt_cast_time_unit` <- function(self) {
-  function(`tu`) {
-    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_dt_cast_time_unit__impl, `self`, `tu`))
+  function(`time_unit`) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_dt_cast_time_unit__impl, `self`, `time_unit`))
   }
 }
 
