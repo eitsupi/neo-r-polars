@@ -649,6 +649,16 @@ SEXP savvy_PlRExpr_dt_base_utc_offset__impl(SEXP self__) {
     return handle_result(res);
 }
 
+SEXP savvy_PlRExpr_dt_month_start__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_month_start__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_month_end__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_month_end__ffi(self__);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRExpr_print__impl(SEXP self__) {
     SEXP res = savvy_PlRExpr_print__ffi(self__);
     return handle_result(res);
@@ -1764,6 +1774,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_dt_is_leap_year__impl", (DL_FUNC) &savvy_PlRExpr_dt_is_leap_year__impl, 1},
     {"savvy_PlRExpr_dt_dst_offset__impl", (DL_FUNC) &savvy_PlRExpr_dt_dst_offset__impl, 1},
     {"savvy_PlRExpr_dt_base_utc_offset__impl", (DL_FUNC) &savvy_PlRExpr_dt_base_utc_offset__impl, 1},
+    {"savvy_PlRExpr_dt_month_start__impl", (DL_FUNC) &savvy_PlRExpr_dt_month_start__impl, 1},
+    {"savvy_PlRExpr_dt_month_end__impl", (DL_FUNC) &savvy_PlRExpr_dt_month_end__impl, 1},
     {"savvy_PlRExpr_print__impl", (DL_FUNC) &savvy_PlRExpr_print__impl, 1},
     {"savvy_PlRExpr_add__impl", (DL_FUNC) &savvy_PlRExpr_add__impl, 2},
     {"savvy_PlRExpr_sub__impl", (DL_FUNC) &savvy_PlRExpr_sub__impl, 2},

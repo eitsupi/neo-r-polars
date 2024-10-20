@@ -14,14 +14,16 @@ Returns the minute number from 0 to 59.
 }
 \examples{
 df <- pl$DataFrame(
-  date = pl$datetime_range(
-    as.Date("2020-12-25"),
-    as.Date("2021-1-05"),
-    interval = "1d5s",
-    time_zone = "GMT"
+  datetime = as.POSIXct(
+    c(
+      "1978-01-01 01:01:01",
+      "2024-10-13 05:30:14.500",
+      "2065-01-01 10:20:30.06"
+    ),
+    "UTC"
   )
 )
 df$with_columns(
-  pl$col("date")$dt$minute()$alias("minute")
+  pl$col("datetime")$dt$minute()$alias("minute")
 )
 }

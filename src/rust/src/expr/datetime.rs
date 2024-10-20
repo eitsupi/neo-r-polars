@@ -176,4 +176,12 @@ impl PlRExpr {
     fn dt_base_utc_offset(&self) -> Result<Self> {
         Ok(self.inner.clone().dt().base_utc_offset().into())
     }
+
+    fn dt_month_start(&self) -> Result<Self> {
+        Ok(self.inner.clone().dt().month_start().into())
+    }
+
+    fn dt_month_end(&self) -> Result<Self> {
+        Ok(self.inner.clone().dt().month_end().into())
+    }
 }

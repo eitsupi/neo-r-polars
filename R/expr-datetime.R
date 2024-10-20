@@ -171,8 +171,8 @@ expr_dt_round <- function(every) {
 #' replaced, and if it is a Date then a new Datetime is created by combining
 #' the two values.
 #'
-#' @param time The number of epoch since or before (if negative) the Date. Can be
-#' an Expr or a PTime.
+#' @param time The number of epoch since or before (if negative) the Date. Can
+#' be an Expr or a PTime.
 #' @inheritParams DataType_Datetime
 #'
 #' @inherit expr_dt_truncate return
@@ -251,16 +251,11 @@ expr_dt_strftime <- function(format) {
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
-#'   date = pl$date_range(
-#'     as.Date("2020-12-25"),
-#'     as.Date("2021-1-05"),
-#'     interval = "1d",
-#'     time_zone = "GMT"
-#'   )
+#'   date = as.Date(c("1977-01-01", "1978-01-01", "1979-01-01"))
 #' )
 #' df$with_columns(
-#'   pl$col("date")$dt$year()$alias("year"),
-#'   pl$col("date")$dt$iso_year()$alias("iso_year")
+#'   year = pl$col("date")$dt$year(),
+#'   iso_year = pl$col("date")$dt$iso_year()
 #' )
 expr_dt_year <- function() {
   self$`_rexpr`$dt_year() |>
@@ -275,22 +270,16 @@ expr_dt_year <- function() {
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
-#'   date = pl$date_range(
-#'     as.Date("2020-12-25"),
-#'     as.Date("2021-1-05"),
-#'     interval = "1d",
-#'     time_zone = "GMT"
-#'   )
+#'   date = as.Date(c("1977-01-01", "1978-01-01", "1979-01-01"))
 #' )
 #' df$with_columns(
-#'   pl$col("date")$dt$year()$alias("year"),
-#'   pl$col("date")$dt$iso_year()$alias("iso_year")
+#'   year = pl$col("date")$dt$year(),
+#'   iso_year = pl$col("date")$dt$iso_year()
 #' )
 expr_dt_iso_year <- function() {
   self$`_rexpr`$dt_iso_year() |>
     wrap()
 }
-
 
 #' Extract quarter from underlying Date representation
 #' @description
@@ -321,12 +310,7 @@ expr_dt_quarter <- function() {
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
-#'   date = pl$date_range(
-#'     as.Date("2020-12-25"),
-#'     as.Date("2021-1-05"),
-#'     interval = "1d",
-#'     time_zone = "GMT"
-#'   )
+#'   date = as.Date(c("2001-01-01", "2001-06-30", "2001-12-27"))
 #' )
 #' df$with_columns(
 #'   pl$col("date")$dt$month()$alias("month")
@@ -459,15 +443,17 @@ expr_dt_hour <- function() {
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
-#'   date = pl$datetime_range(
-#'     as.Date("2020-12-25"),
-#'     as.Date("2021-1-05"),
-#'     interval = "1d5s",
-#'     time_zone = "GMT"
+#'   datetime = as.POSIXct(
+#'     c(
+#'       "1978-01-01 01:01:01",
+#'       "2024-10-13 05:30:14.500",
+#'       "2065-01-01 10:20:30.06"
+#'     ),
+#'     "UTC"
 #'   )
 #' )
 #' df$with_columns(
-#'   pl$col("date")$dt$minute()$alias("minute")
+#'   pl$col("datetime")$dt$minute()$alias("minute")
 #' )
 expr_dt_minute <- function() {
   self$`_rexpr`$dt_minute() |>
@@ -534,7 +520,7 @@ expr_dt_millisecond <- function() {
 }
 
 
-#' Extract microseconds from underlying Datetime representation.
+#' Extract microseconds from underlying Datetime representation
 #' @inherit expr_dt_millisecond description return
 #' @examples
 #' df <- pl$DataFrame(
@@ -594,7 +580,7 @@ expr_dt_nanosecond <- function() {
 #'   epoch_ns = pl$col("date")$dt$epoch(),
 #'   epoch_s = pl$col("date")$dt$epoch(time_unit = "s")
 #' )
-expr_dt_epoch <- function(time_unit = "us") {
+expr_dt_epoch <- function(time_unit = c("us", "ns", "ms", "s", "d")) {
   wrap({
     time_unit <- arg_match0(time_unit, values = c("us", "ns", "ms", "s", "d"))
     switch(time_unit,
@@ -955,5 +941,36 @@ expr_dt_dst_offset <- function() {
 #' df$with_columns(base_utc_offset = pl$col("x")$dt$base_utc_offset())
 expr_dt_base_utc_offset <- function() {
   self$`_rexpr`$dt_base_utc_offset() |>
+    wrap()
+}
+
+#' Roll backward to the first day of the month
+#'
+#' For datetimes, the time of day is preserved.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(date = as.Date(c("2000-01-23", "2001-01-12", "2002-01-01")))
+#'
+#' df$with_columns(
+#'   month_start = pl$col("date")$dt$month_start()
+#' )
+expr_dt_month_start <- function() {
+  self$`_rexpr`$dt_month_start() |>
+    wrap()
+}
+
+#' Roll forward to the last day of the month
+#'
+#' @inherit expr_dt_month_start description
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(date = as.Date(c("2000-01-23", "2001-01-12", "2002-01-01")))
+#'
+#' df$with_columns(
+#'   month_end = pl$col("date")$dt$month_end()
+#' )
+expr_dt_month_end <- function() {
+  self$`_rexpr`$dt_month_end() |>
     wrap()
 }

@@ -4,7 +4,7 @@
 \alias{expr_dt_epoch}
 \title{Get epoch of given Datetime}
 \usage{
-expr_dt_epoch(time_unit = "us")
+expr_dt_epoch(time_unit = c("us", "ns", "ms", "s", "d"))
 }
 \arguments{
 \item{time_unit}{Time unit, one of \code{"ns"}, \code{"us"}, \code{"ms"}, \code{"s"} or  \code{"d"}.}

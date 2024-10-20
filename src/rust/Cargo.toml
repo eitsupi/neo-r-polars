@@ -50,6 +50,8 @@ features = [
     "list_sets",
     "list_to_struct",
     "meta",
+    "month_start",
+    "month_end",
     "offset_by",
     "parquet",
     "propagate_nans",

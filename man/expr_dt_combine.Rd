@@ -7,8 +7,8 @@
 expr_dt_combine(time, time_unit = "us")
 }
 \arguments{
-\item{time}{The number of epoch since or before (if negative) the Date. Can be
-an Expr or a PTime.}
+\item{time}{The number of epoch since or before (if negative) the Date. Can
+be an Expr or a PTime.}
 }
 \value{
 A polars \link{expression}

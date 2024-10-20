@@ -14,12 +14,7 @@ Returns the month number between 1 and 12.
 }
 \examples{
 df <- pl$DataFrame(
-  date = pl$date_range(
-    as.Date("2020-12-25"),
-    as.Date("2021-1-05"),
-    interval = "1d",
-    time_zone = "GMT"
-  )
+  date = as.Date(c("2001-01-01", "2001-06-30", "2001-12-27"))
 )
 df$with_columns(
   pl$col("date")$dt$month()$alias("month")

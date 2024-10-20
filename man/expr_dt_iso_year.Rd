@@ -15,15 +15,10 @@ the calendar year.
 }
 \examples{
 df <- pl$DataFrame(
-  date = pl$date_range(
-    as.Date("2020-12-25"),
-    as.Date("2021-1-05"),
-    interval = "1d",
-    time_zone = "GMT"
-  )
+  date = as.Date(c("1977-01-01", "1978-01-01", "1979-01-01"))
 )
 df$with_columns(
-  pl$col("date")$dt$year()$alias("year"),
-  pl$col("date")$dt$iso_year()$alias("iso_year")
+  year = pl$col("date")$dt$year(),
+  iso_year = pl$col("date")$dt$iso_year()
 )
 }

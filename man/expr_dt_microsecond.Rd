@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_microsecond}
 \alias{expr_dt_microsecond}
-\title{Extract microseconds from underlying Datetime representation.}
+\title{Extract microseconds from underlying Datetime representation}
 \usage{
 expr_dt_microsecond()
 }
@@ -10,7 +10,7 @@ expr_dt_microsecond()
 A polars \link{expression}
 }
 \description{
-Extract microseconds from underlying Datetime representation.
+Extract microseconds from underlying Datetime representation
 }
 \examples{
 df <- pl$DataFrame(
