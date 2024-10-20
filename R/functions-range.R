@@ -39,10 +39,10 @@ pl__date_range <- function(
     end,
     interval = "1d",
     ...,
-    closed = "both") {
+    closed = c("both", "left", "none", "right")) {
   wrap({
     check_dots_empty0(...)
-    arg_match0(closed, values = c("both", "left", "none", "right"))
+    closed <- arg_match0(closed, values = c("both", "left", "none", "right"))
     interval <- parse_as_polars_duration_string(interval)
     date_range(
       as_polars_expr(start)$`_rexpr`,
@@ -88,10 +88,10 @@ pl__date_ranges <- function(
     end,
     interval = "1d",
     ...,
-    closed = "both") {
+    closed = c("both", "left", "none", "right")) {
   wrap({
     check_dots_empty0(...)
-    arg_match0(closed, values = c("both", "left", "none", "right"))
+    closed <- arg_match0(closed, values = c("both", "left", "none", "right"))
     interval <- parse_as_polars_duration_string(interval)
     date_ranges(
       as_polars_expr(start)$`_rexpr`,
@@ -143,12 +143,12 @@ pl__datetime_range <- function(
     end,
     interval = "1d",
     ...,
-    closed = "both",
+    closed = c("both", "left", "none", "right"),
     time_unit = NULL,
     time_zone = NULL) {
   wrap({
     check_dots_empty0(...)
-    arg_match0(closed, values = c("both", "left", "none", "right"))
+    closed <- arg_match0(closed, values = c("both", "left", "none", "right"))
     interval <- parse_as_polars_duration_string(interval)
     datetime_range(
       as_polars_expr(start)$`_rexpr`,
@@ -191,12 +191,12 @@ pl__datetime_ranges <- function(
     end,
     interval = "1d",
     ...,
-    closed = "both",
+    closed = c("both", "left", "none", "right"),
     time_unit = NULL,
     time_zone = NULL) {
   wrap({
     check_dots_empty0(...)
-    arg_match0(closed, values = c("both", "left", "none", "right"))
+    closed <- arg_match0(closed, values = c("both", "left", "none", "right"))
     interval <- parse_as_polars_duration_string(interval)
     datetime_ranges(
       as_polars_expr(start)$`_rexpr`,
