@@ -385,7 +385,7 @@ expr_arr_explode <- function() {
 #' )$cast(pl$Array(pl$Int64, 3))
 #' df$with_columns(first = pl$col("a")$arr$first())
 expr_arr_first <- function() {
-  self$`_rexpr`$arr_get(pl$lit(0)$`_rexpr`, null_on_oob = TRUE) |>
+  self$get(0, null_on_oob = TRUE) |>
     wrap()
 }
 
@@ -398,7 +398,7 @@ expr_arr_first <- function() {
 #' )$cast(pl$Array(pl$Int64, 3))
 #' df$with_columns(last = pl$col("a")$arr$last())
 expr_arr_last <- function() {
-  self$`_rexpr`$arr_get(pl$lit(-1)$`_rexpr`, null_on_oob = TRUE) |>
+  self$get(-1, null_on_oob = TRUE) |>
     wrap()
 }
 
