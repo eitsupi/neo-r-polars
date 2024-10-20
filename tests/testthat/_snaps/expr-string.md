@@ -109,7 +109,7 @@
       Caused by error:
       ! Evaluation failed in `$collect()`.
       Caused by error:
-      ! InvalidOperation(ErrString("conversion from `str` to `u64` failed in column 'literal' for 1 out of 1 values: [\"a\"]"))
+      ! Invalid operation: conversion from `str` to `u64` failed in column 'literal' for 1 out of 1 values: ["a"]
 
 ---
 
@@ -121,7 +121,7 @@
       Caused by error:
       ! Evaluation failed in `$collect()`.
       Caused by error:
-      ! InvalidOperation(ErrString("conversion from `f64` to `u64` failed in column 'literal' for 1 out of 1 values: [-3.0]"))
+      ! Invalid operation: conversion from `f64` to `u64` failed in column 'literal' for 1 out of 1 values: [-3.0]
 
 # str$pad_start str$pad_start
 
@@ -203,7 +203,7 @@
       Caused by error:
       ! Evaluation failed in `$collect()`.
       Caused by error:
-      ! ComputeError(ErrString("invalid `base64` encoding found; try setting `strict=false` to ignore"))
+      ! invalid `base64` encoding found; try setting `strict=false` to ignore
 
 ---
 
@@ -271,7 +271,7 @@
       Caused by error:
       ! Evaluation failed in `$collect()`.
       Caused by error:
-      ! SchemaMismatch(ErrString("invalid series dtype: expected `String`, got `f64`"))
+      ! invalid series dtype: expected `String`, got `f64`
 
 # str$replace
 
@@ -284,7 +284,7 @@
       Caused by error:
       ! Evaluation failed in `$collect()`.
       Caused by error:
-      ! ComputeError(ErrString("regex replacement with 'n > 1' not yet supported"))
+      ! regex replacement with 'n > 1' not yet supported
 
 # str$to_integer
 
@@ -296,7 +296,7 @@
       Caused by error:
       ! Evaluation failed in `$collect()`.
       Caused by error:
-      ! ComputeError(ErrString("strict integer parsing failed for 1 value(s): [\"hej\"]; error message for the first shown value: 'invalid digit found in string' (consider non-strict parsing)"))
+      ! strict integer parsing failed for 1 value(s): ["hej"]; error message for the first shown value: 'invalid digit found in string' (consider non-strict parsing)
 
 # str$replace_many
 
@@ -309,7 +309,7 @@
       Caused by error:
       ! Evaluation failed in `$collect()`.
       Caused by error:
-      ! InvalidOperation(ErrString("expected the same amount of patterns as replacement strings"))
+      ! Invalid operation: expected the same amount of patterns as replacement strings
 
 ---
 
@@ -322,7 +322,7 @@
       Caused by error:
       ! Evaluation failed in `$collect()`.
       Caused by error:
-      ! InvalidOperation(ErrString("expected the same amount of patterns as replacement strings"))
+      ! Invalid operation: expected the same amount of patterns as replacement strings
 
 # str$find works
 
@@ -351,7 +351,10 @@
       Caused by error:
       ! Evaluation failed in `$collect()`.
       Caused by error:
-      ! ComputeError(ErrString("Invalid regular expression: regex parse error:\n    (?iAa\n       ^\nerror: unrecognized flag"))
+      ! Invalid regular expression: regex parse error:
+          (?iAa
+             ^
+      error: unrecognized flag
 
 # $str$extract_many works
 
