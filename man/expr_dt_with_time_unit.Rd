@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_with_time_unit}
 \alias{expr_dt_with_time_unit}
-\title{with_time_unit}
+\title{Set time unit of a Series of dtype Datetime or Duration}
 \usage{
 expr_dt_with_time_unit(time_unit = c("ns", "us", "ms"))
 }
@@ -13,9 +13,7 @@ expr_dt_with_time_unit(time_unit = c("ns", "us", "ms"))
 A polars \link{expression}
 }
 \description{
-Set time unit of a Series of dtype Datetime or Duration.
-This does not modify underlying data, and should be used to fix an incorrect time unit.
-The corresponding global timepoint will change.
+This is deprecated. Cast to Int64 and then to Datetime instead.
 }
 \examples{
 df <- pl$select(
@@ -25,9 +23,8 @@ df <- pl$select(
     interval = "1d1s"
   )
 )
-df$select(
-  pl$col("date"),
-  pl$col("date")$dt$with_time_unit()$alias("with_time_unit_ns"),
-  pl$col("date")$dt$with_time_unit(time_unit = "ms")$alias("with_time_unit_ms")
+df$with_columns(
+  with_time_unit_ns = pl$col("date")$dt$with_time_unit(),
+  with_time_unit_ms = pl$col("date")$dt$with_time_unit(time_unit = "ms")
 )
 }

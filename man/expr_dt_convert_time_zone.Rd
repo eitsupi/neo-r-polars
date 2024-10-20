@@ -2,32 +2,30 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_convert_time_zone}
 \alias{expr_dt_convert_time_zone}
-\title{Convert to given time zone for an expression of type Datetime.}
+\title{Convert to given time zone for an expression of type Datetime}
 \usage{
 expr_dt_convert_time_zone(time_zone)
 }
 \arguments{
-\item{time_zone}{String time zone from \code{\link[base:timezones]{base::OlsonNames()}}}
+\item{time_zone}{A character time zone from \code{\link[base:timezones]{base::OlsonNames()}}.}
 }
 \value{
 A polars \link{expression}
 }
 \description{
-If converting from a time-zone-naive datetime,
-then conversion will happen as if converting from UTC,
-regardless of your system’s time zone.
+If converting from a time-zone-naive datetime, then conversion will happen
+as if converting from UTC, regardless of your system’s time zone.
 }
 \examples{
-df <- pl$DataFrame(
+df <- pl$select(
   date = pl$datetime_range(
     as.POSIXct("2020-03-01", tz = "UTC"),
     as.POSIXct("2020-05-01", tz = "UTC"),
-    "1mo1s"
+    "1mo"
   )
 )
 
-df$select(
-  "date",
+df$with_columns(
   London = pl$col("date")$dt$convert_time_zone("Europe/London")
 )
 }

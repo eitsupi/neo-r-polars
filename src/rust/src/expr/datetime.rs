@@ -42,6 +42,10 @@ impl PlRExpr {
         Ok(self.inner.clone().dt().time().into())
     }
 
+    fn dt_date(&self) -> Result<Self> {
+        Ok(self.inner.clone().dt().date().into())
+    }
+
     fn dt_combine(&self, time: &PlRExpr, time_unit: &str) -> Result<Self> {
         Ok(self
             .inner
@@ -183,5 +187,9 @@ impl PlRExpr {
 
     fn dt_month_end(&self) -> Result<Self> {
         Ok(self.inner.clone().dt().month_end().into())
+    }
+
+    fn dt_century(&self) -> Result<Self> {
+        Ok(self.inner.clone().dt().century().into())
     }
 }

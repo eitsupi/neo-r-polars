@@ -13,15 +13,14 @@ A polars \link{expression}
 Returns the ISO weekday number where Monday = 1 and Sunday = 7.
 }
 \examples{
-df <- pl$DataFrame(
+df <- pl$select(
   date = pl$date_range(
     as.Date("2020-12-25"),
     as.Date("2021-1-05"),
-    interval = "1d",
-    time_zone = "GMT"
+    interval = "1d"
   )
 )
 df$with_columns(
-  pl$col("date")$dt$weekday()$alias("weekday")
+  weekday = pl$col("date")$dt$weekday()
 )
 }

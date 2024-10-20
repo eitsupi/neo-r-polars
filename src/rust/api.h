@@ -100,6 +100,7 @@ SEXP savvy_PlRExpr_dt_replace_time_zone__ffi(SEXP self__, SEXP c_arg__ambiguous,
 SEXP savvy_PlRExpr_dt_truncate__ffi(SEXP self__, SEXP c_arg__every);
 SEXP savvy_PlRExpr_dt_round__ffi(SEXP self__, SEXP c_arg__every);
 SEXP savvy_PlRExpr_dt_time__ffi(SEXP self__);
+SEXP savvy_PlRExpr_dt_date__ffi(SEXP self__);
 SEXP savvy_PlRExpr_dt_combine__ffi(SEXP self__, SEXP c_arg__time, SEXP c_arg__time_unit);
 SEXP savvy_PlRExpr_dt_to_string__ffi(SEXP self__, SEXP c_arg__format);
 SEXP savvy_PlRExpr_dt_year__ffi(SEXP self__);
@@ -133,6 +134,7 @@ SEXP savvy_PlRExpr_dt_dst_offset__ffi(SEXP self__);
 SEXP savvy_PlRExpr_dt_base_utc_offset__ffi(SEXP self__);
 SEXP savvy_PlRExpr_dt_month_start__ffi(SEXP self__);
 SEXP savvy_PlRExpr_dt_month_end__ffi(SEXP self__);
+SEXP savvy_PlRExpr_dt_century__ffi(SEXP self__);
 SEXP savvy_PlRExpr_print__ffi(SEXP self__);
 SEXP savvy_PlRExpr_add__ffi(SEXP self__, SEXP c_arg__rhs);
 SEXP savvy_PlRExpr_sub__ffi(SEXP self__, SEXP c_arg__rhs);

@@ -14,7 +14,6 @@ A polars \link{expression}
 }
 \description{
 Cast the underlying data to another time unit. This may lose precision.
-The corresponding global timepoint will stay unchanged +/- precision.
 }
 \examples{
 df <- pl$select(
@@ -24,9 +23,8 @@ df <- pl$select(
     interval = "1d1s"
   )
 )
-df$select(
-  pl$col("date"),
-  pl$col("date")$dt$cast_time_unit()$alias("cast_time_unit_ns"),
-  pl$col("date")$dt$cast_time_unit(time_unit = "ms")$alias("cast_time_unit_ms")
+df$with_columns(
+  cast_time_unit_ns = pl$col("date")$dt$cast_time_unit(),
+  cast_time_unit_ms = pl$col("date")$dt$cast_time_unit(time_unit = "ms")
 )
 }

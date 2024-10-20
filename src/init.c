@@ -494,6 +494,11 @@ SEXP savvy_PlRExpr_dt_time__impl(SEXP self__) {
     return handle_result(res);
 }
 
+SEXP savvy_PlRExpr_dt_date__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_date__ffi(self__);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRExpr_dt_combine__impl(SEXP self__, SEXP c_arg__time, SEXP c_arg__time_unit) {
     SEXP res = savvy_PlRExpr_dt_combine__ffi(self__, c_arg__time, c_arg__time_unit);
     return handle_result(res);
@@ -656,6 +661,11 @@ SEXP savvy_PlRExpr_dt_month_start__impl(SEXP self__) {
 
 SEXP savvy_PlRExpr_dt_month_end__impl(SEXP self__) {
     SEXP res = savvy_PlRExpr_dt_month_end__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_century__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_century__ffi(self__);
     return handle_result(res);
 }
 
@@ -1743,6 +1753,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_dt_truncate__impl", (DL_FUNC) &savvy_PlRExpr_dt_truncate__impl, 2},
     {"savvy_PlRExpr_dt_round__impl", (DL_FUNC) &savvy_PlRExpr_dt_round__impl, 2},
     {"savvy_PlRExpr_dt_time__impl", (DL_FUNC) &savvy_PlRExpr_dt_time__impl, 1},
+    {"savvy_PlRExpr_dt_date__impl", (DL_FUNC) &savvy_PlRExpr_dt_date__impl, 1},
     {"savvy_PlRExpr_dt_combine__impl", (DL_FUNC) &savvy_PlRExpr_dt_combine__impl, 3},
     {"savvy_PlRExpr_dt_to_string__impl", (DL_FUNC) &savvy_PlRExpr_dt_to_string__impl, 2},
     {"savvy_PlRExpr_dt_year__impl", (DL_FUNC) &savvy_PlRExpr_dt_year__impl, 1},
@@ -1776,6 +1787,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_dt_base_utc_offset__impl", (DL_FUNC) &savvy_PlRExpr_dt_base_utc_offset__impl, 1},
     {"savvy_PlRExpr_dt_month_start__impl", (DL_FUNC) &savvy_PlRExpr_dt_month_start__impl, 1},
     {"savvy_PlRExpr_dt_month_end__impl", (DL_FUNC) &savvy_PlRExpr_dt_month_end__impl, 1},
+    {"savvy_PlRExpr_dt_century__impl", (DL_FUNC) &savvy_PlRExpr_dt_century__impl, 1},
     {"savvy_PlRExpr_print__impl", (DL_FUNC) &savvy_PlRExpr_print__impl, 1},
     {"savvy_PlRExpr_add__impl", (DL_FUNC) &savvy_PlRExpr_add__impl, 2},
     {"savvy_PlRExpr_sub__impl", (DL_FUNC) &savvy_PlRExpr_sub__impl, 2},

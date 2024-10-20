@@ -769,6 +769,12 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   }
 }
 
+`PlRExpr_dt_date` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_dt_date__impl, `self`))
+  }
+}
+
 `PlRExpr_dt_combine` <- function(self) {
   function(`time`, `time_unit`) {
     `time` <- .savvy_extract_ptr(`time`, "PlRExpr")
@@ -966,6 +972,12 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
 `PlRExpr_dt_month_end` <- function(self) {
   function() {
     .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_dt_month_end__impl, `self`))
+  }
+}
+
+`PlRExpr_dt_century` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_dt_century__impl, `self`))
   }
 }
 
@@ -1934,6 +1946,7 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   e$`dt_truncate` <- `PlRExpr_dt_truncate`(ptr)
   e$`dt_round` <- `PlRExpr_dt_round`(ptr)
   e$`dt_time` <- `PlRExpr_dt_time`(ptr)
+  e$`dt_date` <- `PlRExpr_dt_date`(ptr)
   e$`dt_combine` <- `PlRExpr_dt_combine`(ptr)
   e$`dt_to_string` <- `PlRExpr_dt_to_string`(ptr)
   e$`dt_year` <- `PlRExpr_dt_year`(ptr)
@@ -1967,6 +1980,7 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   e$`dt_base_utc_offset` <- `PlRExpr_dt_base_utc_offset`(ptr)
   e$`dt_month_start` <- `PlRExpr_dt_month_start`(ptr)
   e$`dt_month_end` <- `PlRExpr_dt_month_end`(ptr)
+  e$`dt_century` <- `PlRExpr_dt_century`(ptr)
   e$`print` <- `PlRExpr_print`(ptr)
   e$`add` <- `PlRExpr_add`(ptr)
   e$`sub` <- `PlRExpr_sub`(ptr)

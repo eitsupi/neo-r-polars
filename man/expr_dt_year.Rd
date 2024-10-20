@@ -10,8 +10,6 @@ expr_dt_year()
 A polars \link{expression}
 }
 \description{
-Extract year from underlying Date representation.
-Applies to Date and Datetime columns.
 Returns the year number in the calendar date.
 }
 \examples{

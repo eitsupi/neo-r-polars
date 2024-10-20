@@ -15,24 +15,23 @@ namespace_expr_dt <- function(x) {
   self
 }
 
-#' Convert to given time zone for an expression of type Datetime.
+#' Convert to given time zone for an expression of type Datetime
 #'
-#' If converting from a time-zone-naive datetime,
-#' then conversion will happen as if converting from UTC,
-#' regardless of your system’s time zone.
-#' @param time_zone String time zone from [base::OlsonNames()]
+#' If converting from a time-zone-naive datetime, then conversion will happen
+#' as if converting from UTC, regardless of your system’s time zone.
+#'
+#' @param time_zone A character time zone from [base::OlsonNames()].
 #' @inherit as_polars_expr return
 #' @examples
-#' df <- pl$DataFrame(
+#' df <- pl$select(
 #'   date = pl$datetime_range(
 #'     as.POSIXct("2020-03-01", tz = "UTC"),
 #'     as.POSIXct("2020-05-01", tz = "UTC"),
-#'     "1mo1s"
+#'     "1mo"
 #'   )
 #' )
 #'
-#' df$select(
-#'   "date",
+#' df$with_columns(
 #'   London = pl$col("date")$dt$convert_time_zone("Europe/London")
 #' )
 expr_dt_convert_time_zone <- function(time_zone) {
@@ -214,31 +213,31 @@ expr_dt_round <- function(every) {
 #'
 #' @param time The number of epoch since or before (if negative) the Date. Can
 #' be an Expr or a PTime.
-#' @inheritParams DataType_Datetime
+#' @inheritParams expr_dt_timestamp
 #'
 #' @inherit expr_dt_truncate return
-#' @examples
+#' @examplesIf requireNamespace("hms", quietly = TRUE)
 #' df <- pl$DataFrame(
 #'   dtm = c(
 #'     ISOdatetime(2022, 12, 31, 10, 30, 45),
 #'     ISOdatetime(2023, 7, 5, 23, 59, 59)
 #'   ),
 #'   dt = c(ISOdate(2022, 10, 10), ISOdate(2022, 7, 5)),
-#'   tm = c(pl$time(1, 2, 3, 456000), pl$time(7, 8, 9, 101000))
-#' )$explode("tm")
+#'   tm = hms::parse_hms(c("1:2:3.456000", "7:8:9.101000"))
+#' )
 #'
 #' df
 #'
 #' df$select(
 #'   d1 = pl$col("dtm")$dt$combine(pl$col("tm")),
 #'   s2 = pl$col("dt")$dt$combine(pl$col("tm")),
-#'   d3 = pl$col("dt")$dt$combine(pl$time(4, 5, 6))
+#'   d3 = pl$col("dt")$dt$combine(hms::parse_hms("4:5:6"))
 #' )
-expr_dt_combine <- function(time, time_unit = "us") {
-  # PTime implicitly gets converted to "ns"
-  if (inherits(time, "PTime")) time_unit <- "ns"
-  self$`_rexpr`$dt_combine(time, time_unit) |>
-    wrap()
+expr_dt_combine <- function(time, time_unit = c("ns", "us", "ms")) {
+  wrap({
+    time_unit <- arg_match0(time_unit, values = c("ns", "us", "ms"))
+    self$`_rexpr`$dt_combine(as_polars_expr(time)$`_rexpr`, time_unit)
+  })
 }
 
 #' Convert date/time/datetime to string
@@ -284,10 +283,7 @@ expr_dt_strftime <- function(format) {
 
 #' Extract year from underlying Date representation
 #' @description
-#' Extract year from underlying Date representation.
-#' Applies to Date and Datetime columns.
 #' Returns the year number in the calendar date.
-#'
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -368,16 +364,15 @@ expr_dt_month <- function() {
 #'
 #' @inherit as_polars_expr return
 #' @examples
-#' df <- pl$DataFrame(
+#' df <- pl$select(
 #'   date = pl$date_range(
 #'     as.Date("2020-12-25"),
 #'     as.Date("2021-1-05"),
-#'     interval = "1d",
-#'     time_zone = "GMT"
+#'     interval = "1d"
 #'   )
 #' )
 #' df$with_columns(
-#'   pl$col("date")$dt$week()$alias("week")
+#'   week = pl$col("date")$dt$week()
 #' )
 expr_dt_week <- function() {
   self$`_rexpr`$dt_week() |>
@@ -390,16 +385,15 @@ expr_dt_week <- function() {
 #'
 #' @inherit as_polars_expr return
 #' @examples
-#' df <- pl$DataFrame(
+#' df <- pl$select(
 #'   date = pl$date_range(
 #'     as.Date("2020-12-25"),
 #'     as.Date("2021-1-05"),
-#'     interval = "1d",
-#'     time_zone = "GMT"
+#'     interval = "1d"
 #'   )
 #' )
 #' df$with_columns(
-#'   pl$col("date")$dt$weekday()$alias("weekday")
+#'   weekday = pl$col("date")$dt$weekday()
 #' )
 expr_dt_weekday <- function() {
   self$`_rexpr`$dt_weekday() |>
@@ -658,10 +652,9 @@ expr_dt_timestamp <- function(time_unit = c("ns", "us", "ms")) {
 }
 
 # TODO: mark deprecated in news before next release
-#' with_time_unit
-#' @description  Set time unit of a Series of dtype Datetime or Duration.
-#' This does not modify underlying data, and should be used to fix an incorrect time unit.
-#' The corresponding global timepoint will change.
+#' Set time unit of a Series of dtype Datetime or Duration
+#' @description
+#' This is deprecated. Cast to Int64 and then to Datetime instead.
 #'
 #' @inheritParams expr_dt_timestamp
 #' @inherit as_polars_expr return
@@ -673,10 +666,9 @@ expr_dt_timestamp <- function(time_unit = c("ns", "us", "ms")) {
 #'     interval = "1d1s"
 #'   )
 #' )
-#' df$select(
-#'   pl$col("date"),
-#'   pl$col("date")$dt$with_time_unit()$alias("with_time_unit_ns"),
-#'   pl$col("date")$dt$with_time_unit(time_unit = "ms")$alias("with_time_unit_ms")
+#' df$with_columns(
+#'   with_time_unit_ns = pl$col("date")$dt$with_time_unit(),
+#'   with_time_unit_ms = pl$col("date")$dt$with_time_unit(time_unit = "ms")
 #' )
 expr_dt_with_time_unit <- function(time_unit = c("ns", "us", "ms")) {
   wrap({
@@ -690,7 +682,6 @@ expr_dt_with_time_unit <- function(time_unit = c("ns", "us", "ms")) {
 #' Change time unit
 #' @description
 #' Cast the underlying data to another time unit. This may lose precision.
-#' The corresponding global timepoint will stay unchanged +/- precision.
 #'
 #' @inheritParams expr_dt_timestamp
 #' @inherit as_polars_expr return
@@ -702,10 +693,9 @@ expr_dt_with_time_unit <- function(time_unit = c("ns", "us", "ms")) {
 #'     interval = "1d1s"
 #'   )
 #' )
-#' df$select(
-#'   pl$col("date"),
-#'   pl$col("date")$dt$cast_time_unit()$alias("cast_time_unit_ns"),
-#'   pl$col("date")$dt$cast_time_unit(time_unit = "ms")$alias("cast_time_unit_ms")
+#' df$with_columns(
+#'   cast_time_unit_ns = pl$col("date")$dt$cast_time_unit(),
+#'   cast_time_unit_ms = pl$col("date")$dt$cast_time_unit(time_unit = "ms")
 #' )
 expr_dt_cast_time_unit <- function(time_unit = c("ns", "us", "ms")) {
   wrap({
@@ -998,5 +988,40 @@ expr_dt_month_start <- function() {
 #' )
 expr_dt_month_end <- function() {
   self$`_rexpr`$dt_month_end() |>
+    wrap()
+}
+
+#' Extract the century from underlying representation
+#'
+#' Returns the century number in the calendar date.
+#'
+#' @inherit expr_dt_month_start description
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(
+#'   date = as.Date(
+#'     c("999-12-31", "1897-05-07", "2000-01-01", "2001-07-05", "3002-10-20")
+#'   )
+#' )
+#' df$with_columns(
+#'   century = pl$col("date")$dt$century()
+#' )
+expr_dt_century <- function() {
+  self$`_rexpr`$dt_century() |>
+    wrap()
+}
+
+#' Extract date from date(time)
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(
+#'   datetime = as.POSIXct(c("1978-1-1 1:1:1", "1897-5-7 00:00:00"), tz = "UTC")
+#' )
+#' df$with_columns(
+#'   date = pl$col("datetime")$dt$date()
+#' )
+expr_dt_date <- function() {
+  self$`_rexpr`$dt_date() |>
     wrap()
 }
