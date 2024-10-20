@@ -14,6 +14,17 @@
       Error in `pl$col("datetime")$dt$round()`:
       ! `every` must be a single non-NA character or difftime.
 
+# dt$combine
+
+    Code
+      pl$lit(as.Date("2021-01-01"))$dt$combine(1, time_unit = "s")
+    Condition
+      Error in `pl$lit(as.Date("2021-01-01"))$dt$combine()`:
+      ! Evaluation failed in `$combine()`.
+      Caused by error in `pl$lit(as.Date("2021-01-01"))$dt$combine()`:
+      ! `time_unit` must be one of "ns", "us", or "ms", not "s".
+      i Did you mean "ns"?
+
 # dt$epoch
 
     Code

@@ -130,50 +130,22 @@ test_that("dt$round", {
   )
 })
 
-# TODO-REWRITE: requires pl$PTime
-# test_that("dt$combine", {
-#   # Using pl$PTime
-#   expect_equal(
-#     (
-#       pl$DataFrame(x = as.Date("2021-01-01"))$with_columns(pl$col("x")$dt$combine(pl$PTime("02:34:12"))
-#       $cast(pl$Datetime("us", "GMT")))
-#     ),
-#     as.POSIXct("2021-01-01 02:34:12", tz = "GMT")
-#   )
+test_that("dt$combine", {
+  skip_if_not_installed("hms")
+  expect_equal(
+    pl$DataFrame(x = as.Date("2021-01-01"))$
+      with_columns(
+      pl$col("x")$dt$combine(hms::parse_hms("02:34:12"))$
+        cast(pl$Datetime("ms", "GMT"))
+    ),
+    pl$DataFrame(x = as.POSIXct("2021-01-01 02:34:12", tz = "GMT"))
+  )
 
-#   expect_equal(
-#     (
-#       pl$lit(as.Date("2021-01-01"))
-#       $dt$combine(pl$PTime(3600 * 1.5E3, time_unit = "ms"))
-#       $cast(pl$Datetime("us", "GMT"))
-#     ),
-#     as.POSIXct("2021-01-01 01:30:00", tz = "GMT")
-#   )
-
-#   expect_equal(
-#     (
-#       pl$lit(as.Date("2021-01-01"))
-#       $dt$combine(3600 * 1.5E9, time_unit = "ns")
-#       $cast(pl$Datetime("us", "GMT"))
-#     ),
-#     as.POSIXct("2021-01-01 01:30:00", tz = "GMT")
-#   )
-
-#   expect_equal(
-#     (
-#       pl$lit(as.Date("2021-01-01"))
-#       $dt$combine(-3600 * 1.5E9, time_unit = "ns")
-#       $cast(pl$Datetime("us", "GMT"))
-#       $to_r()
-#     ),
-#     as.POSIXct("2020-12-31 22:30:00", tz = "GMT")
-#   )
-
-#   expect_snapshot(
-#     pl$lit(as.Date("2021-01-01"))$dt$combine(1, time_unit = "s"),
-#     error = TRUE
-#   )
-# })
+  expect_snapshot(
+    pl$lit(as.Date("2021-01-01"))$dt$combine(1, time_unit = "s"),
+    error = TRUE
+  )
+})
 
 test_that("dt$strftime and dt$to_string", {
   expect_equal(
