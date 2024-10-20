@@ -43,10 +43,12 @@ NULL
 #' # A single difftime is converted to a duration string
 #' parse_as_polars_duration_string(as.difftime(1, units = "days"))
 parse_as_polars_duration_string <- function(x, default = NULL, ...) {
-  if (is.null(x)) {
-    return(default)
-  }
   UseMethod("parse_as_polars_duration_string")
+}
+
+#' @exportS3Method
+parse_as_polars_duration_string.NULL <- function(x, default = NULL, ...) {
+  default
 }
 
 #' @exportS3Method

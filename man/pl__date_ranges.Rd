@@ -4,7 +4,13 @@
 \alias{pl__date_ranges}
 \title{Generate a list containing a date range}
 \usage{
-pl__date_ranges(start, end, interval = "1d", ..., closed = "both")
+pl__date_ranges(
+  start,
+  end,
+  interval = "1d",
+  ...,
+  closed = c("both", "left", "none", "right")
+)
 }
 \arguments{
 \item{start}{Lower bound of the date range. Something that can be coerced to

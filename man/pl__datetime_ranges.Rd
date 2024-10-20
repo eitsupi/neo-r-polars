@@ -9,7 +9,7 @@ pl__datetime_ranges(
   end,
   interval = "1d",
   ...,
-  closed = "both",
+  closed = c("both", "left", "none", "right"),
   time_unit = NULL,
   time_zone = NULL
 )
