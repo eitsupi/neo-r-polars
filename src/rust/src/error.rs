@@ -29,6 +29,10 @@ impl From<RPolarsErr> for savvy::Error {
         let default = || savvy::Error::new(format!("{:?}", &err).as_str());
 
         match err {
+            RPolarsErr::Polars(PolarsError::ColumnNotFound(x)) => {
+                let y = x.as_ref();
+                savvy::Error::new(format!("Column(s) not found: {}", y).as_str())
+            }
             _ => default(),
         }
     }
