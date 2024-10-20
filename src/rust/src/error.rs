@@ -30,8 +30,7 @@ impl From<RPolarsErr> for savvy::Error {
 
         match err {
             RPolarsErr::Polars(PolarsError::ColumnNotFound(x)) => {
-                let y = x.as_ref();
-                savvy::Error::new(format!("Column(s) not found: {}", y).as_str())
+                savvy::Error::new(format!("Column(s) not found: {}", x).as_str())
             }
             _ => default(),
         }
