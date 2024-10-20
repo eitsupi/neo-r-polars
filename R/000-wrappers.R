@@ -981,6 +981,13 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   }
 }
 
+`PlRExpr_dt_add_business_days` <- function(self) {
+  function(`n`, `week_mask`, `holidays`, `roll`) {
+    `n` <- .savvy_extract_ptr(`n`, "PlRExpr")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_dt_add_business_days__impl, `self`, `n`, `week_mask`, `holidays`, `roll`))
+  }
+}
+
 `PlRExpr_print` <- function(self) {
   function() {
     invisible(.Call(savvy_PlRExpr_print__impl, `self`))
@@ -1981,6 +1988,7 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   e$`dt_month_start` <- `PlRExpr_dt_month_start`(ptr)
   e$`dt_month_end` <- `PlRExpr_dt_month_end`(ptr)
   e$`dt_century` <- `PlRExpr_dt_century`(ptr)
+  e$`dt_add_business_days` <- `PlRExpr_dt_add_business_days`(ptr)
   e$`print` <- `PlRExpr_print`(ptr)
   e$`add` <- `PlRExpr_add`(ptr)
   e$`sub` <- `PlRExpr_sub`(ptr)

@@ -125,3 +125,71 @@
       Caused by error:
       ! `time_unit` must be a string or character vector.
 
+# dt$add_business_days
+
+    Code
+      df$select(pl$col("x")$dt$add_business_days(5.2))
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! Invalid operation: expected Int64, Int32, UInt64, or UInt32, got f64
+
+---
+
+    Code
+      df$select(pl$col("x")$dt$add_business_days(0, week_mask = rep(TRUE, 6)))
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$select()`.
+      Caused by error in `pl$col("x")$dt$add_business_days()`:
+      ! Evaluation failed in `$add_business_days()`.
+      Caused by error in `pl$col("x")$dt$add_business_days()`:
+      ! `week_mask` must be a vector with 7 logical values, without any NA.
+
+---
+
+    Code
+      df$select(pl$col("x")$dt$add_business_days(0, week_mask = c(rep(TRUE, 6), NA)))
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$select()`.
+      Caused by error in `pl$col("x")$dt$add_business_days()`:
+      ! Evaluation failed in `$add_business_days()`.
+      Caused by error in `pl$col("x")$dt$add_business_days()`:
+      ! `week_mask` must be a vector with 7 logical values, without any NA.
+
+---
+
+    Code
+      df$select(pl$col("x")$dt$add_business_days(0, week_mask = 1))
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$select()`.
+      Caused by error in `pl$col("x")$dt$add_business_days()`:
+      ! Evaluation failed in `$add_business_days()`.
+      Caused by error in `pl$col("x")$dt$add_business_days()`:
+      ! `week_mask` must be a vector with 7 logical values, without any NA.
+
+---
+
+    Code
+      df$select(pl$col("x")$dt$add_business_days(0, roll = "foo"))
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$select()`.
+      Caused by error in `pl$col("x")$dt$add_business_days()`:
+      ! Evaluation failed in `$add_business_days()`.
+      Caused by error in `pl$col("x")$dt$add_business_days()`:
+      ! `roll` must be one of "raise", "backward", or "forward", not "foo".
+

@@ -669,6 +669,11 @@ SEXP savvy_PlRExpr_dt_century__impl(SEXP self__) {
     return handle_result(res);
 }
 
+SEXP savvy_PlRExpr_dt_add_business_days__impl(SEXP self__, SEXP c_arg__n, SEXP c_arg__week_mask, SEXP c_arg__holidays, SEXP c_arg__roll) {
+    SEXP res = savvy_PlRExpr_dt_add_business_days__ffi(self__, c_arg__n, c_arg__week_mask, c_arg__holidays, c_arg__roll);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRExpr_print__impl(SEXP self__) {
     SEXP res = savvy_PlRExpr_print__ffi(self__);
     return handle_result(res);
@@ -1788,6 +1793,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_dt_month_start__impl", (DL_FUNC) &savvy_PlRExpr_dt_month_start__impl, 1},
     {"savvy_PlRExpr_dt_month_end__impl", (DL_FUNC) &savvy_PlRExpr_dt_month_end__impl, 1},
     {"savvy_PlRExpr_dt_century__impl", (DL_FUNC) &savvy_PlRExpr_dt_century__impl, 1},
+    {"savvy_PlRExpr_dt_add_business_days__impl", (DL_FUNC) &savvy_PlRExpr_dt_add_business_days__impl, 5},
     {"savvy_PlRExpr_print__impl", (DL_FUNC) &savvy_PlRExpr_print__impl, 1},
     {"savvy_PlRExpr_add__impl", (DL_FUNC) &savvy_PlRExpr_add__impl, 2},
     {"savvy_PlRExpr_sub__impl", (DL_FUNC) &savvy_PlRExpr_sub__impl, 2},

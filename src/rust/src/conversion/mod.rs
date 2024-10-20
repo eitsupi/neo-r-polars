@@ -449,3 +449,17 @@ impl TryFrom<&str> for Wrap<ClosedWindow> {
         Ok(Wrap(parsed))
     }
 }
+
+impl TryFrom<&str> for Wrap<Roll> {
+    type Error = String;
+
+    fn try_from(roll: &str) -> Result<Self, String> {
+        let parsed = match roll {
+            "raise" => Roll::Raise,
+            "forward" => Roll::Forward,
+            "backward" => Roll::Backward,
+            v => return Err(format!("unreachable",)),
+        };
+        Ok(Wrap(parsed))
+    }
+}

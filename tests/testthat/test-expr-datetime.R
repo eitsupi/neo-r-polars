@@ -789,3 +789,50 @@ test_that("dt$dst_offset", {
     pl$DataFrame(x = as.difftime(c(1, 0), units = "hours"))
   )
 })
+
+test_that("dt$add_business_days", {
+  df <- pl$DataFrame(x = as.Date(c("2020-1-1", "2020-1-2")))
+
+  expect_equal(
+    df$select(pl$col("x")$dt$add_business_days(5)),
+    pl$DataFrame(x = as.Date(c("2020-1-8", "2020-1-9")))
+  )
+  week_mask <- c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE)
+  expect_equal(
+    df$select(pl$col("x")$dt$add_business_days(5, week_mask)),
+    pl$DataFrame(x = as.Date(c("2020-1-7", "2020-1-8")))
+  )
+  holidays <- as.Date(c("2020-1-3", "2020-1-6"))
+  expect_equal(
+    df$select(pl$col("x")$dt$add_business_days(5, holidays = holidays)),
+    pl$DataFrame(x = as.Date(c("2020-1-10", "2020-1-13")))
+  )
+
+  df <- pl$DataFrame(x = as.Date(c("2020-1-5", "2020-1-6")))
+  expect_equal(
+    df$select(pl$col("x")$dt$add_business_days(0, roll = "forward")),
+    pl$DataFrame(x = as.Date(c("2020-1-6", "2020-1-6")))
+  )
+
+  # Basic errors
+  expect_snapshot(
+    df$select(pl$col("x")$dt$add_business_days(5.2)),
+    error = TRUE
+  )
+  expect_snapshot(
+    df$select(pl$col("x")$dt$add_business_days(0, week_mask = rep(TRUE, 6))),
+    error = TRUE
+  )
+  expect_snapshot(
+    df$select(pl$col("x")$dt$add_business_days(0, week_mask = c(rep(TRUE, 6), NA))),
+    error = TRUE
+  )
+  expect_snapshot(
+    df$select(pl$col("x")$dt$add_business_days(0, week_mask = 1)),
+    error = TRUE
+  )
+  expect_snapshot(
+    df$select(pl$col("x")$dt$add_business_days(0, roll = "foo")),
+    error = TRUE
+  )
+})

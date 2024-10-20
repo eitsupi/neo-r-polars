@@ -30,6 +30,7 @@ features = [
     "array_count",
     "array_to_struct",
     "binary_encoding",
+    "business",
     "concat_str",
     "cse",
     "diff",

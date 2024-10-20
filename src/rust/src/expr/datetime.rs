@@ -1,5 +1,5 @@
 use crate::{prelude::*, PlRExpr};
-use savvy::{savvy, Result};
+use savvy::{savvy, IntegerSexp, LogicalSexp, Result};
 
 #[savvy]
 impl PlRExpr {
@@ -191,5 +191,26 @@ impl PlRExpr {
 
     fn dt_century(&self) -> Result<Self> {
         Ok(self.inner.clone().dt().century().into())
+    }
+
+    fn dt_add_business_days(
+        &self,
+        n: &PlRExpr,
+        week_mask: LogicalSexp,
+        holidays: IntegerSexp,
+        roll: &str,
+    ) -> Result<Self> {
+        let week_mask: [bool; 7] = week_mask
+            .to_vec()
+            .try_into()
+            .unwrap_or_else(|_| !unreachable!());
+        let holidays = holidays.to_vec();
+        let roll = <Wrap<Roll>>::try_from(roll)?.0;
+        Ok(self
+            .inner
+            .clone()
+            .dt()
+            .add_business_days(n.inner.clone(), week_mask, holidays, roll)
+            .into())
     }
 }

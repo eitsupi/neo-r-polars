@@ -1025,3 +1025,60 @@ expr_dt_date <- function() {
   self$`_rexpr`$dt_date() |>
     wrap()
 }
+
+#' Offset by `n` business days.
+#'
+#' @param n Number of business days to offset by. Can be a single integer or an
+#' expression.
+#' @param week_mask Which days of the week to count. The default is Monday to
+#' Friday. If you wanted to count only Monday to Thursday, you would pass
+#' `c(TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE)`.
+#' @param holidays Holidays to exclude from the count.
+#' @param roll What to do when the start date lands on a non-business day.
+#' Options are:
+#' * `"raise"`: raise an error;
+#' * `"forward"`: move to the next business day;
+#' * `"backward"`: move to the previous business day.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(start = as.Date(c("2020-1-1", "2020-1-2")))
+#' df$with_columns(result = pl$col("start")$dt$add_business_days(5))
+#'
+#' # You can pass a custom weekend - for example, if you only take Sunday off:
+#' week_mask <- c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE)
+#' df$with_columns(result = pl$col("start")$dt$add_business_days(5, week_mask))
+#'
+#' # You can also pass a list of holidays:
+#' holidays <- as.Date(c("2020-1-3", "2020-1-6"))
+#' df$with_columns(
+#'   result = pl$col("start")$dt$add_business_days(5, holidays = holidays)
+#' )
+#'
+#' # Roll all dates forwards to the next business day:
+#' df <- pl$DataFrame(start = as.Date(c("2020-1-5", "2020-1-6")))
+#' df$with_columns(
+#'   rolled_forwards = pl$col("start")$dt$add_business_days(0, roll = "forward")
+#' )
+expr_dt_add_business_days <- function(
+    n,
+    week_mask = c(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE),
+    holidays = NULL,
+    roll = c("raise", "backward", "forward")) {
+  wrap({
+    roll <- arg_match0(roll, values = c("raise", "backward", "forward"))
+    unix_epoch <- as.Date("1970-1-1")
+    if (length(n) == 1 && is.numeric(n) && as.integer(n) == n) {
+      n <- as.integer(n)
+    }
+    if (!is.logical(week_mask) || anyNA(week_mask) || length(week_mask) != 7) {
+      abort("`week_mask` must be a vector with 7 logical values, without any NA.")
+    }
+    if (!is.null(holidays)) {
+      holidays <- as.integer(holidays - unix_epoch)
+    } else {
+      holidays <- integer(0)
+    }
+    self$`_rexpr`$dt_add_business_days(as_polars_expr(n)$`_rexpr`, week_mask, holidays, roll)
+  })
+}
