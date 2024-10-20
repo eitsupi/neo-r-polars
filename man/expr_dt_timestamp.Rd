@@ -2,21 +2,21 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_timestamp}
 \alias{expr_dt_timestamp}
-\title{Get timestamp of given Datetime}
+\title{Get timestamp in the given time unit}
 \usage{
-expr_dt_timestamp(tu = "ns")
+expr_dt_timestamp(time_unit = c("ns", "us", "ms"))
 }
 \arguments{
-\item{tu}{string option either 'ns', 'us', or 'ms'}
+\item{time_unit}{Time unit, one of 'ns', 'us', or 'ms'.}
 }
 \value{
 A polars \link{expression}
 }
 \description{
-Return a timestamp in the given time unit.
+Get timestamp in the given time unit
 }
 \examples{
-df <- pl$DataFrame(
+df <- pl$select(
   date = pl$datetime_range(
     start = as.Date("2001-1-1"),
     end = as.Date("2001-1-3"),
@@ -26,6 +26,6 @@ df <- pl$DataFrame(
 df$select(
   pl$col("date"),
   pl$col("date")$dt$timestamp()$alias("timestamp_ns"),
-  pl$col("date")$dt$timestamp(tu = "ms")$alias("timestamp_ms")
+  pl$col("date")$dt$timestamp(time_unit = "ms")$alias("timestamp_ms")
 )
 }

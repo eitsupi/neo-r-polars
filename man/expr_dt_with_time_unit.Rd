@@ -4,10 +4,10 @@
 \alias{expr_dt_with_time_unit}
 \title{with_time_unit}
 \usage{
-expr_dt_with_time_unit(tu = "ns")
+expr_dt_with_time_unit(time_unit = c("ns", "us", "ms"))
 }
 \arguments{
-\item{tu}{string option either 'ns', 'us', or 'ms'}
+\item{time_unit}{Time unit, one of 'ns', 'us', or 'ms'.}
 }
 \value{
 A polars \link{expression}
@@ -18,7 +18,7 @@ This does not modify underlying data, and should be used to fix an incorrect tim
 The corresponding global timepoint will change.
 }
 \examples{
-df <- pl$DataFrame(
+df <- pl$select(
   date = pl$datetime_range(
     start = as.Date("2001-1-1"),
     end = as.Date("2001-1-3"),
@@ -28,6 +28,6 @@ df <- pl$DataFrame(
 df$select(
   pl$col("date"),
   pl$col("date")$dt$with_time_unit()$alias("with_time_unit_ns"),
-  pl$col("date")$dt$with_time_unit(tu = "ms")$alias("with_time_unit_ms")
+  pl$col("date")$dt$with_time_unit(time_unit = "ms")$alias("with_time_unit_ms")
 )
 }

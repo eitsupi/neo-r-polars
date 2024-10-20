@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_total_microseconds}
 \alias{expr_dt_total_microseconds}
-\title{Microseconds}
+\title{Extract the microseconds from a Duration type}
 \usage{
 expr_dt_total_microseconds()
 }
@@ -10,16 +10,15 @@ expr_dt_total_microseconds()
 A polars \link{expression}
 }
 \description{
-Extract the microseconds from a Duration type.
+Extract the microseconds from a Duration type
 }
 \examples{
-df <- pl$DataFrame(date = pl$datetime_range(
+df <- pl$select(date = pl$datetime_range(
   start = as.POSIXct("2020-1-1", tz = "GMT"),
   end = as.POSIXct("2020-1-1 00:00:01", tz = "GMT"),
   interval = "1ms"
 ))
-df$select(
-  pl$col("date"),
+df$with_columns(
   diff_microsec = pl$col("date")$diff()$dt$total_microseconds()
 )
 }

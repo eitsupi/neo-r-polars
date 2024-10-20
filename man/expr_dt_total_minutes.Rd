@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_total_minutes}
 \alias{expr_dt_total_minutes}
-\title{Minutes}
+\title{Extract the minutes from a Duration type}
 \usage{
 expr_dt_total_minutes()
 }
@@ -10,18 +10,17 @@ expr_dt_total_minutes()
 A polars \link{expression}
 }
 \description{
-Extract the minutes from a Duration type.
+Extract the minutes from a Duration type
 }
 \examples{
-df <- pl$DataFrame(
+df <- pl$select(
   date = pl$date_range(
     start = as.Date("2020-1-1"),
     end = as.Date("2020-1-4"),
     interval = "1d"
   )
 )
-df$select(
-  pl$col("date"),
+df$with_columns(
   diff_minutes = pl$col("date")$diff()$dt$total_minutes()
 )
 }

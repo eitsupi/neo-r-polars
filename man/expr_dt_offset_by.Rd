@@ -13,12 +13,12 @@ expr_dt_offset_by(by)
 A polars \link{expression}
 }
 \description{
-This differs from \code{pl$col("foo_datetime_tu") + value_tu} in that it can
+This differs from \code{pl$col("foo") + timedelta} in that it can
 take months and leap years into account. Note that only a single minus
 sign is allowed in the \code{by} string, as the first character.
 }
 \details{
-The \code{by} are created with the the following string language:
+The \code{by} are created with the following string language:
 \itemize{
 \item 1ns # 1 nanosecond
 \item 1us # 1 microsecond
@@ -33,35 +33,37 @@ The \code{by} are created with the the following string language:
 \item 1i  # 1 index count
 }
 
+By "calendar day", we mean the corresponding time on the next day (which may
+not be 24 hours, due to daylight savings). Similarly for "calendar week",
+"calendar month", "calendar quarter", and "calendar year".
+
 These strings can be combined:
 \itemize{
 \item 3d12h4m25s # 3 days, 12 hours, 4 minutes, and 25 seconds
 }
 }
 \examples{
-df <- pl$DataFrame(
+df <- pl$select(
   dates = pl$date_range(
     as.Date("2000-1-1"),
     as.Date("2005-1-1"),
     "1y"
   )
 )
-df$select(
-  pl$col("dates")$dt$offset_by("1y")$alias("date_plus_1y"),
-  pl$col("dates")$dt$offset_by("-1y2mo")$alias("date_min")
+df$with_columns(
+  date_plus_1y = pl$col("dates")$dt$offset_by("1y"),
+  date_negative_offset = pl$col("dates")$dt$offset_by("-1y2mo")
 )
 
 # the "by" argument also accepts expressions
-df <- pl$DataFrame(
+df <- pl$select(
   dates = pl$datetime_range(
     as.POSIXct("2022-01-01", tz = "GMT"),
     as.POSIXct("2022-01-02", tz = "GMT"),
     interval = "6h", time_unit = "ms", time_zone = "GMT"
-  )$to_r(),
-  offset = c("1d", "-2d", "1mo", NA, "1y")
+  ),
+  offset = pl$Series(values = c("1d", "-2d", "1mo", NA, "1y"))
 )
-
-df
 
 df$with_columns(new_dates = pl$col("dates")$dt$offset_by(pl$col("offset")))
 }

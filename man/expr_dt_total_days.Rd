@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_total_days}
 \alias{expr_dt_total_days}
-\title{Days}
+\title{Extract the days from a Duration type}
 \usage{
 expr_dt_total_days()
 }
@@ -10,18 +10,17 @@ expr_dt_total_days()
 A polars \link{expression}
 }
 \description{
-Extract the days from a Duration type.
+Extract the days from a Duration type
 }
 \examples{
-df <- pl$DataFrame(
+df <- pl$select(
   date = pl$datetime_range(
     start = as.Date("2020-3-1"),
     end = as.Date("2020-5-1"),
     interval = "1mo1s"
   )
 )
-df$select(
-  pl$col("date"),
+df$with_columns(
   diff_days = pl$col("date")$diff()$dt$total_days()
 )
 }

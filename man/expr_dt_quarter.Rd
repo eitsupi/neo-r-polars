@@ -13,15 +13,14 @@ A polars \link{expression}
 Returns the quarter ranging from 1 to 4.
 }
 \examples{
-df <- pl$DataFrame(
+df <- pl$select(
   date = pl$date_range(
     as.Date("2020-12-25"),
     as.Date("2021-1-05"),
-    interval = "1d",
-    time_zone = "GMT"
+    interval = "1d"
   )
 )
 df$with_columns(
-  pl$col("date")$dt$quarter()$alias("quarter")
+  quarter = pl$col("date")$dt$quarter()
 )
 }

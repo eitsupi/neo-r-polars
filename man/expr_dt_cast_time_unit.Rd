@@ -4,10 +4,10 @@
 \alias{expr_dt_cast_time_unit}
 \title{Change time unit}
 \usage{
-expr_dt_cast_time_unit(tu = "ns")
+expr_dt_cast_time_unit(time_unit = c("ns", "us", "ms"))
 }
 \arguments{
-\item{tu}{string option either 'ns', 'us', or 'ms'}
+\item{time_unit}{Time unit, one of 'ns', 'us', or 'ms'.}
 }
 \value{
 A polars \link{expression}
@@ -17,7 +17,7 @@ Cast the underlying data to another time unit. This may lose precision.
 The corresponding global timepoint will stay unchanged +/- precision.
 }
 \examples{
-df <- pl$DataFrame(
+df <- pl$select(
   date = pl$datetime_range(
     start = as.Date("2001-1-1"),
     end = as.Date("2001-1-3"),
@@ -27,6 +27,6 @@ df <- pl$DataFrame(
 df$select(
   pl$col("date"),
   pl$col("date")$dt$cast_time_unit()$alias("cast_time_unit_ns"),
-  pl$col("date")$dt$cast_time_unit(tu = "ms")$alias("cast_time_unit_ms")
+  pl$col("date")$dt$cast_time_unit(time_unit = "ms")$alias("cast_time_unit_ms")
 )
 }

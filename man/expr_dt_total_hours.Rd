@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_total_hours}
 \alias{expr_dt_total_hours}
-\title{Hours}
+\title{Extract the hours from a Duration type}
 \usage{
 expr_dt_total_hours()
 }
@@ -10,18 +10,17 @@ expr_dt_total_hours()
 A polars \link{expression}
 }
 \description{
-Extract the hours from a Duration type.
+Extract the hours from a Duration type
 }
 \examples{
-df <- pl$DataFrame(
+df <- pl$select(
   date = pl$date_range(
     start = as.Date("2020-1-1"),
     end = as.Date("2020-1-4"),
     interval = "1d"
   )
 )
-df$select(
-  pl$col("date"),
+df$with_columns(
   diff_hours = pl$col("date")$diff()$dt$total_hours()
 )
 }

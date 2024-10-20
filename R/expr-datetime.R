@@ -40,12 +40,11 @@ expr_dt_convert_time_zone <- function(time_zone) {
     wrap()
 }
 
-# TODO: link to `convert_time_zone`
-# TODO: return, examples
 #' Replace time zone for an expression of type Datetime
 #'
-#' Different from `convert_time_zone`, this will also modify the underlying
-#' timestamp and will ignore the original time zone.
+#' Different from [$dt$convert_time_zone()][expr_dt_convert_time_zone], this
+#' will also modify the underlying timestamp and will ignore the original time
+#' zone.
 #'
 #' @inheritParams rlang::args_dots_empty
 #' @param time_zone `NULL` or a character time zone from [base::OlsonNames()].
@@ -60,7 +59,21 @@ expr_dt_convert_time_zone <- function(time_zone) {
 #' One of the followings:
 #' - `"raise"` (default): Throw an error
 #' - `"null"`: Return a null value
+#'
+#' @inherit as_polars_expr return
 #' @examples
+#' df <- pl$select(
+#'   london_timezone = pl$datetime_range(
+#'     as.Date("2020-03-01"),
+#'     as.Date("2020-07-01"),
+#'     "1mo",
+#'     time_zone = "UTC"
+#'   )$dt$convert_time_zone(time_zone = "Europe/London")
+#' )
+
+#' df$with_columns(
+#'   London_to_Amsterdam = pl$col("london_timezone")$dt$replace_time_zone(time_zone="Europe/Amsterdam")
+#' )
 #' # You can use `ambiguous` to deal with ambiguous datetimes:
 #' dates <- c(
 #'   "2018-10-28 01:30",
@@ -105,13 +118,20 @@ expr_dt_replace_time_zone <- function(
 
 
 #' Truncate datetime
-#' @description  Divide the date/datetime range into buckets.
-#' Each date/datetime is mapped to the start of its bucket.
+#'
+#' @description
+#' Divide the date/datetime range into buckets. Each date/datetime is mapped to
+#' the start of its bucket using the corresponding local datetime. Note that
+#' weekly buckets start on Monday. Ambiguous results are localised using the
+#' DST offset of the original timestamp - for example, truncating
+#' `'2022-11-06 01:30:00 CST'` by `'1h'` results in
+#' `'2022-11-06 01:00:00 CST'`, whereas truncating `'2022-11-06 01:30:00 CDT'`
+#' by `'1h'` results in `'2022-11-06 01:00:00 CDT'`.
 #'
 #' @param every Either an Expr or a string indicating a column name or a
 #' duration (see Details).
 #'
-#' @details The ``every`` and ``offset`` argument are created with the
+#' @details The `every` and `offset` argument are created with the
 #' the following string language:
 #' - 1ns # 1 nanosecond
 #' - 1us # 1 microsecond
@@ -127,14 +147,23 @@ expr_dt_replace_time_zone <- function(
 #'   - 3d12h4m25s # 3 days, 12 hours, 4 minutes, and 25 seconds
 #' @inherit as_polars_expr return
 #' @examples
-#' t1 <- as.POSIXct("3040-01-01", tz = "GMT")
-#' t2 <- t1 + as.difftime(25, units = "secs")
-#' s <- pl$datetime_range(t1, t2, interval = "2s", time_unit = "ms")
-#'
-#' df <- pl$DataFrame(datetime = s)$with_columns(
-#'   pl$col("datetime")$dt$truncate("4s")$alias("truncated_4s")
+#' df <- pl$select(
+#'   datetime = pl$datetime_range(
+#'     as.Date("2001-01-01"),
+#'     as.Date("2001-01-02"),
+#'     as.difftime("0:25:0")
+#'   )
 #' )
-#' df
+#' df$with_columns(truncated = pl$col("datetime")$dt$truncate("1h"))
+#'
+#' df <- pl$select(
+#'   datetime = pl$datetime_range(
+#'     as.POSIXct("2001-01-01 00:00"),
+#'     as.POSIXct("2001-01-01 01:00"),
+#'     as.difftime("0:10:0")
+#'   )
+#' )
+#' df$with_columns(truncated = pl$col("datetime")$dt$truncate("30m"))
 expr_dt_truncate <- function(every) {
   every <- parse_as_polars_duration_string(every, default = "0ns")
   self$`_rexpr`$dt_truncate(as_polars_expr(every, as_lit = TRUE)$`_rexpr`) |>
@@ -142,23 +171,35 @@ expr_dt_truncate <- function(every) {
 }
 
 #' Round datetime
-#' @description  Divide the date/datetime range into buckets.
-#' Each date/datetime in the first half of the interval
-#' is mapped to the start of its bucket.
-#' Each date/datetime in the second half of the interval
-#' is mapped to the end of its bucket.
+#' @description
+#' Divide the date/datetime range into buckets. Each date/datetime in the first
+#' half of the interval is mapped to the start of its bucket. Each
+#' date/datetime in the second half of the interval is mapped to the end of its
+#' bucket. Ambiguous results are localised using the DST offset of the original
+#' timestamp - for example, rounding `'2022-11-06 01:20:00 CST'` by `'1h'`
+#' results in `'2022-11-06 01:00:00 CST'`, whereas rounding
+#' `'2022-11-06 01:20:00 CDT'` by `'1h'` results in `'2022-11-06 01:00:00 CDT'`.
 #'
 #' @inherit expr_dt_truncate params details return
 #'
 #' @examples
-#' t1 <- as.POSIXct("3040-01-01", tz = "GMT")
-#' t2 <- t1 + as.difftime(25, units = "secs")
-#' s <- pl$datetime_range(t1, t2, interval = "2s", time_unit = "ms")
-#'
-#' df <- pl$DataFrame(datetime = s)$with_columns(
-#'   pl$col("datetime")$dt$round("4s")$alias("rounded_4s")
+#' df <- pl$select(
+#'   datetime = pl$datetime_range(
+#'     as.Date("2001-01-01"),
+#'     as.Date("2001-01-02"),
+#'     as.difftime("0:25:0")
+#'   )
 #' )
-#' df
+#' df$with_columns(round = pl$col("datetime")$dt$round("1h"))
+#'
+#' df <- pl$select(
+#'   datetime = pl$datetime_range(
+#'     as.POSIXct("2001-01-01 00:00"),
+#'     as.POSIXct("2001-01-01 01:00"),
+#'     as.difftime("0:10:0")
+#'   )
+#' )
+#' df$with_columns(round = pl$col("datetime")$dt$round("1h"))
 expr_dt_round <- function(every) {
   every <- parse_as_polars_duration_string(every, default = "0ns")
   self$`_rexpr`$dt_round(as_polars_expr(every, as_lit = TRUE)$`_rexpr`) |>
@@ -287,16 +328,15 @@ expr_dt_iso_year <- function() {
 #'
 #' @inherit as_polars_expr return
 #' @examples
-#' df <- pl$DataFrame(
+#' df <- pl$select(
 #'   date = pl$date_range(
 #'     as.Date("2020-12-25"),
 #'     as.Date("2021-1-05"),
-#'     interval = "1d",
-#'     time_zone = "GMT"
+#'     interval = "1d"
 #'   )
 #' )
 #' df$with_columns(
-#'   pl$col("date")$dt$quarter()$alias("quarter")
+#'   quarter = pl$col("date")$dt$quarter()
 #' )
 expr_dt_quarter <- function() {
   self$`_rexpr`$dt_quarter() |>
@@ -313,7 +353,7 @@ expr_dt_quarter <- function() {
 #'   date = as.Date(c("2001-01-01", "2001-06-30", "2001-12-27"))
 #' )
 #' df$with_columns(
-#'   pl$col("date")$dt$month()$alias("month")
+#'   month = pl$col("date")$dt$month()
 #' )
 expr_dt_month <- function() {
   self$`_rexpr`$dt_month() |>
@@ -397,16 +437,15 @@ expr_dt_day <- function() {
 #'
 #' @inherit as_polars_expr return
 #' @examples
-#' df <- pl$DataFrame(
+#' df <- pl$select(
 #'   date = pl$date_range(
 #'     as.Date("2020-12-25"),
 #'     as.Date("2021-1-05"),
-#'     interval = "1d",
-#'     time_zone = "GMT"
+#'     interval = "1d"
 #'   )
 #' )
 #' df$with_columns(
-#'   pl$col("date")$dt$ordinal_day()$alias("ordinal_day")
+#'   ordinal_day = pl$col("date")$dt$ordinal_day()
 #' )
 expr_dt_ordinal_day <- function() {
   self$`_rexpr`$dt_ordinal_day() |>
@@ -594,13 +633,12 @@ expr_dt_epoch <- function(time_unit = c("us", "ns", "ms", "s", "d")) {
 }
 
 
-#' Get timestamp of given Datetime
-#' @description Return a timestamp in the given time unit.
+#' Get timestamp in the given time unit
 #'
-#' @param tu string option either 'ns', 'us', or 'ms'
+#' @param time_unit Time unit, one of 'ns', 'us', or 'ms'.
 #' @inherit as_polars_expr return
 #' @examples
-#' df <- pl$DataFrame(
+#' df <- pl$select(
 #'   date = pl$datetime_range(
 #'     start = as.Date("2001-1-1"),
 #'     end = as.Date("2001-1-3"),
@@ -610,12 +648,12 @@ expr_dt_epoch <- function(time_unit = c("us", "ns", "ms", "s", "d")) {
 #' df$select(
 #'   pl$col("date"),
 #'   pl$col("date")$dt$timestamp()$alias("timestamp_ns"),
-#'   pl$col("date")$dt$timestamp(tu = "ms")$alias("timestamp_ms")
+#'   pl$col("date")$dt$timestamp(time_unit = "ms")$alias("timestamp_ms")
 #' )
-expr_dt_timestamp <- function(tu = "ns") {
+expr_dt_timestamp <- function(time_unit = c("ns", "us", "ms")) {
   wrap({
-    tu <- arg_match0(tu, values = c("ns", "us", "ms"))
-    self$`_rexpr`$dt_timestamp(tu)
+    time_unit <- arg_match0(time_unit, values = c("ns", "us", "ms"))
+    self$`_rexpr`$dt_timestamp(time_unit)
   })
 }
 
@@ -625,10 +663,10 @@ expr_dt_timestamp <- function(tu = "ns") {
 #' This does not modify underlying data, and should be used to fix an incorrect time unit.
 #' The corresponding global timepoint will change.
 #'
-#' @param tu string option either 'ns', 'us', or 'ms'
+#' @inheritParams expr_dt_timestamp
 #' @inherit as_polars_expr return
 #' @examples
-#' df <- pl$DataFrame(
+#' df <- pl$select(
 #'   date = pl$datetime_range(
 #'     start = as.Date("2001-1-1"),
 #'     end = as.Date("2001-1-3"),
@@ -638,13 +676,13 @@ expr_dt_timestamp <- function(tu = "ns") {
 #' df$select(
 #'   pl$col("date"),
 #'   pl$col("date")$dt$with_time_unit()$alias("with_time_unit_ns"),
-#'   pl$col("date")$dt$with_time_unit(tu = "ms")$alias("with_time_unit_ms")
+#'   pl$col("date")$dt$with_time_unit(time_unit = "ms")$alias("with_time_unit_ms")
 #' )
-expr_dt_with_time_unit <- function(tu = "ns") {
+expr_dt_with_time_unit <- function(time_unit = c("ns", "us", "ms")) {
   wrap({
     deprecate_warn("$dt$with_time_unit() is deprecated. Cast to Int64 and to Datetime(<desired unit>) instead.")
-    tu <- arg_match0(tu, values = c("ns", "us", "ms"))
-    self$`_rexpr`$dt_with_time_unit(tu)
+    time_unit <- arg_match0(time_unit, values = c("ns", "us", "ms"))
+    self$`_rexpr`$dt_with_time_unit(time_unit)
   })
 }
 
@@ -654,10 +692,10 @@ expr_dt_with_time_unit <- function(tu = "ns") {
 #' Cast the underlying data to another time unit. This may lose precision.
 #' The corresponding global timepoint will stay unchanged +/- precision.
 #'
-#' @param tu string option either 'ns', 'us', or 'ms'
+#' @inheritParams expr_dt_timestamp
 #' @inherit as_polars_expr return
 #' @examples
-#' df <- pl$DataFrame(
+#' df <- pl$select(
 #'   date = pl$datetime_range(
 #'     start = as.Date("2001-1-1"),
 #'     end = as.Date("2001-1-3"),
@@ -667,30 +705,28 @@ expr_dt_with_time_unit <- function(tu = "ns") {
 #' df$select(
 #'   pl$col("date"),
 #'   pl$col("date")$dt$cast_time_unit()$alias("cast_time_unit_ns"),
-#'   pl$col("date")$dt$cast_time_unit(tu = "ms")$alias("cast_time_unit_ms")
+#'   pl$col("date")$dt$cast_time_unit(time_unit = "ms")$alias("cast_time_unit_ms")
 #' )
-expr_dt_cast_time_unit <- function(tu = "ns") {
+expr_dt_cast_time_unit <- function(time_unit = c("ns", "us", "ms")) {
   wrap({
-    tu <- arg_match0(tu, values = c("ns", "us", "ms"))
-    self$`_rexpr`$dt_cast_time_unit(tu)
+    time_unit <- arg_match0(time_unit, values = c("ns", "us", "ms"))
+    self$`_rexpr`$dt_cast_time_unit(time_unit)
   })
 }
 
 
-#' Days
-#' @description Extract the days from a Duration type.
+#' Extract the days from a Duration type
 #'
 #' @inherit as_polars_expr return
 #' @examples
-#' df <- pl$DataFrame(
+#' df <- pl$select(
 #'   date = pl$datetime_range(
 #'     start = as.Date("2020-3-1"),
 #'     end = as.Date("2020-5-1"),
 #'     interval = "1mo1s"
 #'   )
 #' )
-#' df$select(
-#'   pl$col("date"),
+#' df$with_columns(
 #'   diff_days = pl$col("date")$diff()$dt$total_days()
 #' )
 expr_dt_total_days <- function() {
@@ -698,20 +734,18 @@ expr_dt_total_days <- function() {
     wrap()
 }
 
-#' Hours
-#' @description Extract the hours from a Duration type.
+#' Extract the hours from a Duration type
 #'
 #' @inherit as_polars_expr return
 #' @examples
-#' df <- pl$DataFrame(
+#' df <- pl$select(
 #'   date = pl$date_range(
 #'     start = as.Date("2020-1-1"),
 #'     end = as.Date("2020-1-4"),
 #'     interval = "1d"
 #'   )
 #' )
-#' df$select(
-#'   pl$col("date"),
+#' df$with_columns(
 #'   diff_hours = pl$col("date")$diff()$dt$total_hours()
 #' )
 expr_dt_total_hours <- function() {
@@ -719,20 +753,18 @@ expr_dt_total_hours <- function() {
     wrap()
 }
 
-#' Minutes
-#' @description Extract the minutes from a Duration type.
+#' Extract the minutes from a Duration type
 #'
 #' @inherit as_polars_expr return
 #' @examples
-#' df <- pl$DataFrame(
+#' df <- pl$select(
 #'   date = pl$date_range(
 #'     start = as.Date("2020-1-1"),
 #'     end = as.Date("2020-1-4"),
 #'     interval = "1d"
 #'   )
 #' )
-#' df$select(
-#'   pl$col("date"),
+#' df$with_columns(
 #'   diff_minutes = pl$col("date")$diff()$dt$total_minutes()
 #' )
 expr_dt_total_minutes <- function() {
@@ -740,18 +772,16 @@ expr_dt_total_minutes <- function() {
     wrap()
 }
 
-#' Seconds
-#' @description Extract the seconds from a Duration type.
+#' Extract the seconds from a Duration type
 #'
 #' @inherit as_polars_expr return
 #' @examples
-#' df <- pl$DataFrame(date = pl$datetime_range(
+#' df <- pl$select(date = pl$datetime_range(
 #'   start = as.POSIXct("2020-1-1", tz = "GMT"),
 #'   end = as.POSIXct("2020-1-1 00:04:00", tz = "GMT"),
 #'   interval = "1m"
 #' ))
-#' df$select(
-#'   pl$col("date"),
+#' df$with_columns(
 #'   diff_sec = pl$col("date")$diff()$dt$total_seconds()
 #' )
 expr_dt_total_seconds <- function() {
@@ -759,18 +789,16 @@ expr_dt_total_seconds <- function() {
     wrap()
 }
 
-#' Milliseconds
-#' @description Extract the milliseconds from a Duration type.
+#' Extract the milliseconds from a Duration type
 #'
 #' @inherit as_polars_expr return
 #' @examples
-#' df <- pl$DataFrame(date = pl$datetime_range(
+#' df <- pl$select(date = pl$datetime_range(
 #'   start = as.POSIXct("2020-1-1", tz = "GMT"),
 #'   end = as.POSIXct("2020-1-1 00:00:01", tz = "GMT"),
 #'   interval = "1ms"
 #' ))
-#' df$select(
-#'   pl$col("date"),
+#' df$with_columns(
 #'   diff_millisec = pl$col("date")$diff()$dt$total_milliseconds()
 #' )
 expr_dt_total_milliseconds <- function() {
@@ -778,18 +806,16 @@ expr_dt_total_milliseconds <- function() {
     wrap()
 }
 
-#' Microseconds
-#' @description Extract the microseconds from a Duration type.
+#' Extract the microseconds from a Duration type
 #'
 #' @inherit as_polars_expr return
 #' @examples
-#' df <- pl$DataFrame(date = pl$datetime_range(
+#' df <- pl$select(date = pl$datetime_range(
 #'   start = as.POSIXct("2020-1-1", tz = "GMT"),
 #'   end = as.POSIXct("2020-1-1 00:00:01", tz = "GMT"),
 #'   interval = "1ms"
 #' ))
-#' df$select(
-#'   pl$col("date"),
+#' df$with_columns(
 #'   diff_microsec = pl$col("date")$diff()$dt$total_microseconds()
 #' )
 expr_dt_total_microseconds <- function() {
@@ -797,18 +823,16 @@ expr_dt_total_microseconds <- function() {
     wrap()
 }
 
-#' Nanoseconds
-#' @description Extract the nanoseconds from a Duration type.
+#' Extract the nanoseconds from a Duration type
 #'
 #' @inherit as_polars_expr return
 #' @examples
-#' df <- pl$DataFrame(date = pl$datetime_range(
+#' df <- pl$select(date = pl$datetime_range(
 #'   start = as.POSIXct("2020-1-1", tz = "GMT"),
 #'   end = as.POSIXct("2020-1-1 00:00:01", tz = "GMT"),
 #'   interval = "1ms"
 #' ))
-#' df$select(
-#'   pl$col("date"),
+#' df$with_columns(
 #'   diff_nanosec = pl$col("date")$diff()$dt$total_nanoseconds()
 #' )
 expr_dt_total_nanoseconds <- function() {
@@ -818,14 +842,14 @@ expr_dt_total_nanoseconds <- function() {
 
 #' Offset a date by a relative time offset
 #'
-#' This differs from `pl$col("foo_datetime_tu") + value_tu` in that it can
+#' This differs from `pl$col("foo") + timedelta` in that it can
 #' take months and leap years into account. Note that only a single minus
 #' sign is allowed in the `by` string, as the first character.
 #'
 #' @param by optional string encoding duration see details.
 #'
 #' @details
-#' The ``by`` are created with the the following string language:
+#' The `by` are created with the following string language:
 #' - 1ns # 1 nanosecond
 #' - 1us # 1 microsecond
 #' - 1ms # 1 millisecond
@@ -838,34 +862,36 @@ expr_dt_total_nanoseconds <- function() {
 #' - 1y  # 1 calendar year
 #' - 1i  # 1 index count
 #'
+#' By "calendar day", we mean the corresponding time on the next day (which may
+#' not be 24 hours, due to daylight savings). Similarly for "calendar week",
+#' "calendar month", "calendar quarter", and "calendar year".
+#'
 #' These strings can be combined:
 #'   - 3d12h4m25s # 3 days, 12 hours, 4 minutes, and 25 seconds
 #'
 #' @inherit as_polars_expr return
 #' @examples
-#' df <- pl$DataFrame(
+#' df <- pl$select(
 #'   dates = pl$date_range(
 #'     as.Date("2000-1-1"),
 #'     as.Date("2005-1-1"),
 #'     "1y"
 #'   )
 #' )
-#' df$select(
-#'   pl$col("dates")$dt$offset_by("1y")$alias("date_plus_1y"),
-#'   pl$col("dates")$dt$offset_by("-1y2mo")$alias("date_min")
+#' df$with_columns(
+#'   date_plus_1y = pl$col("dates")$dt$offset_by("1y"),
+#'   date_negative_offset = pl$col("dates")$dt$offset_by("-1y2mo")
 #' )
 #'
 #' # the "by" argument also accepts expressions
-#' df <- pl$DataFrame(
+#' df <- pl$select(
 #'   dates = pl$datetime_range(
 #'     as.POSIXct("2022-01-01", tz = "GMT"),
 #'     as.POSIXct("2022-01-02", tz = "GMT"),
 #'     interval = "6h", time_unit = "ms", time_zone = "GMT"
-#'   )$to_r(),
-#'   offset = c("1d", "-2d", "1mo", NA, "1y")
+#'   ),
+#'   offset = pl$Series(values = c("1d", "-2d", "1mo", NA, "1y"))
 #' )
-#'
-#' df
 #'
 #' df$with_columns(new_dates = pl$col("dates")$dt$offset_by(pl$col("offset")))
 expr_dt_offset_by <- function(by) {
@@ -874,14 +900,14 @@ expr_dt_offset_by <- function(by) {
 }
 
 
-#' Extract time from a Datetime Series
+#' Extract time
 #'
-#' This only works on Datetime Series, it will error on Date Series.
+#' This only works on Datetime columns, it will error on Date columns.
 #'
 #' @inherit as_polars_expr return
 #'
 #' @examples
-#' df <- pl$DataFrame(dates = pl$datetime_range(
+#' df <- pl$select(dates = pl$datetime_range(
 #'   as.Date("2000-1-1"),
 #'   as.Date("2000-1-2"),
 #'   "1h"

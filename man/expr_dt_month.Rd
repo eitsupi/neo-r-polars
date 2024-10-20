@@ -17,6 +17,6 @@ df <- pl$DataFrame(
   date = as.Date(c("2001-01-01", "2001-06-30", "2001-12-27"))
 )
 df$with_columns(
-  pl$col("date")$dt$month()$alias("month")
+  month = pl$col("date")$dt$month()
 )
 }

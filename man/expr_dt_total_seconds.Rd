@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_total_seconds}
 \alias{expr_dt_total_seconds}
-\title{Seconds}
+\title{Extract the seconds from a Duration type}
 \usage{
 expr_dt_total_seconds()
 }
@@ -10,16 +10,15 @@ expr_dt_total_seconds()
 A polars \link{expression}
 }
 \description{
-Extract the seconds from a Duration type.
+Extract the seconds from a Duration type
 }
 \examples{
-df <- pl$DataFrame(date = pl$datetime_range(
+df <- pl$select(date = pl$datetime_range(
   start = as.POSIXct("2020-1-1", tz = "GMT"),
   end = as.POSIXct("2020-1-1 00:04:00", tz = "GMT"),
   interval = "1m"
 ))
-df$select(
-  pl$col("date"),
+df$with_columns(
   diff_sec = pl$col("date")$diff()$dt$total_seconds()
 )
 }

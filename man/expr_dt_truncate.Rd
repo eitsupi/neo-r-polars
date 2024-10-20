@@ -14,8 +14,13 @@ duration (see Details).}
 A polars \link{expression}
 }
 \description{
-Divide the date/datetime range into buckets.
-Each date/datetime is mapped to the start of its bucket.
+Divide the date/datetime range into buckets. Each date/datetime is mapped to
+the start of its bucket using the corresponding local datetime. Note that
+weekly buckets start on Monday. Ambiguous results are localised using the
+DST offset of the original timestamp - for example, truncating
+\code{'2022-11-06 01:30:00 CST'} by \code{'1h'} results in
+\code{'2022-11-06 01:00:00 CST'}, whereas truncating \code{'2022-11-06 01:30:00 CDT'}
+by \code{'1h'} results in \code{'2022-11-06 01:00:00 CDT'}.
 }
 \details{
 The \code{every} and \code{offset} argument are created with the
@@ -38,12 +43,21 @@ These strings can be combined:
 }
 }
 \examples{
-t1 <- as.POSIXct("3040-01-01", tz = "GMT")
-t2 <- t1 + as.difftime(25, units = "secs")
-s <- pl$datetime_range(t1, t2, interval = "2s", time_unit = "ms")
-
-df <- pl$DataFrame(datetime = s)$with_columns(
-  pl$col("datetime")$dt$truncate("4s")$alias("truncated_4s")
+df <- pl$select(
+  datetime = pl$datetime_range(
+    as.Date("2001-01-01"),
+    as.Date("2001-01-02"),
+    as.difftime("0:25:0")
+  )
 )
-df
+df$with_columns(truncated = pl$col("datetime")$dt$truncate("1h"))
+
+df <- pl$select(
+  datetime = pl$datetime_range(
+    as.POSIXct("2001-01-01 00:00"),
+    as.POSIXct("2001-01-01 01:00"),
+    as.difftime("0:10:0")
+  )
+)
+df$with_columns(truncated = pl$col("datetime")$dt$truncate("30m"))
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-datetime.R
 \name{expr_dt_time}
 \alias{expr_dt_time}
-\title{Extract time from a Datetime Series}
+\title{Extract time}
 \usage{
 expr_dt_time()
 }
@@ -10,10 +10,10 @@ expr_dt_time()
 A polars \link{expression}
 }
 \description{
-This only works on Datetime Series, it will error on Date Series.
+This only works on Datetime columns, it will error on Date columns.
 }
 \examples{
-df <- pl$DataFrame(dates = pl$datetime_range(
+df <- pl$select(dates = pl$datetime_range(
   as.Date("2000-1-1"),
   as.Date("2000-1-2"),
   "1h"
