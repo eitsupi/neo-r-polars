@@ -144,7 +144,7 @@ test_that("dt$round", {
 #   expect_equal(
 #     (
 #       pl$lit(as.Date("2021-01-01"))
-#       $dt$combine(pl$PTime(3600 * 1.5E3, tu = "ms"))
+#       $dt$combine(pl$PTime(3600 * 1.5E3, time_unit = "ms"))
 #       $cast(pl$Datetime("us", "GMT"))
 #     ),
 #     as.POSIXct("2021-01-01 01:30:00", tz = "GMT")
@@ -476,8 +476,8 @@ test_that("dt$timestamp", {
   )
   l_exp <- df$select(
     pl$col("date")$dt$timestamp()$alias("timestamp_ns"),
-    pl$col("date")$dt$timestamp(tu = "us")$alias("timestamp_us"),
-    pl$col("date")$dt$timestamp(tu = "ms")$alias("timestamp_ms")
+    pl$col("date")$dt$timestamp(time_unit = "us")$alias("timestamp_us"),
+    pl$col("date")$dt$timestamp(time_unit = "ms")$alias("timestamp_ms")
   )
 
   base_r_s_timestamp <- as.numeric(seq(
@@ -515,11 +515,11 @@ test_that("dt$with_time_unit cast_time_unit", {
   )$select(
     pl$col("date"),
     pl$col("date")$dt$cast_time_unit()$alias("cast_time_unit_ns"),
-    pl$col("date")$dt$cast_time_unit(tu = "us")$alias("cast_time_unit_us"),
-    pl$col("date")$dt$cast_time_unit(tu = "ms")$alias("cast_time_unit_ms"),
+    pl$col("date")$dt$cast_time_unit(time_unit = "us")$alias("cast_time_unit_us"),
+    pl$col("date")$dt$cast_time_unit(time_unit = "ms")$alias("cast_time_unit_ms"),
     pl$col("date")$dt$with_time_unit()$alias("with_time_unit_ns"),
-    pl$col("date")$dt$with_time_unit(tu = "us")$alias("with_time_unit_us"),
-    pl$col("date")$dt$with_time_unit(tu = "ms")$alias("with_time_unit_ms")
+    pl$col("date")$dt$with_time_unit(time_unit = "us")$alias("with_time_unit_us"),
+    pl$col("date")$dt$with_time_unit(time_unit = "ms")$alias("with_time_unit_ms")
   )
 
   df_time_num <- df_time$cast(pl$Float64)
@@ -757,5 +757,63 @@ test_that("$dt$is_leap_year()", {
   expect_equal(
     df$select(leap_year = pl$col("datetime")$dt$is_leap_year()),
     pl$DataFrame(leap_year = c(TRUE, FALSE, FALSE))
+  )
+})
+
+test_that("dt$century", {
+  df <- pl$DataFrame(
+    x = as.Date(
+      c("999-12-31", "1897-05-07", "2000-01-01", "2001-07-05", "3002-10-20")
+    )
+  )
+  expect_equal(
+    df$select(pl$col("x")$dt$century()),
+    pl$DataFrame(x = c(10, 19, 20, 21, 31))$cast(pl$Int32)
+  )
+})
+
+test_that("dt$date", {
+  df <- pl$DataFrame(
+    x = as.POSIXct(c("1978-1-1 1:1:1", "1897-5-7 00:00:00"), tz = "UTC")
+  )
+  expect_equal(
+    df$select(pl$col("x")$dt$date()),
+    pl$DataFrame(x = as.Date(c("1978-1-1", "1897-5-7")))
+  )
+})
+
+test_that("dt$month_start", {
+  df <- pl$DataFrame(x = as.Date(c("2000-01-23", "2001-01-12", "2002-01-01")))
+  expect_equal(
+    df$select(pl$col("x")$dt$month_start()),
+    pl$DataFrame(x = as.Date(c("2000-01-01", "2001-01-01", "2002-01-01")))
+  )
+})
+
+test_that("dt$month_end", {
+  df <- pl$DataFrame(x = as.Date(c("2000-01-23", "2001-01-12", "2002-01-01")))
+  expect_equal(
+    df$select(pl$col("x")$dt$month_end()),
+    pl$DataFrame(x = as.Date(c("2000-01-31", "2001-01-31", "2002-01-31")))
+  )
+})
+
+test_that("dt$base_utc_offset", {
+  df <- pl$DataFrame(
+    x = as.POSIXct(c("2011-12-29", "2012-01-01"), tz = "Pacific/Apia")
+  )
+  expect_equal(
+    df$select(pl$col("x")$dt$base_utc_offset()),
+    pl$DataFrame(x = as.difftime(c(-11, 13), units = "hours"))
+  )
+})
+
+test_that("dt$dst_offset", {
+  df <- pl$DataFrame(
+    x = as.POSIXct(c("2020-10-25", "2020-10-26"), tz = "Europe/London")
+  )
+  expect_equal(
+    df$select(pl$col("x")$dt$dst_offset()),
+    pl$DataFrame(x = as.difftime(c(1, 0), units = "hours"))
   )
 })

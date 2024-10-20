@@ -48,7 +48,7 @@
       Caused by error:
       ! Evaluation failed.
       Caused by error:
-      ! `tu` must be one of "ns", "us", or "ms", not "bob".
+      ! `time_unit` must be one of "ns", "us", or "ms", not "bob".
 
 ---
 
@@ -60,7 +60,7 @@
       Caused by error:
       ! Evaluation failed.
       Caused by error:
-      ! `tu` must be a string or character vector.
+      ! `time_unit` must be a string or character vector.
 
 # dt$with_time_unit cast_time_unit
 
@@ -72,7 +72,7 @@
       Caused by error:
       ! Evaluation failed.
       Caused by error:
-      ! `tu` must be one of "ns", "us", or "ms", not "bob".
+      ! `time_unit` must be one of "ns", "us", or "ms", not "bob".
 
 ---
 
@@ -84,7 +84,7 @@
       Caused by error:
       ! Evaluation failed.
       Caused by error:
-      ! `tu` must be a string or character vector.
+      ! `time_unit` must be a string or character vector.
 
 ---
 
@@ -98,7 +98,7 @@
       Caused by error:
       ! Evaluation failed.
       Caused by error:
-      ! `tu` must be one of "ns", "us", or "ms", not "bob".
+      ! `time_unit` must be one of "ns", "us", or "ms", not "bob".
 
 ---
 
@@ -112,5 +112,5 @@
       Caused by error:
       ! Evaluation failed.
       Caused by error:
-      ! `tu` must be a string or character vector.
+      ! `time_unit` must be a string or character vector.
 
