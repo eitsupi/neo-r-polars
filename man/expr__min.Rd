@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-expr.R
 \name{expr__min}
 \alias{expr__min}
-\title{Get minimum value}
+\title{Get the minimum value}
 \usage{
 expr__min()
 }
@@ -10,9 +10,9 @@ expr__min()
 A polars \link{expression}
 }
 \description{
-Get minimum value
+Get the minimum value
 }
 \examples{
-pl$DataFrame(x = c(1, NA, 3))$
+pl$DataFrame(x = c(1, NaN, 3))$
   with_columns(min = pl$col("x")$min())
 }

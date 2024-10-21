@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-expr.R
 \name{expr__nan_max}
 \alias{expr__nan_max}
-\title{Get maximum value with NaN}
+\title{Get the maximum value with NaN}
 \usage{
 expr__nan_max()
 }
@@ -10,7 +10,7 @@ expr__nan_max()
 A polars \link{expression}
 }
 \description{
-Get maximum value, but returns \code{NaN} if there are any.
+This returns \code{NaN} if there are any.
 }
 \examples{
 pl$DataFrame(x = c(1, NA, 3, NaN, Inf))$

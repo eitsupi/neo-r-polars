@@ -495,33 +495,31 @@ expr__is_not_nan <- function() {
     wrap()
 }
 
-#' Get minimum value
-#'
+#' Get the minimum value
 #'
 #' @inherit as_polars_expr return
 #' @examples
-#' pl$DataFrame(x = c(1, NA, 3))$
+#' pl$DataFrame(x = c(1, NaN, 3))$
 #'   with_columns(min = pl$col("x")$min())
 expr__min <- function() {
   self$`_rexpr`$min() |>
     wrap()
 }
 
-#' Get maximum value
-#'
+#' Get the maximum value
 #'
 #' @inherit as_polars_expr return
 #' @examples
-#' pl$DataFrame(x = c(1, NA, 3))$
+#' pl$DataFrame(x = c(1, NaN, 3))$
 #'   with_columns(max = pl$col("x")$max())
 expr__max <- function() {
   self$`_rexpr`$max() |>
     wrap()
 }
 
-#' Get maximum value with NaN
+#' Get the maximum value with NaN
 #'
-#' Get maximum value, but returns `NaN` if there are any.
+#' This returns `NaN` if there are any.
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -532,9 +530,9 @@ expr__nan_max <- function() {
     wrap()
 }
 
-#' Get minimum value with NaN
+#' Get the minimum value with NaN
 #'
-#' Get minimum value, but returns `NaN` if there are any.
+#' This returns `NaN` if there are any.
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -547,10 +545,9 @@ expr__nan_min <- function() {
 
 #' Get mean value
 #'
-#'
 #' @inherit as_polars_expr return
 #' @examples
-#' pl$DataFrame(x = c(1L, NA, 2L))$
+#' pl$DataFrame(x = c(1, 3, 4, NA))$
 #'   with_columns(mean = pl$col("x")$mean())
 expr__mean <- function() {
   self$`_rexpr`$mean() |>
@@ -559,10 +556,9 @@ expr__mean <- function() {
 
 #' Get median value
 #'
-#'
 #' @inherit as_polars_expr return
 #' @examples
-#' pl$DataFrame(x = c(1L, NA, 2L))$
+#' pl$DataFrame(x = c(1, 3, 4, NA))$
 #'   with_columns(median = pl$col("x")$median())
 expr__median <- function() {
   self$`_rexpr`$median() |>
@@ -792,8 +788,7 @@ expr__tail <- function(n = 10) {
   })
 }
 
-#' Get the first value.
-#'
+#' Get the first value
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -804,7 +799,6 @@ expr__first <- function() {
 }
 
 #' Get the last value
-#'
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -1286,5 +1280,139 @@ expr__cum_max <- function(reverse = FALSE) {
 #' )
 expr__cum_count <- function(reverse = FALSE) {
   self$`_rexpr`$cum_count(reverse) |>
+    wrap()
+}
+
+#' Get the group indexes of the group by operation
+#'
+#' Should be used in aggregation context only.
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(
+#'   group = rep(c("one", "two"), each = 3),
+#'   value = c(94, 95, 96, 97, 97, 99)
+#' )
+#'
+#' df$group_by("group", maintain_order = TRUE)$agg(pl$col("value")$agg_groups())
+expr__agg_groups <- function() {
+  self$`_rexpr`$agg_groups() |>
+    wrap()
+}
+
+#' Get the index of the maximal value
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c(20, 10, 30))
+#' df$select(pl$col("a")$arg_max())
+expr__arg_max <- function() {
+  self$`_rexpr`$arg_max() |>
+    wrap()
+}
+
+#' Get the index of the minimal value
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c(20, 10, 30))
+#' df$select(pl$col("a")$arg_min())
+expr__arg_min <- function() {
+  self$`_rexpr`$arg_min() |>
+    wrap()
+}
+
+#' Get the number of non-null elements in the column
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = 1:3, b = c(NA, 4, 4))
+#' df$select(pl$all()$count())
+expr__count <- function() {
+  self$`_rexpr`$count() |>
+    wrap()
+}
+
+#' Aggregate values into a list
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = 1:3, b = 4:6)
+#' df$with_columns(pl$col("a")$implode())
+expr__implode <- function() {
+  self$`_rexpr`$implode() |>
+    wrap()
+}
+
+#' Return the number of elements in the column
+#'
+#' Null values are counted in the total.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = 1:3, b = c(NA, 4, 4))
+#' df$select(pl$all()$len())
+expr__len <- function() {
+  self$`_rexpr`$len() |>
+    wrap()
+}
+
+#' Compute the product of an expression.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' pl$DataFrame(a = 1:3, b = c(NA, 4, 4))$
+#'   select(pl$all()$product())
+expr__product <- function() {
+  self$`_rexpr`$product() |>
+    wrap()
+}
+
+#' Get quantile value(s)
+#'
+#' @param quantile
+#' @param interpolation Interpolation method. Must be one of `"nearest"`,
+#' `"higher"`, `"lower"`, `"midpoint"`, `"linear"`.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = 0:5)
+#' df$select(pl$col("a")$quantile(0.3))
+#' df$select(pl$col("a")$quantile(0.3, interpolation = "higher"))
+#' df$select(pl$col("a")$quantile(0.3, interpolation = "lower"))
+#' df$select(pl$col("a")$quantile(0.3, interpolation = "midpoint"))
+#' df$select(pl$col("a")$quantile(0.3, interpolation = "linear"))
+expr__quantile <- function(
+    quantile,
+    interpolation = c("nearest", "higher", "lower", "midpoint", "linear")) {
+  wrap({
+    interpolation <- arg_match0(
+      interpolation,
+      values = c("nearest", "higher", "lower", "midpoint", "linear")
+    )
+    self$`_rexpr`$quantile(as_polars_expr(quantile, as_lit = TRUE)$`_rexpr`, interpolation)
+  })
+}
+
+#' Compute the standard deviation
+#'
+#' @inheritParams DataFrame_var
+#' @inherit as_polars_expr return
+#' @examples
+#' pl$DataFrame(a = c(1, 3, 5, 6))$
+#'   select(pl$all()$std())
+expr__std <- function(ddof = 1) {
+  self$`_rexpr`$std(ddof) |>
+    wrap()
+}
+
+#' Compute the variance
+#'
+#' @inheritParams DataFrame_var
+#' @inherit as_polars_expr return
+#' @examples
+#' pl$DataFrame(a = c(1, 3, 5, 6))$
+#'   select(pl$all()$var())
+expr__var <- function(ddof = 1) {
+  self$`_rexpr`$var(ddof) |>
     wrap()
 }

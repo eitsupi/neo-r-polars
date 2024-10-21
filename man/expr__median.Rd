@@ -13,6 +13,6 @@ A polars \link{expression}
 Get median value
 }
 \examples{
-pl$DataFrame(x = c(1L, NA, 2L))$
+pl$DataFrame(x = c(1, 3, 4, NA))$
   with_columns(median = pl$col("x")$median())
 }

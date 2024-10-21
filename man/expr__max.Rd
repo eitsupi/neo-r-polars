@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-expr.R
 \name{expr__max}
 \alias{expr__max}
-\title{Get maximum value}
+\title{Get the maximum value}
 \usage{
 expr__max()
 }
@@ -10,9 +10,9 @@ expr__max()
 A polars \link{expression}
 }
 \description{
-Get maximum value
+Get the maximum value
 }
 \examples{
-pl$DataFrame(x = c(1, NA, 3))$
+pl$DataFrame(x = c(1, NaN, 3))$
   with_columns(max = pl$col("x")$max())
 }

@@ -56,6 +56,7 @@ features = [
     "month_end",
     "offset_by",
     "parquet",
+    "product",
     "propagate_nans",
     "range",
     "serde",
@@ -68,6 +69,7 @@ features = [
     "string_to_integer",
     "temporal",
     "timezones",
+    "unique_counts"
 ]
 
 [target.'cfg(all(any(not(target_family = "unix"), allocator = "mimalloc")))'.dependencies]

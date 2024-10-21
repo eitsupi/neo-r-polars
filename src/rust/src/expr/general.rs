@@ -320,4 +320,73 @@ impl PlRExpr {
     fn explode(&self) -> Result<Self> {
         Ok(self.inner.clone().explode().into())
     }
+
+    fn agg_groups(&self) -> Result<Self> {
+        Ok(self.inner.clone().agg_groups().into())
+    }
+
+    fn count(&self) -> Result<Self> {
+        Ok(self.inner.clone().count().into())
+    }
+
+    fn arg_max(&self) -> Result<Self> {
+        Ok(self.inner.clone().arg_max().into())
+    }
+
+    fn arg_min(&self) -> Result<Self> {
+        Ok(self.inner.clone().arg_min().into())
+    }
+
+    fn implode(&self) -> Result<Self> {
+        Ok(self.inner.clone().implode().into())
+    }
+
+    fn len(&self) -> Result<Self> {
+        Ok(self.inner.clone().len().into())
+    }
+
+    fn value_counts(
+        &self,
+        sort: bool,
+        parallel: bool,
+        name: &str,
+        normalize: bool,
+    ) -> Result<Self> {
+        Ok(self
+            .inner
+            .clone()
+            .value_counts(sort, parallel, name, normalize)
+            .into())
+    }
+
+    fn unique_counts(&self) -> Result<Self> {
+        Ok(self.inner.clone().unique_counts().into())
+    }
+
+    fn null_count(&self) -> Result<Self> {
+        Ok(self.inner.clone().null_count().into())
+    }
+
+    fn product(&self) -> Result<Self> {
+        Ok(self.inner.clone().product().into())
+    }
+
+    fn quantile(&self, quantile: &PlRExpr, interpolation: &str) -> Result<Self> {
+        let interpolation = <Wrap<QuantileMethod>>::try_from(interpolation)?.0;
+        Ok(self
+            .inner
+            .clone()
+            .quantile(quantile.inner.clone(), interpolation)
+            .into())
+    }
+
+    fn std(&self, ddof: NumericScalar) -> Result<Self> {
+        let ddof = <Wrap<u8>>::try_from(ddof)?.0;
+        Ok(self.inner.clone().std(ddof).into())
+    }
+
+    fn var(&self, ddof: NumericScalar) -> Result<Self> {
+        let ddof = <Wrap<u8>>::try_from(ddof)?.0;
+        Ok(self.inner.clone().var(ddof).into())
+    }
 }
