@@ -2,7 +2,7 @@
 % Please edit documentation in R/functions-range.R
 \name{pl__date_ranges}
 \alias{pl__date_ranges}
-\title{Generate a list containing a date range}
+\title{Create a column of date ranges}
 \usage{
 pl__date_ranges(
   start,
@@ -19,20 +19,19 @@ a Date or a \link[=DataType_Datetime]{Datetime} expression. See examples for det
 \item{end}{Upper bound of the date range. Something that can be coerced to a
 Date or a \link[=DataType_Datetime]{Datetime} expression. See examples for details.}
 
-\item{interval}{Interval of the range periods, specified as a \link{difftime} object
-or using the Polars duration string language.
-See the \verb{Polars duration string language} section for details.}
+\item{interval}{Interval of the range periods, specified as a \link{difftime}
+object or using the Polars duration string language. See the \verb{Polars duration string language} section for details. Must consist of full days.}
 
-\item{...}{Ignored.}
+\item{...}{Dots which should be empty.}
 
 \item{closed}{Define which sides of the range are closed (inclusive).
-One of the followings: \code{"both"} (default), \code{"left"}, \code{"right"}, \code{"none"}.}
+One of the following: \code{"both"} (default), \code{"left"}, \code{"right"}, \code{"none"}.}
 }
 \value{
 A polars \link{expression}
 }
 \description{
-If both \code{start} and \code{end} are passed as the Date types (not Datetime), and
+If both \code{start} and \code{end} are passed as Date types (not Datetime), and
 the \code{interval} granularity is no finer than \code{"1d"}, the returned range is
 also of type Date. All other permutations return a Datetime.
 }
@@ -66,7 +65,7 @@ Similarly for "calendar week", "calendar month", "calendar quarter", and "calend
 \examples{
 df <- pl$DataFrame(
   start = as.Date(c("2022-01-01", "2022-01-02", NA)),
-  end = as.Date("2022-01-03")
+  end = rep(as.Date("2022-01-03"), 3)
 )
 
 df$with_columns(
@@ -80,6 +79,6 @@ df$with_columns(
 )
 }
 \seealso{
-\code{\link[=pl__date_range]{pl$date_range()}} to create a simple Series of data
-type Date.
+\code{\link[=pl__date_range]{pl$date_range()}} to create a simple Series of
+data type Date.
 }

@@ -19,14 +19,13 @@ a Date or a \link[=DataType_Datetime]{Datetime} expression. See examples for det
 \item{end}{Upper bound of the date range. Something that can be coerced to a
 Date or a \link[=DataType_Datetime]{Datetime} expression. See examples for details.}
 
-\item{interval}{Interval of the range periods, specified as a \link{difftime} object
-or using the Polars duration string language.
-See the \verb{Polars duration string language} section for details.}
+\item{interval}{Interval of the range periods, specified as a \link{difftime}
+object or using the Polars duration string language. See the \verb{Polars duration string language} section for details. Must consist of full days.}
 
-\item{...}{Ignored.}
+\item{...}{Dots which should be empty.}
 
 \item{closed}{Define which sides of the range are closed (inclusive).
-One of the followings: \code{"both"} (default), \code{"left"}, \code{"right"}, \code{"none"}.}
+One of the following: \code{"both"} (default), \code{"left"}, \code{"right"}, \code{"none"}.}
 }
 \value{
 An \link[=Expr_class]{Expr} of data type Date or \link[=DataType_Datetime]{Datetime}
@@ -65,18 +64,20 @@ Similarly for "calendar week", "calendar month", "calendar quarter", and "calend
 
 \examples{
 # Using Polars duration string to specify the interval:
-pl$date_range(as.Date("2022-01-01"), as.Date("2022-03-01"), "1mo") |>
-  as_polars_series("date")
+pl$select(
+  date = pl$date_range(as.Date("2022-01-01"), as.Date("2022-03-01"), "1mo")
+)
 
 # Using `difftime` object to specify the interval:
-pl$date_range(
-  as.Date("1985-01-01"),
-  as.Date("1985-01-10"),
-  as.difftime(2, units = "days")
-) |>
-  as_polars_series("date")
+pl$select(
+  date = pl$date_range(
+    as.Date("1985-01-01"),
+    as.Date("1985-01-10"),
+    as.difftime(2, units = "days")
+  )
+)
 }
 \seealso{
-\code{\link[=pl__date_ranges]{pl$date_ranges()}} to create a simple Series of data
-type list(Date) based on column values.
+\code{\link[=pl__date_ranges]{pl$date_ranges()}} to create a simple Series of
+data type list(Date) based on column values.
 }

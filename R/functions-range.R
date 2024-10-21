@@ -5,35 +5,37 @@
 #' the `interval` granularity is no finer than `"1d"`, the returned range is
 #' also of type Date. All other permutations return a Datetime.
 #'
+#' @inheritParams rlang::check_dots_empty0
 #' @param start Lower bound of the date range. Something that can be coerced to
 #' a Date or a [Datetime][DataType_Datetime] expression. See examples for details.
 #' @param end Upper bound of the date range. Something that can be coerced to a
 #' Date or a [Datetime][DataType_Datetime] expression. See examples for details.
-#' @param interval Interval of the range periods, specified as a [difftime] object
-#' or using the Polars duration string language.
-#' See the `Polars duration string language` section for details.
-#' @param ... Ignored.
+#' @param interval Interval of the range periods, specified as a [difftime]
+#' object or using the Polars duration string language. See the `Polars
+#' duration string language` section for details. Must consist of full days.
 #' @param closed Define which sides of the range are closed (inclusive).
-#' One of the followings: `"both"` (default), `"left"`, `"right"`, `"none"`.
+#' One of the following: `"both"` (default), `"left"`, `"right"`, `"none"`.
 #' @return An [Expr][Expr_class] of data type Date or [Datetime][DataType_Datetime]
 #'
-#' @inheritSection polars_duration_string  Polars duration string language
+#' @inheritSection polars_duration_string Polars duration string language
 #'
-#' @seealso [`pl$date_ranges()`][pl__date_ranges] to create a simple Series of data
-#' type list(Date) based on column values.
+#' @seealso [`pl$date_ranges()`][pl__date_ranges] to create a simple Series of
+#' data type list(Date) based on column values.
 #'
 #' @examples
 #' # Using Polars duration string to specify the interval:
-#' pl$date_range(as.Date("2022-01-01"), as.Date("2022-03-01"), "1mo") |>
-#'   as_polars_series("date")
+#' pl$select(
+#'   date = pl$date_range(as.Date("2022-01-01"), as.Date("2022-03-01"), "1mo")
+#' )
 #'
 #' # Using `difftime` object to specify the interval:
-#' pl$date_range(
-#'   as.Date("1985-01-01"),
-#'   as.Date("1985-01-10"),
-#'   as.difftime(2, units = "days")
-#' ) |>
-#'   as_polars_series("date")
+#' pl$select(
+#'   date = pl$date_range(
+#'     as.Date("1985-01-01"),
+#'     as.Date("1985-01-10"),
+#'     as.difftime(2, units = "days")
+#'   )
+#' )
 pl__date_range <- function(
     start,
     end,
@@ -54,9 +56,9 @@ pl__date_range <- function(
 }
 
 # TODO: link to the Date type docs
-#' Generate a list containing a date range
+#' Create a column of date ranges
 #'
-#' If both `start` and `end` are passed as the Date types (not Datetime), and
+#' If both `start` and `end` are passed as Date types (not Datetime), and
 #' the `interval` granularity is no finer than `"1d"`, the returned range is
 #' also of type Date. All other permutations return a Datetime.
 #'
@@ -65,13 +67,13 @@ pl__date_range <- function(
 #'
 #' @inherit as_polars_expr return
 #'
-#' @seealso [`pl$date_range()`][pl__date_range] to create a simple Series of data
-#' type Date.
+#' @seealso [`pl$date_range()`][pl__date_range] to create a simple Series of
+#' data type Date.
 #'
 #' @examples
 #' df <- pl$DataFrame(
 #'   start = as.Date(c("2022-01-01", "2022-01-02", NA)),
-#'   end = as.Date("2022-01-03")
+#'   end = rep(as.Date("2022-01-03"), 3)
 #' )
 #'
 #' df$with_columns(
@@ -96,7 +98,8 @@ pl__date_ranges <- function(
     date_ranges(
       as_polars_expr(start)$`_rexpr`,
       as_polars_expr(end)$`_rexpr`,
-      interval, closed,
+      interval,
+      closed
     )
   })
 }
@@ -119,25 +122,28 @@ pl__date_ranges <- function(
 #'
 #' @examples
 #' # Using Polars duration string to specify the interval:
-#' pl$datetime_range(as.Date("2022-01-01"), as.Date("2022-03-01"), "1mo") |>
-#'   as_polars_series("datetime")
+#' pl$select(
+#'   datetime = pl$datetime_range(as.Date("2022-01-01"), as.Date("2022-03-01"), "1mo")
+#' )
 #'
 #' # Using `difftime` object to specify the interval:
-#' pl$datetime_range(
-#'   as.Date("1985-01-01"),
-#'   as.Date("1985-01-10"),
-#'   as.difftime(1, units = "days") + as.difftime(12, units = "hours")
-#' ) |>
-#'   as_polars_series("datetime")
+#' pl$select(
+#'   datetime = pl$datetime_range(
+#'     as.Date("1985-01-01"),
+#'     as.Date("1985-01-10"),
+#'     as.difftime(1, units = "days") + as.difftime(12, units = "hours")
+#'   )
+#' )
 #'
 #' # Specifying a time zone:
-#' pl$datetime_range(
-#'   as.Date("2022-01-01"),
-#'   as.Date("2022-03-01"),
-#'   "1mo",
-#'   time_zone = "America/New_York"
-#' ) |>
-#'   as_polars_series("datetime")
+#' pl$select(
+#'   datetime = pl$datetime_range(
+#'     as.Date("2022-01-01"),
+#'     as.Date("2022-03-01"),
+#'     "1mo",
+#'     time_zone = "America/New_York"
+#'   )
+#' )
 pl__datetime_range <- function(
     start,
     end,
@@ -171,7 +177,7 @@ pl__datetime_range <- function(
 #' @examples
 #' df <- pl$DataFrame(
 #'   start = as.POSIXct(c("2022-01-01 10:00", "2022-01-01 11:00", NA)),
-#'   end = as.POSIXct("2022-01-01 12:00")
+#'   end = rep(as.POSIXct("2022-01-01 12:00"), 3)
 #' )
 #'
 #' df$with_columns(

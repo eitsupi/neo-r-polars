@@ -21,14 +21,13 @@ a Date or a \link[=DataType_Datetime]{Datetime} expression. See examples for det
 \item{end}{Upper bound of the date range. Something that can be coerced to a
 Date or a \link[=DataType_Datetime]{Datetime} expression. See examples for details.}
 
-\item{interval}{Interval of the range periods, specified as a \link{difftime} object
-or using the Polars duration string language.
-See the \verb{Polars duration string language} section for details.}
+\item{interval}{Interval of the range periods, specified as a \link{difftime}
+object or using the Polars duration string language. See the \verb{Polars duration string language} section for details. Must consist of full days.}
 
-\item{...}{Ignored.}
+\item{...}{Dots which should be empty.}
 
 \item{closed}{Define which sides of the range are closed (inclusive).
-One of the followings: \code{"both"} (default), \code{"left"}, \code{"right"}, \code{"none"}.}
+One of the following: \code{"both"} (default), \code{"left"}, \code{"right"}, \code{"none"}.}
 
 \item{time_unit}{Time unit of the resulting the \link[=DataType_Datetime]{Datetime}
 data type. One of \code{"ns"}, \code{"us"}, \code{"ms"} or \code{NULL}}
@@ -72,7 +71,7 @@ Similarly for "calendar week", "calendar month", "calendar quarter", and "calend
 \examples{
 df <- pl$DataFrame(
   start = as.POSIXct(c("2022-01-01 10:00", "2022-01-01 11:00", NA)),
-  end = as.POSIXct("2022-01-01 12:00")
+  end = rep(as.POSIXct("2022-01-01 12:00"), 3)
 )
 
 df$with_columns(
