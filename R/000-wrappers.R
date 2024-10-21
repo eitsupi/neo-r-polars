@@ -994,6 +994,12 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   }
 }
 
+`PlRExpr_abs` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_abs__impl, `self`))
+  }
+}
+
 `PlRExpr_add` <- function(self) {
   function(`rhs`) {
     `rhs` <- .savvy_extract_ptr(`rhs`, "PlRExpr")
@@ -1371,6 +1377,12 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   }
 }
 
+`PlRExpr_arg_unique` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_arg_unique__impl, `self`))
+  }
+}
+
 `PlRExpr_implode` <- function(self) {
   function() {
     .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_implode__impl, `self`))
@@ -1443,6 +1455,12 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
 `PlRExpr_approx_n_unique` <- function(self) {
   function() {
     .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_approx_n_unique__impl, `self`))
+  }
+}
+
+`PlRExpr_n_unique` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_n_unique__impl, `self`))
   }
 }
 
@@ -1571,6 +1589,26 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   function(`expr`) {
     `expr` <- .savvy_extract_ptr(`expr`, "PlRExpr")
     .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_is_in__impl, `self`, `expr`))
+  }
+}
+
+`PlRExpr_cbrt` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_cbrt__impl, `self`))
+  }
+}
+
+`PlRExpr_dot` <- function(self) {
+  function(`expr`) {
+    `expr` <- .savvy_extract_ptr(`expr`, "PlRExpr")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_dot__impl, `self`, `expr`))
+  }
+}
+
+`PlRExpr_cumulative_eval` <- function(self) {
+  function(`expr`, `min_periods`, `parallel`) {
+    `expr` <- .savvy_extract_ptr(`expr`, "PlRExpr")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_cumulative_eval__impl, `self`, `expr`, `min_periods`, `parallel`))
   }
 }
 
@@ -2247,6 +2285,7 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   e$`dt_century` <- `PlRExpr_dt_century`(ptr)
   e$`dt_add_business_days` <- `PlRExpr_dt_add_business_days`(ptr)
   e$`print` <- `PlRExpr_print`(ptr)
+  e$`abs` <- `PlRExpr_abs`(ptr)
   e$`add` <- `PlRExpr_add`(ptr)
   e$`sub` <- `PlRExpr_sub`(ptr)
   e$`mul` <- `PlRExpr_mul`(ptr)
@@ -2306,6 +2345,7 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   e$`count` <- `PlRExpr_count`(ptr)
   e$`arg_max` <- `PlRExpr_arg_max`(ptr)
   e$`arg_min` <- `PlRExpr_arg_min`(ptr)
+  e$`arg_unique` <- `PlRExpr_arg_unique`(ptr)
   e$`implode` <- `PlRExpr_implode`(ptr)
   e$`len` <- `PlRExpr_len`(ptr)
   e$`value_counts` <- `PlRExpr_value_counts`(ptr)
@@ -2318,6 +2358,7 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   e$`is_unique` <- `PlRExpr_is_unique`(ptr)
   e$`is_between` <- `PlRExpr_is_between`(ptr)
   e$`approx_n_unique` <- `PlRExpr_approx_n_unique`(ptr)
+  e$`n_unique` <- `PlRExpr_n_unique`(ptr)
   e$`is_first_distinct` <- `PlRExpr_is_first_distinct`(ptr)
   e$`is_last_distinct` <- `PlRExpr_is_last_distinct`(ptr)
   e$`sin` <- `PlRExpr_sin`(ptr)
@@ -2339,6 +2380,9 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   e$`sign` <- `PlRExpr_sign`(ptr)
   e$`is_duplicated` <- `PlRExpr_is_duplicated`(ptr)
   e$`is_in` <- `PlRExpr_is_in`(ptr)
+  e$`cbrt` <- `PlRExpr_cbrt`(ptr)
+  e$`dot` <- `PlRExpr_dot`(ptr)
+  e$`cumulative_eval` <- `PlRExpr_cumulative_eval`(ptr)
   e$`list_len` <- `PlRExpr_list_len`(ptr)
   e$`list_contains` <- `PlRExpr_list_contains`(ptr)
   e$`list_max` <- `PlRExpr_list_max`(ptr)

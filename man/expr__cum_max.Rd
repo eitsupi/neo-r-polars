@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-expr.R
 \name{expr__cum_max}
 \alias{expr__cum_max}
-\title{Cumulative maximum}
+\title{Return the cumulative max computed at every element.}
 \usage{
 expr__cum_max(reverse = FALSE)
 }
@@ -13,7 +13,7 @@ expr__cum_max(reverse = FALSE)
 A polars \link{expression}
 }
 \description{
-Get an array with the cumulative max computed at every element.
+Return the cumulative max computed at every element.
 }
 \details{
 The Dtypes Int8, UInt8, Int16 and UInt16 are cast to Int64 before summing to

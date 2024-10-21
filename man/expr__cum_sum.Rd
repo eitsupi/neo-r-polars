@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-expr.R
 \name{expr__cum_sum}
 \alias{expr__cum_sum}
-\title{Cumulative sum}
+\title{Return the cumulative sum computed at every element.}
 \usage{
 expr__cum_sum(reverse = FALSE)
 }
@@ -14,7 +14,7 @@ each row one by one.}
 A polars \link{expression}
 }
 \description{
-Get an array with the cumulative sum computed at every element.
+Return the cumulative sum computed at every element.
 }
 \details{
 The Dtypes Int8, UInt8, Int16 and UInt16 are cast to Int64 before summing to

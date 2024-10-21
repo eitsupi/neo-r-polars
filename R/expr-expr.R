@@ -1123,16 +1123,15 @@ expr__xor <- function(other) {
   })
 }
 
-#' Difference
+#' Calculate the n-th discrete difference between elements
 #'
-#' Calculate the n-th discrete difference.
-#'
-#' @param n Number of slots to shift.
-#' @param null_behavior String, either `"ignore"` (default), else `"drop"`.
+#' @param n Integer indicating the number of slots to shift.
+#' @param null_behavior How to handle null values. Must be `"ignore"` (default),
+#' or `"drop"`.
 #'
 #' @inherit as_polars_expr return
 #' @examples
-#' pl$DataFrame(a = c(20L, 10L, 30L, 40L))$with_columns(
+#' pl$DataFrame(a = c(20, 10, 30, 25, 35))$with_columns(
 #'   diff_default = pl$col("a")$diff(),
 #'   diff_2_ignore = pl$col("a")$diff(2, "ignore")
 #' )
@@ -1141,6 +1140,19 @@ expr__diff <- function(n = 1, null_behavior = c("ignore", "drop")) {
     null_behavior <- arg_match0(null_behavior, c("ignore", "drop"))
     self$`_rexpr`$diff(n, null_behavior)
   })
+}
+
+#' Compute the dot/inner product between two Expressions
+#'
+#' @param other Expression to compute dot product with.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c(1, 3, 5), b = c(2, 4, 6))
+#' df$select(pl$col("a")$dot(pl$col("b")))
+expr__dot <- function(expr) {
+  self$`_rexpr`$dot(as_polars_expr(expr)$`_rexpr`) |>
+    wrap()
 }
 
 # TODO: link to ExprList_explode
@@ -1235,9 +1247,7 @@ expr__all <- function(..., ignore_nulls = TRUE) {
   })
 }
 
-#' Cumulative sum
-#'
-#' Get an array with the cumulative sum computed at every element.
+#' Return the cumulative sum computed at every element.
 #'
 #' @param reverse If `TRUE`, start with the total sum of elements and substract
 #' each row one by one.
@@ -1257,9 +1267,7 @@ expr__cum_sum <- function(reverse = FALSE) {
 }
 
 
-#' Cumulative product
-#'
-#' Get an array with the cumulative product computed at every element.
+#' Return the cumulative product computed at every element.
 #'
 #' @param reverse If `TRUE`, start with the total product of elements and divide
 #' each row one by one.
@@ -1274,9 +1282,7 @@ expr__cum_prod <- function(reverse = FALSE) {
     wrap()
 }
 
-#' Cumulative minimum
-#'
-#' Get an array with the cumulative min computed at every element.
+#' Return the cumulative min computed at every element.
 #'
 #' @param reverse If `TRUE`, start from the last value.
 #' @inherit expr__cum_sum return details
@@ -1290,9 +1296,7 @@ expr__cum_min <- function(reverse = FALSE) {
     wrap()
 }
 
-#' Cumulative maximum
-#'
-#' Get an array with the cumulative max computed at every element.
+#' Return the cumulative max computed at every element.
 #'
 #' @inheritParams expr__cum_min
 #' @inherit expr__cum_sum return details
@@ -1306,15 +1310,10 @@ expr__cum_max <- function(reverse = FALSE) {
     wrap()
 }
 
-#' Cumulative count
-#'
-#' Get an array with the cumulative count (zero-indexed) computed at every element.
+#' Return the cumulative count of the non-null values in the column
 #'
 #' @param reverse If `TRUE`, reverse the count.
 #' @inherit as_polars_expr return
-#' @details
-#' The Dtypes Int8, UInt8, Int16 and UInt16 are cast to Int64 before summing to
-#' prevent overflow issues.
 #'
 #' `$cum_count()` does not seem to count within lists.
 #'
@@ -1326,6 +1325,39 @@ expr__cum_max <- function(reverse = FALSE) {
 expr__cum_count <- function(reverse = FALSE) {
   self$`_rexpr`$cum_count(reverse) |>
     wrap()
+}
+
+#' Return the cumulative count of the non-null values in the column
+#'
+#' @param expr Expression to evaluate.
+#' @inheritParams rlang::check_dots_empty0
+#' @param min_periods Number of valid values (i.e. `length - null_count`) there
+#' should be in the window before the expression is evaluated.
+#' @param parallel Run in parallel. Don’t do this in a group by or another
+#' operation that already has much parallelization.
+#'
+#' @details
+#' This can be really slow as it can have `O(n^2)` complexity. Don’t use this
+#' for operations that visit all elements.
+#'
+#' @inherit as_polars_expr return
+#'
+#' @examples
+#' df <- pl$DataFrame(values = 1:5)
+#' df$with_columns(
+#'   pl$col("values")$cumulative_eval(
+#'     pl$element()$first() - pl$element()$last()**2
+#'   )
+#' )
+expr__cumulative_eval <- function(expr, ..., min_periods = 1, parallel = FALSE) {
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$cumulative_eval(
+      as_polars_expr(expr)$`_rexpr`,
+      min_periods,
+      parallel
+    )
+  })
 }
 
 #' Get the group indexes of the group by operation
@@ -1363,6 +1395,18 @@ expr__arg_max <- function() {
 #' df$select(pl$col("a")$arg_min())
 expr__arg_min <- function() {
   self$`_rexpr`$arg_min() |>
+    wrap()
+}
+
+#' Get the index of the first unique value
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = 1:3, b = c(NA, 4, 4))
+#' df$select(pl$col("a")$arg_unique())
+#' df$select(pl$col("b")$arg_unique())
+expr__arg_unique <- function() {
+  self$`_rexpr`$arg_unique() |>
     wrap()
 }
 
@@ -1591,5 +1635,200 @@ expr__is_in <- function(other) {
 #' df$select(pl$col("a")$is_unique())
 expr__is_unique <- function() {
   self$`_rexpr`$is_unique() |>
+    wrap()
+}
+
+#' Compute absolute values
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = -1:2)
+#' df$with_columns(abs = pl$col("a")$abs())
+expr__abs <- function() {
+  self$`_rexpr`$abs() |>
+    wrap()
+}
+
+#' Approximate count of unique values
+#'
+#' This is done using the HyperLogLog++ algorithm for cardinality estimation.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(n = c(1, 1, 2))
+#' df$select(pl$col("n")$approx_n_unique())
+#'
+#' df <- pl$DataFrame(n = 0:1000)
+#' df$select(
+#'   exact = pl$col("n")$n_unique(),
+#'   approx = pl$col("n")$approx_n_unique()
+#' )
+expr__approx_n_unique <- function() {
+  self$`_rexpr`$approx_n_unique() |>
+    wrap()
+}
+
+#' Compute sine
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' pl$DataFrame(a = c(0, pi / 2, pi, NA))$
+#'   with_columns(sine = pl$col("a")$sin())
+expr__sin <- function() {
+  self$`_rexpr`$sin() |>
+    wrap()
+}
+
+#' Compute cosine
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' pl$DataFrame(a = c(0, pi / 2, pi, NA))$
+#'   with_columns(cosine = pl$col("a")$cos())
+expr__cos <- function() {
+  self$`_rexpr`$cos() |>
+    wrap()
+}
+
+#' Compute cotangent
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' pl$DataFrame(a = c(0, pi / 2, -5, NA))$
+#'   with_columns(cotangent = pl$col("a")$cot())
+expr__cot <- function() {
+  self$`_rexpr`$cot() |>
+    wrap()
+}
+
+#' Compute tangent
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' pl$DataFrame(a = c(0, pi / 2, pi, NA))$
+#'   with_columns(tangent = pl$col("a")$tan())
+expr__tan <- function() {
+  self$`_rexpr`$tan() |>
+    wrap()
+}
+
+#' Compute inverse sine
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' pl$DataFrame(a = c(-1, sin(0.5), 0, 1, NA))$
+#'   with_columns(arcsin = pl$col("a")$arcsin())
+expr__arcsin <- function() {
+  self$`_rexpr`$arcsin() |>
+    wrap()
+}
+
+#' Compute inverse cosine
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' pl$DataFrame(a = c(-1, cos(0.5), 0, 1, NA))$
+#'   with_columns(arccos = pl$col("a")$arccos())
+expr__arccos <- function() {
+  self$`_rexpr`$arccos() |>
+    wrap()
+}
+
+#' Compute inverse tangent
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' pl$DataFrame(a = c(-1, tan(0.5), 0, 1, NA_real_))$
+#'   with_columns(arctan = pl$col("a")$arctan())
+expr__arctan <- function() {
+  self$`_rexpr`$arctan() |>
+    wrap()
+}
+
+#' Compute hyperbolic sine
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' pl$DataFrame(a = c(-1, asinh(0.5), 0, 1, NA))$
+#'   with_columns(sinh = pl$col("a")$sinh())
+expr__sinh <- function() {
+  self$`_rexpr`$sinh() |>
+    wrap()
+}
+
+#' Compute hyperbolic cosine
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' pl$DataFrame(a = c(-1, acosh(2), 0, 1, NA))$
+#'   with_columns(cosh = pl$col("a")$cosh())
+expr__cosh <- function() {
+  self$`_rexpr`$cosh() |>
+    wrap()
+}
+
+#' Compute hyperbolic tangent
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' pl$DataFrame(a = c(-1, atanh(0.5), 0, 1, NA))$
+#'   with_columns(tanh = pl$col("a")$tanh())
+expr__tanh <- function() {
+  self$`_rexpr`$tanh() |>
+    wrap()
+}
+
+#' Compute inverse hyperbolic sine
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' pl$DataFrame(a = c(-1, sinh(0.5), 0, 1, NA))$
+#'   with_columns(arcsinh = pl$col("a")$arcsinh())
+expr__arcsinh <- function() {
+  self$`_rexpr`$arcsinh() |>
+    wrap()
+}
+
+#' Compute inverse hyperbolic cosine
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' pl$DataFrame(a = c(-1, cosh(0.5), 0, 1, NA))$
+#'   with_columns(arccosh = pl$col("a")$arccosh())
+expr__arccosh <- function() {
+  self$`_rexpr`$arccosh() |>
+    wrap()
+}
+
+#' Compute inverse hyperbolic tangent
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' pl$DataFrame(a = c(-1, tanh(0.5), 0, 1, NA))$
+#'   with_columns(arctanh = pl$col("a")$arctanh())
+expr__arctanh <- function() {
+  self$`_rexpr`$arctanh() |>
+    wrap()
+}
+
+#' Compute cube root
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' pl$DataFrame(a = c(1, 2, 4))$
+#'   with_columns(cbrt = pl$col("a")$cbrt())
+expr__cbrt <- function() {
+  self$`_rexpr`$cbrt() |>
+    wrap()
+}
+
+#' Convert from radians to degrees
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' pl$DataFrame(a = c(1, 2, 4) * pi)$
+#'   with_columns(degrees = pl$col("a")$degrees())
+expr__degrees <- function() {
+  self$`_rexpr`$degrees() |>
     wrap()
 }

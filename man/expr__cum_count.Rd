@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-expr.R
 \name{expr__cum_count}
 \alias{expr__cum_count}
-\title{Cumulative count}
+\title{Return the cumulative count of the non-null values in the column}
 \usage{
 expr__cum_count(reverse = FALSE)
 }
@@ -13,13 +13,7 @@ expr__cum_count(reverse = FALSE)
 A polars \link{expression}
 }
 \description{
-Get an array with the cumulative count (zero-indexed) computed at every element.
-}
-\details{
-The Dtypes Int8, UInt8, Int16 and UInt16 are cast to Int64 before summing to
-prevent overflow issues.
-
-\verb{$cum_count()} does not seem to count within lists.
+Return the cumulative count of the non-null values in the column
 }
 \examples{
 pl$DataFrame(a = 1:4)$with_columns(

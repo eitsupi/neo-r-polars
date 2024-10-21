@@ -679,6 +679,11 @@ SEXP savvy_PlRExpr_print__impl(SEXP self__) {
     return handle_result(res);
 }
 
+SEXP savvy_PlRExpr_abs__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_abs__ffi(self__);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRExpr_add__impl(SEXP self__, SEXP c_arg__rhs) {
     SEXP res = savvy_PlRExpr_add__ffi(self__, c_arg__rhs);
     return handle_result(res);
@@ -974,6 +979,11 @@ SEXP savvy_PlRExpr_arg_min__impl(SEXP self__) {
     return handle_result(res);
 }
 
+SEXP savvy_PlRExpr_arg_unique__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_arg_unique__ffi(self__);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRExpr_implode__impl(SEXP self__) {
     SEXP res = savvy_PlRExpr_implode__ffi(self__);
     return handle_result(res);
@@ -1031,6 +1041,11 @@ SEXP savvy_PlRExpr_is_between__impl(SEXP self__, SEXP c_arg__lower, SEXP c_arg__
 
 SEXP savvy_PlRExpr_approx_n_unique__impl(SEXP self__) {
     SEXP res = savvy_PlRExpr_approx_n_unique__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_n_unique__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_n_unique__ffi(self__);
     return handle_result(res);
 }
 
@@ -1136,6 +1151,21 @@ SEXP savvy_PlRExpr_is_duplicated__impl(SEXP self__) {
 
 SEXP savvy_PlRExpr_is_in__impl(SEXP self__, SEXP c_arg__expr) {
     SEXP res = savvy_PlRExpr_is_in__ffi(self__, c_arg__expr);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_cbrt__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_cbrt__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dot__impl(SEXP self__, SEXP c_arg__expr) {
+    SEXP res = savvy_PlRExpr_dot__ffi(self__, c_arg__expr);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_cumulative_eval__impl(SEXP self__, SEXP c_arg__expr, SEXP c_arg__min_periods, SEXP c_arg__parallel) {
+    SEXP res = savvy_PlRExpr_cumulative_eval__ffi(self__, c_arg__expr, c_arg__min_periods, c_arg__parallel);
     return handle_result(res);
 }
 
@@ -2005,6 +2035,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_dt_century__impl", (DL_FUNC) &savvy_PlRExpr_dt_century__impl, 1},
     {"savvy_PlRExpr_dt_add_business_days__impl", (DL_FUNC) &savvy_PlRExpr_dt_add_business_days__impl, 5},
     {"savvy_PlRExpr_print__impl", (DL_FUNC) &savvy_PlRExpr_print__impl, 1},
+    {"savvy_PlRExpr_abs__impl", (DL_FUNC) &savvy_PlRExpr_abs__impl, 1},
     {"savvy_PlRExpr_add__impl", (DL_FUNC) &savvy_PlRExpr_add__impl, 2},
     {"savvy_PlRExpr_sub__impl", (DL_FUNC) &savvy_PlRExpr_sub__impl, 2},
     {"savvy_PlRExpr_mul__impl", (DL_FUNC) &savvy_PlRExpr_mul__impl, 2},
@@ -2064,6 +2095,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_count__impl", (DL_FUNC) &savvy_PlRExpr_count__impl, 1},
     {"savvy_PlRExpr_arg_max__impl", (DL_FUNC) &savvy_PlRExpr_arg_max__impl, 1},
     {"savvy_PlRExpr_arg_min__impl", (DL_FUNC) &savvy_PlRExpr_arg_min__impl, 1},
+    {"savvy_PlRExpr_arg_unique__impl", (DL_FUNC) &savvy_PlRExpr_arg_unique__impl, 1},
     {"savvy_PlRExpr_implode__impl", (DL_FUNC) &savvy_PlRExpr_implode__impl, 1},
     {"savvy_PlRExpr_len__impl", (DL_FUNC) &savvy_PlRExpr_len__impl, 1},
     {"savvy_PlRExpr_value_counts__impl", (DL_FUNC) &savvy_PlRExpr_value_counts__impl, 5},
@@ -2076,6 +2108,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_is_unique__impl", (DL_FUNC) &savvy_PlRExpr_is_unique__impl, 1},
     {"savvy_PlRExpr_is_between__impl", (DL_FUNC) &savvy_PlRExpr_is_between__impl, 4},
     {"savvy_PlRExpr_approx_n_unique__impl", (DL_FUNC) &savvy_PlRExpr_approx_n_unique__impl, 1},
+    {"savvy_PlRExpr_n_unique__impl", (DL_FUNC) &savvy_PlRExpr_n_unique__impl, 1},
     {"savvy_PlRExpr_is_first_distinct__impl", (DL_FUNC) &savvy_PlRExpr_is_first_distinct__impl, 1},
     {"savvy_PlRExpr_is_last_distinct__impl", (DL_FUNC) &savvy_PlRExpr_is_last_distinct__impl, 1},
     {"savvy_PlRExpr_sin__impl", (DL_FUNC) &savvy_PlRExpr_sin__impl, 1},
@@ -2097,6 +2130,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_sign__impl", (DL_FUNC) &savvy_PlRExpr_sign__impl, 1},
     {"savvy_PlRExpr_is_duplicated__impl", (DL_FUNC) &savvy_PlRExpr_is_duplicated__impl, 1},
     {"savvy_PlRExpr_is_in__impl", (DL_FUNC) &savvy_PlRExpr_is_in__impl, 2},
+    {"savvy_PlRExpr_cbrt__impl", (DL_FUNC) &savvy_PlRExpr_cbrt__impl, 1},
+    {"savvy_PlRExpr_dot__impl", (DL_FUNC) &savvy_PlRExpr_dot__impl, 2},
+    {"savvy_PlRExpr_cumulative_eval__impl", (DL_FUNC) &savvy_PlRExpr_cumulative_eval__impl, 4},
     {"savvy_PlRExpr_list_len__impl", (DL_FUNC) &savvy_PlRExpr_list_len__impl, 1},
     {"savvy_PlRExpr_list_contains__impl", (DL_FUNC) &savvy_PlRExpr_list_contains__impl, 2},
     {"savvy_PlRExpr_list_max__impl", (DL_FUNC) &savvy_PlRExpr_list_max__impl, 1},

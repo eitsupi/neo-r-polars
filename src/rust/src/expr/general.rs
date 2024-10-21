@@ -15,6 +15,10 @@ impl PlRExpr {
         Ok(())
     }
 
+    fn abs(&self) -> Result<Self> {
+        Ok(self.inner.clone().abs().into())
+    }
+
     fn add(&self, rhs: &PlRExpr) -> Result<Self> {
         Ok(dsl::binary_expr(self.inner.clone(), Operator::Plus, rhs.inner.clone()).into())
     }
@@ -337,6 +341,10 @@ impl PlRExpr {
         Ok(self.inner.clone().arg_min().into())
     }
 
+    fn arg_unique(&self) -> Result<Self> {
+        Ok(self.inner.clone().arg_unique().into())
+    }
+
     fn implode(&self) -> Result<Self> {
         Ok(self.inner.clone().implode().into())
     }
@@ -405,6 +413,10 @@ impl PlRExpr {
 
     fn approx_n_unique(&self) -> Result<Self> {
         Ok(self.inner.clone().approx_n_unique().into())
+    }
+
+    fn n_unique(&self) -> Result<Self> {
+        Ok(self.inner.clone().n_unique().into())
     }
 
     fn is_first_distinct(&self) -> Result<Self> {
@@ -489,5 +501,27 @@ impl PlRExpr {
 
     fn is_in(&self, expr: &PlRExpr) -> Result<Self> {
         Ok(self.inner.clone().is_in(expr.inner.clone()).into())
+    }
+
+    fn cbrt(&self) -> Result<Self> {
+        Ok(self.inner.clone().cbrt().into())
+    }
+
+    fn dot(&self, expr: &PlRExpr) -> Result<Self> {
+        Ok(self.inner.clone().dot(expr.inner.clone()).into())
+    }
+
+    fn cumulative_eval(
+        &self,
+        expr: &PlRExpr,
+        min_periods: NumericScalar,
+        parallel: bool,
+    ) -> Result<Self> {
+        let min_periods = <Wrap<usize>>::try_from(min_periods)?.0;
+        Ok(self
+            .inner
+            .clone()
+            .cumulative_eval(expr.inner.clone(), min_periods, parallel)
+            .into())
     }
 }

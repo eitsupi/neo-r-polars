@@ -2,23 +2,24 @@
 % Please edit documentation in R/expr-expr.R
 \name{expr__diff}
 \alias{expr__diff}
-\title{Difference}
+\title{Calculate the n-th discrete difference between elements}
 \usage{
 expr__diff(n = 1, null_behavior = c("ignore", "drop"))
 }
 \arguments{
-\item{n}{Number of slots to shift.}
+\item{n}{Integer indicating the number of slots to shift.}
 
-\item{null_behavior}{String, either \code{"ignore"} (default), else \code{"drop"}.}
+\item{null_behavior}{How to handle null values. Must be \code{"ignore"} (default),
+or \code{"drop"}.}
 }
 \value{
 A polars \link{expression}
 }
 \description{
-Calculate the n-th discrete difference.
+Calculate the n-th discrete difference between elements
 }
 \examples{
-pl$DataFrame(a = c(20L, 10L, 30L, 40L))$with_columns(
+pl$DataFrame(a = c(20, 10, 30, 25, 35))$with_columns(
   diff_default = pl$col("a")$diff(),
   diff_2_ignore = pl$col("a")$diff(2, "ignore")
 )

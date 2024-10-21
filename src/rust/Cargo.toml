@@ -26,6 +26,7 @@ thiserror = "1"
 git = "https://github.com/pola-rs/polars.git"
 rev = "f3eba22b25e110f7097b7871a69e1ea4981970b0"
 features = [
+    "abs",
     "approx_unique",
     "array_any_all",
     "array_count",
@@ -36,6 +37,7 @@ features = [
     "cse",
     "cum_agg",
     "diff",
+    "dot_product",
     "dtype-full",
     "extract_groups",
     "extract_jsonpath",
