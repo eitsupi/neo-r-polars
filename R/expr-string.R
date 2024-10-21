@@ -203,7 +203,7 @@ expr_str_to_datetime <- function(
     self$`_rexpr`$str_to_datetime(
       format = format, time_unit = time_unit, time_zone = time_zone,
       strict = strict, exact = exact, cache = cache,
-      ambiguous = as_polars_expr(ambiguous, as_lit = TRUE)$`_rexpr`
+      ambiguous = ambiguous$`_rexpr`
     )
   })
 }

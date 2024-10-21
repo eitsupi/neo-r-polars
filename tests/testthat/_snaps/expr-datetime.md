@@ -4,6 +4,8 @@
       pl$col("datetime")$dt$round(42)
     Condition
       Error in `pl$col("datetime")$dt$round()`:
+      ! Evaluation failed in `$round()`.
+      Caused by error in `pl$col("datetime")$dt$round()`:
       ! `every` must be a single non-NA character or difftime.
 
 ---
@@ -12,6 +14,8 @@
       pl$col("datetime")$dt$round(c("2s", "1h"))
     Condition
       Error in `pl$col("datetime")$dt$round()`:
+      ! Evaluation failed in `$round()`.
+      Caused by error in `pl$col("datetime")$dt$round()`:
       ! `every` must be a single non-NA character or difftime.
 
 # dt$combine

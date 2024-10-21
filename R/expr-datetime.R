@@ -164,9 +164,10 @@ expr_dt_replace_time_zone <- function(
 #' )
 #' df$with_columns(truncated = pl$col("datetime")$dt$truncate("30m"))
 expr_dt_truncate <- function(every) {
-  every <- parse_as_polars_duration_string(every, default = "0ns")
-  self$`_rexpr`$dt_truncate(as_polars_expr(every, as_lit = TRUE)$`_rexpr`) |>
-    wrap()
+  wrap({
+    every <- parse_as_polars_duration_string(every, default = "0ns")
+    self$`_rexpr`$dt_truncate(as_polars_expr(every, as_lit = TRUE)$`_rexpr`)
+  })
 }
 
 #' Round datetime
@@ -200,9 +201,10 @@ expr_dt_truncate <- function(every) {
 #' )
 #' df$with_columns(round = pl$col("datetime")$dt$round("1h"))
 expr_dt_round <- function(every) {
-  every <- parse_as_polars_duration_string(every, default = "0ns")
-  self$`_rexpr`$dt_round(as_polars_expr(every, as_lit = TRUE)$`_rexpr`) |>
-    wrap()
+  wrap({
+    every <- parse_as_polars_duration_string(every, default = "0ns")
+    self$`_rexpr`$dt_round(as_polars_expr(every, as_lit = TRUE)$`_rexpr`)
+  })
 }
 
 #' Combine Date and Time
@@ -520,7 +522,7 @@ expr_dt_minute <- function() {
 expr_dt_second <- function(fractional = FALSE) {
   wrap({
     sec <- self$`_rexpr`$dt_second()
-    if (fractional) {
+    if (isTRUE(fractional)) {
       sec$add(self$`_rexpr`$dt_nanosecond()$div(pl$lit(1E9)$`_rexpr`))
     } else {
       sec
@@ -621,7 +623,8 @@ expr_dt_epoch <- function(time_unit = c("us", "ns", "ms", "s", "d")) {
       "us" = ,
       "ns" = self$`_rexpr`$dt_timestamp(time_unit),
       "s" = self$`_rexpr`$dt_epoch_seconds(),
-      "d" = self$`_rexpr`$cast(pl$Date$`_dt`, strict = TRUE, wrap_numerical = FALSE)$cast(pl$Int32$`_dt`, strict = TRUE, wrap_numerical = FALSE)
+      "d" = self$`_rexpr`$cast(pl$Date$`_dt`, strict = TRUE, wrap_numerical = FALSE)$cast(pl$Int32$`_dt`, strict = TRUE, wrap_numerical = FALSE),
+      abort("Unreachable")
     )
   })
 }

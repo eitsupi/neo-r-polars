@@ -44,6 +44,8 @@ pl__date_range <- function(
     closed = c("both", "left", "none", "right")) {
   wrap({
     check_dots_empty0(...)
+    check_date_or_datetime(start)
+    check_date_or_datetime(end)
     closed <- arg_match0(closed, values = c("both", "left", "none", "right"))
     interval <- parse_as_polars_duration_string(interval)
     date_range(
@@ -93,6 +95,8 @@ pl__date_ranges <- function(
     closed = c("both", "left", "none", "right")) {
   wrap({
     check_dots_empty0(...)
+    check_date_or_datetime(start)
+    check_date_or_datetime(end)
     closed <- arg_match0(closed, values = c("both", "left", "none", "right"))
     interval <- parse_as_polars_duration_string(interval)
     date_ranges(
@@ -154,6 +158,8 @@ pl__datetime_range <- function(
     time_zone = NULL) {
   wrap({
     check_dots_empty0(...)
+    check_date_or_datetime(start)
+    check_date_or_datetime(end)
     closed <- arg_match0(closed, values = c("both", "left", "none", "right"))
     interval <- parse_as_polars_duration_string(interval)
     datetime_range(
@@ -202,6 +208,8 @@ pl__datetime_ranges <- function(
     time_zone = NULL) {
   wrap({
     check_dots_empty0(...)
+    check_date_or_datetime(start)
+    check_date_or_datetime(end)
     closed <- arg_match0(closed, values = c("both", "left", "none", "right"))
     interval <- parse_as_polars_duration_string(interval)
     datetime_ranges(
