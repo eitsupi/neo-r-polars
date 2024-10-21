@@ -587,6 +587,7 @@ expr__sum <- function() {
 
 #' Cast between DataType
 #'
+#' @inheritParams rlang::check_dots_empty0
 #' @param dtype DataType to cast to.
 #' @param strict If `TRUE` (default), an error will be thrown if cast failed at
 #' resolve time.
@@ -622,6 +623,7 @@ expr__cast <- function(dtype, ..., strict = TRUE, wrap_numerical = FALSE) {
 #'
 #' Sort this column. If used in a groupby context, the groups are sorted.
 #'
+#' @inheritParams rlang::check_dots_empty0
 #' @inheritParams Series_sort
 #'
 #' @inherit as_polars_expr return
@@ -654,7 +656,6 @@ expr__arg_sort <- function(..., descending = FALSE, nulls_last = FALSE) {
   })
 }
 
-# TODO: rewrite `by` to `...` <https://github.com/pola-rs/r-polars/pull/997>
 #' Sort Expr by order of others
 #'
 #' Sort this column by the ordering of another column, or multiple other columns.
@@ -939,6 +940,7 @@ expr__filter <- function(...) {
 
 #' Map an expression with an R function
 #'
+#' @inheritParams rlang::check_dots_empty0
 #' @param f a function to map with
 #' @param output_type `NULL` or a type available in `names(pl$dtypes)`. If `NULL`
 #' (default), the output datatype will match the input datatype. This is used

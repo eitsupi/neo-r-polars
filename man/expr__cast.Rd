@@ -9,6 +9,8 @@ expr__cast(dtype, ..., strict = TRUE, wrap_numerical = FALSE)
 \arguments{
 \item{dtype}{DataType to cast to.}
 
+\item{...}{Dots which should be empty.}
+
 \item{strict}{If \code{TRUE} (default), an error will be thrown if cast failed at
 resolve time.}
 }

@@ -6,6 +6,9 @@
 \usage{
 expr__sort(..., descending = FALSE, nulls_last = FALSE)
 }
+\arguments{
+\item{...}{Dots which should be empty.}
+}
 \value{
 A polars \link{expression}
 }
