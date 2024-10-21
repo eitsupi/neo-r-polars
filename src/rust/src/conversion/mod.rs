@@ -351,6 +351,7 @@ impl TryFrom<NumericScalar> for Wrap<u64> {
         }
     }
 }
+
 impl TryFrom<&str> for Wrap<char> {
     type Error = savvy::Error;
 
@@ -429,6 +430,35 @@ impl TryFrom<&str> for Wrap<ListToStructWidthStrategy> {
             "first_non_null" => ListToStructWidthStrategy::FirstNonNull,
             "max_width" => ListToStructWidthStrategy::MaxWidth,
             v => return Err(format!("unsupported value: '{v}'",)),
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
+impl TryFrom<&str> for Wrap<ClosedWindow> {
+    type Error = String;
+
+    fn try_from(closed: &str) -> Result<Self, String> {
+        let parsed = match closed {
+            "both" => ClosedWindow::Both,
+            "left" => ClosedWindow::Left,
+            "none" => ClosedWindow::None,
+            "right" => ClosedWindow::Right,
+            v => return Err(format!("unreachable",)),
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
+impl TryFrom<&str> for Wrap<Roll> {
+    type Error = String;
+
+    fn try_from(roll: &str) -> Result<Self, String> {
+        let parsed = match roll {
+            "raise" => Roll::Raise,
+            "forward" => Roll::Forward,
+            "backward" => Roll::Backward,
+            v => return Err(format!("unreachable",)),
         };
         Ok(Wrap(parsed))
     }

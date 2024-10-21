@@ -23,8 +23,8 @@
 #'
 #' ## Using dynamic dots feature
 #' pl$LazyFrame(!!!data)
-pl__LazyFrame <- function(...) {
-  pl$DataFrame(...)$lazy()
+pl__LazyFrame <- function(..., .schema_overrides = NULL, .strict = TRUE) {
+  pl$DataFrame(..., .schema_overrides = .schema_overrides, .strict = .strict)$lazy()
 }
 
 # The env for storing lazyrame methods
@@ -102,10 +102,10 @@ lazyframe__select <- function(...) {
   })
 }
 
-lazyframe__group_by <- function(..., maintain_order = FALSE) {
+lazyframe__group_by <- function(..., .maintain_order = FALSE) {
   wrap({
     exprs <- parse_into_list_of_expressions(...)
-    self$`_ldf`$group_by(exprs, maintain_order)
+    self$`_ldf`$group_by(exprs, .maintain_order)
   })
 }
 
@@ -232,14 +232,15 @@ lazyframe__explain <- function(
   })
 }
 
-lazyframe__cast <- function(..., strict = TRUE) {
+lazyframe__cast <- function(..., .strict = TRUE) {
   wrap({
+    check_bool(.strict)
     dtypes <- parse_into_list_of_datatypes(...)
 
     if (length(dtypes) == 1L && !is_named(dtypes)) {
-      self$`_ldf`$cast_all(dtypes[[1]], strict)
+      self$`_ldf`$cast_all(dtypes[[1]], strict = .strict)
     } else {
-      self$`_ldf`$cast(dtypes, strict)
+      self$`_ldf`$cast(dtypes, strict = .strict)
     }
   })
 }
@@ -330,12 +331,12 @@ lazyframe__with_columns <- function(...) {
   })
 }
 
-lazyframe__drop <- function(..., strict = TRUE) {
+lazyframe__drop <- function(..., .strict = TRUE) {
   wrap({
     check_dots_unnamed()
 
     parse_into_list_of_expressions(...) |>
-      self$`_ldf`$drop(strict)
+      self$`_ldf`$drop(.strict)
   })
 }
 

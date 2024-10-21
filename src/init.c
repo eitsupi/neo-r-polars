@@ -104,6 +104,46 @@ SEXP savvy_lit_from_series_first__impl(SEXP c_arg__value) {
     return handle_result(res);
 }
 
+SEXP savvy_int_range__impl(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__step, SEXP c_arg__dtype) {
+    SEXP res = savvy_int_range__ffi(c_arg__start, c_arg__end, c_arg__step, c_arg__dtype);
+    return handle_result(res);
+}
+
+SEXP savvy_int_ranges__impl(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__step, SEXP c_arg__dtype) {
+    SEXP res = savvy_int_ranges__ffi(c_arg__start, c_arg__end, c_arg__step, c_arg__dtype);
+    return handle_result(res);
+}
+
+SEXP savvy_date_range__impl(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__interval, SEXP c_arg__closed) {
+    SEXP res = savvy_date_range__ffi(c_arg__start, c_arg__end, c_arg__interval, c_arg__closed);
+    return handle_result(res);
+}
+
+SEXP savvy_date_ranges__impl(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__interval, SEXP c_arg__closed) {
+    SEXP res = savvy_date_ranges__ffi(c_arg__start, c_arg__end, c_arg__interval, c_arg__closed);
+    return handle_result(res);
+}
+
+SEXP savvy_datetime_range__impl(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__every, SEXP c_arg__closed, SEXP c_arg__time_unit, SEXP c_arg__time_zone) {
+    SEXP res = savvy_datetime_range__ffi(c_arg__start, c_arg__end, c_arg__every, c_arg__closed, c_arg__time_unit, c_arg__time_zone);
+    return handle_result(res);
+}
+
+SEXP savvy_datetime_ranges__impl(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__every, SEXP c_arg__closed, SEXP c_arg__time_unit, SEXP c_arg__time_zone) {
+    SEXP res = savvy_datetime_ranges__ffi(c_arg__start, c_arg__end, c_arg__every, c_arg__closed, c_arg__time_unit, c_arg__time_zone);
+    return handle_result(res);
+}
+
+SEXP savvy_time_range__impl(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__every, SEXP c_arg__closed) {
+    SEXP res = savvy_time_range__ffi(c_arg__start, c_arg__end, c_arg__every, c_arg__closed);
+    return handle_result(res);
+}
+
+SEXP savvy_time_ranges__impl(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__every, SEXP c_arg__closed) {
+    SEXP res = savvy_time_ranges__ffi(c_arg__start, c_arg__end, c_arg__every, c_arg__closed);
+    return handle_result(res);
+}
+
 SEXP savvy_when__impl(SEXP c_arg__condition) {
     SEXP res = savvy_when__ffi(c_arg__condition);
     return handle_result(res);
@@ -259,6 +299,11 @@ SEXP savvy_PlRDataType_print__impl(SEXP self__) {
     return handle_result(res);
 }
 
+SEXP savvy_PlRDataType__get_dtype_names__impl(SEXP self__) {
+    SEXP res = savvy_PlRDataType__get_dtype_names__ffi(self__);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRDataType__get_datatype_fields__impl(SEXP self__) {
     SEXP res = savvy_PlRDataType__get_datatype_fields__ffi(self__);
     return handle_result(res);
@@ -274,113 +319,103 @@ SEXP savvy_PlRDataType_ne__impl(SEXP self__, SEXP c_arg__other) {
     return handle_result(res);
 }
 
-SEXP savvy_PlRDataType_is_array__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_array__ffi(self__);
+SEXP savvy_PlRExpr_arr_max__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_arr_max__ffi(self__);
     return handle_result(res);
 }
 
-SEXP savvy_PlRDataType_is_binary__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_binary__ffi(self__);
+SEXP savvy_PlRExpr_arr_min__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_arr_min__ffi(self__);
     return handle_result(res);
 }
 
-SEXP savvy_PlRDataType_is_bool__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_bool__ffi(self__);
+SEXP savvy_PlRExpr_arr_sum__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_arr_sum__ffi(self__);
     return handle_result(res);
 }
 
-SEXP savvy_PlRDataType_is_categorical__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_categorical__ffi(self__);
+SEXP savvy_PlRExpr_arr_std__impl(SEXP self__, SEXP c_arg__ddof) {
+    SEXP res = savvy_PlRExpr_arr_std__ffi(self__, c_arg__ddof);
     return handle_result(res);
 }
 
-SEXP savvy_PlRDataType_is_date__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_date__ffi(self__);
+SEXP savvy_PlRExpr_arr_var__impl(SEXP self__, SEXP c_arg__ddof) {
+    SEXP res = savvy_PlRExpr_arr_var__ffi(self__, c_arg__ddof);
     return handle_result(res);
 }
 
-SEXP savvy_PlRDataType_is_enum__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_enum__ffi(self__);
+SEXP savvy_PlRExpr_arr_median__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_arr_median__ffi(self__);
     return handle_result(res);
 }
 
-SEXP savvy_PlRDataType_is_float__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_float__ffi(self__);
+SEXP savvy_PlRExpr_arr_unique__impl(SEXP self__, SEXP c_arg__maintain_order) {
+    SEXP res = savvy_PlRExpr_arr_unique__ffi(self__, c_arg__maintain_order);
     return handle_result(res);
 }
 
-SEXP savvy_PlRDataType_is_integer__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_integer__ffi(self__);
+SEXP savvy_PlRExpr_arr_to_list__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_arr_to_list__ffi(self__);
     return handle_result(res);
 }
 
-SEXP savvy_PlRDataType_is_known__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_known__ffi(self__);
+SEXP savvy_PlRExpr_arr_all__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_arr_all__ffi(self__);
     return handle_result(res);
 }
 
-SEXP savvy_PlRDataType_is_list__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_list__ffi(self__);
+SEXP savvy_PlRExpr_arr_any__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_arr_any__ffi(self__);
     return handle_result(res);
 }
 
-SEXP savvy_PlRDataType_is_logical__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_logical__ffi(self__);
+SEXP savvy_PlRExpr_arr_sort__impl(SEXP self__, SEXP c_arg__descending, SEXP c_arg__nulls_last) {
+    SEXP res = savvy_PlRExpr_arr_sort__ffi(self__, c_arg__descending, c_arg__nulls_last);
     return handle_result(res);
 }
 
-SEXP savvy_PlRDataType_is_nested__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_nested__ffi(self__);
+SEXP savvy_PlRExpr_arr_reverse__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_arr_reverse__ffi(self__);
     return handle_result(res);
 }
 
-SEXP savvy_PlRDataType_is_nested_null__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_nested_null__ffi(self__);
+SEXP savvy_PlRExpr_arr_arg_min__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_arr_arg_min__ffi(self__);
     return handle_result(res);
 }
 
-SEXP savvy_PlRDataType_is_null__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_null__ffi(self__);
+SEXP savvy_PlRExpr_arr_arg_max__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_arr_arg_max__ffi(self__);
     return handle_result(res);
 }
 
-SEXP savvy_PlRDataType_is_numeric__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_numeric__ffi(self__);
+SEXP savvy_PlRExpr_arr_get__impl(SEXP self__, SEXP c_arg__index, SEXP c_arg__null_on_oob) {
+    SEXP res = savvy_PlRExpr_arr_get__ffi(self__, c_arg__index, c_arg__null_on_oob);
     return handle_result(res);
 }
 
-SEXP savvy_PlRDataType_is_ord__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_ord__ffi(self__);
+SEXP savvy_PlRExpr_arr_join__impl(SEXP self__, SEXP c_arg__separator, SEXP c_arg__ignore_nulls) {
+    SEXP res = savvy_PlRExpr_arr_join__ffi(self__, c_arg__separator, c_arg__ignore_nulls);
     return handle_result(res);
 }
 
-SEXP savvy_PlRDataType_is_primitive__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_primitive__ffi(self__);
+SEXP savvy_PlRExpr_arr_contains__impl(SEXP self__, SEXP c_arg__other) {
+    SEXP res = savvy_PlRExpr_arr_contains__ffi(self__, c_arg__other);
     return handle_result(res);
 }
 
-SEXP savvy_PlRDataType_is_signed_integer__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_signed_integer__ffi(self__);
+SEXP savvy_PlRExpr_arr_count_matches__impl(SEXP self__, SEXP c_arg__expr) {
+    SEXP res = savvy_PlRExpr_arr_count_matches__ffi(self__, c_arg__expr);
     return handle_result(res);
 }
 
-SEXP savvy_PlRDataType_is_string__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_string__ffi(self__);
+SEXP savvy_PlRExpr_arr_shift__impl(SEXP self__, SEXP c_arg__n) {
+    SEXP res = savvy_PlRExpr_arr_shift__ffi(self__, c_arg__n);
     return handle_result(res);
 }
 
-SEXP savvy_PlRDataType_is_struct__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_struct__ffi(self__);
-    return handle_result(res);
-}
-
-SEXP savvy_PlRDataType_is_temporal__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_temporal__ffi(self__);
-    return handle_result(res);
-}
-
-SEXP savvy_PlRDataType_is_unsigned_integer__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_is_unsigned_integer__ffi(self__);
+SEXP savvy_PlRExpr_arr_n_unique__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_arr_n_unique__ffi(self__);
     return handle_result(res);
 }
 
@@ -441,6 +476,201 @@ SEXP savvy_PlRExpr_dt_convert_time_zone__impl(SEXP self__, SEXP c_arg__time_zone
 
 SEXP savvy_PlRExpr_dt_replace_time_zone__impl(SEXP self__, SEXP c_arg__ambiguous, SEXP c_arg__non_existent, SEXP c_arg__time_zone) {
     SEXP res = savvy_PlRExpr_dt_replace_time_zone__ffi(self__, c_arg__ambiguous, c_arg__non_existent, c_arg__time_zone);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_truncate__impl(SEXP self__, SEXP c_arg__every) {
+    SEXP res = savvy_PlRExpr_dt_truncate__ffi(self__, c_arg__every);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_round__impl(SEXP self__, SEXP c_arg__every) {
+    SEXP res = savvy_PlRExpr_dt_round__ffi(self__, c_arg__every);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_time__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_time__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_date__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_date__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_combine__impl(SEXP self__, SEXP c_arg__time, SEXP c_arg__time_unit) {
+    SEXP res = savvy_PlRExpr_dt_combine__ffi(self__, c_arg__time, c_arg__time_unit);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_to_string__impl(SEXP self__, SEXP c_arg__format) {
+    SEXP res = savvy_PlRExpr_dt_to_string__ffi(self__, c_arg__format);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_year__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_year__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_iso_year__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_iso_year__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_quarter__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_quarter__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_month__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_month__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_week__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_week__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_weekday__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_weekday__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_day__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_day__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_ordinal_day__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_ordinal_day__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_hour__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_hour__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_minute__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_minute__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_second__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_second__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_millisecond__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_millisecond__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_microsecond__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_microsecond__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_nanosecond__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_nanosecond__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_timestamp__impl(SEXP self__, SEXP c_arg__time_unit) {
+    SEXP res = savvy_PlRExpr_dt_timestamp__ffi(self__, c_arg__time_unit);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_epoch_seconds__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_epoch_seconds__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_with_time_unit__impl(SEXP self__, SEXP c_arg__time_unit) {
+    SEXP res = savvy_PlRExpr_dt_with_time_unit__ffi(self__, c_arg__time_unit);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_cast_time_unit__impl(SEXP self__, SEXP c_arg__time_unit) {
+    SEXP res = savvy_PlRExpr_dt_cast_time_unit__ffi(self__, c_arg__time_unit);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_total_days__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_total_days__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_total_hours__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_total_hours__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_total_minutes__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_total_minutes__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_total_seconds__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_total_seconds__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_total_milliseconds__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_total_milliseconds__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_total_microseconds__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_total_microseconds__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_total_nanoseconds__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_total_nanoseconds__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_offset_by__impl(SEXP self__, SEXP c_arg__by) {
+    SEXP res = savvy_PlRExpr_dt_offset_by__ffi(self__, c_arg__by);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_is_leap_year__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_is_leap_year__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_dst_offset__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_dst_offset__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_base_utc_offset__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_base_utc_offset__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_month_start__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_month_start__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_month_end__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_month_end__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_century__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_dt_century__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_dt_add_business_days__impl(SEXP self__, SEXP c_arg__n, SEXP c_arg__week_mask, SEXP c_arg__holidays, SEXP c_arg__roll) {
+    SEXP res = savvy_PlRExpr_dt_add_business_days__ffi(self__, c_arg__n, c_arg__week_mask, c_arg__holidays, c_arg__roll);
     return handle_result(res);
 }
 
@@ -1084,6 +1314,21 @@ SEXP savvy_PlRExpr_str_count_matches__impl(SEXP self__, SEXP c_arg__pat, SEXP c_
     return handle_result(res);
 }
 
+SEXP savvy_PlRExpr_str_to_date__impl(SEXP self__, SEXP c_arg__strict, SEXP c_arg__exact, SEXP c_arg__cache, SEXP c_arg__format) {
+    SEXP res = savvy_PlRExpr_str_to_date__ffi(self__, c_arg__strict, c_arg__exact, c_arg__cache, c_arg__format);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_str_to_datetime__impl(SEXP self__, SEXP c_arg__strict, SEXP c_arg__exact, SEXP c_arg__cache, SEXP c_arg__ambiguous, SEXP c_arg__format, SEXP c_arg__time_unit, SEXP c_arg__time_zone) {
+    SEXP res = savvy_PlRExpr_str_to_datetime__ffi(self__, c_arg__strict, c_arg__exact, c_arg__cache, c_arg__ambiguous, c_arg__format, c_arg__time_unit, c_arg__time_zone);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_str_to_time__impl(SEXP self__, SEXP c_arg__strict, SEXP c_arg__cache, SEXP c_arg__format) {
+    SEXP res = savvy_PlRExpr_str_to_time__ffi(self__, c_arg__strict, c_arg__cache, c_arg__format);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRExpr_str_split__impl(SEXP self__, SEXP c_arg__by, SEXP c_arg__inclusive) {
     SEXP res = savvy_PlRExpr_str_split__ffi(self__, c_arg__by, c_arg__inclusive);
     return handle_result(res);
@@ -1460,6 +1705,14 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_lit_null__impl", (DL_FUNC) &savvy_lit_null__impl, 0},
     {"savvy_lit_from_series__impl", (DL_FUNC) &savvy_lit_from_series__impl, 1},
     {"savvy_lit_from_series_first__impl", (DL_FUNC) &savvy_lit_from_series_first__impl, 1},
+    {"savvy_int_range__impl", (DL_FUNC) &savvy_int_range__impl, 4},
+    {"savvy_int_ranges__impl", (DL_FUNC) &savvy_int_ranges__impl, 4},
+    {"savvy_date_range__impl", (DL_FUNC) &savvy_date_range__impl, 4},
+    {"savvy_date_ranges__impl", (DL_FUNC) &savvy_date_ranges__impl, 4},
+    {"savvy_datetime_range__impl", (DL_FUNC) &savvy_datetime_range__impl, 6},
+    {"savvy_datetime_ranges__impl", (DL_FUNC) &savvy_datetime_ranges__impl, 6},
+    {"savvy_time_range__impl", (DL_FUNC) &savvy_time_range__impl, 4},
+    {"savvy_time_ranges__impl", (DL_FUNC) &savvy_time_ranges__impl, 4},
     {"savvy_when__impl", (DL_FUNC) &savvy_when__impl, 1},
     {"savvy_PlRChainedThen_when__impl", (DL_FUNC) &savvy_PlRChainedThen_when__impl, 2},
     {"savvy_PlRChainedThen_otherwise__impl", (DL_FUNC) &savvy_PlRChainedThen_otherwise__impl, 2},
@@ -1491,31 +1744,30 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRDataType_new_array__impl", (DL_FUNC) &savvy_PlRDataType_new_array__impl, 2},
     {"savvy_PlRDataType_new_struct__impl", (DL_FUNC) &savvy_PlRDataType_new_struct__impl, 1},
     {"savvy_PlRDataType_print__impl", (DL_FUNC) &savvy_PlRDataType_print__impl, 1},
+    {"savvy_PlRDataType__get_dtype_names__impl", (DL_FUNC) &savvy_PlRDataType__get_dtype_names__impl, 1},
     {"savvy_PlRDataType__get_datatype_fields__impl", (DL_FUNC) &savvy_PlRDataType__get_datatype_fields__impl, 1},
     {"savvy_PlRDataType_eq__impl", (DL_FUNC) &savvy_PlRDataType_eq__impl, 2},
     {"savvy_PlRDataType_ne__impl", (DL_FUNC) &savvy_PlRDataType_ne__impl, 2},
-    {"savvy_PlRDataType_is_array__impl", (DL_FUNC) &savvy_PlRDataType_is_array__impl, 1},
-    {"savvy_PlRDataType_is_binary__impl", (DL_FUNC) &savvy_PlRDataType_is_binary__impl, 1},
-    {"savvy_PlRDataType_is_bool__impl", (DL_FUNC) &savvy_PlRDataType_is_bool__impl, 1},
-    {"savvy_PlRDataType_is_categorical__impl", (DL_FUNC) &savvy_PlRDataType_is_categorical__impl, 1},
-    {"savvy_PlRDataType_is_date__impl", (DL_FUNC) &savvy_PlRDataType_is_date__impl, 1},
-    {"savvy_PlRDataType_is_enum__impl", (DL_FUNC) &savvy_PlRDataType_is_enum__impl, 1},
-    {"savvy_PlRDataType_is_float__impl", (DL_FUNC) &savvy_PlRDataType_is_float__impl, 1},
-    {"savvy_PlRDataType_is_integer__impl", (DL_FUNC) &savvy_PlRDataType_is_integer__impl, 1},
-    {"savvy_PlRDataType_is_known__impl", (DL_FUNC) &savvy_PlRDataType_is_known__impl, 1},
-    {"savvy_PlRDataType_is_list__impl", (DL_FUNC) &savvy_PlRDataType_is_list__impl, 1},
-    {"savvy_PlRDataType_is_logical__impl", (DL_FUNC) &savvy_PlRDataType_is_logical__impl, 1},
-    {"savvy_PlRDataType_is_nested__impl", (DL_FUNC) &savvy_PlRDataType_is_nested__impl, 1},
-    {"savvy_PlRDataType_is_nested_null__impl", (DL_FUNC) &savvy_PlRDataType_is_nested_null__impl, 1},
-    {"savvy_PlRDataType_is_null__impl", (DL_FUNC) &savvy_PlRDataType_is_null__impl, 1},
-    {"savvy_PlRDataType_is_numeric__impl", (DL_FUNC) &savvy_PlRDataType_is_numeric__impl, 1},
-    {"savvy_PlRDataType_is_ord__impl", (DL_FUNC) &savvy_PlRDataType_is_ord__impl, 1},
-    {"savvy_PlRDataType_is_primitive__impl", (DL_FUNC) &savvy_PlRDataType_is_primitive__impl, 1},
-    {"savvy_PlRDataType_is_signed_integer__impl", (DL_FUNC) &savvy_PlRDataType_is_signed_integer__impl, 1},
-    {"savvy_PlRDataType_is_string__impl", (DL_FUNC) &savvy_PlRDataType_is_string__impl, 1},
-    {"savvy_PlRDataType_is_struct__impl", (DL_FUNC) &savvy_PlRDataType_is_struct__impl, 1},
-    {"savvy_PlRDataType_is_temporal__impl", (DL_FUNC) &savvy_PlRDataType_is_temporal__impl, 1},
-    {"savvy_PlRDataType_is_unsigned_integer__impl", (DL_FUNC) &savvy_PlRDataType_is_unsigned_integer__impl, 1},
+    {"savvy_PlRExpr_arr_max__impl", (DL_FUNC) &savvy_PlRExpr_arr_max__impl, 1},
+    {"savvy_PlRExpr_arr_min__impl", (DL_FUNC) &savvy_PlRExpr_arr_min__impl, 1},
+    {"savvy_PlRExpr_arr_sum__impl", (DL_FUNC) &savvy_PlRExpr_arr_sum__impl, 1},
+    {"savvy_PlRExpr_arr_std__impl", (DL_FUNC) &savvy_PlRExpr_arr_std__impl, 2},
+    {"savvy_PlRExpr_arr_var__impl", (DL_FUNC) &savvy_PlRExpr_arr_var__impl, 2},
+    {"savvy_PlRExpr_arr_median__impl", (DL_FUNC) &savvy_PlRExpr_arr_median__impl, 1},
+    {"savvy_PlRExpr_arr_unique__impl", (DL_FUNC) &savvy_PlRExpr_arr_unique__impl, 2},
+    {"savvy_PlRExpr_arr_to_list__impl", (DL_FUNC) &savvy_PlRExpr_arr_to_list__impl, 1},
+    {"savvy_PlRExpr_arr_all__impl", (DL_FUNC) &savvy_PlRExpr_arr_all__impl, 1},
+    {"savvy_PlRExpr_arr_any__impl", (DL_FUNC) &savvy_PlRExpr_arr_any__impl, 1},
+    {"savvy_PlRExpr_arr_sort__impl", (DL_FUNC) &savvy_PlRExpr_arr_sort__impl, 3},
+    {"savvy_PlRExpr_arr_reverse__impl", (DL_FUNC) &savvy_PlRExpr_arr_reverse__impl, 1},
+    {"savvy_PlRExpr_arr_arg_min__impl", (DL_FUNC) &savvy_PlRExpr_arr_arg_min__impl, 1},
+    {"savvy_PlRExpr_arr_arg_max__impl", (DL_FUNC) &savvy_PlRExpr_arr_arg_max__impl, 1},
+    {"savvy_PlRExpr_arr_get__impl", (DL_FUNC) &savvy_PlRExpr_arr_get__impl, 3},
+    {"savvy_PlRExpr_arr_join__impl", (DL_FUNC) &savvy_PlRExpr_arr_join__impl, 3},
+    {"savvy_PlRExpr_arr_contains__impl", (DL_FUNC) &savvy_PlRExpr_arr_contains__impl, 2},
+    {"savvy_PlRExpr_arr_count_matches__impl", (DL_FUNC) &savvy_PlRExpr_arr_count_matches__impl, 2},
+    {"savvy_PlRExpr_arr_shift__impl", (DL_FUNC) &savvy_PlRExpr_arr_shift__impl, 2},
+    {"savvy_PlRExpr_arr_n_unique__impl", (DL_FUNC) &savvy_PlRExpr_arr_n_unique__impl, 1},
     {"savvy_PlRExpr_bin_contains__impl", (DL_FUNC) &savvy_PlRExpr_bin_contains__impl, 2},
     {"savvy_PlRExpr_bin_ends_with__impl", (DL_FUNC) &savvy_PlRExpr_bin_ends_with__impl, 2},
     {"savvy_PlRExpr_bin_starts_with__impl", (DL_FUNC) &savvy_PlRExpr_bin_starts_with__impl, 2},
@@ -1528,6 +1780,45 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_cat_set_ordering__impl", (DL_FUNC) &savvy_PlRExpr_cat_set_ordering__impl, 2},
     {"savvy_PlRExpr_dt_convert_time_zone__impl", (DL_FUNC) &savvy_PlRExpr_dt_convert_time_zone__impl, 2},
     {"savvy_PlRExpr_dt_replace_time_zone__impl", (DL_FUNC) &savvy_PlRExpr_dt_replace_time_zone__impl, 4},
+    {"savvy_PlRExpr_dt_truncate__impl", (DL_FUNC) &savvy_PlRExpr_dt_truncate__impl, 2},
+    {"savvy_PlRExpr_dt_round__impl", (DL_FUNC) &savvy_PlRExpr_dt_round__impl, 2},
+    {"savvy_PlRExpr_dt_time__impl", (DL_FUNC) &savvy_PlRExpr_dt_time__impl, 1},
+    {"savvy_PlRExpr_dt_date__impl", (DL_FUNC) &savvy_PlRExpr_dt_date__impl, 1},
+    {"savvy_PlRExpr_dt_combine__impl", (DL_FUNC) &savvy_PlRExpr_dt_combine__impl, 3},
+    {"savvy_PlRExpr_dt_to_string__impl", (DL_FUNC) &savvy_PlRExpr_dt_to_string__impl, 2},
+    {"savvy_PlRExpr_dt_year__impl", (DL_FUNC) &savvy_PlRExpr_dt_year__impl, 1},
+    {"savvy_PlRExpr_dt_iso_year__impl", (DL_FUNC) &savvy_PlRExpr_dt_iso_year__impl, 1},
+    {"savvy_PlRExpr_dt_quarter__impl", (DL_FUNC) &savvy_PlRExpr_dt_quarter__impl, 1},
+    {"savvy_PlRExpr_dt_month__impl", (DL_FUNC) &savvy_PlRExpr_dt_month__impl, 1},
+    {"savvy_PlRExpr_dt_week__impl", (DL_FUNC) &savvy_PlRExpr_dt_week__impl, 1},
+    {"savvy_PlRExpr_dt_weekday__impl", (DL_FUNC) &savvy_PlRExpr_dt_weekday__impl, 1},
+    {"savvy_PlRExpr_dt_day__impl", (DL_FUNC) &savvy_PlRExpr_dt_day__impl, 1},
+    {"savvy_PlRExpr_dt_ordinal_day__impl", (DL_FUNC) &savvy_PlRExpr_dt_ordinal_day__impl, 1},
+    {"savvy_PlRExpr_dt_hour__impl", (DL_FUNC) &savvy_PlRExpr_dt_hour__impl, 1},
+    {"savvy_PlRExpr_dt_minute__impl", (DL_FUNC) &savvy_PlRExpr_dt_minute__impl, 1},
+    {"savvy_PlRExpr_dt_second__impl", (DL_FUNC) &savvy_PlRExpr_dt_second__impl, 1},
+    {"savvy_PlRExpr_dt_millisecond__impl", (DL_FUNC) &savvy_PlRExpr_dt_millisecond__impl, 1},
+    {"savvy_PlRExpr_dt_microsecond__impl", (DL_FUNC) &savvy_PlRExpr_dt_microsecond__impl, 1},
+    {"savvy_PlRExpr_dt_nanosecond__impl", (DL_FUNC) &savvy_PlRExpr_dt_nanosecond__impl, 1},
+    {"savvy_PlRExpr_dt_timestamp__impl", (DL_FUNC) &savvy_PlRExpr_dt_timestamp__impl, 2},
+    {"savvy_PlRExpr_dt_epoch_seconds__impl", (DL_FUNC) &savvy_PlRExpr_dt_epoch_seconds__impl, 1},
+    {"savvy_PlRExpr_dt_with_time_unit__impl", (DL_FUNC) &savvy_PlRExpr_dt_with_time_unit__impl, 2},
+    {"savvy_PlRExpr_dt_cast_time_unit__impl", (DL_FUNC) &savvy_PlRExpr_dt_cast_time_unit__impl, 2},
+    {"savvy_PlRExpr_dt_total_days__impl", (DL_FUNC) &savvy_PlRExpr_dt_total_days__impl, 1},
+    {"savvy_PlRExpr_dt_total_hours__impl", (DL_FUNC) &savvy_PlRExpr_dt_total_hours__impl, 1},
+    {"savvy_PlRExpr_dt_total_minutes__impl", (DL_FUNC) &savvy_PlRExpr_dt_total_minutes__impl, 1},
+    {"savvy_PlRExpr_dt_total_seconds__impl", (DL_FUNC) &savvy_PlRExpr_dt_total_seconds__impl, 1},
+    {"savvy_PlRExpr_dt_total_milliseconds__impl", (DL_FUNC) &savvy_PlRExpr_dt_total_milliseconds__impl, 1},
+    {"savvy_PlRExpr_dt_total_microseconds__impl", (DL_FUNC) &savvy_PlRExpr_dt_total_microseconds__impl, 1},
+    {"savvy_PlRExpr_dt_total_nanoseconds__impl", (DL_FUNC) &savvy_PlRExpr_dt_total_nanoseconds__impl, 1},
+    {"savvy_PlRExpr_dt_offset_by__impl", (DL_FUNC) &savvy_PlRExpr_dt_offset_by__impl, 2},
+    {"savvy_PlRExpr_dt_is_leap_year__impl", (DL_FUNC) &savvy_PlRExpr_dt_is_leap_year__impl, 1},
+    {"savvy_PlRExpr_dt_dst_offset__impl", (DL_FUNC) &savvy_PlRExpr_dt_dst_offset__impl, 1},
+    {"savvy_PlRExpr_dt_base_utc_offset__impl", (DL_FUNC) &savvy_PlRExpr_dt_base_utc_offset__impl, 1},
+    {"savvy_PlRExpr_dt_month_start__impl", (DL_FUNC) &savvy_PlRExpr_dt_month_start__impl, 1},
+    {"savvy_PlRExpr_dt_month_end__impl", (DL_FUNC) &savvy_PlRExpr_dt_month_end__impl, 1},
+    {"savvy_PlRExpr_dt_century__impl", (DL_FUNC) &savvy_PlRExpr_dt_century__impl, 1},
+    {"savvy_PlRExpr_dt_add_business_days__impl", (DL_FUNC) &savvy_PlRExpr_dt_add_business_days__impl, 5},
     {"savvy_PlRExpr_print__impl", (DL_FUNC) &savvy_PlRExpr_print__impl, 1},
     {"savvy_PlRExpr_add__impl", (DL_FUNC) &savvy_PlRExpr_add__impl, 2},
     {"savvy_PlRExpr_sub__impl", (DL_FUNC) &savvy_PlRExpr_sub__impl, 2},
@@ -1656,6 +1947,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_str_extract_all__impl", (DL_FUNC) &savvy_PlRExpr_str_extract_all__impl, 2},
     {"savvy_PlRExpr_str_extract_groups__impl", (DL_FUNC) &savvy_PlRExpr_str_extract_groups__impl, 2},
     {"savvy_PlRExpr_str_count_matches__impl", (DL_FUNC) &savvy_PlRExpr_str_count_matches__impl, 3},
+    {"savvy_PlRExpr_str_to_date__impl", (DL_FUNC) &savvy_PlRExpr_str_to_date__impl, 5},
+    {"savvy_PlRExpr_str_to_datetime__impl", (DL_FUNC) &savvy_PlRExpr_str_to_datetime__impl, 8},
+    {"savvy_PlRExpr_str_to_time__impl", (DL_FUNC) &savvy_PlRExpr_str_to_time__impl, 4},
     {"savvy_PlRExpr_str_split__impl", (DL_FUNC) &savvy_PlRExpr_str_split__impl, 3},
     {"savvy_PlRExpr_str_split_exact__impl", (DL_FUNC) &savvy_PlRExpr_str_split_exact__impl, 4},
     {"savvy_PlRExpr_str_splitn__impl", (DL_FUNC) &savvy_PlRExpr_str_splitn__impl, 3},
