@@ -1315,8 +1315,6 @@ expr__cum_max <- function(reverse = FALSE) {
 #' @param reverse If `TRUE`, reverse the count.
 #' @inherit as_polars_expr return
 #'
-#' `$cum_count()` does not seem to count within lists.
-#'
 #' @examples
 #' pl$DataFrame(a = 1:4)$with_columns(
 #'   cum_count = pl$col("a")$cum_count(),
@@ -1830,5 +1828,106 @@ expr__cbrt <- function() {
 #'   with_columns(degrees = pl$col("a")$degrees())
 expr__degrees <- function() {
   self$`_rexpr`$degrees() |>
+    wrap()
+}
+
+#' Compute entropy
+#'
+#' Uses the formula `-sum(pk * log(pk)` where `pk` are discrete probabilities.
+#'
+#' @param base Numeric value used as base, defaults to `exp(1)`.
+#' @inheritParams rlang::check_dots_empty0
+#' @param normalize Normalize `pk` if it doesn’t sum to 1.
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = 1:3)
+#' df$select(pl$col("a")$entropy(base = 2))
+#' df$select(pl$col("a")$entropy(base = 2, normalize = FALSE))
+expr__entropy <- function(base = exp(1), ..., normalize = TRUE) {
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$entropy(base, normalize)
+  })
+}
+
+#' Compute the exponential
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' pl$DataFrame(a = c(1, 2, 4))$
+#'   with_columns(exp = pl$col("a")$exp())
+expr__exp <- function() {
+  self$`_rexpr`$exp() |>
+    wrap()
+}
+
+#' Compute the logarithm
+#'
+#' @inheritParams expr__entropy
+#' @inherit as_polars_expr return
+#' @examples
+#' pl$DataFrame(a = c(1, 2, 4))$
+#'   with_columns(
+#'   log = pl$col("a")$log(),
+#'   log_base_2 = pl$col("a")$log(base = 2)
+#' )
+expr__log <- function(base = exp(1)) {
+  self$`_rexpr`$log(base) |>
+    wrap()
+}
+
+#' Compute the base-10 logarithm
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' pl$DataFrame(a = c(1, 2, 4))$
+#'   with_columns(log10 = pl$col("a")$log10())
+expr__log10 <- function() {
+  self$log(10)
+}
+
+#' Compute the natural logarithm plus one
+#'
+#' This computes `log(1 + x)` but is more numerically stable for `x` close to
+#' zero.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' pl$DataFrame(a = c(1, 2, 4))$
+#'   with_columns(log1p = pl$col("a")$log1p())
+expr__log1p <- function() {
+  self$`_rexpr`$log1p() |>
+    wrap()
+}
+
+#' Hash elements
+#'
+#' @param seed Integer, random seed parameter. Defaults to 0.
+#' @param seed_1,seed_2,seed_3 Integer, random seed parameters. Default to
+#' `seed` if not set.
+#' @inherit as_polars_expr return
+#'
+#' @details
+#' This implementation of hash does not guarantee stable results across
+#' different Polars versions. Its stability is only guaranteed within a single
+#' version.
+#'
+#' @examples
+#' df <- pl$DataFrame(a = c(1, 2, NA), b = c("x", NA, "z"))
+#' df$with_columns(pl$all()$hash(10, 20, 30, 40))
+expr__hash <- function(seed = 0, seed_1 = NULL, seed_2 = NULL, seed_3 = NULL) {
+  self$`_rexpr`$hash(seed, seed_1, seed_2, seed_3) |>
+    wrap()
+}
+
+#' Compute the most occurring value(s)
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c(1, 1, 2, 3), b = c(1, 1, 2, 2))
+#' df$select(pl$col("a")$mode())
+#' df$select(pl$col("b")$mode())
+expr__mode <- function() {
+  self$`_rexpr`$mode() |>
     wrap()
 }

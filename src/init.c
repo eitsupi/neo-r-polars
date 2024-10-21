@@ -1169,6 +1169,36 @@ SEXP savvy_PlRExpr_cumulative_eval__impl(SEXP self__, SEXP c_arg__expr, SEXP c_a
     return handle_result(res);
 }
 
+SEXP savvy_PlRExpr_log__impl(SEXP self__, SEXP c_arg__base) {
+    SEXP res = savvy_PlRExpr_log__ffi(self__, c_arg__base);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_log1p__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_log1p__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_exp__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_exp__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_mode__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_mode__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_entropy__impl(SEXP self__, SEXP c_arg__base, SEXP c_arg__normalize) {
+    SEXP res = savvy_PlRExpr_entropy__ffi(self__, c_arg__base, c_arg__normalize);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_hash__impl(SEXP self__, SEXP c_arg__seed, SEXP c_arg__seed_1, SEXP c_arg__seed_2, SEXP c_arg__seed_3) {
+    SEXP res = savvy_PlRExpr_hash__ffi(self__, c_arg__seed, c_arg__seed_1, c_arg__seed_2, c_arg__seed_3);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRExpr_list_len__impl(SEXP self__) {
     SEXP res = savvy_PlRExpr_list_len__ffi(self__);
     return handle_result(res);
@@ -2133,6 +2163,12 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_cbrt__impl", (DL_FUNC) &savvy_PlRExpr_cbrt__impl, 1},
     {"savvy_PlRExpr_dot__impl", (DL_FUNC) &savvy_PlRExpr_dot__impl, 2},
     {"savvy_PlRExpr_cumulative_eval__impl", (DL_FUNC) &savvy_PlRExpr_cumulative_eval__impl, 4},
+    {"savvy_PlRExpr_log__impl", (DL_FUNC) &savvy_PlRExpr_log__impl, 2},
+    {"savvy_PlRExpr_log1p__impl", (DL_FUNC) &savvy_PlRExpr_log1p__impl, 1},
+    {"savvy_PlRExpr_exp__impl", (DL_FUNC) &savvy_PlRExpr_exp__impl, 1},
+    {"savvy_PlRExpr_mode__impl", (DL_FUNC) &savvy_PlRExpr_mode__impl, 1},
+    {"savvy_PlRExpr_entropy__impl", (DL_FUNC) &savvy_PlRExpr_entropy__impl, 3},
+    {"savvy_PlRExpr_hash__impl", (DL_FUNC) &savvy_PlRExpr_hash__impl, 5},
     {"savvy_PlRExpr_list_len__impl", (DL_FUNC) &savvy_PlRExpr_list_len__impl, 1},
     {"savvy_PlRExpr_list_contains__impl", (DL_FUNC) &savvy_PlRExpr_list_contains__impl, 2},
     {"savvy_PlRExpr_list_max__impl", (DL_FUNC) &savvy_PlRExpr_list_max__impl, 1},

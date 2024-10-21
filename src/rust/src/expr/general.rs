@@ -524,4 +524,38 @@ impl PlRExpr {
             .cumulative_eval(expr.inner.clone(), min_periods, parallel)
             .into())
     }
+
+    fn log(&self, base: f64) -> Result<Self> {
+        Ok(self.inner.clone().log(base).into())
+    }
+
+    fn log1p(&self) -> Result<Self> {
+        Ok(self.inner.clone().log1p().into())
+    }
+
+    fn exp(&self) -> Result<Self> {
+        Ok(self.inner.clone().exp().into())
+    }
+
+    fn mode(&self) -> Result<Self> {
+        Ok(self.inner.clone().mode().into())
+    }
+
+    fn entropy(&self, base: f64, normalize: bool) -> Result<Self> {
+        Ok(self.inner.clone().entropy(base, normalize).into())
+    }
+
+    fn hash(
+        &self,
+        seed: NumericScalar,
+        seed_1: NumericScalar,
+        seed_2: NumericScalar,
+        seed_3: NumericScalar,
+    ) -> Result<Self> {
+        let seed = <Wrap<u64>>::try_from(seed)?.0;
+        let seed_1 = <Wrap<u64>>::try_from(seed_1)?.0;
+        let seed_2 = <Wrap<u64>>::try_from(seed_2)?.0;
+        let seed_3 = <Wrap<u64>>::try_from(seed_3)?.0;
+        Ok(self.inner.clone().hash(seed, seed_1, seed_2, seed_3).into())
+    }
 }
