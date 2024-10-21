@@ -108,10 +108,6 @@ expr_str_strptime <- function(
     check_polars_dtype(dtype)
     dtype_class <- class(dtype)
     if ("polars_dtype_datetime" %in% dtype_class) {
-      # TODO-REWRITE: why is this needed?
-      if (dtype$time_unit == "μs") {
-        dtype$time_unit <- "us"
-      }
       self$`_rexpr`$str_to_datetime(
         format = format, time_unit = dtype$time_unit, time_zone = dtype$time_zone,
         strict = strict, exact = exact, cache = cache,
