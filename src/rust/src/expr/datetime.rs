@@ -203,7 +203,7 @@ impl PlRExpr {
         let week_mask: [bool; 7] = week_mask
             .to_vec()
             .try_into()
-            .unwrap_or_else(|_| !unreachable!());
+            .unwrap_or_else(|_| unreachable!());
         let holidays = holidays.to_vec();
         let roll = <Wrap<Roll>>::try_from(roll)?.0;
         Ok(self

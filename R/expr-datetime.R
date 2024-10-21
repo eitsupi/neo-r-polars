@@ -1071,7 +1071,7 @@ expr_dt_add_business_days <- function(
     if (length(n) == 1 && is.numeric(n) && as.integer(n) == n) {
       n <- as.integer(n)
     }
-    if (!is.logical(week_mask) || anyNA(week_mask) || length(week_mask) != 7) {
+    if (!is.logical(week_mask, n = 7L) || anyNA(week_mask)) {
       abort("`week_mask` must be a vector with 7 logical values, without any NA.")
     }
     if (!is.null(holidays)) {
