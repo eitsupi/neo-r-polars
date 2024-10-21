@@ -2,19 +2,31 @@
 % Please edit documentation in R/expr-expr.R
 \name{expr__alias}
 \alias{expr__alias}
-\title{Rename Expr output}
+\title{Rename the expression}
 \usage{
 expr__alias(name)
 }
 \arguments{
-\item{name}{New name of output}
+\item{name}{The new name.}
 }
 \value{
 A polars \link{expression}
 }
 \description{
-Rename the output of an expression.
+Rename the expression
 }
 \examples{
-pl$col("bob")$alias("alice")
+# Rename an expression to avoid overwriting an existing column
+df <- pl$DataFrame(a = 1:3, b = c("x", "y", "z"))
+df$with_columns(
+  pl$col("a") + 10,
+  pl$col("b")$str$to_uppercase()$alias("c")
+)
+
+# Overwrite the default name of literal columns to prevent errors due to
+# duplicate column names.
+df$with_columns(
+  pl$lit(TRUE)$alias("c"),
+  pl$lit(4)$alias("d")
+)
 }

@@ -390,19 +390,38 @@ expr__lt <- function(other) {
   })
 }
 
-#' Rename Expr output
+#' Rename the expression
 #'
-#' Rename the output of an expression.
-#'
-#' @param name New name of output
+#' @param name The new name.
 #'
 #' @inherit as_polars_expr return
 #' @examples
-#' pl$col("bob")$alias("alice")
+#' # Rename an expression to avoid overwriting an existing column
+#' df <- pl$DataFrame(a = 1:3, b = c("x", "y", "z"))
+#' df$with_columns(
+#'   pl$col("a") + 10,
+#'   pl$col("b")$str$to_uppercase()$alias("c")
+#' )
+#'
+#' # Overwrite the default name of literal columns to prevent errors due to
+#' # duplicate column names.
+#' df$with_columns(
+#'   pl$lit(TRUE)$alias("c"),
+#'   pl$lit(4)$alias("d")
+#' )
 expr__alias <- function(name) {
   self$`_rexpr`$alias(name) |>
     wrap()
 }
+
+# TODO-REWRITE: how should we handle the columns + *more_columns arguments of
+# Python?
+# #' Exclude columns from a multi-column expression.
+# expr__exclude <- function(columns, ...) {
+#   self$`_rexpr`$not() |>
+#     wrap()
+# }
+
 
 #' Negate a boolean expression
 #'
@@ -1395,7 +1414,7 @@ expr__product <- function() {
 
 #' Get quantile value(s)
 #'
-#' @param quantile
+#' @param quantile Quantile between 0.0 and 1.0.
 #' @param interpolation Interpolation method. Must be one of `"nearest"`,
 #' `"higher"`, `"lower"`, `"midpoint"`, `"linear"`.
 #'

@@ -10,6 +10,8 @@ expr__quantile(
 )
 }
 \arguments{
+\item{quantile}{Quantile between 0.0 and 1.0.}
+
 \item{interpolation}{Interpolation method. Must be one of \code{"nearest"},
 \code{"higher"}, \code{"lower"}, \code{"midpoint"}, \code{"linear"}.}
 }

@@ -6,7 +6,7 @@
 #' The name or datatype of the column(s) to represent.
 #' Unnamed objects one of the following:
 #' - character vectors
-#'   - Single wildcard `"*"` has a special meaning: check the examples.
+#' - Single wildcard `"*"` has a special meaning: check the examples.
 #' - (lists of) `polars_data_type` objects
 #' @examples
 #' # a single column by a character
