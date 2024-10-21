@@ -463,3 +463,19 @@ impl TryFrom<&str> for Wrap<Roll> {
         Ok(Wrap(parsed))
     }
 }
+
+impl TryFrom<&str> for Wrap<QuantileMethod> {
+    type Error = String;
+
+    fn try_from(roll: &str) -> Result<Self, String> {
+        let parsed = match roll {
+            "nearest" => QuantileMethod::Nearest,
+            "higher" => QuantileMethod::Higher,
+            "lower" => QuantileMethod::Lower,
+            "midpoint" => QuantileMethod::Midpoint,
+            "linear" => QuantileMethod::Linear,
+            v => return Err(format!("unreachable",)),
+        };
+        Ok(Wrap(parsed))
+    }
+}

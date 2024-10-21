@@ -924,8 +924,98 @@ SEXP savvy_PlRExpr_map_batches__impl(SEXP self__, SEXP c_arg__lambda, SEXP c_arg
     return handle_result(res);
 }
 
+SEXP savvy_PlRExpr_cum_sum__impl(SEXP self__, SEXP c_arg__reverse) {
+    SEXP res = savvy_PlRExpr_cum_sum__ffi(self__, c_arg__reverse);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_cum_prod__impl(SEXP self__, SEXP c_arg__reverse) {
+    SEXP res = savvy_PlRExpr_cum_prod__ffi(self__, c_arg__reverse);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_cum_min__impl(SEXP self__, SEXP c_arg__reverse) {
+    SEXP res = savvy_PlRExpr_cum_min__ffi(self__, c_arg__reverse);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_cum_max__impl(SEXP self__, SEXP c_arg__reverse) {
+    SEXP res = savvy_PlRExpr_cum_max__ffi(self__, c_arg__reverse);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_cum_count__impl(SEXP self__, SEXP c_arg__reverse) {
+    SEXP res = savvy_PlRExpr_cum_count__ffi(self__, c_arg__reverse);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRExpr_explode__impl(SEXP self__) {
     SEXP res = savvy_PlRExpr_explode__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_agg_groups__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_agg_groups__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_count__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_count__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_arg_max__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_arg_max__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_arg_min__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_arg_min__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_implode__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_implode__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_len__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_len__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_value_counts__impl(SEXP self__, SEXP c_arg__sort, SEXP c_arg__parallel, SEXP c_arg__name, SEXP c_arg__normalize) {
+    SEXP res = savvy_PlRExpr_value_counts__ffi(self__, c_arg__sort, c_arg__parallel, c_arg__name, c_arg__normalize);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_unique_counts__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_unique_counts__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_null_count__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_null_count__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_product__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_product__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_quantile__impl(SEXP self__, SEXP c_arg__quantile, SEXP c_arg__interpolation) {
+    SEXP res = savvy_PlRExpr_quantile__ffi(self__, c_arg__quantile, c_arg__interpolation);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_std__impl(SEXP self__, SEXP c_arg__ddof) {
+    SEXP res = savvy_PlRExpr_std__ffi(self__, c_arg__ddof);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_var__impl(SEXP self__, SEXP c_arg__ddof) {
+    SEXP res = savvy_PlRExpr_var__ffi(self__, c_arg__ddof);
     return handle_result(res);
 }
 
@@ -1844,7 +1934,25 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_any__impl", (DL_FUNC) &savvy_PlRExpr_any__impl, 2},
     {"savvy_PlRExpr_all__impl", (DL_FUNC) &savvy_PlRExpr_all__impl, 2},
     {"savvy_PlRExpr_map_batches__impl", (DL_FUNC) &savvy_PlRExpr_map_batches__impl, 4},
+    {"savvy_PlRExpr_cum_sum__impl", (DL_FUNC) &savvy_PlRExpr_cum_sum__impl, 2},
+    {"savvy_PlRExpr_cum_prod__impl", (DL_FUNC) &savvy_PlRExpr_cum_prod__impl, 2},
+    {"savvy_PlRExpr_cum_min__impl", (DL_FUNC) &savvy_PlRExpr_cum_min__impl, 2},
+    {"savvy_PlRExpr_cum_max__impl", (DL_FUNC) &savvy_PlRExpr_cum_max__impl, 2},
+    {"savvy_PlRExpr_cum_count__impl", (DL_FUNC) &savvy_PlRExpr_cum_count__impl, 2},
     {"savvy_PlRExpr_explode__impl", (DL_FUNC) &savvy_PlRExpr_explode__impl, 1},
+    {"savvy_PlRExpr_agg_groups__impl", (DL_FUNC) &savvy_PlRExpr_agg_groups__impl, 1},
+    {"savvy_PlRExpr_count__impl", (DL_FUNC) &savvy_PlRExpr_count__impl, 1},
+    {"savvy_PlRExpr_arg_max__impl", (DL_FUNC) &savvy_PlRExpr_arg_max__impl, 1},
+    {"savvy_PlRExpr_arg_min__impl", (DL_FUNC) &savvy_PlRExpr_arg_min__impl, 1},
+    {"savvy_PlRExpr_implode__impl", (DL_FUNC) &savvy_PlRExpr_implode__impl, 1},
+    {"savvy_PlRExpr_len__impl", (DL_FUNC) &savvy_PlRExpr_len__impl, 1},
+    {"savvy_PlRExpr_value_counts__impl", (DL_FUNC) &savvy_PlRExpr_value_counts__impl, 5},
+    {"savvy_PlRExpr_unique_counts__impl", (DL_FUNC) &savvy_PlRExpr_unique_counts__impl, 1},
+    {"savvy_PlRExpr_null_count__impl", (DL_FUNC) &savvy_PlRExpr_null_count__impl, 1},
+    {"savvy_PlRExpr_product__impl", (DL_FUNC) &savvy_PlRExpr_product__impl, 1},
+    {"savvy_PlRExpr_quantile__impl", (DL_FUNC) &savvy_PlRExpr_quantile__impl, 3},
+    {"savvy_PlRExpr_std__impl", (DL_FUNC) &savvy_PlRExpr_std__impl, 2},
+    {"savvy_PlRExpr_var__impl", (DL_FUNC) &savvy_PlRExpr_var__impl, 2},
     {"savvy_PlRExpr_list_len__impl", (DL_FUNC) &savvy_PlRExpr_list_len__impl, 1},
     {"savvy_PlRExpr_list_contains__impl", (DL_FUNC) &savvy_PlRExpr_list_contains__impl, 2},
     {"savvy_PlRExpr_list_max__impl", (DL_FUNC) &savvy_PlRExpr_list_max__impl, 1},
