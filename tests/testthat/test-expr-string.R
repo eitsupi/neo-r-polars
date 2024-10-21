@@ -59,6 +59,7 @@ test_that("str$strptime date", {
 })
 
 test_that("str$strptime time", {
+  skip_if_not_installed("hms")
   vals <- c(
     "11:22:33 -0100",
     "11:22:33 +0300",
@@ -66,11 +67,10 @@ test_that("str$strptime time", {
   )
   df <- pl$DataFrame(x = vals)
 
-  # TODO-REWRITE: requires pl$PTime
-  # expect_equal(
-  #   df$select(pl$col("x")$str$strptime(pl$Time, format = "%H:%M:%S %z", strict = FALSE)),
-  #   pl$DataFrame(x = pl$PTime(vals, tu = "ns"))
-  # )
+  expect_equal(
+    df$select(pl$col("x")$str$strptime(pl$Time, format = "%H:%M:%S %z", strict = FALSE)),
+    pl$DataFrame(x = hms::parse_hms(vals))
+  )
 
   expect_snapshot(
     df$select(pl$col("x")$str$strptime(pl$Int32, format = "%H:%M:%S %z")),
@@ -103,12 +103,12 @@ test_that("$str$to_date", {
 })
 
 test_that("$str$to_time", {
+  skip_if_not_installed("hms")
   df <- pl$DataFrame(x = c("01:20:01", "28:00:02", "03:00:02"))
-  # TODO-REWRITE: requires pl$PTime()
-  # expect_equal(
-  #   df$select(pl$col("x")$str$to_time(strict = FALSE)),
-  #   pl$DataFrame(x = pl$PTime(c("01:20:01", "28:00:02", "03:00:02"), tu = "ns"))
-  # )
+  expect_equal(
+    df$select(pl$col("x")$str$to_time(strict = FALSE)),
+    pl$DataFrame(x = hms::parse_hms(c("01:20:01", "28:00:02", "03:00:02")))
+  )
   expect_snapshot(
     df$select(pl$col("x")$str$to_time()),
     error = TRUE
@@ -815,30 +815,33 @@ test_that("str$replace_many", {
 })
 
 
-# make_datetime_format_cases <- function() {
-#   tibble::tribble(
-#     ~.test_name, ~time_str, ~dtype, ~type_expected,
-#     "utc-example", "2020-01-01 01:00Z", pl$Datetime(), pl$Datetime("us", "UTC"),
-#     "iso8602_1", "2020-01-01T01:00:00", pl$Datetime(), pl$Datetime("us"),
-#     "iso8602_2", "2020-01-01T01:00", pl$Datetime(), pl$Datetime("us"),
-#     "iso8602_3", "2020-01-01T01:00:00.000000001Z", pl$Datetime("ns"), pl$Datetime("ns", "UTC"),
-#     "iso8602_4", "2020-01-01T01:00:00+09:00", pl$Datetime(), pl$Datetime("us", "UTC"),
-#     "date_1", "2020-01-01", pl$Date, pl$Date,
-#     "date_2", "2020/01/01", pl$Date, pl$Date,
-#     "time_1", "01:00:00", pl$Time, pl$Time,
-#     "time_2", "1:00:00", pl$Time, pl$Time,
-#     "time_3", "13:00:00", pl$Time, pl$Time,
-#   )
-# }
+make_datetime_format_cases <- function() {
+  tibble::tribble(
+    ~.test_name, ~time_str, ~dtype, ~type_expected,
+    "utc-example", "2020-01-01 01:00Z", pl$Datetime(), pl$Datetime("us", "UTC"),
+    "iso8602_1", "2020-01-01T01:00:00", pl$Datetime(), pl$Datetime("us"),
+    "iso8602_2", "2020-01-01T01:00", pl$Datetime(), pl$Datetime("us"),
+    "iso8602_3", "2020-01-01T01:00:00.000000001Z", pl$Datetime("ns"), pl$Datetime("ns", "UTC"),
+    "iso8602_4", "2020-01-01T01:00:00+09:00", pl$Datetime(), pl$Datetime("us", "UTC"),
+    "date_1", "2020-01-01", pl$Date, pl$Date,
+    "date_2", "2020/01/01", pl$Date, pl$Date,
+    "time_1", "01:00:00", pl$Time, pl$Time,
+    "time_2", "1:00:00", pl$Time, pl$Time,
+    "time_3", "13:00:00", pl$Time, pl$Time,
+  )
+}
 
-# patrick::with_parameters_test_that(
-#   "parse time without format specified",
-#   {
-#     s <- as_polars_series(time_str)$str$strptime(dtype)
-#     expect_true(s$dtype == type_expected)
-#   },
-#   .cases = make_datetime_format_cases()
-# )
+patrick::with_parameters_test_that(
+  "parse time without format specified",
+  {
+    df <- pl$DataFrame(x = time_str)$select(pl$col("x")$str$strptime(dtype))$schema
+    expect_equal(
+      df,
+      list(x = type_expected)
+    )
+  },
+  .cases = make_datetime_format_cases()
+)
 
 # test_that("str$extract_groups works", {
 #   df <- pl$DataFrame(
