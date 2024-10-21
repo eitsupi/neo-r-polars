@@ -1426,6 +1426,154 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   }
 }
 
+`PlRExpr_is_unique` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_is_unique__impl, `self`))
+  }
+}
+
+`PlRExpr_is_between` <- function(self) {
+  function(`lower`, `upper`, `closed`) {
+    `lower` <- .savvy_extract_ptr(`lower`, "PlRExpr")
+    `upper` <- .savvy_extract_ptr(`upper`, "PlRExpr")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_is_between__impl, `self`, `lower`, `upper`, `closed`))
+  }
+}
+
+`PlRExpr_approx_n_unique` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_approx_n_unique__impl, `self`))
+  }
+}
+
+`PlRExpr_is_first_distinct` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_is_first_distinct__impl, `self`))
+  }
+}
+
+`PlRExpr_is_last_distinct` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_is_last_distinct__impl, `self`))
+  }
+}
+
+`PlRExpr_sin` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_sin__impl, `self`))
+  }
+}
+
+`PlRExpr_cos` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_cos__impl, `self`))
+  }
+}
+
+`PlRExpr_tan` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_tan__impl, `self`))
+  }
+}
+
+`PlRExpr_cot` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_cot__impl, `self`))
+  }
+}
+
+`PlRExpr_arcsin` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_arcsin__impl, `self`))
+  }
+}
+
+`PlRExpr_arccos` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_arccos__impl, `self`))
+  }
+}
+
+`PlRExpr_arctan` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_arctan__impl, `self`))
+  }
+}
+
+`PlRExpr_arctan2` <- function(self) {
+  function(`y`) {
+    `y` <- .savvy_extract_ptr(`y`, "PlRExpr")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_arctan2__impl, `self`, `y`))
+  }
+}
+
+`PlRExpr_sinh` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_sinh__impl, `self`))
+  }
+}
+
+`PlRExpr_cosh` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_cosh__impl, `self`))
+  }
+}
+
+`PlRExpr_tanh` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_tanh__impl, `self`))
+  }
+}
+
+`PlRExpr_arcsinh` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_arcsinh__impl, `self`))
+  }
+}
+
+`PlRExpr_arccosh` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_arccosh__impl, `self`))
+  }
+}
+
+`PlRExpr_arctanh` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_arctanh__impl, `self`))
+  }
+}
+
+`PlRExpr_degrees` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_degrees__impl, `self`))
+  }
+}
+
+`PlRExpr_radians` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_radians__impl, `self`))
+  }
+}
+
+`PlRExpr_sign` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_sign__impl, `self`))
+  }
+}
+
+`PlRExpr_is_duplicated` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_is_duplicated__impl, `self`))
+  }
+}
+
+`PlRExpr_is_in` <- function(self) {
+  function(`expr`) {
+    `expr` <- .savvy_extract_ptr(`expr`, "PlRExpr")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_is_in__impl, `self`, `expr`))
+  }
+}
+
 `PlRExpr_list_len` <- function(self) {
   function() {
     .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_list_len__impl, `self`))
@@ -2167,6 +2315,30 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   e$`quantile` <- `PlRExpr_quantile`(ptr)
   e$`std` <- `PlRExpr_std`(ptr)
   e$`var` <- `PlRExpr_var`(ptr)
+  e$`is_unique` <- `PlRExpr_is_unique`(ptr)
+  e$`is_between` <- `PlRExpr_is_between`(ptr)
+  e$`approx_n_unique` <- `PlRExpr_approx_n_unique`(ptr)
+  e$`is_first_distinct` <- `PlRExpr_is_first_distinct`(ptr)
+  e$`is_last_distinct` <- `PlRExpr_is_last_distinct`(ptr)
+  e$`sin` <- `PlRExpr_sin`(ptr)
+  e$`cos` <- `PlRExpr_cos`(ptr)
+  e$`tan` <- `PlRExpr_tan`(ptr)
+  e$`cot` <- `PlRExpr_cot`(ptr)
+  e$`arcsin` <- `PlRExpr_arcsin`(ptr)
+  e$`arccos` <- `PlRExpr_arccos`(ptr)
+  e$`arctan` <- `PlRExpr_arctan`(ptr)
+  e$`arctan2` <- `PlRExpr_arctan2`(ptr)
+  e$`sinh` <- `PlRExpr_sinh`(ptr)
+  e$`cosh` <- `PlRExpr_cosh`(ptr)
+  e$`tanh` <- `PlRExpr_tanh`(ptr)
+  e$`arcsinh` <- `PlRExpr_arcsinh`(ptr)
+  e$`arccosh` <- `PlRExpr_arccosh`(ptr)
+  e$`arctanh` <- `PlRExpr_arctanh`(ptr)
+  e$`degrees` <- `PlRExpr_degrees`(ptr)
+  e$`radians` <- `PlRExpr_radians`(ptr)
+  e$`sign` <- `PlRExpr_sign`(ptr)
+  e$`is_duplicated` <- `PlRExpr_is_duplicated`(ptr)
+  e$`is_in` <- `PlRExpr_is_in`(ptr)
   e$`list_len` <- `PlRExpr_list_len`(ptr)
   e$`list_contains` <- `PlRExpr_list_contains`(ptr)
   e$`list_max` <- `PlRExpr_list_max`(ptr)

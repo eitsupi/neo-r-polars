@@ -10,10 +10,13 @@ expr__not()
 A polars \link{expression}
 }
 \description{
-Method equivalent of negation operator \code{!expr}.
+Negate a boolean expression
 }
 \examples{
-# two syntaxes same result
-pl$lit(TRUE)$not()
-!pl$lit(TRUE)
+df <- pl$DataFrame(a = c(TRUE, FALSE, FALSE, NA))
+
+df$with_columns(a_not = pl$col("a")$not())
+
+# Same result with "!"
+df$with_columns(a_not = !pl$col("a"))
 }

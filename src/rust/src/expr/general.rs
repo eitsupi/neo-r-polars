@@ -389,4 +389,105 @@ impl PlRExpr {
         let ddof = <Wrap<u8>>::try_from(ddof)?.0;
         Ok(self.inner.clone().var(ddof).into())
     }
+
+    fn is_unique(&self) -> Result<Self> {
+        Ok(self.inner.clone().is_unique().into())
+    }
+
+    fn is_between(&self, lower: &PlRExpr, upper: &PlRExpr, closed: &str) -> Result<Self> {
+        let closed = <Wrap<ClosedInterval>>::try_from(closed)?.0;
+        Ok(self
+            .inner
+            .clone()
+            .is_between(lower.inner.clone(), upper.inner.clone(), closed)
+            .into())
+    }
+
+    fn approx_n_unique(&self) -> Result<Self> {
+        Ok(self.inner.clone().approx_n_unique().into())
+    }
+
+    fn is_first_distinct(&self) -> Result<Self> {
+        Ok(self.inner.clone().is_first_distinct().into())
+    }
+
+    fn is_last_distinct(&self) -> Result<Self> {
+        Ok(self.inner.clone().is_last_distinct().into())
+    }
+
+    fn sin(&self) -> Result<Self> {
+        Ok(self.inner.clone().sin().into())
+    }
+
+    fn cos(&self) -> Result<Self> {
+        Ok(self.inner.clone().cos().into())
+    }
+
+    fn tan(&self) -> Result<Self> {
+        Ok(self.inner.clone().tan().into())
+    }
+
+    fn cot(&self) -> Result<Self> {
+        Ok(self.inner.clone().cot().into())
+    }
+
+    fn arcsin(&self) -> Result<Self> {
+        Ok(self.inner.clone().arcsin().into())
+    }
+
+    fn arccos(&self) -> Result<Self> {
+        Ok(self.inner.clone().arccos().into())
+    }
+
+    fn arctan(&self) -> Result<Self> {
+        Ok(self.inner.clone().arctan().into())
+    }
+
+    fn arctan2(&self, y: &PlRExpr) -> Result<Self> {
+        Ok(self.inner.clone().arctan2(y.inner.clone()).into())
+    }
+
+    fn sinh(&self) -> Result<Self> {
+        Ok(self.inner.clone().sinh().into())
+    }
+
+    fn cosh(&self) -> Result<Self> {
+        Ok(self.inner.clone().cosh().into())
+    }
+
+    fn tanh(&self) -> Result<Self> {
+        Ok(self.inner.clone().tanh().into())
+    }
+
+    fn arcsinh(&self) -> Result<Self> {
+        Ok(self.inner.clone().arcsinh().into())
+    }
+
+    fn arccosh(&self) -> Result<Self> {
+        Ok(self.inner.clone().arccosh().into())
+    }
+
+    fn arctanh(&self) -> Result<Self> {
+        Ok(self.inner.clone().arctanh().into())
+    }
+
+    pub fn degrees(&self) -> Result<Self> {
+        Ok(self.inner.clone().degrees().into())
+    }
+
+    pub fn radians(&self) -> Result<Self> {
+        Ok(self.inner.clone().radians().into())
+    }
+
+    fn sign(&self) -> Result<Self> {
+        Ok(self.inner.clone().sign().into())
+    }
+
+    fn is_duplicated(&self) -> Result<Self> {
+        Ok(self.inner.clone().is_duplicated().into())
+    }
+
+    fn is_in(&self, expr: &PlRExpr) -> Result<Self> {
+        Ok(self.inner.clone().is_in(expr.inner.clone()).into())
+    }
 }

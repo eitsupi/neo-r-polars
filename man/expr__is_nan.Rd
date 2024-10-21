@@ -10,9 +10,16 @@ expr__is_nan()
 A polars \link{expression}
 }
 \description{
-Returns a boolean Series indicating which values are NaN.
+Floating point \code{NaN} (Not A Number) should not be confused with missing data
+represented as \code{NA} (in R) or \code{null} (in Polars).
 }
 \examples{
-pl$DataFrame(alice = c(0, NaN, NA, Inf, -Inf))$
-  with_columns(nan = pl$col("alice")$is_nan())
+df <- pl$DataFrame(
+  a = c(1, 2, NA, 1, 5),
+  b = c(1, 2, NaN, 1, 5)
+)
+df$with_columns(
+  a_nan = pl$col("a")$is_nan(),
+  b_nan = pl$col("b")$is_nan()
+)
 }

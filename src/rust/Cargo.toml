@@ -26,6 +26,7 @@ thiserror = "1"
 git = "https://github.com/pola-rs/polars.git"
 rev = "f3eba22b25e110f7097b7871a69e1ea4981970b0"
 features = [
+    "approx_unique",
     "array_any_all",
     "array_count",
     "array_to_struct",
@@ -40,7 +41,11 @@ features = [
     "extract_jsonpath",
     "find_many",
     "fused",
+    "is_between",
+    "is_first_distinct",
     "is_in",
+    "is_last_distinct",
+    "is_unique",
     "json",
     "lazy",
     "list_any_all",
@@ -61,6 +66,7 @@ features = [
     "range",
     "serde",
     "serde-lazy",
+    "sign",
     "streaming",
     "strings",
     "string_encoding",
@@ -69,6 +75,7 @@ features = [
     "string_to_integer",
     "temporal",
     "timezones",
+    "trigonometry",
     "unique_counts"
 ]
 

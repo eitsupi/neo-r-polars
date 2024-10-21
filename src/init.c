@@ -1019,6 +1019,126 @@ SEXP savvy_PlRExpr_var__impl(SEXP self__, SEXP c_arg__ddof) {
     return handle_result(res);
 }
 
+SEXP savvy_PlRExpr_is_unique__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_is_unique__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_is_between__impl(SEXP self__, SEXP c_arg__lower, SEXP c_arg__upper, SEXP c_arg__closed) {
+    SEXP res = savvy_PlRExpr_is_between__ffi(self__, c_arg__lower, c_arg__upper, c_arg__closed);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_approx_n_unique__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_approx_n_unique__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_is_first_distinct__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_is_first_distinct__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_is_last_distinct__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_is_last_distinct__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_sin__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_sin__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_cos__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_cos__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_tan__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_tan__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_cot__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_cot__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_arcsin__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_arcsin__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_arccos__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_arccos__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_arctan__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_arctan__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_arctan2__impl(SEXP self__, SEXP c_arg__y) {
+    SEXP res = savvy_PlRExpr_arctan2__ffi(self__, c_arg__y);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_sinh__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_sinh__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_cosh__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_cosh__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_tanh__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_tanh__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_arcsinh__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_arcsinh__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_arccosh__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_arccosh__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_arctanh__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_arctanh__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_degrees__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_degrees__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_radians__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_radians__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_sign__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_sign__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_is_duplicated__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_is_duplicated__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_is_in__impl(SEXP self__, SEXP c_arg__expr) {
+    SEXP res = savvy_PlRExpr_is_in__ffi(self__, c_arg__expr);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRExpr_list_len__impl(SEXP self__) {
     SEXP res = savvy_PlRExpr_list_len__ffi(self__);
     return handle_result(res);
@@ -1953,6 +2073,30 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_quantile__impl", (DL_FUNC) &savvy_PlRExpr_quantile__impl, 3},
     {"savvy_PlRExpr_std__impl", (DL_FUNC) &savvy_PlRExpr_std__impl, 2},
     {"savvy_PlRExpr_var__impl", (DL_FUNC) &savvy_PlRExpr_var__impl, 2},
+    {"savvy_PlRExpr_is_unique__impl", (DL_FUNC) &savvy_PlRExpr_is_unique__impl, 1},
+    {"savvy_PlRExpr_is_between__impl", (DL_FUNC) &savvy_PlRExpr_is_between__impl, 4},
+    {"savvy_PlRExpr_approx_n_unique__impl", (DL_FUNC) &savvy_PlRExpr_approx_n_unique__impl, 1},
+    {"savvy_PlRExpr_is_first_distinct__impl", (DL_FUNC) &savvy_PlRExpr_is_first_distinct__impl, 1},
+    {"savvy_PlRExpr_is_last_distinct__impl", (DL_FUNC) &savvy_PlRExpr_is_last_distinct__impl, 1},
+    {"savvy_PlRExpr_sin__impl", (DL_FUNC) &savvy_PlRExpr_sin__impl, 1},
+    {"savvy_PlRExpr_cos__impl", (DL_FUNC) &savvy_PlRExpr_cos__impl, 1},
+    {"savvy_PlRExpr_tan__impl", (DL_FUNC) &savvy_PlRExpr_tan__impl, 1},
+    {"savvy_PlRExpr_cot__impl", (DL_FUNC) &savvy_PlRExpr_cot__impl, 1},
+    {"savvy_PlRExpr_arcsin__impl", (DL_FUNC) &savvy_PlRExpr_arcsin__impl, 1},
+    {"savvy_PlRExpr_arccos__impl", (DL_FUNC) &savvy_PlRExpr_arccos__impl, 1},
+    {"savvy_PlRExpr_arctan__impl", (DL_FUNC) &savvy_PlRExpr_arctan__impl, 1},
+    {"savvy_PlRExpr_arctan2__impl", (DL_FUNC) &savvy_PlRExpr_arctan2__impl, 2},
+    {"savvy_PlRExpr_sinh__impl", (DL_FUNC) &savvy_PlRExpr_sinh__impl, 1},
+    {"savvy_PlRExpr_cosh__impl", (DL_FUNC) &savvy_PlRExpr_cosh__impl, 1},
+    {"savvy_PlRExpr_tanh__impl", (DL_FUNC) &savvy_PlRExpr_tanh__impl, 1},
+    {"savvy_PlRExpr_arcsinh__impl", (DL_FUNC) &savvy_PlRExpr_arcsinh__impl, 1},
+    {"savvy_PlRExpr_arccosh__impl", (DL_FUNC) &savvy_PlRExpr_arccosh__impl, 1},
+    {"savvy_PlRExpr_arctanh__impl", (DL_FUNC) &savvy_PlRExpr_arctanh__impl, 1},
+    {"savvy_PlRExpr_degrees__impl", (DL_FUNC) &savvy_PlRExpr_degrees__impl, 1},
+    {"savvy_PlRExpr_radians__impl", (DL_FUNC) &savvy_PlRExpr_radians__impl, 1},
+    {"savvy_PlRExpr_sign__impl", (DL_FUNC) &savvy_PlRExpr_sign__impl, 1},
+    {"savvy_PlRExpr_is_duplicated__impl", (DL_FUNC) &savvy_PlRExpr_is_duplicated__impl, 1},
+    {"savvy_PlRExpr_is_in__impl", (DL_FUNC) &savvy_PlRExpr_is_in__impl, 2},
     {"savvy_PlRExpr_list_len__impl", (DL_FUNC) &savvy_PlRExpr_list_len__impl, 1},
     {"savvy_PlRExpr_list_contains__impl", (DL_FUNC) &savvy_PlRExpr_list_contains__impl, 2},
     {"savvy_PlRExpr_list_max__impl", (DL_FUNC) &savvy_PlRExpr_list_max__impl, 1},

@@ -479,3 +479,18 @@ impl TryFrom<&str> for Wrap<QuantileMethod> {
         Ok(Wrap(parsed))
     }
 }
+
+impl TryFrom<&str> for Wrap<ClosedInterval> {
+    type Error = String;
+
+    fn try_from(closed: &str) -> Result<Self, String> {
+        let parsed = match closed {
+            "both" => ClosedInterval::Both,
+            "left" => ClosedInterval::Left,
+            "right" => ClosedInterval::Right,
+            "none" => ClosedInterval::None,
+            v => return Err(format!("unreachable",)),
+        };
+        Ok(Wrap(parsed))
+    }
+}

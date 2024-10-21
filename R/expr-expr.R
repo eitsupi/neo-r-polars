@@ -406,12 +406,14 @@ expr__alias <- function(name) {
 
 #' Negate a boolean expression
 #'
-#' Method equivalent of negation operator `!expr`.
 #' @inherit as_polars_expr return
 #' @examples
-#' # two syntaxes same result
-#' pl$lit(TRUE)$not()
-#' !pl$lit(TRUE)
+#' df <- pl$DataFrame(a = c(TRUE, FALSE, FALSE, NA))
+#'
+#' df$with_columns(a_not = pl$col("a")$not())
+#'
+#' # Same result with "!"
+#' df$with_columns(a_not = !pl$col("a"))
 expr__not <- function() {
   self$`_rexpr`$not() |>
     wrap()
@@ -423,19 +425,35 @@ expr__not <- function() {
 expr__invert <-
   expr__not
 
-
+#' Check if elements are NULL
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = c(1, 2, NA, 1, 5),
+#'   b = c(1, 2, NaN, 1, 5)
+#' )
+#' df$with_columns(
+#'   a_null = pl$col("a")$is_null(),
+#'   b_null = pl$col("b")$is_null()
+#' )
 expr__is_null <- function() {
   self$`_rexpr`$is_null() |>
     wrap()
 }
 
-#' Check if elements are NULL
-#'
-#' Returns a boolean Series indicating which values are null.
+#' Check if elements are not NULL
 #'
 #' @inherit as_polars_expr return
 #' @examples
-#' pl$DataFrame(x = c(1, NA, 3))$select(pl$col("x")$is_null())
+#' df <- pl$DataFrame(
+#'   a = c(1, 2, NA, 1, 5),
+#'   b = c(1, 2, NaN, 1, 5)
+#' )
+#' df$with_columns(
+#'   a_not_null = pl$col("a")$is_not_null(),
+#'   b_not_null = pl$col("b")$is_not_null()
+#' )
 expr__is_not_null <- function() {
   self$`_rexpr`$is_not_null() |>
     wrap()
@@ -443,12 +461,13 @@ expr__is_not_null <- function() {
 
 #' Check if elements are infinite
 #'
-#' Returns a boolean Series indicating which values are infinite.
-#'
 #' @inherit as_polars_expr return
 #' @examples
-#' pl$DataFrame(alice = c(0, NaN, NA, Inf, -Inf))$
-#'   with_columns(infinite = pl$col("alice")$is_infinite())
+#' df <- pl$DataFrame(a = c(1, 2), b = c(3, Inf))
+#' df$with_columns(
+#'   a_infinite = pl$col("a")$is_infinite(),
+#'   b_infinite = pl$col("b")$is_infinite()
+#' )
 expr__is_infinite <- function() {
   self$`_rexpr`$is_infinite() |>
     wrap()
@@ -456,12 +475,13 @@ expr__is_infinite <- function() {
 
 #' Check if elements are finite
 #'
-#' Returns a boolean Series indicating which values are finite.
-#'
 #' @inherit as_polars_expr return
 #' @examples
-#' pl$DataFrame(alice = c(0, NaN, NA, Inf, -Inf))$
-#'   with_columns(finite = pl$col("alice")$is_finite())
+#' df <- pl$DataFrame(a = c(1, 2), b = c(3, Inf))
+#' df$with_columns(
+#'   a_finite = pl$col("a")$is_finite(),
+#'   b_finite = pl$col("b")$is_finite()
+#' )
 expr__is_finite <- function() {
   self$`_rexpr`$is_finite() |>
     wrap()
@@ -469,13 +489,19 @@ expr__is_finite <- function() {
 
 #' Check if elements are NaN
 #'
-#' Returns a boolean Series indicating which values are NaN.
+#' Floating point `NaN` (Not A Number) should not be confused with missing data
+#' represented as `NA` (in R) or `null` (in Polars).
 #'
 #' @inherit as_polars_expr return
-#'
 #' @examples
-#' pl$DataFrame(alice = c(0, NaN, NA, Inf, -Inf))$
-#'   with_columns(nan = pl$col("alice")$is_nan())
+#' df <- pl$DataFrame(
+#'   a = c(1, 2, NA, 1, 5),
+#'   b = c(1, 2, NaN, 1, 5)
+#' )
+#' df$with_columns(
+#'   a_nan = pl$col("a")$is_nan(),
+#'   b_nan = pl$col("b")$is_nan()
+#' )
 expr__is_nan <- function() {
   self$`_rexpr`$is_nan() |>
     wrap()
@@ -483,13 +509,17 @@ expr__is_nan <- function() {
 
 #' Check if elements are not NaN
 #'
-#' Returns a boolean Series indicating which values are not NaN. Syntactic sugar
-#' for `$is_nan()$not()`.
-#'
+#' @inherit expr__is_nan description
 #' @inherit as_polars_expr return
 #' @examples
-#' pl$DataFrame(alice = c(0, NaN, NA, Inf, -Inf))$
-#'   with_columns(not_nan = pl$col("alice")$is_not_nan())
+#' df <- pl$DataFrame(
+#'   a = c(1, 2, NA, 1, 5),
+#'   b = c(1, 2, NaN, 1, 5)
+#' )
+#' df$with_columns(
+#'   a_not_nan = pl$col("a")$is_not_nan(),
+#'   b_not_nan = pl$col("b")$is_not_nan()
+#' )
 expr__is_not_nan <- function() {
   self$`_rexpr`$is_not_nan() |>
     wrap()
@@ -1129,9 +1159,7 @@ expr__reshape <- function(dimensions) {
     wrap()
 }
 
-#' Apply logical OR on a column
-#'
-#' Check if any boolean value in a Boolean column is `TRUE`.
+#' Check if any boolean value in a column is true
 #'
 #' @inheritParams expr__all
 #' @inherit as_polars_expr return
@@ -1154,18 +1182,16 @@ expr__any <- function(..., ignore_nulls = TRUE) {
   })
 }
 
-#' Apply logical AND on a column
+#' Check if all boolean values in a column are true
 #'
-#' Check if all values in a Boolean column are `TRUE`. This method is an
-#' expression - not to be confused with [`pl$all()`][pl_all] which is a function
-#' to select all columns.
+#' This method is an expression - not to be confused with [`pl$all()`][pl__all]
+#' which is a function to select all columns.
 #'
 #' @inheritParams rlang::check_dots_empty0
 #' @param ignore_nulls If `TRUE` (default), ignore null values. If `FALSE`,
 #' [Kleene logic](https://en.wikipedia.org/wiki/Three-valued_logic) is used to
 #' deal with nulls: if the column contains any null values and no `TRUE` values,
 #' the output is null.
-#'
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -1414,5 +1440,137 @@ expr__std <- function(ddof = 1) {
 #'   select(pl$all()$var())
 expr__var <- function(ddof = 1) {
   self$`_rexpr`$var(ddof) |>
+    wrap()
+}
+
+#' Check whether the expression contains one or more null values
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = c(NA, 1, NA),
+#'   b = c(10, NA, 300),
+#'   c = c(350, 650, 850)
+#' )
+#' df$select(pl$all()$has_nulls())
+expr__has_nulls <- function() {
+  self$null_count() > 0 |>
+    wrap()
+}
+
+#' Check if an expression is between the given lower and upper bounds
+#'
+#' @param lower_bound Lower bound value. Accepts expression input. Strings are
+#'  parsed as column names, other non-expression inputs are parsed as literals.
+#' @param upper_bound Upper bound value. Accepts expression input. Strings are
+#' parsed as column names, other non-expression inputs are parsed as literals.
+#' @param closed Define which sides of the interval are closed (inclusive). Must
+#' be one of `"left"`, `"right"`, `"both"` or `"none"`.
+#'
+#' @details
+#' If the value of the `lower_bound` is greater than that of the `upper_bound`
+#' then the result will be `FALSE`, as no value can satisfy the condition.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(num = 1:5)
+#' df$with_columns(
+#'   is_between = pl$col("num")$is_between(2, 4)
+#' )
+#'
+#' # Use the closed argument to include or exclude the values at the bounds:
+#' df$with_columns(
+#'   is_between = pl$col("num")$is_between(2, 4, closed = "left")
+#' )
+#'
+#' # You can also use strings as well as numeric/temporal values (note: ensure
+#' # that string literals are wrapped with lit so as not to conflate them with
+#' # column names):
+#' df <- pl$DataFrame(a = letters[1:5])
+#' df$with_columns(
+#'   is_between = pl$col("a")$is_between(pl$lit("a"), pl$lit("c"))
+#' )
+#'
+#' # Use column expressions as lower/upper bounds, comparing to a literal value:
+#' df <- pl$DataFrame(a = 1:5, b = 5:1)
+#' df$with_columns(
+#'   between_ab = pl$lit(3)$is_between(pl$col("a"), pl$col("b"))
+#' )
+expr__is_between <- function(
+    lower_bound,
+    upper_bound,
+    closed = c("both", "left", "right", "none")) {
+  wrap({
+    closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
+    self$`_rexpr`$is_between(
+      as_polars_expr(lower_bound)$`_rexpr`,
+      as_polars_expr(upper_bound)$`_rexpr`,
+      closed
+    )
+  })
+}
+
+#' Return a boolean mask indicating duplicated values
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c(1, 1, 2, 3, 2))
+#' df$select(pl$col("a")$is_duplicated())
+expr__is_duplicated <- function() {
+  self$`_rexpr`$is_duplicated() |>
+    wrap()
+}
+
+#' Return a boolean mask indicating the first occurrence of each distinct value
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c(1, 1, 2, 3, 2))
+#' df$with_columns(
+#'   is_first_distinct = pl$col("a")$is_first_distinct()
+#' )
+expr__is_first_distinct <- function() {
+  self$`_rexpr`$is_first_distinct() |>
+    wrap()
+}
+
+#' Return a boolean mask indicating the last occurrence of each distinct value
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c(1, 1, 2, 3, 2))
+#' df$with_columns(
+#'   is_last_distinct = pl$col("a")$is_last_distinct()
+#' )
+expr__is_last_distinct <- function() {
+  self$`_rexpr`$is_last_distinct() |>
+    wrap()
+}
+
+#' Check if elements of an expression are present in another expression
+#'
+#' @param other Series or sequence of primitive type.
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(
+#'   sets = list(1:3, 1:2, 9:10),
+#'   optional_members = 1:3
+#' )
+#' df$with_columns(
+#'   contains = pl$col("optional_members")$is_in("sets")
+#' )
+expr__is_in <- function(other) {
+  self$`_rexpr`$is_in(as_polars_expr(other)$`_rexpr`) |>
+    wrap()
+}
+
+#' Return a boolean mask indicating unique values
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c(1, 1, 2, 3, 2))
+#' df$select(pl$col("a")$is_unique())
+expr__is_unique <- function() {
+  self$`_rexpr`$is_unique() |>
     wrap()
 }

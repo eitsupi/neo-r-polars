@@ -10,9 +10,12 @@ expr__is_finite()
 A polars \link{expression}
 }
 \description{
-Returns a boolean Series indicating which values are finite.
+Check if elements are finite
 }
 \examples{
-pl$DataFrame(alice = c(0, NaN, NA, Inf, -Inf))$
-  with_columns(finite = pl$col("alice")$is_finite())
+df <- pl$DataFrame(a = c(1, 2), b = c(3, Inf))
+df$with_columns(
+  a_finite = pl$col("a")$is_finite(),
+  b_finite = pl$col("b")$is_finite()
+)
 }

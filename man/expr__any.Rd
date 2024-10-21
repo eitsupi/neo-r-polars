@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-expr.R
 \name{expr__any}
 \alias{expr__any}
-\title{Apply logical OR on a column}
+\title{Check if any boolean value in a column is true}
 \usage{
 expr__any(..., ignore_nulls = TRUE)
 }
@@ -18,7 +18,7 @@ the output is null.}
 A polars \link{expression}
 }
 \description{
-Check if any boolean value in a Boolean column is \code{TRUE}.
+Check if any boolean value in a column is true
 }
 \examples{
 df <- pl$DataFrame(

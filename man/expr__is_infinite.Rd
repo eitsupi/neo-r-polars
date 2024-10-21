@@ -10,9 +10,12 @@ expr__is_infinite()
 A polars \link{expression}
 }
 \description{
-Returns a boolean Series indicating which values are infinite.
+Check if elements are infinite
 }
 \examples{
-pl$DataFrame(alice = c(0, NaN, NA, Inf, -Inf))$
-  with_columns(infinite = pl$col("alice")$is_infinite())
+df <- pl$DataFrame(a = c(1, 2), b = c(3, Inf))
+df$with_columns(
+  a_infinite = pl$col("a")$is_infinite(),
+  b_infinite = pl$col("b")$is_infinite()
+)
 }
