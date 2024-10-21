@@ -12,7 +12,7 @@ expr_str_to_datetime(
   strict = TRUE,
   exact = TRUE,
   cache = TRUE,
-  ambiguous = "raise"
+  ambiguous = c("raise", "earliest", "latest", "null")
 )
 }
 \arguments{

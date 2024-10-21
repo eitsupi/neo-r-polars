@@ -102,16 +102,20 @@ expr_str_strptime <- function(
     strict = TRUE,
     exact = TRUE,
     cache = TRUE,
-    ambiguous = "raise") {
+    ambiguous = c("raise", "earliest", "latest", "null")) {
   wrap({
     check_dots_empty0(...)
     check_polars_dtype(dtype)
     dtype_class <- class(dtype)
     if ("polars_dtype_datetime" %in% dtype_class) {
+      if (!is_polars_expr(ambiguous)) {
+        ambiguous <- arg_match0(ambiguous, c("raise", "earliest", "latest", "null")) |>
+          as_polars_expr(as_lit = TRUE)
+      }
       self$`_rexpr`$str_to_datetime(
         format = format, time_unit = dtype$time_unit, time_zone = dtype$time_zone,
         strict = strict, exact = exact, cache = cache,
-        ambiguous = as_polars_expr(ambiguous, as_lit = TRUE)$`_rexpr`
+        ambiguous = ambiguous$`_rexpr`
       )
     } else if ("polars_dtype_date" %in% dtype_class) {
       self$`_rexpr`$str_to_date(format = format, strict = strict, exact = exact, cache = cache)
@@ -193,7 +197,7 @@ expr_str_to_datetime <- function(
     strict = TRUE,
     exact = TRUE,
     cache = TRUE,
-    ambiguous = "raise") {
+    ambiguous = c("raise", "earliest", "latest", "null")) {
   wrap({
     check_dots_empty0(...)
     if (!is_polars_expr(ambiguous)) {

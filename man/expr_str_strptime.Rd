@@ -11,7 +11,7 @@ expr_str_strptime(
   strict = TRUE,
   exact = TRUE,
   cache = TRUE,
-  ambiguous = "raise"
+  ambiguous = c("raise", "earliest", "latest", "null")
 )
 }
 \arguments{
