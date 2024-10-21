@@ -1,5 +1,5 @@
 use crate::{prelude::*, PlRExpr};
-use savvy::{savvy, IntegerSexp, LogicalSexp, Result};
+use savvy::{savvy, LogicalSexp, NumericSexp, Result};
 
 #[savvy]
 impl PlRExpr {
@@ -197,14 +197,14 @@ impl PlRExpr {
         &self,
         n: &PlRExpr,
         week_mask: LogicalSexp,
-        holidays: IntegerSexp,
+        holidays: NumericSexp,
         roll: &str,
     ) -> Result<Self> {
         let week_mask: [bool; 7] = week_mask
             .to_vec()
             .try_into()
-            .unwrap_or_else(|_| unreachable!());
-        let holidays = holidays.to_vec();
+            .map_err(|_| savvy::Error::new("invalid week_mask"))?;
+        let holidays = holidays.as_slice_i32()?.into();
         let roll = <Wrap<Roll>>::try_from(roll)?.0;
         Ok(self
             .inner

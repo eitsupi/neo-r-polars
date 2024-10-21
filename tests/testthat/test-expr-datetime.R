@@ -480,7 +480,7 @@ test_that("dt$timestamp", {
 
 
 test_that("dt$with_time_unit cast_time_unit", {
-  df_time <- pl$select(
+  suppressWarnings(df_time <- pl$select(
     date = pl$datetime_range(
       start = as.POSIXct("2001-1-1"), end = as.POSIXct("2001-1-3"), interval = "1d", time_unit = "us"
     )
@@ -492,7 +492,7 @@ test_that("dt$with_time_unit cast_time_unit", {
     pl$col("date")$dt$with_time_unit()$alias("with_time_unit_ns"),
     pl$col("date")$dt$with_time_unit(time_unit = "us")$alias("with_time_unit_us"),
     pl$col("date")$dt$with_time_unit(time_unit = "ms")$alias("with_time_unit_ms")
-  )
+  ))
 
   df_time_num <- df_time$cast(pl$Float64)
 

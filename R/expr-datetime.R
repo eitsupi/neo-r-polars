@@ -1063,22 +1063,24 @@ expr_dt_date <- function() {
 expr_dt_add_business_days <- function(
     n,
     week_mask = c(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE),
-    holidays = NULL,
+    holidays = as.Date(integer(0)),
     roll = c("raise", "backward", "forward")) {
   wrap({
+    if (!is_scalar_integerish(n) && !is_polars_expr(n) || anyNA(n)) {
+      abort("`n` must be a single non-`NA` integer-ish value or a polars expression.")
+    }
+    if (!is_logical(week_mask, n = 7L) || anyNA(week_mask)) {
+      abort("`week_mask` must be a vector with 7 logical values, without any `NA`.")
+    }
+    if (!inherits(holidays, "Date") || anyNA(holidays)) {
+      abort("`holidays` must be a Date vector without any `NA`.")
+    }
     roll <- arg_match0(roll, values = c("raise", "backward", "forward"))
-    unix_epoch <- as.Date("1970-1-1")
-    if (length(n) == 1 && is.numeric(n) && as.integer(n) == n) {
-      n <- as.integer(n)
+
+    if (is_scalar_integerish(n)) {
+      n <- as_polars_expr(n)$cast(pl$Int64)
     }
-    if (!is.logical(week_mask, n = 7L) || anyNA(week_mask)) {
-      abort("`week_mask` must be a vector with 7 logical values, without any NA.")
-    }
-    if (!is.null(holidays)) {
-      holidays <- as.integer(holidays - unix_epoch)
-    } else {
-      holidays <- integer(0)
-    }
-    self$`_rexpr`$dt_add_business_days(as_polars_expr(n)$`_rexpr`, week_mask, holidays, roll)
+
+    self$`_rexpr`$dt_add_business_days(n$`_rexpr`, week_mask, holidays, roll)
   })
 }

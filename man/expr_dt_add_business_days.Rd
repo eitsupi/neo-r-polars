@@ -7,7 +7,7 @@
 expr_dt_add_business_days(
   n,
   week_mask = c(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE),
-  holidays = NULL,
+  holidays = as.Date(integer(0)),
   roll = c("raise", "backward", "forward")
 )
 }

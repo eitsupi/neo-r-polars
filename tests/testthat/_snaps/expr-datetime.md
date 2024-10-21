@@ -133,9 +133,11 @@
       Error in `df$select()`:
       ! Evaluation failed in `$select()`.
       Caused by error:
-      ! Evaluation failed in `$collect()`.
-      Caused by error:
-      ! Invalid operation: expected Int64, Int32, UInt64, or UInt32, got f64
+      ! Evaluation failed in `$select()`.
+      Caused by error in `pl$col("x")$dt$add_business_days()`:
+      ! Evaluation failed in `$add_business_days()`.
+      Caused by error in `pl$col("x")$dt$add_business_days()`:
+      ! `n` must be a single non-`NA` integer-ish value or a polars expression.
 
 ---
 
@@ -149,7 +151,7 @@
       Caused by error in `pl$col("x")$dt$add_business_days()`:
       ! Evaluation failed in `$add_business_days()`.
       Caused by error in `pl$col("x")$dt$add_business_days()`:
-      ! `week_mask` must be a vector with 7 logical values, without any NA.
+      ! `week_mask` must be a vector with 7 logical values, without any `NA`.
 
 ---
 
@@ -163,7 +165,7 @@
       Caused by error in `pl$col("x")$dt$add_business_days()`:
       ! Evaluation failed in `$add_business_days()`.
       Caused by error in `pl$col("x")$dt$add_business_days()`:
-      ! `week_mask` must be a vector with 7 logical values, without any NA.
+      ! `week_mask` must be a vector with 7 logical values, without any `NA`.
 
 ---
 
@@ -177,7 +179,7 @@
       Caused by error in `pl$col("x")$dt$add_business_days()`:
       ! Evaluation failed in `$add_business_days()`.
       Caused by error in `pl$col("x")$dt$add_business_days()`:
-      ! `week_mask` must be a vector with 7 logical values, without any NA.
+      ! `week_mask` must be a vector with 7 logical values, without any `NA`.
 
 ---
 
