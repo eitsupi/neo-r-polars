@@ -12,6 +12,7 @@ The name or datatype of the column(s) to represent.
 Unnamed objects one of the following:
 \itemize{
 \item character vectors
+\itemize{
 \item Single wildcard \code{"*"} has a special meaning: check the examples.
 }
 \item (lists of) \code{polars_dtype} objects

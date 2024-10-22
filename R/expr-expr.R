@@ -2288,3 +2288,61 @@ expr__search_sorted <- function(element, side = c("any", "left", "right")) {
     self$`_rexpr`$search_sorted(as_polars_expr(element)$`_rexpr`, side)
   })
 }
+
+#' Apply a rolling max over values
+#'
+#' @description
+#' A window of length `window_size` will traverse the array. The values that
+#' fill this window will (optionally) be multiplied with the weights given by
+#' the `weights` vector. The resulting values will be aggregated to their max.
+#'
+#' The window at a given row will include the row itself, and the
+#' `window_size - 1` elements before it.
+#'
+#' @param window_size The length of the window in number of elements.
+#' @param weights An optional slice with the same length as the window that
+#' will be multiplied elementwise with the values in the window.
+#' @param min_periods The number of values in the window that should be
+#' non-null before computing a result. If `NULL` (default), it will be set
+#' equal to `window_size`.
+#' @param center If `TRUE`, set the labels at the center of the window.
+#'
+#' @details
+#' If you want to compute multiple aggregation statistics over the same dynamic
+#' window, consider using [`$rolling()`][expr__rolling] - this method can cache
+#' the window size computation.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = 1:6)
+#' df$with_columns(
+#'   rolling_max = pl$col("a")$rolling_max(window_size = 2)
+#' )
+#'
+#' # Specify weights to multiply the values in the window with:
+#' df$with_columns(
+#'   rolling_max = pl$col("a")$rolling_max(
+#'     window_size = 2, weights = c(0.25, 0.75)
+#'   )
+#' )
+#'
+#' # Center the values in the window
+#' df$with_columns(
+#'   rolling_max = pl$col("a")$rolling_max(window_size = 3, center = TRUE)
+#' )
+expr__rolling_max <- function(
+    window_size,
+    weights = NULL,
+    ...,
+    min_periods = NULL,
+    center = FALSE) {
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$rolling_max(
+      window_size = window_size,
+      weights = weights,
+      min_periods = min_periods,
+      center = center
+    )
+  })
+}
