@@ -13,12 +13,20 @@ use std::ops::Neg;
 impl PlRExpr {
     fn rolling_sum(
         &self,
-        window_size: usize,
+        window_size: NumericScalar,
         center: bool,
-        weights: Option<Vec<f64>>,
-        min_periods: Option<usize>,
+        weights: Option<NumericSexp>,
+        min_periods: Option<NumericScalar>,
     ) -> Result<Self> {
-        let min_periods = min_periods.unwrap_or(window_size);
+        let window_size = <Wrap<usize>>::try_from(window_size)?.0;
+        let weights: Option<Vec<f64>> = match weights {
+            Some(x) => Some(x.as_slice_f64().into()),
+            None => None,
+        };
+        let min_periods: usize = match min_periods {
+            Some(x) => <Wrap<usize>>::try_from(x)?.0,
+            None => window_size,
+        };
         let options = RollingOptionsFixedWindow {
             window_size,
             weights,
@@ -34,28 +42,38 @@ impl PlRExpr {
         by: &PlRExpr,
         window_size: &str,
         min_periods: usize,
-        closed: Wrap<ClosedWindow>,
+        closed: &str,
     ) -> Result<Self> {
+        let closed = <Wrap<ClosedWindow>>::try_from(closed)?.0;
         let options = RollingOptionsDynamicWindow {
             window_size: Duration::parse(window_size),
             min_periods,
-            closed_window: closed.0,
+            closed_window: closed,
             fn_params: None,
         };
-        self.inner
+        Ok(self
+            .inner
             .clone()
             .rolling_sum_by(by.inner.clone(), options)
-            .into()
+            .into())
     }
 
     fn rolling_min(
         &self,
-        window_size: usize,
+        window_size: NumericScalar,
         center: bool,
-        weights: Option<Vec<f64>>,
-        min_periods: Option<usize>,
+        weights: Option<NumericSexp>,
+        min_periods: Option<NumericScalar>,
     ) -> Result<Self> {
-        let min_periods = min_periods.unwrap_or(window_size);
+        let window_size = <Wrap<usize>>::try_from(window_size)?.0;
+        let weights: Option<Vec<f64>> = match weights {
+            Some(x) => Some(x.as_slice_f64().into()),
+            None => None,
+        };
+        let min_periods: usize = match min_periods {
+            Some(x) => <Wrap<usize>>::try_from(x)?.0,
+            None => window_size,
+        };
         let options = RollingOptionsFixedWindow {
             window_size,
             weights,
@@ -71,28 +89,38 @@ impl PlRExpr {
         by: &PlRExpr,
         window_size: &str,
         min_periods: usize,
-        closed: Wrap<ClosedWindow>,
+        closed: &str,
     ) -> Result<Self> {
+        let closed = <Wrap<ClosedWindow>>::try_from(closed)?.0;
         let options = RollingOptionsDynamicWindow {
             window_size: Duration::parse(window_size),
             min_periods,
-            closed_window: closed.0,
+            closed_window: closed,
             fn_params: None,
         };
-        self.inner
+        Ok(self
+            .inner
             .clone()
             .rolling_min_by(by.inner.clone(), options)
-            .into()
+            .into())
     }
 
     fn rolling_max(
         &self,
-        window_size: usize,
+        window_size: NumericScalar,
         center: bool,
-        weights: Option<Vec<f64>>,
-        min_periods: Option<usize>,
+        weights: Option<NumericSexp>,
+        min_periods: Option<NumericScalar>,
     ) -> Result<Self> {
-        let min_periods = min_periods.unwrap_or(window_size);
+        let window_size = <Wrap<usize>>::try_from(window_size)?.0;
+        let weights: Option<Vec<f64>> = match weights {
+            Some(x) => Some(x.as_slice_f64().into()),
+            None => None,
+        };
+        let min_periods: usize = match min_periods {
+            Some(x) => <Wrap<usize>>::try_from(x)?.0,
+            None => window_size,
+        };
         let options = RollingOptionsFixedWindow {
             window_size,
             weights,
@@ -108,28 +136,38 @@ impl PlRExpr {
         by: &PlRExpr,
         window_size: &str,
         min_periods: usize,
-        closed: Wrap<ClosedWindow>,
+        closed: &str,
     ) -> Result<Self> {
+        let closed = <Wrap<ClosedWindow>>::try_from(closed)?.0;
         let options = RollingOptionsDynamicWindow {
             window_size: Duration::parse(window_size),
             min_periods,
-            closed_window: closed.0,
+            closed_window: closed,
             fn_params: None,
         };
-        self.inner
+        Ok(self
+            .inner
             .clone()
             .rolling_max_by(by.inner.clone(), options)
-            .into()
+            .into())
     }
 
     fn rolling_mean(
         &self,
-        window_size: usize,
+        window_size: NumericScalar,
         center: bool,
-        weights: Option<Vec<f64>>,
-        min_periods: Option<usize>,
+        weights: Option<NumericSexp>,
+        min_periods: Option<NumericScalar>,
     ) -> Result<Self> {
-        let min_periods = min_periods.unwrap_or(window_size);
+        let window_size = <Wrap<usize>>::try_from(window_size)?.0;
+        let weights: Option<Vec<f64>> = match weights {
+            Some(x) => Some(x.as_slice_f64().into()),
+            None => None,
+        };
+        let min_periods: usize = match min_periods {
+            Some(x) => <Wrap<usize>>::try_from(x)?.0,
+            None => window_size,
+        };
         let options = RollingOptionsFixedWindow {
             window_size,
             weights,
@@ -146,12 +184,13 @@ impl PlRExpr {
         by: &PlRExpr,
         window_size: &str,
         min_periods: usize,
-        closed: Wrap<ClosedWindow>,
+        closed: &str,
     ) -> Result<Self> {
+        let closed = <Wrap<ClosedWindow>>::try_from(closed)?.0;
         let options = RollingOptionsDynamicWindow {
             window_size: Duration::parse(window_size),
             min_periods,
-            closed_window: closed.0,
+            closed_window: closed,
             fn_params: None,
         };
 
@@ -164,13 +203,21 @@ impl PlRExpr {
 
     fn rolling_std(
         &self,
-        window_size: usize,
+        window_size: NumericScalar,
         center: bool,
         ddof: u8,
-        weights: Option<Vec<f64>>,
-        min_periods: Option<usize>,
+        weights: Option<NumericSexp>,
+        min_periods: Option<NumericScalar>,
     ) -> Result<Self> {
-        let min_periods = min_periods.unwrap_or(window_size);
+        let window_size = <Wrap<usize>>::try_from(window_size)?.0;
+        let weights: Option<Vec<f64>> = match weights {
+            Some(x) => Some(x.as_slice_f64().into()),
+            None => None,
+        };
+        let min_periods: usize = match min_periods {
+            Some(x) => <Wrap<usize>>::try_from(x)?.0,
+            None => window_size,
+        };
         let options = RollingOptionsFixedWindow {
             window_size,
             weights,
@@ -187,13 +234,14 @@ impl PlRExpr {
         by: &PlRExpr,
         window_size: &str,
         min_periods: usize,
-        closed: Wrap<ClosedWindow>,
+        closed: &str,
         ddof: u8,
     ) -> Result<Self> {
+        let closed = <Wrap<ClosedWindow>>::try_from(closed)?.0;
         let options = RollingOptionsDynamicWindow {
             window_size: Duration::parse(window_size),
             min_periods,
-            closed_window: closed.0,
+            closed_window: closed,
             fn_params: Some(RollingFnParams::Var(RollingVarParams { ddof })),
         };
 
@@ -206,13 +254,21 @@ impl PlRExpr {
 
     fn rolling_var(
         &self,
-        window_size: usize,
+        window_size: NumericScalar,
         center: bool,
         ddof: u8,
-        weights: Option<Vec<f64>>,
-        min_periods: Option<usize>,
+        weights: Option<NumericSexp>,
+        min_periods: Option<NumericScalar>,
     ) -> Result<Self> {
-        let min_periods = min_periods.unwrap_or(window_size);
+        let window_size = <Wrap<usize>>::try_from(window_size)?.0;
+        let weights: Option<Vec<f64>> = match weights {
+            Some(x) => Some(x.as_slice_f64().into()),
+            None => None,
+        };
+        let min_periods: usize = match min_periods {
+            Some(x) => <Wrap<usize>>::try_from(x)?.0,
+            None => window_size,
+        };
         let options = RollingOptionsFixedWindow {
             window_size,
             weights,
@@ -229,13 +285,14 @@ impl PlRExpr {
         by: &PlRExpr,
         window_size: &str,
         min_periods: usize,
-        closed: Wrap<ClosedWindow>,
+        closed: &str,
         ddof: u8,
     ) -> Result<Self> {
+        let closed = <Wrap<ClosedWindow>>::try_from(closed)?.0;
         let options = RollingOptionsDynamicWindow {
             window_size: Duration::parse(window_size),
             min_periods,
-            closed_window: closed.0,
+            closed_window: closed,
             fn_params: Some(RollingFnParams::Var(RollingVarParams { ddof })),
         };
 
@@ -248,12 +305,20 @@ impl PlRExpr {
 
     fn rolling_median(
         &self,
-        window_size: usize,
+        window_size: NumericScalar,
         center: bool,
-        weights: Option<Vec<f64>>,
-        min_periods: Option<usize>,
+        weights: Option<NumericSexp>,
+        min_periods: Option<NumericScalar>,
     ) -> Result<Self> {
-        let min_periods = min_periods.unwrap_or(window_size);
+        let window_size = <Wrap<usize>>::try_from(window_size)?.0;
+        let weights: Option<Vec<f64>> = match weights {
+            Some(x) => Some(x.as_slice_f64().into()),
+            None => None,
+        };
+        let min_periods: usize = match min_periods {
+            Some(x) => <Wrap<usize>>::try_from(x)?.0,
+            None => window_size,
+        };
         let options = RollingOptionsFixedWindow {
             window_size,
             min_periods,
@@ -269,12 +334,13 @@ impl PlRExpr {
         by: &PlRExpr,
         window_size: &str,
         min_periods: usize,
-        closed: Wrap<ClosedWindow>,
+        closed: &str,
     ) -> Result<Self> {
+        let closed = <Wrap<ClosedWindow>>::try_from(closed)?.0;
         let options = RollingOptionsDynamicWindow {
             window_size: Duration::parse(window_size),
             min_periods,
-            closed_window: closed.0,
+            closed_window: closed,
             fn_params: None,
         };
         Ok(self
@@ -287,13 +353,22 @@ impl PlRExpr {
     fn rolling_quantile(
         &self,
         quantile: f64,
-        interpolation: Wrap<QuantileMethod>,
-        window_size: usize,
+        interpolation: &str,
+        window_size: NumericScalar,
         center: bool,
-        weights: Option<Vec<f64>>,
-        min_periods: Option<usize>,
+        weights: Option<NumericSexp>,
+        min_periods: Option<NumericScalar>,
     ) -> Result<Self> {
-        let min_periods = min_periods.unwrap_or(window_size);
+        let window_size = <Wrap<usize>>::try_from(window_size)?.0;
+        let weights: Option<Vec<f64>> = match weights {
+            Some(x) => Some(x.as_slice_f64().into()),
+            None => None,
+        };
+        let interpolation = <Wrap<QuantileMethod>>::try_from(interpolation)?.0;
+        let min_periods: usize = match min_periods {
+            Some(x) => <Wrap<usize>>::try_from(x)?.0,
+            None => window_size,
+        };
         let options = RollingOptionsFixedWindow {
             window_size,
             weights,
@@ -305,7 +380,7 @@ impl PlRExpr {
         Ok(self
             .inner
             .clone()
-            .rolling_quantile(interpolation.0, quantile, options)
+            .rolling_quantile(interpolation, quantile, options)
             .into())
     }
 
@@ -313,38 +388,44 @@ impl PlRExpr {
         &self,
         by: &PlRExpr,
         quantile: f64,
-        interpolation: Wrap<QuantileMethod>,
+        interpolation: &str,
         window_size: &str,
         min_periods: usize,
-        closed: Wrap<ClosedWindow>,
+        closed: &str,
     ) -> Result<Self> {
+        let interpolation = <Wrap<QuantileMethod>>::try_from(interpolation)?.0;
+        let closed = <Wrap<ClosedWindow>>::try_from(closed)?.0;
         let options = RollingOptionsDynamicWindow {
             window_size: Duration::parse(window_size),
             min_periods,
-            closed_window: closed.0,
+            closed_window: closed,
             fn_params: None,
         };
 
         Ok(self
             .inner
             .clone()
-            .rolling_quantile_by(by.inner.clone(), interpolation.0, quantile, options)
+            .rolling_quantile_by(by.inner.clone(), interpolation, quantile, options)
             .into())
     }
 
-    fn rolling_skew(&self, window_size: usize, bias: bool) -> Result<Self> {
+    fn rolling_skew(&self, window_size: NumericScalar, bias: bool) -> Result<Self> {
+        let window_size = <Wrap<usize>>::try_from(window_size)?.0;
         Ok(self.inner.clone().rolling_skew(window_size, bias).into())
     }
 
     // fn rolling_map(
     //     &self,
     //     lambda: PyObject,
-    //     window_size: usize,
-    //     weights: Option<Vec<f64>>,
-    //     min_periods: Option<usize>,
+    //     window_size: NumericScalar,
+    //     weights: Option<NumericSexp>,
+    //     min_periods: Option<NumericScalar>,
     //     center: bool,
     // ) -> Result<Self> {
-    //     let min_periods = min_periods.unwrap_or(window_size);
+    //     let min_periods: usize = match min_periods {
+    //       Some(x) => <Wrap<usize>>::try_from(x)?.0,
+    //       None => window_size
+    //     };
     //     let options = RollingOptionsFixedWindow {
     //         window_size,
     //         weights,

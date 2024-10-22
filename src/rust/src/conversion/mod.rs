@@ -475,6 +475,7 @@ impl TryFrom<&str> for Wrap<QuantileMethod> {
             "lower" => QuantileMethod::Lower,
             "midpoint" => QuantileMethod::Midpoint,
             "linear" => QuantileMethod::Linear,
+            "equiprobable" => QuantileMethod::Equiprobable,
             _ => return Err(format!("unreachable")),
         };
         Ok(Wrap(parsed))
