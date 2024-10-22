@@ -74,6 +74,8 @@ features = [
     "random",
     "range",
     "rank",
+    "rolling_window",
+    "rolling_window_by",
     "row_hash",
     "search_sorted",
     "serde",
