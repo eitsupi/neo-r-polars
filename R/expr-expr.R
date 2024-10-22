@@ -2294,7 +2294,7 @@ expr__search_sorted <- function(element, side = c("any", "left", "right")) {
 #' @description
 #' A window of length `window_size` will traverse the array. The values that
 #' fill this window will (optionally) be multiplied with the weights given by
-#' the `weights` vector. The resulting values will be aggregated to their max.
+#' the `weights` vector. The resulting values will be aggregated.
 #'
 #' The window at a given row will include the row itself, and the
 #' `window_size - 1` elements before it.
@@ -2339,6 +2339,162 @@ expr__rolling_max <- function(
   wrap({
     check_dots_empty0(...)
     self$`_rexpr`$rolling_max(
+      window_size = window_size,
+      weights = weights,
+      min_periods = min_periods,
+      center = center
+    )
+  })
+}
+
+#' Apply a rolling min over values
+#'
+#' @inherit expr__rolling_max description params details
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = 1:6)
+#' df$with_columns(
+#'   rolling_min = pl$col("a")$rolling_min(window_size = 2)
+#' )
+#'
+#' # Specify weights to multiply the values in the window with:
+#' df$with_columns(
+#'   rolling_min = pl$col("a")$rolling_min(
+#'     window_size = 2, weights = c(0.25, 0.75)
+#'   )
+#' )
+#'
+#' # Center the values in the window
+#' df$with_columns(
+#'   rolling_min = pl$col("a")$rolling_min(window_size = 3, center = TRUE)
+#' )
+expr__rolling_min <- function(
+    window_size,
+    weights = NULL,
+    ...,
+    min_periods = NULL,
+    center = FALSE) {
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$rolling_min(
+      window_size = window_size,
+      weights = weights,
+      min_periods = min_periods,
+      center = center
+    )
+  })
+}
+
+#' Apply a rolling mean over values
+#'
+#' @inherit expr__rolling_max description params details
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = 1:6)
+#' df$with_columns(
+#'   rolling_mean = pl$col("a")$rolling_mean(window_size = 2)
+#' )
+#'
+#' # Specify weights to multiply the values in the window with:
+#' df$with_columns(
+#'   rolling_mean = pl$col("a")$rolling_mean(
+#'     window_size = 2, weights = c(0.25, 0.75)
+#'   )
+#' )
+#'
+#' # Center the values in the window
+#' df$with_columns(
+#'   rolling_mean = pl$col("a")$rolling_mean(window_size = 3, center = TRUE)
+#' )
+expr__rolling_mean <- function(
+    window_size,
+    weights = NULL,
+    ...,
+    min_periods = NULL,
+    center = FALSE) {
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$rolling_mean(
+      window_size = window_size,
+      weights = weights,
+      min_periods = min_periods,
+      center = center
+    )
+  })
+}
+
+#' Apply a rolling median over values
+#'
+#' @inherit expr__rolling_max description params details
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = 1:6)
+#' df$with_columns(
+#'   rolling_median = pl$col("a")$rolling_median(window_size = 2)
+#' )
+#'
+#' # Specify weights to multiply the values in the window with:
+#' df$with_columns(
+#'   rolling_median = pl$col("a")$rolling_median(
+#'     window_size = 2, weights = c(0.25, 0.75)
+#'   )
+#' )
+#'
+#' # Center the values in the window
+#' df$with_columns(
+#'   rolling_median = pl$col("a")$rolling_median(window_size = 3, center = TRUE)
+#' )
+expr__rolling_median <- function(
+    window_size,
+    weights = NULL,
+    ...,
+    min_periods = NULL,
+    center = FALSE) {
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$rolling_median(
+      window_size = window_size,
+      weights = weights,
+      min_periods = min_periods,
+      center = center
+    )
+  })
+}
+
+#' Apply a rolling sum over values
+#'
+#' @inherit expr__rolling_max description params details
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = 1:6)
+#' df$with_columns(
+#'   rolling_sum = pl$col("a")$rolling_sum(window_size = 2)
+#' )
+#'
+#' # Specify weights to multiply the values in the window with:
+#' df$with_columns(
+#'   rolling_sum = pl$col("a")$rolling_sum(
+#'     window_size = 2, weights = c(0.25, 0.75)
+#'   )
+#' )
+#'
+#' # Center the values in the window
+#' df$with_columns(
+#'   rolling_sum = pl$col("a")$rolling_sum(window_size = 3, center = TRUE)
+#' )
+expr__rolling_sum <- function(
+    window_size,
+    weights = NULL,
+    ...,
+    min_periods = NULL,
+    center = FALSE) {
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$rolling_sum(
       window_size = window_size,
       weights = weights,
       min_periods = min_periods,
