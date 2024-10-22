@@ -1199,6 +1199,31 @@ SEXP savvy_PlRExpr_hash__impl(SEXP self__, SEXP c_arg__seed, SEXP c_arg__seed_1,
     return handle_result(res);
 }
 
+SEXP savvy_PlRExpr_pct_change__impl(SEXP self__, SEXP c_arg__n) {
+    SEXP res = savvy_PlRExpr_pct_change__ffi(self__, c_arg__n);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_skew__impl(SEXP self__, SEXP c_arg__bias) {
+    SEXP res = savvy_PlRExpr_skew__ffi(self__, c_arg__bias);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_kurtosis__impl(SEXP self__, SEXP c_arg__fisher, SEXP c_arg__bias) {
+    SEXP res = savvy_PlRExpr_kurtosis__ffi(self__, c_arg__fisher, c_arg__bias);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_peak_min__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_peak_min__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_peak_max__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_peak_max__ffi(self__);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRExpr_list_len__impl(SEXP self__) {
     SEXP res = savvy_PlRExpr_list_len__ffi(self__);
     return handle_result(res);
@@ -2169,6 +2194,11 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_mode__impl", (DL_FUNC) &savvy_PlRExpr_mode__impl, 1},
     {"savvy_PlRExpr_entropy__impl", (DL_FUNC) &savvy_PlRExpr_entropy__impl, 3},
     {"savvy_PlRExpr_hash__impl", (DL_FUNC) &savvy_PlRExpr_hash__impl, 5},
+    {"savvy_PlRExpr_pct_change__impl", (DL_FUNC) &savvy_PlRExpr_pct_change__impl, 2},
+    {"savvy_PlRExpr_skew__impl", (DL_FUNC) &savvy_PlRExpr_skew__impl, 2},
+    {"savvy_PlRExpr_kurtosis__impl", (DL_FUNC) &savvy_PlRExpr_kurtosis__impl, 3},
+    {"savvy_PlRExpr_peak_min__impl", (DL_FUNC) &savvy_PlRExpr_peak_min__impl, 1},
+    {"savvy_PlRExpr_peak_max__impl", (DL_FUNC) &savvy_PlRExpr_peak_max__impl, 1},
     {"savvy_PlRExpr_list_len__impl", (DL_FUNC) &savvy_PlRExpr_list_len__impl, 1},
     {"savvy_PlRExpr_list_contains__impl", (DL_FUNC) &savvy_PlRExpr_list_contains__impl, 2},
     {"savvy_PlRExpr_list_max__impl", (DL_FUNC) &savvy_PlRExpr_list_max__impl, 1},

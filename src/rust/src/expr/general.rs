@@ -558,4 +558,24 @@ impl PlRExpr {
         let seed_3 = <Wrap<u64>>::try_from(seed_3)?.0;
         Ok(self.inner.clone().hash(seed, seed_1, seed_2, seed_3).into())
     }
+
+    fn pct_change(&self, n: &PlRExpr) -> Result<Self> {
+        Ok(self.inner.clone().pct_change(n.inner.clone()).into())
+    }
+
+    fn skew(&self, bias: bool) -> Result<Self> {
+        Ok(self.inner.clone().skew(bias).into())
+    }
+
+    fn kurtosis(&self, fisher: bool, bias: bool) -> Result<Self> {
+        Ok(self.inner.clone().kurtosis(fisher, bias).into())
+    }
+
+    fn peak_min(&self) -> Result<Self> {
+        Ok(self.inner.clone().peak_min().into())
+    }
+
+    fn peak_max(&self) -> Result<Self> {
+        Ok(self.inner.clone().peak_max().into())
+    }
 }

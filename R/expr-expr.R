@@ -1666,6 +1666,25 @@ expr__approx_n_unique <- function() {
     wrap()
 }
 
+#' Count unique values
+#'
+#' `null` is considered to be a unique value for the purposes of this operation.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(
+#'   x = c(1, 1, 2, 2, 3),
+#'   y = c(1, 1, 1, NA, NA)
+#' )
+#' df$select(
+#'   x_unique = pl$col("x")$n_unique(),
+#'   y_unique = pl$col("y")$n_unique()
+#' )
+expr__n_unique <- function() {
+  self$`_rexpr`$n_unique() |>
+    wrap()
+}
+
 #' Compute sine
 #'
 #' @inherit as_polars_expr return
@@ -1831,6 +1850,17 @@ expr__degrees <- function() {
     wrap()
 }
 
+#' Convert from degrees to radians
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' pl$DataFrame(a = c(-720, -540, -360, -180, 0, 180, 360, 540, 720))$
+#'   with_columns(radians = pl$col("a")$radians())
+expr__radians <- function() {
+  self$`_rexpr`$radians() |>
+    wrap()
+}
+
 #' Compute entropy
 #'
 #' Uses the formula `-sum(pk * log(pk)` where `pk` are discrete probabilities.
@@ -1929,5 +1959,62 @@ expr__hash <- function(seed = 0, seed_1 = NULL, seed_2 = NULL, seed_3 = NULL) {
 #' df$select(pl$col("b")$mode())
 expr__mode <- function() {
   self$`_rexpr`$mode() |>
+    wrap()
+}
+
+#' Count null values
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = c(NA, 1, NA),
+#'   b = c(10, NA, 300),
+#'   c = c(1, 2, 2)
+#' )
+#' df$select(pl$all()$null_count())
+expr__null_count <- function() {
+  self$`_rexpr`$null_count() |>
+    wrap()
+}
+
+#' Computes percentage change between values
+#'
+#' Computes the percentage change (as fraction) between current element and
+#' most-recent non-null element at least `n` period(s) before the current
+#' element. By default it computes the change from the previous row.
+#'
+#' @param n Integer or Expr indicating the number of periods to shift for
+#' forming percent change.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c(10:12, NA, 12))
+#' df$with_columns(
+#'   pct_change = pl$col("a")$pct_change()
+#' )
+expr__pct_change <- function(n = 1) {
+  self$`_rexpr`$pct_change(as_polars_expr(n)$`_rexpr`) |>
+    wrap()
+}
+
+#' Get a boolean mask of the local maximum peaks
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(x = c(1, 2, 3, 2, 3, 4, 5, 2))
+#' df$with_columns(peak_max = pl$col("x")$peak_max())
+expr__peak_max <- function() {
+  self$`_rexpr`$peak_max() |>
+    wrap()
+}
+
+#' Get a boolean mask of the local minimum peaks
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(x = c(1, 2, 3, 2, 3, 4, 5, 2))
+#' df$with_columns(peak_min = pl$col("x")$peak_min())
+expr__peak_min <- function() {
+  self$`_rexpr`$peak_min() |>
     wrap()
 }
