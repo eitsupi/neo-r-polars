@@ -1828,6 +1828,17 @@ expr__arctanh <- function() {
     wrap()
 }
 
+#' Compute square root
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' pl$DataFrame(a = c(1, 2, 4))$
+#'   with_columns(sqrt = pl$col("a")$sqrt())
+expr__sqrt <- function() {
+  self$`_rexpr`$sqrt() |>
+    wrap()
+}
+
 #' Compute cube root
 #'
 #' @inherit as_polars_expr return
@@ -2017,4 +2028,263 @@ expr__peak_max <- function() {
 expr__peak_min <- function() {
   self$`_rexpr`$peak_min() |>
     wrap()
+}
+
+#' Assign ranks to data, dealing with ties appropriately
+#'
+#' @inheritParams rlang::check_dots_empty0
+#' @param method The method used to assign ranks to tied elements. Must be one
+#' of the following:
+#' - `"average"` (default): The average of the ranks that would have been
+#'   assigned to all the tied values is assigned to each value.
+#' - `"min"`: The minimum of the ranks that would have been assigned to all
+#'   the tied values is assigned to each value. (This is also referred to
+#'   as "competition" ranking.)
+#' - `"max"` : The maximum of the ranks that would have been assigned to all
+#'   the tied values is assigned to each value.
+#' - `"dense"`: Like 'min', but the rank of the next highest element is assigned
+#'   the rank immediately after those assigned to the tied elements.
+#' - `"ordinal"` : All values are given a distinct rank, corresponding to the
+#'   order that the values occur in the Series.
+#' - `"random"` : Like 'ordinal', but the rank for ties is not dependent on the
+#'   order that the values occur in the Series.
+#' @param descending Rank in descending order.
+#' @param seed Integer. Only used if `method = "random"`.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' # Default is to use the "average" method to break ties
+#' df <- pl$DataFrame(a = c(3, 6, 1, 1, 6))
+#' df$with_columns(rank = pl$col("a")$rank())
+#'
+#' # Ordinal method
+#' df$with_columns(rank = pl$col("a")$rank("ordinal"))
+#'
+#' # Use "rank" with "over" to rank within groups:
+#' df <- pl$DataFrame(
+#'   a = c(1, 1, 2, 2, 2),
+#'   b = c(6, 7, 5, 14, 11)
+#' )
+#' df$with_columns(
+#'   rank = pl$col("b")$rank()$over("a")
+#' )
+expr__rank <- function(
+    method = "average",
+    ...,
+    descending = FALSE,
+    seed = NULL) {
+  wrap({
+    rlang::check_dots_empty0(...)
+    method <- arg_match0(
+      method,
+      values = c("average", "min", "max", "dense", "ordinal", "random")
+    )
+    self$`_rexpr`$rank(method, descending, seed)
+  })
+}
+
+#' Compute the kurtosis (Fisher or Pearson)
+#'
+#' Kurtosis is the fourth central moment divided by the square of the variance.
+#' If Fisher’s definition is used, then 3.0 is subtracted from the result to
+#' give 0.0 for a normal distribution. If `bias` is `FALSE` then the kurtosis
+#' is calculated using `k` statistics to eliminate bias coming from biased
+#' moment estimators.
+#'
+#' @inheritParams rlang::check_dots_empty0
+#' @param fisher If `TRUE` (default), Fisher’s definition is used
+#' (normal ==> 0.0). If `FALSE`, Pearson’s definition is used (normal ==> 3.0).
+#' @param bias If `FALSE`, the calculations are corrected for statistical bias.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(x = c(1, 2, 3, 2, 1))
+#' df$select(pl$col("x")$kurtosis())
+expr__kurtosis <- function(..., fisher = TRUE, bias = TRUE) {
+  wrap({
+    rlang::check_dots_empty0(...)
+    self$`_rexpr`$kurtosis(fisher, bias)
+  })
+}
+
+#' Compute the skewness
+#'
+#' For normally distributed data, the skewness should be about zero. For
+#' unimodal continuous distributions, a skewness value greater than zero means
+#' that there is more weight in the right tail of the distribution.
+#'
+#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams expr__kurtosis
+#'
+#' @details
+#' The sample skewness is computed as the Fisher-Pearson coefficient of
+#' skewness, i.e.
+#' $g_1=\frac{m_3}{m_2^{3/2}}$
+#' where
+#' $m_i=\frac{1}{N}\sum_{n=1}^N(x[n]-\bar{x})^i$
+#' is the biased sample $i\texttt{th}$ central moment, and $\bar{x}$ is the
+#' sample mean. If `bias` is `FALSE`, the calculations are corrected for bias
+#' and the value computed is the adjusted Fisher-Pearson standardized moment
+#' coefficient, i.e.
+#' $G_1 = \frac{k_3}{k_2^{3/2}} = \frac{\sqrt{N(N-1)}}{N-2}\frac{m_3}{m_2^{3/2}}$
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(x = c(1, 2, 3, 2, 1))
+#' df$select(pl$col("x")$skew())
+expr__skew <- function(..., bias = TRUE) {
+  wrap({
+    rlang::check_dots_empty0(...)
+    self$`_rexpr`$skew(bias)
+  })
+}
+
+#' Bin values into buckets and count their occurrences
+#'
+#' @inheritParams rlang::check_dots_empty0
+#' @param bins Discretizations to make. If `NULL` (default), we determine the
+#' boundaries based on the data.
+#' @param bin_count If no bins provided, this will be used to determine the
+#' distance of the bins.
+#' @param include_breakpoint Include a column that indicates the upper
+#' breakpoint.
+#' @param include_category Include a column that shows the intervals as
+#' categories.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c(1, 3, 8, 8, 2, 1, 3))
+#' df$select(pl$col("a")$hist(bins = 1:3))
+#' df$select(
+#'   pl$col("a")$hist(
+#'     bins = 1:3, include_category = TRUE, include_breakpoint = TRUE
+#'   )
+#' )
+expr__hist <- function(
+    bins = NULL,
+    ...,
+    bin_count = NULL,
+    include_category = FALSE,
+    include_breakpoint = FALSE) {
+  wrap({
+    rlang::check_dots_empty0(...)
+    self$`_rexpr`$hist(
+      bins = as_polars_expr(bins)$`_rexpr`,
+      bin_count = bin_count,
+      include_category = include_category,
+      include_breakpoint = include_breakpoint
+    )
+  })
+}
+
+#' Count the occurrences of unique values
+#'
+#' @inheritParams rlang::check_dots_empty0
+#' @param sort Sort the output by count in descending order. If `FALSE`
+#' (default), the order of the output is random.
+#' @param parallel Execute the computation in parallel. This option should
+#' likely not be enabled in a group by context, as the computation is already
+#' parallelized per group.
+#' @param name Give the resulting count field a specific name. Default is
+#' `"count"`.
+#' @param normalize If `TRUE`, gives relative frequencies of the unique values.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(color = c("red", "blue", "red", "green", "blue", "blue"))
+#' df$select(pl$col("color")$value_counts())
+#'
+#' # Sort the output by (descending) count and customize the count field name.
+#' df <- df$select(pl$col("color")$value_counts(sort = TRUE, name = "n"))
+#' df
+#'
+#' df$unnest()
+expr__value_counts <- function(
+    ...,
+    sort = FALSE,
+    parallel = FALSE,
+    name = "count",
+    normalize = FALSE) {
+  wrap({
+    rlang::check_dots_empty0(...)
+    self$`_rexpr`$value_counts(sort, parallel, name, normalize)
+  })
+}
+
+#' Count unique values in the order of appearance
+#'
+#' This method differs from [`$value_counts()`][expr__value_counts] in that it
+#' does not return the values, only the counts and might be faster.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(id = c("a", "b", "b", "c", "c", "c"))
+#' df$select(pl$col("id")$unique_counts())
+expr__unique_counts <- function() {
+  wrap({
+    self$`_rexpr`$unique_counts()
+  })
+}
+
+#' Get unique values
+#'
+#' This method differs from [`$value_counts()`][expr__value_counts] in that it
+#' does not return the values, only the counts and might be faster.
+#'
+#' @param maintain_order Maintain order of data. This requires more work.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c(1, 1, 2))
+#' df$select(pl$col("a")$unique())
+expr__unique <- function(..., maintain_order = FALSE) {
+  wrap({
+    rlang::check_dots_empty0(...)
+    if (isTRUE(maintain_order)) {
+      self$`_rexpr`$unique_stable()
+    } else {
+      self$`_rexpr`$unique()
+    }
+  })
+}
+
+#' Compute the sign
+#'
+#' This returns -1 if x is lower than 0, 0 if x == 0, and 1 if x is greater
+#' than 0.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c(-9, 0, 0, 4, NA))
+#' df$with_columns(sign = pl$col("a")$sign())
+expr__sign <- function() {
+  wrap({
+    self$`_rexpr`$sign()
+  })
+}
+
+#' Find indices where elements should be inserted to maintain order
+#'
+#' This returns -1 if x is lower than 0, 0 if x == 0, and 1 if x is greater
+#' than 0.
+#'
+#' @param element Expression or scalar value.
+#' @param side Must be one of the following:
+#' * `"any"`: the index of the first suitable location found is given;
+#' * `"left"`: the index of the leftmost suitable location found is given;
+#' * `"right"`: the index the rightmost suitable location found is given.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(values = c(1, 2, 3, 5))
+#' df$select(
+#'   zero = pl$col("values")$search_sorted(0),
+#'   three = pl$col("values")$search_sorted(3),
+#'   six = pl$col("values")$search_sorted(6),
+#' )
+expr__search_sorted <- function(element, side = c("any", "left", "right")) {
+  wrap({
+    side <- arg_match0(side, values = c("any", "left", "right"))
+    self$`_rexpr`$search_sorted(as_polars_expr(element)$`_rexpr`, side)
+  })
 }

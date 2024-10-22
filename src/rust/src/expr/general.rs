@@ -345,6 +345,14 @@ impl PlRExpr {
         Ok(self.inner.clone().arg_unique().into())
     }
 
+    fn unique(&self) -> Result<Self> {
+        Ok(self.inner.clone().unique().into())
+    }
+
+    fn unique_stable(&self) -> Result<Self> {
+        Ok(self.inner.clone().unique_stable().into())
+    }
+
     fn implode(&self) -> Result<Self> {
         Ok(self.inner.clone().implode().into())
     }
@@ -503,6 +511,10 @@ impl PlRExpr {
         Ok(self.inner.clone().is_in(expr.inner.clone()).into())
     }
 
+    fn sqrt(&self) -> Result<Self> {
+        Ok(self.inner.clone().sqrt().into())
+    }
+
     fn cbrt(&self) -> Result<Self> {
         Ok(self.inner.clone().cbrt().into())
     }
@@ -577,5 +589,43 @@ impl PlRExpr {
 
     fn peak_max(&self) -> Result<Self> {
         Ok(self.inner.clone().peak_max().into())
+    }
+
+    fn rank(&self, method: &str, descending: bool, seed: Option<NumericScalar>) -> Result<Self> {
+        let method = <Wrap<RankMethod>>::try_from(method)?.0;
+        let seed: Option<u64> = match seed {
+            Some(x) => Some(<Wrap<u64>>::try_from(x)?.0),
+            None => None,
+        };
+        let options = RankOptions { method, descending };
+        Ok(self.inner.clone().rank(options, seed).into())
+    }
+
+    fn hist(
+        &self,
+        include_category: bool,
+        include_breakpoint: bool,
+        bin_count: Option<NumericScalar>,
+        bins: Option<&PlRExpr>,
+    ) -> Result<Self> {
+        let bins = bins.map(|e| e.inner.clone());
+        let bin_count: Option<usize> = match bin_count {
+            Some(x) => Some(<Wrap<usize>>::try_from(x)?.0),
+            None => None,
+        };
+        Ok(self
+            .inner
+            .clone()
+            .hist(bins, bin_count, include_category, include_breakpoint)
+            .into())
+    }
+
+    fn search_sorted(&self, element: &PlRExpr, side: &str) -> Result<Self> {
+        let side = <Wrap<SearchSortedSide>>::try_from(side)?.0;
+        Ok(self
+            .inner
+            .clone()
+            .search_sorted(element.inner.clone(), side)
+            .into())
     }
 }
