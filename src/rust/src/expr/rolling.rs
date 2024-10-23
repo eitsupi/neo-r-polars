@@ -41,9 +41,10 @@ impl PlRExpr {
         &self,
         by: &PlRExpr,
         window_size: &str,
-        min_periods: usize,
+        min_periods: NumericScalar,
         closed: &str,
     ) -> Result<Self> {
+        let min_periods = <Wrap<usize>>::try_from(min_periods)?.0;
         let closed = <Wrap<ClosedWindow>>::try_from(closed)?.0;
         let options = RollingOptionsDynamicWindow {
             window_size: Duration::parse(window_size),
@@ -88,9 +89,10 @@ impl PlRExpr {
         &self,
         by: &PlRExpr,
         window_size: &str,
-        min_periods: usize,
+        min_periods: NumericScalar,
         closed: &str,
     ) -> Result<Self> {
+        let min_periods = <Wrap<usize>>::try_from(min_periods)?.0;
         let closed = <Wrap<ClosedWindow>>::try_from(closed)?.0;
         let options = RollingOptionsDynamicWindow {
             window_size: Duration::parse(window_size),
@@ -135,9 +137,10 @@ impl PlRExpr {
         &self,
         by: &PlRExpr,
         window_size: &str,
-        min_periods: usize,
+        min_periods: NumericScalar,
         closed: &str,
     ) -> Result<Self> {
+        let min_periods = <Wrap<usize>>::try_from(min_periods)?.0;
         let closed = <Wrap<ClosedWindow>>::try_from(closed)?.0;
         let options = RollingOptionsDynamicWindow {
             window_size: Duration::parse(window_size),
@@ -183,9 +186,10 @@ impl PlRExpr {
         &self,
         by: &PlRExpr,
         window_size: &str,
-        min_periods: usize,
+        min_periods: NumericScalar,
         closed: &str,
     ) -> Result<Self> {
+        let min_periods = <Wrap<usize>>::try_from(min_periods)?.0;
         let closed = <Wrap<ClosedWindow>>::try_from(closed)?.0;
         let options = RollingOptionsDynamicWindow {
             window_size: Duration::parse(window_size),
@@ -234,10 +238,11 @@ impl PlRExpr {
         &self,
         by: &PlRExpr,
         window_size: &str,
-        min_periods: usize,
+        min_periods: NumericScalar,
         closed: &str,
         ddof: NumericScalar,
     ) -> Result<Self> {
+        let min_periods = <Wrap<usize>>::try_from(min_periods)?.0;
         let ddof = <Wrap<u8>>::try_from(ddof)?.0;
         let closed = <Wrap<ClosedWindow>>::try_from(closed)?.0;
         let options = RollingOptionsDynamicWindow {
@@ -287,10 +292,11 @@ impl PlRExpr {
         &self,
         by: &PlRExpr,
         window_size: &str,
-        min_periods: usize,
+        min_periods: NumericScalar,
         closed: &str,
         ddof: NumericScalar,
     ) -> Result<Self> {
+        let min_periods = <Wrap<usize>>::try_from(min_periods)?.0;
         let ddof = <Wrap<u8>>::try_from(ddof)?.0;
         let closed = <Wrap<ClosedWindow>>::try_from(closed)?.0;
         let options = RollingOptionsDynamicWindow {
@@ -337,9 +343,10 @@ impl PlRExpr {
         &self,
         by: &PlRExpr,
         window_size: &str,
-        min_periods: usize,
+        min_periods: NumericScalar,
         closed: &str,
     ) -> Result<Self> {
+        let min_periods = <Wrap<usize>>::try_from(min_periods)?.0;
         let closed = <Wrap<ClosedWindow>>::try_from(closed)?.0;
         let options = RollingOptionsDynamicWindow {
             window_size: Duration::parse(window_size),
@@ -394,9 +401,10 @@ impl PlRExpr {
         quantile: f64,
         interpolation: &str,
         window_size: &str,
-        min_periods: usize,
+        min_periods: NumericScalar,
         closed: &str,
     ) -> Result<Self> {
+        let min_periods = <Wrap<usize>>::try_from(min_periods)?.0;
         let interpolation = <Wrap<QuantileMethod>>::try_from(interpolation)?.0;
         let closed = <Wrap<ClosedWindow>>::try_from(closed)?.0;
         let options = RollingOptionsDynamicWindow {

@@ -2667,3 +2667,455 @@ expr__rolling_var <- function(
     )
   })
 }
+
+#' Apply a rolling max based on another column
+#'
+#' @description
+#' Given a `by` column `<t_0, t_1, ..., t_n>`, then `closed = "right"` (the
+#' default) means the windows will be:
+#' * `(t_0 - window_size, t_0]`
+#' * `(t_1 - window_size, t_1]`
+#' * …
+#' * `(t_n - window_size, t_n]`
+#'
+#' @param by This column must be of dtype Datetime or Date.
+#' @param window_size The length of the window. Can be a dynamic temporal size
+#' indicated by a timedelta or the following string language:
+#' - 1ns (1 nanosecond)
+#' - 1us (1 microsecond)
+#' - 1ms (1 millisecond)
+#' - 1s (1 second)
+#' - 1m (1 minute)
+#' - 1h (1 hour)
+#' - 1d (1 calendar day)
+#' - 1w (1 calendar week)
+#' - 1mo (1 calendar month)
+#' - 1q (1 calendar quarter)
+#' - 1y (1 calendar year)
+#'
+#' Or combine them: `"3d12h4m25s"` # 3 days, 12 hours, 4 minutes, and 25 seconds
+#'
+#' By "calendar day", we mean the corresponding time on the next day
+#' (which may not be 24 hours, due to daylight savings). Similarly for
+#' "calendar week", "calendar month", "calendar quarter", and "calendar year".
+#' @param min_periods The number of values in the window that should be
+#' non-null before computing a result. If `NULL` (default), it will be set
+#' equal to `window_size`.
+#' @param closed Define which sides of the interval are closed (inclusive).
+#' Default is `"right"`.
+#'
+#' @details
+#' If you want to compute multiple aggregation statistics over the same dynamic
+#' window, consider using [`$rolling()`][expr__rolling] - this method can cache
+#' the window size computation.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df_temporal <- pl$select(
+#'   index = 0:24,
+#'   date = pl$datetime_range(
+#'     as.POSIXct("2001-01-01"),
+#'     as.POSIXct("2001-01-02"),
+#'     "1h"
+#'   )
+#' )
+#'
+#' # Compute the rolling max with the temporal windows closed on the right
+#' # (default)
+#' df_temporal$with_columns(
+#'   rolling_row_max = pl$col("index")$rolling_max_by(
+#'     "date",
+#'     window_size = "2h"
+#'   )
+#' )
+#'
+#' # Compute the rolling max with the closure of windows on both sides
+#' df_temporal$with_columns(
+#'   rolling_row_max = pl$col("index")$rolling_max_by(
+#'     "date",
+#'     window_size = "2h",
+#'     closed = "both"
+#'   )
+#' )
+expr__rolling_max_by <- function(
+    by,
+    window_size,
+    ...,
+    min_periods = 1,
+    closed = c("right", "both", "left", "none")) {
+  wrap({
+    check_dots_empty0(...)
+    closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
+    self$`_rexpr`$rolling_max_by(
+      by = as_polars_expr(by)$`_rexpr`,
+      window_size = window_size,
+      min_periods = min_periods,
+      closed = closed
+    )
+  })
+}
+
+#' Apply a rolling min based on another column
+#'
+#' @inherit expr__rolling_max_by description params details
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df_temporal <- pl$select(
+#'   index = 0:24,
+#'   date = pl$datetime_range(
+#'     as.POSIXct("2001-01-01"),
+#'     as.POSIXct("2001-01-02"),
+#'     "1h"
+#'   )
+#' )
+#'
+#' # Compute the rolling min with the temporal windows closed on the right
+#' # (default)
+#' df_temporal$with_columns(
+#'   rolling_row_min = pl$col("index")$rolling_min_by(
+#'     "date",
+#'     window_size = "2h"
+#'   )
+#' )
+#'
+#' # Compute the rolling min with the closure of windows on both sides
+#' df_temporal$with_columns(
+#'   rolling_row_min = pl$col("index")$rolling_min_by(
+#'     "date",
+#'     window_size = "2h",
+#'     closed = "both"
+#'   )
+#' )
+expr__rolling_min_by <- function(
+    by,
+    window_size,
+    ...,
+    min_periods = 1,
+    closed = c("right", "both", "left", "none")) {
+  wrap({
+    check_dots_empty0(...)
+    closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
+    self$`_rexpr`$rolling_min_by(
+      by = as_polars_expr(by)$`_rexpr`,
+      window_size = window_size,
+      min_periods = min_periods,
+      closed = closed
+    )
+  })
+}
+
+#' Apply a rolling mean based on another column
+#'
+#' @inherit expr__rolling_max_by description params details
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df_temporal <- pl$select(
+#'   index = 0:24,
+#'   date = pl$datetime_range(
+#'     as.POSIXct("2001-01-01"),
+#'     as.POSIXct("2001-01-02"),
+#'     "1h"
+#'   )
+#' )
+#'
+#' # Compute the rolling mean with the temporal windows closed on the right
+#' # (default)
+#' df_temporal$with_columns(
+#'   rolling_row_mean = pl$col("index")$rolling_mean_by(
+#'     "date",
+#'     window_size = "2h"
+#'   )
+#' )
+#'
+#' # Compute the rolling mean with the closure of windows on both sides
+#' df_temporal$with_columns(
+#'   rolling_row_mean = pl$col("index")$rolling_mean_by(
+#'     "date",
+#'     window_size = "2h",
+#'     closed = "both"
+#'   )
+#' )
+expr__rolling_mean_by <- function(
+    by,
+    window_size,
+    ...,
+    min_periods = 1,
+    closed = c("right", "both", "left", "none")) {
+  wrap({
+    check_dots_empty0(...)
+    closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
+    self$`_rexpr`$rolling_mean_by(
+      by = as_polars_expr(by)$`_rexpr`,
+      window_size = window_size,
+      min_periods = min_periods,
+      closed = closed
+    )
+  })
+}
+
+#' Apply a rolling median based on another column
+#'
+#' @inherit expr__rolling_max_by description params details
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df_temporal <- pl$select(
+#'   index = 0:24,
+#'   date = pl$datetime_range(
+#'     as.POSIXct("2001-01-01"),
+#'     as.POSIXct("2001-01-02"),
+#'     "1h"
+#'   )
+#' )
+#'
+#' # Compute the rolling median with the temporal windows closed on the right
+#' # (default)
+#' df_temporal$with_columns(
+#'   rolling_row_median = pl$col("index")$rolling_median_by(
+#'     "date",
+#'     window_size = "2h"
+#'   )
+#' )
+#'
+#' # Compute the rolling median with the closure of windows on both sides
+#' df_temporal$with_columns(
+#'   rolling_row_median = pl$col("index")$rolling_median_by(
+#'     "date",
+#'     window_size = "2h",
+#'     closed = "both"
+#'   )
+#' )
+expr__rolling_median_by <- function(
+    by,
+    window_size,
+    ...,
+    min_periods = 1,
+    closed = c("right", "both", "left", "none")) {
+  wrap({
+    check_dots_empty0(...)
+    closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
+    self$`_rexpr`$rolling_median_by(
+      by = as_polars_expr(by)$`_rexpr`,
+      window_size = window_size,
+      min_periods = min_periods,
+      closed = closed
+    )
+  })
+}
+
+#' Apply a rolling sum based on another column
+#'
+#' @inherit expr__rolling_max_by description params details
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df_temporal <- pl$select(
+#'   index = 0:24,
+#'   date = pl$datetime_range(
+#'     as.POSIXct("2001-01-01"),
+#'     as.POSIXct("2001-01-02"),
+#'     "1h"
+#'   )
+#' )
+#'
+#' # Compute the rolling sum with the temporal windows closed on the right
+#' # (default)
+#' df_temporal$with_columns(
+#'   rolling_row_sum = pl$col("index")$rolling_sum_by(
+#'     "date",
+#'     window_size = "2h"
+#'   )
+#' )
+#'
+#' # Compute the rolling sum with the closure of windows on both sides
+#' df_temporal$with_columns(
+#'   rolling_row_sum = pl$col("index")$rolling_sum_by(
+#'     "date",
+#'     window_size = "2h",
+#'     closed = "both"
+#'   )
+#' )
+expr__rolling_sum_by <- function(
+    by,
+    window_size,
+    ...,
+    min_periods = 1,
+    closed = c("right", "both", "left", "none")) {
+  wrap({
+    check_dots_empty0(...)
+    closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
+    self$`_rexpr`$rolling_sum_by(
+      by = as_polars_expr(by)$`_rexpr`,
+      window_size = window_size,
+      min_periods = min_periods,
+      closed = closed
+    )
+  })
+}
+
+#' Apply a rolling quantile based on another column
+#'
+#' @inherit expr__rolling_max_by description params details
+#' @inheritParams expr__quantile
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df_temporal <- pl$select(
+#'   index = 0:24,
+#'   date = pl$datetime_range(
+#'     as.POSIXct("2001-01-01"),
+#'     as.POSIXct("2001-01-02"),
+#'     "1h"
+#'   )
+#' )
+#'
+#' # Compute the rolling quantile with the temporal windows closed on the right
+#' # (default)
+#' df_temporal$with_columns(
+#'   rolling_row_quantile = pl$col("index")$rolling_quantile_by(
+#'     "date",
+#'     window_size = "2h"
+#'   )
+#' )
+#'
+#' # Compute the rolling quantile with the closure of windows on both sides
+#' df_temporal$with_columns(
+#'   rolling_row_quantile = pl$col("index")$rolling_quantile_by(
+#'     "date",
+#'     window_size = "2h",
+#'     closed = "both"
+#'   )
+#' )
+expr__rolling_quantile_by <- function(
+    by,
+    window_size,
+    ...,
+    quantile,
+    interpolation = c("nearest", "higher", "lower", "midpoint", "linear"),
+    min_periods = 1,
+    closed = c("right", "both", "left", "none")) {
+  wrap({
+    check_dots_empty0(...)
+    closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
+    interpolation <- arg_match0(
+      interpolation,
+      values = c("nearest", "higher", "lower", "midpoint", "linear")
+    )
+    self$`_rexpr`$rolling_quantile_by(
+      by = as_polars_expr(by)$`_rexpr`,
+      window_size = window_size,
+      quantile = quantile,
+      interpolation = interpolation,
+      min_periods = min_periods,
+      closed = closed
+    )
+  })
+}
+
+#' Apply a rolling standard deviation based on another column
+#'
+#' @inherit expr__rolling_max_by description params details
+#' @inheritParams expr__std
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df_temporal <- pl$select(
+#'   index = 0:24,
+#'   date = pl$datetime_range(
+#'     as.POSIXct("2001-01-01"),
+#'     as.POSIXct("2001-01-02"),
+#'     "1h"
+#'   )
+#' )
+#'
+#' # Compute the rolling std with the temporal windows closed on the right
+#' # (default)
+#' df_temporal$with_columns(
+#'   rolling_row_std = pl$col("index")$rolling_std_by(
+#'     "date",
+#'     window_size = "2h"
+#'   )
+#' )
+#'
+#' # Compute the rolling std with the closure of windows on both sides
+#' df_temporal$with_columns(
+#'   rolling_row_std = pl$col("index")$rolling_std_by(
+#'     "date",
+#'     window_size = "2h",
+#'     closed = "both"
+#'   )
+#' )
+expr__rolling_std_by <- function(
+    by,
+    window_size,
+    ...,
+    min_periods = 1,
+    closed = c("right", "both", "left", "none"),
+    ddof = 1) {
+  wrap({
+    check_dots_empty0(...)
+    closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
+    self$`_rexpr`$rolling_std_by(
+      by = as_polars_expr(by)$`_rexpr`,
+      window_size = window_size,
+      min_periods = min_periods,
+      closed = closed,
+      ddof = ddof
+    )
+  })
+}
+
+#' Apply a rolling variance based on another column
+#'
+#' @inherit expr__rolling_max_by description params details
+#' @inheritParams expr__var
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df_temporal <- pl$select(
+#'   index = 0:24,
+#'   date = pl$datetime_range(
+#'     as.POSIXct("2001-01-01"),
+#'     as.POSIXct("2001-01-02"),
+#'     "1h"
+#'   )
+#' )
+#'
+#' # Compute the rolling var with the temporal windows closed on the right
+#' # (default)
+#' df_temporal$with_columns(
+#'   rolling_row_var = pl$col("index")$rolling_var_by(
+#'     "date",
+#'     window_size = "2h"
+#'   )
+#' )
+#'
+#' # Compute the rolling var with the closure of windows on both sides
+#' df_temporal$with_columns(
+#'   rolling_row_var = pl$col("index")$rolling_var_by(
+#'     "date",
+#'     window_size = "2h",
+#'     closed = "both"
+#'   )
+#' )
+expr__rolling_var_by <- function(
+    by,
+    window_size,
+    ...,
+    min_periods = 1,
+    closed = c("right", "both", "left", "none"),
+    ddof = 1) {
+  wrap({
+    check_dots_empty0(...)
+    closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
+    self$`_rexpr`$rolling_var_by(
+      by = as_polars_expr(by)$`_rexpr`,
+      window_size = window_size,
+      min_periods = min_periods,
+      closed = closed,
+      ddof = ddof
+    )
+  })
+}
