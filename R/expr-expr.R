@@ -2502,3 +2502,168 @@ expr__rolling_sum <- function(
     )
   })
 }
+
+#' Apply a rolling quantile over values
+#'
+#' @inherit expr__rolling_max description params details
+#' @inheritParams expr__quantile
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = 1:6)
+#' df$with_columns(
+#'   rolling_quantile = pl$col("a")$rolling_quantile(
+#'     quantile = 0.25, window_size = 4
+#'   )
+#' )
+#'
+#' # Specify weights to multiply the values in the window with:
+#' df$with_columns(
+#'   rolling_quantile = pl$col("a")$rolling_quantile(
+#'     quantile = 0.25, window_size = 4, weights = c(0.2, 0.4, 0.4, 0.2)
+#'   )
+#' )
+#'
+#' # Specify weights and interpolation method:
+#' df$with_columns(
+#'   rolling_quantile = pl$col("a")$rolling_quantile(
+#'     quantile = 0.25, window_size = 4, weights = c(0.2, 0.4, 0.4, 0.2),
+#'     interpolation = "linear"
+#'   )
+#' )
+#'
+#' # Center the values in the window
+#' df$with_columns(
+#'   rolling_quantile = pl$col("a")$rolling_quantile(
+#'     quantile = 0.25, window_size = 5, center = TRUE
+#'   )
+#' )
+expr__rolling_quantile <- function(
+    quantile,
+    interpolation = c("nearest", "higher", "lower", "midpoint", "linear"),
+    window_size,
+    weights = NULL,
+    ...,
+    min_periods = NULL,
+    center = FALSE) {
+  wrap({
+    check_dots_empty0(...)
+    interpolation <- arg_match0(
+      interpolation,
+      values = c("nearest", "higher", "lower", "midpoint", "linear")
+    )
+    self$`_rexpr`$rolling_quantile(
+      quantile = quantile,
+      interpolation = interpolation,
+      window_size = window_size,
+      weights = weights,
+      min_periods = min_periods,
+      center = center
+    )
+  })
+}
+
+#' Apply a rolling skew over values
+#'
+#' @inherit expr__rolling_max description params details
+#' @inheritParams expr__skew
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c(1, 4, 2, 9))
+#' df$with_columns(
+#'   rolling_skew = pl$col("a")$rolling_skew(3)
+#' )
+expr__rolling_skew <- function(window_size, ..., bias = TRUE) {
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$rolling_skew(
+      window_size = window_size,
+      bias = bias
+    )
+  })
+}
+
+#' Apply a rolling standard deviation over values
+#'
+#' @inherit expr__rolling_max description params details
+#' @inheritParams expr__std
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = 1:6)
+#' df$with_columns(
+#'   rolling_std = pl$col("a")$rolling_std(window_size = 2)
+#' )
+#'
+#' # Specify weights to multiply the values in the window with:
+#' df$with_columns(
+#'   rolling_std = pl$col("a")$rolling_std(
+#'     window_size = 2, weights = c(0.25, 0.75)
+#'   )
+#' )
+#'
+#' # Center the values in the window
+#' df$with_columns(
+#'   rolling_std = pl$col("a")$rolling_std(window_size = 3, center = TRUE)
+#' )
+expr__rolling_std <- function(
+    window_size,
+    weights = NULL,
+    ...,
+    min_periods = NULL,
+    center = FALSE,
+    ddof = 1) {
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$rolling_std(
+      window_size = window_size,
+      weights = weights,
+      min_periods = min_periods,
+      center = center,
+      ddof = ddof
+    )
+  })
+}
+
+#' Apply a rolling variance over values
+#'
+#' @inherit expr__rolling_max description params details
+#' @inheritParams expr__var
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = 1:6)
+#' df$with_columns(
+#'   rolling_var = pl$col("a")$rolling_var(window_size = 2)
+#' )
+#'
+#' # Specify weights to multiply the values in the window with:
+#' df$with_columns(
+#'   rolling_var = pl$col("a")$rolling_var(
+#'     window_size = 2, weights = c(0.25, 0.75)
+#'   )
+#' )
+#'
+#' # Center the values in the window
+#' df$with_columns(
+#'   rolling_var = pl$col("a")$rolling_var(window_size = 3, center = TRUE)
+#' )
+expr__rolling_var <- function(
+    window_size,
+    weights = NULL,
+    ...,
+    min_periods = NULL,
+    center = FALSE,
+    ddof = 1) {
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$rolling_var(
+      window_size = window_size,
+      weights = weights,
+      min_periods = min_periods,
+      center = center,
+      ddof = ddof
+    )
+  })
+}

@@ -205,10 +205,11 @@ impl PlRExpr {
         &self,
         window_size: NumericScalar,
         center: bool,
-        ddof: u8,
+        ddof: NumericScalar,
         weights: Option<NumericSexp>,
         min_periods: Option<NumericScalar>,
     ) -> Result<Self> {
+        let ddof = <Wrap<u8>>::try_from(ddof)?.0;
         let window_size = <Wrap<usize>>::try_from(window_size)?.0;
         let weights: Option<Vec<f64>> = match weights {
             Some(x) => Some(x.as_slice_f64().into()),
@@ -235,8 +236,9 @@ impl PlRExpr {
         window_size: &str,
         min_periods: usize,
         closed: &str,
-        ddof: u8,
+        ddof: NumericScalar,
     ) -> Result<Self> {
+        let ddof = <Wrap<u8>>::try_from(ddof)?.0;
         let closed = <Wrap<ClosedWindow>>::try_from(closed)?.0;
         let options = RollingOptionsDynamicWindow {
             window_size: Duration::parse(window_size),
@@ -256,10 +258,11 @@ impl PlRExpr {
         &self,
         window_size: NumericScalar,
         center: bool,
-        ddof: u8,
+        ddof: NumericScalar,
         weights: Option<NumericSexp>,
         min_periods: Option<NumericScalar>,
     ) -> Result<Self> {
+        let ddof = <Wrap<u8>>::try_from(ddof)?.0;
         let window_size = <Wrap<usize>>::try_from(window_size)?.0;
         let weights: Option<Vec<f64>> = match weights {
             Some(x) => Some(x.as_slice_f64().into()),
@@ -286,8 +289,9 @@ impl PlRExpr {
         window_size: &str,
         min_periods: usize,
         closed: &str,
-        ddof: u8,
+        ddof: NumericScalar,
     ) -> Result<Self> {
+        let ddof = <Wrap<u8>>::try_from(ddof)?.0;
         let closed = <Wrap<ClosedWindow>>::try_from(closed)?.0;
         let options = RollingOptionsDynamicWindow {
             window_size: Duration::parse(window_size),
