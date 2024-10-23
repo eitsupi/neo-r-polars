@@ -39,6 +39,8 @@ features = [
     "diff",
     "dot_product",
     "dtype-full",
+    "ewma",
+    "ewma_by",
     "extract_groups",
     "extract_jsonpath",
     "find_many",

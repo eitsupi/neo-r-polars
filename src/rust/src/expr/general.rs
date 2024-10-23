@@ -628,4 +628,68 @@ impl PlRExpr {
             .search_sorted(element.inner.clone(), side)
             .into())
     }
+
+    fn ewm_mean(
+        &self,
+        alpha: f64,
+        adjust: bool,
+        min_periods: NumericScalar,
+        ignore_nulls: bool,
+    ) -> Result<Self> {
+        let min_periods = <Wrap<usize>>::try_from(min_periods)?.0;
+        let options = EWMOptions {
+            alpha,
+            adjust,
+            bias: false,
+            min_periods,
+            ignore_nulls,
+        };
+        Ok(self.inner.clone().ewm_mean(options).into())
+    }
+
+    fn ewm_mean_by(&self, times: &PlRExpr, half_life: &str) -> Result<Self> {
+        let half_life = Duration::parse(half_life);
+        Ok(self
+            .inner
+            .clone()
+            .ewm_mean_by(times.inner.clone(), half_life)
+            .into())
+    }
+
+    fn ewm_std(
+        &self,
+        alpha: f64,
+        adjust: bool,
+        bias: bool,
+        min_periods: NumericScalar,
+        ignore_nulls: bool,
+    ) -> Result<Self> {
+        let min_periods = <Wrap<usize>>::try_from(min_periods)?.0;
+        let options = EWMOptions {
+            alpha,
+            adjust,
+            bias,
+            min_periods,
+            ignore_nulls,
+        };
+        Ok(self.inner.clone().ewm_std(options).into())
+    }
+    fn ewm_var(
+        &self,
+        alpha: f64,
+        adjust: bool,
+        bias: bool,
+        min_periods: NumericScalar,
+        ignore_nulls: bool,
+    ) -> Result<Self> {
+        let min_periods = <Wrap<usize>>::try_from(min_periods)?.0;
+        let options = EWMOptions {
+            alpha,
+            adjust,
+            bias,
+            min_periods,
+            ignore_nulls,
+        };
+        Ok(self.inner.clone().ewm_var(options).into())
+    }
 }

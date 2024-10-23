@@ -1254,6 +1254,26 @@ SEXP savvy_PlRExpr_search_sorted__impl(SEXP self__, SEXP c_arg__element, SEXP c_
     return handle_result(res);
 }
 
+SEXP savvy_PlRExpr_ewm_mean__impl(SEXP self__, SEXP c_arg__alpha, SEXP c_arg__adjust, SEXP c_arg__min_periods, SEXP c_arg__ignore_nulls) {
+    SEXP res = savvy_PlRExpr_ewm_mean__ffi(self__, c_arg__alpha, c_arg__adjust, c_arg__min_periods, c_arg__ignore_nulls);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_ewm_mean_by__impl(SEXP self__, SEXP c_arg__times, SEXP c_arg__half_life) {
+    SEXP res = savvy_PlRExpr_ewm_mean_by__ffi(self__, c_arg__times, c_arg__half_life);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_ewm_std__impl(SEXP self__, SEXP c_arg__alpha, SEXP c_arg__adjust, SEXP c_arg__bias, SEXP c_arg__min_periods, SEXP c_arg__ignore_nulls) {
+    SEXP res = savvy_PlRExpr_ewm_std__ffi(self__, c_arg__alpha, c_arg__adjust, c_arg__bias, c_arg__min_periods, c_arg__ignore_nulls);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_ewm_var__impl(SEXP self__, SEXP c_arg__alpha, SEXP c_arg__adjust, SEXP c_arg__bias, SEXP c_arg__min_periods, SEXP c_arg__ignore_nulls) {
+    SEXP res = savvy_PlRExpr_ewm_var__ffi(self__, c_arg__alpha, c_arg__adjust, c_arg__bias, c_arg__min_periods, c_arg__ignore_nulls);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRExpr_list_len__impl(SEXP self__) {
     SEXP res = savvy_PlRExpr_list_len__ffi(self__);
     return handle_result(res);
@@ -2325,6 +2345,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_rank__impl", (DL_FUNC) &savvy_PlRExpr_rank__impl, 4},
     {"savvy_PlRExpr_hist__impl", (DL_FUNC) &savvy_PlRExpr_hist__impl, 5},
     {"savvy_PlRExpr_search_sorted__impl", (DL_FUNC) &savvy_PlRExpr_search_sorted__impl, 3},
+    {"savvy_PlRExpr_ewm_mean__impl", (DL_FUNC) &savvy_PlRExpr_ewm_mean__impl, 5},
+    {"savvy_PlRExpr_ewm_mean_by__impl", (DL_FUNC) &savvy_PlRExpr_ewm_mean_by__impl, 3},
+    {"savvy_PlRExpr_ewm_std__impl", (DL_FUNC) &savvy_PlRExpr_ewm_std__impl, 6},
+    {"savvy_PlRExpr_ewm_var__impl", (DL_FUNC) &savvy_PlRExpr_ewm_var__impl, 6},
     {"savvy_PlRExpr_list_len__impl", (DL_FUNC) &savvy_PlRExpr_list_len__impl, 1},
     {"savvy_PlRExpr_list_contains__impl", (DL_FUNC) &savvy_PlRExpr_list_contains__impl, 2},
     {"savvy_PlRExpr_list_max__impl", (DL_FUNC) &savvy_PlRExpr_list_max__impl, 1},

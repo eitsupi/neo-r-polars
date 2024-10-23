@@ -1,13 +1,6 @@
-use crate::map::lazy::map_single;
 use crate::{prelude::*, PlRDataType, PlRExpr};
-use polars::lazy::dsl;
 use polars::prelude::*;
-use polars::series::ops::NullBehavior;
-use polars_core::chunked_array::cast::CastOptions;
-use savvy::{
-    r_println, savvy, FunctionSexp, ListSexp, LogicalSexp, NumericScalar, NumericSexp, Result,
-};
-use std::ops::Neg;
+use savvy::{savvy, NumericScalar, NumericSexp, Result};
 
 #[savvy]
 impl PlRExpr {
