@@ -2,6 +2,7 @@ use crate::prelude::*;
 use crate::{PlRDataFrame, PlRDataType, PlRExpr};
 use polars::series::ops::NullBehavior;
 use savvy::{ListSexp, NumericScalar, NumericSexp, TypedSexp};
+use search_sorted::SearchSortedSide;
 pub mod base_date;
 mod chunked_array;
 pub mod clock;
@@ -189,7 +190,7 @@ impl TryFrom<&str> for Wrap<TimeUnit> {
             "ns" => TimeUnit::Nanoseconds,
             "us" => TimeUnit::Microseconds,
             "ms" => TimeUnit::Milliseconds,
-            v => return Err(format!("unsupported value: '{v}'",)),
+            _ => return Err(format!("unreachable")),
         };
         Ok(Wrap(time_unit))
     }
@@ -375,7 +376,7 @@ impl TryFrom<&str> for Wrap<NonExistent> {
         let parsed = match non_existent {
             "null" => NonExistent::Null,
             "raise" => NonExistent::Raise,
-            v => return Err(format!("unsupported value: '{v}'",)),
+            _ => return Err(format!("unreachable")),
         };
         Ok(Wrap(parsed))
     }
@@ -388,7 +389,7 @@ impl TryFrom<&str> for Wrap<NullBehavior> {
         let parsed = match null_behavior {
             "drop" => NullBehavior::Drop,
             "ignore" => NullBehavior::Ignore,
-            v => return Err(format!("unsupported value: '{v}'",)),
+            _ => return Err(format!("unreachable")),
         };
         Ok(Wrap(parsed))
     }
@@ -402,7 +403,7 @@ impl TryFrom<&str> for Wrap<WindowMapping> {
             "group_to_rows" => WindowMapping::GroupsToRows,
             "join" => WindowMapping::Join,
             "explode" => WindowMapping::Explode,
-            v => return Err(format!("unsupported value: '{v}'",)),
+            _ => return Err(format!("unreachable")),
         };
         Ok(Wrap(parsed))
     }
@@ -417,7 +418,7 @@ impl TryFrom<&str> for Wrap<SetOperation> {
             "intersection" => SetOperation::Intersection,
             "difference" => SetOperation::Difference,
             "symmetric_difference" => SetOperation::SymmetricDifference,
-            v => return Err(format!("unsupported value: '{v}'",)),
+            _ => return Err(format!("unreachable")),
         };
         Ok(Wrap(parsed))
     }
@@ -430,7 +431,7 @@ impl TryFrom<&str> for Wrap<ListToStructWidthStrategy> {
         let parsed = match operation {
             "first_non_null" => ListToStructWidthStrategy::FirstNonNull,
             "max_width" => ListToStructWidthStrategy::MaxWidth,
-            v => return Err(format!("unsupported value: '{v}'",)),
+            _ => return Err(format!("unreachable")),
         };
         Ok(Wrap(parsed))
     }
@@ -445,7 +446,7 @@ impl TryFrom<&str> for Wrap<ClosedWindow> {
             "left" => ClosedWindow::Left,
             "none" => ClosedWindow::None,
             "right" => ClosedWindow::Right,
-            v => return Err(format!("unreachable",)),
+            _ => return Err(format!("unreachable")),
         };
         Ok(Wrap(parsed))
     }
@@ -459,8 +460,92 @@ impl TryFrom<&str> for Wrap<Roll> {
             "raise" => Roll::Raise,
             "forward" => Roll::Forward,
             "backward" => Roll::Backward,
-            v => return Err(format!("unreachable",)),
+            _ => return Err(format!("unreachable")),
         };
         Ok(Wrap(parsed))
     }
+}
+
+impl TryFrom<&str> for Wrap<QuantileMethod> {
+    type Error = String;
+
+    fn try_from(roll: &str) -> Result<Self, String> {
+        let parsed = match roll {
+            "nearest" => QuantileMethod::Nearest,
+            "higher" => QuantileMethod::Higher,
+            "lower" => QuantileMethod::Lower,
+            "midpoint" => QuantileMethod::Midpoint,
+            "linear" => QuantileMethod::Linear,
+            "equiprobable" => QuantileMethod::Equiprobable,
+            _ => return Err(format!("unreachable")),
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
+impl TryFrom<&str> for Wrap<ClosedInterval> {
+    type Error = String;
+
+    fn try_from(closed: &str) -> Result<Self, String> {
+        let parsed = match closed {
+            "both" => ClosedInterval::Both,
+            "left" => ClosedInterval::Left,
+            "right" => ClosedInterval::Right,
+            "none" => ClosedInterval::None,
+            _ => return Err(format!("unreachable")),
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
+impl TryFrom<&str> for Wrap<RankMethod> {
+    type Error = String;
+
+    fn try_from(method: &str) -> Result<Self, String> {
+        let parsed = match method {
+            "average" => RankMethod::Average,
+            "min" => RankMethod::Min,
+            "max" => RankMethod::Max,
+            "dense" => RankMethod::Dense,
+            "ordinal" => RankMethod::Ordinal,
+            "random" => RankMethod::Random,
+            _ => return Err(format!("unreachable")),
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
+impl TryFrom<&str> for Wrap<SearchSortedSide> {
+    type Error = String;
+
+    fn try_from(method: &str) -> Result<Self, String> {
+        let parsed = match method {
+            "any" => SearchSortedSide::Any,
+            "left" => SearchSortedSide::Left,
+            "right" => SearchSortedSide::Right,
+            _ => return Err(format!("unreachable")),
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
+pub(crate) fn parse_fill_null_strategy(
+    strategy: &str,
+    limit: FillNullLimit,
+) -> Result<FillNullStrategy, String> {
+    let parsed = match strategy {
+        "forward" => FillNullStrategy::Forward(limit),
+        "backward" => FillNullStrategy::Backward(limit),
+        "min" => FillNullStrategy::Min,
+        "max" => FillNullStrategy::Max,
+        "mean" => FillNullStrategy::Mean,
+        "zero" => FillNullStrategy::Zero,
+        "one" => FillNullStrategy::One,
+        e => {
+            return Err(format!(
+                "`strategy` must be one of {{'forward', 'backward', 'min', 'max', 'mean', 'zero', 'one'}}, got {e}",
+            ))
+        }
+    };
+    Ok(parsed)
 }

@@ -16,3 +16,32 @@ extend_bool <- function(value, n_match, value_name, match_name) {
     value
   }
 }
+
+#' Used in ewm_* functions
+#' @noRd
+prepare_alpha <- function(com, span, half_life, alpha) {
+  check_exclusive(com, span, half_life, alpha, .call = caller_env())
+
+  if (!missing(com)) {
+    if (com < 0) {
+      abort("`com` must be >= 0.", call = caller_env())
+    }
+    alpha <- 1 / (1 + com)
+  } else if (!missing(span)) {
+    if (span < 1) {
+      abort("`span` must be >= 1.", call = caller_env())
+    }
+    alpha <- 2 / (span + 1)
+  } else if (!missing(half_life)) {
+    if (half_life < 0) {
+      abort("`half_life` must be >= 0.", call = caller_env())
+    }
+    alpha <- 1 - exp(-log(2) / half_life)
+  } else if (!missing(alpha)) {
+    if (alpha <= 0 || alpha > 1) {
+      abort("`half_life` must be between greater than 0 and lower or equal to 1.", call = caller_env())
+    }
+  }
+
+  alpha
+}
