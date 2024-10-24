@@ -952,13 +952,15 @@ expr__over <- function(
   })
 }
 
-#' Filter a single column.
+#' Filter the expression based on one or more predicate expressions
 #'
-#' Mostly useful in an aggregation context. If you want to filter on a
-#' DataFrame level, use `DataFrame$filter()` (or `LazyFrame$filter()`).
+#' Elements where the filter does not evaluate to `TRUE` are discarded,
+#' including nulls. This is mostly useful in an aggregation context. If you
+#' want to filter on a DataFrame level, use
+#' [`DataFrame$filter()`][dataframe__filter] or
+#' [`LazyFrame$filter()`][lazyframe__filter].
 #'
-#' @param predicate An Expr or something coercible to an Expr. Must return a
-#' boolean.
+#' @param ... Expression(s) that evaluates to a boolean Series.
 #'
 #' @inherit as_polars_expr return
 #'
@@ -3582,5 +3584,119 @@ expr__drop_nans <- function() {
 expr__drop_nulls <- function() {
   wrap({
     self$`_rexpr`$drop_nulls()
+  })
+}
+
+#' Explode a list expression
+#'
+#' This means that every item is expanded to a new row.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(
+#'   groups = c("a", "b"),
+#'   values = list(1:2, 3:4)
+#' )
+#'
+#' df$select(pl$col("values")$explode())
+expr__explode <- function() {
+  wrap({
+    self$`_rexpr`$explode()
+  })
+}
+
+#' Flatten a list or string column
+#'
+#' This is an alias for [$explode()][expr__explode].
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(
+#'   group = c("a", "b", "b"),
+#'   values = list(1:2, 2:3, 4)
+#' )
+#'
+#' df$group_by("group")$agg(pl$col("values")$flatten())
+expr__flatten <- function() {
+  wrap({
+    self$explode()
+  })
+}
+
+#' Extend the Series with `n` copies of a value
+#'
+#' @param value A constant literal value or a unit expression with which to
+#' extend the expression result Series. This can be `NA` to extend with nulls.
+#' @param n The number of additional values that will be added.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(values = 1:3)
+#' df$select(pl$col("values")$extend_constant(99, n = 2))
+expr__extend_constant <- function(value, n) {
+  wrap({
+    self$`_rexpr`$extend_constant(
+      as_polars_expr(value)$`_rexpr`,
+      as_polars_expr(n)$`_rexpr`
+    )
+  })
+}
+
+#' Fill floating point `NaN` value with a fill value
+#'
+#' @param value Value used to fill `NaN` values.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c(1, NA, 2, NaN))
+#' df$with_columns(
+#'   filled_nan = pl$col("a")$fill_nan(99)
+#' )
+expr__fill_nan <- function(value) {
+  wrap({
+    self$`_rexpr`$fill_nan(as_polars_expr(value)$`_rexpr`)
+  })
+}
+
+#' Fill floating point null value with a fill value
+#'
+#' @param value Value used to fill null values.
+#' @param strategy Strategy used to fill null values. Must be one of
+#' `"forward"`, `"backward"`, `"min"`, `"max"`, `"mean"`, `"zero"`, `"one"`.
+#' @param limit Number of consecutive null values to fill when using the
+#' `"forward"` or `"backward"` strategy.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c(1, NA, 2, NaN))
+#' df$with_columns(
+#'   filled_null = pl$col("a")$fill_null(strategy = "zero")
+#' )
+#' df$with_columns(
+#'   filled_null = pl$col("a")$fill_null(99)
+#' )
+#' df$with_columns(
+#'   filled_null = pl$col("a")$fill_null(strategy = "forward")
+#' )
+#' df$with_columns(
+#'   filled_null = pl$col("a")$fill_null(pl$col("a")$median())
+#' )
+expr__fill_null <- function(value, strategy = NULL, limit = NULL) {
+  wrap({
+    check_exclusive(value, strategy)
+    if (!is.null(strategy)) {
+      strategy <- arg_match0(
+        strategy,
+        values = c("forward", "backward", "min", "max", "mean", "zero", "one")
+      )
+    }
+    if (!strategy %in% c("forward", "backward") && !is.null(limit)) {
+      abort("can only specify `limit` when strategy is set to 'backward' or 'forward'")
+    }
+    if (!missing(value)) {
+      self$`_rexpr`$fill_null(as_polars_expr(value)$`_rexpr`)
+    } else {
+      self$`_rexpr`$fill_null_with_strategy(strategy, limit)
+    }
   })
 }

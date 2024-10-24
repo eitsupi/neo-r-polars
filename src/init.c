@@ -1269,6 +1269,11 @@ SEXP savvy_PlRExpr_ewm_var__impl(SEXP self__, SEXP c_arg__alpha, SEXP c_arg__adj
     return handle_result(res);
 }
 
+SEXP savvy_PlRExpr_extend_constant__impl(SEXP self__, SEXP c_arg__value, SEXP c_arg__n) {
+    SEXP res = savvy_PlRExpr_extend_constant__ffi(self__, c_arg__value, c_arg__n);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRExpr_explode__impl(SEXP self__) {
     SEXP res = savvy_PlRExpr_explode__ffi(self__);
     return handle_result(res);
@@ -2453,6 +2458,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_ewm_mean_by__impl", (DL_FUNC) &savvy_PlRExpr_ewm_mean_by__impl, 3},
     {"savvy_PlRExpr_ewm_std__impl", (DL_FUNC) &savvy_PlRExpr_ewm_std__impl, 6},
     {"savvy_PlRExpr_ewm_var__impl", (DL_FUNC) &savvy_PlRExpr_ewm_var__impl, 6},
+    {"savvy_PlRExpr_extend_constant__impl", (DL_FUNC) &savvy_PlRExpr_extend_constant__impl, 3},
     {"savvy_PlRExpr_explode__impl", (DL_FUNC) &savvy_PlRExpr_explode__impl, 1},
     {"savvy_PlRExpr_gather_every__impl", (DL_FUNC) &savvy_PlRExpr_gather_every__impl, 3},
     {"savvy_PlRExpr_append__impl", (DL_FUNC) &savvy_PlRExpr_append__impl, 3},

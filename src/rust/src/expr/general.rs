@@ -689,6 +689,14 @@ impl PlRExpr {
         Ok(self.inner.clone().ewm_var(options).into())
     }
 
+    fn extend_constant(&self, value: &PlRExpr, n: &PlRExpr) -> Result<Self> {
+        Ok(self
+            .inner
+            .clone()
+            .extend_constant(value.inner.clone(), n.inner.clone())
+            .into())
+    }
+
     fn explode(&self) -> Result<Self> {
         Ok(self.inner.clone().explode().into())
     }

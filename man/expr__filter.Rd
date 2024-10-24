@@ -2,20 +2,22 @@
 % Please edit documentation in R/expr-expr.R
 \name{expr__filter}
 \alias{expr__filter}
-\title{Filter a single column.}
+\title{Filter the expression based on one or more predicate expressions}
 \usage{
 expr__filter(...)
 }
 \arguments{
-\item{predicate}{An Expr or something coercible to an Expr. Must return a
-boolean.}
+\item{...}{Expression(s) that evaluates to a boolean Series.}
 }
 \value{
 A polars \link{expression}
 }
 \description{
-Mostly useful in an aggregation context. If you want to filter on a
-DataFrame level, use \code{DataFrame$filter()} (or \code{LazyFrame$filter()}).
+Elements where the filter does not evaluate to \code{TRUE} are discarded,
+including nulls. This is mostly useful in an aggregation context. If you
+want to filter on a DataFrame level, use
+\code{\link[=dataframe__filter]{DataFrame$filter()}} or
+\code{\link[=lazyframe__filter]{LazyFrame$filter()}}.
 }
 \examples{
 df <- pl$DataFrame(
