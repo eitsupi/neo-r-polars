@@ -528,3 +528,24 @@ impl TryFrom<&str> for Wrap<SearchSortedSide> {
         Ok(Wrap(parsed))
     }
 }
+
+pub(crate) fn parse_fill_null_strategy(
+    strategy: &str,
+    limit: FillNullLimit,
+) -> Result<FillNullStrategy, String> {
+    let parsed = match strategy {
+        "forward" => FillNullStrategy::Forward(limit),
+        "backward" => FillNullStrategy::Backward(limit),
+        "min" => FillNullStrategy::Min,
+        "max" => FillNullStrategy::Max,
+        "mean" => FillNullStrategy::Mean,
+        "zero" => FillNullStrategy::Zero,
+        "one" => FillNullStrategy::One,
+        e => {
+            return Err(format!(
+                "`strategy` must be one of {{'forward', 'backward', 'min', 'max', 'mean', 'zero', 'one'}}, got {e}",
+            ))
+        }
+    };
+    Ok(parsed)
+}

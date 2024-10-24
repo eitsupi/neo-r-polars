@@ -1347,12 +1347,6 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   }
 }
 
-`PlRExpr_explode` <- function(self) {
-  function() {
-    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_explode__impl, `self`))
-  }
-}
-
 `PlRExpr_agg_groups` <- function(self) {
   function() {
     .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_agg_groups__impl, `self`))
@@ -1739,6 +1733,143 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
 `PlRExpr_ewm_var` <- function(self) {
   function(`alpha`, `adjust`, `bias`, `min_periods`, `ignore_nulls`) {
     .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_ewm_var__impl, `self`, `alpha`, `adjust`, `bias`, `min_periods`, `ignore_nulls`))
+  }
+}
+
+`PlRExpr_explode` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_explode__impl, `self`))
+  }
+}
+
+`PlRExpr_gather_every` <- function(self) {
+  function(`n`, `offset`) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_gather_every__impl, `self`, `n`, `offset`))
+  }
+}
+
+`PlRExpr_append` <- function(self) {
+  function(`other`, `upcast`) {
+    `other` <- .savvy_extract_ptr(`other`, "PlRExpr")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_append__impl, `self`, `other`, `upcast`))
+  }
+}
+
+`PlRExpr_rechunk` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_rechunk__impl, `self`))
+  }
+}
+
+`PlRExpr_round` <- function(self) {
+  function(`decimals`) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_round__impl, `self`, `decimals`))
+  }
+}
+
+`PlRExpr_round_sig_figs` <- function(self) {
+  function(`digits`) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_round_sig_figs__impl, `self`, `digits`))
+  }
+}
+
+`PlRExpr_floor` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_floor__impl, `self`))
+  }
+}
+
+`PlRExpr_ceil` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_ceil__impl, `self`))
+  }
+}
+
+`PlRExpr_clip` <- function(self) {
+  function(`min` = NULL, `max` = NULL) {
+    `min` <- .savvy_extract_ptr(`min`, "PlRExpr")
+    `max` <- .savvy_extract_ptr(`max`, "PlRExpr")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_clip__impl, `self`, `min`, `max`))
+  }
+}
+
+`PlRExpr_backward_fill` <- function(self) {
+  function(`limit` = NULL) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_backward_fill__impl, `self`, `limit`))
+  }
+}
+
+`PlRExpr_forward_fill` <- function(self) {
+  function(`limit` = NULL) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_forward_fill__impl, `self`, `limit`))
+  }
+}
+
+`PlRExpr_shift` <- function(self) {
+  function(`n`, `fill_value` = NULL) {
+    `n` <- .savvy_extract_ptr(`n`, "PlRExpr")
+    `fill_value` <- .savvy_extract_ptr(`fill_value`, "PlRExpr")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_shift__impl, `self`, `n`, `fill_value`))
+  }
+}
+
+`PlRExpr_fill_null` <- function(self) {
+  function(`expr`) {
+    `expr` <- .savvy_extract_ptr(`expr`, "PlRExpr")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_fill_null__impl, `self`, `expr`))
+  }
+}
+
+`PlRExpr_fill_null_with_strategy` <- function(self) {
+  function(`strategy`, `limit` = NULL) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_fill_null_with_strategy__impl, `self`, `strategy`, `limit`))
+  }
+}
+
+`PlRExpr_fill_nan` <- function(self) {
+  function(`expr`) {
+    `expr` <- .savvy_extract_ptr(`expr`, "PlRExpr")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_fill_nan__impl, `self`, `expr`))
+  }
+}
+
+`PlRExpr_drop_nulls` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_drop_nulls__impl, `self`))
+  }
+}
+
+`PlRExpr_drop_nans` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_drop_nans__impl, `self`))
+  }
+}
+
+`PlRExpr_top_k` <- function(self) {
+  function(`k`) {
+    `k` <- .savvy_extract_ptr(`k`, "PlRExpr")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_top_k__impl, `self`, `k`))
+  }
+}
+
+`PlRExpr_top_k_by` <- function(self) {
+  function(`by`, `k`, `reverse`) {
+    `k` <- .savvy_extract_ptr(`k`, "PlRExpr")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_top_k_by__impl, `self`, `by`, `k`, `reverse`))
+  }
+}
+
+`PlRExpr_bottom_k` <- function(self) {
+  function(`k`) {
+    `k` <- .savvy_extract_ptr(`k`, "PlRExpr")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_bottom_k__impl, `self`, `k`))
+  }
+}
+
+`PlRExpr_bottom_k_by` <- function(self) {
+  function(`by`, `k`, `reverse`) {
+    `k` <- .savvy_extract_ptr(`k`, "PlRExpr")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_bottom_k_by__impl, `self`, `by`, `k`, `reverse`))
   }
 }
 
@@ -2580,7 +2711,6 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   e$`cum_min` <- `PlRExpr_cum_min`(ptr)
   e$`cum_max` <- `PlRExpr_cum_max`(ptr)
   e$`cum_count` <- `PlRExpr_cum_count`(ptr)
-  e$`explode` <- `PlRExpr_explode`(ptr)
   e$`agg_groups` <- `PlRExpr_agg_groups`(ptr)
   e$`count` <- `PlRExpr_count`(ptr)
   e$`arg_max` <- `PlRExpr_arg_max`(ptr)
@@ -2644,6 +2774,27 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   e$`ewm_mean_by` <- `PlRExpr_ewm_mean_by`(ptr)
   e$`ewm_std` <- `PlRExpr_ewm_std`(ptr)
   e$`ewm_var` <- `PlRExpr_ewm_var`(ptr)
+  e$`explode` <- `PlRExpr_explode`(ptr)
+  e$`gather_every` <- `PlRExpr_gather_every`(ptr)
+  e$`append` <- `PlRExpr_append`(ptr)
+  e$`rechunk` <- `PlRExpr_rechunk`(ptr)
+  e$`round` <- `PlRExpr_round`(ptr)
+  e$`round_sig_figs` <- `PlRExpr_round_sig_figs`(ptr)
+  e$`floor` <- `PlRExpr_floor`(ptr)
+  e$`ceil` <- `PlRExpr_ceil`(ptr)
+  e$`clip` <- `PlRExpr_clip`(ptr)
+  e$`backward_fill` <- `PlRExpr_backward_fill`(ptr)
+  e$`forward_fill` <- `PlRExpr_forward_fill`(ptr)
+  e$`shift` <- `PlRExpr_shift`(ptr)
+  e$`fill_null` <- `PlRExpr_fill_null`(ptr)
+  e$`fill_null_with_strategy` <- `PlRExpr_fill_null_with_strategy`(ptr)
+  e$`fill_nan` <- `PlRExpr_fill_nan`(ptr)
+  e$`drop_nulls` <- `PlRExpr_drop_nulls`(ptr)
+  e$`drop_nans` <- `PlRExpr_drop_nans`(ptr)
+  e$`top_k` <- `PlRExpr_top_k`(ptr)
+  e$`top_k_by` <- `PlRExpr_top_k_by`(ptr)
+  e$`bottom_k` <- `PlRExpr_bottom_k`(ptr)
+  e$`bottom_k_by` <- `PlRExpr_bottom_k_by`(ptr)
   e$`list_len` <- `PlRExpr_list_len`(ptr)
   e$`list_contains` <- `PlRExpr_list_contains`(ptr)
   e$`list_max` <- `PlRExpr_list_max`(ptr)

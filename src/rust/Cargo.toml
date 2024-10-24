@@ -78,6 +78,7 @@ features = [
     "rank",
     "rolling_window",
     "rolling_window_by",
+    "round_series",
     "row_hash",
     "search_sorted",
     "serde",
@@ -91,6 +92,7 @@ features = [
     "string_to_integer",
     "temporal",
     "timezones",
+    "top_k",
     "trigonometry",
     "unique_counts"
 ]

@@ -321,10 +321,6 @@ impl PlRExpr {
         Ok(self.inner.clone().cum_count(reverse).into())
     }
 
-    fn explode(&self) -> Result<Self> {
-        Ok(self.inner.clone().explode().into())
-    }
-
     fn agg_groups(&self) -> Result<Self> {
         Ok(self.inner.clone().agg_groups().into())
     }
@@ -691,5 +687,137 @@ impl PlRExpr {
             ignore_nulls,
         };
         Ok(self.inner.clone().ewm_var(options).into())
+    }
+
+    fn explode(&self) -> Result<Self> {
+        Ok(self.inner.clone().explode().into())
+    }
+
+    fn gather_every(&self, n: usize, offset: usize) -> Result<Self> {
+        Ok(self.inner.clone().gather_every(n, offset).into())
+    }
+
+    fn append(&self, other: &PlRExpr, upcast: bool) -> Result<Self> {
+        Ok(self
+            .inner
+            .clone()
+            .append(other.inner.clone(), upcast)
+            .into())
+    }
+
+    fn rechunk(&self) -> Result<Self> {
+        Ok(self
+            .inner
+            .clone()
+            .map(|s| Ok(Some(s.rechunk())), GetOutput::same_type())
+            .into())
+    }
+
+    fn round(&self, decimals: NumericScalar) -> Result<Self> {
+        let decimals = <Wrap<u32>>::try_from(decimals)?.0;
+        Ok(self.inner.clone().round(decimals).into())
+    }
+
+    fn round_sig_figs(&self, digits: i32) -> Result<Self> {
+        Ok(self.inner.clone().round_sig_figs(digits).into())
+    }
+
+    fn floor(&self) -> Result<Self> {
+        Ok(self.inner.clone().floor().into())
+    }
+
+    fn ceil(&self) -> Result<Self> {
+        Ok(self.inner.clone().ceil().into())
+    }
+
+    fn clip(&self, min: Option<&PlRExpr>, max: Option<&PlRExpr>) -> Result<Self> {
+        let expr = self.inner.clone();
+        let out = match (min, max) {
+            (Some(min), Some(max)) => expr.clip(min.inner.clone(), max.inner.clone()),
+            (Some(min), None) => expr.clip_min(min.inner.clone()),
+            (None, Some(max)) => expr.clip_max(max.inner.clone()),
+            (None, None) => expr,
+        };
+        Ok(out.into())
+    }
+
+    fn backward_fill(&self, limit: Option<NumericScalar>) -> Result<Self> {
+        let limit: FillNullLimit = match limit {
+            Some(x) => Some(<Wrap<u32>>::try_from(x)?.0.into()),
+            None => None,
+        };
+        Ok(self.inner.clone().backward_fill(limit).into())
+    }
+
+    fn forward_fill(&self, limit: Option<NumericScalar>) -> Result<Self> {
+        let limit: FillNullLimit = match limit {
+            Some(x) => Some(<Wrap<u32>>::try_from(x)?.0.into()),
+            None => None,
+        };
+        Ok(self.inner.clone().forward_fill(limit).into())
+    }
+
+    fn shift(&self, n: PlRExpr, fill_value: Option<PlRExpr>) -> Result<Self> {
+        let expr = self.inner.clone();
+        let out = match fill_value {
+            Some(v) => expr.shift_and_fill(n.inner.clone(), v.inner.clone()),
+            None => expr.shift(n.inner),
+        };
+        Ok(out.into())
+    }
+
+    fn fill_null(&self, expr: &PlRExpr) -> Result<Self> {
+        Ok(self.inner.clone().fill_null(expr.inner.clone()).into())
+    }
+
+    fn fill_null_with_strategy(
+        &self,
+        strategy: &str,
+        limit: Option<NumericScalar>,
+    ) -> Result<Self> {
+        let limit: FillNullLimit = match limit {
+            Some(x) => Some(<Wrap<u32>>::try_from(x)?.0.into()),
+            None => None,
+        };
+        let strategy = parse_fill_null_strategy(strategy, limit)?;
+        Ok(self.inner.clone().fill_null_with_strategy(strategy).into())
+    }
+
+    fn fill_nan(&self, expr: &PlRExpr) -> Result<Self> {
+        Ok(self.inner.clone().fill_nan(expr.inner.clone()).into())
+    }
+
+    fn drop_nulls(&self) -> Result<Self> {
+        Ok(self.inner.clone().drop_nulls().into())
+    }
+
+    fn drop_nans(&self) -> Result<Self> {
+        Ok(self.inner.clone().drop_nans().into())
+    }
+
+    fn top_k(&self, k: &PlRExpr) -> Result<Self> {
+        Ok(self.inner.clone().top_k(k.inner.clone()).into())
+    }
+
+    fn top_k_by(&self, by: ListSexp, k: &PlRExpr, reverse: LogicalSexp) -> Result<Self> {
+        let by = <Wrap<Vec<Expr>>>::from(by).0;
+        Ok(self
+            .inner
+            .clone()
+            .top_k_by(k.inner.clone(), by, reverse.to_vec())
+            .into())
+    }
+
+    fn bottom_k(&self, k: &PlRExpr) -> Result<Self> {
+        Ok(self.inner.clone().bottom_k(k.inner.clone()).into())
+    }
+
+    fn bottom_k_by(&self, by: ListSexp, k: &PlRExpr, reverse: LogicalSexp) -> Result<Self> {
+        let by = <Wrap<Vec<Expr>>>::from(by).0;
+        Ok(self
+            .inner
+            .clone()
+            .bottom_k_by(k.inner.clone(), by, reverse.to_vec())
+            .into())
     }
 }

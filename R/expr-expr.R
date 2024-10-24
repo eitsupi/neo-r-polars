@@ -1408,6 +1408,17 @@ expr__arg_unique <- function() {
     wrap()
 }
 
+# TODO-REWRITE: requires pl$arg_where()
+# #' Return indices where expression is true
+# #'
+# #' @inherit as_polars_expr return
+# #' @examples
+# #' df <- pl$DataFrame(a = c(1, 1, 2, 1))
+# #' df$select((pl$col("a") == 1)$arg_true())
+# expr__arg_true <- function() {
+# pl$arg_where(self$`_rexpr`)
+# }
+
 #' Get the number of non-null elements in the column
 #'
 #' @inherit as_polars_expr return
@@ -3293,5 +3304,283 @@ expr__ewm_mean_by <- function(by, ..., half_life) {
       times = as_polars_expr(by)$`_rexpr`,
       half_life = half_life
     )
+  })
+}
+
+#' Append expressions
+#'
+#' @inheritParams rlang::check_dots_empty0
+#' @param other Expression to append.
+#' @param upcast If `TRUE` (default), cast both Series to the same supertype.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = 8:10, b = c(NA, 4, 4))
+#' df$select(pl$all()$head(1)$append(pl$all()$tail(1)))
+expr__append <- function(other, ..., upcast = TRUE) {
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$append(as_polars_expr(other)$`_rexpr`, upcast)
+  })
+}
+
+#' Fill missing values with the next non-null value
+#'
+#' @inheritParams rlang::check_dots_empty0
+#' @param fill The number of consecutive null values to backward fill.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = c(1, 2, NA),
+#'   b = c(4, NA, 6),
+#'   c = c(NA, NA, 2)
+#' )
+#' df$select(pl$all()$backward_fill())
+#' df$select(pl$all()$backward_fill(limit = 1))
+expr__backward_fill <- function(limit = NULL) {
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$backward_fill(limit)
+  })
+}
+
+#' Fill missing values with the last non-null value
+#'
+#' @inheritParams rlang::check_dots_empty0
+#' @param fill The number of consecutive null values to forward fill.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = c(1, 2, NA),
+#'   b = c(4, NA, 6),
+#'   c = c(2, NA, NA)
+#' )
+#' df$select(pl$all()$forward_fill())
+#' df$select(pl$all()$forward_fill(limit = 1))
+expr__forward_fill <- function(limit = NULL) {
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$forward_fill(limit)
+  })
+}
+
+#' Return the `k` smallest elements
+#'
+#' Non-null elements are always preferred over null elements. The output is not
+#' guaranteed to be in any particular order, call [$sort()][expr__sort] after
+#' this function if you wish the output to be sorted. This has time complexity
+#' \eqn{O(n)}.
+#'
+#' @param k Number of elements to return.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(value = c(1, 98, 2, 3, 99, 4))
+#' df$select(
+#'   top_k = pl$col("value")$top_k(k = 3),
+#'   bottom_k = pl$col("value")$bottom_k(k = 3)
+#' )
+expr__bottom_k <- function(k = 5) {
+  wrap({
+    self$`_rexpr`$bottom_k(as_polars_expr(k)$`_rexpr`)
+  })
+}
+
+#' Return the `k` largest elements
+#'
+#' @inherit expr__bottom_k description params
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(value = c(1, 98, 2, 3, 99, 4))
+#' df$select(
+#'   top_k = pl$col("value")$top_k(k = 3),
+#'   bottom_k = pl$col("value")$bottom_k(k = 3)
+#' )
+expr__top_k <- function(k = 5) {
+  wrap({
+    self$`_rexpr`$top_k(as_polars_expr(k)$`_rexpr`)
+  })
+}
+
+#' Return the elements corresponding to the `k` smallest elements of the `by`
+#' column(s)
+#'
+#' @inherit expr__bottom_k description params
+#' @param by Column(s) used to determine the smallest elements. Accepts
+#' expression input. Strings are parsed as column names.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = 1:6,
+#'   b = 6:1,
+#'   c = c("Apple", "Orange", "Apple", "Apple", "Banana", "Banana")
+#' )
+#'
+#' # Get the bottom 2 rows by column a or b:
+#' df$select(
+#'   pl$all()$bottom_k_by("a", 2)$name$suffix("_btm_by_a"),
+#'   pl$all()$bottom_k_by("b", 2)$name$suffix("_btm_by_b")
+#' )
+#'
+#' # Get the bottom 2 rows by multiple columns with given order.
+#' df$select(
+#'   pl$all()$
+#'     bottom_k_by(c("c", "a"), 2, reverse = c(FALSE, TRUE))$
+#'     name$suffix("_btm_by_ca"),
+#'   pl$all()$
+#'     bottom_k_by(c("c", "b"), 2, reverse = c(FALSE, TRUE))$
+#'     name$suffix("_btm_by_cb"),
+#' )
+#'
+#' # Get the bottom 2 rows by column a in each group
+#' df$group_by("c", maintain_order = TRUE)$agg(
+#'   pl$all()$bottom_k_by("a", 2)
+#' )$explode(pl$all()$exclude("c"))
+expr__bottom_k_by <- function(by, k = 5, ..., reverse = FALSE) {
+  wrap({
+    check_dots_empty0(...)
+    by <- parse_into_list_of_expressions(!!!by)
+    self$`_rexpr`$bottom_k_by(by, as_polars_expr(k)$`_rexpr`, reverse)
+  })
+}
+
+#' Return the `k` largest elements
+#'
+#' @inherit expr__bottom_k_by description params
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = 1:6,
+#'   b = 6:1,
+#'   c = c("Apple", "Orange", "Apple", "Apple", "Banana", "Banana")
+#' )
+#'
+#' # Get the top 2 rows by column a or b:
+#' df$select(
+#'   pl$all()$top_k_by("a", 2)$name$suffix("_btm_by_a"),
+#'   pl$all()$top_k_by("b", 2)$name$suffix("_btm_by_b")
+#' )
+#'
+#' # Get the top 2 rows by multiple columns with given order.
+#' df$select(
+#'   pl$all()$
+#'     top_k_by(c("c", "a"), 2, reverse = c(FALSE, TRUE))$
+#'     name$suffix("_btm_by_ca"),
+#'   pl$all()$
+#'     top_k_by(c("c", "b"), 2, reverse = c(FALSE, TRUE))$
+#'     name$suffix("_btm_by_cb"),
+#' )
+#'
+#' # Get the top 2 rows by column a in each group
+#' df$group_by("c", maintain_order = TRUE)$agg(
+#'   pl$all()$top_k_by("a", 2)
+#' )$explode(pl$all()$exclude("c"))
+expr__top_k_by <- function(by, k = 5, ..., reverse = FALSE) {
+  wrap({
+    check_dots_empty0(...)
+    by <- parse_into_list_of_expressions(!!!by)
+    self$`_rexpr`$top_k_by(by, as_polars_expr(k)$`_rexpr`, reverse)
+  })
+}
+
+#' Rounds up to the nearest integer value
+#'
+#' This only works on floating point Series.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c(0.3, 0.5, 1.0, 1.1))
+#' df$with_columns(
+#'   ceil = pl$col("a")$ceil()
+#' )
+expr__ceil <- function() {
+  wrap({
+    self$`_rexpr`$ceil()
+  })
+}
+
+#' Rounds down to the nearest integer value
+#'
+#' @inherit expr__ceil description
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c(0.3, 0.5, 1.0, 1.1))
+#' df$with_columns(
+#'   floor = pl$col("a")$floor()
+#' )
+expr__floor <- function() {
+  wrap({
+    self$`_rexpr`$floor()
+  })
+}
+
+#' Set values outside the given boundaries to the boundary value
+#'
+#' This method only works for numeric and temporal columns. To clip other data
+#' types, consider writing a when-then-otherwise expression.
+#'
+#' @param lower_bound Lower bound. Accepts expression input. Non-expression
+#' inputs are parsed as literals.
+#' @param upper_bound Upper bound. Accepts expression input. Non-expression
+#' inputs are parsed as literals.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c(-50, 5, 50, NA))
+#'
+#' # Specifying both a lower and upper bound:
+#' df$with_columns(
+#'   clip = pl$col("a")$clip(1, 10)
+#' )
+#'
+#' # Specifying only a single bound:
+#' df$with_columns(
+#'   clip = pl$col("a")$clip(upper_bound = 10)
+#' )
+expr__clip <- function(lower_bound = NULL, upper_bound = NULL) {
+  wrap({
+    self$`_rexpr`$clip(
+      as_polars_expr(lower_bound)$`_rexpr`,
+      as_polars_expr(upper_bound)$`_rexpr`
+    )
+  })
+}
+
+#' Drop all floating point NaN values
+#'
+#' @description
+#' The original order of the remaining elements is preserved.
+#'
+#' A `NaN` value is not the same as a `null` value. To drop `null` values, use
+#' [$drop_nulls()][expr__drop_nulls].
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c(1, NA, 3, NaN))
+#' df$select(pl$col("a")$drop_nans())
+expr__drop_nans <- function() {
+  wrap({
+    self$`_rexpr`$drop_nans()
+  })
+}
+
+#' Drop all floating point null values
+#'
+#' @description
+#' The original order of the remaining elements is preserved.
+#'
+#' A `null` value is not the same as a `NaN` value. To drop `NaN` values, use
+#' [$drop_nans()][expr__drop_nans].
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c(1, NA, 3, NaN))
+#' df$select(pl$col("a")$drop_nulls())
+expr__drop_nulls <- function() {
+  wrap({
+    self$`_rexpr`$drop_nulls()
   })
 }
