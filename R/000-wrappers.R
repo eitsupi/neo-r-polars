@@ -1750,6 +1750,20 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   }
 }
 
+`PlRExpr_gather` <- function(self) {
+  function(`idx`) {
+    `idx` <- .savvy_extract_ptr(`idx`, "PlRExpr")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_gather__impl, `self`, `idx`))
+  }
+}
+
+`PlRExpr_get` <- function(self) {
+  function(`idx`) {
+    `idx` <- .savvy_extract_ptr(`idx`, "PlRExpr")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_get__impl, `self`, `idx`))
+  }
+}
+
 `PlRExpr_gather_every` <- function(self) {
   function(`n`, `offset`) {
     .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_gather_every__impl, `self`, `n`, `offset`))
@@ -2784,6 +2798,8 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   e$`ewm_var` <- `PlRExpr_ewm_var`(ptr)
   e$`extend_constant` <- `PlRExpr_extend_constant`(ptr)
   e$`explode` <- `PlRExpr_explode`(ptr)
+  e$`gather` <- `PlRExpr_gather`(ptr)
+  e$`get` <- `PlRExpr_get`(ptr)
   e$`gather_every` <- `PlRExpr_gather_every`(ptr)
   e$`append` <- `PlRExpr_append`(ptr)
   e$`rechunk` <- `PlRExpr_rechunk`(ptr)

@@ -701,7 +701,17 @@ impl PlRExpr {
         Ok(self.inner.clone().explode().into())
     }
 
-    fn gather_every(&self, n: usize, offset: usize) -> Result<Self> {
+    fn gather(&self, idx: &PlRExpr) -> Result<Self> {
+        Ok(self.inner.clone().gather(idx.inner.clone()).into())
+    }
+
+    fn get(&self, idx: &PlRExpr) -> Result<Self> {
+        Ok(self.inner.clone().get(idx.inner.clone()).into())
+    }
+
+    fn gather_every(&self, n: NumericScalar, offset: NumericScalar) -> Result<Self> {
+        let n = <Wrap<usize>>::try_from(n)?.0;
+        let offset = <Wrap<usize>>::try_from(offset)?.0;
         Ok(self.inner.clone().gather_every(n, offset).into())
     }
 

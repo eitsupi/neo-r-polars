@@ -3700,3 +3700,38 @@ expr__fill_null <- function(value, strategy = NULL, limit = NULL) {
     }
   })
 }
+
+#' Take values by index
+#'
+#' @param indices An expression that leads to a UInt32 dtyped Series.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(
+#'   group = c("one", "one", "one", "two", "two", "two"),
+#'   value = c(1, 98, 2, 3, 99, 4)
+#' )
+#' df$group_by("group", maintain_order = TRUE)$agg(
+#'   pl$col("value")$gather(c(2, 1))
+#' )
+expr__gather <- function(indices) {
+  wrap({
+    self$`_rexpr`$gather(as_polars_expr(indices)$cast(pl$Int64, strict = TRUE)$`_rexpr`)
+  })
+}
+
+#' Take every `n`-th value in the Series and return as a new Series
+#'
+#' @param n Gather every n-th row.
+#' @param offset Starting index.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(foo = 1:9)
+#' df$select(pl$col("foo")$gather_every(3))
+#' df$select(pl$col("foo")$gather_every(3, offset = 1))
+expr__gather_every <- function(n, offset = 0) {
+  wrap({
+    self$`_rexpr`$gather_every(n, offset)
+  })
+}

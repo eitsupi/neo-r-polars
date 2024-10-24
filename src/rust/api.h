@@ -257,6 +257,8 @@ SEXP savvy_PlRExpr_ewm_std__ffi(SEXP self__, SEXP c_arg__alpha, SEXP c_arg__adju
 SEXP savvy_PlRExpr_ewm_var__ffi(SEXP self__, SEXP c_arg__alpha, SEXP c_arg__adjust, SEXP c_arg__bias, SEXP c_arg__min_periods, SEXP c_arg__ignore_nulls);
 SEXP savvy_PlRExpr_extend_constant__ffi(SEXP self__, SEXP c_arg__value, SEXP c_arg__n);
 SEXP savvy_PlRExpr_explode__ffi(SEXP self__);
+SEXP savvy_PlRExpr_gather__ffi(SEXP self__, SEXP c_arg__idx);
+SEXP savvy_PlRExpr_get__ffi(SEXP self__, SEXP c_arg__idx);
 SEXP savvy_PlRExpr_gather_every__ffi(SEXP self__, SEXP c_arg__n, SEXP c_arg__offset);
 SEXP savvy_PlRExpr_append__ffi(SEXP self__, SEXP c_arg__other, SEXP c_arg__upcast);
 SEXP savvy_PlRExpr_rechunk__ffi(SEXP self__);
