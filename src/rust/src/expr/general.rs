@@ -5,6 +5,7 @@ use polars::series::ops::NullBehavior;
 use polars_core::chunked_array::cast::CastOptions;
 use savvy::{
     r_println, savvy, FunctionSexp, ListSexp, LogicalSexp, NumericScalar, NumericSexp, Result,
+    StringSexp,
 };
 use std::ops::Neg;
 
@@ -837,5 +838,95 @@ impl PlRExpr {
             .clone()
             .bottom_k_by(k.inner.clone(), by, reverse.to_vec())
             .into())
+    }
+
+    fn interpolate(&self, method: &str) -> Result<Self> {
+        let method = <Wrap<InterpolationMethod>>::try_from(method)?.0;
+        Ok(self.inner.clone().interpolate(method).into())
+    }
+
+    fn interpolate_by(&self, by: &PlRExpr) -> Result<Self> {
+        Ok(self.inner.clone().interpolate_by(by.inner.clone()).into())
+    }
+
+    fn lower_bound(&self) -> Result<Self> {
+        Ok(self.inner.clone().lower_bound().into())
+    }
+
+    fn upper_bound(&self) -> Result<Self> {
+        Ok(self.inner.clone().upper_bound().into())
+    }
+
+    fn cut(
+        &self,
+        breaks: NumericSexp,
+        left_closed: bool,
+        include_breaks: bool,
+        labels: Option<StringSexp>,
+    ) -> Result<Self> {
+        let breaks: Vec<f64> = breaks.as_slice_f64().into();
+        let labels = match labels {
+            Some(x) => Some(x.to_vec()),
+            None => None,
+        };
+        Ok(self
+            .inner
+            .clone()
+            .cut(breaks, labels, left_closed, include_breaks)
+            .into())
+    }
+
+    fn qcut(
+        &self,
+        probs: NumericSexp,
+        left_closed: bool,
+        allow_duplicates: bool,
+        include_breaks: bool,
+        labels: Option<StringSexp>,
+    ) -> Result<Self> {
+        let probs: Vec<f64> = probs.as_slice_f64().into();
+        let labels = match labels {
+            Some(x) => Some(x.to_vec()),
+            None => None,
+        };
+        Ok(self
+            .inner
+            .clone()
+            .qcut(probs, labels, left_closed, allow_duplicates, include_breaks)
+            .into())
+    }
+
+    fn qcut_uniform(
+        &self,
+        n_bins: NumericScalar,
+        left_closed: bool,
+        allow_duplicates: bool,
+        include_breaks: bool,
+        labels: Option<StringSexp>,
+    ) -> Result<Self> {
+        let n_bins = <Wrap<usize>>::try_from(n_bins)?.0;
+        let labels = match labels {
+            Some(x) => Some(x.to_vec()),
+            None => None,
+        };
+        Ok(self
+            .inner
+            .clone()
+            .qcut_uniform(
+                n_bins,
+                labels,
+                left_closed,
+                allow_duplicates,
+                include_breaks,
+            )
+            .into())
+    }
+
+    fn reinterpret(&self, signed: bool) -> Result<Self> {
+        Ok(self.inner.clone().reinterpret(signed).into())
+    }
+
+    fn repeat_by(&self, by: &PlRExpr) -> Result<Self> {
+        Ok(self.inner.clone().repeat_by(by.inner.clone()).into())
     }
 }

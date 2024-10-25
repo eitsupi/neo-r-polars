@@ -549,3 +549,16 @@ pub(crate) fn parse_fill_null_strategy(
     };
     Ok(parsed)
 }
+
+impl TryFrom<&str> for Wrap<InterpolationMethod> {
+    type Error = String;
+
+    fn try_from(method: &str) -> Result<Self, String> {
+        let parsed = match method {
+            "linear" => InterpolationMethod::Linear,
+            "nearest" => InterpolationMethod::Nearest,
+            _ => return Err(format!("unreachable")),
+        };
+        Ok(Wrap(parsed))
+    }
+}

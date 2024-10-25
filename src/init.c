@@ -1389,6 +1389,51 @@ SEXP savvy_PlRExpr_bottom_k_by__impl(SEXP self__, SEXP c_arg__by, SEXP c_arg__k,
     return handle_result(res);
 }
 
+SEXP savvy_PlRExpr_interpolate__impl(SEXP self__, SEXP c_arg__method) {
+    SEXP res = savvy_PlRExpr_interpolate__ffi(self__, c_arg__method);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_interpolate_by__impl(SEXP self__, SEXP c_arg__by) {
+    SEXP res = savvy_PlRExpr_interpolate_by__ffi(self__, c_arg__by);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_lower_bound__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_lower_bound__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_upper_bound__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_upper_bound__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_cut__impl(SEXP self__, SEXP c_arg__breaks, SEXP c_arg__left_closed, SEXP c_arg__include_breaks, SEXP c_arg__labels) {
+    SEXP res = savvy_PlRExpr_cut__ffi(self__, c_arg__breaks, c_arg__left_closed, c_arg__include_breaks, c_arg__labels);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_qcut__impl(SEXP self__, SEXP c_arg__probs, SEXP c_arg__left_closed, SEXP c_arg__allow_duplicates, SEXP c_arg__include_breaks, SEXP c_arg__labels) {
+    SEXP res = savvy_PlRExpr_qcut__ffi(self__, c_arg__probs, c_arg__left_closed, c_arg__allow_duplicates, c_arg__include_breaks, c_arg__labels);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_qcut_uniform__impl(SEXP self__, SEXP c_arg__n_bins, SEXP c_arg__left_closed, SEXP c_arg__allow_duplicates, SEXP c_arg__include_breaks, SEXP c_arg__labels) {
+    SEXP res = savvy_PlRExpr_qcut_uniform__ffi(self__, c_arg__n_bins, c_arg__left_closed, c_arg__allow_duplicates, c_arg__include_breaks, c_arg__labels);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_reinterpret__impl(SEXP self__, SEXP c_arg__signed) {
+    SEXP res = savvy_PlRExpr_reinterpret__ffi(self__, c_arg__signed);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_repeat_by__impl(SEXP self__, SEXP c_arg__by) {
+    SEXP res = savvy_PlRExpr_repeat_by__ffi(self__, c_arg__by);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRExpr_list_len__impl(SEXP self__) {
     SEXP res = savvy_PlRExpr_list_len__ffi(self__);
     return handle_result(res);
@@ -2492,6 +2537,15 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_top_k_by__impl", (DL_FUNC) &savvy_PlRExpr_top_k_by__impl, 4},
     {"savvy_PlRExpr_bottom_k__impl", (DL_FUNC) &savvy_PlRExpr_bottom_k__impl, 2},
     {"savvy_PlRExpr_bottom_k_by__impl", (DL_FUNC) &savvy_PlRExpr_bottom_k_by__impl, 4},
+    {"savvy_PlRExpr_interpolate__impl", (DL_FUNC) &savvy_PlRExpr_interpolate__impl, 2},
+    {"savvy_PlRExpr_interpolate_by__impl", (DL_FUNC) &savvy_PlRExpr_interpolate_by__impl, 2},
+    {"savvy_PlRExpr_lower_bound__impl", (DL_FUNC) &savvy_PlRExpr_lower_bound__impl, 1},
+    {"savvy_PlRExpr_upper_bound__impl", (DL_FUNC) &savvy_PlRExpr_upper_bound__impl, 1},
+    {"savvy_PlRExpr_cut__impl", (DL_FUNC) &savvy_PlRExpr_cut__impl, 5},
+    {"savvy_PlRExpr_qcut__impl", (DL_FUNC) &savvy_PlRExpr_qcut__impl, 6},
+    {"savvy_PlRExpr_qcut_uniform__impl", (DL_FUNC) &savvy_PlRExpr_qcut_uniform__impl, 6},
+    {"savvy_PlRExpr_reinterpret__impl", (DL_FUNC) &savvy_PlRExpr_reinterpret__impl, 2},
+    {"savvy_PlRExpr_repeat_by__impl", (DL_FUNC) &savvy_PlRExpr_repeat_by__impl, 2},
     {"savvy_PlRExpr_list_len__impl", (DL_FUNC) &savvy_PlRExpr_list_len__impl, 1},
     {"savvy_PlRExpr_list_contains__impl", (DL_FUNC) &savvy_PlRExpr_list_contains__impl, 2},
     {"savvy_PlRExpr_list_max__impl", (DL_FUNC) &savvy_PlRExpr_list_max__impl, 1},

@@ -3720,6 +3720,26 @@ expr__gather <- function(indices) {
   })
 }
 
+# TODO: difference with "gather" is unclear
+#' Return a single value by index
+#'
+#' @param index An expression that leads to a UInt32 dtyped Series.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(
+#'   group = c("one", "one", "one", "two", "two", "two"),
+#'   value = c(1, 98, 2, 3, 99, 4)
+#' )
+#' df$group_by("group", maintain_order = TRUE)$agg(
+#'   pl$col("value")$get(1)
+#' )
+expr__get <- function(index) {
+  wrap({
+    self$`_rexpr`$get(as_polars_expr(index)$cast(pl$Int64, strict = TRUE)$`_rexpr`)
+  })
+}
+
 #' Take every `n`-th value in the Series and return as a new Series
 #'
 #' @param n Gather every n-th row.
@@ -3733,5 +3753,261 @@ expr__gather <- function(indices) {
 expr__gather_every <- function(n, offset = 0) {
   wrap({
     self$`_rexpr`$gather_every(n, offset)
+  })
+}
+
+# TODO-REWRITE: Requires $map_batches()
+# #' Print the value that this expression evaluates to and pass on the value
+# #'
+# #' @param fmt How to format the expression. Use `"{}"` where you want to print
+# #' the value of the expression.
+# #'
+# #' @inherit as_polars_expr return
+# #' @examples
+# #' df <- pl$DataFrame(foo = c(1, 1, 2))
+# #' df$select(pl$col("foo")$cum_sum()$inspect("value is: {}")$alias("bar"))
+# expr__format <- function(fmt) {
+#
+# }
+
+#' Fill null values using interpolation
+#'
+#' @param method Interpolation method. Must be one of `"linear"` or `"nearest"`.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c(1, NA, 3), b = c(1, NaN, 3))
+#' df$with_columns(
+#'   a_interpolated = pl$col("a")$interpolate(),
+#'   b_interpolated = pl$col("b")$interpolate()
+#' )
+expr__interpolate <- function(method = c("linear", "nearest")) {
+  wrap({
+    method <- arg_match0(method, values = c("linear", "nearest"))
+    self$`_rexpr`$interpolate(method)
+  })
+}
+
+#' Fill null values using interpolation based on another column
+#'
+#' @param by Column to interpolate values based on.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c(1, NA, NA, 3), b = c(1, 2, 7, 8))
+#' df$with_columns(
+#'   a_interpolated = pl$col("a")$interpolate_by("b")
+#' )
+expr__interpolate_by <- function(by) {
+  wrap({
+    self$`_rexpr`$interpolate_by(as_polars_expr(by)$`_rexpr`)
+  })
+}
+
+#' Get the first n rows
+#'
+#' This is an alias for [$head()][expr__head].
+#'
+#' @param n Number of rows to return.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = 1:9)
+#' df$select(pl$col("a")$limit(3))
+expr__limit <- function(n = 10) {
+  wrap({
+    self$head(n)
+  })
+}
+
+#' Calculate the lower bound
+#'
+#' Returns a unit Series with the lowest value possible for the dtype of this
+#' expression.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = 1:3)
+#' df$select(pl$col("a")$lower_bound())
+expr__lower_bound <- function() {
+  wrap({
+    self$`_rexpr`$lower_bound()
+  })
+}
+
+#' Calculate the upper bound
+#'
+#' Returns a unit Series with the highest value possible for the dtype of this
+#' expression.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = 1:3)
+#' df$select(pl$col("a")$upper_bound())
+expr__upper_bound <- function() {
+  wrap({
+    self$`_rexpr`$upper_bound()
+  })
+}
+
+# TODO-REWRITE: requires unnest() in second example
+#' Bin continuous values into discrete categories
+#'
+#' @inheritParams rlang::check_dots_empty0
+#' @param breaks List of unique cut points.
+#' @param labels Names of the categories. The number of labels must be equal to
+#' the number of cut points plus one.
+#' @param left_closed Set the intervals to be left-closed instead of
+#' right-closed.
+#' @param include_breaks Include a column with the right endpoint of the bin
+#' each observation falls in. This will change the data type of the output from
+#' a Categorical to a Struct.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' # Divide a column into three categories.
+#' df <- pl$DataFrame(foo = -2:2)
+#' df$with_columns(
+#'   cut = pl$col("foo")$cut(c(-1, 1), labels = c("a", "b", "c"))
+#' )
+#'
+#' # Add both the category and the breakpoint.
+#' df$with_columns(
+#'   cut = pl$col("foo")$cut(c(-1, 1), include_breaks = TRUE)
+#' )$unnest()
+expr__cut <- function(
+    breaks,
+    ...,
+    labels = NULL,
+    left_closed = FALSE,
+    include_breaks = FALSE) {
+  wrap({
+    rlang::check_dots_empty0(...)
+    self$`_rexpr`$cut(
+      breaks = breaks,
+      labels = labels,
+      left_closed = left_closed,
+      include_breaks = include_breaks
+    )
+  })
+}
+
+# TODO-REWRITE: requires unnest() in third example
+#' Bin continuous values into discrete categories based on their quantiles
+#'
+#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams expr__cut
+#' @param quantiles Either a vector of quantile probabilities between 0 and 1
+#' or a positive integer determining the number of bins with uniform
+#' probability.
+#' @param labels Names of the categories. The number of labels must be equal to
+#' the number of categories.
+#' @param allow_duplicates If `TRUE`, duplicates in the resulting quantiles are
+#' dropped, rather than raising an error. This can happen even with unique
+#' probabilities, depending on the data.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' # Divide a column into three categories according to pre-defined quantile
+#' # probabilities.
+#' df <- pl$DataFrame(foo = -2:2)
+#' df$with_columns(
+#'   qcut = pl$col("foo")$qcut(c(0.25, 0.75), labels = c("a", "b", "c"))
+#' )
+#'
+#' # Divide a column into two categories using uniform quantile probabilities.
+#' df$with_columns(
+#'   qcut = pl$col("foo")$qcut(2, labels = c("low", "high"), left_closed = TRUE)
+#' )
+#'
+#' # Add both the category and the breakpoint.
+#' df$with_columns(
+#'   qcut = pl$col("foo")$qcut(c(0.25, 0.75), include_breaks = TRUE)
+#' )$unnest()
+expr__qcut <- function(
+    quantiles,
+    ...,
+    labels = NULL,
+    left_closed = FALSE,
+    allow_duplicates = FALSE,
+    include_breaks = FALSE) {
+  wrap({
+    rlang::check_dots_empty0(...)
+    if (is_scalar_integerish(quantiles)) {
+      self$`_rexpr`$qcut_uniform(
+        n_bins = quantiles,
+        labels = labels,
+        left_closed = left_closed,
+        allow_duplicates = allow_duplicates,
+        include_breaks = include_breaks
+      )
+    } else {
+      self$`_rexpr`$qcut(
+        probs = quantiles,
+        labels = labels,
+        left_closed = left_closed,
+        allow_duplicates = allow_duplicates,
+        include_breaks = include_breaks
+      )
+    }
+  })
+}
+
+#' Create a single chunk of memory for this Series
+#' 
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c(1, 1, 2))
+#' 
+#' # Create a Series with 3 nulls, append column a then rechunk
+#' df$select(pl$repeat(NA, 3)$append(pl$col("a"))$rechunk())
+expr__rechunk <- function() {
+  wrap({
+    self$`_rexpr`$rechunk()
+  })
+}
+
+#' Reinterpret the underlying bits as a signed/unsigned integer
+#' 
+#' This operation is only allowed for 64bit integers. For lower bits integers,
+#' you can safely use the [$cast()][expr__cast] operation.
+#' 
+#' @inheritParams rlang::check_dots_empty0
+#' @param signed If `TRUE` (default), reinterpret as pl$Int64. Otherwise, 
+#' reinterpret as pl$UInt64.
+#' 
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c(1, 1, 2))$cast(pl$UInt64)
+#' 
+#' # Create a Series with 3 nulls, append column a then rechunk
+#' df$with_columns(
+#'   reinterpreted = pl$col("a")$reinterpret()
+#' )
+expr__reinterpret <- function(..., signed = TRUE) {
+  wrap({
+    rlang::check_dots_empty0(...)
+    self$`_rexpr`$reinterpret(signed)
+  })
+}
+
+#' Repeat the elements in this Series as specified in the given expression
+#' 
+#' The repeated elements are expanded into a List dtype.
+#' 
+#' @param by Numeric column that determines how often the values will be 
+#' repeated. The column will be coerced to UInt32. Give this dtype to make the 
+#' coercion a no-op.
+#' 
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c("x", "y", "z"), n = 1:3)
+#' 
+#' df$with_columns(
+#'   repeated = pl$col("a")$repeat_by("n")
+#' )
+expr__repeat_by <- function(by) {
+  wrap({
+    self$`_rexpr`$repeat_by(as_polars_expr(by)$`_rexpr`)
   })
 }

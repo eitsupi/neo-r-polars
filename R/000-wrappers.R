@@ -1895,6 +1895,62 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   }
 }
 
+`PlRExpr_interpolate` <- function(self) {
+  function(`method`) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_interpolate__impl, `self`, `method`))
+  }
+}
+
+`PlRExpr_interpolate_by` <- function(self) {
+  function(`by`) {
+    `by` <- .savvy_extract_ptr(`by`, "PlRExpr")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_interpolate_by__impl, `self`, `by`))
+  }
+}
+
+`PlRExpr_lower_bound` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_lower_bound__impl, `self`))
+  }
+}
+
+`PlRExpr_upper_bound` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_upper_bound__impl, `self`))
+  }
+}
+
+`PlRExpr_cut` <- function(self) {
+  function(`breaks`, `left_closed`, `include_breaks`, `labels` = NULL) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_cut__impl, `self`, `breaks`, `left_closed`, `include_breaks`, `labels`))
+  }
+}
+
+`PlRExpr_qcut` <- function(self) {
+  function(`probs`, `left_closed`, `allow_duplicates`, `include_breaks`, `labels` = NULL) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_qcut__impl, `self`, `probs`, `left_closed`, `allow_duplicates`, `include_breaks`, `labels`))
+  }
+}
+
+`PlRExpr_qcut_uniform` <- function(self) {
+  function(`n_bins`, `left_closed`, `allow_duplicates`, `include_breaks`, `labels` = NULL) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_qcut_uniform__impl, `self`, `n_bins`, `left_closed`, `allow_duplicates`, `include_breaks`, `labels`))
+  }
+}
+
+`PlRExpr_reinterpret` <- function(self) {
+  function(`signed`) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_reinterpret__impl, `self`, `signed`))
+  }
+}
+
+`PlRExpr_repeat_by` <- function(self) {
+  function(`by`) {
+    `by` <- .savvy_extract_ptr(`by`, "PlRExpr")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_repeat_by__impl, `self`, `by`))
+  }
+}
+
 `PlRExpr_list_len` <- function(self) {
   function() {
     .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_list_len__impl, `self`))
@@ -2820,6 +2876,15 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   e$`top_k_by` <- `PlRExpr_top_k_by`(ptr)
   e$`bottom_k` <- `PlRExpr_bottom_k`(ptr)
   e$`bottom_k_by` <- `PlRExpr_bottom_k_by`(ptr)
+  e$`interpolate` <- `PlRExpr_interpolate`(ptr)
+  e$`interpolate_by` <- `PlRExpr_interpolate_by`(ptr)
+  e$`lower_bound` <- `PlRExpr_lower_bound`(ptr)
+  e$`upper_bound` <- `PlRExpr_upper_bound`(ptr)
+  e$`cut` <- `PlRExpr_cut`(ptr)
+  e$`qcut` <- `PlRExpr_qcut`(ptr)
+  e$`qcut_uniform` <- `PlRExpr_qcut_uniform`(ptr)
+  e$`reinterpret` <- `PlRExpr_reinterpret`(ptr)
+  e$`repeat_by` <- `PlRExpr_repeat_by`(ptr)
   e$`list_len` <- `PlRExpr_list_len`(ptr)
   e$`list_contains` <- `PlRExpr_list_contains`(ptr)
   e$`list_max` <- `PlRExpr_list_max`(ptr)
