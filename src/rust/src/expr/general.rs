@@ -737,7 +737,8 @@ impl PlRExpr {
         Ok(self.inner.clone().round(decimals).into())
     }
 
-    fn round_sig_figs(&self, digits: i32) -> Result<Self> {
+    fn round_sig_figs(&self, digits: NumericScalar) -> Result<Self> {
+        let digits = digits.as_i32()?;
         Ok(self.inner.clone().round_sig_figs(digits).into())
     }
 
@@ -928,5 +929,76 @@ impl PlRExpr {
 
     fn repeat_by(&self, by: &PlRExpr) -> Result<Self> {
         Ok(self.inner.clone().repeat_by(by.inner.clone()).into())
+    }
+
+    fn replace(&self, old: &PlRExpr, new: &PlRExpr) -> Result<Self> {
+        Ok(self
+            .inner
+            .clone()
+            .replace(old.inner.clone(), new.inner.clone())
+            .into())
+    }
+
+    fn replace_strict(
+        &self,
+        old: &PlRExpr,
+        new: &PlRExpr,
+        default: Option<&PlRExpr>,
+        return_dtype: Option<&PlRDataType>,
+    ) -> Result<Self> {
+        Ok(self
+            .inner
+            .clone()
+            .replace_strict(
+                old.inner.clone(),
+                new.inner.clone(),
+                default.map(|e| e.inner.clone()),
+                return_dtype.map(|e| e.dt.clone()),
+            )
+            .into())
+    }
+
+    fn rle(&self) -> Result<Self> {
+        Ok(self.inner.clone().rle().into())
+    }
+
+    fn rle_id(&self) -> Result<Self> {
+        Ok(self.inner.clone().rle_id().into())
+    }
+
+    fn sample_n(
+        &self,
+        n: &PlRExpr,
+        with_replacement: bool,
+        shuffle: bool,
+        seed: Option<NumericScalar>,
+    ) -> Result<Self> {
+        let seed: Option<u64> = match seed {
+            Some(x) => Some(<Wrap<u64>>::try_from(x)?.0),
+            None => None,
+        };
+        Ok(self
+            .inner
+            .clone()
+            .sample_n(n.inner.clone(), with_replacement, shuffle, seed)
+            .into())
+    }
+
+    fn sample_frac(
+        &self,
+        frac: &PlRExpr,
+        with_replacement: bool,
+        shuffle: bool,
+        seed: Option<NumericScalar>,
+    ) -> Result<Self> {
+        let seed: Option<u64> = match seed {
+            Some(x) => Some(<Wrap<u64>>::try_from(x)?.0),
+            None => None,
+        };
+        Ok(self
+            .inner
+            .clone()
+            .sample_frac(frac.inner.clone(), with_replacement, shuffle, seed)
+            .into())
     }
 }

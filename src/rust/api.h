@@ -288,6 +288,12 @@ SEXP savvy_PlRExpr_qcut__ffi(SEXP self__, SEXP c_arg__probs, SEXP c_arg__left_cl
 SEXP savvy_PlRExpr_qcut_uniform__ffi(SEXP self__, SEXP c_arg__n_bins, SEXP c_arg__left_closed, SEXP c_arg__allow_duplicates, SEXP c_arg__include_breaks, SEXP c_arg__labels);
 SEXP savvy_PlRExpr_reinterpret__ffi(SEXP self__, SEXP c_arg__signed);
 SEXP savvy_PlRExpr_repeat_by__ffi(SEXP self__, SEXP c_arg__by);
+SEXP savvy_PlRExpr_replace__ffi(SEXP self__, SEXP c_arg__old, SEXP c_arg__new);
+SEXP savvy_PlRExpr_replace_strict__ffi(SEXP self__, SEXP c_arg__old, SEXP c_arg__new, SEXP c_arg__default, SEXP c_arg__return_dtype);
+SEXP savvy_PlRExpr_rle__ffi(SEXP self__);
+SEXP savvy_PlRExpr_rle_id__ffi(SEXP self__);
+SEXP savvy_PlRExpr_sample_n__ffi(SEXP self__, SEXP c_arg__n, SEXP c_arg__with_replacement, SEXP c_arg__shuffle, SEXP c_arg__seed);
+SEXP savvy_PlRExpr_sample_frac__ffi(SEXP self__, SEXP c_arg__frac, SEXP c_arg__with_replacement, SEXP c_arg__shuffle, SEXP c_arg__seed);
 SEXP savvy_PlRExpr_list_len__ffi(SEXP self__);
 SEXP savvy_PlRExpr_list_contains__ffi(SEXP self__, SEXP c_arg__other);
 SEXP savvy_PlRExpr_list_max__ffi(SEXP self__);

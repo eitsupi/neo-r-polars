@@ -1951,6 +1951,50 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   }
 }
 
+`PlRExpr_replace` <- function(self) {
+  function(`old`, `new`) {
+    `old` <- .savvy_extract_ptr(`old`, "PlRExpr")
+    `new` <- .savvy_extract_ptr(`new`, "PlRExpr")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_replace__impl, `self`, `old`, `new`))
+  }
+}
+
+`PlRExpr_replace_strict` <- function(self) {
+  function(`old`, `new`, `default` = NULL, `return_dtype` = NULL) {
+    `old` <- .savvy_extract_ptr(`old`, "PlRExpr")
+    `new` <- .savvy_extract_ptr(`new`, "PlRExpr")
+    `default` <- .savvy_extract_ptr(`default`, "PlRExpr")
+    `return_dtype` <- .savvy_extract_ptr(`return_dtype`, "PlRDataType")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_replace_strict__impl, `self`, `old`, `new`, `default`, `return_dtype`))
+  }
+}
+
+`PlRExpr_rle` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_rle__impl, `self`))
+  }
+}
+
+`PlRExpr_rle_id` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_rle_id__impl, `self`))
+  }
+}
+
+`PlRExpr_sample_n` <- function(self) {
+  function(`n`, `with_replacement`, `shuffle`, `seed` = NULL) {
+    `n` <- .savvy_extract_ptr(`n`, "PlRExpr")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_sample_n__impl, `self`, `n`, `with_replacement`, `shuffle`, `seed`))
+  }
+}
+
+`PlRExpr_sample_frac` <- function(self) {
+  function(`frac`, `with_replacement`, `shuffle`, `seed` = NULL) {
+    `frac` <- .savvy_extract_ptr(`frac`, "PlRExpr")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_sample_frac__impl, `self`, `frac`, `with_replacement`, `shuffle`, `seed`))
+  }
+}
+
 `PlRExpr_list_len` <- function(self) {
   function() {
     .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_list_len__impl, `self`))
@@ -2885,6 +2929,12 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   e$`qcut_uniform` <- `PlRExpr_qcut_uniform`(ptr)
   e$`reinterpret` <- `PlRExpr_reinterpret`(ptr)
   e$`repeat_by` <- `PlRExpr_repeat_by`(ptr)
+  e$`replace` <- `PlRExpr_replace`(ptr)
+  e$`replace_strict` <- `PlRExpr_replace_strict`(ptr)
+  e$`rle` <- `PlRExpr_rle`(ptr)
+  e$`rle_id` <- `PlRExpr_rle_id`(ptr)
+  e$`sample_n` <- `PlRExpr_sample_n`(ptr)
+  e$`sample_frac` <- `PlRExpr_sample_frac`(ptr)
   e$`list_len` <- `PlRExpr_list_len`(ptr)
   e$`list_contains` <- `PlRExpr_list_contains`(ptr)
   e$`list_max` <- `PlRExpr_list_max`(ptr)

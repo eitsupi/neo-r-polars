@@ -81,6 +81,8 @@ features = [
     "rank",
     "reinterpret",
     "repeat_by",
+    "replace",
+    "rle",
     "rolling_window",
     "rolling_window_by",
     "round_series",
