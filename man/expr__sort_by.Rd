@@ -2,7 +2,8 @@
 % Please edit documentation in R/expr-expr.R
 \name{expr__sort_by}
 \alias{expr__sort_by}
-\title{Sort Expr by order of others}
+\title{Sort this column by the ordering of another column, or multiple other
+columns.}
 \usage{
 expr__sort_by(
   ...,
@@ -13,24 +14,31 @@ expr__sort_by(
 )
 }
 \arguments{
-\item{maintain_order}{A logical to indicate whether the order should be maintained
-if elements are equal.}
+\item{...}{Column(s) to sort by. Accepts expression input. Strings are parsed
+as column names.}
 
-\item{by}{One expression or a list of expressions and/or strings (interpreted
-as column names).}
+\item{descending}{Sort in descending order. When sorting by multiple
+columns, can be specified per column by passing a sequence of booleans.}
+
+\item{nulls_last}{Place null values last; can specify a single boolean
+applying to all columns or a sequence of booleans for per-column control.}
+
+\item{multithreaded}{Sort using multiple threads.}
+
+\item{maintain_order}{Whether the order should be maintained if elements are
+equal.}
 }
 \value{
 A polars \link{expression}
 }
 \description{
-Sort this column by the ordering of another column, or multiple other columns.
-If used in a groupby context, the groups are sorted.
+If used in a groupby context, values within each group are sorted.
 }
 \examples{
 df <- pl$DataFrame(
-  group = c("a", "a", "a", "b", "b", "b"),
-  value1 = c(98, 1, 3, 2, 99, 100),
-  value2 = c("d", "f", "b", "e", "c", "a")
+  group = c("a", "a", "b", "b"),
+  value1 = c(1, 3, 4, 2),
+  value2 = c(8, 7, 6, 5)
 )
 
 # by one column/expression
@@ -41,13 +49,18 @@ df$with_columns(
 # by two columns/expressions
 df$with_columns(
   sorted = pl$col("group")$sort_by(
-    list("value2", pl$col("value1")),
+    "value2", pl$col("value1"),
     descending = c(TRUE, FALSE)
   )
 )
 
 # by some expression
 df$with_columns(
-  sorted = pl$col("group")$sort_by(pl$col("value1")$sort(descending = TRUE))
+  sorted = pl$col("group")$sort_by(pl$col("value1") + pl$col("value2"))
 )
+
+# in an aggregation context, values are sorted within groups
+df$group_by("group")$agg(
+  pl$col("value1")$sort_by("value2")
+) 
 }

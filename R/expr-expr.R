@@ -664,17 +664,31 @@ expr__cast <- function(dtype, ..., strict = TRUE, wrap_numerical = FALSE) {
   })
 }
 
-#' Sort an Expr
-#'
-#' Sort this column. If used in a groupby context, the groups are sorted.
+#' Sort this expression
+#' 
+#' If used in a groupby context, values within each group are sorted.
 #'
 #' @inheritParams rlang::check_dots_empty0
-#' @inheritParams Series_sort
+#' @param descending Sort in descending order.
+#' @param nulls_last Place null values last.
 #'
 #' @inherit as_polars_expr return
 #' @examples
-#' pl$DataFrame(a = c(6, 1, 0, NA, Inf, NaN))$
-#'   with_columns(sorted = pl$col("a")$sort())
+#' df <- pl$DataFrame(a = c(6, 1, 0, NA, Inf, NaN))
+#' 
+#' df$with_columns(
+#'   sorted = pl$col("a")$sort(),
+#'   sorted_desc = pl$col("a")$sort(descending = TRUE),
+#'   sorted_nulls_last = pl$col("a")$sort(nulls_last = TRUE)
+#' )
+#' 
+#' # When sorting in a group by context, values in each group are sorted.
+#' df <- pl$DataFrame(
+#'   group = c("one", "one", "one", "two", "two", "two"),
+#'   value = c(1, 98, 2, 3, 99, 4)
+#' ) 
+#' 
+#' df$group_by("group")$agg(pl$col("value")$sort())  
 expr__sort <- function(..., descending = FALSE, nulls_last = FALSE) {
   wrap({
     check_dots_empty0(...)
@@ -701,23 +715,26 @@ expr__arg_sort <- function(..., descending = FALSE, nulls_last = FALSE) {
   })
 }
 
-#' Sort Expr by order of others
-#'
-#' Sort this column by the ordering of another column, or multiple other columns.
-#' If used in a groupby context, the groups are sorted.
-#'
-#' @param by One expression or a list of expressions and/or strings (interpreted
-#'  as column names).
-#' @param maintain_order A logical to indicate whether the order should be maintained
-#' if elements are equal.
-#' @inheritParams Series_sort
+#' Sort this column by the ordering of another column, or multiple other
+#' columns.
+#' 
+#' @inherit expr__sort description
+#' @param ... Column(s) to sort by. Accepts expression input. Strings are parsed
+#' as column names.
+#' @param descending Sort in descending order. When sorting by multiple 
+#' columns, can be specified per column by passing a sequence of booleans.
+#' @param nulls_last Place null values last; can specify a single boolean 
+#' applying to all columns or a sequence of booleans for per-column control.
+#' @param multithreaded Sort using multiple threads.
+#' @param maintain_order Whether the order should be maintained if elements are
+#' equal.
 #'
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
-#'   group = c("a", "a", "a", "b", "b", "b"),
-#'   value1 = c(98, 1, 3, 2, 99, 100),
-#'   value2 = c("d", "f", "b", "e", "c", "a")
+#'   group = c("a", "a", "b", "b"),
+#'   value1 = c(1, 3, 4, 2),
+#'   value2 = c(8, 7, 6, 5)
 #' )
 #'
 #' # by one column/expression
@@ -728,15 +745,20 @@ expr__arg_sort <- function(..., descending = FALSE, nulls_last = FALSE) {
 #' # by two columns/expressions
 #' df$with_columns(
 #'   sorted = pl$col("group")$sort_by(
-#'     list("value2", pl$col("value1")),
+#'     "value2", pl$col("value1"),
 #'     descending = c(TRUE, FALSE)
 #'   )
 #' )
 #'
 #' # by some expression
 #' df$with_columns(
-#'   sorted = pl$col("group")$sort_by(pl$col("value1")$sort(descending = TRUE))
+#'   sorted = pl$col("group")$sort_by(pl$col("value1") + pl$col("value2"))
 #' )
+#' 
+#' # in an aggregation context, values are sorted within groups
+#' df$group_by("group")$agg(
+#'   pl$col("value1")$sort_by("value2")
+#' ) 
 expr__sort_by <- function(
     ...,
     descending = FALSE,

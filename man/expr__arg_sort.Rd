@@ -8,6 +8,10 @@ expr__arg_sort(..., descending = FALSE, nulls_last = FALSE)
 }
 \arguments{
 \item{...}{Dots which should be empty.}
+
+\item{descending}{Sort in descending order.}
+
+\item{nulls_last}{Place null values last.}
 }
 \value{
 A polars \link{expression}

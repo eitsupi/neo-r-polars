@@ -2,20 +2,37 @@
 % Please edit documentation in R/expr-expr.R
 \name{expr__sort}
 \alias{expr__sort}
-\title{Sort an Expr}
+\title{Sort this expression}
 \usage{
 expr__sort(..., descending = FALSE, nulls_last = FALSE)
 }
 \arguments{
 \item{...}{Dots which should be empty.}
+
+\item{descending}{Sort in descending order.}
+
+\item{nulls_last}{Place null values last.}
 }
 \value{
 A polars \link{expression}
 }
 \description{
-Sort this column. If used in a groupby context, the groups are sorted.
+If used in a groupby context, values within each group are sorted.
 }
 \examples{
-pl$DataFrame(a = c(6, 1, 0, NA, Inf, NaN))$
-  with_columns(sorted = pl$col("a")$sort())
+df <- pl$DataFrame(a = c(6, 1, 0, NA, Inf, NaN))
+
+df$with_columns(
+  sorted = pl$col("a")$sort(),
+  sorted_desc = pl$col("a")$sort(descending = TRUE),
+  sorted_nulls_last = pl$col("a")$sort(nulls_last = TRUE)
+)
+
+# When sorting in a group by context, values in each group are sorted.
+df <- pl$DataFrame(
+  group = c("one", "one", "one", "two", "two", "two"),
+  value = c(1, 98, 2, 3, 99, 4)
+) 
+
+df$group_by("group")$agg(pl$col("value")$sort())  
 }
