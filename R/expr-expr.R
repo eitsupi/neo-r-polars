@@ -776,11 +776,19 @@ expr__sort_by <- function(
   })
 }
 
-#' Reverse a variable
+#' Reverse an expression
 #'
 #' @inherit as_polars_expr return
 #' @examples
-#' pl$DataFrame(a = 1:5)$select(pl$col("a")$reverse())
+#' df <- pl$DataFrame(
+#'   a = 1:5,
+#'   fruits = c("banana", "banana", "apple", "apple", "banana"),
+#'   b = 5:1
+#' )
+#' 
+#' df$with_columns(
+#'   pl$all()$reverse()$name$suffix("_reverse")
+#' )
 expr__reverse <- function() {
   self$`_rexpr`$reverse() |>
     wrap()
@@ -4031,5 +4039,179 @@ expr__reinterpret <- function(..., signed = TRUE) {
 expr__repeat_by <- function(by) {
   wrap({
     self$`_rexpr`$repeat_by(as_polars_expr(by)$`_rexpr`)
+  })
+}
+
+#' Replace the given values by different values of the same data type.
+#'
+#' This allows one to recode values in a column, leaving all other values
+#' unchanged. See [`$replace_strict()`][expr__replace_strict] to give a default
+#' value to all other values and to specify the output datatype.
+#'
+#' @param old Value or vector of values to replace. Accepts expression input.
+#' Vectors are parsed as Series, other non-expression inputs are parsed as 
+#' literals. Also accepts a list of values like `list(old = new)`.
+#' @param new Value or vector of values to replace by. Accepts expression 
+#' input. Vectors are parsed as Series, other non-expression inputs are parsed
+#' as literals. Length must match the length of `old` or have length 1.
+#' 
+#' @details
+#' The global string cache must be enabled when replacing categorical values.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c(1, 2, 2, 3))
+#'
+#' # "old" and "new" can take vectors of length 1 or of same length
+#' df$with_columns(replaced = pl$col("a")$replace(2, 100))
+#' df$with_columns(replaced = pl$col("a")$replace(c(2, 3), c(100, 200)))
+#'
+#' # "old" can be a named list where names are values to replace, and values are
+#' # the replacements
+#' mapping <- list(`2` = 100, `3` = 200)
+#' df$with_columns(replaced = pl$col("a")$replace(mapping))
+#'
+#' # The original data type is preserved when replacing by values of a 
+#' # different data type. Use $replace_strict() to replace and change the 
+#' # return data type.
+#' df <- pl$DataFrame(a = c("x", "y", "z"))
+#' mapping <- list(x = 1, y = 2, z = 3)
+#' df$with_columns(replaced = pl$col("a")$replace(mapping))
+#'
+#' # "old" and "new" can take Expr
+#' df <- pl$DataFrame(a = c(1, 2, 2, 3), b = c(1.5, 2.5, 5, 1))
+#' df$with_columns(
+#'   replaced = pl$col("a")$replace(
+#'     old = pl$col("a")$max(),
+#'     new = pl$col("b")$sum()
+#'   )
+#' )
+expr__replace = function(old, new) {
+  wrap({
+    if (missing(new)) {
+      if (!is.list(old)) {
+        abort("`new` argument is required if `old` argument is not a list.")
+      }
+      new <- unlist(old, use.names = FALSE)
+      old <- names(old)
+    }
+    self$`_rexpr`$replace(
+      as_polars_expr(old, as_lit = TRUE)$`_rexpr`, 
+      as_polars_expr(new, as_lit = TRUE)$`_rexpr`
+    )
+  })
+}
+
+#' Replace all values by different values
+#'
+#' This changes all the values in a column, either using a specific replacement
+#' or a default one. See [`$replace()`][expr__replace] to replace only a subset
+#' of values.
+#'
+#' @inheritParams rlang::check_dots_empty0
+#' @inherit expr__replace params details
+#' @param default  Set values that were not replaced to this value. If `NULL`
+#' (default), an error is raised if any values were not replaced. Accepts
+#' expression input. Non-expression inputs are parsed as literals.
+#' @param return_dtype The data type of the resulting expression. If `NULL` 
+#' (default), the data type is determined automatically based on the other 
+#' inputs.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c(1, 2, 2, 3))
+#'
+#' # "old" and "new" can take vectors of length 1 or of same length
+#' df$with_columns(replaced = pl$col("a")$replace_strict(2, 100, default = 1))
+#' df$with_columns(
+#'   replaced = pl$col("a")$replace_strict(c(2, 3), c(100, 200), default = 1)
+#' )
+#'
+#' # "old" can be a named list where names are values to replace, and values are
+#' # the replacements
+#' mapping <- list(`2` = 100, `3` = 200)
+#' df$with_columns(replaced = pl$col("a")$replace_strict(mapping, default = -1))
+#'
+#' # one can specify the data type to return instead of automatically
+#' # inferring it
+#' df$with_columns(
+#'   replaced = pl$col("a")$replace_strict(
+#'     mapping, default = 1, return_dtype = pl$Int32
+#'   )
+#' )
+#'
+#' # "old", "new", and "default" can take Expr
+#' df <- pl$DataFrame(a = c(1, 2, 2, 3), b = c(1.5, 2.5, 5, 1))
+#' df$with_columns(
+#'   replaced = pl$col("a")$replace_strict(
+#'     old = pl$col("a")$max(),
+#'     new = pl$col("b")$sum(),
+#'     default = pl$col("b"),
+#'   )
+#' )
+expr__replace_strict = function(
+  old, 
+  new, 
+  ..., 
+  default = NULL, 
+  return_dtype = NULL) {  
+    wrap({
+      check_dots_empty0(...)
+      if (missing(new)) {
+        if (!is.list(old)) {
+          abort("`new` argument is required if `old` argument is not a list.")
+        }
+        new <- unlist(old, use.names = FALSE)
+        old <- names(old)
+      }
+      self$`_rexpr`$replace_strict(
+        as_polars_expr(old, as_lit = TRUE)$`_rexpr`, 
+        as_polars_expr(new, as_lit = TRUE)$`_rexpr`,
+        default = as_polars_expr(default, as_lit = TRUE)$`_rexpr`,
+        return_dtype = return_dtype$`_dt`
+      )
+    })
+}
+
+#' Compress the column data using run-length encoding
+#' 
+#' Run-length encoding (RLE) encodes data by storing each run of identical 
+#' values as a single value and its length.
+#' 
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c(1, 1, 2, 1, NA, 1, 3, 3))
+#' 
+#' df$select(pl$col("a")$rle())$unnest("a")
+expr__rle <- function() {
+  wrap({
+    self$`_rexpr`$rle()
+  })
+}
+
+#' Get a distinct integer ID for each run of identical values
+#' 
+#' The ID starts at 0 and increases by one each time the value of the column
+#' changes.
+#' 
+#' @details
+#' This functionality is especially useful for defining a new group for every 
+#' time a column’s value changes, rather than for every distinct value of that
+#' column.
+#' 
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = c(1, 2, 1, 1, 1),
+#'   b = c("x", "x", NA, "y", "y")
+#' )
+#' 
+#' df$with_columns(
+#'   rle_id_a = pl$col("a")$rle_id(),
+#'   rle_id_ab = pl$struct("a", "b")$rle_id()
+#' )
+expr__rle_id <- function() {
+  wrap({
+    self$`_rexpr`$rle_id()
   })
 }
