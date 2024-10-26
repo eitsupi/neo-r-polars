@@ -3,6 +3,7 @@ use crate::{prelude::*, PlRDataType, PlRExpr};
 use polars::lazy::dsl;
 use polars::series::ops::NullBehavior;
 use polars_core::chunked_array::cast::CastOptions;
+use polars_core::series::IsSorted;
 use savvy::{
     r_println, savvy, FunctionSexp, ListSexp, LogicalSexp, NumericScalar, NumericSexp, Result,
     StringSexp,
@@ -966,6 +967,14 @@ impl PlRExpr {
         Ok(self.inner.clone().rle_id().into())
     }
 
+    fn shuffle(&self, seed: Option<NumericScalar>) -> Result<Self> {
+        let seed: Option<u64> = match seed {
+            Some(x) => Some(<Wrap<u64>>::try_from(x)?.0),
+            None => None,
+        };
+        Ok(self.inner.clone().shuffle(seed).into())
+    }
+
     fn sample_n(
         &self,
         n: &PlRExpr,
@@ -1000,5 +1009,40 @@ impl PlRExpr {
             .clone()
             .sample_frac(frac.inner.clone(), with_replacement, shuffle, seed)
             .into())
+    }
+
+    fn shrink_dtype(&self) -> Result<Self> {
+        Ok(self.inner.clone().shrink_dtype().into())
+    }
+
+    fn set_sorted_flag(&self, descending: bool) -> Result<Self> {
+        let is_sorted = if descending {
+            IsSorted::Descending
+        } else {
+            IsSorted::Ascending
+        };
+        Ok(self.inner.clone().set_sorted_flag(is_sorted).into())
+    }
+
+    fn to_physical(&self) -> Result<Self> {
+        Ok(self.inner.clone().to_physical().into())
+    }
+
+    fn rolling(
+        &self,
+        index_column: &str,
+        period: &str,
+        offset: &str,
+        closed: &str,
+    ) -> Result<Self> {
+        let closed = <Wrap<ClosedWindow>>::try_from(closed)?.0;
+        let options = RollingGroupOptions {
+            index_column: index_column.into(),
+            period: Duration::parse(period),
+            offset: Duration::parse(offset),
+            closed_window: closed,
+        };
+
+        Ok(self.inner.clone().rolling(options).into())
     }
 }

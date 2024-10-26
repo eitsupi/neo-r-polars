@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-expr.R
 \name{expr__slice}
 \alias{expr__slice}
-\title{Get a slice of an Expr}
+\title{Get a slice of this expression}
 \usage{
 expr__slice(offset, length = NULL)
 }
@@ -10,16 +10,14 @@ expr__slice(offset, length = NULL)
 \item{offset}{Numeric or expression, zero-indexed. Indicates where to start
 the slice. A negative value is one-indexed and starts from the end.}
 
-\item{length}{Maximum number of elements contained in the slice. Default is
-full data.}
+\item{length}{Maximum number of elements contained in the slice. If \code{NULL}
+(default), all rows starting at the offset will be selected.}
 }
 \value{
 A polars \link{expression}
 }
 \description{
-Performing a slice of length 1 on a subset of columns will recycle this value
-in those columns but will not change the number of rows in the data. See
-examples.
+Get a slice of this expression
 }
 \examples{
 # as head
@@ -35,7 +33,4 @@ pl$DataFrame(a = 0:100)$select(
 pl$DataFrame(a = 0:100)$select(
   pl$all()$slice(80)
 )
-
-# recycling
-pl$DataFrame(mtcars)$with_columns(pl$col("mpg")$slice(0, 1)$first())
 }

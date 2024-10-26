@@ -795,17 +795,12 @@ expr__reverse <- function() {
 }
 
 
-#' Get a slice of an Expr
-#'
-#' Performing a slice of length 1 on a subset of columns will recycle this value
-#' in those columns but will not change the number of rows in the data. See
-#' examples.
+#' Get a slice of this expression
 #'
 #' @param offset Numeric or expression, zero-indexed. Indicates where to start
 #' the slice. A negative value is one-indexed and starts from the end.
-#' @param length Maximum number of elements contained in the slice. Default is
-#' full data.
-#'
+#' @param length Maximum number of elements contained in the slice. If `NULL` 
+#' (default), all rows starting at the offset will be selected.
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -822,9 +817,6 @@ expr__reverse <- function() {
 #' pl$DataFrame(a = 0:100)$select(
 #'   pl$all()$slice(80)
 #' )
-#'
-#' # recycling
-#' pl$DataFrame(mtcars)$with_columns(pl$col("mpg")$slice(0, 1)$first())
 expr__slice <- function(offset, length = NULL) {
   self$`_rexpr`$slice(
     as_polars_expr(
@@ -2711,6 +2703,67 @@ expr__rolling_var <- function(
   })
 }
 
+#' Create rolling groups based on a temporal or integer column
+#'
+#' @description
+#' If you have a time series `<t_0, t_1, ..., t_n>`, then by default the
+#' windows created will be:
+#' * `(t_0 - period, t_0]`
+#' * `(t_1 - period, t_1]`
+#' * …
+#' * `(t_n - period, t_n]`
+#' 
+#' whereas if you pass a non-default `offset`, then the windows will be:
+#' * `(t_0 + offset, t_0 + offset + period]`
+#' * `(t_1 + offset, t_1 + offset + period]`
+#' * …
+#' * `(t_n + offset, t_n + offset + period]`
+#' 
+#' 
+#' @inherit expr__rolling_max params details 
+#' @inheritParams pl__date_range
+#' @inheritParams rlang::check_dots_empty0
+#' @param index_column Column used to group based on the time window. Often of
+#' type Date/Datetime. This column must be sorted in ascending order. In case 
+#' of a rolling group by on indices, dtype needs to be one of UInt32, UInt64, 
+#' Int32, Int64. Note that the first three get temporarily cast to Int64, so if
+#' performance matters use an Int64 column.
+#' @param period Length of the window - must be non-negative.
+#' @param offset Offset of the window. Default is `-period`.
+#' 
+#' @inherit as_polars_expr return
+#' @examples
+#' dates <- as.POSIXct(
+#'   c(
+#'     "2020-01-01 13:45:48", "2020-01-01 16:42:13", "2020-01-01 16:45:09",
+#'     "2020-01-02 18:12:48", "2020-01-03 19:45:32","2020-01-08 23:16:43"
+#'   )
+#' )
+#' df <- pl$DataFrame(dt = dates, a = c(3, 7, 5, 9, 2, 1))
+#' 
+#' df$with_columns(
+#'   sum_a = pl$col("a")$sum()$rolling(index_column = "dt", period = "2d"),
+#'   min_a = pl$col("a")$min()$rolling(index_column = "dt", period = "2d"),
+#'   max_a = pl$col("a")$max()$rolling(index_column = "dt", period = "2d")
+#' )
+expr__rolling <- function(
+  index_column,
+  ...,
+  period,
+  offset = NULL,
+  closed = "right") {
+  wrap({
+    check_dots_empty0(...)
+    closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
+    if (is.null(offset)) {
+      offset <- paste0("-", parse_as_polars_duration_string(period))
+    }
+    period <- parse_as_polars_duration_string(period)
+    offset <- parse_as_polars_duration_string(offset)
+    self$`_rexpr`$rolling(index_column, period, offset, closed)
+  })
+}
+
 #' Apply a rolling max based on another column
 #'
 #' @description
@@ -4298,5 +4351,118 @@ expr__round <- function(decimals) {
 expr__round_sig_figs <- function(digits) {
   wrap({
     self$`_rexpr`$round_sig_figs(digits)
+  })
+}
+
+#' Shift values by the given number of indices
+#' 
+#' @inheritParams rlang::check_dots_empty0
+#' @param n Number of indices to shift forward. If a negative value is 
+#' passed, values are shifted in the opposite direction instead.
+#' @param fill_value Fill the resulting null values with this value.
+#' 
+#' @inherit as_polars_expr return
+#' @examples
+#' # By default, values are shifted forward by one index.
+#' df <- pl$DataFrame(a = 1:4)
+#' df$with_columns(shift = pl$col("a")$shift())
+#' 
+#' # Pass a negative value to shift in the opposite direction instead.
+#' df$with_columns(shift = pl$col("a")$shift(-2))
+#' 
+#' # Specify fill_value to fill the resulting null values.
+#' df$with_columns(shift = pl$col("a")$shift(-2, fill_value = 100))
+expr__shift <- function(n = 1, ..., fill_value = NULL) {
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$shift(
+      as_polars_expr(n)$`_rexpr`,
+      as_polars_expr(fill_value)$`_rexpr`
+    )
+  })
+}
+
+#' Shrink numeric columns to the minimal required datatype
+#' 
+#' Shrink to the dtype needed to fit the extrema of this Series. This can be
+#' used to reduce memory pressure.
+#' 
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c(-112, 2, 112))$cast(pl$Int64)
+#' df$with_columns(
+#'   shrunk = pl$col("a")$shrink_dtype()
+#' )
+expr__shrink_dtype <- function() {
+  wrap({
+    self$`_rexpr`$shrink_dtype()
+  })
+}
+
+#' Shuffle the contents of this expression
+#' 
+#' Note this is shuffled independently of any other column or Expression. 
+#' If you want each row to stay the same use 
+#' [`df$sample(shuffle = TRUE)`][dataframe_sample].
+#' 
+#' @param seed Integer indicating the seed for the random number generator. If 
+#' `NULL` (default), a random seed is generated each time the shuffle is called.
+#' 
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = 1:3)
+#' df$with_columns(
+#'   shuffled = pl$col("a")$shuffle(seed = 1)
+#' )
+expr__shuffle <- function(seed = NULL) {
+  wrap({
+    self$`_rexpr`$shuffle(seed)
+  })
+}
+
+#' Flags the expression as "sorted"
+#' 
+#' @description
+#' Enables downstream code to user fast paths for sorted arrays.
+#' 
+#' **Warning:** This can lead to incorrect results if the data is NOT sorted!! 
+#' Use with care!
+#' 
+#' @inheritParams rlang::check_dots_empty0
+#' @param descending Whether the Series order is descending.
+#' 
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = 1:3)
+#' df$select(pl$col("a")$set_sorted()$max())
+expr__set_sorted <- function(..., descending = FALSE) {
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$set_sorted_flag(descending)
+  })
+}
+
+#' Cast to physical representation of the logical dtype
+#' 
+#' @description
+#' The following data types will be changed:
+#' * Date -> Int32
+#' * Datetime -> Int64
+#' * Time -> Int64
+#' * Duration -> Int64
+#' * Categorical -> UInt32
+#' * List(inner) -> List(physical of inner)
+#' 
+#' Other data types will be left unchanged.
+#' 
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = factor(c("a", "x", NA, "a")))
+#' df$with_columns(
+#'   phys = pl$col("a")$to_physical()
+#' )
+expr__to_physical <- function() {
+  wrap({
+    self$`_rexpr`$to_physical()
   })
 }

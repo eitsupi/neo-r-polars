@@ -40,6 +40,7 @@ features = [
     "diff",
     "dot_product",
     "dtype-full",
+    "dynamic_group_by",
     "ewma",
     "ewma_by",
     "extract_groups",

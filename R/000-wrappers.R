@@ -1981,6 +1981,12 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   }
 }
 
+`PlRExpr_shuffle` <- function(self) {
+  function(`seed` = NULL) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_shuffle__impl, `self`, `seed`))
+  }
+}
+
 `PlRExpr_sample_n` <- function(self) {
   function(`n`, `with_replacement`, `shuffle`, `seed` = NULL) {
     `n` <- .savvy_extract_ptr(`n`, "PlRExpr")
@@ -1992,6 +1998,30 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   function(`frac`, `with_replacement`, `shuffle`, `seed` = NULL) {
     `frac` <- .savvy_extract_ptr(`frac`, "PlRExpr")
     .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_sample_frac__impl, `self`, `frac`, `with_replacement`, `shuffle`, `seed`))
+  }
+}
+
+`PlRExpr_shrink_dtype` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_shrink_dtype__impl, `self`))
+  }
+}
+
+`PlRExpr_set_sorted_flag` <- function(self) {
+  function(`descending`) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_set_sorted_flag__impl, `self`, `descending`))
+  }
+}
+
+`PlRExpr_to_physical` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_to_physical__impl, `self`))
+  }
+}
+
+`PlRExpr_rolling` <- function(self) {
+  function(`index_column`, `period`, `offset`, `closed`) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_rolling__impl, `self`, `index_column`, `period`, `offset`, `closed`))
   }
 }
 
@@ -2933,8 +2963,13 @@ class(`PlRDataType`) <- "PlRDataType__bundle"
   e$`replace_strict` <- `PlRExpr_replace_strict`(ptr)
   e$`rle` <- `PlRExpr_rle`(ptr)
   e$`rle_id` <- `PlRExpr_rle_id`(ptr)
+  e$`shuffle` <- `PlRExpr_shuffle`(ptr)
   e$`sample_n` <- `PlRExpr_sample_n`(ptr)
   e$`sample_frac` <- `PlRExpr_sample_frac`(ptr)
+  e$`shrink_dtype` <- `PlRExpr_shrink_dtype`(ptr)
+  e$`set_sorted_flag` <- `PlRExpr_set_sorted_flag`(ptr)
+  e$`to_physical` <- `PlRExpr_to_physical`(ptr)
+  e$`rolling` <- `PlRExpr_rolling`(ptr)
   e$`list_len` <- `PlRExpr_list_len`(ptr)
   e$`list_contains` <- `PlRExpr_list_contains`(ptr)
   e$`list_max` <- `PlRExpr_list_max`(ptr)
