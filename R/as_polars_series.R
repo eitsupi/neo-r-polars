@@ -23,10 +23,22 @@
 #'
 #' ## S3 method for [Date]
 #'
-#' Sinse polars Data type's unit is day and physical type is integer,
-#' sub-day precision of the R's [Date] object will be ignored.
+#' Sub-day values will be ignored (floored to the day).
+#'
+#' ## S3 method for [POSIXct]
+#'
+#' Sub-millisecond values will be rounded to milliseconds.
+#'
+#' If the `tzone` attribute is not present or an empty string (`""`),
+#' the [Series]' [dtype][DataType] will be Datetime without timezone.
+#'
+#' ## S3 method for [difftime]
+#'
+#' Sub-millisecond values will be rounded to milliseconds.
 #'
 #' ## S3 method for [hms][hms::hms]
+#'
+#' Sub-nanosecond values will be rounded to nanoseconds.
 #'
 #' If the [hms][hms::hms] vector contains values greater-equal to 24-oclock or less than 0-oclock,
 #' an error will be thrown.
@@ -70,6 +82,10 @@
 #' # Date
 #' as_polars_series(as.Date(c(NA, "2021-01-01")))
 #'
+#' ## Sub-day precision will be ignored
+#' as.Date(c(-0.5, 0, 0.5)) |>
+#'   as_polars_series()
+#'
 #' # POSIXct with timezone
 #' as_polars_series(as.POSIXct(c(NA, "2021-01-01 00:00:00"), "UTC"))
 #'
@@ -78,6 +94,13 @@
 #'
 #' # difftime
 #' as_polars_series(as.difftime(c(NA, 1), units = "days"))
+#'
+#' ## Sub-millisecond values will be rounded to milliseconds
+#' as.difftime(c(0.0005, 0.0010, 0.0015, 0.0020), units = "secs") |>
+#'   as_polars_series()
+#'
+#' as.difftime(c(0.0005, 0.0010, 0.0015, 0.0020), units = "weeks") |>
+#'   as_polars_series()
 #'
 #' # NULL
 #' as_polars_series(NULL)
@@ -232,7 +255,7 @@ as_polars_series.POSIXct <- function(x, name = NULL, ...) {
 
     int_series <- PlRSeries$new_i64_from_numeric_and_multiplier(
       name, x, 1000L
-    )$cast(pl$Int64$`_dt`, strict = TRUE)
+    )
 
     if (tzone == "") {
       # TODO: simplify to remove the need for the `wrap()` function
@@ -253,6 +276,27 @@ as_polars_series.POSIXct <- function(x, name = NULL, ...) {
       )
     }
   })
+}
+
+#' @rdname as_polars_series
+#' @export
+as_polars_series.POSIXlt <- function(x, name = NULL, ...) {
+  nanosec <- (x$sec - floor(x$sec)) * 1e9
+
+  pl$select(
+    pl$datetime(
+      year = x$year + 1900L,
+      month = x$mon + 1L,
+      day = x$mday,
+      hour = x$hour,
+      minute = x$min,
+      second = x$sec,
+      time_zone = attr(x, "tzone")[1] %||% "UTC"
+    )$alias(name %||% "")$dt$cast_time_unit("ns") +
+      pl$duration(
+        nanoseconds = round(nanosec),
+      )
+  )$to_series()
 }
 
 #' @rdname as_polars_series
@@ -278,7 +322,7 @@ as_polars_series.difftime <- function(x, name = NULL, ...) {
 as_polars_series.hms <- function(x, name = NULL, ...) {
   wrap({
     if (suppressWarnings(max(x, na.rm = TRUE) >= 86400.0 || min(x, na.rm = TRUE) < 0.0)) {
-      abort("`hms` class object contains values greater-equal to 24-oclock or less than 0-oclock is not supported")
+      abort("Conversion from `hms` vectors to polars series containing values greater than 24-oclocks or less than 0-oclocks is not supported.")
     }
 
     PlRSeries$new_i64_from_numeric_and_multiplier(

@@ -13,6 +13,7 @@
 \alias{as_polars_series.factor}
 \alias{as_polars_series.Date}
 \alias{as_polars_series.POSIXct}
+\alias{as_polars_series.POSIXlt}
 \alias{as_polars_series.difftime}
 \alias{as_polars_series.hms}
 \alias{as_polars_series.blob}
@@ -54,6 +55,8 @@ as_polars_series(x, name = NULL, ...)
 \method{as_polars_series}{Date}(x, name = NULL, ...)
 
 \method{as_polars_series}{POSIXct}(x, name = NULL, ...)
+
+\method{as_polars_series}{POSIXlt}(x, name = NULL, ...)
 
 \method{as_polars_series}{difftime}(x, name = NULL, ...)
 
@@ -128,11 +131,25 @@ such as \link{data.frame} or \link[vctrs:new_rcrd]{vctrs_rcrd}.
 
 \subsection{S3 method for \link{Date}}{
 
-Sinse polars Data type's unit is day and physical type is integer,
-sub-day precision of the R's \link{Date} object will be ignored.
+Sub-day values will be ignored (floored to the day).
+}
+
+\subsection{S3 method for \link{POSIXct}}{
+
+Sub-millisecond values will be rounded to milliseconds.
+
+If the \code{tzone} attribute is not present or an empty string (\code{""}),
+the \link{Series}' \link[=DataType]{dtype} will be Datetime without timezone.
+}
+
+\subsection{S3 method for \link{difftime}}{
+
+Sub-millisecond values will be rounded to milliseconds.
 }
 
 \subsection{S3 method for \link[hms:hms]{hms}}{
+
+Sub-nanosecond values will be rounded to nanoseconds.
 
 If the \link[hms:hms]{hms} vector contains values greater-equal to 24-oclock or less than 0-oclock,
 an error will be thrown.
@@ -165,6 +182,10 @@ as_polars_series(factor(c(NA, "a", "b")))
 # Date
 as_polars_series(as.Date(c(NA, "2021-01-01")))
 
+## Sub-day precision will be ignored
+as.Date(c(-0.5, 0, 0.5)) |>
+  as_polars_series()
+
 # POSIXct with timezone
 as_polars_series(as.POSIXct(c(NA, "2021-01-01 00:00:00"), "UTC"))
 
@@ -173,6 +194,13 @@ as_polars_series(as.POSIXct(c(NA, "2021-01-01 00:00:00")))
 
 # difftime
 as_polars_series(as.difftime(c(NA, 1), units = "days"))
+
+## Sub-millisecond values will be rounded to milliseconds
+as.difftime(c(0.0005, 0.0010, 0.0015, 0.0020), units = "secs") |>
+  as_polars_series()
+
+as.difftime(c(0.0005, 0.0010, 0.0015, 0.0020), units = "weeks") |>
+  as_polars_series()
 
 # NULL
 as_polars_series(NULL)

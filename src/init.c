@@ -44,6 +44,16 @@ SEXP savvy_as_struct__impl(SEXP c_arg__exprs) {
     return handle_result(res);
 }
 
+SEXP savvy_datetime__impl(SEXP c_arg__year, SEXP c_arg__month, SEXP c_arg__day, SEXP c_arg__time_unit, SEXP c_arg__ambiguous, SEXP c_arg__hour, SEXP c_arg__minute, SEXP c_arg__second, SEXP c_arg__microsecond, SEXP c_arg__time_zone) {
+    SEXP res = savvy_datetime__ffi(c_arg__year, c_arg__month, c_arg__day, c_arg__time_unit, c_arg__ambiguous, c_arg__hour, c_arg__minute, c_arg__second, c_arg__microsecond, c_arg__time_zone);
+    return handle_result(res);
+}
+
+SEXP savvy_duration__impl(SEXP c_arg__time_unit, SEXP c_arg__weeks, SEXP c_arg__days, SEXP c_arg__hours, SEXP c_arg__minutes, SEXP c_arg__seconds, SEXP c_arg__milliseconds, SEXP c_arg__microseconds, SEXP c_arg__nanoseconds) {
+    SEXP res = savvy_duration__ffi(c_arg__time_unit, c_arg__weeks, c_arg__days, c_arg__hours, c_arg__minutes, c_arg__seconds, c_arg__milliseconds, c_arg__microseconds, c_arg__nanoseconds);
+    return handle_result(res);
+}
+
 SEXP savvy_field__impl(SEXP c_arg__names) {
     SEXP res = savvy_field__ffi(c_arg__names);
     return handle_result(res);
@@ -2323,6 +2333,8 @@ SEXP savvy_PlRWhen_then__impl(SEXP self__, SEXP c_arg__statement) {
 static const R_CallMethodDef CallEntries[] = {
     {"savvy_concat_df__impl", (DL_FUNC) &savvy_concat_df__impl, 1},
     {"savvy_as_struct__impl", (DL_FUNC) &savvy_as_struct__impl, 1},
+    {"savvy_datetime__impl", (DL_FUNC) &savvy_datetime__impl, 10},
+    {"savvy_duration__impl", (DL_FUNC) &savvy_duration__impl, 9},
     {"savvy_field__impl", (DL_FUNC) &savvy_field__impl, 1},
     {"savvy_col__impl", (DL_FUNC) &savvy_col__impl, 1},
     {"savvy_cols__impl", (DL_FUNC) &savvy_cols__impl, 1},
