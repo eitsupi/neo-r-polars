@@ -4215,3 +4215,88 @@ expr__rle_id <- function() {
     self$`_rexpr`$rle_id()
   })
 }
+
+#' Sample from this expression
+#' 
+#' @inheritParams rlang::check_dots_empty0
+#' @param n Number of items to return. Cannot be used with `fraction.` Defaults 
+#' to 1 if `fraction` is `NULL`.
+#' @param fraction Fraction of items to return. Cannot be used with `n`.
+#' @param with_replacement Allow values to be sampled more than once.
+#' @param shuffle Shuffle the order of sampled data points.
+#' @param seed Seed for the random number generator. If `NULL` (default), a 
+#' random seed is generated for each sample operation.
+#' 
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = 1:3) 
+#' df$select(pl$col("a")$sample(
+#'   fraction = 1, with_replacement = TRUE, seed = 1
+#' ))
+expr__sample <- function(
+  n = NULL,
+  ...,
+  fraction = NULL,
+  with_replacement = FALSE,
+  shuffle = FALSE,
+  seed = NULL
+) {
+  wrap({
+    check_dots_empty0(...)
+    if (!is.null(fraction)) {
+      if (!is.null(n)) {
+        abort("cannot specify both `n` and `fraction`")
+      }
+      self$`_rexpr`$sample_frac(
+        as_polars_expr(fraction, as_lit = TRUE)$`_rexpr`, 
+        with_replacement = with_replacement,
+        shuffle = shuffle,
+        seed = seed
+      )
+    } else {
+      if (is.null(n)) {
+        n <- 1
+      }
+      self$`_rexpr`$sample_n(
+        as_polars_expr(n, as_lit = TRUE)$`_rexpr`, 
+        with_replacement = with_replacement,
+        shuffle = shuffle,
+        seed = seed
+      )
+    }    
+  })
+}
+
+#' Round underlying floating point data by decimals digits
+#' 
+#' @param decimals Number of decimals to round by.
+#' 
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c(0.33, 0.52, 1.02, 1.17))
+#' 
+#' df$with_columns(
+#'   rounded = pl$col("a")$round(1)
+#' )
+expr__round <- function(decimals) {
+  wrap({
+    self$`_rexpr`$round(decimals)
+  })
+}
+
+#' Round to a number of significant figures
+#' 
+#' @param digits Number of significant figures to round to.
+#' 
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c(0.01234, 3.333, 1234))
+#' 
+#' df$with_columns(
+#'   rounded = pl$col("a")$round_sig_figs(2)
+#' )
+expr__round_sig_figs <- function(digits) {
+  wrap({
+    self$`_rexpr`$round_sig_figs(digits)
+  })
+}

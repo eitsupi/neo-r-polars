@@ -2,7 +2,7 @@
 % Please edit documentation in R/expr-expr.R
 \name{expr__reverse}
 \alias{expr__reverse}
-\title{Reverse a variable}
+\title{Reverse an expression}
 \usage{
 expr__reverse()
 }
@@ -10,8 +10,16 @@ expr__reverse()
 A polars \link{expression}
 }
 \description{
-Reverse a variable
+Reverse an expression
 }
 \examples{
-pl$DataFrame(a = 1:5)$select(pl$col("a")$reverse())
+df <- pl$DataFrame(
+  a = 1:5,
+  fruits = c("banana", "banana", "apple", "apple", "banana"),
+  b = 5:1
+)
+
+df$with_columns(
+  pl$all()$reverse()$name$suffix("_reverse")
+)
 }
