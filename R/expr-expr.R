@@ -441,8 +441,7 @@ expr__not <- function() {
 # Beacuse the $not method and the $invert method are distinguished in the selector,
 # this is only necessary to map the $invert method to the `!` operator.
 
-expr__invert <-
-  expr__not
+expr__invert <- expr__not
 
 #' Check if elements are NULL
 #'
