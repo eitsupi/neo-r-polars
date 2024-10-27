@@ -4,9 +4,11 @@
 \alias{expr__cum_prod}
 \title{Return the cumulative product computed at every element.}
 \usage{
-expr__cum_prod(reverse = FALSE)
+expr__cum_prod(..., reverse = FALSE)
 }
 \arguments{
+\item{...}{Dots which should be empty.}
+
 \item{reverse}{If \code{TRUE}, start with the total product of elements and divide
 each row one by one.}
 }

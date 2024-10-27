@@ -4,9 +4,11 @@
 \alias{expr__cum_count}
 \title{Return the cumulative count of the non-null values in the column}
 \usage{
-expr__cum_count(reverse = FALSE)
+expr__cum_count(..., reverse = FALSE)
 }
 \arguments{
+\item{...}{Dots which should be empty.}
+
 \item{reverse}{If \code{TRUE}, reverse the count.}
 }
 \value{

@@ -1273,6 +1273,7 @@ expr__all <- function(..., ignore_nulls = TRUE) {
 
 #' Return the cumulative sum computed at every element.
 #'
+#' @inheritParams rlang::check_dots_empty0
 #' @param reverse If `TRUE`, start with the total sum of elements and substract
 #' each row one by one.
 #'
@@ -1285,57 +1286,72 @@ expr__all <- function(..., ignore_nulls = TRUE) {
 #'   cum_sum = pl$col("a")$cum_sum(),
 #'   cum_sum_reversed = pl$col("a")$cum_sum(reverse = TRUE)
 #' )
-expr__cum_sum <- function(reverse = FALSE) {
-  self$`_rexpr`$cum_sum(reverse) |>
-    wrap()
+expr__cum_sum <- function(..., reverse = FALSE) {
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$cum_sum(reverse) 
+  })
 }
 
 
 #' Return the cumulative product computed at every element.
 #'
+#' @inheritParams rlang::check_dots_empty0
 #' @param reverse If `TRUE`, start with the total product of elements and divide
 #' each row one by one.
+#' 
 #' @inherit expr__cum_sum return details
 #' @examples
 #' pl$DataFrame(a = 1:4)$with_columns(
 #'   cum_prod = pl$col("a")$cum_prod(),
 #'   cum_prod_reversed = pl$col("a")$cum_prod(reverse = TRUE)
 #' )
-expr__cum_prod <- function(reverse = FALSE) {
-  self$`_rexpr`$cum_prod(reverse) |>
-    wrap()
+expr__cum_prod <- function(..., reverse = FALSE) {
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$cum_prod(reverse) 
+  })
 }
 
 #' Return the cumulative min computed at every element.
 #'
+#' @inheritParams rlang::check_dots_empty0
 #' @param reverse If `TRUE`, start from the last value.
+#' 
 #' @inherit expr__cum_sum return details
 #' @examples
 #' pl$DataFrame(a = c(1:4, 2L))$with_columns(
 #'   cum_min = pl$col("a")$cum_min(),
 #'   cum_min_reversed = pl$col("a")$cum_min(reverse = TRUE)
 #' )
-expr__cum_min <- function(reverse = FALSE) {
-  self$`_rexpr`$cum_min(reverse) |>
-    wrap()
+expr__cum_min <- function(..., reverse = FALSE) {
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$cum_min(reverse) 
+  })
 }
 
 #' Return the cumulative max computed at every element.
 #'
+#' @inheritParams rlang::check_dots_empty0
 #' @inheritParams expr__cum_min
+#' 
 #' @inherit expr__cum_sum return details
 #' @examples
 #' pl$DataFrame(a = c(1:4, 2L))$with_columns(
 #'   cum_max = pl$col("a")$cum_max(),
 #'   cum_max_reversed = pl$col("a")$cum_max(reverse = TRUE)
 #' )
-expr__cum_max <- function(reverse = FALSE) {
-  self$`_rexpr`$cum_max(reverse) |>
-    wrap()
+expr__cum_max <- function(..., reverse = FALSE) {
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$cum_max(reverse) 
+  })
 }
 
 #' Return the cumulative count of the non-null values in the column
 #'
+#' @inheritParams rlang::check_dots_empty0
 #' @param reverse If `TRUE`, reverse the count.
 #' @inherit as_polars_expr return
 #'
@@ -1344,9 +1360,11 @@ expr__cum_max <- function(reverse = FALSE) {
 #'   cum_count = pl$col("a")$cum_count(),
 #'   cum_count_reversed = pl$col("a")$cum_count(reverse = TRUE)
 #' )
-expr__cum_count <- function(reverse = FALSE) {
-  self$`_rexpr`$cum_count(reverse) |>
-    wrap()
+expr__cum_count <- function(..., reverse = FALSE) {
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$cum_count(reverse) 
+  })
 }
 
 #' Return the cumulative count of the non-null values in the column

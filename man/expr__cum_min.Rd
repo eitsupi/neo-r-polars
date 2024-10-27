@@ -4,9 +4,11 @@
 \alias{expr__cum_min}
 \title{Return the cumulative min computed at every element.}
 \usage{
-expr__cum_min(reverse = FALSE)
+expr__cum_min(..., reverse = FALSE)
 }
 \arguments{
+\item{...}{Dots which should be empty.}
+
 \item{reverse}{If \code{TRUE}, start from the last value.}
 }
 \value{

@@ -4,9 +4,11 @@
 \alias{expr__cum_sum}
 \title{Return the cumulative sum computed at every element.}
 \usage{
-expr__cum_sum(reverse = FALSE)
+expr__cum_sum(..., reverse = FALSE)
 }
 \arguments{
+\item{...}{Dots which should be empty.}
+
 \item{reverse}{If \code{TRUE}, start with the total sum of elements and substract
 each row one by one.}
 }
