@@ -16,6 +16,98 @@
       Caused by error:
       ! User function raised an error
 
+# diff
+
+    Code
+      pl$lit(1:5)$diff(99^99)
+    Condition
+      Error:
+      ! Evaluation failed in `$diff()`.
+      Caused by error:
+      ! Value `3.697296376497268e197` is too large to be converted to i64
+
+---
+
+    Code
+      pl$lit(1:5)$diff(5, "not a null behavior")
+    Condition
+      Error:
+      ! Evaluation failed in `$diff()`.
+      Caused by error:
+      ! `null_behavior` must be one of "ignore" or "drop", not "not a null behavior".
+
+# reshape
+
+    Code
+      pl$lit(1:12)$reshape("hej")
+    Condition
+      Error:
+      ! Evaluation failed in `$reshape()`.
+      Caused by error:
+      ! Argument `dimensions` must be numeric, not character
+
+---
+
+    Code
+      pl$lit(1:12)$reshape(NA)
+    Condition
+      Error:
+      ! Evaluation failed in `$reshape()`.
+      Caused by error:
+      ! Should not reach here!
+
+# shuffle
+
+    Code
+      pl$lit(1:12)$shuffle("hej")
+    Condition
+      Error:
+      ! Evaluation failed in `$shuffle()`.
+      Caused by error:
+      ! Argument `seed` must be numeric, not character
+
+---
+
+    Code
+      pl$lit(1:12)$shuffle(-2)
+    Condition
+      Error:
+      ! Evaluation failed in `$shuffle()`.
+      Caused by error:
+      ! Value `-2.0` is too small to be converted to u64
+
+---
+
+    Code
+      pl$lit(1:12)$shuffle(NaN)
+    Condition
+      Error:
+      ! Evaluation failed in `$shuffle()`.
+      Caused by error:
+      ! `NaN` cannot be converted to u64
+
+---
+
+    Code
+      pl$lit(1:12)$shuffle(10^73)
+    Condition
+      Error:
+      ! Evaluation failed in `$shuffle()`.
+      Caused by error:
+      ! Value `1e73` is too large to be converted to u64
+
+# sample
+
+    Code
+      df$select(pl$col("a")$sample(fraction = 2))
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! lengths don't match: cannot take a larger sample than the total population when `with_replacement=false`
+
 # entropy
 
     Code

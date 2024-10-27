@@ -3742,7 +3742,7 @@ expr__flatten <- function() {
 expr__extend_constant <- function(value, n) {
   wrap({
     self$`_rexpr`$extend_constant(
-      as_polars_expr(value)$`_rexpr`,
+      as_polars_expr(value, as_lit = TRUE)$`_rexpr`,
       as_polars_expr(n)$`_rexpr`
     )
   })
