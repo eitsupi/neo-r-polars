@@ -29,3 +29,3203 @@ test_that("map_batches works", {
     error = TRUE
   )
 })
+
+# test_that("expression boolean operators", {
+#   expect_true(inherits(pl$col("foo") == pl$col("bar"), "polars_expr"))
+#   expect_true(inherits(pl$col("foo") <= pl$col("bar"), "polars_expr"))
+#   expect_true(inherits(pl$col("foo") >= pl$col("bar"), "polars_expr"))
+#   expect_true(inherits(pl$col("foo") != pl$col("bar"), "polars_expr"))
+
+#   expect_true(inherits(pl$col("foo") > pl$lit(5), "polars_expr"))
+#   expect_true(inherits(pl$col("foo") < pl$lit(5), "polars_expr"))
+#   expect_true(inherits(pl$col("foo") > 5, "polars_expr"))
+#   expect_true(inherits(pl$col("foo") < 5, "polars_expr"))
+#   expect_true(inherits(!pl$col("foobar"), "polars_expr"))
+
+
+#   cmp_operators_df <- pl$DataFrame(list())$with_columns(
+#     (pl$lit(1) < 2)$alias("1 lt 2"),
+#     (pl$lit(1) < 1)$alias("1 lt 1 not")$not(),
+#     (pl$lit(2) > 1)$alias("2 gt 1"),
+#     (pl$lit(1) > 1)$alias("1 gt 1 not")$not(),
+#     (pl$lit(1) == 1)$alias("1 eq 1"),
+#     (pl$lit(1) == 2)$alias("1 eq 2 not")$not(),
+#     (pl$lit(1) <= 1)$alias("1 lt_eq 1"),
+#     (pl$lit(2) <= 1)$alias("2 lt_eq 1 not")$not(),
+#     (pl$lit(2) >= 2)$alias("2 gt_eq 2"),
+#     (pl$lit(1) >= 2)$alias("1 gt_eq 2 not")$not(),
+#     (pl$lit(2) != 1)$alias("2 not eq 1"),
+#     (pl$lit(2) != 2)$alias("2 not eq 1 not")$not(),
+#     (pl$lit(TRUE)$not() == pl$lit(FALSE))$alias("not true == false"),
+#     (pl$lit(TRUE) != pl$lit(FALSE))$alias("true != false"),
+#     (pl$lit(TRUE)$not() == FALSE)$alias("not true == false wrap"),
+#     (pl$lit(TRUE) != FALSE)$alias("true != false wrap")
+#   )
+
+#   expect_equal(
+#     cmp_operators_df |>
+#       as.list() |>
+#       lengths() |>
+#       unique(),
+#     0
+#   )
+# })
+
+# make_cases <- function() {
+#   tibble::tribble(
+#     ~.test_name, ~fn,
+#     "gt", ">",
+#     "gte", ">=",
+#     "lt", "<",
+#     "lte", "<=",
+#     "eq", "==",
+#     "neq", "!=",
+#   )
+# }
+
+# patrick::with_parameters_test_that(
+#   "ops symbol work with expressions",
+#   {
+#     # every time, 4 tests:
+#     # - 2 exprs
+#     # - 1 expr then 1 non-expr
+#     # - 1 non-expr then 1 expr
+#     # - 2 non-exprs
+
+#     dat <- as_polars_df(mtcars)
+#     dat_exp <- data.frame(
+#       mpg = do.call(fn, list(mtcars$mpg, 2)),
+#       cyl = do.call(fn, list(2, mtcars$cyl)),
+#       hp = do.call(fn, list(mtcars$hp, max(mtcars$drat))),
+#       literal = do.call(fn, list(2, 2))
+#     ) |> as_polars_df()
+
+#     expect_equal(
+#       dat$select(
+#         do.call(fn, list(pl$col("mpg"), 2)),
+#         # TODO: this $alias() shouldn't be needed but if I don't put it the
+#         # name is "literal" because $div() calls $lit() under the hood
+#         do.call(fn, list(2, pl$col("cyl"))),
+#         do.call(fn, list(pl$col("hp"), pl$col("drat")$max())),
+#         do.call(fn, list(2, 2))
+#       ),
+#       dat_exp
+#     )
+#   },
+#   .cases = make_cases()
+# )
+
+# # & and | require another test dataset, it can't be the one above
+# test_that("logical ops symbol work with expressions", {
+#   dat <- pl$DataFrame(
+#     x = c(TRUE, FALSE, TRUE, FALSE),
+#     y = c(TRUE, TRUE, FALSE, FALSE)
+#   )
+#   dat_df <- dat |> as.data.frame()
+#   expect_equal(
+#     dat$select(
+#       (pl$col("x") & TRUE)$alias("oneexp_onelit"),
+#       (FALSE & pl$col("y"))$alias("onelit_oneexp"),
+#       pl$col("x") & pl$col("y"),
+#       FALSE & TRUE
+#     ),
+#     pl$DataFrame(
+#       oneexp_onelit = dat_df$x & TRUE,
+#       onelit_oneexp = FALSE & dat_df$y,
+#       x = dat_df$x & dat_df$y,
+#       literal = FALSE & TRUE
+#     )
+#   )
+#   expect_equal(
+#     dat$select(
+#       (pl$col("x") | TRUE)$alias("oneexp_onelit"),
+#       (FALSE | pl$col("y"))$alias("onelit_oneexp"),
+#       pl$col("x") | pl$col("y"),
+#       FALSE | TRUE
+#     ),
+#     pl$DataFrame(
+#       oneexp_onelit = dat_df$x | TRUE,
+#       onelit_oneexp = FALSE | dat_df$y,
+#       x = dat_df$x | dat_df$y,
+#       literal = FALSE | TRUE
+#     )
+#   )
+# })
+
+
+# test_that("count + unique + n_unique", {
+#   expect_equal(
+#     pl$DataFrame(iris)$select(pl$all()$unique()$count()) |> lapply(as.numeric),
+#     lapply(iris, \(x) length(unique(x)))
+#   )
+
+#   expect_equal(
+#     pl$DataFrame(iris)$select(pl$all()$unique()$len()) |> lapply(as.numeric),
+#     lapply(iris, \(x) length(unique(x)))
+#   )
+
+#   expect_equal(
+#     pl$DataFrame(iris)$select(pl$all()$n_unique()) |> lapply(as.numeric),
+#     lapply(iris, \(x) length(unique(x)))
+#   )
+
+#   expect_equal(
+#     pl$DataFrame(list(a = 1:100))$select(pl$all()$unique(maintain_order = TRUE)),
+#     list(a = 1:100)
+#   )
+# })
+
+# test_that("$len() and $count() don't have the same behavior for nulls", {
+#   expect_equal(
+#     pl$DataFrame(x = c(1, 2, NA))$select(pl$col("x")$len()),
+#     list(x = 3)
+#   )
+#   expect_equal(
+#     pl$DataFrame(x = c(1, 2, NA))$select(pl$col("x")$count()),
+#     list(x = 2)
+#   )
+# })
+
+
+# test_that("drop_nans drop_nulls", {
+#   x <- c(1.0, 2.0, NaN, NA)
+
+#   expect_equal(
+#     pl$DataFrame(list(x = x))$select(pl$col("x")$drop_nans()$drop_nulls())$get_column("x")$to_r(),
+#     c(1.0, 2.0)
+#   )
+
+#   expect_equal(
+#     pl$DataFrame(list(x = x))$select(
+#       pl$col("x")$drop_nans()$drop_nulls()$count()
+#     )$get_column("x")$to_r() |> as.numeric(),
+#     2L
+#   )
+
+#   expect_equal(
+#     pl$DataFrame(list(x = x))$select(pl$col("x")$drop_nulls())$get_column("x")$to_r(),
+#     c(1.0, 2.0, NaN)
+#   )
+
+#   expect_equal(
+#     pl$DataFrame(list(x = x))$select(pl$col("x")$drop_nans())$get_column("x")$to_r(),
+#     c(1.0, 2.0, NA)
+#   )
+# })
+
+# test_that("first last heaad tail", {
+#   check_list <- pl$DataFrame(list(a = 1:11))$select(
+#     (pl$col("a")$first() == 1L)$alias("1 is first"),
+#     (pl$col("a")$last() == 11L)$alias("11 is last")
+#   )$to_data_frame(check.names = FALSE)
+
+#   results <- unlist(check_list)
+#   fails <- results[!unlist(results)]
+#   expect_named(fails, character())
+
+#   df <- pl$DataFrame(list(a = 1:11))$select(
+#     pl$col("a")$head()$alias("head10"),
+#     pl$col("a")$tail()$alias("tail10")
+#   )
+
+#   expect_equal(
+#     df,
+#     data.frame(head10 = 1:10, tail10 = 2:11)
+#   )
+
+#   df <- pl$DataFrame(list(a = 1:11))$select(
+#     pl$col("a")$head(2)$alias("head2"),
+#     pl$col("a")$tail(2)$alias("tail2")
+#   )
+#   expect_equal(
+#     df,
+#     data.frame(head2 = 1:2, tail2 = 10:11)
+#   )
+
+#   # limit is an alias for head
+#   df <- pl$DataFrame(list(a = 1:11))$select(
+#     pl$col("a")$limit(2)$alias("limit2"),
+#     pl$col("a")$tail(2)$alias("tail2")
+#   )
+#   expect_equal(
+#     df,
+#     data.frame(limit2 = 1:2, tail2 = 10:11)
+#   )
+# })
+
+# test_that("is_null", {
+#   df <- pl$DataFrame(
+#     list(
+#       "a" = c(1, 2, NA, 1, 5),
+#       "b" = c(1.0, 2.0, NaN, 1.0, 5.0)
+#     )
+#   )
+
+#   expect_equal(
+#     df$with_columns(pl$all()$is_null()$name$suffix("_isnull")),
+#     data.frame(
+#       a = c(1:2, NA_integer_, 1L, 5L),
+#       b = c(1, 2, NaN, 1, 5),
+#       a_isnull = c(FALSE, FALSE, TRUE, FALSE, FALSE),
+#       b_isnull = rep(FALSE, 5)
+#     )
+#   )
+
+#   expect_equal(
+#     df$with_columns(pl$all()$is_not_null()$name$suffix("_isnull")),
+#     df$with_columns(pl$all()$is_null()$not()$name$suffix("_isnull"))
+#   )
+# })
+
+# test_that("min max", {
+#   check_list <- pl$DataFrame(list(x = c(1, NA, 3)))$select(
+#     (pl$col("x")$max() == 3L)$alias("3 is max"),
+#     (pl$col("x")$min() == 1L)$alias("1 not null is min")
+#   )
+
+#   results <- unlist(check_list)
+#   fails <- results[!unlist(results)]
+#   expect_named(fails, character())
+# })
+
+# test_that("$over()", {
+#   df <- pl$DataFrame(
+#     val = 1:5,
+#     a = c("+", "+", "-", "-", "+"),
+#     b = c("+", "-", "+", "-", "+")
+#   )$select(
+#     pl$col("val")$count()$over("a", pl$col("b"))
+#   )
+
+#   # with vector of column names
+#   df2 <- pl$DataFrame(
+#     val = 1:5,
+#     a = c("+", "+", "-", "-", "+"),
+#     b = c("+", "-", "+", "-", "+")
+#   )$select(
+#     pl$col("val")$count()$over(c("a", "b"))
+#   )
+
+#   over_vars <- c("a", "b")
+#   df3 <- pl$DataFrame(
+#     val = 1:5,
+#     a = c("+", "+", "-", "-", "+"),
+#     b = c("+", "-", "+", "-", "+")
+#   )$select(
+#     pl$col("val")$count()$over(over_vars)
+#   )
+
+#   expect_equal(
+#     as.numeric(df$get_column("val")$to_r()),
+#     c(2, 1, 1, 1, 2)
+#   )
+#   expect_equal(
+#     as.numeric(df2$get_column("val")$to_r()),
+#     c(2, 1, 1, 1, 2)
+#   )
+#   expect_equal(
+#     as.numeric(df3$get_column("val")$to_r()),
+#     c(2, 1, 1, 1, 2)
+#   )
+
+#   basic_expr <- pl$col("foo")$min()$over("a", "b")
+#   expect_true(
+#     basic_expr$meta$eq(
+#       pl$col("foo")$min()$over(c("a", "b"))
+#     )
+#   )
+#   expect_true(
+#     basic_expr$meta$eq(
+#       pl$col("foo")$min()$over(list(pl$col("a"), pl$col("b")))
+#     )
+#   )
+#   expect_true(
+#     basic_expr$meta$eq(
+#       pl$col("foo")$min()$over(list(pl$col("a"), "b"))
+#     )
+#   )
+# })
+
+# test_that("$over() with mapping_strategy", {
+#   df <- pl$DataFrame(
+#     val = 1:5,
+#     a = c("+", "+", "-", "-", "+")
+#   )
+
+#   expect_snapshot(
+#     df$select(pl$col("val")$top_k(2)$over("a")),
+#     error = TRUE
+#   )
+
+
+#   expect_equal(
+#     df$select(pl$col("val")$top_k(2)$over("a", mapping_strategy = "join")),
+#     list(
+#       val = list(c(5L, 2L), c(5L, 2L), c(3L, 4L), c(3L, 4L), c(5L, 2L))
+#     )
+#   )
+# })
+
+# test_that("arg 'order_by' in $over() works", {
+#   df <- pl$DataFrame(
+#     g = c(1, 1, 1, 1, 2, 2, 2, 2),
+#     t = c(1, 2, 3, 4, 4, 1, 2, 3),
+#     x = c(10, 20, 30, 40, 10, 20, 30, 40)
+#   )
+
+#   expect_equal(
+#     df$select(
+#       x_lag = pl$col("x")$shift(1)$over("g", order_by = "t")
+#     ),
+#     list(x_lag = c(NA, 10, 20, 30, 40, NA, 20, 30))
+#   )
+# })
+
+# test_that("col DataType + col(s) + col regex", {
+#   # one Datatype
+#   expect_equal(
+#     pl$DataFrame(iris)$select(pl$col(pl$dtypes$Float64)),
+#     iris[, sapply(iris, is.numeric)]
+#   )
+
+#   # multiple
+#   expect_equal(
+#     pl$DataFrame(iris)$select(pl$col(list(pl$Float64, pl$Categorical()))),
+#     iris
+#   )
+
+#   # multiple cols
+#   Names <- c("Sepal.Length", "Sepal.Width")
+#   expect_equal(
+#     pl$DataFrame(iris)$select(pl$col(Names)),
+#     iris[, Names]
+#   )
+
+#   # regex
+#   expect_equal(
+#     pl$DataFrame(iris)$select(pl$col("^Sepal.*$")),
+#     iris[, Names]
+#   )
+# })
+
+
+
+# test_that("lit expr", {
+#   expect_equal(
+#     pl$DataFrame(list(a = 1:4))$filter(pl$col("a") > 2L)$a,
+#     3:4
+#   )
+
+#   expect_equal(
+#     pl$DataFrame(list(a = letters))$filter(pl$col("a") >= "x")$a,
+#     c("x", "y", "z")
+#   )
+
+#   expect_equal(
+#     pl$DataFrame(list(a = letters))$filter(pl$col("a") >= pl$lit(NULL)),
+#     data.frame(a = character())
+#   )
+
+
+#   # explicit vector to series to literal
+#   expect_equal(
+#     pl$DataFrame(list())$select(pl$lit(as_polars_series(1:4)))[[1L]],
+#     1:4
+#   )
+
+#   # implicit vector to literal
+#   expect_equal(
+#     pl$DataFrame(list())$select(pl$lit(24) / 4:1 + 2)[[1L]],
+#     24 / 4:1 + 2
+#   )
+
+#   # sequence/lits to literal and back
+#   expect_equal(pl$lit(1:5)$to_r(), 1:5)
+#   expect_equal(pl$lit(c(1, 2, Inf, -Inf, NaN, NA))$to_r(), c(1, 2, Inf, -Inf, NaN, NA))
+#   l <- list(
+#     list(c(1, 2, Inf, -Inf, NaN, NA)),
+#     list(c(1:5, NA_integer_)),
+#     list(letters)
+#   )
+#   for (i in seq_along(l)) {
+#     expect_equal(pl$lit(l[[i]])$to_r(), l[[i]])
+#   }
+# })
+
+# test_that("prefix suffix reverse", {
+#   df <- pl$DataFrame(list(
+#     A = c(1, 2, 3, 4, 5),
+#     fruits = c("banana", "banana", "apple", "apple", "banana"),
+#     B = c(5, 4, 3, 2, 1),
+#     cars = c("beetle", "audi", "beetle", "beetle", "beetle")
+#   ))
+
+#   df2 <- df$select(
+#     pl$all(),
+#     pl$all()$reverse()$name$suffix("_reverse")
+#   )
+#   expect_equal(
+#     df2$columns,
+#     c(df$columns, paste0(df$columns, "_reverse"))
+#   )
+
+#   df3 <- df$select(
+#     pl$all(),
+#     pl$all()$reverse()$name$prefix("reverse_")
+#   )
+#   expect_equal(
+#     df3$columns,
+#     c(df$columns, paste0("reverse_", df$columns))
+#   )
+
+#   expect_equal(
+#     df2$get_column("A_reverse")$to_r(),
+#     rev(df2$get_column("A")$to_r())
+#   )
+# })
+
+# test_that("and or is_in xor", {
+#   df <- pl$DataFrame(list())
+#   expect_true(df$select(pl$lit(TRUE) & TRUE)[[1L]])
+#   expect_false(df$select(pl$lit(TRUE) & FALSE)[[1L]])
+#   expect_false(df$select(pl$lit(FALSE) & TRUE)[[1L]])
+#   expect_false(df$select(pl$lit(FALSE) & FALSE)[[1L]])
+
+#   expect_true(df$select(pl$lit(TRUE) | TRUE)[[1L]])
+#   expect_true(df$select(pl$lit(TRUE) | FALSE)[[1L]])
+#   expect_true(df$select(pl$lit(FALSE) | TRUE)[[1L]])
+#   expect_false(df$select(pl$lit(FALSE) | FALSE)[[1L]])
+
+#   expect_false(df$select(pl$lit(TRUE)$xor(pl$lit(TRUE)))[[1L]])
+#   expect_true(df$select(pl$lit(TRUE)$xor(pl$lit(FALSE)))[[1L]])
+#   expect_true(df$select(pl$lit(FALSE)$xor(pl$lit(TRUE)))[[1L]])
+#   expect_false(df$select(pl$lit(FALSE)$xor(pl$lit(FALSE)))[[1L]])
+
+#   df <- pl$DataFrame(list(a = c(1:3, NA_integer_)))
+#   expect_true(df$select(pl$lit(1L)$is_in(pl$col("a")))[[1L]])
+#   expect_false(df$select(pl$lit(4L)$is_in(pl$col("a")))[[1L]])
+
+
+#   # NA_int == NA_int
+#   expect_equal(
+#     pl$DataFrame(list(a = c(1:4, NA_integer_)))$select(
+#       pl$col("a")$is_in(pl$lit(NA_integer_))
+#     )[[1L]],
+#     c(rep(FALSE, 4), NA)
+#   )
+
+#   # both R and polars aliases NA_int_ with NA in comparisons
+#   expect_equal(
+#     pl$DataFrame(list(a = c(1:4, NA_integer_)))$select(
+#       pl$col("a")$is_in(pl$lit(NA))
+#     )[[1L]],
+#     c(rep(FALSE, 4), NA)
+#   )
+
+#   expect_true(
+#     pl$select(
+#       # nothing is nothing
+#       (pl$lit(NULL) == pl$lit(NULL))$alias("NULL is NULL"),
+
+#       # nothing is typed nothing
+#       (pl$lit(NULL) == pl$lit(NA))$alias("NULL is NULL_real"),
+
+#       # typed nothing is typed nothing
+#       (pl$lit(NA) == pl$lit(NA))$is_null()$alias("NULL_eral is NULL_real is null"),
+
+#       # type nothing is IN nothing # not allowed
+#       # pl$lit(NA)$is_in(pl$lit(NA))$alias("NULL typed is in  NULL typed"),
+
+#       # neither typed nor untyped NULL is IN NULL, changed behavior from  0.30-0.32, previous false
+#       pl$lit(NA)$is_in(pl$lit(NULL))$alias("NULL typed is in NULL")
+
+#       # anymore from rust-polars 0.30-0.32
+#       # pl$lit(NULL)$is_in(pl$lit(NULL))$not()$alias("NULL is in NULL, NOY")
+#     ) |> unlist() |> all(na.rm = TRUE)
+#   )
+# })
+
+# test_that("to_physical + cast", {
+#   # to_physical and some casting
+#   df <- pl$DataFrame(
+#     list(vals = c("a", "x", NA, "a"))
+#   )$with_columns(
+#     pl$col("vals")$cast(pl$Categorical()),
+#     pl$col("vals")
+#     $cast(pl$Categorical())
+#     $to_physical()
+#     $alias("vals_physical")
+#   )
+
+#   df_act <- df
+#   df_act$vals_physical <- as.numeric(df_act$vals_physical)
+#   expect_equal(
+#     df_act,
+#     data.frame(
+#       vals = factor(c("a", "x", NA_character_, "a")),
+#       vals_physical = c(0:1, NA, 0) # u32 casted to real to preserve full range
+#     )
+#   )
+#   df
+
+
+#   # cast error raised for String to Boolean
+#   expect_snapshot(
+#     pl$DataFrame(iris)$with_columns(
+#       pl$col("Species")$cast(pl$dtypes$String)$cast(pl$dtypes$Boolean)
+#     ),
+#     error = TRUE
+#   )
+
+
+
+#   # down cast big number
+#   df_big_n <- pl$DataFrame(list(big = 2^50))$with_columns(pl$col("big")$cast(pl$Int64))
+
+
+#   # error overflow, strict TRUE
+#   expect_snapshot(
+#     df_big_n$with_columns(pl$col("big")$cast(pl$Int32)),
+#     error = TRUE
+#   )
+
+
+#   # NA_int for strict_
+#   expect_equal(
+#     df_big_n$with_columns(pl$col("big")$cast(pl$Int32, strict = FALSE))$big,
+#     NA_integer_
+#   )
+
+#   # strict = FALSE yield NULL for overflow
+#   expect_true(df_big_n$with_columns(pl$col("big")$cast(pl$Int32, strict = FALSE)$is_null())$big)
+
+#   # no overflow to Int64
+#   expect_false(df_big_n$with_columns(pl$col("big")$cast(pl$Int64)$is_null())$big)
+# })
+
+
+# test_that("pow, rpow, sqrt, log10", {
+#   # pow
+#   expect_equal(pl$DataFrame(list(a = -1:3))$select(pl$lit(2)$pow(pl$col("a")))$get_column("literal")$to_r(), 2^(-1:3))
+#   expect_equal(pl$DataFrame(list(a = -1:3))$select(pl$lit(2)^pl$col("a"))$get_column("literal")$to_r(), 2^(-1:3))
+
+#   # sqrt
+#   expect_equal(
+#     pl$DataFrame(list(a = -1:3))$select(pl$col("a")$sqrt())$get_column("a")$to_r(),
+#     suppressWarnings(sqrt(-1:3))
+#   )
+
+#   # log10
+#   expect_equal(
+#     pl$DataFrame(list(a = 10^(-1:3)))$select(pl$col("a")$log10())$a,
+#     -1:3
+#   )
+
+#   # log
+#   expect_equal(pl$DataFrame(list(a = exp(1)^(-1:3)))$select(pl$col("a")$log())$a, -1:3)
+#   expect_equal(pl$DataFrame(list(a = 0.42^(-1:3)))$select(pl$col("a")$log(0.42))$a, -1:3)
+
+#   # exp
+#   log10123 <- suppressWarnings(log(-1:3))
+#   expect_equal(
+#     pl$DataFrame(list(a = log10123))$select(pl$col("a")$exp())$a,
+#     exp(1)^log10123
+#   )
+# })
+
+
+# test_that("exclude", {
+#   # string column name
+#   df <- pl$DataFrame(iris)
+#   expect_equal(
+#     df$select(pl$all()$exclude("Species"))$columns,
+#     c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")
+#   )
+
+#   # string regex
+#   expect_equal(
+#     df$select(pl$all()$exclude("^Sepal.*$"))$columns,
+#     c("Petal.Length", "Petal.Width", "Species")
+#   )
+
+#   # char vec
+#   expect_equal(
+#     df$select(pl$all()$exclude(c("Species", "Petal.Width")))$columns,
+#     c("Sepal.Length", "Sepal.Width", "Petal.Length")
+#   )
+
+#   # char list
+#   expect_equal(
+#     df$select(pl$all()$exclude(list("Species", "Petal.Width")))$columns,
+#     c("Sepal.Length", "Sepal.Width", "Petal.Length")
+#   )
+#   expect_snapshot(
+#     df$select(pl$all()$exclude(list("Species", pl$Boolean)))$columns,
+#     error = TRUE
+#   )
+
+
+
+#   # single DataType
+#   expect_equal(
+#     df$select(pl$all()$exclude(pl$Categorical()))$columns,
+#     names(iris)[1:4]
+#   )
+#   expect_equal(
+#     df$select(pl$all()$exclude(pl$Float64))$columns,
+#     names(iris)[5]
+#   )
+
+#   # list DataType
+#   expect_equal(
+#     df$select(pl$all()$exclude(list(pl$Float64, pl$Categorical())))$columns,
+#     names(iris)[c()]
+#   )
+
+#   # wrong cast is not possible
+#   expect_snapshot(
+#     unwrap(.pr$DataTypeVector$from_rlist(list(pl$Float64, pl$Categorical(), "imNoYourType"))),
+#     error = TRUE
+#   )
+
+#   expect_snapshot(
+#     df$select(pl$all()$exclude(list(pl$Float64, pl$Categorical(), "bob")))$columns,
+#     error = TRUE
+#   )
+# })
+
+
+
+# test_that("finite infinite is_nan is_not_nan", {
+#   expect_equal(
+#     pl$DataFrame(list(a = c(0, NaN, NA, Inf, -Inf)))$select(
+#       pl$col("a")$is_finite()$alias("is_finite"),
+#       pl$col("a")$is_infinite()$alias("is_infinite"),
+#       pl$col("a")$is_nan()$alias("is_nan"),
+#       pl$col("a")$is_not_nan()$alias("is_not_nan")
+#     ),
+#     list(
+#       is_finite   = c(TRUE, FALSE, NA, FALSE, FALSE),
+#       is_infinite = c(FALSE, FALSE, NA, TRUE, TRUE),
+#       is_nan      = c(FALSE, TRUE, NA, FALSE, FALSE),
+#       is_not_nan  = c(TRUE, FALSE, NA, TRUE, TRUE)
+#     )
+#   )
+# })
+
+# test_that("slice", {
+#   l <- list(a = 0:100, b = 100:0)
+
+#   # as head
+#   expect_equal(
+#     pl$DataFrame(l)$select(
+#       pl$all()$slice(0, 6)
+#     ),
+#     lapply(l, head)
+#   )
+
+#   # as tail
+#   expect_equal(
+#     pl$DataFrame(l)$select(
+#       pl$all()$slice(-6, 6)
+#     ),
+#     lapply(l, tail)
+#   )
+
+#   # use expression as input
+#   expect_equal(
+#     pl$DataFrame(l)$select(
+#       pl$all()$slice(0, pl$col("a")$len() / 2)
+#     ),
+#     lapply(l, head, length(l$a) / 2)
+#   )
+
+#   # use default length (max length)
+#   expect_equal(
+#     pl$lit(0:100)$slice(80)$to_r(),
+#     80:100
+#   )
+# })
+
+# test_that("Expr_append", {
+#   # append bottom to to row
+#   df <- pl$DataFrame(list(a = 1:3, b = c(NA, 4, 5)))
+#   expect_equal(
+#     df$select(pl$all()$head(1)$append(pl$all()$tail(1))),
+#     list(a = c(1L, 3L), b = c(NA, 5))
+#   )
+
+#   # implicit upcast, when default = TRUE
+#   expect_equal(
+#     pl$DataFrame(list())$select(pl$lit(42)$append(42L)),
+#     list(literal = c(42, 42))
+#   )
+
+#   expect_equal(
+#     pl$DataFrame(list())$select(pl$lit(42)$append(FALSE)),
+#     list(literal = c(42, 0))
+#   )
+
+#   expect_equal(
+#     pl$DataFrame(list())$select(pl$lit("Bob")$append(FALSE)),
+#     list(literal = c("Bob", "false"))
+#   )
+
+#   expect_snapshot(
+#     pl$DataFrame(list())$select(pl$lit("Bob")$append(FALSE, upcast = FALSE)),
+#     error = TRUE
+#   )
+# })
+
+
+# test_that("Expr_rechunk Series_chunk_lengths", {
+#   series_list <- pl$DataFrame(list(a = 1:3, b = 4:6))$select(
+#     pl$col("a")$append(pl$col("b"))$alias("a_chunked"),
+#     pl$col("a")$append(pl$col("b"))$rechunk()$alias("a_rechunked")
+#   )$get_columns()
+#   expect_equal(
+#     lapply(series_list, \(x) x$chunk_lengths()),
+#     list(c(3, 3), 6)
+#   )
+# })
+
+# test_that("cum_sum cum_prod cum_min cum_max cum_count", {
+#   l_actual <- pl$DataFrame(list(a = 1:4))$select(
+#     pl$col("a")$cum_sum()$alias("cum_sum"),
+#     pl$col("a")$cum_prod()$alias("cum_prod")$cast(pl$Float64),
+#     pl$col("a")$cum_min()$alias("cum_min"),
+#     pl$col("a")$cum_max()$alias("cum_max"),
+#     pl$col("a")$cum_count()$alias("cum_count")$cast(pl$Int32)
+#   )
+#   l_reference <- list(
+#     cum_sum = cumsum(1:4),
+#     cum_prod = cumprod(1:4),
+#     cum_min = cummin(1:4),
+#     cum_max = cummax(1:4),
+#     cum_count = 1:4
+#   )
+#   expect_equal(
+#     l_actual, l_reference
+#   )
+
+#   l_actual_rev <- pl$DataFrame(list(a = 1:4))$select(
+#     pl$col("a")$cum_sum(reverse = TRUE)$alias("cum_sum"),
+#     pl$col("a")$cum_prod(reverse = TRUE)$alias("cum_prod")$cast(pl$Float64),
+#     pl$col("a")$cum_min(reverse = TRUE)$alias("cum_min"),
+#     pl$col("a")$cum_max(reverse = TRUE)$alias("cum_max"),
+#     pl$col("a")$cum_count(reverse = TRUE)$alias("cum_count")$cast(pl$Int32)
+#   )
+
+#   expect_equal(
+#     l_actual_rev,
+#     list(
+#       cum_sum = rev(cumsum(4:1)),
+#       cum_prod = rev(cumprod(4:1)),
+#       cum_min = rev(cummin(4:1)),
+#       cum_max = rev(cummax(4:1)),
+#       cum_count = rev(seq_along(4:1))
+#     )
+#   )
+# })
+
+
+# test_that("floor ceil round", {
+#   l_input <- list(
+#     a = c(0.33, 1.02, 1.5, NaN, NA, Inf, -Inf)
+#   )
+
+#   l_actual <- pl$DataFrame(l_input)$select(
+#     pl$col("a")$floor()$alias("floor"),
+#     pl$col("a")$ceil()$alias("ceil"),
+#     pl$col("a")$round(0)$alias("round")
+#   )
+
+#   l_expected <- list(
+#     floor = floor(l_input$a),
+#     ceil  = ceiling(l_input$a),
+#     round = round(l_input$a)
+#   )
+
+#   expect_equal(
+#     l_actual,
+#     l_expected
+#   )
+
+#   # NOTICE R uses ROUND to even on most OS according to help(round)
+#   round(0.5) == 0
+# })
+
+# test_that("mode", {
+#   df <- pl$DataFrame(list(
+#     a = 1:6,
+#     b = c(1L, 1L, 3L, 3L, 5L, 6L),
+#     c = c(1L, 1L, 2L, 2L, 3L, 3L),
+#     d = c(NA, NA, NA, "b", "b", "b")
+#   ))
+#   expect_equal(sort(df$select(pl$col("a")$mode())$a), 1:6)
+#   expect_equal(sort(df$select(pl$col("b")$mode())$b), c(1L, 3L))
+#   expect_equal(sort(df$select(pl$col("c")$mode())$c), c(1L, 2L, 3L))
+#   expect_equal(sort(df$select(pl$col("d")$mode())$d, na.last = TRUE), c("b", NA))
+# })
+
+# test_that("dot", {
+#   l <- list(a = 1:4, b = c(1, 2, 3, 5), c = c(NA, 1:3), d = c(6:8, NaN))
+#   actual_list <- pl$DataFrame(l)$select(
+#     pl$col("a")$dot(pl$col("b"))$alias("a dot b"),
+#     pl$col("a")$dot(pl$col("a"))$alias("a dot a"),
+#     pl$col("a")$dot(pl$col("c"))$alias("a dot c"),
+#     pl$col("a")$dot(pl$col("d"))$alias("a dot d")
+#   )
+
+#   expected_list <- list(
+#     `a dot b` = (l$a %*% l$b)[1L],
+#     `a dot a` = as.integer((l$a %*% l$a)[1L]),
+#     `a dot c` = 20, # polars do not carry NA ((l$a %*% l$c)[1L]),
+#     `a dot d` = ((l$a %*% l$d)[1L])
+#   )
+
+#   expect_equal(
+#     actual_list,
+#     expected_list
+#   )
+# })
+
+
+# test_that("Expr_sort", {
+#   l <- list(a = c(6, 1, 0, NA, Inf, -Inf, NaN))
+
+#   l_actual <- pl$DataFrame(l)$select(
+#     pl$col("a")$sort()$alias("sort"),
+#     pl$col("a")$sort(nulls_last = TRUE)$alias("sort_nulls_last"),
+#     pl$col("a")$sort(descending = TRUE)$alias("sort_reverse"),
+#     pl$col("a")$sort(descending = TRUE, nulls_last = TRUE)$alias("sort_reverse_nulls_last"),
+#     pl$col("a")
+#     $sort(descending = FALSE, nulls_last = TRUE)
+#     $alias("fake_sort_nulls_last"),
+#     (
+#       pl$col("a")
+#       $sort(descending = TRUE, nulls_last = TRUE)
+#       $alias("fake_sort_reverse_nulls_last")
+#     )
+#   )
+
+#   expect_equal(
+#     l_actual,
+#     list(
+#       sort = c(NA, -Inf, 0, 1, 6, Inf, NaN),
+#       sort_nulls_last = c(-Inf, 0, 1, 6, Inf, NaN, NA),
+#       sort_reverse = c(NA, NaN, Inf, 6, 1, 0, -Inf),
+#       sort_reverse_nulls_last = c(NaN, Inf, 6, 1, 0, -Inf, NA),
+#       fake_sort_nulls_last = c(-Inf, 0, 1, 6, Inf, NaN, NA),
+#       fake_sort_reverse_nulls_last = c(NaN, Inf, 6, 1, 0, -Inf, NA)
+#     )
+#   )
+
+#   # without NUlls set_sorted does prevent sorting
+#   l2 <- list(a = c(1, 3, 2, 4, Inf, -Inf, NaN))
+#   l_actual2 <- pl$DataFrame(l2)$select(
+#     pl$col("a")$sort()$alias("sort"),
+#     pl$col("a")$sort(nulls_last = TRUE)$alias("sort_nulls_last"),
+#     pl$col("a")$sort(descending = TRUE)$alias("sort_reverse"),
+#     pl$col("a")$sort(descending = TRUE, nulls_last = TRUE)$alias("sort_reverse_nulls_last"),
+#     pl$col("a")
+#     $set_sorted(descending = FALSE)
+#     $sort(descending = FALSE, nulls_last = TRUE)
+#     $alias("fake_sort_nulls_last"),
+#     (
+#       pl$col("a")
+#       $set_sorted(descending = TRUE)
+#       $sort(descending = TRUE, nulls_last = TRUE)
+#       $alias("fake_sort_reverse_nulls_last")
+#     )
+#   )
+#   expect_equal(
+#     l_actual2,
+#     list(
+#       sort = c(-Inf, 1, 2, 3, 4, Inf, NaN),
+#       sort_nulls_last = c(-Inf, 1, 2, 3, 4, Inf, NaN),
+#       sort_reverse = c(NaN, Inf, 4, 3, 2, 1, -Inf),
+#       sort_reverse_nulls_last = c(NaN, Inf, 4, 3, 2, 1, -Inf),
+#       fake_sort_nulls_last = l2$a,
+#       fake_sort_reverse_nulls_last = l2$a
+#     )
+#   )
+# })
+
+
+# test_that("$top_k() works", {
+#   l <- list(a = c(6, 1, 0, NA, Inf, -Inf, NaN))
+
+#   l_actual <- pl$DataFrame(l)$select(
+#     pl$col("a")$top_k(3)$alias("k_top"),
+#     pl$col("a")$bottom_k(3)$alias("k_bot")
+#   )
+#   known <- structure(list(k_top = c(NaN, Inf, 6), k_bot = c(-Inf, 0, 1)),
+#     row.names = c(NA, -3L), class = "data.frame"
+#   )
+#   expect_equal(l_actual, known)
+# })
+
+
+# # TODO contribute polars $arg_max() is not the same as arg_sort()$tail(1)
+# test_that("arg_min arg_max arg_sort", {
+#   # current arg_min arg_max and arg_sort are not internally concistent
+#   # so this testing is just tracking if the behavior it how it used to be
+
+#   l <- list(a = c(6, 1, 0, Inf, -Inf, NaN, NA))
+
+
+#   get_arg_min_max <- function(l) {
+#     pl$DataFrame(l)$select(
+#       pl$col("a")$arg_min()$alias("arg_min"),
+#       pl$col("a")$arg_max()$alias("arg_max"),
+#       pl$col("a")$arg_sort()$head(1)$alias("arg_sort_head_1"),
+#       pl$col("a")$arg_sort()$tail(1)$alias("arg_sort_tail_1")
+#     )$select(pl$all()$cast(pl$Float64))
+#   }
+
+#   # it seems Inf is largest value to (arg_max)
+#   # however it seems NaN (arg_sort().tail(1))
+#   lapply(get_arg_min_max(l), function(idx) l$a[idx + 1])
+
+#   expect_equal(
+#     get_arg_min_max(l),
+#     list(arg_min = 4, arg_max = 3, arg_sort_head_1 = 6, arg_sort_tail_1 = 5)
+#   )
+
+#   l_actual <- pl$DataFrame(l)$select(
+#     pl$col("a")$arg_sort()$alias("arg_sort default"),
+#     pl$col("a")$arg_sort(descending = TRUE)$alias("arg_sort rev"),
+#     pl$col("a")$arg_sort(descending = TRUE, nulls_last = TRUE)$alias("arg_sort rev nulls_last")
+#   )$select(pl$all()$cast(pl$Float64))
+
+#   # it seems Null/NA is not sorted and just placed first or last given null_lasts
+#   # it seems NaN is a value larger than Inf
+#   lapply(l_actual, function(idx) l$a[idx + 1])
+
+
+#   expect_equal(
+#     l_actual,
+#     list(
+#       `arg_sort default` = c(6, 4, 2, 1, 0, 3, 5),
+#       `arg_sort rev` = c(6, 5, 3, 0, 1, 2, 4),
+#       `arg_sort rev nulls_last` = c(5, 3, 0, 1, 2, 4, 6)
+#     )
+#   )
+# })
+
+# test_that("search_sorted", {
+#   expect_equal(
+#     as.numeric(
+#       pl$DataFrame(list(a = 0:100))$select(pl$col("a")$search_sorted(pl$lit(42L)))$a
+#     ),
+#     42
+#   )
+#   # this test is minimal, if polars give better documentation on behavior, expand the test.
+# })
+
+
+
+# test_that("sort_by", {
+#   l <- list(
+#     ab = c(rep("a", 6), rep("b", 6)),
+#     v4 = rep(1:4, 3),
+#     v3 = rep(1:3, 4),
+#     v2 = rep(1:2, 6),
+#     v1 = 1:12
+#   )
+#   df <- pl$DataFrame(l)
+
+#   expect_equal(
+#     df$select(
+#       pl$col("ab")$sort_by("v4")$alias("ab4"),
+#       pl$col("ab")$sort_by("v3")$alias("ab3"),
+#       pl$col("ab")$sort_by("v2")$alias("ab2"),
+#       pl$col("ab")$sort_by("v1")$alias("ab1"),
+#       pl$col("ab")$sort_by(list("v3", pl$col("v1")), descending = c(FALSE, TRUE))$alias("ab13FT"),
+#       pl$col("ab")$sort_by(list("v3", pl$col("v1")), descending = TRUE)$alias("ab13T"),
+#       pl$col("ab")$sort_by(c("v3", "v1"), descending = TRUE)$alias("ab13T2")
+#     ),
+#     list(
+#       ab4 = l$ab[order(l$v4)],
+#       ab3 = l$ab[order(l$v3)],
+#       ab2 = l$ab[order(l$v2)],
+#       ab1 = l$ab[order(l$v1)],
+#       ab13FT = l$ab[order(l$v3, rev(l$v1))],
+#       ab13T = l$ab[order(l$v3, l$v1, decreasing = TRUE)],
+#       ab13T2 = l$ab[order(l$v3, l$v1, decreasing = TRUE)]
+#     )
+#   )
+
+#   expect_snapshot(
+#     pl$lit(1:4)$sort_by(1)$to_r(),
+#     error = TRUE
+#   )
+
+#   expect_snapshot(
+#     pl$lit(1:4)$sort_by("blop")$to_r(),
+#     error = TRUE
+#   )
+
+#   expect_snapshot(
+#     pl$lit(1:4)$sort_by(df)$to_r(),
+#     error = TRUE
+#   )
+
+
+#   # this test is minimal, if polars give better documentation on behavior, expand the test.
+# })
+
+# test_that("gather that", {
+#   expect_equal(
+#     pl$select(pl$lit(0:10)$gather(c(1, 3, 5, NA)))[[1L]],
+#     c(1L, 3L, 5L, NA_integer_)
+#   )
+
+#   expect_equal(
+#     pl$select(pl$lit(1:6)$gather(c(0, -1)))[[1L]],
+#     c(1L, 6L)
+#   )
+
+#   expect_snapshot(
+#     pl$select(pl$lit(0:10)$gather(11))[[1L]],
+#     error = TRUE
+#   )
+
+
+#   expect_equal(
+#     pl$select(pl$lit(0:10)$gather(-5))[[1L]],
+#     6L
+#   )
+# })
+
+# test_that("shift", {
+#   R_shift <- \(x, n) {
+#     idx <- seq_along(x) - n
+#     idx[idx <= 0] <- Inf
+#     x[idx]
+#   }
+
+#   expect_equal(
+#     pl$select(
+#       pl$lit(0:3)$shift(-2)$alias("sm2"),
+#       pl$lit(0:3)$shift(2)$alias("sp2")
+#     ),
+#     list(
+#       sm2 = R_shift((0:3), -2),
+#       sp2 = R_shift((0:3), 2)
+#     )
+#   )
+
+#   R_shift_and_fill <- function(x, n, fill_value = NULL) {
+#     idx <- seq_along(x) - n
+#     idx[idx <= 0] <- Inf
+#     new_x <- x[idx]
+#     if (is.null(fill_value)) {
+#       return(new_x)
+#     }
+#     new_x[is.na(new_x) & !is.na(x)] <- fill_value
+#     new_x
+#   }
+
+#   expect_equal(
+#     pl$select(
+#       pl$lit(0:3)$shift(-2, fill_value = 42)$alias("sm2"),
+#       pl$lit(0:3)$shift(2, fill_value = pl$lit(42) / 2)$alias("sp2")
+#     ),
+#     list(
+#       sm2 = R_shift_and_fill(0:3, -2, 42),
+#       sp2 = R_shift_and_fill(0:3, 2, 21)
+#     )
+#   )
+# })
+
+
+# test_that("fill_null  + forward backward _fill", {
+#   l <- list(a = c(1L, rep(NA_integer_, 3L), 10))
+
+#   # fill value
+#   expect_equal(
+#     pl$DataFrame(l)$select(pl$col("a")$fill_null(42L))$a,
+#     l$a |> (\(x) {
+#       x[is.na(x)] <- 42L
+#       x
+#     })()
+#   )
+
+#   # forward
+
+#   R_fill_fwd <- \(x, lim = Inf) {
+#     last_seen <- NA
+#     lim_ct <- 0L
+#     sapply(x, \(this_val) {
+#       if (is.na(this_val)) {
+#         lim_ct <<- lim_ct + 1L
+#         if (lim_ct > lim) {
+#           return(this_val) # lim_ct exceed lim since last_seen, return NA
+#         } else {
+#           return(last_seen) # return last_seen
+#         }
+#       } else {
+#         lim_ct <<- 0L # reset counter
+#         last_seen <<- this_val # reset last_seen
+#         this_val
+#       }
+#     })
+#   }
+#   R_fill_bwd <- \(x, lim = Inf)  rev(R_fill_fwd(rev(x), lim = lim))
+#   R_replace_na <- \(x, y) {
+#     x[is.na(x)] <- y
+#     x
+#   }
+
+#   expect_equal(
+#     pl$DataFrame(l)$select(
+#       pl$col("a")$fill_null(strategy = "forward")$alias("forward"),
+#       pl$col("a")$fill_null(strategy = "backward")$alias("backward"),
+#       pl$col("a")$fill_null(strategy = "forward", limit = 1)$alias("forward_lim1"),
+#       pl$col("a")$fill_null(strategy = "backward", limit = 1)$alias("backward_lim1"),
+#       pl$col("a")$fill_null(strategy = "forward", limit = 0)$alias("forward_lim0"),
+#       pl$col("a")$fill_null(strategy = "backward", limit = 0)$alias("backward_lim0"),
+#       pl$col("a")$fill_null(strategy = "forward", limit = 10)$alias("forward_lim10"),
+#       pl$col("a")$fill_null(strategy = "backward", limit = 10)$alias("backward_lim10")
+#     ),
+#     list(
+#       forward = l$a |> R_fill_fwd(),
+#       backward = l$a |> R_fill_bwd(),
+#       forward_lim1 = l$a |> R_fill_fwd(lim = 1),
+#       backward_lim1 = l$a |> R_fill_bwd(lim = 1),
+#       forward_lim0 = l$a |> R_fill_fwd(lim = 0),
+#       backward_lim0 = l$a |> R_fill_bwd(lim = 0),
+#       forward_lim10 = l$a |> R_fill_fwd(lim = 10),
+#       backward_lim10 = l$a |> R_fill_bwd(lim = 10)
+#     )
+#   )
+
+#   expect_equal(
+#     pl$DataFrame(l)$select(
+#       pl$col("a")$fill_null(strategy = "min")$alias("min"),
+#       pl$col("a")$fill_null(strategy = "max")$alias("max"),
+#       pl$col("a")$fill_null(strategy = "mean")$alias("mean"),
+#       pl$col("a")$fill_null(strategy = "zero")$alias("zero"),
+#       pl$col("a")$fill_null(strategy = "one")$alias("one")
+#     ),
+#     list(
+#       min = l$a |> R_replace_na(min(l$a, na.rm = TRUE)),
+#       max = l$a |> R_replace_na(max(l$a, na.rm = TRUE)),
+#       mean = l$a |> R_replace_na(mean(l$a, na.rm = TRUE)),
+#       zero = l$a |> R_replace_na(0),
+#       one = l$a |> R_replace_na(1)
+#     )
+#   )
+
+
+#   # forward_fill + backward_fill
+#   l <- list(a = c(1:2, NA_integer_, NA_integer_, 3L))
+#   expect_equal(
+#     pl$DataFrame(l)$select(
+#       pl$col("a")$forward_fill(1)$alias("a_ffill_1"),
+#       pl$col("a")$forward_fill()$alias("a_ffill_NULL"),
+#       pl$col("a")$backward_fill(1)$alias("a_bfill_1"),
+#       pl$col("a")$backward_fill()$alias("a_bfill_NULL")
+#     ),
+#     list(
+#       a_ffill_1    = R_fill_fwd(l$a, 1),
+#       a_ffill_NULL = R_fill_fwd(l$a),
+#       a_bfill_1    = R_fill_bwd(l$a, 1),
+#       a_bfill_NULL = R_fill_bwd(l$a)
+#     )
+#   )
+# })
+
+# test_that("fill_nan() works", {
+#   R_replace_nan <- \(x, y) {
+#     x[is.nan(x)] <- y
+#     x
+#   }
+#   l <- list(a = c(1, NaN, NA, NaN, 3))
+#   expect_equal(
+#     pl$DataFrame(l)$select(
+#       pl$col("a")$fill_nan()$alias("fnan_NULL"),
+#       pl$col("a")$fill_nan(42L)$alias("fnan_int"),
+#       pl$col("a")$fill_nan(NA)$alias("fnan_NA"),
+#       pl$col("a")$fill_nan("hej")$alias("fnan_str"),
+#       pl$col("a")$fill_nan(TRUE)$alias("fnan_bool"),
+#       pl$col("a")$fill_nan(pl$lit(10) / 2)$alias("fnan_expr"),
+#       pl$col("a")$fill_nan(as_polars_series(10))$alias("fnan_series")
+#     ),
+#     list(
+#       fnan_NULL = R_replace_nan(l$a, NA),
+#       fnan_int = R_replace_nan(l$a, 42L),
+#       fnan_NA = R_replace_nan(l$a, NA),
+#       fnan_str = c("1.0", "hej", NA, "hej", "3.0"),
+#       fnan_bool = R_replace_nan(l$a, TRUE),
+#       fnan_expr = R_replace_nan(l$a, pl$select(pl$lit(10) / 2)[[1L]]),
+#       fnan_series = R_replace_nan(l$a, as_polars_series(10)$to_r())
+#     )
+#   )
+#   # series with length not allowed
+#   expect_snapshot(
+#     pl$DataFrame(l)$select(pl$col("a")$fill_nan(as_polars_series(10:11))$alias("fnan_series2")),
+#     error = TRUE
+#   )
+# })
+
+# test_that("std var", {
+#   expect_equal(
+#     pl$select(
+#       pl$lit(1:5)$std()$alias("std"),
+#       pl$lit(c(NA, 1:5))$std()$alias("std_missing")
+#     ),
+#     list(
+#       std = sd(1:5),
+#       std_missing = sd(c(NA, 1:5), na.rm = TRUE)
+#     )
+#   )
+#   expect_true(pl$select(pl$lit(1:5)$std(3))[[1L]] != sd(1:5))
+
+
+#   expect_equal(
+#     pl$select(
+#       pl$lit(1:5)$var()$alias("var"),
+#       pl$lit(c(NA, 1:5))$var()$alias("var_missing")
+#     ),
+#     list(
+#       var = var(1:5),
+#       var_missing = var(c(NA, 1:5), na.rm = TRUE)
+#     )
+#   )
+#   expect_true(pl$select(pl$lit(1:5)$var(3))[[1L]] != var(1:5))
+
+#   # trigger u8 conversion errors
+#   expect_snapshot(
+#     pl$lit(1:321)$std(256),
+#     error = TRUE
+#   )
+
+#   expect_snapshot(
+#     pl$lit(1:321)$var(-1),
+#     error = TRUE
+#   )
+# })
+
+
+# test_that("is_unique is_first_distinct is_last_distinct is_duplicated", {
+#   v <- c(1, 1, 2, 2, 3, NA, NaN, Inf)
+#   expect_equal(
+#     pl$select(
+#       pl$lit(v)$is_unique()$alias("is_unique"),
+#       pl$lit(v)$is_first_distinct()$alias("is_first_distinct"),
+#       pl$lit(v)$is_last_distinct()$alias("is_last_distinct"),
+#       pl$lit(v)$is_duplicated()$alias("is_duplicated"),
+#       pl$lit(v)$is_first_distinct()$not()$alias("R_duplicated")
+#     ),
+#     list(
+#       is_unique = !v %in% v[duplicated(v)],
+#       is_first_distinct = !duplicated(v),
+#       is_last_distinct = !xor(v %in% v[duplicated(v)], duplicated(v)),
+#       is_duplicated = v %in% v[duplicated(v)],
+#       R_duplicated = duplicated(v)
+#     )
+#   )
+# })
+
+# test_that("nan_min nan_max", {
+#   l <- list(
+#     a = c(1, NaN, -Inf, 3),
+#     b = c(NA, 1:3)
+#   )
+
+#   expect_equal(
+#     pl$DataFrame(l)$select(
+#       pl$col("a")$nan_min()$name$suffix("_nan_min"),
+#       pl$col("b")$nan_min()$name$suffix("_nan_min"),
+#       pl$col("a")$nan_max()$name$suffix("_nan_max"),
+#       pl$col("b")$nan_max()$name$suffix("_nan_max")
+#     ),
+#     list(
+#       a_nan_min = min(l$a),
+#       b_nan_min = min(l$b, na.rm = TRUE),
+#       a_nan_max = max(l$a),
+#       b_nan_max = max(l$b, na.rm = TRUE)
+#     )
+#   )
+# })
+
+
+# test_that("product", {
+#   l <- list(
+#     a = c(1, NaN, -Inf, 3),
+#     b = c(NA, 1:3) * 1, # integer32 currently not supported
+#     c = c(1:4) * 1 # integer32 currently not supported
+#   )
+
+#   expect_equal(
+#     pl$DataFrame(l)$select(
+#       pl$col("a")$product(),
+#       pl$col("b")$product(),
+#       pl$col("c")$product()
+#     ),
+#     list(
+#       a = prod(l$a),
+#       b = prod(l$b, na.rm = TRUE),
+#       c = prod(l$c)
+#     )
+#   )
+# })
+
+# test_that("null count", {
+#   l <- list(
+#     a = c(NA, NaN, NA),
+#     b = c(NA, 2, NA), # integer32 currently not supported
+#     c = c(NaN, NaN, NaN) # integer32 currently not supported
+#   )
+
+#   is.na_only <- \(x) is.na(x) & !is.nan(x)
+#   expect_equal(
+#     pl$DataFrame(l)$select(
+#       pl$col("a")$null_count(),
+#       pl$col("b")$null_count(),
+#       pl$col("c")$null_count()
+#     ) |> lapply(as.numeric),
+#     list(
+#       a = sum(is.na_only(l$a)) * 1.0,
+#       b = sum(is.na_only(l$b)) * 1.0,
+#       c = sum(is.na_only(l$c)) * 1.0
+#     )
+#   )
+# })
+
+# test_that("arg_unique", {
+#   l <- list(
+#     a = c(1:2, 1:3),
+#     b = c("a", "A", "a", NA, "B"), # integer32 currently not supported
+#     c = c(NaN, Inf, -Inf, 1, NA) # integer32 currently not supported
+#   )
+
+#   expect_equal(
+#     pl$DataFrame(l)$select(
+#       pl$col("a")$arg_unique()$implode(),
+#       pl$col("b")$arg_unique()$implode(),
+#       pl$col("c")$arg_unique()$implode()
+#     ) |> lapply(\(x) x[[1]]) |> lapply(as.numeric),
+#     list(
+#       a = which(!duplicated(l$a)) - 1.0,
+#       b = which(!duplicated(l$b)) - 1.0,
+#       c = which(!duplicated(l$c)) - 1.0
+#     )
+#   )
+# })
+
+# test_that("Expr_quantile", {
+#   v <- sample(0:100)
+#   expect_equal(
+#     sapply(seq(0, 1, le = 101), \(x) pl$select(pl$lit(v)$quantile(x, "nearest"))[[1L]]),
+#     as.double(sort(v))
+#   )
+
+#   v2 <- seq(0, 1, le = 42)
+#   expect_equal( # tiny rounding errors
+#     sapply(v2, \(x) pl$select(pl$lit(v)$quantile(x, "linear"))[[1L]]),
+#     unname(quantile(v, v2))
+#   )
+
+#   expect_snapshot(
+#     pl$lit(1)$quantile(1, "some_unknwon_interpolation_method"),
+#     error = TRUE
+#   )
+
+
+
+#   expect_equal(
+#     pl$select(
+#       pl$lit(0:1)$quantile(0.5, "nearest")$alias("nearest"),
+#       pl$lit(0:1)$quantile(0.5, "linear")$alias("linear"),
+#       pl$lit(0:1)$quantile(0.5, "higher")$alias("higher"),
+#       pl$lit(0:1)$quantile(0.5, "lower")$alias("lower"),
+#       pl$lit(0:1)$quantile(0.5, "midpoint")$alias("midpoint")
+#     ),
+#     list(
+#       nearest = 1.0,
+#       linear = 0.5,
+#       higher = 1,
+#       lower = 0,
+#       midpoint = 0.5
+#     )
+#   )
+
+#   # midpoint/linear NaN poisons, NA_integer_ always omitted
+#   expect_equal(
+#     pl$select(
+#       pl$lit(c(0:1, NA_integer_))$quantile(0.5, "midpoint")$alias("midpoint_na"),
+#       pl$lit(c(0:1, NaN))$quantile(0.5, "midpoint")$alias("midpoint_nan"),
+#       pl$lit(c(0:1, NA_integer_))$quantile(0, "nearest")$alias("nearest_na"),
+#       pl$lit(c(0:1, NaN))$quantile(0.7, "nearest")$alias("nearest_nan"),
+#       pl$lit(c(0:1, NA_integer_))$quantile(0, "linear")$alias("linear_na"),
+#       pl$lit(c(0:1, NaN))$quantile(0.51, "linear")$alias("linear_nan"),
+#       pl$lit(c(0:1, NaN))$quantile(0.7, "linear")$alias("linear_nan_0.7"),
+#       pl$lit(c(0, Inf, NaN))$quantile(0.51, "linear")$alias("linear_nan_inf")
+#     ),
+#     list(
+#       midpoint_na = 0.5,
+#       midpoint_nan = 1,
+#       nearest_na = 0,
+#       nearest_nan = 1,
+#       linear_na = 0,
+#       linear_nan = NaN,
+#       linear_nan_0.7 = NaN,
+#       linear_nan_inf = NaN
+#     )
+#   )
+# })
+
+
+
+
+# test_that("Expr_filter", {
+#   pdf <- pl$DataFrame(list(
+#     group_col = c("g1", "g1", "g2"),
+#     b = c(1, 2, 3)
+#   ))
+
+#   df <- pdf$group_by("group_col", maintain_order = TRUE)$agg(
+#     pl$col("b")$filter(pl$col("b") < 2)$sum()$alias("lt"),
+#     pl$col("b")$filter(pl$col("b") >= 2)$sum()$alias("gte")
+#   )
+#   # row.names(df) = NULL
+
+#   expect_equal(
+#     df,
+#     data.frame(
+#       group_col = c("g1", "g2"),
+#       lt = c(1, 0),
+#       gte = c(2, 3)
+#     )
+#   )
+# })
+
+
+
+# test_that("Expr explode/flatten", {
+#   df <- pl$DataFrame(list(a = letters))$select(pl$col("a")$explode()$gather(0:5))
+
+#   expect_equal(
+#     df$a,
+#     letters[1:6]
+#   )
+
+#   little_iris <- iris[c(1:3, 51:53), ]
+#   listed_group_df <- pl$DataFrame(little_iris)$group_by("Species", maintain_order = TRUE)$agg(pl$all())
+#   vectors_df <- listed_group_df$select(
+#     pl$col(c("Sepal.Width", "Sepal.Length"))$explode()
+#   )
+
+#   df <- listed_group_df
+
+
+#   # yikes kinda like by(), but all details are different
+#   x <- by(little_iris, as.character(little_iris$Species), FUN = list)
+#   df_ref <- as.data.frame(do.call(rbind, unname(lapply(x, lapply, I))))
+#   df_ref[] <- lapply(df_ref, lapply, unAsIs)
+#   df_ref$Species <- factor(sapply(df_ref$Species, function(x) head((x), 1)))
+#   row.names(df_ref) <- NULL
+
+
+#   expect_equal(
+#     df,
+#     df_ref[, names(df)]
+#   )
+# })
+
+
+# test_that("gather_every", {
+#   df <- pl$DataFrame(list(a = 0:24))$select(pl$col("a")$gather_every(6))
+#   expect_equal(
+#     df[[1L]],
+#     seq(0L, 24L, 6L)
+#   )
+# })
+
+# test_that("is_between with literals", {
+#   df <- pl$DataFrame(a = (1:5) * 1.0)
+
+#   expect_equal(
+#     df$select(pl$col("a")$is_between(2, 4))[[1L]],
+#     c(FALSE, TRUE, TRUE, TRUE, FALSE)
+#   )
+#   expect_equal(
+#     df$select(pl$col("a")$is_between(2, 4, "left"))[[1L]],
+#     c(FALSE, TRUE, TRUE, FALSE, FALSE)
+#   )
+#   expect_equal(
+#     df$select(pl$col("a")$is_between(2, 4, "right"))[[1L]],
+#     c(FALSE, FALSE, TRUE, TRUE, FALSE)
+#   )
+#   expect_equal(
+#     df$select(pl$col("a")$is_between(2, 4, "none"))[[1L]],
+#     c(FALSE, FALSE, TRUE, FALSE, FALSE)
+#   )
+# })
+
+# test_that("is_between with expr", {
+#   df <- pl$DataFrame(
+#     var = c(1, 2, 3, 4, 5),
+#     low = c(2, 2, 6, 2, 1),
+#     upp = c(1, 3, 8, 2, NA)
+#   )
+
+#   # strings parsed as columns
+#   expect_equal(
+#     df$select(pl$col("var")$is_between("low", "upp"))[[1L]],
+#     c(FALSE, TRUE, FALSE, FALSE, NA)
+#   )
+#   expect_equal(
+#     df$select(pl$col("var")$is_between("low", "upp", "right"))[[1L]],
+#     c(FALSE, FALSE, FALSE, FALSE, NA)
+#   )
+
+#   # expression
+#   expect_equal(
+#     df$select(pl$col("var")$is_between(pl$col("low") - 3, "upp"))[[1L]],
+#     c(TRUE, TRUE, TRUE, FALSE, NA)
+#   )
+
+#   # expression + literal
+#   expect_equal(
+#     df$select(pl$col("var")$is_between(pl$col("low") - 3, 4))[[1L]],
+#     c(TRUE, TRUE, TRUE, TRUE, FALSE)
+#   )
+# })
+
+# test_that("is_between with Inf/NaN", {
+#   df <- pl$DataFrame(var = c(1, 2, 3, 4, 5))
+
+#   expect_equal(
+#     df$select(pl$col("var")$is_between(2, Inf))[[1L]],
+#     c(FALSE, TRUE, TRUE, TRUE, TRUE)
+#   )
+#   expect_equal(
+#     df$select(pl$col("var")$is_between(-Inf, 3))[[1L]],
+#     c(TRUE, TRUE, TRUE, FALSE, FALSE)
+#   )
+#   expect_equal(
+#     df$select(pl$col("var")$is_between(NaN, 3))[[1L]],
+#     rep(FALSE, 5)
+#   )
+#   # in polars, NaN is always greater than any non-NaN value
+#   # https://docs.pola.rs/user-guide/concepts/data-types/overview/#floating-point
+#   expect_equal(
+#     df$select(pl$col("var")$is_between(3, NaN))[[1L]],
+#     c(FALSE, FALSE, TRUE, TRUE, TRUE)
+#   )
+# })
+
+# test_that("is_between errors if wrong 'closed' arg", {
+#   df <- pl$DataFrame(var = c(1, 2, 3, 4, 5))
+#   expect_snapshot(
+#     df$select(pl$col("var")$is_between(1, 2, "foo")),
+#     error = TRUE
+#   )
+# })
+
+# test_that("hash + reinterpret", {
+#   df <- pl$DataFrame(iris)
+
+#   hash_values1 <- unname(unlist(df$select(pl$col(c("Sepal.Width", "Species"))$unique()$hash()$implode())))
+#   hash_values2 <- unname(unlist(df$select(pl$col(c("Sepal.Width", "Species"))$unique()$hash(1, 2, 3, 4)$implode())))
+#   hash_values3 <- unname((df$select(pl$col(c("Sepal.Width", "Species"))$unique()$hash(1, 2, 3, 4)$implode()$cast(pl$List(pl$String)))))
+#   expect_false(anyDuplicated(hash_values1) > 0)
+#   expect_false(any(sapply(hash_values3, \(x) anyDuplicated(x) > 0)))
+
+#   # In current r-polars + py+polars setting seeds does not change the hash
+#   # CONTRIBUTE POLARS, py-polars now also has this behavior. Could be a bug.
+#   # expect_true(!all(hash_values1==hash_values2)) # this should be true
+
+#   # TODO: I think hash is unstable across polars versions so we need a better
+#   # way to test this
+#   # expect_true(all(hash_values1 == hash_values2))
+
+#   df_hash <- df$select(pl$col(c("Sepal.Width", "Species"))$unique()$hash(1, 2, 3, 4)$implode())
+#   df_hash_same <- df_hash$select(pl$all()$flatten()$reinterpret(FALSE)$implode())
+#   df_hash_rein <- df_hash$select(pl$all()$flatten()$reinterpret(TRUE)$implode())
+
+
+#   expect_equal(df_hash, df_hash_same)
+#   expect_false(identical(df_hash, df_hash_rein))
+
+
+#   df_actual <- pl$select(pl$lit(-2:2)$cast(pl$dtypes$Int64)$alias("i64"))$with_columns(
+#     pl$col("i64")$reinterpret(FALSE)$alias("u64")
+#   )
+#   df_ref <- pl$select(
+#     pl$lit(-2:2)$cast(pl$dtypes$Int64)$alias("i64"),
+#     pl$lit(c("18446744073709551614", "18446744073709551615", "0", "1", "2"))$cast(pl$dtypes$UInt64)$alias("u64")
+#   )
+#   expect_equal(df_actual, df_ref)
+# })
+
+
+
+# test_that("inspect", {
+#   actual_txt <- capture_output(
+#     pl$select(
+#       pl$lit(1:5)
+#       $inspect(
+#         "before dropping half the column it was:{}and not it is dropped"
+#       )
+#       $head(2)
+#     )
+#   )
+#   ref_fun <- \(s) {
+#     cat("before dropping half the column it was:")
+#     as_polars_series(1:5)$print()
+#     cat("and not it is dropped", "\n", sep = "")
+#   }
+#   ref_text <- capture_output(ref_fun())
+
+#   expect_equal(actual_txt, ref_text)
+
+#   pl$lit(1)$inspect("{}") # no error
+#   pl$lit(1)$inspect("ssdds{}sdsfsd") # no error
+#   expect_snapshot(
+#     pl$lit(1)$inspect(""),
+#     error = TRUE
+#   )
+
+#   expect_snapshot(
+#     pl$lit(1)$inspect("{}{}"),
+#     error = TRUE
+#   )
+
+#   expect_snapshot(
+#     pl$lit(1)$inspect("sd{}sdfsf{}sdsdf"),
+#     error = TRUE
+#   )
+
+#   expect_snapshot(
+#     pl$lit(1)$inspect("ssdds{sdds}sdsfsd"),
+#     error = TRUE
+#   )
+# })
+
+# test_that("interpolate", {
+#   expect_equal(
+#     pl$select(pl$lit(c(1, NA, 4, NA, 100))$interpolate(method = "linear"))[[1L]],
+#     approx(c(1, NA, 4, NA, 100), xout = c(1:5))$y
+#   )
+
+#   expect_equal(
+#     pl$select(pl$lit(c(1, NA, 4, NA, 100, 90, NA, 60))$interpolate(method = "nearest"))[[1L]],
+#     approx(c(1, NA, 4, NA, 100, 90, NA, 60), xout = c(1:8), method = "constant", f = 1)$y
+#   )
+# })
+
+
+
+# test_that("Expr_rolling_", {
+#   df <- pl$DataFrame(a = 1:6)
+
+#   expected <- data.frame(
+#     min = c(NA_integer_, 1L:5L),
+#     max = c(NA_integer_, 2L:6L),
+#     mean = c(NA, 1.5, 2.5, 3.5, 4.5, 5.5),
+#     sum = c(NA_integer_, 3L, 5L, 7L, 9L, 11L),
+#     std = c(NA, rep(0.7071067811865476, 5)),
+#     var = c(NA, rep(0.5, 5)),
+#     median = c(NA, 1.5, 2.5, 3.5, 4.5, 5.5),
+#     quantile_linear = c(NA, 1.33, 2.33, 3.33, 4.33, 5.33)
+#   )
+
+#   expect_equal(
+#     df$select(
+#       pl$col("a")$rolling_min(window_size = 2)$alias("min"),
+#       pl$col("a")$rolling_max(window_size = 2)$alias("max"),
+#       pl$col("a")$rolling_mean(window_size = 2)$alias("mean"),
+#       pl$col("a")$rolling_sum(window_size = 2)$alias("sum"),
+#       pl$col("a")$rolling_std(window_size = 2)$alias("std"),
+#       pl$col("a")$rolling_var(window_size = 2)$alias("var"),
+#       pl$col("a")$rolling_median(window_size = 2)$alias("median"),
+#       pl$col("a")$rolling_quantile(
+#         quantile = 0.33, window_size = 2, interpolation = "linear"
+#       )$alias("quantile_linear")
+#     ),
+#     expected
+#   )
+
+#   # check skewness
+#   df_actual_skew <- pl$DataFrame(a = iris$Sepal.Length)$select(pl$col("a")$rolling_skew(window_size = 4)$head(10))
+#   expect_equal(
+#     df_actual_skew[[1L]],
+#     c(
+#       NA, NA, NA, 0.27803055565397, -1.5030755787344e-14, 0.513023958460299,
+#       0.493382200218155, 0, 0.278030555653967, -0.186617740163675
+#     )
+#   )
+# })
+
+# test_that("Expr_rolling_*_by", {
+#   df <- pl$DataFrame(
+#     a = 1:6,
+#     date = pl$datetime_range(as.Date("2001-1-1"), as.Date("2001-1-6"), "1d")
+#   )
+
+#   expected <- data.frame(
+#     min = c(1L, 1:5),
+#     max = 1:6,
+#     mean = c(1, 1.5, 2.5, 3.5, 4.5, 5.5),
+#     sum = c(1L, 3L, 5L, 7L, 9L, 11L),
+#     std = c(NA, rep(0.7071067811865476, 5)),
+#     var = c(NA, rep(0.5, 5)),
+#     median = c(1, 1.5, 2.5, 3.5, 4.5, 5.5),
+#     quantile_linear = c(1, 1.33, 2.33, 3.33, 4.33, 5.33)
+#   )
+
+#   expect_equal(
+#     df$select(
+#       pl$col("a")$rolling_min_by("date", window_size = "2d")$alias("min"),
+#       pl$col("a")$rolling_max_by("date", window_size = "2d")$alias("max"),
+#       pl$col("a")$rolling_mean_by("date", window_size = "2d")$alias("mean"),
+#       pl$col("a")$rolling_sum_by("date", window_size = "2d")$alias("sum"),
+#       pl$col("a")$rolling_std_by("date", window_size = "2d")$alias("std"),
+#       pl$col("a")$rolling_var_by("date", window_size = "2d")$alias("var"),
+#       pl$col("a")$rolling_median_by("date", window_size = "2d")$alias("median"),
+#       pl$col("a")$rolling_quantile_by(
+#         quantile = 0.33, "date", window_size = "2d", interpolation = "linear"
+#       )$alias("quantile_linear")
+#     ),
+#     expected
+#   )
+# })
+
+# test_that("Expr_rolling_*_by only works with date/datetime", {
+#   df <- pl$DataFrame(a = 1:6, id = 11:16)
+
+#   expect_snapshot(
+#   df$select(pl$col("a")$rolling_min_by("id", window_size = "2i")),
+#   error = TRUE
+# )
+
+
+#   expect_snapshot(
+#   df$select(pl$col("a")$rolling_min_by(1, window_size = "2d")),
+#   error = TRUE
+# )
+
+# })
+
+# test_that("Expr_rolling_*_by: arg 'min_periods'", {
+#   df <- pl$DataFrame(
+#     a = 1:6,
+#     date = pl$datetime_range(as.Date("2001-1-1"), as.Date("2001-1-6"), "1d")
+#   )
+
+#   expected <- data.frame(
+#     min = c(NA_integer_, 1L:5L),
+#     max = c(NA_integer_, 2L:6L),
+#     mean = c(NA, 1.5, 2.5, 3.5, 4.5, 5.5),
+#     sum = c(NA_integer_, 3L, 5L, 7L, 9L, 11L),
+#     std = c(NA, rep(0.7071067811865476, 5)),
+#     var = c(NA, rep(0.5, 5)),
+#     median = c(NA, 1.5, 2.5, 3.5, 4.5, 5.5),
+#     quantile_linear = c(NA, 1.33, 2.33, 3.33, 4.33, 5.33)
+#   )
+
+#   expect_equal(
+#     df$select(
+#       pl$col("a")$rolling_min_by("date", window_size = "2d", min_periods = 2)$alias("min"),
+#       pl$col("a")$rolling_max_by("date", window_size = "2d", min_periods = 2)$alias("max"),
+#       pl$col("a")$rolling_mean_by("date", window_size = "2d", min_periods = 2)$alias("mean"),
+#       pl$col("a")$rolling_sum_by("date", window_size = "2d", min_periods = 2)$alias("sum"),
+#       pl$col("a")$rolling_std_by("date", window_size = "2d", min_periods = 2)$alias("std"),
+#       pl$col("a")$rolling_var_by("date", window_size = "2d", min_periods = 2)$alias("var"),
+#       pl$col("a")$rolling_median_by("date", window_size = "2d", min_periods = 2)$alias("median"),
+#       pl$col("a")$rolling_quantile_by(
+#         quantile = 0.33, "date", window_size = "2d", min_periods = 2, interpolation = "linear"
+#       )$alias("quantile_linear")
+#     ),
+#     expected
+#   )
+
+#   expect_snapshot(
+#   df$select(pl$col("a")$rolling_min_by("date", window_size = "2d", min_periods = -1)),
+#   error = TRUE
+# )
+
+# })
+
+# test_that("Expr_rolling_*_by: arg 'closed'", {
+#   df <- pl$DataFrame(
+#     a = 1:6,
+#     date = pl$datetime_range(as.Date("2001-1-1"), as.Date("2001-1-6"), "1d")
+#   )
+
+#   expected <- data.frame(
+#     min = c(NA_integer_, 1L, 1:4),
+#     max = c(NA_integer_, 1:5),
+#     mean = c(NA, 1, 1.5, 2.5, 3.5, 4.5),
+#     sum = c(NA, 1L, 3L, 5L, 7L, 9L),
+#     std = c(NA, NA, rep(0.7071067811865476, 4)),
+#     var = c(NA, NA, rep(0.5, 4)),
+#     median = c(NA, 1, 1.5, 2.5, 3.5, 4.5),
+#     quantile_linear = c(NA, 1.00, 1.33, 2.33, 3.33, 4.33)
+#   )
+
+#   expect_equal(
+#     df$select(
+#       pl$col("a")$rolling_min_by("date", window_size = "2d", closed = "left")$alias("min"),
+#       pl$col("a")$rolling_max_by("date", window_size = "2d", closed = "left")$alias("max"),
+#       pl$col("a")$rolling_mean_by("date", window_size = "2d", closed = "left")$alias("mean"),
+#       pl$col("a")$rolling_sum_by("date", window_size = "2d", closed = "left")$alias("sum"),
+#       pl$col("a")$rolling_std_by("date", window_size = "2d", closed = "left")$alias("std"),
+#       pl$col("a")$rolling_var_by("date", window_size = "2d", closed = "left")$alias("var"),
+#       pl$col("a")$rolling_median_by("date", window_size = "2d", closed = "left")$alias("median"),
+#       pl$col("a")$rolling_quantile_by(
+#         quantile = 0.33, "date", window_size = "2d", closed = "left", interpolation = "linear"
+#       )$alias("quantile_linear")
+#     ),
+#     expected
+#   )
+
+#   expect_snapshot(
+#   df$select(pl$col("a")$rolling_min_by("date", window_size = "2d", closed = "foo")),
+#   error = TRUE
+# )
+
+# })
+
+# test_that("Expr_rank", {
+#   l <- list(a = c(3, 6, 1, 1, 6))
+#   expect_equal(
+#     pl$DataFrame(l)$select(
+#       pl$col("a")$rank()$alias("avg"),
+#       pl$col("a")$rank(descending = TRUE)$alias("avg_rev"),
+#       pl$col("a")$rank(method = "ordinal")$alias("ord_rev")
+#     ) |> lapply(as.numeric),
+#     list(
+#       avg = rank(l$a),
+#       avg_rev = rank(-l$a),
+#       ord_rev = as.double(rank(l$a, ties.method = "first"))
+#     )
+#   )
+# })
+
+
+# test_that("Expr_diff", {
+#   l <- list(a = c(20L, 10L, 30L, 40L))
+
+#   # polars similar fun
+#   diff_r <- \(x, n, ignore = TRUE) {
+#     x_na <- x[length(x) + 1]
+#     c(if (ignore) rep(x_na, n), diff(x, lag = n))
+#   }
+
+#   expect_equal(
+#     pl$DataFrame(l)$select(
+#       pl$col("a")$diff()$alias("diff_default"),
+#       pl$col("a")$diff(2, "ignore")$alias("diff_2_ignore")
+#     ),
+#     list(
+#       diff_default  = diff_r(l$a, n = 1, TRUE),
+#       diff_2_ignore = diff_r(l$a, n = 2, TRUE)
+#     )
+#   )
+
+#   expect_equal(
+#     pl$DataFrame(l)$select(
+#       pl$col("a")$diff(2, "drop")$alias("diff_2_drop")
+#     ),
+#     list(
+#       diff_2_drop = diff_r(l$a, n = 2, FALSE)
+#     )
+#   )
+
+#   expect_equal(
+#     pl$DataFrame(l)$select(
+#       pl$col("a")$diff(1, "drop")$alias("diff_1_drop")
+#     ),
+#     list(
+#       diff_1_drop = diff_r(l$a, n = 1, FALSE)
+#     )
+#   )
+
+#   # negative diff values are now accepted upstream
+#   df <- as_polars_df(mtcars)$select(
+#     pl$col("mpg")$diff(1)$alias("positive"),
+#     pl$col("mpg")$diff(-1)$alias("negative")
+#   )
+#   known <- data.frame(
+#     positive = c(NA, diff(mtcars$mpg)),
+#     negative = c(mtcars$mpg[1:31] - mtcars$mpg[2:32], NA)
+#   )
+#   expect_equal(df, known, ignore_attr = TRUE)
+
+#   expect_silent(pl$select(pl$lit(1:5)$diff(0)))
+#   expect_snapshot(
+#     pl$lit(1:5)$diff(99^99),
+#     error = TRUE
+#   )
+
+#   expect_snapshot(
+#     pl$lit(1:5)$diff(5, "not a null behavior"),
+#     error = TRUE
+#   )
+# })
+
+
+
+# test_that("Expr_pct_change", {
+#   l <- list(a = c(10L, 11L, 12L, NA_integer_, NA_integer_, 12L))
+
+#   R_shift <- \(x, n) {
+#     idx <- seq_along(x) - n
+#     idx[idx <= 0] <- Inf
+#     x[idx]
+#   }
+
+#   R_fill_fwd <- \(x, lim = Inf) {
+#     last_seen <- NA
+#     lim_ct <- 0L
+#     sapply(x, \(this_val) {
+#       if (is.na(this_val)) {
+#         lim_ct <<- lim_ct + 1L
+#         if (lim_ct > lim) {
+#           return(this_val) # lim_ct exceed lim since last_seen, return NA
+#         } else {
+#           return(last_seen) # return last_seen
+#         }
+#       } else {
+#         lim_ct <<- 0L # reset counter
+#         last_seen <<- this_val # reset last_seen
+#         this_val
+#       }
+#     })
+#   }
+
+#   r_pct_chg <- function(x, n = 1) {
+#     xf <- R_fill_fwd(x)
+#     xs <- R_shift(xf, n)
+#     (xf - xs) / xs
+#   }
+
+#   expect_equal(
+#     pl$DataFrame(l)$select(
+#       pl$col("a")$pct_change()$alias("n1"),
+#       pl$col("a")$pct_change(2)$alias("n2"),
+#       pl$col("a")$pct_change(0)$alias("n0")
+#     ),
+#     list(
+#       n1 = r_pct_chg(l$a),
+#       n2 = r_pct_chg(l$a, n = 2),
+#       n0 = r_pct_chg(l$a, n = 0)
+#     )
+#   )
+# })
+
+
+
+# test_that("skew", {
+#   R_skewness <- function(x, bias = TRUE, na.rm = FALSE) {
+#     if (na.rm) x <- x[!is.na(x)]
+#     n <- length(x)
+#     m2 <- sum((x - mean(x))^2) / n
+#     m3 <- sum((x - mean(x))^3) / n
+#     biased_skewness <- m3 / m2^(3 / 2)
+#     if (bias) {
+#       biased_skewness
+#     } else {
+#       correction <- sqrt(n * (n - 1L)) / (n - 2)
+#       biased_skewness * correction
+#     }
+#   }
+
+#   l <- list(a = c(1:3, 2:1), b = c(1:3, NA_integer_, 1L))
+#   expect_equal(
+#     pl$DataFrame(l)$select(
+#       pl$col("a")$skew()$alias("a_skew"),
+#       pl$col("a")$skew(bias = FALSE)$alias("a_skew_bias_F"),
+#       pl$col("b")$skew()$alias("b_skew"),
+#       pl$col("b")$skew(bias = FALSE)$alias("b_skew_bias_F")
+#     ),
+#     list(
+#       a_skew = R_skewness(l$a),
+#       a_skew_bias_F = R_skewness(l$a, bias = FALSE),
+#       b_skew = R_skewness(l$b, na.rm = TRUE),
+#       b_skew_bias_F = R_skewness(l$b, bias = FALSE, na.rm = TRUE)
+#     )
+#   )
+# })
+
+
+
+# test_that("kurtosis", {
+#   R_kurtosis <- function(x, fisher = TRUE, bias = TRUE, na.rm = TRUE) {
+#     if (na.rm) x <- x[!is.na(x)]
+#     n <- length(x)
+#     m2 <- sum((x - mean(x))^2) / n
+#     m4 <- sum((x - mean(x))^4) / n
+#     fisher_correction <- if (fisher) 3 else 0
+#     biased_kurtosis <- m4 / m2^2
+#     if (bias) {
+#       biased_kurtosis - fisher_correction
+#     } else {
+#       correction <- 1.0 / (n - 2) / (n - 3) * ((n**2 - 1.0) * m4 / m2**2.0 - 3 * (n - 1)**2.0)
+#       correction + 3 - fisher_correction
+#     }
+#   }
+
+#   l <- list(a = c(1:3, NA_integer_, 1:3))
+#   l2 <- list(a = c(1:3, 1:3))
+
+#   # missing values should not change outcome
+#   expect_equal(
+#     pl$DataFrame(l)$select(
+#       pl$col("a")$kurtosis()$alias("kurt"),
+#       pl$col("a")$kurtosis(fisher = TRUE, bias = FALSE)$alias("_TF"),
+#       pl$col("a")$kurtosis(fisher = FALSE, bias = TRUE)$alias("kurt_FT"),
+#       pl$col("a")$kurtosis(fisher = FALSE, bias = FALSE)$alias("kurt_FF")
+#     ),
+#     pl$DataFrame(l2)$select(
+#       pl$col("a")$kurtosis()$alias("kurt"),
+#       pl$col("a")$kurtosis(fisher = TRUE, bias = FALSE)$alias("_TF"),
+#       pl$col("a")$kurtosis(fisher = FALSE, bias = TRUE)$alias("kurt_FT"),
+#       pl$col("a")$kurtosis(fisher = FALSE, bias = FALSE)$alias("kurt_FF")
+#     )
+#   )
+
+#   # equivalence with R
+#   expect_equal(
+#     pl$DataFrame(l2)$select(
+#       pl$col("a")$kurtosis()$alias("kurt_TT"),
+#       pl$col("a")$kurtosis(fisher = TRUE, bias = FALSE)$alias("kurt_TF"),
+#       pl$col("a")$kurtosis(fisher = FALSE, bias = TRUE)$alias("kurt_FT"),
+#       pl$col("a")$kurtosis(fisher = FALSE, bias = FALSE)$alias("kurt_FF")
+#     ),
+#     list2(
+#       kurt_TT = R_kurtosis(l2$a, TRUE, TRUE),
+#       kurt_TF = R_kurtosis(l2$a, TRUE, FALSE),
+#       kurt_FT = R_kurtosis(l2$a, FALSE, TRUE),
+#       kurt_FF = R_kurtosis(l2$a, FALSE, FALSE)
+#     )
+#   )
+# })
+
+
+
+# test_that("clip clip_min clip_max", {
+#   r_clip_min <- \(X, a) sapply(X, \(x) pcase(
+#     is.nan(a) || is.nan(x), x,
+#     x <= a, a,
+#     or_else = x
+#   ))
+#   r_clip_max <- \(X, a) sapply(X, \(x) pcase(
+#     is.nan(a) || is.nan(x), x,
+#     x >= a, a,
+#     or_else = x
+#   ))
+#   r_clip <- \(x, a, b) r_clip_min(x, a) |> r_clip_max(b)
+
+#   l <- list(
+#     int   = c(NA_integer_, -.Machine$integer.max, -4:4, .Machine$integer.max),
+#     float = c(NA, -Inf, .Machine$double.xmin, -3:2, .Machine$double.xmax, Inf, NaN)
+#   )
+
+
+#   ## TODO contribute polars mention in documentation that clipping with NaN takes no effect.
+#   # clip min
+#   expect_equal(
+#     pl$DataFrame(l)$select(
+#       pl$col("int")$clip(lower_bound = -.Machine$integer.max)$alias("int_mini32"),
+#       pl$col("int")$clip(lower_bound = -2L)$alias("int_m2i32"),
+#       pl$col("int")$clip(lower_bound = 2L)$alias("int_p2i32"),
+#       pl$col("float")$clip(lower_bound = -Inf)$alias("float_minf64"),
+#       pl$col("float")$clip(lower_bound = NaN)$alias("float_NaN2f64"), # in Polars NaN is the highest values
+#       pl$col("float")$clip(lower_bound = 2)$alias("float_p2f64")
+#     ),
+#     list(
+#       int_mini32 = r_clip_min(l$int, -.Machine$integer.max),
+#       int_m2i32 = r_clip_min(l$int, -2L),
+#       int_p2i32 = r_clip_min(l$int, 2L),
+#       float_minf64 = r_clip_min(l$float, -Inf),
+#       float_NaN2f64 = l$float, # float_NaN2f64 = r_clip_min(l$float,NaN), #in R NaN is more like NA,
+#       float_p2f64 = r_clip_min(l$float, 2)
+#     )
+#   )
+
+#   # clip max
+#   expect_equal(
+#     pl$DataFrame(l)$select(
+#       pl$col("int")$clip(upper_bound = -.Machine$integer.max)$alias("int_mini32"),
+#       pl$col("int")$clip(upper_bound = -2L)$alias("int_m2i32"),
+#       pl$col("int")$clip(upper_bound = 2L)$alias("int_p2i32"),
+#       pl$col("float")$clip(upper_bound = -Inf)$alias("float_minf64"),
+#       pl$col("float")$clip(upper_bound = NaN)$alias("float_NaN2f64"), # in Polars NaN is the highest values
+#       pl$col("float")$clip(upper_bound = 2)$alias("float_p2f64")
+#     ),
+#     list(
+#       int_mini32 = r_clip_max(l$int, -.Machine$integer.max),
+#       int_m2i32 = r_clip_max(l$int, -2L),
+#       int_p2i32 = r_clip_max(l$int, 2L),
+#       float_minf64 = r_clip_max(l$float, -Inf),
+#       float_NaN2f64 = r_clip_max(l$float, NaN), # float_NaN2f64 = r_clip_max(l$float,NaN), #in R NaN is more like NA,
+#       float_p2f64 = r_clip_max(l$float, 2)
+#     )
+#   )
+
+#   ## TODO contribute polars any NaN value will crash internal clip assertion
+#   expect_equal(
+#     pl$DataFrame(l)$select(
+#       pl$col("int")$clip(-.Machine$integer.max, -.Machine$integer.max + 1L)$alias("a"),
+#       pl$col("int")$clip(-2L, -2L + 1L)$alias("b"),
+#       pl$col("int")$clip(2L, 2L + 1L)$alias("c"),
+#       pl$col("float")$clip(-Inf, 1)$alias("d"),
+#       pl$col("float")$clip(2, 2 + 1)$alias("e")
+#     ),
+#     list(
+#       a = r_clip(l$int, -.Machine$integer.max, -.Machine$integer.max + 1L),
+#       b = r_clip(l$int, -2L, -2L + 1L),
+#       c = r_clip(l$int, 2L, 2L + 1L),
+#       d = r_clip(l$float, -Inf, 1),
+#       e = r_clip(l$float, 2, 2 + 1)
+#     )
+#   )
+
+#   # clip() accepts strings as column names
+#   df <- pl$DataFrame(foo = c(-50L, 5L, NA_integer_, 50L), bound = c(1, 10, 1, 1))
+#   expect_equal(
+#     df$select(clipped = pl$col("foo")$clip(lower_bound = "bound")),
+#     list(clipped = c(1L, 10L, NA_integer_, 50L))
+#   )
+
+#   # clip() works with temporal
+#   df <- pl$DataFrame(foo = as.Date(c("2020-01-01", "2020-01-02")))
+#   expect_equal(
+#     df$select(clipped = pl$col("foo")$clip(lower_bound = pl$lit("2020-01-02"))),
+#     list(clipped = as.Date(c("2020-01-02", "2020-01-02")))
+#   )
+# })
+
+# # TODO check value exported from polars are not lower bound which will become NA in R
+# test_that("upper lower bound", {
+#   expect_equal(
+#     pl$DataFrame(
+#       i32 = 1L,
+#       f64 = 5
+#     )$select(
+#       pl$all()$upper_bound()$name$suffix("_ub"),
+#       pl$all()$lower_bound()$name$suffix("_lb")
+#     ),
+#     list(
+#       i32_ub = .Machine$integer.max,
+#       f64_ub = Inf,
+#       i32_lb = NA_integer_, # R encodes lower bound as NA
+#       f64_lb = -Inf
+#     )
+#   )
+# })
+
+
+# test_that("expr trignonometry", {
+#   a <- seq(-2 * pi, 2 * pi, le = 50)
+
+#   expect_equal(
+#     pl$DataFrame(a = a)$select(
+#       pl$col("a")$sin()$alias("sin"),
+#       pl$col("a")$cos()$alias("cos"),
+#       pl$col("a")$tan()$alias("tan"),
+#       pl$col("a")$arcsin()$alias("arcsin"),
+#       pl$col("a")$arccos()$alias("arccos"),
+#       pl$col("a")$arctan()$alias("arctan"),
+#       pl$col("a")$sinh()$alias("sinh"),
+#       pl$col("a")$cosh()$alias("cosh"),
+#       pl$col("a")$tanh()$alias("tanh"),
+#       pl$col("a")$arcsinh()$alias("arcsinh"),
+#       pl$col("a")$arccosh()$alias("arccosh"),
+#       pl$col("a")$arctanh()$alias("arctanh")
+#     ),
+#     suppressWarnings(
+#       list(
+#         sin = sin(a),
+#         cos = cos(a),
+#         tan = tan(a),
+#         arcsin = asin(a),
+#         arccos = acos(a),
+#         arctan = atan(a),
+#         sinh = sinh(a),
+#         cosh = cosh(a),
+#         tanh = tanh(a),
+#         arcsinh = asinh(a),
+#         arccosh = acosh(a),
+#         arctanh = atanh(a)
+#       )
+#     )
+#   )
+# })
+
+
+# test_that("reshape", {
+#   r_reshape <- function(x, dims) {
+#     unname(as.list(as.data.frame(array(x, dims))))
+#   }
+
+#   expect_equal(
+#     pl$select(
+#       pl$lit(1:12)$reshape(c(3, 4))$alias("rs_3_4")$implode(),
+#       pl$lit(1:12)$reshape(c(4, 3))$alias("rs_4_3")$implode()
+#     ),
+#     list(
+#       rs_3_4 = list(r_reshape(1:12, c(4, 3))),
+#       rs_4_3 = list(r_reshape(1:12, c(3, 4)))
+#     )
+#   )
+
+#   expect_snapshot(
+#     pl$lit(1:12)$reshape("hej"),
+#     error = TRUE
+#   )
+
+#   expect_snapshot(
+#     pl$lit(1:12)$reshape(NaN),
+#     error = TRUE
+#   )
+
+#   expect_snapshot(
+#     pl$lit(1:12)$reshape(NA),
+#     error = TRUE
+#   )
+
+
+#   expect_true(
+#     pl$DataFrame(a = 1:4)$select(
+#       pl$col("a")$reshape(c(-1, 2))
+#     )$dtypes[[1]] == pl$List(pl$Int32)
+#   )
+
+#   # One can specify more than 2 dimensions by using the Array type
+#   out <- pl$DataFrame(foo = 1:12)$select(
+#     pl$col("foo")$reshape(c(3, 2, 2), nested_type = pl$Array(pl$Float32, 2))
+#   )
+#   # annoying to test schema equivalency with list()
+#   expect_snapshot(out$schema)
+#   expect_equal(nrow(out), 3L)
+# })
+
+
+# test_that("shuffle", {
+#   r_reshape <- function(x, dims) {
+#     unname(as.list(as.data.frame(array(x, dims))))
+#   }
+
+#   expect_equal(
+#     pl$DataFrame(a = 1:1000)$select(pl$col("a")$shuffle(seed = 1)),
+#     pl$DataFrame(a = 1:1000)$select(pl$col("a")$shuffle(seed = 1))
+#   )
+
+#   expect_false(
+#     isTRUE(all.equal(
+#       pl$DataFrame(a = 1:1000)$select(pl$col("a")$shuffle(seed = 1)),
+#       pl$DataFrame(a = 1:1000)$select(pl$col("a")$shuffle(seed = 42))
+#     ))
+#   )
+
+#   expect_equal(
+#     pl$DataFrame(a = letters)$select(pl$col("a")$shuffle(seed = 1)),
+#     pl$DataFrame(a = letters)$select(pl$col("a")$shuffle(seed = 1))
+#   )
+
+#   expect_snapshot(
+#     pl$lit(1:12)$shuffle("hej"),
+#     error = TRUE
+#   )
+
+#   expect_snapshot(
+#     pl$lit(1:12)$shuffle(-2),
+#     error = TRUE
+#   )
+
+#   expect_snapshot(
+#     pl$lit(1:12)$shuffle(NaN),
+#     error = TRUE
+#   )
+
+#   expect_snapshot(
+#     pl$lit(1:12)$shuffle(10^73),
+#     error = TRUE
+#   )
+# })
+
+
+# test_that("sample", {
+#   df <- pl$DataFrame(a = 1:10)
+
+#   # Numerical checks
+#   expect_equal(
+#     df$select(pl$col("a")$sample(fraction = 0.2, seed = 1)),
+#     list(a = c(7, 1))
+#   )
+#   expect_equal(
+#     df$select(pl$col("a")$sample(n = 2, seed = 1)),
+#     list(a = c(7, 1))
+#   )
+
+#   # Check fraction arg
+#   expect_snapshot(
+#     df$select(pl$col("a")$sample(fraction = 2)),
+#     error = TRUE
+#   )
+
+#   expect_equal(
+#     df$select(pl$col("a")$sample(fraction = 2, with_replacement = TRUE))$height,
+#     20
+#   )
+# })
+
+
+# test_that("ewm_", {
+#   ewm_mean_res <- pl$DataFrame(a = c(1, rep(0, 10)))$select(
+#     pl$col("a")$ewm_mean(com = 1)$alias("com1"),
+#     pl$col("a")$ewm_mean(span = 2)$alias("span2"),
+#     pl$col("a")$ewm_mean(half_life = 2)$alias("hl2"),
+#     pl$col("a")$ewm_mean(alpha = 0.5)$alias("a.5"),
+#     pl$col("a")$ewm_mean(com = 1, adjust = FALSE)$alias("com1_noadjust"),
+#     pl$col("a")$ewm_mean(alpha = 0.5, adjust = FALSE)$alias("a.5_noadjust"),
+#     pl$col("a")$ewm_mean(half_life = 3, adjust = FALSE)$alias("hl2_noadjust"),
+#     pl$col("a")$ewm_mean(com = 1, min_periods = 4)$alias("com1_min_periods")
+#   )
+
+#   expect_equal(
+#     ewm_mean_res,
+#     list(
+#       com1 = c(1, 0.333333333333333, 0.142857142857143, 0.0666666666666667, 0.032258064516129, 0.0158730158730159, 0.0078740157480315, 0.00392156862745098, 0.00195694716242661, 0.000977517106549365, 0.000488519785051295),
+#       span2 = c(1, 0.25, 0.076923076923077, 0.025, 0.00826446280991736, 0.00274725274725275, 0.000914913083257092, 0.000304878048780488, 0.000101615689462453, 3.38707492209728e-05, 1.12901222720242e-05),
+#       hl2 = c(1, 0.414213562373095, 0.226540919660986, 0.138071187457698, 0.0889470746090553, 0.0591733660532993, 0.0401614571920342, 0.0276142374915397, 0.0191522437659561, 0.0133617278184869, 0.00935973598751054),
+#       a.5 = c(1, 0.333333333333333, 0.142857142857143, 0.0666666666666667, 0.032258064516129, 0.0158730158730159, 0.0078740157480315, 0.00392156862745098, 0.00195694716242661, 0.000977517106549365, 0.000488519785051295),
+#       com1_noadjust = c(1, 0.5, 0.25, 0.125, 0.0625, 0.03125, 0.015625, 0.0078125, 0.00390625, 0.001953125, 0.0009765625),
+#       a.5_noadjust = c(1, 0.5, 0.25, 0.125, 0.0625, 0.03125, 0.015625, 0.0078125, 0.00390625, 0.001953125, 0.0009765625),
+#       hl2_noadjust = c(1, 0.7937005259841, 0.629960524947437, 0.5, 0.39685026299205, 0.314980262473718, 0.25, 0.198425131496025, 0.157490131236859, 0.125, 0.0992125657480125),
+#       com1_min_periods = c(NA, NA, NA, 0.0666666666666667, 0.032258064516129, 0.0158730158730159, 0.0078740157480315, 0.00392156862745098, 0.00195694716242661, 0.000977517106549365, 0.000488519785051295)
+#     )
+#   )
+
+#   ## TODO test ewm_std + ewm_var
+# })
+
+
+# test_that("extend_constant", {
+#   expect_equal(
+#     pl$lit(c("5", "Bob_is_not_a_number"))
+#     $cast(pl$dtypes$String, strict = FALSE)
+#     $extend_constant("chuchu", 2)$to_r(),
+#     c("5", "Bob_is_not_a_number", "chuchu", "chuchu")
+#   )
+
+#   expect_equal(
+#     (pl$lit(c("5", "Bob_is_not_a_number"))
+#     $cast(pl$dtypes$Int32, strict = FALSE)
+#     $extend_constant(5, 2)
+#     $to_r()
+#     ),
+#     c(5L, NA_integer_, 5L, 5L)
+#   )
+
+#   expect_equal(
+#     (
+#       pl$lit(c("5", "Bob_is_not_a_number"))
+#       $cast(pl$dtypes$Int32, strict = FALSE)
+#       $extend_constant(5, 0)
+#       $to_r()
+#     ),
+#     c(5L, NA_integer_)
+#   )
+
+#   expect_snapshot(
+#     pl$lit(1)$extend_constant(5, -1)$to_series(),
+#     error = TRUE
+#   )
+
+#   expect_snapshot(
+#     pl$lit(1)$extend_constant(5, Inf)$to_series(),
+#     error = TRUE
+#   )
+# })
+
+
+# test_that("rep", {
+#   expect_equal(pl$lit(1:3)$rep(5)$to_r(), rep(1:3, 5))
+#   expect_equal(pl$lit(c("a", "b"))$rep(5)$to_r(), rep(c("a", "b"), 5))
+#   expect_equal(pl$lit((1:3) * 1)$rep(5)$to_r(), rep((1:3) * 1, 5))
+#   expect_equal(pl$lit(c("a", "b"))$rep(5)$to_r(), rep(c("a", "b"), 5))
+#   expect_equal(pl$lit(c(TRUE, TRUE, FALSE))$rep(2)$to_r(), rep(c(TRUE, TRUE, FALSE), 2))
+#   expect_snapshot(
+#     pl$lit(1:4)$rep(-1),
+#     error = TRUE
+#   )
+
+#   expect_snapshot(
+#     pl$lit(1:4)$rep(Inf),
+#     error = TRUE
+#   )
+# })
+
+
+# test_that("to_r", {
+#   # objects with homomorphic translation between r and polars
+#   l <- list(
+#     1, 1:2, Inf, -Inf, NaN, "a", letters,
+#     numeric(), integer(), logical(), TRUE, FALSE, NULL,
+#     NA, NA_integer_, NA_character_, NA
+#   )
+#   for (i in l) expect_equal(pl$lit(i)$to_r(), i)
+
+#   # NULL to NULL
+#   expect_null(pl$lit(NULL)$to_r())
+# })
+
+
+
+# test_that("unique_counts", {
+#   # test cases for value counts
+#   l <- list(
+#     1, 1:2, Inf, -Inf, NaN, "a", c(letters, LETTERS, letters),
+#     numeric(), integer(), NA_integer_, NA_character_, NA,
+#     c(NA, 24, NaN), c(NA, 24, Inf, NaN, 24), c("ejw", NA_character_),
+#     c(1, 1, 1, 2, 3, 4, 1, 5, 2, NA, NA)
+#   )
+
+#   # mimic value counts with R funcitons
+#   r_value_counts <- function(x) {
+#     as.numeric(sapply(unique(x), \(y) sum(sapply(x, identical, y))))
+#   }
+
+#   for (i in l) {
+#     expect_equal(
+#       as.numeric(pl$lit(i)$unique_counts()$to_r()),
+#       r_value_counts(i)
+#     )
+#   }
+# })
+
+# test_that("$value_counts", {
+#   df <- pl$DataFrame(iris)
+
+#   expect_equal(
+#     df$select(pl$col("Species")$value_counts())$
+#       unnest()$
+#       sort("Species")$
+#       to_data_frame(),
+#     data.frame(
+#       Species = factor(c("setosa", "versicolor", "virginica")),
+#       count = rep(50, 3)
+#     )
+#   )
+
+#   # arg "name"
+#   expect_equal(
+#     df$select(pl$col("Species")$value_counts(name = "foobar"))$
+#       unnest()$
+#       sort("Species")$
+#       to_data_frame(),
+#     data.frame(
+#       Species = factor(c("setosa", "versicolor", "virginica")),
+#       foobar = rep(50, 3)
+#     )
+#   )
+
+#   # arg "sort"
+#   expect_equal(
+#     df$select(pl$col("Species")$value_counts(sort = TRUE))$
+#       unnest()$
+#       to_data_frame(),
+#     data.frame(
+#       Species = factor(c("setosa", "versicolor", "virginica")),
+#       count = rep(50, 3)
+#     )
+#   )
+
+#   # arg "normalize"
+#   expect_equal(
+#     df$select(pl$col("Species")$value_counts(normalize = TRUE))$
+#       unnest()$
+#       sort("Species")$
+#       to_data_frame(),
+#     data.frame(
+#       Species = factor(c("setosa", "versicolor", "virginica")),
+#       proportion = rep(0.33333333, 3)
+#     )
+#   )
+# })
+
+test_that("entropy", {
+  # https://stackoverflow.com/questions/27254550/calculating-entropy
+  r_entropy <- function(x, base = exp(1), normalize = TRUE) {
+    if (normalize) x <- x / sum(x)
+    -sum(x * log(x) / log(base))
+  }
+
+  expect_equal(
+    pl$DataFrame(x = 1:3)$select(pl$col("x")$entropy(base = 2)),
+    pl$DataFrame(x = r_entropy(1:3, base = 2))
+  )
+  expect_equal(
+    pl$DataFrame(x = 1:3)$select(pl$col("x")$entropy(base = 2, normalize = FALSE)),
+    pl$DataFrame(x = r_entropy(1:3, base = 2, normalize = FALSE))
+  )
+
+  expect_snapshot(
+    pl$select(pl$lit(c("a", "b", "b", "c", "c", "c"))$entropy(base = 2)),
+    error = TRUE
+  )
+})
+
+# test_that("cumulative_eval", {
+#   r_cumulative_eval <- function(x, f, min_periods = 1L, ...) {
+#     g <- function(x) if (length(x) < min_periods) x[length(x) + 1L] else f(x)
+#     sapply(lapply(seq_along(x), \(i) x[1:i]), g)
+#   }
+
+#   first <- \(x, n = 1) head(x, n)
+#   last <- \(x, n = 1) tail(x, n)
+#   expect_equal(
+#     pl$lit(1:5)$cumulative_eval(pl$element()$first() - pl$element()$last()**2)$to_r(),
+#     r_cumulative_eval(1:5, \(x) first(x) - last(x)**2)
+#   )
+
+#   expect_equal(
+#     pl$lit(1:5)$cumulative_eval(
+#       pl$element()$first() - pl$element()$last()**2,
+#       min_periods = 4
+#     )$to_r(),
+#     r_cumulative_eval(1:5, \(x) first(x) - last(x)**2, min_periods = 4)
+#   )
+
+#   expect_equal(
+#     pl$lit(1:5)$cumulative_eval(
+#       pl$element()$first() - pl$element()$last()**2,
+#       min_periods = 3,
+#       parallel = TRUE
+#     )$to_r(),
+#     r_cumulative_eval(1:5, \(x) first(x) - last(x)**2, min_periods = 3)
+#   )
+# })
+
+# test_that("shrink_dtype", {
+#   df <- pl$DataFrame(
+#     a = c(1L, 2L, 3L),
+#     b = c(1L, 2L, bitwShiftL(2L, 29)),
+#     c = c(-1L, 2L, bitwShiftL(1L, 15)),
+#     d = c(-112L, 2L, 112L),
+#     e = c(-112L, 2L, 129L),
+#     f = c("a", "b", "c"),
+#     g = c(0.1, 1.32, 0.12),
+#     h = c(TRUE, NA, FALSE)
+#   )$with_columns(pl$col("b")$cast(pl$Int64) * 32L)$select(pl$all()$shrink_dtype())
+
+#   expect_true(all(mapply(
+#     df$dtypes,
+#     pl$dtypes[c("Int8", "Int64", "Int32", "Int8", "Int16", "String", "Float32", "Boolean")],
+#     FUN = function(actual, expected) actual == expected
+#   )))
+# })
+
+
+
+# test_that("concat_list", {
+#   # Create lagged columns and collect them into a list. This mimics a rolling window.
+#   df <- pl$DataFrame(A = c(1, 2, 9, 2, 13))
+#   df_act <- df$with_columns(lapply(
+#     0:2,
+#     \(i) pl$col("A")$shift(i)$alias(paste0("A_lag_", i))
+#   ))$select(
+#     pl$concat_list(lapply(2:0, \(i) pl$col(paste0("A_lag_", i))))$alias(
+#       "A_rolling"
+#     )
+#   )
+#   expect_equal(
+#     df_act,
+#     structure(
+#       list(
+#         A_rolling = list(
+#           c(NA, NA, 1), c(NA, 1, 2),
+#           c(1, 2, 9), c(2, 9, 2),
+#           c(9, 2, 13)
+#         )
+#       ),
+#       row.names = c(NA, -5L),
+#       class = "data.frame"
+#     )
+#   )
+
+#   # concat Expr a Series and an R obejct
+#   df_act <- pl$select(pl$concat_list(list(
+#     pl$lit(1:5),
+#     as_polars_series(5:1),
+#     rep(0L, 5)
+#   ))$alias("alice"))
+
+#   expect_equal(
+#     df_act,
+#     structure(
+#       list(alice = list(
+#         c(1L, 5L, 0L),
+#         c(2L, 4L, 0L),
+#         c(3L, 3L, 0L),
+#         c(4L, 2L, 0L),
+#         c(5L, 1L, 0L)
+#       )),
+#       row.names = c(NA, -5L),
+#       class = "data.frame"
+#     )
+#   )
+# })
+
+
+test_that("implode", {
+  expect_equal(
+    pl$select(x = 1:4)$select(pl$col("x")$implode()$explode()),
+    pl$DataFrame(x = 1:4)
+  )
+  expect_equal(
+    pl$select(x = 1:4)$select(pl$col("x")$implode()),
+    pl$DataFrame(x = list(1:4))
+  )
+  expect_snapshot(
+    pl$lit(42)$implode(42),
+    error = TRUE
+  )
+})
+
+# TODO-REWRITE: should be in tests for functions
+# test_that("concat_str", {
+#   df <- pl$DataFrame(
+#     a = 1:3,
+#     b = c("dogs", "cats", NA),
+#     c = c("play", "swim", "walk")
+#   )
+
+#   out <- df$with_columns(
+#     pl$concat_str(
+#       pl$col("a") * 2L, "b", pl$col("c"),
+#       separator = " "
+#     )$alias("full_sentence")
+#   )
+
+#   expect_equal(dim(out), c(3, 4))
+#   expect_equal(
+#     out$full_sentence,
+#     c("2 dogs play", "4 cats swim", NA)
+#   )
+
+#   # ignore_nulls
+#   out <- df$with_columns(
+#     pl$concat_str(
+#       pl$col("a") * 2L, "b", pl$col("c"),
+#       separator = " ", ignore_nulls = TRUE
+#     )$alias("full_sentence")
+#   )
+
+#   expect_equal(
+#     out$full_sentence,
+#     c("2 dogs play", "4 cats swim", "6 walk")
+#   )
+
+#   # check error for something which cannot be turned into an Expression
+#   ctxs <- pl$concat_str("a", complex(1)) |>
+#     (\(x) result(x)$err$contexts())()
+#   expect_equal(ctxs$BadArgument, " `...` ")
+#   expect_equal(ctxs$When, "converting element 2 into an Expr")
+#   expect_equal(ctxs$PlainErrorMessage, "cannot be converted into an Expr")
+# })
+
+test_that("peak_min, peak_max", {
+  df <- pl$DataFrame(x = c(1, 2, 3, 2.2, 3, 4, 5, 2))
+  expect_equal(
+    df$select(peak_min = pl$col("x")$peak_min()),
+    pl$DataFrame(peak_min = c(rep(FALSE, 3), TRUE, rep(FALSE, 4)))
+  )
+  expect_equal(
+    df$select(peak_max = pl$col("x")$peak_max()),
+    pl$DataFrame(peak_max = c(rep(FALSE, 2), TRUE, rep(FALSE, 3), TRUE, FALSE))
+  )
+})
+
+# TODO-REWRITE: should be in tests for functions
+# test_that("pl$any_horizontal works", {
+#   df <- pl$DataFrame(
+#     a = c(FALSE, FALSE, NA, NA),
+#     b = c(TRUE, FALSE, NA, NA),
+#     c = c(TRUE, FALSE, NA, TRUE)
+#   )
+#   expect_equal(
+#     df$select(
+#       pl$any_horizontal("a", "b", "c")$alias("any")
+#     ),
+#     list(any = c(TRUE, FALSE, NA, TRUE))
+#   )
+# })
+
+# TODO-REWRITE: should be in tests for functions
+# test_that("pl$all_horizontal works", {
+#   df <- pl$DataFrame(
+#     a = c(TRUE, TRUE, NA, NA),
+#     b = c(TRUE, FALSE, NA, NA),
+#     c = c(TRUE, FALSE, NA, TRUE)
+#   )
+#   expect_equal(
+#     df$select(
+#       pl$all_horizontal("a", "b", "c")$alias("all")
+#     ),
+#     list(all = c(TRUE, FALSE, NA, NA))
+#   )
+# })
+
+# TODO-REWRITE: should be in tests for functions
+# test_that("pl$sum_horizontal works", {
+#   df <- pl$DataFrame(
+#     a = NA,
+#     b = c(3:4, NA, NA),
+#     c = c(1:2, NA, -Inf)
+#   )
+#   expect_equal(
+#     df$select(
+#       pl$sum_horizontal("a", "b", "c", 2)$alias("sum")
+#     ),
+#     list(sum = c(6, 8, 2, -Inf))
+#   )
+# })
+
+# TODO-REWRITE: should be in tests for functions
+# test_that("pl$mean_horizontal works", {
+#   df <- pl$DataFrame(
+#     a = c(2, 7, 3, -Inf),
+#     b = c(4, 5, NA, 1),
+#     c = c("w", "x", "y", "z")
+#   )
+#   expect_equal(
+#     df$select(
+#       pl$mean_horizontal("a", "b")$alias("mean")
+#     ),
+#     list(mean = c(3, 6, 3, -Inf))
+#   )
+#   expect_equal(
+#     df$select(
+#       pl$mean_horizontal("a", "b", 3)$alias("mean")
+#     ),
+#     list(mean = c(3, 5, 3, -Inf))
+#   )
+# })
+
+# TODO-REWRITE: should be in tests for functions
+# test_that("pl$max_horizontal works", {
+#   df <- pl$select(
+#     a = NA,
+#     b = c(3:4, NA, NA),
+#     c = c(1:2, NA, -Inf)
+#   )
+#   expect_equal(
+#     df$select(
+#       pl$max_horizontal("a", "b", "c", 2)$alias("max")
+#     ),
+#     pl$DataFrame(max = c(3, 4, 2, 2))
+#   )
+# })
+
+# TODO-REWRITE: should be in tests for functions
+# test_that("pl$min_horizontal works", {
+#   df <- pl$select(
+#     a = NA,
+#     b = c(3:4, NA, NA),
+#     c = c(1:2, NA, -Inf)
+#   )
+#   expect_equal(
+#     df$select(
+#       pl$min_horizontal("a", "b", "c", 2)$alias("min")
+#     ),
+#     pl$DataFrame(min = c(1, 2, 2, -Inf))
+#   )
+# })
+
+test_that("rolling, basic", {
+  dates <- c(
+    "2020-01-01 13:45:48", "2020-01-01 16:42:13", "2020-01-01 16:45:09",
+    "2020-01-02 18:12:48", "2020-01-03 19:45:32", "2020-01-08 23:16:43"
+  )
+
+  df <- pl$DataFrame(dt = dates, a = c(3, 7, 5, 9, 2, 1))$
+    with_columns(
+    pl$col("dt")$str$strptime(pl$Datetime("us"), format = "%Y-%m-%d %H:%M:%S")
+  )
+
+  out <- df$with_columns(
+    sum_a = pl$col("a")$sum()$rolling(index_column = "dt", period = "2d"),
+    min_a = pl$col("a")$min()$rolling(index_column = "dt", period = "2d"),
+    max_a = pl$col("a")$max()$rolling(index_column = "dt", period = "2d"),
+    mean_a = pl$col("a")$mean()$rolling(index_column = "dt", period = "2d")
+  )$select("sum_a", "min_a", "max_a", "mean_a")
+
+  expect_equal(
+    out,
+    pl$DataFrame(
+      sum_a = c(3, 10, 15, 24, 11, 1),
+      min_a = c(3, 3, 3, 3, 2, 1),
+      max_a = c(3, 7, 7, 9, 9, 1),
+      mean_a = c(3, 5, 5, 6, 5.5, 1)
+    )
+  )
+})
+
+test_that("rolling, arg closed", {
+  dates <- c(
+    "2020-01-01 13:45:48", "2020-01-01 16:42:13", "2020-01-01 16:45:09",
+    "2020-01-02 18:12:48", "2020-01-03 19:45:32", "2020-01-08 23:16:43"
+  )
+
+  df <- pl$DataFrame(dt = dates, a = c(3, 7, 5, 9, 2, 1))$
+    with_columns(
+    pl$col("dt")$str$strptime(pl$Datetime("us"), format = "%Y-%m-%d %H:%M:%S")
+  )
+
+  out <- df$with_columns(
+    sum_a_left = pl$col("a")$sum()$rolling(index_column = "dt", period = "2d", closed = "left"),
+    sum_a_both = pl$col("a")$sum()$rolling(index_column = "dt", period = "2d", closed = "both"),
+    sum_a_none = pl$col("a")$sum()$rolling(index_column = "dt", period = "2d", closed = "none"),
+    sum_a_right = pl$col("a")$sum()$rolling(index_column = "dt", period = "2d", closed = "right")
+  )$select("sum_a_left", "sum_a_both", "sum_a_none", "sum_a_right")
+
+  expect_equal(
+    out,
+    pl$DataFrame(
+      sum_a_left = c(0, 3, 10, 15, 9, 0),
+      sum_a_both = c(3, 10, 15, 24, 11, 1),
+      sum_a_none = c(0, 3, 10, 15, 9, 0),
+      sum_a_right = c(3, 10, 15, 24, 11, 1)
+    )
+  )
+})
+
+test_that("rolling, arg offset", {
+  dates <- c(
+    "2020-01-01 13:45:48", "2020-01-01 16:42:13", "2020-01-01 16:45:09",
+    "2020-01-02 18:12:48", "2020-01-03 19:45:32", "2020-01-08 23:16:43"
+  )
+
+  df <- pl$DataFrame(dt = dates, a = c(3, 7, 5, 9, 2, 1))$
+    with_columns(
+    pl$col("dt")$str$strptime(pl$Datetime("us"), format = "%Y-%m-%d %H:%M:%S")
+  )
+
+  # with offset = "1d", we start the window at one or two days after the value
+  # in "dt", and then we add a 2-day window relative to the window start.
+  out <- df$with_columns(
+    sum_a_offset1 = pl$col("a")$sum()$rolling(index_column = "dt", period = "2d", offset = "1d"),
+    sum_a_offset2 = pl$col("a")$sum()$rolling(index_column = "dt", period = "2d", offset = "2d")
+  )$select("sum_a_offset1", "sum_a_offset2")
+
+  expect_equal(
+    out,
+    pl$DataFrame(
+      sum_a_offset1 = c(11, 11, 11, 2, NA, NA),
+      sum_a_offset2 = c(2, 2, 2, NA, NA, NA)
+    )
+  )
+})
+
+test_that("rolling: error if period is negative", {
+  dates <- c(
+    "2020-01-01 13:45:48", "2020-01-01 16:42:13", "2020-01-01 16:45:09",
+    "2020-01-02 18:12:48", "2020-01-03 19:45:32", "2020-01-08 23:16:43"
+  )
+
+  df <- pl$DataFrame(dt = dates, a = c(3, 7, 5, 9, 2, 1))$
+    with_columns(
+    pl$col("dt")$str$strptime(pl$Datetime("us"), format = "%Y-%m-%d %H:%M:%S")
+  )
+  expect_snapshot(
+    df$select(pl$col("a")$rolling(index_column = "dt", period = "-2d")),
+    error = TRUE
+  )
+})
+
+test_that("rolling: passing a difftime as period works", {
+  dates <- c(
+    "2020-01-01 13:45:48", "2020-01-01 16:42:13", "2020-01-01 16:45:09",
+    "2020-01-02 18:12:48", "2020-01-03 19:45:32", "2020-01-08 23:16:43"
+  )
+
+  df <- pl$DataFrame(dt = dates, a = c(3, 7, 5, 9, 2, 1))$
+    with_columns(
+    pl$col("dt")$str$strptime(pl$Datetime("us"), format = "%Y-%m-%d %H:%M:%S")
+  )
+  expect_equal(
+    df$select(
+      sum_a_offset1 = pl$col("a")$sum()$rolling(index_column = "dt", period = "2d", offset = "1d")
+    ),
+    df$select(
+      sum_a_offset1 = pl$col("a")$sum()$rolling(index_column = "dt", period = as.difftime(2, units = "days"), offset = "1d")
+    )
+  )
+})
+
+test_that("eq_missing and ne_missing", {
+  x <- c(rep(TRUE, 3), rep(FALSE, 3), rep(NA, 3))
+  y <- c(rep(c(TRUE, FALSE, NA), 3))
+  expect_equal(
+    pl$DataFrame(x = x, y = y)$select(
+      pl$col("x")$eq_missing(pl$col("y"))$alias("eq_missing"),
+      pl$col("x")$neq_missing(pl$col("y"))$alias("neq_missing")
+    ),
+    pl$DataFrame(
+      eq_missing = c(TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE),
+      neq_missing = c(FALSE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, FALSE)
+    )
+  )
+})
+
+test_that("replace works", {
+  df <- pl$DataFrame(a = c(1, 2, 2, 3))
+
+  # "old" and "new" can take either scalars or vectors of same length
+  expect_equal(
+    df$select(replaced = pl$col("a")$replace(2, 100)),
+    pl$DataFrame(replaced = c(1, 100, 100, 3))
+  )
+  expect_equal(
+    df$select(replaced = pl$col("a")$replace(c(2, 3), 999)),
+    pl$DataFrame(replaced = c(1, 999, 999, 999))
+  )
+  expect_equal(
+    df$select(replaced = pl$col("a")$replace(c(2, 3), c(100, 200))),
+    pl$DataFrame(replaced = c(1, 100, 100, 200))
+  )
+
+  # "old" can be a named list where names are values to replace, and values are
+  # the replacements
+  mapping <- list(`2` = 100, `3` = 200)
+  expect_equal(
+    df$select(replaced = pl$col("a")$replace(mapping)),
+    pl$DataFrame(replaced = c(1, 100, 100, 200))
+  )
+
+  df <- pl$DataFrame(a = c("x", "y", "z"))
+  mapping <- list(x = 1, y = 2, z = 3)
+  expect_equal(
+    df$select(replaced = pl$col("a")$replace(mapping)),
+    pl$DataFrame(replaced = c("1.0", "2.0", "3.0"))
+  )
+
+  # "old", "new", and "default" can take Expr
+  df <- pl$DataFrame(a = c(1, 2, 2, 3), b = c(1.5, 2.5, 5, 1))
+  expect_equal(
+    df$select(
+      replaced = pl$col("a")$replace(
+        old = pl$col("a")$max(),
+        new = pl$col("b")$sum()
+      )
+    ),
+    pl$DataFrame(replaced = c(1, 2, 2, 10))
+  )
+})
+
+test_that("replace_strict works", {
+  df <- pl$DataFrame(a = c(1, 2, 2, 3))
+
+  # replace_strict requires a default value
+  expect_snapshot(
+    df$select(replaced = pl$col("a")$replace_strict(2, 100, return_dtype = pl$Float32)),
+    error = TRUE
+  )
+
+  expect_equal(
+    df$select(replaced = pl$col("a")$replace_strict(c(2, 3), 999, default = 1)),
+    pl$DataFrame(replaced = c(1, 999, 999, 999))
+  )
+  expect_equal(
+    df$select(replaced = pl$col("a")$replace_strict(c(2, 3), c(100, 200), default = 1)),
+    pl$DataFrame(replaced = c(1, 100, 100, 200))
+  )
+
+  # "old" can be a named list where names are values to replace, and values are
+  # the replacements
+  mapping <- list(`2` = 100, `3` = 200)
+  expect_equal(
+    df$select(replaced = pl$col("a")$replace_strict(mapping, default = -1)),
+    pl$DataFrame(replaced = c(-1, 100, 100, 200))
+  )
+
+  df <- pl$DataFrame(a = c("x", "y", "z"))
+  mapping <- list(x = 1, y = 2, z = 3)
+  expect_equal(
+    df$select(replaced = pl$col("a")$replace_strict(mapping, return_dtype = pl$String)),
+    pl$DataFrame(replaced = c("1.0", "2.0", "3.0"))
+  )
+  expect_snapshot(
+    df$select(pl$col("a")$replace_strict(mapping, return_dtype = pl$foo)),
+    error = TRUE
+  )
+
+  # one can specify the data type to return instead of automatically inferring it
+  expect_equal(
+    df$select(replaced = pl$col("a")$replace_strict(mapping, return_dtype = pl$Int32)),
+    pl$DataFrame(replaced = 1:3)
+  )
+
+  # "old", "new", and "default" can take Expr
+  df <- pl$DataFrame(a = c(1, 2, 2, 3), b = c(1.5, 2.5, 5, 1))
+  expect_equal(
+    df$select(
+      replaced = pl$col("a")$replace_strict(
+        old = pl$col("a")$max(),
+        new = pl$col("b")$sum(),
+        default = pl$col("b"),
+      )
+    ),
+    pl$DataFrame(replaced = c(1.5, 2.5, 5, 10))
+  )
+})
+
+# TODO-REWRITE: requires $unnest()
+# test_that("rle works", {
+#   df <- pl$DataFrame(s = c(1, 1, 2, 1, NA, 1, 3, 3))
+#   expect_equal(
+#     df$select(pl$col("s")$rle())$unnest("s"),
+#     pl$DataFrame(
+#       len = c(2, 1, 1, 1, 1, 2),
+#       value = c(1, 2, 1, NA, 1, 3)
+#     )
+#   )
+# })
+
+test_that("rle_id works", {
+  df <- pl$DataFrame(s = c(1, 1, 2, 1, NA, 1, 3, 3))
+  expect_equal(
+    df$with_columns(id = pl$col("s")$rle_id()),
+    pl$DataFrame(
+      s = c(1, 1, 2, 1, NA, 1, 3, 3),
+      id = c(0, 0, 1, 2, 3, 4, 5, 5)
+    )$cast(id = pl$UInt32)
+  )
+})
+
+# TODO-REWRITE: requires $unnest()
+# test_that("cut works", {
+#   df <- pl$DataFrame(foo = c(-2, -1, 0, 1, 2))
+
+#   expect_equal(
+#     df$select(
+#       cut = pl$col("foo")$cut(c(-1, 1), labels = c("a", "b", "c"))
+#     ),
+#     pl$DataFrame(cut = factor(c("a", "a", "b", "b", "c")))
+#   )
+
+#   expect_equal(
+#     df$select(
+#       cut = pl$col("foo")$cut(c(-1, 1), labels = c("a", "b", "c"), left_closed = TRUE)
+#     ),
+#     pl$DataFrame(cut = factor(c("a", "b", "b", "c", "c")))
+#   )
+
+#   expect_equal(
+#     df$select(
+#       cut = pl$col("foo")$cut(c(-1, 1), include_breaks = TRUE)
+#     )$unnest("cut"),
+#     pl$DataFrame(
+#       breakpoint = c(-1, -1, 1, 1, Inf),
+#       category = factor(c("(-inf, -1]", "(-inf, -1]", "(-1, 1]", "(-1, 1]", "(1, inf]"))
+#     )
+#   )
+
+#   expect_equal(
+#     df$select(
+#       cut = pl$col("foo")$cut(c(-1, 1), include_breaks = TRUE, left_closed = TRUE)
+#     )$unnest("cut"),
+#     pl$DataFrame(
+#       breakpoint = c(-1, 1, 1, Inf, Inf),
+#       category = factor(c("[-inf, -1)", "[-1, 1)", "[-1, 1)", "[1, inf)", "[1, inf)"))
+#     )
+#   )
+# })
+
+test_that("qcut works", {
+  df <- pl$DataFrame(foo = c(-2, -1, 0, 1, 2))
+
+  expect_equal(
+    df$select(
+      qcut = pl$col("foo")$qcut(c(0.25, 0.75), labels = c("a", "b", "c"))
+    ),
+    pl$DataFrame(qcut = factor(c("a", "a", "b", "b", "c")))
+  )
+
+  # TODO-REWRITE: requires $unnest()
+  # expect_equal(
+  #   df$select(
+  #     qcut = pl$col("foo")$qcut(c(0.25, 0.75), labels = c("a", "b", "c"), include_breaks = TRUE)
+  #   )$unnest("qcut"),
+  #   pl$DataFrame(breakpoint = c(-1, -1, 1, 1, Inf), category = factor(c("a", "a", "b", "b", "c")))
+  # )
+
+  expect_equal(
+    df$select(
+      qcut = pl$col("foo")$qcut(2, labels = c("low", "high"), left_closed = TRUE)
+    ),
+    pl$DataFrame(qcut = factor(c("low", "low", rep("high", 3))))
+  )
+
+  expect_snapshot(
+    df$select(qcut = pl$col("foo")$qcut("a")),
+    error = TRUE
+  )
+
+  expect_snapshot(
+    df$select(qcut = pl$col("foo")$qcut(c("a", "b"))),
+    error = TRUE
+  )
+})
+
+test_that("any works", {
+  df <- pl$DataFrame(
+    a = c(TRUE, FALSE),
+    b = c(FALSE, FALSE),
+    c = c(NA, FALSE),
+    d = c(NA, NA)
+  )
+
+  expect_equal(
+    df$select(pl$col("*")$any()),
+    pl$DataFrame(a = TRUE, b = FALSE, c = FALSE, d = FALSE)
+  )
+
+  expect_equal(
+    df$select(pl$col("*")$any(ignore_nulls = FALSE)),
+    pl$DataFrame(a = TRUE, b = FALSE, c = NA, d = NA)
+  )
+})
+
+test_that("all works", {
+  df <- pl$DataFrame(
+    a = c(TRUE, TRUE),
+    b = c(TRUE, FALSE),
+    c = c(NA, TRUE),
+    d = c(NA, NA)
+  )
+
+  expect_equal(
+    df$select(pl$col("*")$all()),
+    pl$DataFrame(a = TRUE, b = FALSE, c = TRUE, d = TRUE)
+  )
+
+  expect_equal(
+    df$select(pl$col("*")$all(ignore_nulls = FALSE)),
+    pl$DataFrame(a = TRUE, b = FALSE, c = NA, d = NA)
+  )
+})
+
+test_that("has_nulls works", {
+  df <- pl$DataFrame(
+    a = c(NA, 1, NA),
+    b = c(1, NA, 2),
+    c = c(1, 2, 3)
+  )
+
+  expect_equal(
+    df$select(pl$all()$has_nulls()),
+    pl$DataFrame(a = TRUE, b = TRUE, c = FALSE)
+  )
+})

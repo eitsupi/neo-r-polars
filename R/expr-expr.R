@@ -2756,7 +2756,7 @@ expr__rolling <- function(
     check_dots_empty0(...)
     closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
     if (is.null(offset)) {
-      offset <- paste0("-", parse_as_polars_duration_string(period))
+      offset <- negate_duration_string(parse_as_polars_duration_string(period))
     }
     period <- parse_as_polars_duration_string(period)
     offset <- parse_as_polars_duration_string(offset)
@@ -4184,7 +4184,14 @@ expr__replace = function(old, new) {
 #' # the replacements
 #' mapping <- list(`2` = 100, `3` = 200)
 #' df$with_columns(replaced = pl$col("a")$replace_strict(mapping, default = -1))
-#'
+#' 
+#' # By default, an error is raised if any non-null values were not replaced. 
+#' # Specify a default to set all values that were not matched.
+#' tryCatch(
+#'   df$with_columns(replaced = pl$col("a")$replace_strict(mapping)),
+#'   error = function(e) print(e)
+#' )
+#' 
 #' # one can specify the data type to return instead of automatically
 #' # inferring it
 #' df$with_columns(
@@ -4217,10 +4224,13 @@ expr__replace_strict = function(
         new <- unlist(old, use.names = FALSE)
         old <- names(old)
       }
+      if (!is.null(default)) {
+        default <- as_polars_expr(default, as_lit = TRUE)$`_rexpr`
+      }
       self$`_rexpr`$replace_strict(
         as_polars_expr(old, as_lit = TRUE)$`_rexpr`, 
         as_polars_expr(new, as_lit = TRUE)$`_rexpr`,
-        default = as_polars_expr(default, as_lit = TRUE)$`_rexpr`,
+        default = default,
         return_dtype = return_dtype$`_dt`
       )
     })
