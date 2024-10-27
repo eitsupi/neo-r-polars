@@ -48,6 +48,8 @@ Default is \code{"right"}.}
 A polars \link{expression}
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Given a \code{by} column \verb{<t_0, t_1, ..., t_n>}, then \code{closed = "right"} (the
 default) means the windows will be:
 \itemize{

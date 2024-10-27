@@ -2192,6 +2192,8 @@ expr__skew <- function(..., bias = TRUE) {
 }
 
 #' Bin values into buckets and count their occurrences
+#' 
+#' `r lifecycle::badge("experimental")`
 #'
 #' @inheritParams rlang::check_dots_empty0
 #' @param bins Discretizations to make. If `NULL` (default), we determine the
@@ -2344,6 +2346,8 @@ expr__search_sorted <- function(element, side = c("any", "left", "right")) {
 #' Apply a rolling max over values
 #'
 #' @description
+#' `r lifecycle::badge("experimental")`
+#' 
 #' A window of length `window_size` will traverse the array. The values that
 #' fill this window will (optionally) be multiplied with the weights given by
 #' the `weights` vector. The resulting values will be aggregated.
@@ -2556,7 +2560,7 @@ expr__rolling_sum <- function(
 }
 
 #' Apply a rolling quantile over values
-#'
+#' 
 #' @inherit expr__rolling_max description params details
 #' @inheritParams expr__quantile
 #'
@@ -2784,6 +2788,8 @@ expr__rolling <- function(
 #' Apply a rolling max based on another column
 #'
 #' @description
+#' `r lifecycle::badge("experimental")`
+#' 
 #' Given a `by` column `<t_0, t_1, ..., t_n>`, then `closed = "right"` (the
 #' default) means the windows will be:
 #' * `(t_0 - window_size, t_0]`
@@ -3952,6 +3958,8 @@ expr__upper_bound <- function() {
 
 # TODO-REWRITE: requires unnest() in second example
 #' Bin continuous values into discrete categories
+#' 
+#' `r lifecycle::badge("experimental")`
 #'
 #' @inheritParams rlang::check_dots_empty0
 #' @param breaks List of unique cut points.
@@ -3994,6 +4002,8 @@ expr__cut <- function(
 
 # TODO-REWRITE: requires unnest() in third example
 #' Bin continuous values into discrete categories based on their quantiles
+#' 
+#' `r lifecycle::badge("experimental")`
 #'
 #' @inheritParams rlang::check_dots_empty0
 #' @inheritParams expr__cut

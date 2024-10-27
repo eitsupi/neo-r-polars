@@ -29,6 +29,8 @@ equal to \code{window_size}.}
 A polars \link{expression}
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 A window of length \code{window_size} will traverse the array. The values that
 fill this window will (optionally) be multiplied with the weights given by
 the \code{weights} vector. The resulting values will be aggregated.

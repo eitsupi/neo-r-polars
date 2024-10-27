@@ -38,7 +38,7 @@ a Categorical to a Struct.}
 A polars \link{expression}
 }
 \description{
-Bin continuous values into discrete categories based on their quantiles
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 }
 \examples{
 # Divide a column into three categories according to pre-defined quantile

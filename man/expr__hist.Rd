@@ -31,7 +31,7 @@ breakpoint.}
 A polars \link{expression}
 }
 \description{
-Bin values into buckets and count their occurrences
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 }
 \examples{
 df <- pl$DataFrame(a = c(1, 3, 8, 8, 2, 1, 3))
