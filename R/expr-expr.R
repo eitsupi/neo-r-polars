@@ -2127,7 +2127,7 @@ expr__rank <- function(
     descending = FALSE,
     seed = NULL) {
   wrap({
-    rlang::check_dots_empty0(...)
+    check_dots_empty0(...)
     method <- arg_match0(
       method,
       values = c("average", "min", "max", "dense", "ordinal", "random")
@@ -2155,7 +2155,7 @@ expr__rank <- function(
 #' df$select(pl$col("x")$kurtosis())
 expr__kurtosis <- function(..., fisher = TRUE, bias = TRUE) {
   wrap({
-    rlang::check_dots_empty0(...)
+    check_dots_empty0(...)
     self$`_rexpr`$kurtosis(fisher, bias)
   })
 }
@@ -2187,7 +2187,7 @@ expr__kurtosis <- function(..., fisher = TRUE, bias = TRUE) {
 #' df$select(pl$col("x")$skew())
 expr__skew <- function(..., bias = TRUE) {
   wrap({
-    rlang::check_dots_empty0(...)
+    check_dots_empty0(...)
     self$`_rexpr`$skew(bias)
   })
 }
@@ -2220,7 +2220,7 @@ expr__hist <- function(
     include_category = FALSE,
     include_breakpoint = FALSE) {
   wrap({
-    rlang::check_dots_empty0(...)
+    check_dots_empty0(...)
     self$`_rexpr`$hist(
       bins = as_polars_expr(bins)$`_rexpr`,
       bin_count = bin_count,
@@ -2259,7 +2259,7 @@ expr__value_counts <- function(
     name = "count",
     normalize = FALSE) {
   wrap({
-    rlang::check_dots_empty0(...)
+    check_dots_empty0(...)
     self$`_rexpr`$value_counts(sort, parallel, name, normalize)
   })
 }
@@ -2292,7 +2292,7 @@ expr__unique_counts <- function() {
 #' df$select(pl$col("a")$unique())
 expr__unique <- function(..., maintain_order = FALSE) {
   wrap({
-    rlang::check_dots_empty0(...)
+    check_dots_empty0(...)
     if (isTRUE(maintain_order)) {
       self$`_rexpr`$unique_stable()
     } else {
@@ -3983,7 +3983,7 @@ expr__cut <- function(
     left_closed = FALSE,
     include_breaks = FALSE) {
   wrap({
-    rlang::check_dots_empty0(...)
+    check_dots_empty0(...)
     self$`_rexpr`$cut(
       breaks = breaks,
       labels = labels,
@@ -4033,7 +4033,7 @@ expr__qcut <- function(
     allow_duplicates = FALSE,
     include_breaks = FALSE) {
   wrap({
-    rlang::check_dots_empty0(...)
+    check_dots_empty0(...)
     if (is_scalar_integerish(quantiles)) {
       self$`_rexpr`$qcut_uniform(
         n_bins = quantiles,
@@ -4087,7 +4087,7 @@ expr__rechunk <- function() {
 #' )
 expr__reinterpret <- function(..., signed = TRUE) {
   wrap({
-    rlang::check_dots_empty0(...)
+    check_dots_empty0(...)
     self$`_rexpr`$reinterpret(signed)
   })
 }
