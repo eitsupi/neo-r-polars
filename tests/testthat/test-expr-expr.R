@@ -253,297 +253,320 @@ test_that("map_batches works", {
 #   )
 # })
 
-# test_that("is_null", {
-#   df <- pl$DataFrame(
-#     list(
-#       "a" = c(1, 2, NA, 1, 5),
-#       "b" = c(1.0, 2.0, NaN, 1.0, 5.0)
-#     )
-#   )
+test_that("is_null", {
+  df <- pl$DataFrame(
+    a = c(1, 2, NA, 1, 5),
+    b = c(1.0, 2.0, NaN, 1.0, 5.0)
+  )
 
-#   expect_equal(
-#     df$with_columns(pl$all()$is_null()$name$suffix("_isnull")),
-#     data.frame(
-#       a = c(1:2, NA_integer_, 1L, 5L),
-#       b = c(1, 2, NaN, 1, 5),
-#       a_isnull = c(FALSE, FALSE, TRUE, FALSE, FALSE),
-#       b_isnull = rep(FALSE, 5)
-#     )
-#   )
+  expect_equal(
+    df$with_columns(pl$all()$is_null()$name$suffix("_isnull")),
+    pl$DataFrame(
+      a = c(1:2, NA, 1, 5),
+      b = c(1, 2, NaN, 1, 5),
+      a_isnull = c(FALSE, FALSE, TRUE, FALSE, FALSE),
+      b_isnull = rep(FALSE, 5)
+    )$cast(a = pl$Float64)
+  )
 
-#   expect_equal(
-#     df$with_columns(pl$all()$is_not_null()$name$suffix("_isnull")),
-#     df$with_columns(pl$all()$is_null()$not()$name$suffix("_isnull"))
-#   )
-# })
+  expect_equal(
+    df$with_columns(pl$all()$is_not_null()$name$suffix("_isnull")),
+    df$with_columns(pl$all()$is_null()$not()$name$suffix("_isnull"))
+  )
+})
 
-# test_that("min max", {
-#   check_list <- pl$DataFrame(list(x = c(1, NA, 3)))$select(
-#     (pl$col("x")$max() == 3L)$alias("3 is max"),
-#     (pl$col("x")$min() == 1L)$alias("1 not null is min")
-#   )
+test_that("min max", {
+  df <- pl$DataFrame(x = c(1, NA, 3))
+  expect_equal(
+    df$select(
+      max = pl$col("x")$max(),
+      min = pl$col("x")$min()
+    ),
+    pl$DataFrame(max = 3, min = 1)
+  )
+})
 
-#   results <- unlist(check_list)
-#   fails <- results[!unlist(results)]
-#   expect_named(fails, character())
-# })
+test_that("$over()", {
+  df <- pl$DataFrame(
+    val = 1:5,
+    a = c("+", "+", "-", "-", "+"),
+    b = c("+", "-", "+", "-", "+")
+  )$select(
+    pl$col("val")$count()$over("a", pl$col("b"))
+  )
 
-# test_that("$over()", {
-#   df <- pl$DataFrame(
-#     val = 1:5,
-#     a = c("+", "+", "-", "-", "+"),
-#     b = c("+", "-", "+", "-", "+")
-#   )$select(
-#     pl$col("val")$count()$over("a", pl$col("b"))
-#   )
+  # TODO-REWRITE: should work
+  # # with vector of column names
+  # df2 <- pl$DataFrame(
+  #   val = 1:5,
+  #   a = c("+", "+", "-", "-", "+"),
+  #   b = c("+", "-", "+", "-", "+")
+  # )$select(
+  #   pl$col("val")$count()$over(c("a", "b"))
+  # )
 
-#   # with vector of column names
-#   df2 <- pl$DataFrame(
-#     val = 1:5,
-#     a = c("+", "+", "-", "-", "+"),
-#     b = c("+", "-", "+", "-", "+")
-#   )$select(
-#     pl$col("val")$count()$over(c("a", "b"))
-#   )
+  # over_vars <- c("a", "b")
+  # df3 <- pl$DataFrame(
+  #   val = 1:5,
+  #   a = c("+", "+", "-", "-", "+"),
+  #   b = c("+", "-", "+", "-", "+")
+  # )$select(
+  #   pl$col("val")$count()$over(over_vars)
+  # )
 
-#   over_vars <- c("a", "b")
-#   df3 <- pl$DataFrame(
-#     val = 1:5,
-#     a = c("+", "+", "-", "-", "+"),
-#     b = c("+", "-", "+", "-", "+")
-#   )$select(
-#     pl$col("val")$count()$over(over_vars)
-#   )
+  expect_equal(
+    df,
+    pl$DataFrame(val = c(2, 1, 1, 1, 2))$cast(pl$UInt32)
+  )
+  # expect_equal(
+  #   df2,
+  #   pl$DataFrame(val = c(2, 1, 1, 1, 2))
+  # )
+  # expect_equal(
+  #   df3,
+  #   pl$DataFrame(val = c(2, 1, 1, 1, 2))
+  # )
 
-#   expect_equal(
-#     as.numeric(df$get_column("val")),
-#     c(2, 1, 1, 1, 2)
-#   )
-#   expect_equal(
-#     as.numeric(df2$get_column("val")),
-#     c(2, 1, 1, 1, 2)
-#   )
-#   expect_equal(
-#     as.numeric(df3$get_column("val")),
-#     c(2, 1, 1, 1, 2)
-#   )
+  # TODO-REWRITE: requires $meta$eq()
+  # basic_expr <- pl$col("foo")$min()$over("a", "b")
+  # expect_true(
+  #   basic_expr$meta$eq(
+  #     pl$col("foo")$min()$over(c("a", "b"))
+  #   )
+  # )
+  # expect_true(
+  #   basic_expr$meta$eq(
+  #     pl$col("foo")$min()$over(list(pl$col("a"), pl$col("b")))
+  #   )
+  # )
+  # expect_true(
+  #   basic_expr$meta$eq(
+  #     pl$col("foo")$min()$over(list(pl$col("a"), "b"))
+  #   )
+  # )
+})
 
-#   basic_expr <- pl$col("foo")$min()$over("a", "b")
-#   expect_true(
-#     basic_expr$meta$eq(
-#       pl$col("foo")$min()$over(c("a", "b"))
-#     )
-#   )
-#   expect_true(
-#     basic_expr$meta$eq(
-#       pl$col("foo")$min()$over(list(pl$col("a"), pl$col("b")))
-#     )
-#   )
-#   expect_true(
-#     basic_expr$meta$eq(
-#       pl$col("foo")$min()$over(list(pl$col("a"), "b"))
-#     )
-#   )
-# })
+test_that("$over() with mapping_strategy", {
+  df <- pl$DataFrame(
+    val = 1:5,
+    a = c("+", "+", "-", "-", "+")
+  )
 
-# test_that("$over() with mapping_strategy", {
-#   df <- pl$DataFrame(
-#     val = 1:5,
-#     a = c("+", "+", "-", "-", "+")
-#   )
+  expect_snapshot(
+    df$select(pl$col("val")$top_k(2)$over("a")),
+    error = TRUE
+  )
 
-#   expect_snapshot(
-#     df$select(pl$col("val")$top_k(2)$over("a")),
-#     error = TRUE
-#   )
+  expect_equal(
+    df$select(pl$col("val")$top_k(2)$over("a", mapping_strategy = "join")),
+    pl$DataFrame(
+      val = list(c(5L, 2L), c(5L, 2L), c(3L, 4L), c(3L, 4L), c(5L, 2L))
+    )
+  )
+})
 
+test_that("arg 'order_by' in $over() works", {
+  df <- pl$DataFrame(
+    g = c(1, 1, 1, 1, 2, 2, 2, 2),
+    t = c(1, 2, 3, 4, 4, 1, 2, 3),
+    x = c(10, 20, 30, 40, 10, 20, 30, 40)
+  )
 
-#   expect_equal(
-#     df$select(pl$col("val")$top_k(2)$over("a", mapping_strategy = "join")),
-#     list(
-#       val = list(c(5L, 2L), c(5L, 2L), c(3L, 4L), c(3L, 4L), c(5L, 2L))
-#     )
-#   )
-# })
+  expect_equal(
+    df$select(
+      x_lag = pl$col("x")$shift(1)$over("g", order_by = "t")
+    ),
+    pl$DataFrame(x_lag = c(NA, 10, 20, 30, 40, NA, 20, 30))
+  )
+})
 
-# test_that("arg 'order_by' in $over() works", {
-#   df <- pl$DataFrame(
-#     g = c(1, 1, 1, 1, 2, 2, 2, 2),
-#     t = c(1, 2, 3, 4, 4, 1, 2, 3),
-#     x = c(10, 20, 30, 40, 10, 20, 30, 40)
-#   )
+test_that("col DataType + col(s) + col regex", {
+  # one Datatype
+  expect_equal(
+    as_polars_df(iris)$select(pl$col(pl$Float64)),
+    as_polars_df(iris[, sapply(iris, is.numeric)])
+  )
 
-#   expect_equal(
-#     df$select(
-#       x_lag = pl$col("x")$shift(1)$over("g", order_by = "t")
-#     ),
-#     list(x_lag = c(NA, 10, 20, 30, 40, NA, 20, 30))
-#   )
-# })
+  # multiple
+  expect_equal(
+    as_polars_df(iris)$select(pl$col(list(pl$Float64, pl$Categorical()))),
+    as_polars_df(iris)
+  )
 
-# test_that("col DataType + col(s) + col regex", {
-#   # one Datatype
-#   expect_equal(
-#     as_polars_df(iris)$select(pl$col(pl$dtypes$Float64)),
-#     iris[, sapply(iris, is.numeric)]
-#   )
+  # multiple cols
+  Names <- c("Sepal.Length", "Sepal.Width")
+  expect_equal(
+    as_polars_df(iris)$select(pl$col(Names)),
+    as_polars_df(iris[, Names])
+  )
 
-#   # multiple
-#   expect_equal(
-#     as_polars_df(iris)$select(pl$col(list(pl$Float64, pl$Categorical()))),
-#     iris
-#   )
+  # regex
+  expect_equal(
+    as_polars_df(iris)$select(pl$col("^Sepal.*$")),
+    as_polars_df(iris[, Names])
+  )
+})
 
-#   # multiple cols
-#   Names <- c("Sepal.Length", "Sepal.Width")
-#   expect_equal(
-#     as_polars_df(iris)$select(pl$col(Names)),
-#     iris[, Names]
-#   )
+test_that("lit expr", {
+  expect_equal(
+    pl$DataFrame(a = 1:4)$filter(pl$col("a") > 2L),
+    pl$DataFrame(a = 3:4)
+  )
 
-#   # regex
-#   expect_equal(
-#     as_polars_df(iris)$select(pl$col("^Sepal.*$")),
-#     iris[, Names]
-#   )
-# })
+  expect_equal(
+    pl$DataFrame(a = letters)$filter(pl$col("a") >= "x"),
+    pl$DataFrame(a = c("x", "y", "z"))
+  )
 
+  expect_equal(
+    pl$DataFrame(a = letters)$filter(pl$col("a") >= pl$lit(NULL)),
+    pl$DataFrame(a = character())
+  )
 
+  # explicit vector to series to literal
+  expect_equal(
+    pl$DataFrame()$select(a = pl$lit(as_polars_series(1:4))),
+    pl$DataFrame(a = 1:4)
+  )
 
-# test_that("lit expr", {
-#   expect_equal(
-#     pl$DataFrame(list(a = 1:4))$filter(pl$col("a") > 2L)$a,
-#     3:4
-#   )
+  # implicit vector to literal
+  expect_equal(
+    pl$DataFrame(list())$select(a = pl$lit(24) / 4:1 + 2),
+    pl$DataFrame(a = 24 / 4:1 + 2)
+  )
+})
 
-#   expect_equal(
-#     pl$DataFrame(list(a = letters))$filter(pl$col("a") >= "x")$a,
-#     c("x", "y", "z")
-#   )
+test_that("prefix suffix reverse", {
+  df <- pl$DataFrame(list(
+    A = c(1, 2, 3, 4, 5),
+    fruits = c("banana", "banana", "apple", "apple", "banana"),
+    B = c(5, 4, 3, 2, 1),
+    cars = c("beetle", "audi", "beetle", "beetle", "beetle")
+  ))
 
-#   expect_equal(
-#     pl$DataFrame(list(a = letters))$filter(pl$col("a") >= pl$lit(NULL)),
-#     data.frame(a = character())
-#   )
+  df2 <- df$select(
+    pl$all(),
+    pl$all()$reverse()$name$suffix("_reverse")
+  )
+  expect_equal(
+    df2$columns,
+    c(df$columns, paste0(df$columns, "_reverse"))
+  )
 
+  df3 <- df$select(
+    pl$all(),
+    pl$all()$reverse()$name$prefix("reverse_")
+  )
+  expect_equal(
+    df3$columns,
+    c(df$columns, paste0("reverse_", df$columns))
+  )
 
-#   # explicit vector to series to literal
-#   expect_equal(
-#     pl$DataFrame(list())$select(pl$lit(as_polars_series(1:4)))[[1L]],
-#     1:4
-#   )
+  expect_equal(
+    df2$get_column("A_reverse"),
+    rev(df2$get_column("A"))
+  )
+})
 
-#   # implicit vector to literal
-#   expect_equal(
-#     pl$DataFrame(list())$select(pl$lit(24) / 4:1 + 2)[[1L]],
-#     24 / 4:1 + 2
-#   )
+test_that("and or is_in xor", {
+  expect_equal(
+    pl$select(pl$lit(TRUE) & TRUE),
+    pl$DataFrame(literal = TRUE)
+  )
+  expect_equal(
+    pl$select(pl$lit(TRUE) & FALSE),
+    pl$DataFrame(literal = FALSE)
+  )
+  expect_equal(
+    pl$select(pl$lit(FALSE) & TRUE),
+    pl$DataFrame(literal = FALSE)
+  )
+  expect_equal(
+    pl$select(pl$lit(FALSE) & FALSE),
+    pl$DataFrame(literal = FALSE)
+  )
+  expect_equal(
+    pl$select(pl$lit(TRUE) | TRUE),
+    pl$DataFrame(literal = TRUE)
+  )
+  expect_equal(
+    pl$select(pl$lit(TRUE) | FALSE),
+    pl$DataFrame(literal = TRUE)
+  )
+  expect_equal(
+    pl$select(pl$lit(FALSE) | TRUE),
+    pl$DataFrame(literal = TRUE)
+  )
+  expect_equal(
+    pl$select(pl$lit(FALSE) | FALSE),
+    pl$DataFrame(literal = FALSE)
+  )
+  expect_equal(
+    pl$select(pl$lit(TRUE)$xor(pl$lit(TRUE))),
+    pl$DataFrame(literal = FALSE)
+  )
+  expect_equal(
+    pl$select(pl$lit(TRUE)$xor(pl$lit(FALSE))),
+    pl$DataFrame(literal = TRUE)
+  )
+  expect_equal(
+    pl$select(pl$lit(FALSE)$xor(pl$lit(TRUE))),
+    pl$DataFrame(literal = TRUE)
+  )
+  expect_equal(
+    pl$select(pl$lit(FALSE)$xor(pl$lit(FALSE))),
+    pl$DataFrame(literal = FALSE)
+  )
 
-#   # sequence/lits to literal and back
-#   expect_equal(pl$lit(1:5), 1:5)
-#   expect_equal(pl$lit(c(1, 2, Inf, -Inf, NaN, NA)), c(1, 2, Inf, -Inf, NaN, NA))
-#   l <- list(
-#     list(c(1, 2, Inf, -Inf, NaN, NA)),
-#     list(c(1:5, NA_integer_)),
-#     list(letters)
-#   )
-#   for (i in seq_along(l)) {
-#     expect_equal(pl$lit(l[[i]]), l[[i]])
-#   }
-# })
+  df <- pl$DataFrame(a = c(1:3, NA))
+  expect_equal(
+    df$select(pl$lit(1L)$is_in(pl$col("a"))),
+    pl$DataFrame(literal = TRUE)
+  )
+  expect_equal(
+    df$select(pl$lit(4L)$is_in(pl$col("a"))),
+    pl$DataFrame(literal = FALSE)
+  )
 
-# test_that("prefix suffix reverse", {
-#   df <- pl$DataFrame(list(
-#     A = c(1, 2, 3, 4, 5),
-#     fruits = c("banana", "banana", "apple", "apple", "banana"),
-#     B = c(5, 4, 3, 2, 1),
-#     cars = c("beetle", "audi", "beetle", "beetle", "beetle")
-#   ))
+  # NA_int == NA_int
+  expect_equal(
+    pl$DataFrame(a = c(1:4, NA))$select(pl$col("a")$is_in(pl$lit(NA_integer_))),
+    pl$DataFrame(a = c(rep(FALSE, 4), NA))
+  )
 
-#   df2 <- df$select(
-#     pl$all(),
-#     pl$all()$reverse()$name$suffix("_reverse")
-#   )
-#   expect_equal(
-#     df2$columns,
-#     c(df$columns, paste0(df$columns, "_reverse"))
-#   )
+  # TODO-REWRITE: this errors
+  # both R and polars aliases NA_int_ with NA in comparisons
+  # expect_equal(
+  #   pl$DataFrame(a = c(1:4, NA_integer_))$select(pl$col("a")$is_in(pl$lit(NA))),
+  #   pl$DataFrame(a = c(rep(FALSE, 4), NA))
+  # )
 
-#   df3 <- df$select(
-#     pl$all(),
-#     pl$all()$reverse()$name$prefix("reverse_")
-#   )
-#   expect_equal(
-#     df3$columns,
-#     c(df$columns, paste0("reverse_", df$columns))
-#   )
-
-#   expect_equal(
-#     df2$get_column("A_reverse"),
-#     rev(df2$get_column("A"))
-#   )
-# })
-
-# test_that("and or is_in xor", {
-#   df <- pl$DataFrame(list())
-#   expect_true(df$select(pl$lit(TRUE) & TRUE)[[1L]])
-#   expect_false(df$select(pl$lit(TRUE) & FALSE)[[1L]])
-#   expect_false(df$select(pl$lit(FALSE) & TRUE)[[1L]])
-#   expect_false(df$select(pl$lit(FALSE) & FALSE)[[1L]])
-
-#   expect_true(df$select(pl$lit(TRUE) | TRUE)[[1L]])
-#   expect_true(df$select(pl$lit(TRUE) | FALSE)[[1L]])
-#   expect_true(df$select(pl$lit(FALSE) | TRUE)[[1L]])
-#   expect_false(df$select(pl$lit(FALSE) | FALSE)[[1L]])
-
-#   expect_false(df$select(pl$lit(TRUE)$xor(pl$lit(TRUE)))[[1L]])
-#   expect_true(df$select(pl$lit(TRUE)$xor(pl$lit(FALSE)))[[1L]])
-#   expect_true(df$select(pl$lit(FALSE)$xor(pl$lit(TRUE)))[[1L]])
-#   expect_false(df$select(pl$lit(FALSE)$xor(pl$lit(FALSE)))[[1L]])
-
-#   df <- pl$DataFrame(list(a = c(1:3, NA_integer_)))
-#   expect_true(df$select(pl$lit(1L)$is_in(pl$col("a")))[[1L]])
-#   expect_false(df$select(pl$lit(4L)$is_in(pl$col("a")))[[1L]])
-
-
-#   # NA_int == NA_int
-#   expect_equal(
-#     pl$DataFrame(list(a = c(1:4, NA_integer_)))$select(
-#       pl$col("a")$is_in(pl$lit(NA_integer_))
-#     )[[1L]],
-#     c(rep(FALSE, 4), NA)
-#   )
-
-#   # both R and polars aliases NA_int_ with NA in comparisons
-#   expect_equal(
-#     pl$DataFrame(list(a = c(1:4, NA_integer_)))$select(
-#       pl$col("a")$is_in(pl$lit(NA))
-#     )[[1L]],
-#     c(rep(FALSE, 4), NA)
-#   )
-
-#   expect_true(
-#     pl$select(
-#       # nothing is nothing
-#       (pl$lit(NULL) == pl$lit(NULL))$alias("NULL is NULL"),
-
-#       # nothing is typed nothing
-#       (pl$lit(NULL) == pl$lit(NA))$alias("NULL is NULL_real"),
-
-#       # typed nothing is typed nothing
-#       (pl$lit(NA) == pl$lit(NA))$is_null()$alias("NULL_eral is NULL_real is null"),
-
-#       # type nothing is IN nothing # not allowed
-#       # pl$lit(NA)$is_in(pl$lit(NA))$alias("NULL typed is in  NULL typed"),
-
-#       # neither typed nor untyped NULL is IN NULL, changed behavior from  0.30-0.32, previous false
-#       pl$lit(NA)$is_in(pl$lit(NULL))$alias("NULL typed is in NULL")
-
-#       # anymore from rust-polars 0.30-0.32
-#       # pl$lit(NULL)$is_in(pl$lit(NULL))$not()$alias("NULL is in NULL, NOY")
-#     ) |> unlist() |> all(na.rm = TRUE)
-#   )
-# })
+  # behavior for NA and NULL
+  expect_equal(
+    pl$select(pl$lit(NULL) == pl$lit(NULL)),
+    pl$DataFrame(literal = NA)
+  )
+  expect_equal(
+    pl$select(pl$lit(NA) == pl$lit(NA)),
+    pl$DataFrame(literal = NA)
+  )
+  expect_equal(
+    pl$select(pl$lit(NULL) == pl$lit(NA)),
+    pl$DataFrame(literal = NA)
+  )
+  expect_equal(
+    pl$select(pl$lit(NA)$is_in(pl$lit(NA))),
+    pl$DataFrame(literal = NA)
+  )
+  expect_equal(
+    pl$select(pl$lit(NA)$is_in(pl$lit(NULL))),
+    pl$DataFrame(literal = NA)
+  )
+  expect_equal(
+    pl$select(pl$lit(NULL)$is_in(pl$lit(NA))),
+    pl$DataFrame(literal = NA)
+  )
+})
 
 test_that("to_physical + cast", {
   # to_physical and some casting
@@ -674,6 +697,12 @@ test_that("exclude", {
   expect_equal(
     df$select(pl$all()$exclude(pl$Float64, pl$Categorical()))$columns,
     names(iris)[c()]
+  )
+
+  # can't have named value
+  expect_snapshot(
+    df$select(pl$all()$exclude(foo = "Species")),
+    error = TRUE
   )
 })
 
