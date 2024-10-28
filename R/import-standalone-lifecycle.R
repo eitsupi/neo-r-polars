@@ -6,7 +6,7 @@
 # ---
 # repo: r-lib/rlang
 # file: standalone-lifecycle.R
-# last-updated: 2023-10-05
+# last-updated: 2024-10-05
 # license: https://unlicense.org
 # dependencies: standalone-cli.R
 # imports: rlang (>= 1.0.0)
