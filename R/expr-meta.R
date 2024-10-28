@@ -17,13 +17,41 @@ namespace_expr_meta <- function(x) {
   self
 }
 
-# TODO: tests: pl$col("a", "b")$meta$has_multiple_outputs()
+#' Indicate if this expression expands into multiple expressions
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' e <- pl$col(c("a", "b"))$name$suffix("_foo")
+#' e$meta$has_multiple_outputs()
 expr_meta_has_multiple_outputs <- function() {
   self$`_rexpr`$meta_has_multiple_outputs() |>
     wrap()
 }
 
-# TODO: add tests for undetermined output: pl$all()$name$suffix("_")$meta$output_name()
+#' Get the column name that this expression would produce
+#'
+#' It may not always be possible to determine the output name as that can
+#' depend on the schema of the context; in that case this will raise an error
+#' if `raise_if_undetermined = TRUE` (the default), and return `NA` otherwise.
+#'
+#' @inheritParams rlang::check_dots_empty0
+#' @param raise_if_undetermined If `TRUE` (default), raise an error if the
+#' output name cannot be determined. Otherwise return `NA`.
+#' @inherit as_polars_expr return
+#' @examples
+#' e <- pl$col("foo") * pl$col("bar")
+#' e$meta$output_name()
+#'
+#' e_filter <- pl$col("foo")$filter(pl$col("bar") == 13)
+#' e_filter$meta$output_name()
+#'
+#' e_sum_over <- pl$col("foo")$sum()$over("groups")
+#' e_sum_over$meta$output_name()
+#'
+#' e_sum_slice <- pl$col("foo")$sum()$slice(pl$len() - 10, pl$col("bar"))
+#' e_sum_slice$meta$output_name()
+#'
+#' pl$len()$meta$output_name()
 expr_meta_output_name <- function(..., raise_if_undetermined = TRUE) {
   wrap({
     check_dots_empty0(...)
@@ -34,14 +62,22 @@ expr_meta_output_name <- function(..., raise_if_undetermined = TRUE) {
       tryCatch(
         self$`_rexpr`$meta_output_name(),
         error = function(e) {
-          NULL
+          NA_character_
         }
       )
     }
   })
 }
 
-# TODO: tests: pl$col("foo")$alias("bar")$meta$undo_aliases()
+#' Undo any renaming operation like `alias` or `name$keep`
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' e <- pl$col("foo")$alias("bar")
+#' e$meta$undo_aliases()$meta$eq(pl$col("foo"))
+#'
+#' e <- pl$col("foo")$sum()$over("bar")
+#' e$name$keep()$meta$undo_aliases()$meta$eq(e)
 expr_meta_undo_aliases <- function() {
   self$`_rexpr`$meta_undo_aliases() |>
     wrap()
@@ -67,7 +103,28 @@ expr_meta__as_selector <- function() {
     wrap()
 }
 
-expr_meta_serialize <- function(..., format = c("binary", "json")) {
+# TODO: handle "file" argument
+# TODO: add deserialization in examples
+#' Serialize this expression to a file or string in JSON format.
+#'
+#' @inheritParams rlang::check_dots_empty0
+#' @param file File path to which the result should be written. If `NULL`
+#' (default), the output is returned as a string instead.
+#' @param format The format in which to serialize. Must be one of:
+#' * `"binary"` (default): serialize to binary format (bytes).
+#' * `"json"`: serialize to JSON format (string).
+#'
+#' @details
+#' Serialization is not stable across Polars versions: a LazyFrame serialized
+#' in one Polars version may not be deserializable in another Polars version.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' # Serialize the expression into a binary representation.
+#' expr <- pl$col("foo")$sum()$over("bar")
+#' bytes <- expr$meta$serialize()
+#' bytes
+expr_meta_serialize <- function(file = NULL, ..., format = c("binary", "json")) {
   wrap({
     check_dots_empty0(...)
 
@@ -78,5 +135,117 @@ expr_meta_serialize <- function(..., format = c("binary", "json")) {
       json = self$`_rexpr`$serialize_json(),
       abort("Unreachable")
     )
+  })
+}
+
+#' Indicate if this expression is the same as another expression
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' foo_bar <- pl$col("foo")$alias("bar")
+#' foo <- pl$col("foo")
+#' foo_bar$meta$eq(foo)
+#'
+#' foo_bar2 <- pl$col("foo")$alias("bar")
+#' foo_bar$meta$eq(foo_bar2)
+expr_meta_eq <- function(other) {
+  self$`_rexpr`$meta_eq(as_polars_expr(other)$`_rexpr`) |>
+    wrap()
+}
+
+#' Indicate if this expression is not the same as another expression
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' foo_bar <- pl$col("foo")$alias("bar")
+#' foo <- pl$col("foo")
+#' foo_bar$meta$ne(foo)
+#'
+#' foo_bar2 <- pl$col("foo")$alias("bar")
+#' foo_bar$meta$ne(foo_bar2)
+expr_meta_ne <- function(other) {
+  !self$eq(other)
+}
+
+#' Get a list with the root column name
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' e <- pl$col("foo") * pl$col("bar")
+#' e$meta$root_names()
+#'
+#' e_filter <- pl$col("foo")$filter(pl$col("bar") == 13)
+#' e_filter$meta$root_names()
+#'
+#' e_sum_over <- pl$sum("foo")$over("groups")
+#' e_sum_over$meta$root_names()
+#'
+#' e_sum_slice <- pl$sum("foo")$slice(pl$len() - 10, pl$col("bar"))
+#' e_sum_slice$meta$root_names()
+expr_meta_root_names <- function() {
+  self$`_rexpr`$meta_root_names()
+}
+
+#' Format the expression as a tree
+#'
+#' @inheritParams rlang::check_dots_empty0
+#' @param return_as_string Return the tree as a character vector? If `FALSE`
+#' (default), the tree is printed in the console.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' my_expr <- (pl$col("foo") * pl$col("bar"))$sum()$over(pl$col("ham")) / 2
+#' my_expr$meta$tree_format()
+expr_meta_tree_format <- function(..., return_as_string = FALSE) {
+  wrap({
+    check_dots_empty0(...)
+    out <- self$`_rexpr`$meta_tree_format()
+    if (isTRUE(return_as_string)) {
+      out
+    } else {
+      cat(out)
+    }
+  })
+}
+
+# TODO: add examples with selectors when implemented
+#' Indicate if this expression only selects columns (optionally with aliasing)
+#'
+#' This can include bare columns, column matches by regex or dtype, selectors
+#' and exclude ops, and (optionally) column/expression aliasing.
+#'
+#' @inheritParams rlang::check_dots_empty0
+#' @param allow_aliasing If `FALSE` (default), any aliasing is not considered
+#' pure column selection. Set `TRUE` to allow for column selection that also
+#' includes aliasing.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' e <- pl$col("foo")
+#' e$meta$is_column_selection()
+#'
+#' e <- pl$col("foo")$alias("bar")
+#' e$meta$is_column_selection()
+#'
+#' e$meta$is_column_selection(allow_aliasing = TRUE)
+#'
+#' e <- pl$col("foo") * pl$col("bar")
+#' e$meta$is_column_selection()
+expr_meta_is_column_selection <- function(..., allow_aliasing = FALSE) {
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$meta_is_column_selection(allow_aliasing)
+  })
+}
+
+#' Indicate if this expression expands to columns that match a regex pattern
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' e <- pl$col("^.*$")$name$prefix("foo_")
+#' e$meta$is_regex_projection()
+expr_meta_is_regex_projection <- function() {
+  wrap({
+    self$`_rexpr`$meta_is_regex_projection()
   })
 }

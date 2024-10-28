@@ -1,8 +1,37 @@
 use crate::{PlRExpr, RPolarsErr};
+use polars::prelude::Expr;
+use polars_core::utils::Wrap;
 use savvy::{savvy, Result, Sexp};
 
 #[savvy]
 impl PlRExpr {
+    fn meta_eq(&self, other: &PlRExpr) -> Result<Sexp> {
+        let out = self.inner.clone() == other.inner.clone();
+        out.try_into()
+    }
+
+    // TODO: fix this
+    // fn meta_pop(&self) -> Result<Vec<&PlRExpr>> {
+    //     let exprs = self.inner.clone().meta().pop().map_err(RPolarsErr::from)?;
+    //     let exprs = <Wrap<Vec<Expr>>>::from(exprs)
+    //         .0
+    //         .iter()
+    //         .map(|x| <&PlRExpr>::from(x.inner).clone())
+    //         .collect::<Vec<&PlRExpr>>();
+    //     Ok(exprs)
+    // }
+
+    fn meta_root_names(&self) -> Result<Sexp> {
+        self.inner
+            .clone()
+            .meta()
+            .root_names()
+            .iter()
+            .map(|name| name.to_string())
+            .collect::<Vec<String>>()
+            .try_into()
+    }
+
     fn meta_output_name(&self) -> Result<Sexp> {
         let name = self
             .inner
@@ -64,5 +93,27 @@ impl PlRExpr {
 
     fn _meta_as_selector(&self) -> Result<Self> {
         Ok(self.inner.clone().meta()._into_selector().into())
+    }
+
+    fn meta_tree_format(&self) -> Result<Sexp> {
+        let e = self
+            .inner
+            .clone()
+            .meta()
+            .into_tree_formatter()
+            .map_err(RPolarsErr::from)?;
+        format!("{e}").try_into()
+    }
+
+    fn meta_is_regex_projection(&self) -> Result<Sexp> {
+        self.inner.clone().meta().is_regex_projection().try_into()
+    }
+
+    fn meta_is_column_selection(&self, allow_aliasing: bool) -> Result<Sexp> {
+        self.inner
+            .clone()
+            .meta()
+            .is_column_selection(allow_aliasing)
+            .try_into()
     }
 }
