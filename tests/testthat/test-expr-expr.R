@@ -30,228 +30,183 @@ test_that("map_batches works", {
   )
 })
 
-# test_that("expression boolean operators", {
-#   expect_true(inherits(pl$col("foo") == pl$col("bar"), "polars_expr"))
-#   expect_true(inherits(pl$col("foo") <= pl$col("bar"), "polars_expr"))
-#   expect_true(inherits(pl$col("foo") >= pl$col("bar"), "polars_expr"))
-#   expect_true(inherits(pl$col("foo") != pl$col("bar"), "polars_expr"))
+test_that("expression boolean operators", {
+  expect_true(inherits(pl$col("foo") == pl$col("bar"), "polars_expr"))
+  expect_true(inherits(pl$col("foo") <= pl$col("bar"), "polars_expr"))
+  expect_true(inherits(pl$col("foo") >= pl$col("bar"), "polars_expr"))
+  expect_true(inherits(pl$col("foo") != pl$col("bar"), "polars_expr"))
 
-#   expect_true(inherits(pl$col("foo") > pl$lit(5), "polars_expr"))
-#   expect_true(inherits(pl$col("foo") < pl$lit(5), "polars_expr"))
-#   expect_true(inherits(pl$col("foo") > 5, "polars_expr"))
-#   expect_true(inherits(pl$col("foo") < 5, "polars_expr"))
-#   expect_true(inherits(!pl$col("foobar"), "polars_expr"))
+  expect_true(inherits(pl$col("foo") > pl$lit(5), "polars_expr"))
+  expect_true(inherits(pl$col("foo") < pl$lit(5), "polars_expr"))
+  expect_true(inherits(pl$col("foo") > 5, "polars_expr"))
+  expect_true(inherits(pl$col("foo") < 5, "polars_expr"))
+  expect_true(inherits(!pl$col("foobar"), "polars_expr"))
+})
 
+make_cases <- function() {
+  tibble::tribble(
+    ~.test_name, ~fn,
+    "gt", ">",
+    "gte", ">=",
+    "lt", "<",
+    "lte", "<=",
+    "eq", "==",
+    "neq", "!=",
+  )
+}
 
-#   cmp_operators_df <- pl$DataFrame(list())$with_columns(
-#     (pl$lit(1) < 2)$alias("1 lt 2"),
-#     (pl$lit(1) < 1)$alias("1 lt 1 not")$not(),
-#     (pl$lit(2) > 1)$alias("2 gt 1"),
-#     (pl$lit(1) > 1)$alias("1 gt 1 not")$not(),
-#     (pl$lit(1) == 1)$alias("1 eq 1"),
-#     (pl$lit(1) == 2)$alias("1 eq 2 not")$not(),
-#     (pl$lit(1) <= 1)$alias("1 lt_eq 1"),
-#     (pl$lit(2) <= 1)$alias("2 lt_eq 1 not")$not(),
-#     (pl$lit(2) >= 2)$alias("2 gt_eq 2"),
-#     (pl$lit(1) >= 2)$alias("1 gt_eq 2 not")$not(),
-#     (pl$lit(2) != 1)$alias("2 not eq 1"),
-#     (pl$lit(2) != 2)$alias("2 not eq 1 not")$not(),
-#     (pl$lit(TRUE)$not() == pl$lit(FALSE))$alias("not true == false"),
-#     (pl$lit(TRUE) != pl$lit(FALSE))$alias("true != false"),
-#     (pl$lit(TRUE)$not() == FALSE)$alias("not true == false wrap"),
-#     (pl$lit(TRUE) != FALSE)$alias("true != false wrap")
-#   )
+patrick::with_parameters_test_that(
+  "ops symbol work with expressions",
+  {
+    # every time, 4 tests:
+    # - 2 exprs
+    # - 1 expr then 1 non-expr
+    # - 1 non-expr then 1 expr
+    # - 2 non-exprs
 
-#   expect_equal(
-#     cmp_operators_df |>
-#       as.list() |>
-#       lengths() |>
-#       unique(),
-#     0
-#   )
-# })
+    dat <- as_polars_df(mtcars)
+    dat_exp <- data.frame(
+      mpg = do.call(fn, list(mtcars$mpg, 2)),
+      cyl = do.call(fn, list(2, mtcars$cyl)),
+      hp = do.call(fn, list(mtcars$hp, max(mtcars$drat))),
+      literal = do.call(fn, list(2, 2))
+    ) |> as_polars_df()
 
-# make_cases <- function() {
-#   tibble::tribble(
-#     ~.test_name, ~fn,
-#     "gt", ">",
-#     "gte", ">=",
-#     "lt", "<",
-#     "lte", "<=",
-#     "eq", "==",
-#     "neq", "!=",
-#   )
-# }
+    expect_equal(
+      dat$select(
+        do.call(fn, list(pl$col("mpg"), 2)),
+        # TODO: this $alias() shouldn't be needed but if I don't put it the
+        # name is "literal" because $div() calls $lit() under the hood
+        do.call(fn, list(2, pl$col("cyl")))$alias("cyl"),
+        do.call(fn, list(pl$col("hp"), pl$col("drat")$max())),
+        do.call(fn, list(2, 2))
+      ),
+      dat_exp
+    )
+  },
+  .cases = make_cases()
+)
 
-# patrick::with_parameters_test_that(
-#   "ops symbol work with expressions",
-#   {
-#     # every time, 4 tests:
-#     # - 2 exprs
-#     # - 1 expr then 1 non-expr
-#     # - 1 non-expr then 1 expr
-#     # - 2 non-exprs
+# & and | require another test dataset, it can't be the one above
+test_that("logical ops symbol work with expressions", {
+  dat <- pl$DataFrame(
+    x = c(TRUE, FALSE, TRUE, FALSE),
+    y = c(TRUE, TRUE, FALSE, FALSE)
+  )
+  dat_df <- dat |> as.data.frame()
+  expect_equal(
+    dat$select(
+      (pl$col("x") & TRUE)$alias("oneexp_onelit"),
+      (FALSE & pl$col("y"))$alias("onelit_oneexp"),
+      pl$col("x") & pl$col("y"),
+      FALSE & TRUE
+    ),
+    pl$select(
+      oneexp_onelit = dat_df$x & TRUE,
+      onelit_oneexp = FALSE & dat_df$y,
+      x = dat_df$x & dat_df$y,
+      literal = pl$lit(FALSE & TRUE)
+    )
+  )
+  expect_equal(
+    dat$select(
+      (pl$col("x") | TRUE)$alias("oneexp_onelit"),
+      (FALSE | pl$col("y"))$alias("onelit_oneexp"),
+      pl$col("x") | pl$col("y"),
+      FALSE | TRUE
+    ),
+    pl$select(
+      oneexp_onelit = dat_df$x | TRUE,
+      onelit_oneexp = FALSE | dat_df$y,
+      x = dat_df$x | dat_df$y,
+      literal = pl$lit(FALSE | TRUE)
+    )
+  )
+})
 
-#     dat <- as_polars_df(mtcars)
-#     dat_exp <- data.frame(
-#       mpg = do.call(fn, list(mtcars$mpg, 2)),
-#       cyl = do.call(fn, list(2, mtcars$cyl)),
-#       hp = do.call(fn, list(mtcars$hp, max(mtcars$drat))),
-#       literal = do.call(fn, list(2, 2))
-#     ) |> as_polars_df()
+test_that("count + unique + n_unique", {
+  df <- as_polars_df(iris)
+  expect_equal(
+    df$select(pl$all()$unique()$count()),
+    pl$DataFrame(!!!lapply(iris, \(x) length(unique(x))))$cast(pl$UInt32)
+  )
 
-#     expect_equal(
-#       dat$select(
-#         do.call(fn, list(pl$col("mpg"), 2)),
-#         # TODO: this $alias() shouldn't be needed but if I don't put it the
-#         # name is "literal" because $div() calls $lit() under the hood
-#         do.call(fn, list(2, pl$col("cyl"))),
-#         do.call(fn, list(pl$col("hp"), pl$col("drat")$max())),
-#         do.call(fn, list(2, 2))
-#       ),
-#       dat_exp
-#     )
-#   },
-#   .cases = make_cases()
-# )
+  expect_equal(
+    df$select(pl$all()$unique()$len()),
+    pl$DataFrame(!!!lapply(iris, \(x) length(unique(x))))$cast(pl$UInt32)
+  )
 
-# # & and | require another test dataset, it can't be the one above
-# test_that("logical ops symbol work with expressions", {
-#   dat <- pl$DataFrame(
-#     x = c(TRUE, FALSE, TRUE, FALSE),
-#     y = c(TRUE, TRUE, FALSE, FALSE)
-#   )
-#   dat_df <- dat |> as.data.frame()
-#   expect_equal(
-#     dat$select(
-#       (pl$col("x") & TRUE)$alias("oneexp_onelit"),
-#       (FALSE & pl$col("y"))$alias("onelit_oneexp"),
-#       pl$col("x") & pl$col("y"),
-#       FALSE & TRUE
-#     ),
-#     pl$DataFrame(
-#       oneexp_onelit = dat_df$x & TRUE,
-#       onelit_oneexp = FALSE & dat_df$y,
-#       x = dat_df$x & dat_df$y,
-#       literal = FALSE & TRUE
-#     )
-#   )
-#   expect_equal(
-#     dat$select(
-#       (pl$col("x") | TRUE)$alias("oneexp_onelit"),
-#       (FALSE | pl$col("y"))$alias("onelit_oneexp"),
-#       pl$col("x") | pl$col("y"),
-#       FALSE | TRUE
-#     ),
-#     pl$DataFrame(
-#       oneexp_onelit = dat_df$x | TRUE,
-#       onelit_oneexp = FALSE | dat_df$y,
-#       x = dat_df$x | dat_df$y,
-#       literal = FALSE | TRUE
-#     )
-#   )
-# })
+  expect_equal(
+    df$select(pl$all()$n_unique()),
+    pl$DataFrame(!!!lapply(iris, \(x) length(unique(x))))$cast(pl$UInt32)
+  )
 
+  expect_equal(
+    pl$DataFrame(a = c("a", "b", "a", "b", "c"))$select(pl$col("a")$unique(maintain_order = TRUE)),
+    pl$DataFrame(a = c("a", "b", "c"))
+  )
+})
 
-# test_that("count + unique + n_unique", {
-#   expect_equal(
-#     as_polars_df(iris)$select(pl$all()$unique()$count()) |> lapply(as.numeric),
-#     lapply(iris, \(x) length(unique(x)))
-#   )
+test_that("$len() and $count() don't have the same behavior for nulls", {
+  expect_equal(
+    pl$DataFrame(x = c(1, 2, NA))$select(pl$col("x")$len()),
+    pl$DataFrame(x = 3)$cast(pl$UInt32)
+  )
+  expect_equal(
+    pl$DataFrame(x = c(1, 2, NA))$select(pl$col("x")$count()),
+    pl$DataFrame(x = 2)$cast(pl$UInt32)
+  )
+})
 
-#   expect_equal(
-#     as_polars_df(iris)$select(pl$all()$unique()$len()) |> lapply(as.numeric),
-#     lapply(iris, \(x) length(unique(x)))
-#   )
+test_that("drop_nans drop_nulls", {
+  df <- pl$DataFrame(x = c(1.0, 2.0, NaN, NA))
 
-#   expect_equal(
-#     as_polars_df(iris)$select(pl$all()$n_unique()) |> lapply(as.numeric),
-#     lapply(iris, \(x) length(unique(x)))
-#   )
+  expect_equal(
+    df$select(pl$col("x")$drop_nans()),
+    pl$DataFrame(x = c(1.0, 2.0, NA))
+  )
 
-#   expect_equal(
-#     pl$DataFrame(list(a = 1:100))$select(pl$all()$unique(maintain_order = TRUE)),
-#     list(a = 1:100)
-#   )
-# })
+  expect_equal(
+    df$select(pl$col("x")$drop_nulls()),
+    pl$DataFrame(x = c(1.0, 2.0, NaN))
+  )
+})
 
-# test_that("$len() and $count() don't have the same behavior for nulls", {
-#   expect_equal(
-#     pl$DataFrame(x = c(1, 2, NA))$select(pl$col("x")$len()),
-#     list(x = 3)
-#   )
-#   expect_equal(
-#     pl$DataFrame(x = c(1, 2, NA))$select(pl$col("x")$count()),
-#     list(x = 2)
-#   )
-# })
+test_that("first last heaad tail", {
+  df <- pl$DataFrame(a = 1:11)
+  expect_equal(
+    df$select(
+      first = pl$col("a")$first(),
+      last = pl$col("a")$last()
+    ),
+    pl$DataFrame(first = 1L, last = 11L)
+  )
 
+  df <- pl$DataFrame(a = 1:11)
+  expect_equal(
+    df$select(
+      head = pl$col("a")$head(),
+      tail = pl$col("a")$tail()
+    ),
+    pl$DataFrame(head = 1:10, tail = 2:11)
+  )
 
-# test_that("drop_nans drop_nulls", {
-#   x <- c(1.0, 2.0, NaN, NA)
+  expect_equal(
+    df$select(
+      head = pl$col("a")$head(2),
+      tail = pl$col("a")$tail(2)
+    ),
+    pl$DataFrame(head = 1:2, tail = 10:11)
+  )
 
-#   expect_equal(
-#     pl$DataFrame(list(x = x))$select(pl$col("x")$drop_nans()$drop_nulls())$get_column("x"),
-#     c(1.0, 2.0)
-#   )
-
-#   expect_equal(
-#     pl$DataFrame(list(x = x))$select(
-#       pl$col("x")$drop_nans()$drop_nulls()$count()
-#     )$get_column("x") |> as.numeric(),
-#     2L
-#   )
-
-#   expect_equal(
-#     pl$DataFrame(list(x = x))$select(pl$col("x")$drop_nulls())$get_column("x"),
-#     c(1.0, 2.0, NaN)
-#   )
-
-#   expect_equal(
-#     pl$DataFrame(list(x = x))$select(pl$col("x")$drop_nans())$get_column("x"),
-#     c(1.0, 2.0, NA)
-#   )
-# })
-
-# test_that("first last heaad tail", {
-#   check_list <- pl$DataFrame(list(a = 1:11))$select(
-#     (pl$col("a")$first() == 1L)$alias("1 is first"),
-#     (pl$col("a")$last() == 11L)$alias("11 is last")
-#   )$to_data_frame(check.names = FALSE)
-
-#   results <- unlist(check_list)
-#   fails <- results[!unlist(results)]
-#   expect_named(fails, character())
-
-#   df <- pl$DataFrame(list(a = 1:11))$select(
-#     pl$col("a")$head()$alias("head10"),
-#     pl$col("a")$tail()$alias("tail10")
-#   )
-
-#   expect_equal(
-#     df,
-#     data.frame(head10 = 1:10, tail10 = 2:11)
-#   )
-
-#   df <- pl$DataFrame(list(a = 1:11))$select(
-#     pl$col("a")$head(2)$alias("head2"),
-#     pl$col("a")$tail(2)$alias("tail2")
-#   )
-#   expect_equal(
-#     df,
-#     data.frame(head2 = 1:2, tail2 = 10:11)
-#   )
-
-#   # limit is an alias for head
-#   df <- pl$DataFrame(list(a = 1:11))$select(
-#     pl$col("a")$limit(2)$alias("limit2"),
-#     pl$col("a")$tail(2)$alias("tail2")
-#   )
-#   expect_equal(
-#     df,
-#     data.frame(limit2 = 1:2, tail2 = 10:11)
-#   )
-# })
+  # limit is an alias for head
+  expect_equal(
+    df$select(
+      limit = pl$col("a")$limit(3)
+    ),
+    pl$DataFrame(limit = 1:3)
+  )
+})
 
 test_that("is_null", {
   df <- pl$DataFrame(
@@ -437,12 +392,12 @@ test_that("lit expr", {
 })
 
 test_that("prefix suffix reverse", {
-  df <- pl$DataFrame(list(
+  df <- pl$DataFrame(
     A = c(1, 2, 3, 4, 5),
     fruits = c("banana", "banana", "apple", "apple", "banana"),
     B = c(5, 4, 3, 2, 1),
     cars = c("beetle", "audi", "beetle", "beetle", "beetle")
-  ))
+  )
 
   df2 <- df$select(
     pl$all(),
@@ -463,8 +418,8 @@ test_that("prefix suffix reverse", {
   )
 
   expect_equal(
-    df2$get_column("A_reverse"),
-    rev(df2$get_column("A"))
+    df2$select("A_reverse"),
+    pl$DataFrame(A_reverse = c(5, 4, 3, 2, 1))
   )
 })
 

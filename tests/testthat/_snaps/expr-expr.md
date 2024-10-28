@@ -16,6 +16,111 @@
       Caused by error:
       ! User function raised an error
 
+# $over() with mapping_strategy
+
+    Code
+      df$select(pl$col("val")$top_k(2)$over("a"))
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! the length of the window expression did not match that of the group
+      
+      Error originated in expression: 'col("val").top_k([dyn float: 2.0]).over([col("a")])'
+
+# to_physical + cast
+
+    Code
+      as_polars_df(iris)$with_columns(pl$col("Species")$cast(pl$String)$cast(pl$
+        Boolean))
+    Condition
+      Error in `as_polars_df(iris)$with_columns()`:
+      ! Evaluation failed in `$with_columns()`.
+      Caused by error:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! Invalid operation: casting from Utf8View to Boolean not supported
+
+---
+
+    Code
+      df_big_n$with_columns(pl$col("big")$cast(pl$Int32))
+    Condition
+      Error in `df_big_n$with_columns()`:
+      ! Evaluation failed in `$with_columns()`.
+      Caused by error:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! Invalid operation: conversion from `i64` to `i32` failed in column 'big' for 1 out of 1 values: [1125899906842624]
+
+# exclude
+
+    Code
+      df$select(pl$all()$exclude("Species", pl$Boolean))$columns
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$exclude()`.
+      Caused by error:
+      ! cannot exclude by both column name and dtype; use a selector instead
+
+---
+
+    Code
+      df$select(pl$all()$exclude(foo = "Species"))
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$exclude()`.
+      Caused by error:
+      ! Arguments in `...` must be passed by position, not name.
+      x Problematic argument:
+      * foo = "Species"
+
+# Expr_append
+
+    Code
+      pl$select(pl$lit("Bob")$append(FALSE, upcast = FALSE))
+    Condition
+      Error:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! type Boolean is incompatible with expected type String
+
+# gather that
+
+    Code
+      pl$select(pl$lit(0:10)$gather(11))
+    Condition
+      Error:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! gather indices are out of bounds
+
+# fill_nan() works
+
+    Code
+      pl$DataFrame(!!!l)$select(pl$col("a")$fill_nan(10:11))
+    Condition
+      Error:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! lengths don't match: shapes of `self`, `mask` and `other` are not suitable for `zip_with` operation
+
 # std var
 
     Code
