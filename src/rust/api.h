@@ -301,6 +301,8 @@ SEXP savvy_PlRExpr_shrink_dtype__ffi(SEXP self__);
 SEXP savvy_PlRExpr_set_sorted_flag__ffi(SEXP self__, SEXP c_arg__descending);
 SEXP savvy_PlRExpr_to_physical__ffi(SEXP self__);
 SEXP savvy_PlRExpr_rolling__ffi(SEXP self__, SEXP c_arg__index_column, SEXP c_arg__period, SEXP c_arg__offset, SEXP c_arg__closed);
+SEXP savvy_PlRExpr_exclude__ffi(SEXP self__, SEXP c_arg__columns);
+SEXP savvy_PlRExpr_exclude_dtype__ffi(SEXP self__, SEXP c_arg__dtypes);
 SEXP savvy_PlRExpr_list_len__ffi(SEXP self__);
 SEXP savvy_PlRExpr_list_contains__ffi(SEXP self__, SEXP c_arg__other);
 SEXP savvy_PlRExpr_list_max__ffi(SEXP self__);

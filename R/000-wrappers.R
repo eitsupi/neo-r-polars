@@ -1993,6 +1993,18 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
   }
 }
 
+`PlRExpr_exclude` <- function(self) {
+  function(`columns`) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_exclude__impl, `self`, `columns`))
+  }
+}
+
+`PlRExpr_exclude_dtype` <- function(self) {
+  function(`dtypes`) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_exclude_dtype__impl, `self`, `dtypes`))
+  }
+}
+
 `PlRExpr_list_len` <- function(self) {
   function() {
     .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_list_len__impl, `self`))
@@ -2938,6 +2950,8 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
   e$`set_sorted_flag` <- `PlRExpr_set_sorted_flag`(ptr)
   e$`to_physical` <- `PlRExpr_to_physical`(ptr)
   e$`rolling` <- `PlRExpr_rolling`(ptr)
+  e$`exclude` <- `PlRExpr_exclude`(ptr)
+  e$`exclude_dtype` <- `PlRExpr_exclude_dtype`(ptr)
   e$`list_len` <- `PlRExpr_list_len`(ptr)
   e$`list_contains` <- `PlRExpr_list_contains`(ptr)
   e$`list_max` <- `PlRExpr_list_max`(ptr)

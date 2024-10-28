@@ -1499,6 +1499,16 @@ SEXP savvy_PlRExpr_rolling__impl(SEXP self__, SEXP c_arg__index_column, SEXP c_a
     return handle_result(res);
 }
 
+SEXP savvy_PlRExpr_exclude__impl(SEXP self__, SEXP c_arg__columns) {
+    SEXP res = savvy_PlRExpr_exclude__ffi(self__, c_arg__columns);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_exclude_dtype__impl(SEXP self__, SEXP c_arg__dtypes) {
+    SEXP res = savvy_PlRExpr_exclude_dtype__ffi(self__, c_arg__dtypes);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRExpr_list_len__impl(SEXP self__) {
     SEXP res = savvy_PlRExpr_list_len__ffi(self__);
     return handle_result(res);
@@ -2624,6 +2634,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_set_sorted_flag__impl", (DL_FUNC) &savvy_PlRExpr_set_sorted_flag__impl, 2},
     {"savvy_PlRExpr_to_physical__impl", (DL_FUNC) &savvy_PlRExpr_to_physical__impl, 1},
     {"savvy_PlRExpr_rolling__impl", (DL_FUNC) &savvy_PlRExpr_rolling__impl, 5},
+    {"savvy_PlRExpr_exclude__impl", (DL_FUNC) &savvy_PlRExpr_exclude__impl, 2},
+    {"savvy_PlRExpr_exclude_dtype__impl", (DL_FUNC) &savvy_PlRExpr_exclude_dtype__impl, 2},
     {"savvy_PlRExpr_list_len__impl", (DL_FUNC) &savvy_PlRExpr_list_len__impl, 1},
     {"savvy_PlRExpr_list_contains__impl", (DL_FUNC) &savvy_PlRExpr_list_contains__impl, 2},
     {"savvy_PlRExpr_list_max__impl", (DL_FUNC) &savvy_PlRExpr_list_max__impl, 1},

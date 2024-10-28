@@ -169,7 +169,7 @@ expr__mul <- function(other) {
 expr__truediv <- function(other) {
   wrap({
     other <- as_polars_expr(other, as_lit = TRUE)
-    self$`_rexpr`$true_div(other$`_rexpr`)
+    self$`_rexpr`$div(other$`_rexpr`)
   })
 }
 
@@ -414,13 +414,43 @@ expr__alias <- function(name) {
     wrap()
 }
 
-# TODO-REWRITE: how should we handle the columns + *more_columns arguments of
-# Python?
-# #' Exclude columns from a multi-column expression.
-# expr__exclude <- function(columns, ...) {
-#   self$`_rexpr`$not() |>
-#     wrap()
-# }
+
+#' Exclude columns from a multi-column expression.
+#' 
+#' @param ... The name or datatype of the column(s) to exclude. Accepts regular
+#' expression input. Regular expressions should start with `^` and end with `$`.
+#' 
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(aa = 1:2, ba = c("a", NA), cc = c(NA, 2.5))
+#' df
+#' 
+#' # Exclude by column name(s):
+#' df$select(pl$all()$exclude("ba"))
+#' 
+#' # Exclude by regex, e.g. removing all columns whose names end with the
+#' # letter "a":
+#' df$select(pl$all()$exclude("^.*a$"))
+#' 
+#' # Exclude by dtype(s), e.g. removing all columns of type Int64 or Float64:
+#' df$select(pl$all()$exclude(pl$Int64, pl$Float64))
+expr__exclude <- function(...) {
+  wrap({
+    check_dots_unnamed()
+    by <- list2(...)
+    exclude_cols <- Filter(is.character, by)
+    exclude_dtypes <- Filter(is_polars_dtype, by)
+
+    if (length(exclude_cols) > 0 && length(exclude_dtypes) > 0) {
+      abort("cannot exclude by both column name and dtype; use a selector instead")
+    } else if (length(exclude_cols) > 0) {
+      self$`_rexpr`$exclude(unlist(exclude_cols))
+    } else if (length(exclude_dtypes) > 0) {
+      self$`_rexpr`$exclude_dtype(exclude_dtypes)
+    }
+  })
+
+}
 
 
 #' Negate a boolean expression
@@ -3760,7 +3790,7 @@ expr__extend_constant <- function(value, n) {
 #' )
 expr__fill_nan <- function(value) {
   wrap({
-    self$`_rexpr`$fill_nan(as_polars_expr(value)$`_rexpr`)
+    self$`_rexpr`$fill_nan(as_polars_expr(value, as_lit = TRUE)$`_rexpr`)
   })
 }
 
