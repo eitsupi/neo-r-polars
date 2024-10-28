@@ -1271,151 +1271,156 @@ test_that("map_batches works", {
 #   )
 # })
 
-# test_that("std var", {
-#   expect_equal(
-#     pl$select(
-#       pl$lit(1:5)$std()$alias("std"),
-#       pl$lit(c(NA, 1:5))$std()$alias("std_missing")
-#     ),
-#     list(
-#       std = sd(1:5),
-#       std_missing = sd(c(NA, 1:5), na.rm = TRUE)
-#     )
-#   )
-#   expect_true(pl$select(pl$lit(1:5)$std(3))[[1L]] != sd(1:5))
+test_that("std var", {
+  expect_equal(
+    pl$select(
+      std = pl$lit(1:5)$std(),
+      std_missing = pl$lit(c(NA, 1:5))$std()
+    ),
+    pl$DataFrame(
+      std = sd(1:5),
+      std_missing = sd(c(NA, 1:5), na.rm = TRUE)
+    )
+  )
+  expect_equal(
+    pl$select(pl$lit(1:5)$std(3) != sd(1:5)) |> 
+      as.list(),
+    list(literal = TRUE)
+  )
 
+  expect_equal(
+    pl$select(
+      var = pl$lit(1:5)$var(),
+      var_missing = pl$lit(c(NA, 1:5))$var()
+    ),
+    pl$DataFrame(
+      var = var(1:5),
+      var_missing = var(c(NA, 1:5), na.rm = TRUE)
+    )
+  )
+  expect_equal(
+    pl$select(pl$lit(1:5)$var(3) != var(1:5)) |> 
+      as.list(),
+    list(literal = TRUE)
+  )
 
-#   expect_equal(
-#     pl$select(
-#       pl$lit(1:5)$var()$alias("var"),
-#       pl$lit(c(NA, 1:5))$var()$alias("var_missing")
-#     ),
-#     list(
-#       var = var(1:5),
-#       var_missing = var(c(NA, 1:5), na.rm = TRUE)
-#     )
-#   )
-#   expect_true(pl$select(pl$lit(1:5)$var(3))[[1L]] != var(1:5))
+  # trigger u8 conversion errors
+  expect_snapshot(
+    pl$lit(1:321)$std(256),
+    error = TRUE
+  )
 
-#   # trigger u8 conversion errors
-#   expect_snapshot(
-#     pl$lit(1:321)$std(256),
-#     error = TRUE
-#   )
+  expect_snapshot(
+    pl$lit(1:321)$var(-1),
+    error = TRUE
+  )
+})
 
-#   expect_snapshot(
-#     pl$lit(1:321)$var(-1),
-#     error = TRUE
-#   )
-# })
+test_that("is_unique is_first_distinct is_last_distinct is_duplicated", {
+  v <- c(1, 1, 2, 2, 3, NA, NaN, Inf)
+  expect_equal(
+    pl$select(
+      is_unique = pl$lit(v)$is_unique(),
+      is_first_distinct = pl$lit(v)$is_first_distinct(),
+      is_last_distinct = pl$lit(v)$is_last_distinct(),
+      is_duplicated = pl$lit(v)$is_duplicated(),
+      R_duplicated = pl$lit(v)$is_first_distinct()$not()
+    ),
+    pl$DataFrame(
+      is_unique = !v %in% v[duplicated(v)],
+      is_first_distinct = !duplicated(v),
+      is_last_distinct = !xor(v %in% v[duplicated(v)], duplicated(v)),
+      is_duplicated = v %in% v[duplicated(v)],
+      R_duplicated = duplicated(v)
+    )
+  )
+})
 
+test_that("nan_min nan_max", {
+  l <- list(
+    a = c(1, NaN, -Inf, 3),
+    b = c(NA, 1:3)
+  )
 
-# test_that("is_unique is_first_distinct is_last_distinct is_duplicated", {
-#   v <- c(1, 1, 2, 2, 3, NA, NaN, Inf)
-#   expect_equal(
-#     pl$select(
-#       pl$lit(v)$is_unique()$alias("is_unique"),
-#       pl$lit(v)$is_first_distinct()$alias("is_first_distinct"),
-#       pl$lit(v)$is_last_distinct()$alias("is_last_distinct"),
-#       pl$lit(v)$is_duplicated()$alias("is_duplicated"),
-#       pl$lit(v)$is_first_distinct()$not()$alias("R_duplicated")
-#     ),
-#     list(
-#       is_unique = !v %in% v[duplicated(v)],
-#       is_first_distinct = !duplicated(v),
-#       is_last_distinct = !xor(v %in% v[duplicated(v)], duplicated(v)),
-#       is_duplicated = v %in% v[duplicated(v)],
-#       R_duplicated = duplicated(v)
-#     )
-#   )
-# })
+  expect_equal(
+    pl$DataFrame(!!!l)$select(
+      pl$col("a")$nan_min()$name$suffix("_nan_min"),
+      pl$col("b")$nan_min()$name$suffix("_nan_min"),
+      pl$col("a")$nan_max()$name$suffix("_nan_max"),
+      pl$col("b")$nan_max()$name$suffix("_nan_max")
+    ),
+    pl$DataFrame(
+      a_nan_min = min(l$a),
+      b_nan_min = min(l$b, na.rm = TRUE),
+      a_nan_max = max(l$a),
+      b_nan_max = max(l$b, na.rm = TRUE)
+    )
+  )
+})
 
-# test_that("nan_min nan_max", {
-#   l <- list(
-#     a = c(1, NaN, -Inf, 3),
-#     b = c(NA, 1:3)
-#   )
+test_that("product", {
+  l <- list(
+    a = c(1, NaN, -Inf, 3),
+    b = c(NA, 1:3) * 1, # integer32 currently not supported
+    c = c(1:4) * 1 # integer32 currently not supported
+  )
 
-#   expect_equal(
-#     pl$DataFrame(l)$select(
-#       pl$col("a")$nan_min()$name$suffix("_nan_min"),
-#       pl$col("b")$nan_min()$name$suffix("_nan_min"),
-#       pl$col("a")$nan_max()$name$suffix("_nan_max"),
-#       pl$col("b")$nan_max()$name$suffix("_nan_max")
-#     ),
-#     list(
-#       a_nan_min = min(l$a),
-#       b_nan_min = min(l$b, na.rm = TRUE),
-#       a_nan_max = max(l$a),
-#       b_nan_max = max(l$b, na.rm = TRUE)
-#     )
-#   )
-# })
+  expect_equal(
+    pl$DataFrame(!!!l)$select(
+      pl$col("a")$product(),
+      pl$col("b")$product(),
+      pl$col("c")$product()
+    ),
+    pl$DataFrame(
+      a = prod(l$a),
+      b = prod(l$b, na.rm = TRUE),
+      c = prod(l$c)
+    )
+  )
+})
 
+test_that("null count", {
+  l <- list(
+    a = c(NA, NaN, NA),
+    b = c(NA, 2, NA), # integer32 currently not supported
+    c = c(NaN, NaN, NaN) # integer32 currently not supported
+  )
 
-# test_that("product", {
-#   l <- list(
-#     a = c(1, NaN, -Inf, 3),
-#     b = c(NA, 1:3) * 1, # integer32 currently not supported
-#     c = c(1:4) * 1 # integer32 currently not supported
-#   )
+  is.na_only <- \(x) is.na(x) & !is.nan(x)
+  expect_equal(
+    pl$DataFrame(!!!l)$select(
+      pl$col("a")$null_count(),
+      pl$col("b")$null_count(),
+      pl$col("c")$null_count()
+    ),
+    pl$DataFrame(
+      a = sum(is.na_only(l$a)) * 1.0,
+      b = sum(is.na_only(l$b)) * 1.0,
+      c = sum(is.na_only(l$c)) * 1.0
+    )$cast(pl$UInt32)
+  )
+})
 
-#   expect_equal(
-#     pl$DataFrame(l)$select(
-#       pl$col("a")$product(),
-#       pl$col("b")$product(),
-#       pl$col("c")$product()
-#     ),
-#     list(
-#       a = prod(l$a),
-#       b = prod(l$b, na.rm = TRUE),
-#       c = prod(l$c)
-#     )
-#   )
-# })
+test_that("arg_unique", {
+  l <- list(
+    a = c(1:2, 1:3),
+    b = c("a", "A", "a", NA, "B"), # integer32 currently not supported
+    c = c(NaN, Inf, -Inf, 1, NA) # integer32 currently not supported
+  )
 
-# test_that("null count", {
-#   l <- list(
-#     a = c(NA, NaN, NA),
-#     b = c(NA, 2, NA), # integer32 currently not supported
-#     c = c(NaN, NaN, NaN) # integer32 currently not supported
-#   )
-
-#   is.na_only <- \(x) is.na(x) & !is.nan(x)
-#   expect_equal(
-#     pl$DataFrame(l)$select(
-#       pl$col("a")$null_count(),
-#       pl$col("b")$null_count(),
-#       pl$col("c")$null_count()
-#     ) |> lapply(as.numeric),
-#     list(
-#       a = sum(is.na_only(l$a)) * 1.0,
-#       b = sum(is.na_only(l$b)) * 1.0,
-#       c = sum(is.na_only(l$c)) * 1.0
-#     )
-#   )
-# })
-
-# test_that("arg_unique", {
-#   l <- list(
-#     a = c(1:2, 1:3),
-#     b = c("a", "A", "a", NA, "B"), # integer32 currently not supported
-#     c = c(NaN, Inf, -Inf, 1, NA) # integer32 currently not supported
-#   )
-
-#   expect_equal(
-#     pl$DataFrame(l)$select(
-#       pl$col("a")$arg_unique()$implode(),
-#       pl$col("b")$arg_unique()$implode(),
-#       pl$col("c")$arg_unique()$implode()
-#     ) |> lapply(\(x) x[[1]]) |> lapply(as.numeric),
-#     list(
-#       a = which(!duplicated(l$a)) - 1.0,
-#       b = which(!duplicated(l$b)) - 1.0,
-#       c = which(!duplicated(l$c)) - 1.0
-#     )
-#   )
-# })
+  expect_equal(
+    pl$DataFrame(!!!l)$select(
+      pl$col("a")$arg_unique()$implode(),
+      pl$col("b")$arg_unique()$implode(),
+      pl$col("c")$arg_unique()$implode()
+    ),
+    pl$DataFrame(
+      a = list(which(!duplicated(l$a)) - 1.0),
+      b = list(which(!duplicated(l$b)) - 1.0),
+      c = list(which(!duplicated(l$c)) - 1.0)
+    )$cast(pl$List(pl$UInt32))
+  )
+})
 
 # test_that("Expr_quantile", {
 #   v <- sample(0:100)
@@ -1479,154 +1484,146 @@ test_that("map_batches works", {
 #   )
 # })
 
+test_that("filter", {
+  pdf <- pl$DataFrame(
+    group_col = c("g1", "g1", "g2"),
+    b = c(1, 2, 3)
+  )
+
+  df <- pdf$group_by("group_col", .maintain_order = TRUE)$agg(
+    lt = pl$col("b")$filter(pl$col("b") < 2)$sum(),
+    gte = pl$col("b")$filter(pl$col("b") >= 2)$sum()
+  )
+
+  expect_equal(
+    df,
+    pl$DataFrame(
+      group_col = c("g1", "g2"),
+      lt = c(1, 0),
+      gte = c(2, 3)
+    )
+  )
+})
+
+test_that("explode/flatten", {
+  df <- pl$DataFrame(a = letters)$select(pl$col("a")$explode()$gather(0:5))
+
+  expect_equal(
+    df,
+    pl$DataFrame(a = letters[1:6])
+  )
+
+  # TODO-REWRITE: uncomment this
+  # little_iris <- iris[c(1:3, 51:53), ]
+  # listed_group_df <- pl$DataFrame(little_iris)$group_by("Species", maintain_order = TRUE)$agg(pl$all())
+  # vectors_df <- listed_group_df$select(
+  #   pl$col(c("Sepal.Width", "Sepal.Length"))$explode()
+  # )
+
+  # df <- listed_group_df
 
 
+  # # yikes kinda like by(), but all details are different
+  # x <- by(little_iris, as.character(little_iris$Species), FUN = list)
+  # df_ref <- as.data.frame(do.call(rbind, unname(lapply(x, lapply, I))))
+  # df_ref[] <- lapply(df_ref, lapply, unAsIs)
+  # df_ref$Species <- factor(sapply(df_ref$Species, function(x) head((x), 1)))
+  # row.names(df_ref) <- NULL
 
-# test_that("Expr_filter", {
-#   pdf <- pl$DataFrame(list(
-#     group_col = c("g1", "g1", "g2"),
-#     b = c(1, 2, 3)
-#   ))
+  # expect_equal(
+  #   df,
+  #   df_ref[, names(df)]
+  # )
+})
 
-#   df <- pdf$group_by("group_col", maintain_order = TRUE)$agg(
-#     pl$col("b")$filter(pl$col("b") < 2)$sum()$alias("lt"),
-#     pl$col("b")$filter(pl$col("b") >= 2)$sum()$alias("gte")
-#   )
-#   # row.names(df) = NULL
+test_that("gather_every", {
+  df <- pl$DataFrame(x = 0:24)$select(pl$col("x")$gather_every(6))
+  expect_equal(
+    df,
+    pl$DataFrame(x = seq(0L, 24L, 6L))
+  )
+})
 
-#   expect_equal(
-#     df,
-#     data.frame(
-#       group_col = c("g1", "g2"),
-#       lt = c(1, 0),
-#       gte = c(2, 3)
-#     )
-#   )
-# })
+test_that("is_between with literals", {
+  df <- pl$DataFrame(x = (1:5) * 1.0)
 
+  expect_equal(
+    df$select(pl$col("x")$is_between(2, 4)),
+    pl$DataFrame(x = c(FALSE, TRUE, TRUE, TRUE, FALSE))
+  )
+  expect_equal(
+    df$select(pl$col("x")$is_between(2, 4, "left")),
+    pl$DataFrame(x = c(FALSE, TRUE, TRUE, FALSE, FALSE))
+  )
+  expect_equal(
+    df$select(pl$col("x")$is_between(2, 4, "right")),
+    pl$DataFrame(x = c(FALSE, FALSE, TRUE, TRUE, FALSE))
+  )
+  expect_equal(
+    df$select(pl$col("x")$is_between(2, 4, "none")),
+    pl$DataFrame(x = c(FALSE, FALSE, TRUE, FALSE, FALSE))
+  )
+})
 
+test_that("is_between with expr", {
+  df <- pl$DataFrame(
+    x = c(1, 2, 3, 4, 5),
+    low = c(2, 2, 6, 2, 1),
+    upp = c(1, 3, 8, 2, NA)
+  )
 
-# test_that("Expr explode/flatten", {
-#   df <- pl$DataFrame(list(a = letters))$select(pl$col("a")$explode()$gather(0:5))
+  # strings parsed as columns
+  expect_equal(
+    df$select(pl$col("x")$is_between("low", "upp")),
+    pl$DataFrame(x = c(FALSE, TRUE, FALSE, FALSE, NA))
+  )
+  expect_equal(
+    df$select(pl$col("x")$is_between("low", "upp", "right")),
+    pl$DataFrame(x = c(FALSE, FALSE, FALSE, FALSE, NA))
+  )
 
-#   expect_equal(
-#     df$a,
-#     letters[1:6]
-#   )
+  # expression
+  expect_equal(
+    df$select(pl$col("x")$is_between(pl$col("low") - 3, "upp")),
+    pl$DataFrame(x = c(TRUE, TRUE, TRUE, FALSE, NA))
+  )
 
-#   little_iris <- iris[c(1:3, 51:53), ]
-#   listed_group_df <- pl$DataFrame(little_iris)$group_by("Species", maintain_order = TRUE)$agg(pl$all())
-#   vectors_df <- listed_group_df$select(
-#     pl$col(c("Sepal.Width", "Sepal.Length"))$explode()
-#   )
+  # expression + literal
+  expect_equal(
+    df$select(pl$col("x")$is_between(pl$col("low") - 3, 4)),
+    pl$DataFrame(x = c(TRUE, TRUE, TRUE, TRUE, FALSE))
+  )
+})
 
-#   df <- listed_group_df
-
-
-#   # yikes kinda like by(), but all details are different
-#   x <- by(little_iris, as.character(little_iris$Species), FUN = list)
-#   df_ref <- as.data.frame(do.call(rbind, unname(lapply(x, lapply, I))))
-#   df_ref[] <- lapply(df_ref, lapply, unAsIs)
-#   df_ref$Species <- factor(sapply(df_ref$Species, function(x) head((x), 1)))
-#   row.names(df_ref) <- NULL
-
-
-#   expect_equal(
-#     df,
-#     df_ref[, names(df)]
-#   )
-# })
-
-
-# test_that("gather_every", {
-#   df <- pl$DataFrame(list(a = 0:24))$select(pl$col("a")$gather_every(6))
-#   expect_equal(
-#     df[[1L]],
-#     seq(0L, 24L, 6L)
-#   )
-# })
-
-# test_that("is_between with literals", {
-#   df <- pl$DataFrame(a = (1:5) * 1.0)
-
-#   expect_equal(
-#     df$select(pl$col("a")$is_between(2, 4))[[1L]],
-#     c(FALSE, TRUE, TRUE, TRUE, FALSE)
-#   )
-#   expect_equal(
-#     df$select(pl$col("a")$is_between(2, 4, "left"))[[1L]],
-#     c(FALSE, TRUE, TRUE, FALSE, FALSE)
-#   )
-#   expect_equal(
-#     df$select(pl$col("a")$is_between(2, 4, "right"))[[1L]],
-#     c(FALSE, FALSE, TRUE, TRUE, FALSE)
-#   )
-#   expect_equal(
-#     df$select(pl$col("a")$is_between(2, 4, "none"))[[1L]],
-#     c(FALSE, FALSE, TRUE, FALSE, FALSE)
-#   )
-# })
-
-# test_that("is_between with expr", {
-#   df <- pl$DataFrame(
-#     var = c(1, 2, 3, 4, 5),
-#     low = c(2, 2, 6, 2, 1),
-#     upp = c(1, 3, 8, 2, NA)
-#   )
-
-#   # strings parsed as columns
-#   expect_equal(
-#     df$select(pl$col("var")$is_between("low", "upp"))[[1L]],
-#     c(FALSE, TRUE, FALSE, FALSE, NA)
-#   )
-#   expect_equal(
-#     df$select(pl$col("var")$is_between("low", "upp", "right"))[[1L]],
-#     c(FALSE, FALSE, FALSE, FALSE, NA)
-#   )
-
-#   # expression
-#   expect_equal(
-#     df$select(pl$col("var")$is_between(pl$col("low") - 3, "upp"))[[1L]],
-#     c(TRUE, TRUE, TRUE, FALSE, NA)
-#   )
-
-#   # expression + literal
-#   expect_equal(
-#     df$select(pl$col("var")$is_between(pl$col("low") - 3, 4))[[1L]],
-#     c(TRUE, TRUE, TRUE, TRUE, FALSE)
-#   )
-# })
-
+# TODO-REWRITE: comparison with NaN doesn't work
 # test_that("is_between with Inf/NaN", {
-#   df <- pl$DataFrame(var = c(1, 2, 3, 4, 5))
+#   df <- pl$DataFrame(x = c(1, 2, 3, 4, 5))
 
 #   expect_equal(
-#     df$select(pl$col("var")$is_between(2, Inf))[[1L]],
-#     c(FALSE, TRUE, TRUE, TRUE, TRUE)
+#     df$select(pl$col("x")$is_between(2, Inf)),
+#     pl$DataFrame(x = c(FALSE, TRUE, TRUE, TRUE, TRUE))
 #   )
 #   expect_equal(
-#     df$select(pl$col("var")$is_between(-Inf, 3))[[1L]],
-#     c(TRUE, TRUE, TRUE, FALSE, FALSE)
+#     df$select(pl$col("x")$is_between(-Inf, 3)),
+#     pl$DataFrame(x = c(TRUE, TRUE, TRUE, FALSE, FALSE))
 #   )
 #   expect_equal(
-#     df$select(pl$col("var")$is_between(NaN, 3))[[1L]],
-#     rep(FALSE, 5)
+#     df$select(pl$col("x")$is_between(NaN, 3)),
+#     pl$DataFrame(x = rep(FALSE, 5))
 #   )
-#   # in polars, NaN is always greater than any non-NaN value
-#   # https://docs.pola.rs/user-guide/concepts/data-types/overview/#floating-point
 #   expect_equal(
-#     df$select(pl$col("var")$is_between(3, NaN))[[1L]],
-#     c(FALSE, FALSE, TRUE, TRUE, TRUE)
+#     df$select(pl$col("x")$is_between(3, NaN)),
+#     pl$DataFrame(x = c(FALSE, FALSE, TRUE, TRUE, TRUE))
 #   )
 # })
 
-# test_that("is_between errors if wrong 'closed' arg", {
-#   df <- pl$DataFrame(var = c(1, 2, 3, 4, 5))
-#   expect_snapshot(
-#     df$select(pl$col("var")$is_between(1, 2, "foo")),
-#     error = TRUE
-#   )
-# })
+test_that("is_between errors if wrong 'closed' arg", {
+  df <- pl$DataFrame(var = c(1, 2, 3, 4, 5))
+  expect_snapshot(
+    df$select(pl$col("var")$is_between(1, 2, "foo")),
+    error = TRUE
+  )
+})
 
 # test_that("hash + reinterpret", {
 #   df <- as_polars_df(iris)
@@ -1663,8 +1660,6 @@ test_that("map_batches works", {
 #   )
 #   expect_equal(df_actual, df_ref)
 # })
-
-
 
 # test_that("inspect", {
 #   actual_txt <- capture_output(
@@ -1708,190 +1703,190 @@ test_that("map_batches works", {
 #   )
 # })
 
-# test_that("interpolate", {
-#   expect_equal(
-#     pl$select(pl$lit(c(1, NA, 4, NA, 100))$interpolate(method = "linear"))[[1L]],
-#     approx(c(1, NA, 4, NA, 100), xout = c(1:5))$y
-#   )
+test_that("interpolate", {
+  vals <- c(1, NA, 4, NA, 100)
+  expect_equal(
+    pl$DataFrame(a = vals)$select(pl$col("a")$interpolate(method = "linear")),
+    pl$DataFrame(a = approx(vals, xout = c(1:5))$y)
+  )
 
-#   expect_equal(
-#     pl$select(pl$lit(c(1, NA, 4, NA, 100, 90, NA, 60))$interpolate(method = "nearest"))[[1L]],
-#     approx(c(1, NA, 4, NA, 100, 90, NA, 60), xout = c(1:8), method = "constant", f = 1)$y
-#   )
-# })
+  vals <- c(1, NA, 4, NA, 100, 90, NA, 60)
+  expect_equal(
+    pl$DataFrame(a = vals)$select(pl$col("a")$interpolate(method = "nearest")),
+    pl$DataFrame(
+      a = approx(vals, xout = c(1:8), method = "constant", f = 1)$y
+    )
+  )
+})
 
+test_that("Expr_rolling_", {
+  df <- pl$DataFrame(a = 1:6)
 
+  expected <- pl$DataFrame(
+    min = c(NA_integer_, 1L:5L),
+    max = c(NA_integer_, 2L:6L),
+    mean = c(NA, 1.5, 2.5, 3.5, 4.5, 5.5),
+    sum = c(NA_integer_, 3L, 5L, 7L, 9L, 11L),
+    std = c(NA, rep(0.7071067811865476, 5)),
+    var = c(NA, rep(0.5, 5)),
+    median = c(NA, 1.5, 2.5, 3.5, 4.5, 5.5),
+    quantile_linear = c(NA, 1.33, 2.33, 3.33, 4.33, 5.33)
+  )
 
-# test_that("Expr_rolling_", {
-#   df <- pl$DataFrame(a = 1:6)
+  expect_equal(
+    df$select(
+      min = pl$col("a")$rolling_min(window_size = 2),
+      max = pl$col("a")$rolling_max(window_size = 2),
+      mean = pl$col("a")$rolling_mean(window_size = 2),
+      sum = pl$col("a")$rolling_sum(window_size = 2),
+      std = pl$col("a")$rolling_std(window_size = 2),
+      var = pl$col("a")$rolling_var(window_size = 2),
+      median = pl$col("a")$rolling_median(window_size = 2),
+      quantile_linear = pl$col("a")$rolling_quantile(
+        quantile = 0.33, window_size = 2, interpolation = "linear"
+      )
+    ),
+    expected
+  )
 
-#   expected <- data.frame(
-#     min = c(NA_integer_, 1L:5L),
-#     max = c(NA_integer_, 2L:6L),
-#     mean = c(NA, 1.5, 2.5, 3.5, 4.5, 5.5),
-#     sum = c(NA_integer_, 3L, 5L, 7L, 9L, 11L),
-#     std = c(NA, rep(0.7071067811865476, 5)),
-#     var = c(NA, rep(0.5, 5)),
-#     median = c(NA, 1.5, 2.5, 3.5, 4.5, 5.5),
-#     quantile_linear = c(NA, 1.33, 2.33, 3.33, 4.33, 5.33)
-#   )
+  # check skewness
+  df_actual_skew <- pl$DataFrame(a = iris$Sepal.Length)$
+    select(pl$col("a")$rolling_skew(window_size = 4)$head(10))
+  expect_equal(
+    df_actual_skew,
+    pl$DataFrame(a = c(
+      NA, NA, NA, 0.27803055565397, -1.5030755787344e-14, 0.513023958460299,
+      0.493382200218155, 0, 0.278030555653967, -0.186617740163675
+    ))
+  )
+})
 
-#   expect_equal(
-#     df$select(
-#       pl$col("a")$rolling_min(window_size = 2)$alias("min"),
-#       pl$col("a")$rolling_max(window_size = 2)$alias("max"),
-#       pl$col("a")$rolling_mean(window_size = 2)$alias("mean"),
-#       pl$col("a")$rolling_sum(window_size = 2)$alias("sum"),
-#       pl$col("a")$rolling_std(window_size = 2)$alias("std"),
-#       pl$col("a")$rolling_var(window_size = 2)$alias("var"),
-#       pl$col("a")$rolling_median(window_size = 2)$alias("median"),
-#       pl$col("a")$rolling_quantile(
-#         quantile = 0.33, window_size = 2, interpolation = "linear"
-#       )$alias("quantile_linear")
-#     ),
-#     expected
-#   )
+test_that("rolling_*_by", {
+  df <- pl$select(
+    a = 1:6,
+    date = pl$datetime_range(as.Date("2001-1-1"), as.Date("2001-1-6"), "1d")
+  )
 
-#   # check skewness
-#   df_actual_skew <- pl$DataFrame(a = iris$Sepal.Length)$select(pl$col("a")$rolling_skew(window_size = 4)$head(10))
-#   expect_equal(
-#     df_actual_skew[[1L]],
-#     c(
-#       NA, NA, NA, 0.27803055565397, -1.5030755787344e-14, 0.513023958460299,
-#       0.493382200218155, 0, 0.278030555653967, -0.186617740163675
-#     )
-#   )
-# })
+  expected <- pl$DataFrame(
+    min = c(1L, 1:5),
+    max = 1:6,
+    mean = c(1, 1.5, 2.5, 3.5, 4.5, 5.5),
+    sum = c(1L, 3L, 5L, 7L, 9L, 11L),
+    std = c(NA, rep(0.7071067811865476, 5)),
+    var = c(NA, rep(0.5, 5)),
+    median = c(1, 1.5, 2.5, 3.5, 4.5, 5.5),
+    quantile_linear = c(1, 1.33, 2.33, 3.33, 4.33, 5.33)
+  )
 
-# test_that("Expr_rolling_*_by", {
-#   df <- pl$DataFrame(
-#     a = 1:6,
-#     date = pl$datetime_range(as.Date("2001-1-1"), as.Date("2001-1-6"), "1d")
-#   )
+  expect_equal(
+    df$select(
+      min = pl$col("a")$rolling_min_by("date", window_size = "2d"),
+      max = pl$col("a")$rolling_max_by("date", window_size = "2d"),
+      mean = pl$col("a")$rolling_mean_by("date", window_size = "2d"),
+      sum = pl$col("a")$rolling_sum_by("date", window_size = "2d"),
+      std = pl$col("a")$rolling_std_by("date", window_size = "2d"),
+      var = pl$col("a")$rolling_var_by("date", window_size = "2d"),
+      median = pl$col("a")$rolling_median_by("date", window_size = "2d"),
+      quantile_linear = pl$col("a")$rolling_quantile_by(
+        quantile = 0.33, "date", window_size = "2d", interpolation = "linear"
+      )
+    ),
+    expected
+  )
+})
 
-#   expected <- data.frame(
-#     min = c(1L, 1:5),
-#     max = 1:6,
-#     mean = c(1, 1.5, 2.5, 3.5, 4.5, 5.5),
-#     sum = c(1L, 3L, 5L, 7L, 9L, 11L),
-#     std = c(NA, rep(0.7071067811865476, 5)),
-#     var = c(NA, rep(0.5, 5)),
-#     median = c(1, 1.5, 2.5, 3.5, 4.5, 5.5),
-#     quantile_linear = c(1, 1.33, 2.33, 3.33, 4.33, 5.33)
-#   )
+test_that("rolling_*_by only works with date/datetime", {
+  df <- pl$DataFrame(a = 1:6, id = 11:16)
 
-#   expect_equal(
-#     df$select(
-#       pl$col("a")$rolling_min_by("date", window_size = "2d")$alias("min"),
-#       pl$col("a")$rolling_max_by("date", window_size = "2d")$alias("max"),
-#       pl$col("a")$rolling_mean_by("date", window_size = "2d")$alias("mean"),
-#       pl$col("a")$rolling_sum_by("date", window_size = "2d")$alias("sum"),
-#       pl$col("a")$rolling_std_by("date", window_size = "2d")$alias("std"),
-#       pl$col("a")$rolling_var_by("date", window_size = "2d")$alias("var"),
-#       pl$col("a")$rolling_median_by("date", window_size = "2d")$alias("median"),
-#       pl$col("a")$rolling_quantile_by(
-#         quantile = 0.33, "date", window_size = "2d", interpolation = "linear"
-#       )$alias("quantile_linear")
-#     ),
-#     expected
-#   )
-# })
+  # TODO: uncomment when https://github.com/pola-rs/polars/issues/19491
+  # is resolved
+  # expect_snapshot(
+  #   df$select(pl$col("a")$rolling_min_by("id", window_size = "2i")),
+  #   error = TRUE
+  # )
+  expect_snapshot(
+    df$select(pl$col("a")$rolling_min_by(1, window_size = "2d")),
+    error = TRUE
+  )
+})
 
-# test_that("Expr_rolling_*_by only works with date/datetime", {
-#   df <- pl$DataFrame(a = 1:6, id = 11:16)
+test_that("rolling_*_by: arg 'min_periods'", {
+  df <- pl$select(
+    a = 1:6,
+    date = pl$datetime_range(as.Date("2001-1-1"), as.Date("2001-1-6"), "1d")
+  )
 
-#   expect_snapshot(
-#   df$select(pl$col("a")$rolling_min_by("id", window_size = "2i")),
-#   error = TRUE
-# )
+  expected <- pl$DataFrame(
+    min = c(NA, 1L:5L),
+    max = c(NA, 2L:6L),
+    mean = c(NA, 1.5, 2.5, 3.5, 4.5, 5.5),
+    sum = c(NA, 3L, 5L, 7L, 9L, 11L),
+    std = c(NA, rep(0.7071067811865476, 5)),
+    var = c(NA, rep(0.5, 5)),
+    median = c(NA, 1.5, 2.5, 3.5, 4.5, 5.5),
+    quantile_linear = c(NA, 1.33, 2.33, 3.33, 4.33, 5.33)
+  )
 
+  expect_equal(
+    df$select(
+      min = pl$col("a")$rolling_min_by("date", window_size = "2d", min_periods = 2),
+      max = pl$col("a")$rolling_max_by("date", window_size = "2d", min_periods = 2),
+      mean = pl$col("a")$rolling_mean_by("date", window_size = "2d", min_periods = 2),
+      sum = pl$col("a")$rolling_sum_by("date", window_size = "2d", min_periods = 2),
+      std = pl$col("a")$rolling_std_by("date", window_size = "2d", min_periods = 2),
+      var = pl$col("a")$rolling_var_by("date", window_size = "2d", min_periods = 2),
+      median = pl$col("a")$rolling_median_by("date", window_size = "2d", min_periods = 2),
+      quantile_linear = pl$col("a")$rolling_quantile_by(
+        quantile = 0.33, "date", window_size = "2d", min_periods = 2, interpolation = "linear"
+      )
+    ),
+    expected
+  )
 
-#   expect_snapshot(
-#   df$select(pl$col("a")$rolling_min_by(1, window_size = "2d")),
-#   error = TRUE
-# )
+  expect_snapshot(
+    df$select(pl$col("a")$rolling_min_by("date", window_size = "2d", min_periods = -1)),
+    error = TRUE
+  )
+})
 
-# })
+test_that("rolling_*_by: arg 'closed'", {
+  df <- pl$select(
+    a = 1:6,
+    date = pl$datetime_range(as.Date("2001-1-1"), as.Date("2001-1-6"), "1d")
+  )
 
-# test_that("Expr_rolling_*_by: arg 'min_periods'", {
-#   df <- pl$DataFrame(
-#     a = 1:6,
-#     date = pl$datetime_range(as.Date("2001-1-1"), as.Date("2001-1-6"), "1d")
-#   )
+  expected <- pl$DataFrame(
+    min = c(NA, 1L, 1:4),
+    max = c(NA, 1:5),
+    mean = c(NA, 1, 1.5, 2.5, 3.5, 4.5),
+    sum = c(NA, 1L, 3L, 5L, 7L, 9L),
+    std = c(NA, NA, rep(0.7071067811865476, 4)),
+    var = c(NA, NA, rep(0.5, 4)),
+    median = c(NA, 1, 1.5, 2.5, 3.5, 4.5),
+    quantile_linear = c(NA, 1.00, 1.33, 2.33, 3.33, 4.33)
+  )
 
-#   expected <- data.frame(
-#     min = c(NA_integer_, 1L:5L),
-#     max = c(NA_integer_, 2L:6L),
-#     mean = c(NA, 1.5, 2.5, 3.5, 4.5, 5.5),
-#     sum = c(NA_integer_, 3L, 5L, 7L, 9L, 11L),
-#     std = c(NA, rep(0.7071067811865476, 5)),
-#     var = c(NA, rep(0.5, 5)),
-#     median = c(NA, 1.5, 2.5, 3.5, 4.5, 5.5),
-#     quantile_linear = c(NA, 1.33, 2.33, 3.33, 4.33, 5.33)
-#   )
+  expect_equal(
+    df$select(
+      min = pl$col("a")$rolling_min_by("date", window_size = "2d", closed = "left"),
+      max = pl$col("a")$rolling_max_by("date", window_size = "2d", closed = "left"),
+      mean = pl$col("a")$rolling_mean_by("date", window_size = "2d", closed = "left"),
+      sum = pl$col("a")$rolling_sum_by("date", window_size = "2d", closed = "left"),
+      std = pl$col("a")$rolling_std_by("date", window_size = "2d", closed = "left"),
+      var = pl$col("a")$rolling_var_by("date", window_size = "2d", closed = "left"),
+      median = pl$col("a")$rolling_median_by("date", window_size = "2d", closed = "left"),
+      quantile_linear = pl$col("a")$rolling_quantile_by(
+        quantile = 0.33, "date", window_size = "2d", closed = "left", interpolation = "linear"
+      )
+    ),
+    expected
+  )
 
-#   expect_equal(
-#     df$select(
-#       pl$col("a")$rolling_min_by("date", window_size = "2d", min_periods = 2)$alias("min"),
-#       pl$col("a")$rolling_max_by("date", window_size = "2d", min_periods = 2)$alias("max"),
-#       pl$col("a")$rolling_mean_by("date", window_size = "2d", min_periods = 2)$alias("mean"),
-#       pl$col("a")$rolling_sum_by("date", window_size = "2d", min_periods = 2)$alias("sum"),
-#       pl$col("a")$rolling_std_by("date", window_size = "2d", min_periods = 2)$alias("std"),
-#       pl$col("a")$rolling_var_by("date", window_size = "2d", min_periods = 2)$alias("var"),
-#       pl$col("a")$rolling_median_by("date", window_size = "2d", min_periods = 2)$alias("median"),
-#       pl$col("a")$rolling_quantile_by(
-#         quantile = 0.33, "date", window_size = "2d", min_periods = 2, interpolation = "linear"
-#       )$alias("quantile_linear")
-#     ),
-#     expected
-#   )
-
-#   expect_snapshot(
-#   df$select(pl$col("a")$rolling_min_by("date", window_size = "2d", min_periods = -1)),
-#   error = TRUE
-# )
-
-# })
-
-# test_that("Expr_rolling_*_by: arg 'closed'", {
-#   df <- pl$DataFrame(
-#     a = 1:6,
-#     date = pl$datetime_range(as.Date("2001-1-1"), as.Date("2001-1-6"), "1d")
-#   )
-
-#   expected <- data.frame(
-#     min = c(NA_integer_, 1L, 1:4),
-#     max = c(NA_integer_, 1:5),
-#     mean = c(NA, 1, 1.5, 2.5, 3.5, 4.5),
-#     sum = c(NA, 1L, 3L, 5L, 7L, 9L),
-#     std = c(NA, NA, rep(0.7071067811865476, 4)),
-#     var = c(NA, NA, rep(0.5, 4)),
-#     median = c(NA, 1, 1.5, 2.5, 3.5, 4.5),
-#     quantile_linear = c(NA, 1.00, 1.33, 2.33, 3.33, 4.33)
-#   )
-
-#   expect_equal(
-#     df$select(
-#       pl$col("a")$rolling_min_by("date", window_size = "2d", closed = "left")$alias("min"),
-#       pl$col("a")$rolling_max_by("date", window_size = "2d", closed = "left")$alias("max"),
-#       pl$col("a")$rolling_mean_by("date", window_size = "2d", closed = "left")$alias("mean"),
-#       pl$col("a")$rolling_sum_by("date", window_size = "2d", closed = "left")$alias("sum"),
-#       pl$col("a")$rolling_std_by("date", window_size = "2d", closed = "left")$alias("std"),
-#       pl$col("a")$rolling_var_by("date", window_size = "2d", closed = "left")$alias("var"),
-#       pl$col("a")$rolling_median_by("date", window_size = "2d", closed = "left")$alias("median"),
-#       pl$col("a")$rolling_quantile_by(
-#         quantile = 0.33, "date", window_size = "2d", closed = "left", interpolation = "linear"
-#       )$alias("quantile_linear")
-#     ),
-#     expected
-#   )
-
-#   expect_snapshot(
-#   df$select(pl$col("a")$rolling_min_by("date", window_size = "2d", closed = "foo")),
-#   error = TRUE
-# )
-
-# })
+  expect_snapshot(
+    df$select(pl$col("a")$rolling_min_by("date", window_size = "2d", closed = "foo")),
+    error = TRUE
+  )
+})
 
 test_that("rank", {
   l <- list(a = c(3, 6, 1, 1, 6))

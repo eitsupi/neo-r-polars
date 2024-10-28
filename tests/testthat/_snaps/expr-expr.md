@@ -16,6 +16,81 @@
       Caused by error:
       ! User function raised an error
 
+# std var
+
+    Code
+      pl$lit(1:321)$std(256)
+    Condition
+      Error:
+      ! Evaluation failed in `$std()`.
+      Caused by error:
+      ! Value `256.0` is too large to be converted to u8
+
+---
+
+    Code
+      pl$lit(1:321)$var(-1)
+    Condition
+      Error:
+      ! Evaluation failed in `$var()`.
+      Caused by error:
+      ! Value `-1.0` is too small to be converted to u8
+
+# is_between errors if wrong 'closed' arg
+
+    Code
+      df$select(pl$col("var")$is_between(1, 2, "foo"))
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$is_between()`.
+      Caused by error:
+      ! `closed` must be one of "both", "left", "right", or "none", not "foo".
+
+# rolling_*_by only works with date/datetime
+
+    Code
+      df$select(pl$col("a")$rolling_min_by(1, window_size = "2d"))
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! Invalid operation: `by` column in `rolling_*_by` must be the same length as values column
+
+# rolling_*_by: arg 'min_periods'
+
+    Code
+      df$select(pl$col("a")$rolling_min_by("date", window_size = "2d", min_periods = -
+        1))
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$rolling_min_by()`.
+      Caused by error:
+      ! Negative value `-1.0` cannot be converted to usize
+
+# rolling_*_by: arg 'closed'
+
+    Code
+      df$select(pl$col("a")$rolling_min_by("date", window_size = "2d", closed = "foo"))
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$rolling_min_by()`.
+      Caused by error:
+      ! `closed` must be one of "both", "left", "right", or "none", not "foo".
+
 # diff
 
     Code
