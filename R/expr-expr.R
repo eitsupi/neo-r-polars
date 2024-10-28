@@ -446,6 +446,7 @@ expr__exclude <- function(...) {
     } else if (length(exclude_cols) > 0) {
       self$`_rexpr`$exclude(unlist(exclude_cols))
     } else if (length(exclude_dtypes) > 0) {
+      exclude_dtypes <- lapply(exclude_dtypes, \(x) x$`_dt`)
       self$`_rexpr`$exclude_dtype(exclude_dtypes)
     }
   })

@@ -191,24 +191,24 @@ test_that("map_batches works", {
 #   x <- c(1.0, 2.0, NaN, NA)
 
 #   expect_equal(
-#     pl$DataFrame(list(x = x))$select(pl$col("x")$drop_nans()$drop_nulls())$get_column("x")$to_r(),
+#     pl$DataFrame(list(x = x))$select(pl$col("x")$drop_nans()$drop_nulls())$get_column("x"),
 #     c(1.0, 2.0)
 #   )
 
 #   expect_equal(
 #     pl$DataFrame(list(x = x))$select(
 #       pl$col("x")$drop_nans()$drop_nulls()$count()
-#     )$get_column("x")$to_r() |> as.numeric(),
+#     )$get_column("x") |> as.numeric(),
 #     2L
 #   )
 
 #   expect_equal(
-#     pl$DataFrame(list(x = x))$select(pl$col("x")$drop_nulls())$get_column("x")$to_r(),
+#     pl$DataFrame(list(x = x))$select(pl$col("x")$drop_nulls())$get_column("x"),
 #     c(1.0, 2.0, NaN)
 #   )
 
 #   expect_equal(
-#     pl$DataFrame(list(x = x))$select(pl$col("x")$drop_nans())$get_column("x")$to_r(),
+#     pl$DataFrame(list(x = x))$select(pl$col("x")$drop_nans())$get_column("x"),
 #     c(1.0, 2.0, NA)
 #   )
 # })
@@ -316,15 +316,15 @@ test_that("map_batches works", {
 #   )
 
 #   expect_equal(
-#     as.numeric(df$get_column("val")$to_r()),
+#     as.numeric(df$get_column("val")),
 #     c(2, 1, 1, 1, 2)
 #   )
 #   expect_equal(
-#     as.numeric(df2$get_column("val")$to_r()),
+#     as.numeric(df2$get_column("val")),
 #     c(2, 1, 1, 1, 2)
 #   )
 #   expect_equal(
-#     as.numeric(df3$get_column("val")$to_r()),
+#     as.numeric(df3$get_column("val")),
 #     c(2, 1, 1, 1, 2)
 #   )
 
@@ -440,15 +440,15 @@ test_that("map_batches works", {
 #   )
 
 #   # sequence/lits to literal and back
-#   expect_equal(pl$lit(1:5)$to_r(), 1:5)
-#   expect_equal(pl$lit(c(1, 2, Inf, -Inf, NaN, NA))$to_r(), c(1, 2, Inf, -Inf, NaN, NA))
+#   expect_equal(pl$lit(1:5), 1:5)
+#   expect_equal(pl$lit(c(1, 2, Inf, -Inf, NaN, NA)), c(1, 2, Inf, -Inf, NaN, NA))
 #   l <- list(
 #     list(c(1, 2, Inf, -Inf, NaN, NA)),
 #     list(c(1:5, NA_integer_)),
 #     list(letters)
 #   )
 #   for (i in seq_along(l)) {
-#     expect_equal(pl$lit(l[[i]])$to_r(), l[[i]])
+#     expect_equal(pl$lit(l[[i]]), l[[i]])
 #   }
 # })
 
@@ -479,8 +479,8 @@ test_that("map_batches works", {
 #   )
 
 #   expect_equal(
-#     df2$get_column("A_reverse")$to_r(),
-#     rev(df2$get_column("A")$to_r())
+#     df2$get_column("A_reverse"),
+#     rev(df2$get_column("A"))
 #   )
 # })
 
@@ -545,94 +545,94 @@ test_that("map_batches works", {
 #   )
 # })
 
-# test_that("to_physical + cast", {
-#   # to_physical and some casting
-#   df <- pl$DataFrame(
-#     list(vals = c("a", "x", NA, "a"))
-#   )$with_columns(
-#     pl$col("vals")$cast(pl$Categorical()),
-#     pl$col("vals")
-#     $cast(pl$Categorical())
-#     $to_physical()
-#     $alias("vals_physical")
-#   )
+test_that("to_physical + cast", {
+  # to_physical and some casting
+  df <- pl$DataFrame(vals = c("a", "x", NA, "a"))$with_columns(
+    pl$col("vals")$cast(pl$Categorical()),
+    vals_physical = pl$col("vals")$cast(pl$Categorical())$to_physical()
+  )
 
-#   df_act <- df
-#   df_act$vals_physical <- as.numeric(df_act$vals_physical)
-#   expect_equal(
-#     df_act,
-#     data.frame(
-#       vals = factor(c("a", "x", NA_character_, "a")),
-#       vals_physical = c(0:1, NA, 0) # u32 casted to real to preserve full range
-#     )
-#   )
-#   df
+  expect_equal(
+    df,
+    pl$DataFrame(
+      vals = factor(c("a", "x", NA_character_, "a")),
+      vals_physical = c(0:1, NA, 0)
+    )$cast(vals_physical = pl$UInt32)
+  )
 
+  # cast error raised for String to Boolean
+  expect_snapshot(
+    as_polars_df(iris)$with_columns(
+      pl$col("Species")$cast(pl$String)$cast(pl$Boolean)
+    ),
+    error = TRUE
+  )
 
-#   # cast error raised for String to Boolean
-#   expect_snapshot(
-#     as_polars_df(iris)$with_columns(
-#       pl$col("Species")$cast(pl$dtypes$String)$cast(pl$dtypes$Boolean)
-#     ),
-#     error = TRUE
-#   )
+  # down cast big number
+  df_big_n <- pl$DataFrame(big = 2^50)$with_columns(pl$col("big")$cast(pl$Int64))
 
+  # error overflow, strict TRUE
+  expect_snapshot(
+    df_big_n$with_columns(pl$col("big")$cast(pl$Int32)),
+    error = TRUE
+  )
 
+  # NA_int for strict_
+  expect_equal(
+    df_big_n$with_columns(pl$col("big")$cast(pl$Int32, strict = FALSE)),
+    pl$DataFrame(big = NA_integer_)
+  )
 
-#   # down cast big number
-#   df_big_n <- pl$DataFrame(list(big = 2^50))$with_columns(pl$col("big")$cast(pl$Int64))
+  # no overflow to Int64
+  skip_if_not_installed("bit64")
+  expect_equal(
+    df_big_n$with_columns(pl$col("big")$cast(pl$Int64)),
+    pl$DataFrame(big = bit64::as.integer64(2^50))
+  )
+})
 
+test_that("pow, rpow, sqrt, log10", {
+  df <- pl$DataFrame(a = -1:3)
 
-#   # error overflow, strict TRUE
-#   expect_snapshot(
-#     df_big_n$with_columns(pl$col("big")$cast(pl$Int32)),
-#     error = TRUE
-#   )
+  # pow
+  expect_equal(
+    df$select(pl$lit(2)$pow(pl$col("a"))),
+    pl$DataFrame(literal = 2^(-1:3))
+  )
+  expect_equal(
+    df$select(pl$lit(2)^pl$col("a")),
+    pl$DataFrame(literal = 2^(-1:3))
+  )
 
+  # sqrt
+  expect_equal(
+    df$select(pl$col("a")$sqrt()),
+    suppressWarnings(pl$DataFrame(a = sqrt(-1:3)))
+  )
 
-#   # NA_int for strict_
-#   expect_equal(
-#     df_big_n$with_columns(pl$col("big")$cast(pl$Int32, strict = FALSE))$big,
-#     NA_integer_
-#   )
+  # log10
+  expect_equal(
+    pl$DataFrame(a = 10^(-1:3))$select(pl$col("a")$log10()),
+    pl$DataFrame(a = -1:3)$cast(pl$Float64)
+  )
 
-#   # strict = FALSE yield NULL for overflow
-#   expect_true(df_big_n$with_columns(pl$col("big")$cast(pl$Int32, strict = FALSE)$is_null())$big)
+  # log
+  expect_equal(
+    pl$DataFrame(a = exp(1)^(-1:3))$select(pl$col("a")$log()),
+    pl$DataFrame(a = -1:3)$cast(pl$Float64)
+  )
+  expect_equal(
+    pl$DataFrame(a = 0.42^(-1:3))$select(pl$col("a")$log(0.42)),
+    pl$DataFrame(a = -1:3)$cast(pl$Float64)
+  )
 
-#   # no overflow to Int64
-#   expect_false(df_big_n$with_columns(pl$col("big")$cast(pl$Int64)$is_null())$big)
-# })
-
-
-# test_that("pow, rpow, sqrt, log10", {
-#   # pow
-#   expect_equal(pl$DataFrame(list(a = -1:3))$select(pl$lit(2)$pow(pl$col("a")))$get_column("literal")$to_r(), 2^(-1:3))
-#   expect_equal(pl$DataFrame(list(a = -1:3))$select(pl$lit(2)^pl$col("a"))$get_column("literal")$to_r(), 2^(-1:3))
-
-#   # sqrt
-#   expect_equal(
-#     pl$DataFrame(list(a = -1:3))$select(pl$col("a")$sqrt())$get_column("a")$to_r(),
-#     suppressWarnings(sqrt(-1:3))
-#   )
-
-#   # log10
-#   expect_equal(
-#     pl$DataFrame(list(a = 10^(-1:3)))$select(pl$col("a")$log10())$a,
-#     -1:3
-#   )
-
-#   # log
-#   expect_equal(pl$DataFrame(list(a = exp(1)^(-1:3)))$select(pl$col("a")$log())$a, -1:3)
-#   expect_equal(pl$DataFrame(list(a = 0.42^(-1:3)))$select(pl$col("a")$log(0.42))$a, -1:3)
-
-#   # exp
-#   log10123 <- suppressWarnings(log(-1:3))
-#   expect_equal(
-#     pl$DataFrame(list(a = log10123))$select(pl$col("a")$exp())$a,
-#     exp(1)^log10123
-#   )
-# })
-
+  # exp
+  log10123 <- suppressWarnings(log(-1:3))
+  expect_equal(
+    pl$DataFrame(a = log10123)$select(pl$col("a")$exp()),
+    pl$DataFrame(a = exp(1)^log10123)
+  )
+})
 
 test_that("exclude", {
   # string column name
@@ -654,13 +654,9 @@ test_that("exclude", {
     c("Sepal.Length", "Sepal.Width", "Petal.Length")
   )
 
-  # char list
-  expect_equal(
-    df$select(pl$all()$exclude(list("Species", "Petal.Width")))$columns,
-    c("Sepal.Length", "Sepal.Width", "Petal.Length")
-  )
+  # mixing dtypes and strings doesn't work
   expect_snapshot(
-    df$select(pl$all()$exclude(list("Species", pl$Boolean)))$columns,
+    df$select(pl$all()$exclude("Species", pl$Boolean))$columns,
     error = TRUE
   )
 
@@ -674,21 +670,10 @@ test_that("exclude", {
     names(iris)[5]
   )
 
-  # list DataType
+  # several DataTypes
   expect_equal(
-    df$select(pl$all()$exclude(list(pl$Float64, pl$Categorical())))$columns,
+    df$select(pl$all()$exclude(pl$Float64, pl$Categorical()))$columns,
     names(iris)[c()]
-  )
-
-  # wrong cast is not possible
-  expect_snapshot(
-    unwrap(.pr$DataTypeVector$from_rlist(list(pl$Float64, pl$Categorical(), "imNoYourType"))),
-    error = TRUE
-  )
-
-  expect_snapshot(
-    df$select(pl$all()$exclude(list(pl$Float64, pl$Categorical(), "bob")))$columns,
-    error = TRUE
   )
 })
 
@@ -2483,7 +2468,7 @@ test_that("entropy", {
 #   first <- \(x, n = 1) head(x, n)
 #   last <- \(x, n = 1) tail(x, n)
 #   expect_equal(
-#     pl$lit(1:5)$cumulative_eval(pl$element()$first() - pl$element()$last()**2)$to_r(),
+#     pl$lit(1:5)$cumulative_eval(pl$element()$first() - pl$element()$last()**2),
 #     r_cumulative_eval(1:5, \(x) first(x) - last(x)**2)
 #   )
 
@@ -2491,7 +2476,7 @@ test_that("entropy", {
 #     pl$lit(1:5)$cumulative_eval(
 #       pl$element()$first() - pl$element()$last()**2,
 #       min_periods = 4
-#     )$to_r(),
+#     ),
 #     r_cumulative_eval(1:5, \(x) first(x) - last(x)**2, min_periods = 4)
 #   )
 
@@ -2500,7 +2485,7 @@ test_that("entropy", {
 #       pl$element()$first() - pl$element()$last()**2,
 #       min_periods = 3,
 #       parallel = TRUE
-#     )$to_r(),
+#     ),
 #     r_cumulative_eval(1:5, \(x) first(x) - last(x)**2, min_periods = 3)
 #   )
 # })

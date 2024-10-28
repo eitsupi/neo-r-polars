@@ -1053,7 +1053,6 @@ impl PlRExpr {
 
     fn exclude_dtype(&self, dtypes: ListSexp) -> Result<Self> {
         let dtypes = <Wrap<Vec<DataType>>>::try_from(dtypes)?.0;
-        r_println!("hi");
         Ok(self.inner.clone().exclude_dtype(dtypes).into())
     }
 }
