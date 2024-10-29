@@ -103,7 +103,6 @@ expr_meta__as_selector <- function() {
     wrap()
 }
 
-# TODO: handle "file" argument
 #' Serialize this expression to a file or string in JSON format.
 #'
 #' @inheritParams rlang::check_dots_empty0
