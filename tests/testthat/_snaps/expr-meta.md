@@ -67,3 +67,30 @@
          │                                          ╰──────────╯  ╰──────────╯
       NULL
 
+# meta$serialize
+
+    Code
+      jsonlite::prettify(expr$meta$serialize(format = "json"))
+    Output
+      {
+          "Window": {
+              "function": {
+                  "Agg": {
+                      "Sum": {
+                          "Column": "foo"
+                      }
+                  }
+              },
+              "partition_by": [
+                  {
+                      "Column": "bar"
+                  }
+              ],
+              "order_by": null,
+              "options": {
+                  "Over": "GroupsToRows"
+              }
+          }
+      }
+       
+

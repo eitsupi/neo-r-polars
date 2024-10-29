@@ -29,8 +29,16 @@ Serialization is not stable across Polars versions: a LazyFrame serialized
 in one Polars version may not be deserializable in another Polars version.
 }
 \examples{
+\dontshow{if (requireNamespace("jsonlite", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # Serialize the expression into a binary representation.
 expr <- pl$col("foo")$sum()$over("bar")
 bytes <- expr$meta$serialize()
 rawToChar(bytes)
+
+pl$deserialize_expr(bytes)
+
+# Serialize into json
+expr$meta$serialize(format = "json") |>
+  jsonlite::prettify()
+\dontshow{\}) # examplesIf}
 }
