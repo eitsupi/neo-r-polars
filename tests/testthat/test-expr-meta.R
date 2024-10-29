@@ -72,7 +72,7 @@ test_that("meta$undo_aliases", {
   expect_false(e$meta$undo_aliases()$meta$output_name() == "bob")
 })
 
-test_that("meta$undo_aliases", {
+test_that("meta$has_multiple_outputs", {
   e1 <- pl$col("alice")
   e2 <- pl$col(c("alice", "bob"))
   e3 <- pl$col("alice", "bob")
