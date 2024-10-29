@@ -1,5 +1,6 @@
 use crate::prelude::*;
 use crate::{PlRDataFrame, PlRDataType, PlRExpr};
+use polars::prelude::cloud::CloudOptions;
 use polars::series::ops::NullBehavior;
 use savvy::{ListSexp, NumericScalar, NumericSexp, TypedSexp};
 pub mod base_date;
@@ -440,4 +441,9 @@ impl TryFrom<&str> for Wrap<CsvEncoding> {
         };
         Ok(Wrap(parsed))
     }
+}
+
+pub(crate) fn parse_cloud_options(uri: &str, kv: Vec<(String, String)>) -> Result<CloudOptions> {
+    let out = CloudOptions::from_untyped_config(uri, kv).map_err(RPolarsErr::from)?;
+    Ok(out)
 }

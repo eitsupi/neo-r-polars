@@ -292,15 +292,17 @@ impl PlRLazyFrame {
         //         .collect::<Schema>()
         // });
 
+        let sources = path;
+        let first_path = sources.0;
         // let sources = sources.0;
-        let (first_path, sources) = match source {
-            None => (sources.first_path().map(|p| p.to_path_buf()), sources),
-            Some(source) => pyobject_to_first_path_and_scan_sources(source)?,
-        };
+        // let (first_path, sources) = match source {
+        //     None => (sources.first_path().map(|p| p.to_path_buf()), sources),
+        //     Some(source) => pyobject_to_first_path_and_scan_sources(source)?,
+        // };
 
-        let mut r = LazyCsvReader::new_with_sources(sources);
+        // let mut r = LazyCsvReader::new_with_sources(sources);
+        let mut r = LazyCsvReader::new_paths(sources);
 
-        #[cfg(feature = "cloud")]
         if let Some(first_path) = first_path {
             let first_path_url = first_path.to_string_lossy();
 
