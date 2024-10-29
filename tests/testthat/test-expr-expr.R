@@ -1513,41 +1513,33 @@ test_that("is_between errors if wrong 'closed' arg", {
   )
 })
 
-# test_that("hash + reinterpret", {
-#   df <- as_polars_df(iris)
+test_that("hash", {
+  df <- as_polars_df(iris)
 
-#   hash_values1 <- unname(unlist(df$select(pl$col(c("Sepal.Width", "Species"))$unique()$hash()$implode())))
-#   hash_values2 <- unname(unlist(df$select(pl$col(c("Sepal.Width", "Species"))$unique()$hash(1, 2, 3, 4)$implode())))
-#   hash_values3 <- unname((df$select(pl$col(c("Sepal.Width", "Species"))$unique()$hash(1, 2, 3, 4)$implode()$cast(pl$List(pl$String)))))
-#   expect_false(anyDuplicated(hash_values1) > 0)
-#   expect_false(any(sapply(hash_values3, \(x) anyDuplicated(x) > 0)))
+  hash_values1 <- df$select(
+    pl$col(c("Sepal.Width", "Species"))$unique()$hash()$implode()
+  )
+  hash_values2 <- df$select(
+    pl$col(c("Sepal.Width", "Species"))$unique()$hash(1, 2, 3, 4)$implode()
+  )
 
-#   # In current r-polars + py+polars setting seeds does not change the hash
-#   # CONTRIBUTE POLARS, py-polars now also has this behavior. Could be a bug.
-#   # expect_true(!all(hash_values1==hash_values2)) # this should be true
+  expect_false(
+    identical(as.list(hash_values1), as.list(hash_values2))
+  )
+  expect_false(anyDuplicated(as.list(hash_values1)$Sepal.Width) > 0)
+})
 
-#   # TODO: I think hash is unstable across polars versions so we need a better
-#   # way to test this
-#   # expect_true(all(hash_values1 == hash_values2))
-
-#   df_hash <- df$select(pl$col(c("Sepal.Width", "Species"))$unique()$hash(1, 2, 3, 4)$implode())
-#   df_hash_same <- df_hash$select(pl$all()$flatten()$reinterpret(FALSE)$implode())
-#   df_hash_rein <- df_hash$select(pl$all()$flatten()$reinterpret(TRUE)$implode())
-
-
-#   expect_equal(df_hash, df_hash_same)
-#   expect_false(identical(df_hash, df_hash_rein))
-
-
-#   df_actual <- pl$select(pl$lit(-2:2)$cast(pl$dtypes$Int64)$alias("i64"))$with_columns(
-#     pl$col("i64")$reinterpret(FALSE)$alias("u64")
-#   )
-#   df_ref <- pl$select(
-#     pl$lit(-2:2)$cast(pl$dtypes$Int64)$alias("i64"),
-#     pl$lit(c("18446744073709551614", "18446744073709551615", "0", "1", "2"))$cast(pl$dtypes$UInt64)$alias("u64")
-#   )
-#   expect_equal(df_actual, df_ref)
-# })
+test_that("reinterpret", {
+  df <- pl$DataFrame(a = c(1, 1, 2))$cast(pl$UInt64)
+  expect_equal(
+    df$select(pl$col("a")$reinterpret()),
+    pl$DataFrame(a = c(1, 1, 2))$cast(pl$Int64)
+  )
+  expect_equal(
+    df$select(pl$col("a")$reinterpret(signed = FALSE)),
+    pl$DataFrame(a = c(1, 1, 2))$cast(pl$UInt64)
+  )
+})
 
 # test_that("inspect", {
 #   actual_txt <- capture_output(

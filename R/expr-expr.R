@@ -2040,8 +2040,12 @@ expr__log1p <- function() {
 #' df <- pl$DataFrame(a = c(1, 2, NA), b = c("x", NA, "z"))
 #' df$with_columns(pl$all()$hash(10, 20, 30, 40))
 expr__hash <- function(seed = 0, seed_1 = NULL, seed_2 = NULL, seed_3 = NULL) {
-  self$`_rexpr`$hash(seed, seed_1, seed_2, seed_3) |>
-    wrap()
+  wrap({
+    seed_1 <- seed_1 %||% seed
+    seed_2 <- seed_2 %||% seed
+    seed_3 <- seed_3 %||% seed
+    self$`_rexpr`$hash(seed, seed_1, seed_2, seed_3)
+  })    
 }
 
 #' Compute the most occurring value(s)
