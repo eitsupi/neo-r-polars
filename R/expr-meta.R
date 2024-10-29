@@ -275,12 +275,8 @@ expr_meta_is_regex_projection <- function() {
 #' pop[[1]]$meta$eq(pl$col("foo"))
 #' pop[[1]]$meta$eq(pl$col("foo"))
 expr_meta_pop <- function() {
-  wrap({
-    out <- self$`_rexpr`$meta_pop()
-    lapply(out, \(x) {
-      x |>
-        .savvy_wrap_PlRExpr() |>
-        wrap()
-    })
+    lapply(self$`_rexpr`$meta_pop(), \(ptr) {
+        .savvy_wrap_PlRExpr(ptr) |>
+          wrap()
   })
 }
