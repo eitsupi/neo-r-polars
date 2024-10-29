@@ -205,7 +205,7 @@ impl PlRLazyFrame {
         low_memory: bool,
         rechunk: bool,
         skip_rows_after_header: NumericScalar,
-        encoding: Wrap<CsvEncoding>,
+        encoding: &str,
         try_parse_dates: bool,
         eol_char: &str,
         raise_if_empty: bool,
@@ -215,25 +215,29 @@ impl PlRLazyFrame {
         retries: NumericScalar,
         comment_prefix: Option<&str>,
         quote_char: Option<&str>,
-        null_values: Option<Wrap<NullValues>>,
+        // null_values: Option<Wrap<NullValues>>,
         infer_schema_length: Option<NumericScalar>,
-        with_schema_modify: Option<PyObject>,
+        // with_schema_modify: Option<PyObject>,
         row_index_name: Option<&str>,
         row_index_offset: Option<NumericScalar>,
         n_rows: Option<NumericScalar>,
-        overwrite_dtype: Option<Vec<(PyBackedStr, Wrap<DataType>)>>,
-        schema: Option<Wrap<Schema>>,
-        cloud_options: Option<Vec<(String, String)>>,
-        credential_provider: Option<PyObject>,
+        // overwrite_dtype: Option<Vec<(&str, Wrap<DataType>)>>,
+        // schema: Option<Wrap<Schema>>,
+        // cloud_options: Option<Vec<(String, String)>>,
+        // credential_provider: Option<PyObject>,
         file_cache_ttl: Option<NumericScalar>,
-        include_file_paths: Option<String>,
+        include_file_paths: Option<&str>,
     ) -> Result<PlRLazyFrame> {
         use cloud::credential_provider::PlCredentialProvider;
 
         let path = std::path::PathBuf::from(path);
+        let encoding = <Wrap<CsvEncoding>>::try_from(encoding)?.0;
         let skip_rows = <Wrap<usize>>::try_from(skip_rows)?.0;
         let skip_rows_after_header = <Wrap<usize>>::try_from(skip_rows_after_header)?.0;
-        let infer_schema_length = infer_schema_length.map(|x| <Wrap<usize>>::try_from(x)?.0);
+        let infer_schema_length: Option<usize> = match infer_schema_length {
+            Some(x) => Some(<Wrap<usize>>::try_from(x)?.0),
+            None => None,
+        };
         let row_index_offset: Option<usize> = match row_index_offset {
             Some(x) => Some(<Wrap<usize>>::try_from(x)?.0),
             None => None,
@@ -243,9 +247,12 @@ impl PlRLazyFrame {
             None => None,
         };
         let retries = <Wrap<usize>>::try_from(retries)?.0;
-        let file_cache_ttl = <Wrap<u64>>::try_from(file_cache_ttl)?.0;
+        let file_cache_ttl: Option<u64> = match file_cache_ttl {
+            Some(x) => Some(<Wrap<u64>>::try_from(x)?.0),
+            None => None,
+        };
 
-        let null_values = null_values.map(|w| w.0);
+        // let null_values = null_values.map(|w| w.0);
         let quote_char = quote_char
             .map(|s| {
                 s.as_bytes()
@@ -253,20 +260,25 @@ impl PlRLazyFrame {
                     .ok_or_else(|| polars_err!(InvalidOperation: "`quote_char` cannot be empty"))
             })
             .transpose()
-            .map_err(PyPolarsErr::from)?
+            .map_err(RPolarsErr::from)?
             .copied();
         let separator = separator
             .as_bytes()
             .first()
             .ok_or_else(|| polars_err!(InvalidOperation: "`separator` cannot be empty"))
             .copied()
-            .map_err(PyPolarsErr::from)?;
+            .map_err(RPolarsErr::from)?;
         let eol_char = eol_char
             .as_bytes()
             .first()
             .ok_or_else(|| polars_err!(InvalidOperation: "`eol_char` cannot be empty"))
             .copied()
-            .map_err(PyPolarsErr::from)?;
+            .map_err(RPolarsErr::from)?;
+
+        .map(|name| RowIndex {
+            name: name.into(),
+            offset,
+        });
         let row_index = row_index.map(|(name, offset)| RowIndex {
             name: name.into(),
             offset,
@@ -351,9 +363,9 @@ impl PlRLazyFrame {
                         .collect())
                 })
             };
-            r = r.with_schema_modify(f).map_err(PyPolarsErr::from)?
+            r = r.with_schema_modify(f).map_err(RPolarsErr::from)?
         }
 
-        Ok(r.finish().map_err(PyPolarsErr::from)?.into())
+        Ok(r.finish().map_err(RPolarsErr::from)?.into())
     }
 }

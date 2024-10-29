@@ -428,3 +428,16 @@ impl TryFrom<&str> for Wrap<Roll> {
         Ok(Wrap(parsed))
     }
 }
+
+impl TryFrom<&str> for Wrap<CsvEncoding> {
+    type Error = String;
+
+    fn try_from(encoding: &str) -> Result<Self, String> {
+        let parsed = match encoding {
+            "utf8" => CsvEncoding::Utf8,
+            "utf8-lossy" => CsvEncoding::LossyUtf8,
+            v => return Err(format!("unreachable",)),
+        };
+        Ok(Wrap(parsed))
+    }
+}
