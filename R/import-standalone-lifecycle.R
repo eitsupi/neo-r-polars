@@ -107,7 +107,8 @@ deprecate_soft <- function(msg,
   id <- paste(id, collapse = "\n")
   verbosity <- .rlang_lifecycle_verbosity()
 
-  invisible(switch(verbosity,
+  invisible(switch(
+    verbosity,
     quiet = NULL,
     warning = ,
     default =
@@ -134,7 +135,8 @@ deprecate_warn <- function(msg,
   id <- paste(id, collapse = "\n")
   verbosity <- .rlang_lifecycle_verbosity()
 
-  invisible(switch(verbosity,
+  invisible(switch(
+    verbosity,
     quiet = NULL,
     warning = ,
     default = {
