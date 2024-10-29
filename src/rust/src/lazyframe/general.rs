@@ -1,6 +1,7 @@
 use crate::{
     prelude::*, PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame, PlRLazyGroupBy, RPolarsErr,
 };
+use polars::io::RowIndex;
 use savvy::{savvy, ListSexp, LogicalSexp, NumericScalar, OwnedStringSexp, Result, Sexp};
 
 #[savvy]
@@ -275,14 +276,13 @@ impl PlRLazyFrame {
             .copied()
             .map_err(RPolarsErr::from)?;
 
-        .map(|name| RowIndex {
-            name: name.into(),
-            offset,
-        });
-        let row_index = row_index.map(|(name, offset)| RowIndex {
-            name: name.into(),
-            offset,
-        });
+        let row_index: Option<RowIndex> = match row_index_name {
+            Some(x) => Some(RowIndex {
+                name: x,
+                offset: row_index_offset,
+            }),
+            None => None,
+        };
 
         let overwrite_dtype = overwrite_dtype.map(|overwrite_dtype| {
             overwrite_dtype
