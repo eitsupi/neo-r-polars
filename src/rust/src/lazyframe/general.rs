@@ -239,8 +239,8 @@ impl PlRLazyFrame {
             Some(x) => Some(<Wrap<usize>>::try_from(x)?.0),
             None => None,
         };
-        let row_index_offset: Option<usize> = match row_index_offset {
-            Some(x) => Some(<Wrap<usize>>::try_from(x)?.0),
+        let row_index_offset: Option<u32> = match row_index_offset {
+            Some(x) => Some(<Wrap<u32>>::try_from(x)?.0),
             None => None,
         };
         let n_rows: Option<usize> = match n_rows {
@@ -278,20 +278,21 @@ impl PlRLazyFrame {
 
         let row_index: Option<RowIndex> = match row_index_name {
             Some(x) => Some(RowIndex {
-                name: x,
-                offset: row_index_offset,
+                name: x.into(),
+                // TODO: remove unwrap()
+                offset: row_index_offset.unwrap(),
             }),
             None => None,
         };
 
-        let overwrite_dtype = overwrite_dtype.map(|overwrite_dtype| {
-            overwrite_dtype
-                .into_iter()
-                .map(|(name, dtype)| Field::new((&*name).into(), dtype.0))
-                .collect::<Schema>()
-        });
+        // let overwrite_dtype = overwrite_dtype.map(|overwrite_dtype| {
+        //     overwrite_dtype
+        //         .into_iter()
+        //         .map(|(name, dtype)| Field::new((&*name).into(), dtype.0))
+        //         .collect::<Schema>()
+        // });
 
-        let sources = sources.0;
+        // let sources = sources.0;
         let (first_path, sources) = match source {
             None => (sources.first_path().map(|p| p.to_path_buf()), sources),
             Some(source) => pyobject_to_first_path_and_scan_sources(source)?,
