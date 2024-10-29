@@ -193,4 +193,153 @@ impl PlRLazyFrame {
         let exprs = <Wrap<Vec<Expr>>>::from(exprs).0;
         Ok(ldf.with_columns(exprs).into())
     }
+
+    fn new_from_csv(
+        path: &str,
+        separator: &str,
+        has_header: bool,
+        ignore_errors: bool,
+        skip_rows: usize,
+        cache: bool,
+        missing_utf8_is_empty_string: bool,
+        low_memory: bool,
+        rechunk: bool,
+        skip_rows_after_header: usize,
+        encoding: Wrap<CsvEncoding>,
+        try_parse_dates: bool,
+        eol_char: &str,
+        raise_if_empty: bool,
+        truncate_ragged_lines: bool,
+        decimal_comma: bool,
+        glob: bool,
+        comment_prefix: Option<&str>,
+        quote_char: Option<&str>,
+        null_values: Option<Wrap<NullValues>>,
+        infer_schema_length: Option<usize>,
+        with_schema_modify: Option<PyObject>,
+        row_index: Option<(String, IdxSize)>,
+        n_rows: Option<usize>,
+        overwrite_dtype: Option<Vec<(PyBackedStr, Wrap<DataType>)>>,
+        schema: Option<Wrap<Schema>>,
+        cloud_options: Option<Vec<(String, String)>>,
+        credential_provider: Option<PyObject>,
+        retries: usize,
+        file_cache_ttl: Option<u64>,
+        include_file_paths: Option<String>,
+    ) -> Result<PlRLazyFrame> {
+        use cloud::credential_provider::PlCredentialProvider;
+
+        let path = std::path::PathBuf::from(path);
+
+        let null_values = null_values.map(|w| w.0);
+        let quote_char = quote_char
+            .map(|s| {
+                s.as_bytes()
+                    .first()
+                    .ok_or_else(|| polars_err!(InvalidOperation: "`quote_char` cannot be empty"))
+            })
+            .transpose()
+            .map_err(PyPolarsErr::from)?
+            .copied();
+        let separator = separator
+            .as_bytes()
+            .first()
+            .ok_or_else(|| polars_err!(InvalidOperation: "`separator` cannot be empty"))
+            .copied()
+            .map_err(PyPolarsErr::from)?;
+        let eol_char = eol_char
+            .as_bytes()
+            .first()
+            .ok_or_else(|| polars_err!(InvalidOperation: "`eol_char` cannot be empty"))
+            .copied()
+            .map_err(PyPolarsErr::from)?;
+        let row_index = row_index.map(|(name, offset)| RowIndex {
+            name: name.into(),
+            offset,
+        });
+
+        let overwrite_dtype = overwrite_dtype.map(|overwrite_dtype| {
+            overwrite_dtype
+                .into_iter()
+                .map(|(name, dtype)| Field::new((&*name).into(), dtype.0))
+                .collect::<Schema>()
+        });
+
+        let sources = sources.0;
+        let (first_path, sources) = match source {
+            None => (sources.first_path().map(|p| p.to_path_buf()), sources),
+            Some(source) => pyobject_to_first_path_and_scan_sources(source)?,
+        };
+
+        let mut r = LazyCsvReader::new_with_sources(sources);
+
+        #[cfg(feature = "cloud")]
+        if let Some(first_path) = first_path {
+            let first_path_url = first_path.to_string_lossy();
+
+            let mut cloud_options =
+                parse_cloud_options(&first_path_url, cloud_options.unwrap_or_default())?;
+            if let Some(file_cache_ttl) = file_cache_ttl {
+                cloud_options.file_cache_ttl = file_cache_ttl;
+            }
+            cloud_options = cloud_options
+                .with_max_retries(retries)
+                .with_credential_provider(
+                    credential_provider.map(PlCredentialProvider::from_python_func_object),
+                );
+            r = r.with_cloud_options(Some(cloud_options));
+        }
+
+        let mut r = r
+            .with_infer_schema_length(infer_schema_length)
+            .with_separator(separator)
+            .with_has_header(has_header)
+            .with_ignore_errors(ignore_errors)
+            .with_skip_rows(skip_rows)
+            .with_n_rows(n_rows)
+            .with_cache(cache)
+            .with_dtype_overwrite(overwrite_dtype.map(Arc::new))
+            .with_schema(schema.map(|schema| Arc::new(schema.0)))
+            .with_low_memory(low_memory)
+            .with_comment_prefix(comment_prefix.map(|x| x.into()))
+            .with_quote_char(quote_char)
+            .with_eol_char(eol_char)
+            .with_rechunk(rechunk)
+            .with_skip_rows_after_header(skip_rows_after_header)
+            .with_encoding(encoding.0)
+            .with_row_index(row_index)
+            .with_try_parse_dates(try_parse_dates)
+            .with_null_values(null_values)
+            .with_missing_is_null(!missing_utf8_is_empty_string)
+            .with_truncate_ragged_lines(truncate_ragged_lines)
+            .with_decimal_comma(decimal_comma)
+            .with_glob(glob)
+            .with_raise_if_empty(raise_if_empty)
+            .with_include_file_paths(include_file_paths.map(|x| x.into()));
+
+        if let Some(lambda) = with_schema_modify {
+            let f = |schema: Schema| {
+                let iter = schema.iter_names().map(|s| s.as_str());
+                Python::with_gil(|py| {
+                    let names = PyList::new_bound(py, iter);
+
+                    let out = lambda.call1(py, (names,)).expect("python function failed");
+                    let new_names = out
+                        .extract::<Vec<String>>(py)
+                        .expect("python function should return List[str]");
+                    polars_ensure!(new_names.len() == schema.len(),
+                        ShapeMismatch: "The length of the new names list should be equal to or less than the original column length",
+                    );
+                    Ok(schema
+                        .iter_values()
+                        .zip(new_names)
+                        .map(|(dtype, name)| Field::new(name.into(), dtype.clone()))
+                        .collect())
+                })
+            };
+            r = r.with_schema_modify(f).map_err(PyPolarsErr::from)?
+        }
+
+        Ok(r.finish().map_err(PyPolarsErr::from)?.into())
+    }
 }
