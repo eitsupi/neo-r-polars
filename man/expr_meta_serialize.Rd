@@ -32,5 +32,5 @@ in one Polars version may not be deserializable in another Polars version.
 # Serialize the expression into a binary representation.
 expr <- pl$col("foo")$sum()$over("bar")
 bytes <- expr$meta$serialize()
-bytes
+rawToChar(bytes)
 }

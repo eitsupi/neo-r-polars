@@ -104,7 +104,6 @@ expr_meta__as_selector <- function() {
 }
 
 # TODO: handle "file" argument
-# TODO: add deserialization in examples
 #' Serialize this expression to a file or string in JSON format.
 #'
 #' @inheritParams rlang::check_dots_empty0
@@ -119,22 +118,38 @@ expr_meta__as_selector <- function() {
 #' in one Polars version may not be deserializable in another Polars version.
 #'
 #' @inherit as_polars_expr return
-#' @examples
+#' @examplesIf requireNamespace("jsonlite", quietly = TRUE)
 #' # Serialize the expression into a binary representation.
 #' expr <- pl$col("foo")$sum()$over("bar")
 #' bytes <- expr$meta$serialize()
-#' bytes
+#' rawToChar(bytes)
+#'
+#' pl$deserialize_expr(bytes)
+#'
+#' # Serialize into json
+#' expr$meta$serialize(format = "json") |>
+#'   jsonlite::prettify()
 expr_meta_serialize <- function(file = NULL, ..., format = c("binary", "json")) {
   wrap({
     check_dots_empty0(...)
 
     format <- arg_match0(format, c("binary", "json"))
 
-    switch(format,
+    serialized <- switch(format,
       binary = self$`_rexpr`$serialize_binary(),
       json = self$`_rexpr`$serialize_json(),
       abort("Unreachable")
     )
+
+    if (is.null(file)) {
+      return(serialized)
+    }
+
+    if (format == "json") {
+      writeLines(serialized, con = file)
+    } else {
+      writeBin(serialized, con = file)
+    }
   })
 }
 

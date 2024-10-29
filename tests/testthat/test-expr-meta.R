@@ -106,3 +106,25 @@ test_that("meta$tree_format", {
   expect_true(is.character(e$meta$tree_format(return_as_string = TRUE)))
   expect_snapshot(e$meta$tree_format())
 })
+
+test_that("meta$serialize", {
+  skip_if_not_installed("jsonlite")
+  skip_if_not_installed("withr")
+
+  expr <- pl$col("foo")$sum()$over("bar")
+  serialized <- expr$meta$serialize()
+  deserialized <- pl$deserialize_expr(serialized)
+  expect_true(deserialized$meta$eq(expr))
+
+  expect_snapshot(
+    expr$meta$serialize(format = "json") |>
+      jsonlite::prettify()
+  )
+
+  tmp <- withr::local_tempfile(fileext = "json")
+  expr$meta$serialize(file = tmp, format = "json")
+  expect_no_error(
+    read <- jsonlite::read_json(tmp)
+  )
+  expect_true(length(read) > 0)
+})
