@@ -188,7 +188,7 @@ expr_meta_root_names <- function() {
 
 #' Format the expression as a tree
 #'
-#' @inherit as_polars_expr return
+#' @return A character vector
 #' @examples
 #' my_expr <- (pl$col("foo") * pl$col("bar"))$sum()$over(pl$col("ham")) / 2
 #' my_expr$meta$tree_format() |>

@@ -7,7 +7,7 @@
 expr_meta_tree_format()
 }
 \value{
-A polars \link{expression}
+A character vector
 }
 \description{
 Format the expression as a tree
