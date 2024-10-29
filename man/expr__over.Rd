@@ -11,8 +11,8 @@ expr__over(
 )
 }
 \arguments{
-\item{...}{Column(s) to group by. Accepts expression input.
-Characters are parsed as column names.}
+\item{...}{\code{\link[rlang:dyn-dots]{dynamic-dots}}> Column(s) to group by. Accepts
+expression input. Characters are parsed as column names.}
 
 \item{order_by}{Order the window functions/aggregations with the partitioned
 groups by the result of the expression passed to \code{order_by}. Can be an Expr.
@@ -55,14 +55,15 @@ df$with_columns(
   pl$col("c")$max()$over(pl$col("b") \%/\% 2)$name$suffix("_max")
 )
 
-# Group by multiple columns by passing a character vector of column names
-# or list of expressions.
+# Group by multiple columns by passing several column names a or list of
+# expressions.
 df$with_columns(
-  pl$col("c")$min()$over(c("a", "b"))$name$suffix("_min")
+  pl$col("c")$min()$over("a", "b")$name$suffix("_min")
 )
 
+group_vars <- list(pl$col("a"), pl$col("b"))
 df$with_columns(
-  pl$col("c")$min()$over(list(pl$col("a"), pl$col("b")))$name$suffix("_min")
+  pl$col("c")$min()$over(!!!group_vars)$name$suffix("_min")
 )
 
 # Or use positional arguments to group by multiple columns in the same way.

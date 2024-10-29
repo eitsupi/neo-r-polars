@@ -250,37 +250,36 @@ test_that("$over()", {
     pl$col("val")$count()$over("a", pl$col("b"))
   )
 
-  # TODO-REWRITE: should work
-  # # with vector of column names
-  # df2 <- pl$DataFrame(
-  #   val = 1:5,
-  #   a = c("+", "+", "-", "-", "+"),
-  #   b = c("+", "-", "+", "-", "+")
-  # )$select(
-  #   pl$col("val")$count()$over(c("a", "b"))
-  # )
+  # with several column names
+  df2 <- pl$DataFrame(
+    val = 1:5,
+    a = c("+", "+", "-", "-", "+"),
+    b = c("+", "-", "+", "-", "+")
+  )$select(
+    pl$col("val")$count()$over("a", "b")
+  )
 
-  # over_vars <- c("a", "b")
-  # df3 <- pl$DataFrame(
-  #   val = 1:5,
-  #   a = c("+", "+", "-", "-", "+"),
-  #   b = c("+", "-", "+", "-", "+")
-  # )$select(
-  #   pl$col("val")$count()$over(over_vars)
-  # )
+  over_vars <- c("a", "b")
+  df3 <- pl$DataFrame(
+    val = 1:5,
+    a = c("+", "+", "-", "-", "+"),
+    b = c("+", "-", "+", "-", "+")
+  )$select(
+    pl$col("val")$count()$over(!!!over_vars)
+  )
 
   expect_equal(
     df,
     pl$DataFrame(val = c(2, 1, 1, 1, 2))$cast(pl$UInt32)
   )
-  # expect_equal(
-  #   df2,
-  #   pl$DataFrame(val = c(2, 1, 1, 1, 2))
-  # )
-  # expect_equal(
-  #   df3,
-  #   pl$DataFrame(val = c(2, 1, 1, 1, 2))
-  # )
+  expect_equal(
+    df2,
+    pl$DataFrame(val = c(2, 1, 1, 1, 2))$cast(pl$UInt32)
+  )
+  expect_equal(
+    df3,
+    pl$DataFrame(val = c(2, 1, 1, 1, 2))$cast(pl$UInt32)
+  )
 
   # TODO-REWRITE: requires $meta$eq()
   # basic_expr <- pl$col("foo")$min()$over("a", "b")
