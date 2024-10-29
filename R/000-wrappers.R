@@ -1492,6 +1492,12 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
   }
 }
 
+`PlRExpr_meta_pop` <- function(self) {
+  function() {
+    .Call(savvy_PlRExpr_meta_pop__impl, `self`)
+  }
+}
+
 `PlRExpr_meta_root_names` <- function(self) {
   function() {
     .Call(savvy_PlRExpr_meta_root_names__impl, `self`)
@@ -2071,6 +2077,7 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
   e$`list_drop_nulls` <- `PlRExpr_list_drop_nulls`(ptr)
   e$`list_count_matches` <- `PlRExpr_list_count_matches`(ptr)
   e$`meta_eq` <- `PlRExpr_meta_eq`(ptr)
+  e$`meta_pop` <- `PlRExpr_meta_pop`(ptr)
   e$`meta_root_names` <- `PlRExpr_meta_root_names`(ptr)
   e$`meta_output_name` <- `PlRExpr_meta_output_name`(ptr)
   e$`meta_undo_aliases` <- `PlRExpr_meta_undo_aliases`(ptr)

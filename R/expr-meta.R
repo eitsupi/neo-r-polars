@@ -249,3 +249,17 @@ expr_meta_is_regex_projection <- function() {
     self$`_rexpr`$meta_is_regex_projection()
   })
 }
+
+#' Pop the latest expression and return the input(s) of the popped expression
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' e <- pl$col("foo")$alias("bar")
+#' first <- e$meta$pop()
+#' first$meta
+expr_meta_pop <- function() {
+  wrap({
+    out <- self$`_rexpr`$meta_pop()
+    lapply(out, .savvy_wrap_PlRExpr)
+  })
+}

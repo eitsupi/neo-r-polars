@@ -221,6 +221,7 @@ SEXP savvy_PlRExpr_list_to_array__ffi(SEXP self__, SEXP c_arg__width);
 SEXP savvy_PlRExpr_list_drop_nulls__ffi(SEXP self__);
 SEXP savvy_PlRExpr_list_count_matches__ffi(SEXP self__, SEXP c_arg__expr);
 SEXP savvy_PlRExpr_meta_eq__ffi(SEXP self__, SEXP c_arg__other);
+SEXP savvy_PlRExpr_meta_pop__ffi(SEXP self__);
 SEXP savvy_PlRExpr_meta_root_names__ffi(SEXP self__);
 SEXP savvy_PlRExpr_meta_output_name__ffi(SEXP self__);
 SEXP savvy_PlRExpr_meta_undo_aliases__ffi(SEXP self__);

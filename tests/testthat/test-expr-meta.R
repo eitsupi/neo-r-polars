@@ -20,22 +20,18 @@ test_that("meta$eq meta$ne", {
   )
 })
 
-# test_that("meta$pop", {
-#   e1 <- pl$lit(40) + 2
-#   e2 <- pl$lit(42)$sum()
+test_that("meta$pop", {
+  e1 <- pl$lit(40) + 2
+  e2 <- pl$lit(42)$sum()
 
-#   pop1 <- e1$meta$pop()
-#   expect_true(length(pop1) == 2L)
-#   expect_true(pop1[[1]]$meta$eq(2))
-#   expect_true(pop1[[2]]$meta$eq(40))
+  pop1 <- e1$meta$pop()
+  expect_true(length(pop1) == 2L)
+  expect_true(pop1[[1]]$meta$eq(2))
+  expect_true(pop1[[2]]$meta$eq(40))
 
-#   pop2 <- e2$meta$pop()
-#   expect_true(length(pop2) == 1L)
-#   # https://github.com/pola-rs/r-polars/pull/1104
-#   # Not true anymore as of rust-polars 0.40.0 but I don't know if it should be
-#   # true in the first place
-#   # expect_true(pop2[[1]]$meta$eq(42))
-# })
+  pop2 <- e2$meta$pop()
+  expect_true(length(pop2) == 1L)
+})
 
 test_that("meta$root_names", {
   e <- pl$col("alice")$alias("bob")

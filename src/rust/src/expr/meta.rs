@@ -1,7 +1,5 @@
 use crate::{PlRExpr, RPolarsErr};
-use polars::prelude::Expr;
-use polars_core::utils::Wrap;
-use savvy::{savvy, Result, Sexp};
+use savvy::{savvy, OwnedListSexp, Result, Sexp};
 
 #[savvy]
 impl PlRExpr {
@@ -10,16 +8,17 @@ impl PlRExpr {
         out.try_into()
     }
 
-    // TODO: fix this
-    // fn meta_pop(&self) -> Result<Vec<&PlRExpr>> {
-    //     let exprs = self.inner.clone().meta().pop().map_err(RPolarsErr::from)?;
-    //     let exprs = <Wrap<Vec<Expr>>>::from(exprs)
-    //         .0
-    //         .iter()
-    //         .map(|x| <&PlRExpr>::from(x.inner).clone())
-    //         .collect::<Vec<&PlRExpr>>();
-    //     Ok(exprs)
-    // }
+    fn meta_pop(&self) -> Result<Sexp> {
+        let exprs = self.inner.clone().meta().pop().map_err(RPolarsErr::from)?;
+        let iter = exprs.iter().map(|x| <PlRExpr>::from(x.clone()));
+        let mut out = OwnedListSexp::new(exprs.len(), false)?;
+        for (i, expr) in iter.enumerate() {
+            unsafe {
+                let _ = out.set_value_unchecked(i, Sexp::try_from(expr)?.0);
+            }
+        }
+        out.into()
+    }
 
     fn meta_root_names(&self) -> Result<Sexp> {
         self.inner
