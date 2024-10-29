@@ -199,12 +199,12 @@ impl PlRLazyFrame {
         separator: &str,
         has_header: bool,
         ignore_errors: bool,
-        skip_rows: usize,
+        skip_rows: NumericScalar,
         cache: bool,
         missing_utf8_is_empty_string: bool,
         low_memory: bool,
         rechunk: bool,
-        skip_rows_after_header: usize,
+        skip_rows_after_header: NumericScalar,
         encoding: Wrap<CsvEncoding>,
         try_parse_dates: bool,
         eol_char: &str,
@@ -212,24 +212,38 @@ impl PlRLazyFrame {
         truncate_ragged_lines: bool,
         decimal_comma: bool,
         glob: bool,
+        retries: NumericScalar,
         comment_prefix: Option<&str>,
         quote_char: Option<&str>,
         null_values: Option<Wrap<NullValues>>,
-        infer_schema_length: Option<usize>,
+        infer_schema_length: Option<NumericScalar>,
         with_schema_modify: Option<PyObject>,
-        row_index: Option<(String, IdxSize)>,
-        n_rows: Option<usize>,
+        row_index_name: Option<&str>,
+        row_index_offset: Option<NumericScalar>,
+        n_rows: Option<NumericScalar>,
         overwrite_dtype: Option<Vec<(PyBackedStr, Wrap<DataType>)>>,
         schema: Option<Wrap<Schema>>,
         cloud_options: Option<Vec<(String, String)>>,
         credential_provider: Option<PyObject>,
-        retries: usize,
-        file_cache_ttl: Option<u64>,
+        file_cache_ttl: Option<NumericScalar>,
         include_file_paths: Option<String>,
     ) -> Result<PlRLazyFrame> {
         use cloud::credential_provider::PlCredentialProvider;
 
         let path = std::path::PathBuf::from(path);
+        let skip_rows = <Wrap<usize>>::try_from(skip_rows)?.0;
+        let skip_rows_after_header = <Wrap<usize>>::try_from(skip_rows_after_header)?.0;
+        let infer_schema_length = infer_schema_length.map(|x| <Wrap<usize>>::try_from(x)?.0);
+        let row_index_offset: Option<usize> = match row_index_offset {
+            Some(x) => Some(<Wrap<usize>>::try_from(x)?.0),
+            None => None,
+        };
+        let n_rows: Option<usize> = match n_rows {
+            Some(x) => Some(<Wrap<usize>>::try_from(x)?.0),
+            None => None,
+        };
+        let retries = <Wrap<usize>>::try_from(retries)?.0;
+        let file_cache_ttl = <Wrap<u64>>::try_from(file_cache_ttl)?.0;
 
         let null_values = null_values.map(|w| w.0);
         let quote_char = quote_char
