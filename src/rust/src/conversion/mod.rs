@@ -541,11 +541,7 @@ pub(crate) fn parse_fill_null_strategy(
         "mean" => FillNullStrategy::Mean,
         "zero" => FillNullStrategy::Zero,
         "one" => FillNullStrategy::One,
-        e => {
-            return Err(format!(
-                "`strategy` must be one of {{'forward', 'backward', 'min', 'max', 'mean', 'zero', 'one'}}, got {e}",
-            ))
-        }
+        _ => return Err(format!("unreachable")),
     };
     Ok(parsed)
 }
