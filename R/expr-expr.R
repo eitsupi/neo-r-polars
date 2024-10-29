@@ -1210,7 +1210,6 @@ expr__dot <- function(expr) {
     wrap()
 }
 
-# TODO: link to ExprList_explode
 #' Reshape this Expr to a flat Series or a Series of Lists
 #'
 #' @param dimensions A integer vector of length of the dimension size.
