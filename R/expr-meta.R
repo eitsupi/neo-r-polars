@@ -103,11 +103,9 @@ expr_meta__as_selector <- function() {
     wrap()
 }
 
-#' Serialize this expression to a file or string in JSON format.
+#' Serialize this expression to a string in binary or JSON format
 #'
 #' @inheritParams rlang::check_dots_empty0
-#' @param file File path to which the result should be written. If `NULL`
-#' (default), the output is returned as a string instead.
 #' @param format The format in which to serialize. Must be one of:
 #' * `"binary"` (default): serialize to binary format (bytes).
 #' * `"json"`: serialize to JSON format (string).
@@ -128,27 +126,15 @@ expr_meta__as_selector <- function() {
 #' # Serialize into json
 #' expr$meta$serialize(format = "json") |>
 #'   jsonlite::prettify()
-expr_meta_serialize <- function(file = NULL, ..., format = c("binary", "json")) {
+expr_meta_serialize <- function(..., format = c("binary", "json")) {
   wrap({
     check_dots_empty0(...)
-
     format <- arg_match0(format, c("binary", "json"))
-
-    serialized <- switch(format,
+    switch(format,
       binary = self$`_rexpr`$serialize_binary(),
       json = self$`_rexpr`$serialize_json(),
       abort("Unreachable")
     )
-
-    if (is.null(file)) {
-      return(serialized)
-    }
-
-    if (format == "json") {
-      writeLines(serialized, con = file)
-    } else {
-      writeBin(serialized, con = file)
-    }
   })
 }
 
@@ -275,8 +261,8 @@ expr_meta_is_regex_projection <- function() {
 #' pop[[1]]$meta$eq(pl$col("foo"))
 #' pop[[1]]$meta$eq(pl$col("foo"))
 expr_meta_pop <- function() {
-    lapply(self$`_rexpr`$meta_pop(), \(ptr) {
-        .savvy_wrap_PlRExpr(ptr) |>
-          wrap()
+  lapply(self$`_rexpr`$meta_pop(), \(ptr) {
+    .savvy_wrap_PlRExpr(ptr) |>
+      wrap()
   })
 }

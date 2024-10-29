@@ -2,14 +2,11 @@
 % Please edit documentation in R/expr-meta.R
 \name{expr_meta_serialize}
 \alias{expr_meta_serialize}
-\title{Serialize this expression to a file or string in JSON format.}
+\title{Serialize this expression to a string in binary or JSON format}
 \usage{
-expr_meta_serialize(file = NULL, ..., format = c("binary", "json"))
+expr_meta_serialize(..., format = c("binary", "json"))
 }
 \arguments{
-\item{file}{File path to which the result should be written. If \code{NULL}
-(default), the output is returned as a string instead.}
-
 \item{...}{Dots which should be empty.}
 
 \item{format}{The format in which to serialize. Must be one of:
@@ -22,7 +19,7 @@ expr_meta_serialize(file = NULL, ..., format = c("binary", "json"))
 A polars \link{expression}
 }
 \description{
-Serialize this expression to a file or string in JSON format.
+Serialize this expression to a string in binary or JSON format
 }
 \details{
 Serialization is not stable across Polars versions: a LazyFrame serialized
