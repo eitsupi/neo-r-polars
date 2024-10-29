@@ -207,7 +207,7 @@ as_polars_expr.integer <- function(x, ...) {
 as_polars_expr.double <- function(x, ...) {
   wrap({
     if (length(x) == 1L) {
-      if (is.na(x)) {
+      if (is.na(x) && !is.nan(x)) {
         lit_null()$cast(pl$Float64$`_dt`, strict = TRUE, wrap_numerical = FALSE)
       } else {
         lit_from_f64(x)

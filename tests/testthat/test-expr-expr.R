@@ -1421,34 +1421,14 @@ test_that("filter", {
 })
 
 test_that("explode/flatten", {
-  df <- pl$DataFrame(a = letters)$select(pl$col("a")$explode()$gather(0:5))
-
   expect_equal(
-    df,
+    pl$DataFrame(a = letters)$select(pl$col("a")$explode()$gather(0:5)),
     pl$DataFrame(a = letters[1:6])
   )
-
-  # TODO-REWRITE: uncomment this
-  # little_iris <- iris[c(1:3, 51:53), ]
-  # listed_group_df <- pl$DataFrame(little_iris)$group_by("Species", maintain_order = TRUE)$agg(pl$all())
-  # vectors_df <- listed_group_df$select(
-  #   pl$col(c("Sepal.Width", "Sepal.Length"))$explode()
-  # )
-
-  # df <- listed_group_df
-
-
-  # # yikes kinda like by(), but all details are different
-  # x <- by(little_iris, as.character(little_iris$Species), FUN = list)
-  # df_ref <- as.data.frame(do.call(rbind, unname(lapply(x, lapply, I))))
-  # df_ref[] <- lapply(df_ref, lapply, unAsIs)
-  # df_ref$Species <- factor(sapply(df_ref$Species, function(x) head((x), 1)))
-  # row.names(df_ref) <- NULL
-
-  # expect_equal(
-  #   df,
-  #   df_ref[, names(df)]
-  # )
+  expect_equal(
+    pl$DataFrame(a = letters)$select(pl$col("a")$flatten()$gather(0:5)),
+    pl$DataFrame(a = letters[1:6])
+  )
 })
 
 test_that("gather_every", {
@@ -1510,27 +1490,26 @@ test_that("is_between with expr", {
   )
 })
 
-# TODO-REWRITE: comparison with NaN doesn't work
-# test_that("is_between with Inf/NaN", {
-#   df <- pl$DataFrame(x = c(1, 2, 3, 4, 5))
+test_that("is_between with Inf/NaN", {
+  df <- pl$DataFrame(x = c(1, 2, 3, 4, 5))
 
-#   expect_equal(
-#     df$select(pl$col("x")$is_between(2, Inf)),
-#     pl$DataFrame(x = c(FALSE, TRUE, TRUE, TRUE, TRUE))
-#   )
-#   expect_equal(
-#     df$select(pl$col("x")$is_between(-Inf, 3)),
-#     pl$DataFrame(x = c(TRUE, TRUE, TRUE, FALSE, FALSE))
-#   )
-#   expect_equal(
-#     df$select(pl$col("x")$is_between(NaN, 3)),
-#     pl$DataFrame(x = rep(FALSE, 5))
-#   )
-#   expect_equal(
-#     df$select(pl$col("x")$is_between(3, NaN)),
-#     pl$DataFrame(x = c(FALSE, FALSE, TRUE, TRUE, TRUE))
-#   )
-# })
+  expect_equal(
+    df$select(pl$col("x")$is_between(2, Inf)),
+    pl$DataFrame(x = c(FALSE, TRUE, TRUE, TRUE, TRUE))
+  )
+  expect_equal(
+    df$select(pl$col("x")$is_between(-Inf, 3)),
+    pl$DataFrame(x = c(TRUE, TRUE, TRUE, FALSE, FALSE))
+  )
+  expect_equal(
+    df$select(pl$col("x")$is_between(NaN, 3)),
+    pl$DataFrame(x = rep(FALSE, 5))
+  )
+  expect_equal(
+    df$select(pl$col("x")$is_between(3, NaN)),
+    pl$DataFrame(x = c(FALSE, FALSE, TRUE, TRUE, TRUE))
+  )
+})
 
 test_that("is_between errors if wrong 'closed' arg", {
   df <- pl$DataFrame(var = c(1, 2, 3, 4, 5))
