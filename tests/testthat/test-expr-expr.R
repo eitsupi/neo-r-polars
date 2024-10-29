@@ -281,23 +281,17 @@ test_that("$over()", {
     pl$DataFrame(val = c(2, 1, 1, 1, 2))$cast(pl$UInt32)
   )
 
-  # TODO-REWRITE: requires $meta$eq()
-  # basic_expr <- pl$col("foo")$min()$over("a", "b")
-  # expect_true(
-  #   basic_expr$meta$eq(
-  #     pl$col("foo")$min()$over(c("a", "b"))
-  #   )
-  # )
-  # expect_true(
-  #   basic_expr$meta$eq(
-  #     pl$col("foo")$min()$over(list(pl$col("a"), pl$col("b")))
-  #   )
-  # )
-  # expect_true(
-  #   basic_expr$meta$eq(
-  #     pl$col("foo")$min()$over(list(pl$col("a"), "b"))
-  #   )
-  # )
+  basic_expr <- pl$col("foo")$min()$over("a", "b")
+  expect_true(
+    basic_expr$meta$eq(
+      pl$col("foo")$min()$over(!!!list(pl$col("a"), pl$col("b")))
+    )
+  )
+  expect_true(
+    basic_expr$meta$eq(
+      pl$col("foo")$min()$over(!!!list(pl$col("a"), "b"))
+    )
+  )
 })
 
 test_that("$over() with mapping_strategy", {
