@@ -33,7 +33,7 @@
 # meta$tree_format
 
     Code
-      e$meta$tree_format()
+      cat(e$meta$tree_format())
     Output
                        0                  1              2             3
          ┌────────────────────────────────────────────────────────────────────
@@ -65,7 +65,6 @@
          │                                          ╭────┴─────╮  ╭────┴─────╮
        4 │                                          │ col(bar) │  │ col(foo) │
          │                                          ╰──────────╯  ╰──────────╯
-      NULL
 
 # meta$serialize
 

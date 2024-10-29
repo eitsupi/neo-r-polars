@@ -188,23 +188,14 @@ expr_meta_root_names <- function() {
 
 #' Format the expression as a tree
 #'
-#' @inheritParams rlang::check_dots_empty0
-#' @param return_as_string Return the tree as a character vector? If `FALSE`
-#' (default), the tree is printed in the console.
-#'
 #' @inherit as_polars_expr return
 #' @examples
 #' my_expr <- (pl$col("foo") * pl$col("bar"))$sum()$over(pl$col("ham")) / 2
-#' my_expr$meta$tree_format()
-expr_meta_tree_format <- function(..., return_as_string = FALSE) {
+#' my_expr$meta$tree_format() |>
+#'   cat()
+expr_meta_tree_format <- function() {
   wrap({
-    check_dots_empty0(...)
-    out <- self$`_rexpr`$meta_tree_format()
-    if (isTRUE(return_as_string)) {
-      out
-    } else {
-      cat(out)
-    }
+    self$`_rexpr`$meta_tree_format()
   })
 }
 
