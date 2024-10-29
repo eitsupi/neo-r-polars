@@ -14,6 +14,9 @@ Pop the latest expression and return the input(s) of the popped expression
 }
 \examples{
 e <- pl$col("foo")$alias("bar")
-first <- e$meta$pop()
-first$meta
+pop <- e$meta$pop()
+pop
+
+pop[[1]]$meta$eq(pl$col("foo"))
+pop[[1]]$meta$eq(pl$col("foo"))
 }
