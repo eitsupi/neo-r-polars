@@ -15,7 +15,9 @@ ciborium = "0.2"
 flume = "0.11"
 polars-core = { git = "https://github.com/pola-rs/polars.git", rev = "1c1574add6a0077aad69064e79c00414114fc28e", default-features = false }
 polars-error = { git = "https://github.com/pola-rs/polars.git", rev = "1c1574add6a0077aad69064e79c00414114fc28e", default-features = false }
-savvy = "0.7"
+savvy = { git = "https://github.com/yutannihilation/savvy.git", branch = "feat/error-conversion2", features = [
+    "use-custom-error",
+] }
 serde_json = "1"
 state = "0.6"
 strum = "0.26"
