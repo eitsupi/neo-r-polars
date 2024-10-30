@@ -2257,6 +2257,9 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
 
 ### associated functions for PlRLazyFrame
 
+`PlRLazyFrame`$`new_from_csv` <- function(`path`, `separator`, `has_header`, `ignore_errors`, `skip_rows`, `cache`, `missing_utf8_is_empty_string`, `low_memory`, `rechunk`, `skip_rows_after_header`, `encoding`, `try_parse_dates`, `eol_char`, `raise_if_empty`, `truncate_ragged_lines`, `decimal_comma`, `glob`, `retries`, `comment_prefix` = NULL, `quote_char` = NULL, `infer_schema_length` = NULL, `row_index_name` = NULL, `row_index_offset` = NULL, `n_rows` = NULL, `file_cache_ttl` = NULL, `include_file_paths` = NULL) {
+  .savvy_wrap_PlRLazyFrame(.Call(savvy_PlRLazyFrame_new_from_csv__impl, `path`, `separator`, `has_header`, `ignore_errors`, `skip_rows`, `cache`, `missing_utf8_is_empty_string`, `low_memory`, `rechunk`, `skip_rows_after_header`, `encoding`, `try_parse_dates`, `eol_char`, `raise_if_empty`, `truncate_ragged_lines`, `decimal_comma`, `glob`, `retries`, `comment_prefix`, `quote_char`, `infer_schema_length`, `row_index_name`, `row_index_offset`, `n_rows`, `file_cache_ttl`, `include_file_paths`))
+}
 
 
 class(`PlRLazyFrame`) <- c("PlRLazyFrame__bundle", "savvy_neopolars__sealed")

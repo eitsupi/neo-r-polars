@@ -293,7 +293,7 @@ impl PlRLazyFrame {
         // });
 
         let sources = path;
-        let first_path = sources.0;
+        // let first_path = sources;
         // let sources = sources.0;
         // let (first_path, sources) = match source {
         //     None => (sources.first_path().map(|p| p.to_path_buf()), sources),
@@ -301,23 +301,23 @@ impl PlRLazyFrame {
         // };
 
         // let mut r = LazyCsvReader::new_with_sources(sources);
-        let mut r = LazyCsvReader::new_paths(sources);
+        let mut r = LazyCsvReader::new(sources);
 
-        if let Some(first_path) = first_path {
-            let first_path_url = first_path.to_string_lossy();
+        // if let Some(first_path) = first_path {
+        //     let first_path_url = first_path.to_string_lossy();
 
-            let mut cloud_options =
-                parse_cloud_options(&first_path_url, cloud_options.unwrap_or_default())?;
-            if let Some(file_cache_ttl) = file_cache_ttl {
-                cloud_options.file_cache_ttl = file_cache_ttl;
-            }
-            cloud_options = cloud_options
-                .with_max_retries(retries)
-                .with_credential_provider(
-                    credential_provider.map(PlCredentialProvider::from_python_func_object),
-                );
-            r = r.with_cloud_options(Some(cloud_options));
-        }
+        //     let mut cloud_options =
+        //         parse_cloud_options(&first_path_url, cloud_options.unwrap_or_default())?;
+        //     if let Some(file_cache_ttl) = file_cache_ttl {
+        //         cloud_options.file_cache_ttl = file_cache_ttl;
+        //     }
+        //     cloud_options = cloud_options
+        //         .with_max_retries(retries)
+        //         .with_credential_provider(
+        //             credential_provider.map(PlCredentialProvider::from_python_func_object),
+        //         );
+        //     r = r.with_cloud_options(Some(cloud_options));
+        // }
 
         let mut r = r
             .with_infer_schema_length(infer_schema_length)
@@ -327,18 +327,18 @@ impl PlRLazyFrame {
             .with_skip_rows(skip_rows)
             .with_n_rows(n_rows)
             .with_cache(cache)
-            .with_dtype_overwrite(overwrite_dtype.map(Arc::new))
-            .with_schema(schema.map(|schema| Arc::new(schema.0)))
+            // .with_dtype_overwrite(overwrite_dtype.map(Arc::new))
+            // .with_schema(schema.map(|schema| Arc::new(schema.0)))
             .with_low_memory(low_memory)
             .with_comment_prefix(comment_prefix.map(|x| x.into()))
             .with_quote_char(quote_char)
             .with_eol_char(eol_char)
             .with_rechunk(rechunk)
             .with_skip_rows_after_header(skip_rows_after_header)
-            .with_encoding(encoding.0)
+            .with_encoding(encoding)
             .with_row_index(row_index)
             .with_try_parse_dates(try_parse_dates)
-            .with_null_values(null_values)
+            // .with_null_values(null_values)
             .with_missing_is_null(!missing_utf8_is_empty_string)
             .with_truncate_ragged_lines(truncate_ragged_lines)
             .with_decimal_comma(decimal_comma)
@@ -346,28 +346,28 @@ impl PlRLazyFrame {
             .with_raise_if_empty(raise_if_empty)
             .with_include_file_paths(include_file_paths.map(|x| x.into()));
 
-        if let Some(lambda) = with_schema_modify {
-            let f = |schema: Schema| {
-                let iter = schema.iter_names().map(|s| s.as_str());
-                Python::with_gil(|py| {
-                    let names = PyList::new_bound(py, iter);
+        // if let Some(lambda) = with_schema_modify {
+        //     let f = |schema: Schema| {
+        //         let iter = schema.iter_names().map(|s| s.as_str());
+        //         Python::with_gil(|py| {
+        //             let names = PyList::new_bound(py, iter);
 
-                    let out = lambda.call1(py, (names,)).expect("python function failed");
-                    let new_names = out
-                        .extract::<Vec<String>>(py)
-                        .expect("python function should return List[str]");
-                    polars_ensure!(new_names.len() == schema.len(),
-                        ShapeMismatch: "The length of the new names list should be equal to or less than the original column length",
-                    );
-                    Ok(schema
-                        .iter_values()
-                        .zip(new_names)
-                        .map(|(dtype, name)| Field::new(name.into(), dtype.clone()))
-                        .collect())
-                })
-            };
-            r = r.with_schema_modify(f).map_err(RPolarsErr::from)?
-        }
+        //             let out = lambda.call1(py, (names,)).expect("python function failed");
+        //             let new_names = out
+        //                 .extract::<Vec<String>>(py)
+        //                 .expect("python function should return List[str]");
+        //             polars_ensure!(new_names.len() == schema.len(),
+        //                 ShapeMismatch: "The length of the new names list should be equal to or less than the original column length",
+        //             );
+        //             Ok(schema
+        //                 .iter_values()
+        //                 .zip(new_names)
+        //                 .map(|(dtype, name)| Field::new(name.into(), dtype.clone()))
+        //                 .collect())
+        //         })
+        //     };
+        //     r = r.with_schema_modify(f).map_err(RPolarsErr::from)?
+        // }
 
         Ok(r.finish().map_err(RPolarsErr::from)?.into())
     }
