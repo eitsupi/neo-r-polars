@@ -443,7 +443,7 @@ impl TryFrom<&str> for Wrap<CsvEncoding> {
     }
 }
 
-pub(crate) fn parse_cloud_options(uri: &str, kv: Vec<(String, String)>) -> Result<CloudOptions> {
-    let out = CloudOptions::from_untyped_config(uri, kv).map_err(RPolarsErr::from)?;
-    Ok(out)
-}
+// pub(crate) fn parse_cloud_options(uri: &str, kv: Vec<(String, String)>) -> Result<CloudOptions> {
+//     let out = CloudOptions::from_untyped_config(uri, kv).map_err(RPolarsErr::from)?;
+//     Ok(out)
+// }

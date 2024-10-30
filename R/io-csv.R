@@ -114,7 +114,7 @@
 #' lazy_frame <- pl$scan_csv(my_file)
 #' lazy_frame$collect()
 #' unlink(my_file)
-pl_scan_csv <- function(
+pl__scan_csv <- function(
     source,
     ...,
     has_header = TRUE,
@@ -122,14 +122,14 @@ pl_scan_csv <- function(
     comment_prefix = NULL,
     quote_char = '"',
     skip_rows = 0,
-    schema = NULL,
-    schema_overrides = NULL,
-    null_values = NULL,
+    # schema = NULL,
+    # schema_overrides = NULL,
+    # null_values = NULL,
     missing_utf8_is_empty_string = FALSE,
     ignore_errors = FALSE,
     cache = FALSE,
-    with_column_names = NULL,
-    infer_schema = TRUE,
+    # with_column_names = NULL,
+    # infer_schema = TRUE,
     infer_schema_length = 100,
     n_rows = NULL,
     encoding = c("utf8", "utf8-lossy"),
@@ -140,13 +140,13 @@ pl_scan_csv <- function(
     row_index_offset = 0,
     try_parse_dates = FALSE,
     eol_char = "\n",
-    new_columns = NULL,
+    # new_columns = NULL,
     raise_if_empty = TRUE,
     truncate_ragged_lines = FALSE,
     decimal_comma = FALSE,
     glob = TRUE,
-    storage_options = NULL,
-    credential_provider = NULL,
+    # storage_options = NULL,
+    # credential_provider = NULL,
     retries = 2,
     file_cache_ttl = NULL,
     include_file_paths = NULL) {
@@ -156,53 +156,55 @@ pl_scan_csv <- function(
 
     # capture all args and modify some to match lower level function
     args <- as.list(environment())
-    args[["source"]] <- lapply(source, check_is_link, raise_error = TRUE)
+    # args[["path"]] <- lapply(source, check_is_link, raise_error = TRUE)
+    args[["path"]] <- args[["source"]]
+    args[["source"]] <- NULL
 
     # dtypes: convert named list of DataType's to DataTypeVector obj
-    if (!is.null(args$dtypes)) {
-      args$dtypes <- list_to_datatype_vector(args$dtypes)
-    }
+    # if (!is.null(args$dtypes)) {
+    #   args$dtypes <- list_to_datatype_vector(args$dtypes)
+    # }
 
-    # null_values: convert string or un/named  char vec into RNullValues obj
-    if (!is.null(args$null_values)) {
-      nullvals <- args$null_values
-      RNullValues <- (function() {
-        # one string is used as one NULL marker for all columns
-        if (is_string(nullvals)) {
-          return(RPolarsRNullValues$new_all_columns(nullvals))
-        }
+    # # null_values: convert string or un/named  char vec into RNullValues obj
+    # if (!is.null(args$null_values)) {
+    #   nullvals <- args$null_values
+    #   RNullValues <- (function() {
+    #     # one string is used as one NULL marker for all columns
+    #     if (is_string(nullvals)) {
+    #       return(RPolarsRNullValues$new_all_columns(nullvals))
+    #     }
 
-        # many unnamed strings(char vec) is used one mark for each column
-        if (is.character(nullvals) && !is_named(nullvals)) {
-          return(RPolarsRNullValues$new_columns(nullvals))
-        }
+    #     # many unnamed strings(char vec) is used one mark for each column
+    #     if (is.character(nullvals) && !is_named(nullvals)) {
+    #       return(RPolarsRNullValues$new_columns(nullvals))
+    #     }
 
-        # named list is used as column(name) marker(value) pairs
-        if (is.list(nullvals) && is_named(nullvals)) {
-          return(RPolarsRNullValues$new_named(unlist(null_values)))
-        }
+    #     # named list is used as column(name) marker(value) pairs
+    #     if (is.list(nullvals) && is_named(nullvals)) {
+    #       return(RPolarsRNullValues$new_named(unlist(null_values)))
+    #     }
 
-        abort("`null_values` must be a string or a named list.")
-      })
+    #     abort("`null_values` must be a string or a named list.")
+    #   })
 
-      args$null_values <- RNullValues
-    }
+    #   args$null_values <- RNullValues
+    # }
 
     if (is.null(row_index_name) && !is.null(row_index_offset)) {
       args["row_index_offset"] <- list(NULL)
     }
 
     ## call low level function with args
-    check_no_missing_args(new_from_csv, args)
-    do.call(new_from_csv, args)
+    # check_no_missing_args(new_from_csv, args)
+    do.call(PlRLazyFrame$new_from_csv, args)
   })
 }
 
 #' New DataFrame from CSV
 #' @rdname IO_read_csv
-#' @inheritParams pl_scan_csv
+#' @inheritParams pl__scan_csv
 #' @return [DataFrame][DataFrame_class]
-pl_read_csv <- function(
+pl__read_csv <- function(
     source,
     ...,
     has_header = TRUE,
