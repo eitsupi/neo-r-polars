@@ -18,8 +18,8 @@
 pl__min_horizontal <- function(...) {
   wrap({
     check_dots_unnamed()
-    by <- parse_into_list_of_expressions(...)
-    min_horizontal(by)
+    parse_into_list_of_expressions(...) |> 
+      min_horizontal()
   })
 }
 
@@ -40,8 +40,8 @@ pl__min_horizontal <- function(...) {
 pl__max_horizontal <- function(...) {
   wrap({
     check_dots_unnamed()
-    by <- parse_into_list_of_expressions(...)
-    max_horizontal(by)
+    parse_into_list_of_expressions(...) |> 
+      max_horizontal()
   })
 }
 
@@ -69,8 +69,8 @@ pl__max_horizontal <- function(...) {
 pl__all_horizontal <- function(...) {
   wrap({
     check_dots_unnamed()
-    by <- parse_into_list_of_expressions(...)
-    all_horizontal(by)
+    parse_into_list_of_expressions(...) |> 
+      all_horizontal()
   })
 }
 
@@ -93,8 +93,8 @@ pl__all_horizontal <- function(...) {
 pl__any_horizontal <- function(...) {
   wrap({
     check_dots_unnamed()
-    by <- parse_into_list_of_expressions(...)
-    any_horizontal(by)
+    parse_into_list_of_expressions(...) |> 
+      any_horizontal()
   })
 }
 
@@ -115,8 +115,8 @@ pl__any_horizontal <- function(...) {
 pl__sum_horizontal <- function(...) {
   wrap({
     check_dots_unnamed()
-    by <- parse_into_list_of_expressions(...)
-    sum_horizontal(by)
+    parse_into_list_of_expressions(...) |> 
+      sum_horizontal()
   })
 }
 
@@ -139,7 +139,7 @@ pl__sum_horizontal <- function(...) {
 pl__mean_horizontal <- function(...) {
   wrap({
     check_dots_unnamed()
-    by <- parse_into_list_of_expressions(...)
-    mean_horizontal(by)
+    parse_into_list_of_expressions(...) |> 
+      mean_horizontal()
   })
 }

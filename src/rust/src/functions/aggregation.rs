@@ -1,6 +1,5 @@
 use crate::{prelude::*, PlRExpr, RPolarsErr};
 use polars::lazy::dsl;
-use polars::prelude::Expr;
 use savvy::{savvy, ListSexp, Result};
 
 #[savvy]
