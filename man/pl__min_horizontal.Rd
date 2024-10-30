@@ -7,8 +7,8 @@
 pl__min_horizontal(...)
 }
 \arguments{
-\item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> Columns to concatenate into a
-single string column. Accepts expressions. Strings are parsed as column
+\item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> Columns to aggregate
+horizontally. Accepts expressions. Strings are parsed as column
 names, other non-expression inputs are parsed as literals.}
 }
 \value{

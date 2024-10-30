@@ -1,7 +1,7 @@
 #' Get the minimum value horizontally across columns
 #'
-#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Columns to concatenate into a
-#' single string column. Accepts expressions. Strings are parsed as column
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Columns to aggregate 
+#' horizontally. Accepts expressions. Strings are parsed as column
 #' names, other non-expression inputs are parsed as literals.
 #'
 #' @inherit as_polars_expr return
@@ -25,7 +25,7 @@ pl__min_horizontal <- function(...) {
 
 #' Get the maximum value horizontally across columns
 #'
-#' @inheritParams pl_min_horizontal
+#' @inheritParams pl__min_horizontal
 #' @inherit as_polars_expr return
 #'
 #' @examples
@@ -47,7 +47,7 @@ pl__max_horizontal <- function(...) {
 
 #' Apply the AND logical horizontally across columns
 #'
-#' @inheritParams pl_min_horizontal
+#' @inheritParams pl__min_horizontal
 #'
 #' @details
 #' [Kleene logic](https://en.wikipedia.org/wiki/Three-valued_logic) is used to
@@ -76,8 +76,8 @@ pl__all_horizontal <- function(...) {
 
 #' Apply the OR logical horizontally across columns
 #'
-#' @inheritParams pl_min_horizontal
-#' @inherit pl_all_horizontal details
+#' @inheritParams pl__min_horizontal
+#' @inherit pl__all_horizontal details
 #' @inherit as_polars_expr return
 #'
 #' @examples
@@ -100,7 +100,7 @@ pl__any_horizontal <- function(...) {
 
 #' Compute the sum horizontally across columns
 #'
-#' @inheritParams pl_min_horizontal
+#' @inheritParams pl__min_horizontal
 #' @inherit as_polars_expr return
 #'
 #' @examples
@@ -122,7 +122,7 @@ pl__sum_horizontal <- function(...) {
 
 #' Compute the mean horizontally across columns
 #'
-#' @inheritParams pl_min_horizontal pl_sum_horizontal
+#' @inheritParams pl__min_horizontal 
 #'
 #' @inherit as_polars_expr return
 #'

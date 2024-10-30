@@ -6,11 +6,21 @@
 \usage{
 pl__any_horizontal(...)
 }
+\arguments{
+\item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> Columns to aggregate
+horizontally. Accepts expressions. Strings are parsed as column
+names, other non-expression inputs are parsed as literals.}
+}
 \value{
 A polars \link{expression}
 }
 \description{
 Apply the OR logical horizontally across columns
+}
+\details{
+\href{https://en.wikipedia.org/wiki/Three-valued_logic}{Kleene logic} is used to
+deal with nulls: if the column contains any null values and no \code{FALSE}
+values, the output is null.
 }
 \examples{
 df <- pl$DataFrame(
