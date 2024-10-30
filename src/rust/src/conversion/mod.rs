@@ -2,7 +2,7 @@ use crate::prelude::*;
 use crate::{PlRDataFrame, PlRDataType, PlRExpr};
 use polars::prelude::cloud::CloudOptions;
 use polars::series::ops::NullBehavior;
-use savvy::{ListSexp, NumericScalar, NumericSexp, TypedSexp};
+use savvy::{ListSexp, NumericScalar, NumericSexp, Sexp, TypedSexp};
 pub mod base_date;
 mod chunked_array;
 pub mod clock;
@@ -447,3 +447,46 @@ impl TryFrom<&str> for Wrap<CsvEncoding> {
 //     let out = CloudOptions::from_untyped_config(uri, kv).map_err(RPolarsErr::from)?;
 //     Ok(out)
 // }
+
+// TODO: cleanup this, e.g remove the unreachable!()
+impl TryFrom<ListSexp> for Wrap<NullValues> {
+    type Error = String;
+
+    fn try_from(null_values: ListSexp) -> Result<Self, String> {
+        let has_names = Sexp(null_values.inner()).get_names().is_some();
+        if has_names {
+            let list = null_values
+                .iter()
+                .map(|(x_name, x_value)| {
+                    let typed = x_value.into_typed();
+                    let out = match typed {
+                        TypedSexp::String(x) => x.to_vec()[0],
+                        _ => unreachable!(),
+                    };
+                    (x_name.into(), out.into())
+                })
+                .collect::<Vec<(PlSmallStr, PlSmallStr)>>();
+            return Ok(Wrap(NullValues::Named(list)));
+        } else if null_values.len() == 1 {
+            let val = null_values.get_by_index(0).unwrap().into_typed();
+            let out = match val {
+                TypedSexp::String(x) => x.to_vec()[0],
+                _ => unreachable!(),
+            };
+            return Ok(Wrap(NullValues::AllColumnsSingle(out.into())));
+        } else {
+            let out = null_values
+                .iter()
+                .map(|x| {
+                    let res = x.1.into_typed();
+                    let val = match res {
+                        TypedSexp::String(x) => x.to_vec()[0],
+                        _ => unreachable!(),
+                    };
+                    val.into()
+                })
+                .collect::<Vec<PlSmallStr>>();
+            return Ok(Wrap(NullValues::AllColumns(out)));
+        }
+    }
+}

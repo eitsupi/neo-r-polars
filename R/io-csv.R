@@ -124,12 +124,12 @@ pl__scan_csv <- function(
     skip_rows = 0,
     # schema = NULL,
     # schema_overrides = NULL,
-    # null_values = NULL,
+    null_values = NULL,
     missing_utf8_is_empty_string = FALSE,
     ignore_errors = FALSE,
     cache = FALSE,
     # with_column_names = NULL,
-    # infer_schema = TRUE,
+    infer_schema = TRUE,
     infer_schema_length = 100,
     n_rows = NULL,
     encoding = c("utf8", "utf8-lossy"),
@@ -154,11 +154,11 @@ pl__scan_csv <- function(
     check_dots_empty0(...)
     encoding <- arg_match0(encoding, values = c("utf8", "utf8-lossy"))
 
-    # capture all args and modify some to match lower level function
-    args <- as.list(environment())
     # args[["path"]] <- lapply(source, check_is_link, raise_error = TRUE)
-    args[["path"]] <- args[["source"]]
-    args[["source"]] <- NULL
+
+    if (isFALSE(infer_schema)) {
+      infer_schema_length <- 0
+    }
 
     # dtypes: convert named list of DataType's to DataTypeVector obj
     # if (!is.null(args$dtypes)) {
@@ -191,12 +191,47 @@ pl__scan_csv <- function(
     # }
 
     if (is.null(row_index_name) && !is.null(row_index_offset)) {
-      args["row_index_offset"] <- list(NULL)
+      row_index_offset <- NULL
     }
 
-    ## call low level function with args
-    # check_no_missing_args(new_from_csv, args)
-    do.call(PlRLazyFrame$new_from_csv, args)
+    if (is.character(null_values)) {
+      null_values <- as.list(null_values)
+    }
+
+    PlRLazyFrame$new_from_csv(
+      path = source,
+      separator = separator,
+      has_header = has_header,
+      ignore_errors = ignore_errors,
+      skip_rows = skip_rows,
+      cache = cache,
+      missing_utf8_is_empty_string = missing_utf8_is_empty_string,
+      low_memory = low_memory,
+      rechunk = rechunk,
+      skip_rows_after_header = skip_rows_after_header,
+      encoding = encoding,
+      try_parse_dates = try_parse_dates,
+      eol_char = eol_char,
+      raise_if_empty = raise_if_empty,
+      truncate_ragged_lines = truncate_ragged_lines,
+      decimal_comma = decimal_comma,
+      glob = glob,
+      retries = retries,
+      comment_prefix = comment_prefix,
+      quote_char = quote_char,
+      null_values = null_values,
+      infer_schema_length = infer_schema_length,
+      # with_schema_modify = with_schema_modify,
+      row_index_name = row_index_name,
+      row_index_offset = row_index_offset,
+      n_rows = n_rows,
+      # overwrite_dtype = overwrite_dtype,
+      # schema = schema ,
+      # cloud_options = cloud_options,
+      # credential_provider = credential_provider,
+      file_cache_ttl = file_cache_ttl,
+      include_file_paths = include_file_paths
+    )
   })
 }
 

@@ -216,7 +216,7 @@ impl PlRLazyFrame {
         retries: NumericScalar,
         comment_prefix: Option<&str>,
         quote_char: Option<&str>,
-        // null_values: Option<Wrap<NullValues>>,
+        null_values: Option<ListSexp>,
         infer_schema_length: Option<NumericScalar>,
         // with_schema_modify: Option<PyObject>,
         row_index_name: Option<&str>,
@@ -245,6 +245,10 @@ impl PlRLazyFrame {
         };
         let n_rows: Option<usize> = match n_rows {
             Some(x) => Some(<Wrap<usize>>::try_from(x)?.0),
+            None => None,
+        };
+        let null_values: Option<NullValues> = match null_values {
+            Some(x) => Some(<Wrap<NullValues>>::try_from(x)?.0),
             None => None,
         };
         let retries = <Wrap<usize>>::try_from(retries)?.0;
@@ -338,7 +342,7 @@ impl PlRLazyFrame {
             .with_encoding(encoding)
             .with_row_index(row_index)
             .with_try_parse_dates(try_parse_dates)
-            // .with_null_values(null_values)
+            .with_null_values(null_values)
             .with_missing_is_null(!missing_utf8_is_empty_string)
             .with_truncate_ragged_lines(truncate_ragged_lines)
             .with_decimal_comma(decimal_comma)
