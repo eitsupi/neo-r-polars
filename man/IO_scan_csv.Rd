@@ -12,10 +12,13 @@ pl__scan_csv(
   comment_prefix = NULL,
   quote_char = "\\"",
   skip_rows = 0,
+  schema = NULL,
+  schema_overrides = NULL,
   null_values = NULL,
   missing_utf8_is_empty_string = FALSE,
   ignore_errors = FALSE,
   cache = FALSE,
+  with_column_names = NULL,
   infer_schema = TRUE,
   infer_schema_length = 100,
   n_rows = NULL,
@@ -27,6 +30,7 @@ pl__scan_csv(
   row_index_offset = 0,
   try_parse_dates = FALSE,
   eol_char = "\\n",
+  new_columns = NULL,
   raise_if_empty = TRUE,
   truncate_ragged_lines = FALSE,
   decimal_comma = FALSE,
@@ -60,6 +64,26 @@ turn off special handling and escaping of quotes.}
 \item{skip_rows}{Start reading after a particular number of rows. The header
 will be parsed at this offset.}
 
+\item{schema}{Provide the schema. This means that polars doesn't do schema
+inference. This argument expects the complete schema, whereas
+\code{schema_overrides} can be used to partially overwrite a schema. This must
+be a named list of column names - dtypes or dtype - column names. Supported
+types so far are:
+\itemize{
+\item "Boolean" or "logical" for DataType::Boolean,
+\item "Categorical" or "factor" for DataType::Categorical,
+\item "Float32" or "double" for DataType::Float32,
+\item "Float64" or "float64" for DataType::Float64,
+\item "Int32" or "integer" for DataType::Int32,
+\item "Int64" or "integer64" for DataType::Int64,
+\item "String" or "character" for DataType::String,
+}}
+
+\item{schema_overrides}{Overwrite dtypes during inference. This must be a
+named list of column names - dtypes. See \code{schema} for supported types. If
+\code{new_columns} is specified, then it can also be an unnamed list of dtypes of
+the same length.}
+
 \item{null_values}{Values to interpret as \code{NA} values. Can be:
 \itemize{
 \item a character vector: all values that match one of the values in this vector
@@ -76,6 +100,10 @@ You can also use \code{infer_schema = FALSE} to read all columns as UTF8 to
 check which values might cause an issue.}
 
 \item{cache}{Cache the result after reading.}
+
+\item{with_column_names}{Apply a function over the column names just in time
+(when they are determined). This function will receive (and should return) a
+list of column names.}
 
 \item{infer_schema}{If \code{TRUE} (default), the schema is inferred from the
 data using the first \code{infer_schema_length} rows. When \code{FALSE}, the schema is
@@ -113,6 +141,11 @@ succeed, the column remains of data type \code{pl$String}.}
 encountering a file with Windows line endings (\verb{\\r\\n}), one can go with the
 default \verb{\\n}. The extra \verb{\\r} will be removed when processed.}
 
+\item{new_columns}{Provide an explicit list of string column names to use
+(for example, when scanning a headerless CSV file). If the given list is
+shorter than the width of the DataFrame the remaining columns will have
+their original name.}
+
 \item{raise_if_empty}{If \code{FALSE}, parsing an empty file returns an empty
 DataFrame or LazyFrame.}
 
@@ -131,34 +164,6 @@ environment variable (which defaults to 1 hour) if not given.}
 
 \item{include_file_paths}{Include the path of the source file(s) as a column
 with this name.}
-
-\item{schema}{Provide the schema. This means that polars doesn't do schema
-inference. This argument expects the complete schema, whereas
-\code{schema_overrides} can be used to partially overwrite a schema. This must
-be a named list of column names - dtypes or dtype - column names. Supported
-types so far are:
-\itemize{
-\item "Boolean" or "logical" for DataType::Boolean,
-\item "Categorical" or "factor" for DataType::Categorical,
-\item "Float32" or "double" for DataType::Float32,
-\item "Float64" or "float64" for DataType::Float64,
-\item "Int32" or "integer" for DataType::Int32,
-\item "Int64" or "integer64" for DataType::Int64,
-\item "String" or "character" for DataType::String,
-}}
-
-\item{schema_overrides}{Overwrite dtypes during inference. This must be a
-named list of column names - dtypes or dtype - column names. See \code{schema}
-for supported types.}
-
-\item{with_column_names}{Apply a function over the column names just in time
-(when they are determined). This function will receive (and should return) a
-list of column names.}
-
-\item{new_columns}{Provide an explicit list of string column names to use
-(for example, when scanning a headerless CSV file). If the given list is
-shorter than the width of the DataFrame the remaining columns will have
-their original name.}
 
 \item{storage_options}{Options that indicate how to connect to a cloud
 provider. The cloud providers currently supported are AWS, GCP, and Azure.

@@ -34,8 +34,9 @@
 #' * "Int64" or "integer64" for DataType::Int64,
 #' * "String" or "character" for DataType::String,
 #' @param schema_overrides Overwrite dtypes during inference. This must be a
-#' named list of column names - dtypes or dtype - column names. See `schema`
-#' for supported types.
+#' named list of column names - dtypes. See `schema` for supported types. If
+#' `new_columns` is specified, then it can also be an unnamed list of dtypes of
+#' the same length.
 #' @param null_values Values to interpret as `NA` values. Can be:
 #' * a character vector: all values that match one of the values in this vector
 #'   will be `NA`;
@@ -128,7 +129,7 @@ pl__scan_csv <- function(
     missing_utf8_is_empty_string = FALSE,
     ignore_errors = FALSE,
     cache = FALSE,
-    # with_column_names = NULL,
+    with_column_names = NULL,
     infer_schema = TRUE,
     infer_schema_length = 100,
     n_rows = NULL,
@@ -140,7 +141,7 @@ pl__scan_csv <- function(
     row_index_offset = 0,
     try_parse_dates = FALSE,
     eol_char = "\n",
-    # new_columns = NULL,
+    new_columns = NULL,
     raise_if_empty = TRUE,
     truncate_ragged_lines = FALSE,
     decimal_comma = FALSE,
@@ -152,6 +153,9 @@ pl__scan_csv <- function(
     include_file_paths = NULL) {
   wrap({
     check_dots_empty0(...)
+    if (!is.null(with_column_names) && !is.null(new_columns)) {
+      abort("`with_column_names` and `new_columns` cannot be both specified.")
+    }
     check_list_of_polars_dtype(schema_overrides, allow_null = TRUE)
     check_list_of_polars_dtype(schema, allow_null = TRUE)
     encoding <- arg_match0(encoding, values = c("utf8", "utf8-lossy"))
@@ -177,6 +181,10 @@ pl__scan_csv <- function(
       abort("`null_values` must be a character vector or a named list.")
     }
 
+    if (!is.null(new_columns)) {
+      names(schema_overrides)[seq_along(new_columns)] <- new_columns
+    }
+
     if (any(names(schema_overrides) == "")) {
       abort("`schema_overrides` must be a named list. Currently it has unnamed elements.")
     }
@@ -185,40 +193,10 @@ pl__scan_csv <- function(
     if (any(names(schema) == "")) {
       abort("`schema` must be a named list. Currently it has unnamed elements.")
     }
+
     if (length(schema) > 0) {
       schema <- lapply(schema, \(x) x$`_dt`)
     }
-
-
-    # dtypes: convert named list of DataType's to DataTypeVector obj
-    # if (!is.null(args$dtypes)) {
-    #   args$dtypes <- list_to_datatype_vector(args$dtypes)
-    # }
-
-    # # null_values: convert string or un/named  char vec into RNullValues obj
-    # if (!is.null(args$null_values)) {
-    #   nullvals <- args$null_values
-    #   RNullValues <- (function() {
-    #     # one string is used as one NULL marker for all columns
-    #     if (is_string(nullvals)) {
-    #       return(RPolarsRNullValues$new_all_columns(nullvals))
-    #     }
-
-    #     # many unnamed strings(char vec) is used one mark for each column
-    #     if (is.character(nullvals) && !is_named(nullvals)) {
-    #       return(RPolarsRNullValues$new_columns(nullvals))
-    #     }
-
-    #     # named list is used as column(name) marker(value) pairs
-    #     if (is.list(nullvals) && is_named(nullvals)) {
-    #       return(RPolarsRNullValues$new_named(unlist(null_values)))
-    #     }
-
-    #     abort("`null_values` must be a string or a named list.")
-    #   })
-
-    #   args$null_values <- RNullValues
-    # }
 
     if (is.null(row_index_name) && !is.null(row_index_offset)) {
       row_index_offset <- NULL
@@ -279,7 +257,7 @@ pl__read_csv <- function(
     missing_utf8_is_empty_string = FALSE,
     ignore_errors = FALSE,
     cache = FALSE,
-    # with_column_names = NULL,
+    with_column_names = NULL,
     infer_schema = TRUE,
     infer_schema_length = 100,
     n_rows = NULL,
@@ -291,7 +269,7 @@ pl__read_csv <- function(
     row_index_offset = 0,
     try_parse_dates = FALSE,
     eol_char = "\n",
-    # new_columns = NULL,
+    new_columns = NULL,
     raise_if_empty = TRUE,
     truncate_ragged_lines = FALSE,
     decimal_comma = FALSE,
