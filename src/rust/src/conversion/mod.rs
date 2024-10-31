@@ -3,6 +3,7 @@ use crate::{PlRDataFrame, PlRDataType, PlRExpr};
 use polars::prelude::cloud::CloudOptions;
 use polars::series::ops::NullBehavior;
 use savvy::{ListSexp, NumericScalar, NumericSexp, Sexp, TypedSexp};
+use std::collections::HashMap;
 pub mod base_date;
 mod chunked_array;
 pub mod clock;
@@ -489,5 +490,23 @@ impl TryFrom<ListSexp> for Wrap<NullValues> {
                 .collect::<Vec<PlSmallStr>>();
             return Ok(Wrap(NullValues::AllColumns(out)));
         }
+    }
+}
+
+impl TryFrom<ListSexp> for Wrap<Schema> {
+    type Error = String;
+
+    fn try_from(schema: ListSexp) -> Result<Self, String> {
+        let names_list = schema.iter().map(|x| x.0).collect::<Vec<&str>>();
+        // TODO: try to improve that
+        // Can't have "?" here, hence the unwrap()
+        let hm = <Wrap<Vec<DataType>>>::try_from(schema).unwrap().0;
+        let mut schema = Schema::with_capacity(hm.capacity());
+
+        for i in 0..hm.len() {
+            schema.with_column(names_list[i].into(), hm[i].clone().into());
+        }
+
+        Ok(Wrap(schema))
     }
 }

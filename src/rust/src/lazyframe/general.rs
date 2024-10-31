@@ -3,7 +3,8 @@ use crate::{
 };
 use polars::io::RowIndex;
 use savvy::{
-    savvy, ListSexp, LogicalSexp, NumericScalar, OwnedStringSexp, Result, Sexp, TypedSexp,
+    r_println, savvy, ListSexp, LogicalSexp, NumericScalar, OwnedStringSexp, Result, Sexp,
+    TypedSexp,
 };
 
 #[savvy]
@@ -225,7 +226,7 @@ impl PlRLazyFrame {
         row_index_offset: Option<NumericScalar>,
         n_rows: Option<NumericScalar>,
         overwrite_dtype: Option<ListSexp>,
-        // schema: Option<Wrap<Schema>>,
+        schema: Option<ListSexp>,
         // cloud_options: Option<Vec<(String, String)>>,
         // credential_provider: Option<PyObject>,
         file_cache_ttl: Option<NumericScalar>,
@@ -311,6 +312,11 @@ impl PlRLazyFrame {
                 .collect::<Schema>()
         });
 
+        let schema: Option<Wrap<Schema>> = match schema {
+            Some(x) => Some(<Wrap<Schema>>::try_from(x)?),
+            None => None,
+        };
+
         let sources = path;
         // let first_path = sources;
         // let sources = sources.0;
@@ -347,7 +353,7 @@ impl PlRLazyFrame {
             .with_n_rows(n_rows)
             .with_cache(cache)
             .with_dtype_overwrite(overwrite_dtype.map(Arc::new))
-            // .with_schema(schema.map(|schema| Arc::new(schema.0)))
+            .with_schema(schema.map(|schema| Arc::new(schema.0)))
             .with_low_memory(low_memory)
             .with_comment_prefix(comment_prefix.map(|x| x.into()))
             .with_quote_char(quote_char)

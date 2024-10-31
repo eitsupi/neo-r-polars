@@ -122,7 +122,7 @@ pl__scan_csv <- function(
     comment_prefix = NULL,
     quote_char = '"',
     skip_rows = 0,
-    # schema = NULL,
+    schema = NULL,
     schema_overrides = NULL,
     null_values = NULL,
     missing_utf8_is_empty_string = FALSE,
@@ -153,6 +153,7 @@ pl__scan_csv <- function(
   wrap({
     check_dots_empty0(...)
     check_list_of_polars_dtype(schema_overrides, allow_null = TRUE)
+    check_list_of_polars_dtype(schema, allow_null = TRUE)
     encoding <- arg_match0(encoding, values = c("utf8", "utf8-lossy"))
 
     # args[["path"]] <- lapply(source, check_is_link, raise_error = TRUE)
@@ -180,6 +181,13 @@ pl__scan_csv <- function(
       abort("`schema_overrides` must be a named list. Currently it has unnamed elements.")
     }
     schema_overrides <- lapply(schema_overrides, \(x) x$`_dt`)
+
+    if (any(names(schema) == "")) {
+      abort("`schema` must be a named list. Currently it has unnamed elements.")
+    }
+    if (length(schema) > 0) {
+      schema <- lapply(schema, \(x) x$`_dt`)
+    }
 
 
     # dtypes: convert named list of DataType's to DataTypeVector obj
@@ -244,7 +252,7 @@ pl__scan_csv <- function(
       row_index_offset = row_index_offset,
       n_rows = n_rows,
       overwrite_dtype = schema_overrides,
-      # schema = schema ,
+      schema = schema,
       # cloud_options = cloud_options,
       # credential_provider = credential_provider,
       file_cache_ttl = file_cache_ttl,
@@ -265,7 +273,7 @@ pl__read_csv <- function(
     comment_prefix = NULL,
     quote_char = '"',
     skip_rows = 0,
-    # schema = NULL,
+    schema = NULL,
     schema_overrides = NULL,
     null_values = NULL,
     missing_utf8_is_empty_string = FALSE,

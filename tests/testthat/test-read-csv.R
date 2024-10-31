@@ -68,16 +68,6 @@ test_that("arg try_parse_date work", {
   expect_equal(out$schema, list(foo = pl$Date))
 })
 
-test_that("arg dtypes work", {
-  dat <- iris
-  tmpf <- tempfile()
-  write.csv(dat, tmpf, row.names = FALSE)
-
-  out <- pl$read_csv(tmpf, dtypes = list(Sepal.Length = "Float32", Species = "factor"))
-  expect_true(out$schema$Sepal.Length$eq(pl$Float32))
-  expect_true(out$schema$Species$eq(pl$Categorical()))
-})
-
 test_that("arg raise_if_empty works", {
   tmpf <- tempfile()
   writeLines("", tmpf)
@@ -241,6 +231,23 @@ test_that("arg 'schema_overrides' works", {
   )
   expect_snapshot(
     pl$read_csv(tmpf, schema_overrides = list(b = 1, c = pl$Int32)),
+    error = TRUE
+  )
+})
+
+test_that("arg 'schema' works", {
+  tmpf <- tempfile()
+  writeLines("a,b,c\n1.5,a,2\n2,,", tmpf)
+  expect_equal(
+    pl$read_csv(tmpf, schema = list(a = pl$Float32, b = pl$Categorical(), c = pl$Int32)),
+    pl$DataFrame(a = c(1.5, 2), b = factor(c("a", NA)), c = c(2L, NA))$cast(a = pl$Float32)
+  )
+  expect_snapshot(
+    pl$read_csv(tmpf, schema = list(b = pl$Categorical(), c = pl$Int32)),
+    error = TRUE
+  )
+  expect_snapshot(
+    pl$read_csv(tmpf, schema = list(a = pl$Binary, b = pl$Categorical(), c = pl$Int32)),
     error = TRUE
   )
 })
