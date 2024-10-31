@@ -2172,7 +2172,7 @@ dependencies = [
  "once_cell",
  "socket2",
  "tracing",
- "windows-sys 0.52.0",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -2526,8 +2526,9 @@ dependencies = [
 
 [[package]]
 name = "savvy"
-version = "0.7.2"
-source = "git+https://github.com/yutannihilation/savvy.git?branch=feat/error-conversion2#10512b3b26955edad412d6e25c0a3f159dce1038"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2108f6d749b271322de39766a49f4d3558e07bb8917b967c1e0c4b8283c85697"
 dependencies = [
  "cc",
  "once_cell",
@@ -2538,8 +2539,9 @@ dependencies = [
 
 [[package]]
 name = "savvy-bindgen"
-version = "0.7.2"
-source = "git+https://github.com/yutannihilation/savvy.git?branch=feat/error-conversion2#10512b3b26955edad412d6e25c0a3f159dce1038"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "35f20136fec51032d5dee6c482075bd442a040a1c30eda6f63ec7da3f8830cbc"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2548,13 +2550,15 @@ dependencies = [
 
 [[package]]
 name = "savvy-ffi"
-version = "0.7.2"
-source = "git+https://github.com/yutannihilation/savvy.git?branch=feat/error-conversion2#10512b3b26955edad412d6e25c0a3f159dce1038"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1874b7fd7f5aae4f96ec9511cf44f6f2247b710041e8a1c14d4ec1b2e3775427"
 
 [[package]]
 name = "savvy-macro"
-version = "0.7.2"
-source = "git+https://github.com/yutannihilation/savvy.git?branch=feat/error-conversion2#10512b3b26955edad412d6e25c0a3f159dce1038"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ac0ab67d3d56c2861dfb05877c6345dda7e25dc710d4af3a818b1458e5d4f304"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3315,7 +3319,7 @@ version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf221c93e13a30d793f7645a0e7762c55d169dbb0a49671918a2319d289b10bb"
 dependencies = [
- "windows-sys 0.52.0",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
