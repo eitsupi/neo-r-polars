@@ -1,21 +1,3 @@
-# map_batches works
-
-    Code
-      .data$select(pl$col("a")$map_batches(function(...) integer))
-    Condition
-      Error:
-      ! Evaluation failed in `$select()`.
-      Caused by error:
-      ! Evaluation failed in `$collect()`.
-      Caused by error:
-      ! Unsupported class for `as_polars_series()`: function
-      Error:
-      ! Evaluation failed in `$select()`.
-      Caused by error:
-      ! Evaluation failed in `$collect()`.
-      Caused by error:
-      ! User function raised an error
-
 # $over() with mapping_strategy
 
     Code
@@ -129,7 +111,7 @@
       Error:
       ! Evaluation failed in `$std()`.
       Caused by error:
-      ! Value `256.0` is too large to be converted to u8
+      ! 256.0 is out of range that can be safely converted to u8
 
 ---
 
@@ -139,7 +121,7 @@
       Error:
       ! Evaluation failed in `$var()`.
       Caused by error:
-      ! Value `-1.0` is too small to be converted to u8
+      ! -1.0 is out of range that can be safely converted to u8
 
 # is_between errors if wrong 'closed' arg
 
@@ -180,7 +162,7 @@
       Caused by error:
       ! Evaluation failed in `$rolling_min_by()`.
       Caused by error:
-      ! Negative value `-1.0` cannot be converted to usize
+      ! -1.0 is out of range that can be safely converted to usize
 
 # rolling_*_by: arg 'closed'
 
@@ -204,7 +186,7 @@
       Error:
       ! Evaluation failed in `$diff()`.
       Caused by error:
-      ! Value `3.697296376497268e197` is too large to be converted to i64
+      ! 3.697296376497268e197 is out of range that can be safely converted to i64
 
 ---
 
@@ -254,7 +236,7 @@
       Error:
       ! Evaluation failed in `$shuffle()`.
       Caused by error:
-      ! Value `-2.0` is too small to be converted to u64
+      ! -2.0 is out of range that can be safely converted to u64
 
 ---
 
@@ -274,7 +256,7 @@
       Error:
       ! Evaluation failed in `$shuffle()`.
       Caused by error:
-      ! Value `1e73` is too large to be converted to u64
+      ! 1e73 is out of range that can be safely converted to u64
 
 # sample
 
@@ -287,6 +269,105 @@
       ! Evaluation failed in `$collect()`.
       Caused by error:
       ! lengths don't match: cannot take a larger sample than the total population when `with_replacement=false`
+
+# ewm_
+
+    Code
+      ewm_mean_res
+    Output
+      shape: (11, 8)
+      ┌──────────┬──────────┬──────────┬──────────┬─────────────┬─────────────┬─────────────┬────────────┐
+      │ com1     ┆ span2    ┆ hl2      ┆ a.5      ┆ com1_noadju ┆ a.5_noadjus ┆ hl2_noadjus ┆ com1_min_p │
+      │ ---      ┆ ---      ┆ ---      ┆ ---      ┆ st          ┆ t           ┆ t           ┆ eriods     │
+      │ f64      ┆ f64      ┆ f64      ┆ f64      ┆ ---         ┆ ---         ┆ ---         ┆ ---        │
+      │          ┆          ┆          ┆          ┆ f64         ┆ f64         ┆ f64         ┆ f64        │
+      ╞══════════╪══════════╪══════════╪══════════╪═════════════╪═════════════╪═════════════╪════════════╡
+      │ 1.0      ┆ 1.0      ┆ 1.0      ┆ 1.0      ┆ 1.0         ┆ 1.0         ┆ 1.0         ┆ null       │
+      │ 0.333333 ┆ 0.25     ┆ 0.414214 ┆ 0.333333 ┆ 0.5         ┆ 0.5         ┆ 0.793701    ┆ null       │
+      │ 0.142857 ┆ 0.076923 ┆ 0.226541 ┆ 0.142857 ┆ 0.25        ┆ 0.25        ┆ 0.629961    ┆ null       │
+      │ 0.066667 ┆ 0.025    ┆ 0.138071 ┆ 0.066667 ┆ 0.125       ┆ 0.125       ┆ 0.5         ┆ 0.066667   │
+      │ 0.032258 ┆ 0.008264 ┆ 0.088947 ┆ 0.032258 ┆ 0.0625      ┆ 0.0625      ┆ 0.39685     ┆ 0.032258   │
+      │ …        ┆ …        ┆ …        ┆ …        ┆ …           ┆ …           ┆ …           ┆ …          │
+      │ 0.007874 ┆ 0.000915 ┆ 0.040161 ┆ 0.007874 ┆ 0.015625    ┆ 0.015625    ┆ 0.25        ┆ 0.007874   │
+      │ 0.003922 ┆ 0.000305 ┆ 0.027614 ┆ 0.003922 ┆ 0.0078125   ┆ 0.0078125   ┆ 0.198425    ┆ 0.003922   │
+      │ 0.001957 ┆ 0.000102 ┆ 0.019152 ┆ 0.001957 ┆ 0.003906    ┆ 0.003906    ┆ 0.15749     ┆ 0.001957   │
+      │ 0.000978 ┆ 0.000034 ┆ 0.013362 ┆ 0.000978 ┆ 0.001953    ┆ 0.001953    ┆ 0.125       ┆ 0.000978   │
+      │ 0.000489 ┆ 0.000011 ┆ 0.00936  ┆ 0.000489 ┆ 0.000977    ┆ 0.000977    ┆ 0.099213    ┆ 0.000489   │
+      └──────────┴──────────┴──────────┴──────────┴─────────────┴─────────────┴─────────────┴────────────┘
+
+---
+
+    Code
+      ewm_std_res
+    Output
+      shape: (11, 8)
+      ┌──────────┬──────────┬──────────┬──────────┬─────────────┬─────────────┬─────────────┬────────────┐
+      │ com1     ┆ span2    ┆ hl2      ┆ a.5      ┆ com1_noadju ┆ a.5_noadjus ┆ hl2_noadjus ┆ com1_min_p │
+      │ ---      ┆ ---      ┆ ---      ┆ ---      ┆ st          ┆ t           ┆ t           ┆ eriods     │
+      │ f64      ┆ f64      ┆ f64      ┆ f64      ┆ ---         ┆ ---         ┆ ---         ┆ ---        │
+      │          ┆          ┆          ┆          ┆ f64         ┆ f64         ┆ f64         ┆ f64        │
+      ╞══════════╪══════════╪══════════╪══════════╪═════════════╪═════════════╪═════════════╪════════════╡
+      │ 0.0      ┆ 0.0      ┆ 0.0      ┆ 0.0      ┆ 0.0         ┆ 0.0         ┆ 0.0         ┆ null       │
+      │ 0.707107 ┆ 0.707107 ┆ 0.707107 ┆ 0.707107 ┆ 0.707107    ┆ 0.707107    ┆ 0.707107    ┆ null       │
+      │ 0.46291  ┆ 0.392232 ┆ 0.522933 ┆ 0.46291  ┆ 0.547723    ┆ 0.547723    ┆ 0.660845    ┆ null       │
+      │ 0.316228 ┆ 0.223607 ┆ 0.408248 ┆ 0.316228 ┆ 0.408248    ┆ 0.408248    ┆ 0.613721    ┆ 0.316228   │
+      │ 0.219971 ┆ 0.128565 ┆ 0.327672 ┆ 0.219971 ┆ 0.297044    ┆ 0.297044    ┆ 0.566591    ┆ 0.219971   │
+      │ …        ┆ …        ┆ …        ┆ …        ┆ …           ┆ …           ┆ …           ┆ …          │
+      │ 0.108679 ┆ 0.042776 ┆ 0.22018  ┆ 0.108679 ┆ 0.151911    ┆ 0.151911    ┆ 0.475386    ┆ 0.108679   │
+      │ 0.076696 ┆ 0.024693 ┆ 0.182574 ┆ 0.076696 ┆ 0.107833    ┆ 0.107833    ┆ 0.432538    ┆ 0.076696   │
+      │ 0.05418  ┆ 0.014256 ┆ 0.152049 ┆ 0.05418  ┆ 0.076397    ┆ 0.076397    ┆ 0.392103    ┆ 0.05418    │
+      │ 0.038292 ┆ 0.008231 ┆ 0.127    ┆ 0.038292 ┆ 0.054074    ┆ 0.054074    ┆ 0.354332    ┆ 0.038292   │
+      │ 0.02707  ┆ 0.004752 ┆ 0.106293 ┆ 0.02707  ┆ 0.038255    ┆ 0.038255    ┆ 0.319355    ┆ 0.02707    │
+      └──────────┴──────────┴──────────┴──────────┴─────────────┴─────────────┴─────────────┴────────────┘
+
+---
+
+    Code
+      ewm_var_res
+    Output
+      shape: (11, 8)
+      ┌──────────┬──────────┬──────────┬──────────┬─────────────┬─────────────┬─────────────┬────────────┐
+      │ com1     ┆ span2    ┆ hl2      ┆ a.5      ┆ com1_noadju ┆ a.5_noadjus ┆ hl2_noadjus ┆ com1_min_p │
+      │ ---      ┆ ---      ┆ ---      ┆ ---      ┆ st          ┆ t           ┆ t           ┆ eriods     │
+      │ f64      ┆ f64      ┆ f64      ┆ f64      ┆ ---         ┆ ---         ┆ ---         ┆ ---        │
+      │          ┆          ┆          ┆          ┆ f64         ┆ f64         ┆ f64         ┆ f64        │
+      ╞══════════╪══════════╪══════════╪══════════╪═════════════╪═════════════╪═════════════╪════════════╡
+      │ 0.0      ┆ 0.0      ┆ 0.0      ┆ 0.0      ┆ 0.0         ┆ 0.0         ┆ 0.0         ┆ null       │
+      │ 0.5      ┆ 0.5      ┆ 0.5      ┆ 0.5      ┆ 0.5         ┆ 0.5         ┆ 0.5         ┆ null       │
+      │ 0.214286 ┆ 0.153846 ┆ 0.273459 ┆ 0.214286 ┆ 0.3         ┆ 0.3         ┆ 0.436716    ┆ null       │
+      │ 0.1      ┆ 0.05     ┆ 0.166667 ┆ 0.1      ┆ 0.166667    ┆ 0.166667    ┆ 0.376654    ┆ 0.1        │
+      │ 0.048387 ┆ 0.016529 ┆ 0.107369 ┆ 0.048387 ┆ 0.088235    ┆ 0.088235    ┆ 0.321026    ┆ 0.048387   │
+      │ …        ┆ …        ┆ …        ┆ …        ┆ …           ┆ …           ┆ …           ┆ …          │
+      │ 0.011811 ┆ 0.00183  ┆ 0.048479 ┆ 0.011811 ┆ 0.023077    ┆ 0.023077    ┆ 0.225992    ┆ 0.011811   │
+      │ 0.005882 ┆ 0.00061  ┆ 0.033333 ┆ 0.005882 ┆ 0.011628    ┆ 0.011628    ┆ 0.187089    ┆ 0.005882   │
+      │ 0.002935 ┆ 0.000203 ┆ 0.023119 ┆ 0.002935 ┆ 0.005837    ┆ 0.005837    ┆ 0.153744    ┆ 0.002935   │
+      │ 0.001466 ┆ 0.000068 ┆ 0.016129 ┆ 0.001466 ┆ 0.002924    ┆ 0.002924    ┆ 0.125551    ┆ 0.001466   │
+      │ 0.000733 ┆ 0.000023 ┆ 0.011298 ┆ 0.000733 ┆ 0.001463    ┆ 0.001463    ┆ 0.101988    ┆ 0.000733   │
+      └──────────┴──────────┴──────────┴──────────┴─────────────┴─────────────┴─────────────┴────────────┘
+
+# extend_constant
+
+    Code
+      pl$select(pl$lit(1)$extend_constant(5, -1))
+    Condition
+      Error:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! Invalid operation: conversion from `f64` to `u64` failed in column 'literal' for 1 out of 1 values: [-1.0]
+
+---
+
+    Code
+      pl$select(pl$lit(1)$extend_constant(5, Inf))
+    Condition
+      Error:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! Invalid operation: conversion from `f64` to `u64` failed in column 'literal' for 1 out of 1 values: [inf]
 
 # entropy
 
