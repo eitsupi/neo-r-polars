@@ -2,7 +2,9 @@ use crate::{
     prelude::*, PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame, PlRLazyGroupBy, RPolarsErr,
 };
 use polars::io::RowIndex;
-use savvy::{savvy, ListSexp, LogicalSexp, NumericScalar, OwnedStringSexp, Result, Sexp};
+use savvy::{
+    savvy, ListSexp, LogicalSexp, NumericScalar, OwnedStringSexp, Result, Sexp, TypedSexp,
+};
 
 #[savvy]
 impl PlRLazyFrame {
@@ -222,7 +224,7 @@ impl PlRLazyFrame {
         row_index_name: Option<&str>,
         row_index_offset: Option<NumericScalar>,
         n_rows: Option<NumericScalar>,
-        // overwrite_dtype: Option<Vec<(&str, Wrap<DataType>)>>,
+        overwrite_dtype: Option<ListSexp>,
         // schema: Option<Wrap<Schema>>,
         // cloud_options: Option<Vec<(String, String)>>,
         // credential_provider: Option<PyObject>,
@@ -289,12 +291,25 @@ impl PlRLazyFrame {
             None => None,
         };
 
-        // let overwrite_dtype = overwrite_dtype.map(|overwrite_dtype| {
-        //     overwrite_dtype
-        //         .into_iter()
-        //         .map(|(name, dtype)| Field::new((&*name).into(), dtype.0))
-        //         .collect::<Schema>()
-        // });
+        let overwrite_dtype: Option<Vec<(&str, DataType)>> = match overwrite_dtype {
+            Some(x) => {
+                let list_len = x.len();
+                let mut vec = Vec::with_capacity(x.len());
+                let names_list = x.iter().map(|x| x.0).collect::<Vec<&str>>();
+                let vec_dt = <Wrap<Vec<DataType>>>::try_from(x)?.0;
+                for i in 0..list_len {
+                    vec.push((names_list[i], vec_dt[i].clone()));
+                }
+                Some(vec)
+            }
+            None => None,
+        };
+        let overwrite_dtype = overwrite_dtype.map(|overwrite_dtype| {
+            overwrite_dtype
+                .into_iter()
+                .map(|(name, dtype)| Field::new((&*name).into(), dtype))
+                .collect::<Schema>()
+        });
 
         let sources = path;
         // let first_path = sources;
@@ -331,7 +346,7 @@ impl PlRLazyFrame {
             .with_skip_rows(skip_rows)
             .with_n_rows(n_rows)
             .with_cache(cache)
-            // .with_dtype_overwrite(overwrite_dtype.map(Arc::new))
+            .with_dtype_overwrite(overwrite_dtype.map(Arc::new))
             // .with_schema(schema.map(|schema| Arc::new(schema.0)))
             .with_low_memory(low_memory)
             .with_comment_prefix(comment_prefix.map(|x| x.into()))
