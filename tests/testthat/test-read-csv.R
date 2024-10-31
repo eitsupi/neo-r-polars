@@ -103,7 +103,7 @@ test_that("arg null_values works", {
   tmpf <- tempfile()
   writeLines("a,b,c\n1.5,a,2\n2,,", tmpf)
 
-  out <- pl$read_csv(tmpf, null_values = c("a", 2))
+  out <- pl$read_csv(tmpf, null_values = c("a", "2"))
   expect_equal(
     out,
     pl$DataFrame(
@@ -113,6 +113,10 @@ test_that("arg null_values works", {
     )
   )
 
+  expect_snapshot(
+    pl$read_csv(tmpf, null_values = 1:2),
+    error = TRUE
+  )
   expect_snapshot(
     pl$read_csv(tmpf, null_values = list(b = "a", c = 2)),
     error = TRUE

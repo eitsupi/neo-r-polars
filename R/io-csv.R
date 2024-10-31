@@ -169,6 +169,10 @@ pl__scan_csv <- function(
       if (!all_character) {
         abort("When `null_values` is a list, each element must be of type character.")
       }
+    } else if (is.character(null_values)) {
+      null_values <- as.list(null_values)
+    } else {
+      abort("`null_values` must be a character vector or a named list.")
     }
 
     # dtypes: convert named list of DataType's to DataTypeVector obj
@@ -203,10 +207,6 @@ pl__scan_csv <- function(
 
     if (is.null(row_index_name) && !is.null(row_index_offset)) {
       row_index_offset <- NULL
-    }
-
-    if (is.character(null_values)) {
-      null_values <- as.list(null_values)
     }
 
     PlRLazyFrame$new_from_csv(
