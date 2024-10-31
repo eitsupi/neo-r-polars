@@ -485,7 +485,7 @@ test_that("and or is_in xor", {
   # TODO-REWRITE: this errors
   # both R and polars aliases NA_int_ with NA in comparisons
   # expect_equal(
-  #   pl$DataFrame(a = c(1:4, NA_integer_))$select(pl$col("a")$is_in(pl$lit(NA))),
+  #   pl$DataFrame(a = c(1:4, NA))$select(pl$col("a")$is_in(pl$lit(NA))),
   #   pl$DataFrame(a = c(rep(FALSE, 4), NA))
   # )
 
