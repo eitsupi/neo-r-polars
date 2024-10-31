@@ -160,6 +160,17 @@ pl__scan_csv <- function(
       infer_schema_length <- 0
     }
 
+    if (is.list(null_values)) {
+      all_character <- lapply(null_values, \(x) {
+        length(x) == 1 && is.character(x)
+      }) |>
+        unlist() |>
+        all()
+      if (!all_character) {
+        abort("When `null_values` is a list, each element must be of type character.")
+      }
+    }
+
     # dtypes: convert named list of DataType's to DataTypeVector obj
     # if (!is.null(args$dtypes)) {
     #   args$dtypes <- list_to_datatype_vector(args$dtypes)
@@ -247,17 +258,17 @@ pl__read_csv <- function(
     comment_prefix = NULL,
     quote_char = '"',
     skip_rows = 0,
-    schema = NULL,
-    schema_overrides = NULL,
+    # schema = NULL,
+    # schema_overrides = NULL,
     null_values = NULL,
     missing_utf8_is_empty_string = FALSE,
     ignore_errors = FALSE,
     cache = FALSE,
-    with_column_names = NULL,
+    # with_column_names = NULL,
     infer_schema = TRUE,
     infer_schema_length = 100,
     n_rows = NULL,
-    encoding = "utf8",
+    encoding = c("utf8", "utf8-lossy"),
     low_memory = FALSE,
     rechunk = FALSE,
     skip_rows_after_header = 0,
@@ -265,21 +276,20 @@ pl__read_csv <- function(
     row_index_offset = 0,
     try_parse_dates = FALSE,
     eol_char = "\n",
-    new_columns = NULL,
+    # new_columns = NULL,
     raise_if_empty = TRUE,
     truncate_ragged_lines = FALSE,
     decimal_comma = FALSE,
     glob = TRUE,
-    storage_options = NULL,
-    credential_provider = NULL,
+    # storage_options = NULL,
+    # credential_provider = NULL,
     retries = 2,
     file_cache_ttl = NULL,
     include_file_paths = NULL) {
-  .args <- as.list(environment())
-  result({
+  wrap({
+    .args <- as.list(environment())
     do.call(pl$scan_csv, .args)$collect()
-  }) |>
-    unwrap("in pl$read_csv():")
+  })
 }
 
 cache_temp_file <- new.env(parent = new.env())
