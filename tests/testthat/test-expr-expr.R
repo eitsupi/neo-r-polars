@@ -1678,7 +1678,7 @@ test_that("rolling_*_by", {
 test_that("rolling_*_by only works with date/datetime", {
   df <- pl$DataFrame(a = 1:6, id = 11:16)
 
-  # TODO: uncomment when https://github.com/pola-rs/polars/issues/19491
+  # TODO: uncomment and update docs when https://github.com/pola-rs/polars/issues/19491
   # is resolved
   # expect_snapshot(
   #   df$select(pl$col("a")$rolling_min_by("id", window_size = "2i")),
@@ -2047,7 +2047,6 @@ test_that("clip clip_min clip_max", {
     )
   )
 
-  ## TODO contribute polars any NaN value will crash internal clip assertion
   expect_equal(
     pl$DataFrame(!!!l)$select(
       a = pl$col("int")$clip(-.Machine$integer.max, -.Machine$integer.max + 1L),
@@ -2083,7 +2082,7 @@ test_that("clip clip_min clip_max", {
   )
 })
 
-# # TODO check value exported from polars are not lower bound which will become NA in R
+# TODO: lower bound i32 becomes NA once converted to R
 test_that("upper lower bound", {
   expect_equal(
     pl$DataFrame(
@@ -2103,7 +2102,7 @@ test_that("upper lower bound", {
 })
 
 
-test_that("expr trignonometry", {
+test_that("trigonometry", {
   a <- seq(-2 * pi, 2 * pi, le = 50)
 
   expect_equal(
@@ -2139,7 +2138,6 @@ test_that("expr trignonometry", {
     )
   )
 })
-
 
 test_that("reshape", {
   r_reshape <- function(x, dims) {
@@ -2438,26 +2436,26 @@ test_that("entropy", {
 #   )
 # })
 
-# test_that("shrink_dtype", {
-#   df <- pl$DataFrame(
-#     a = c(1L, 2L, 3L),
-#     b = c(1L, 2L, bitwShiftL(2L, 29)),
-#     c = c(-1L, 2L, bitwShiftL(1L, 15)),
-#     d = c(-112L, 2L, 112L),
-#     e = c(-112L, 2L, 129L),
-#     f = c("a", "b", "c"),
-#     g = c(0.1, 1.32, 0.12),
-#     h = c(TRUE, NA, FALSE)
-#   )$with_columns(pl$col("b")$cast(pl$Int64) * 32L)$select(pl$all()$shrink_dtype())
+test_that("shrink_dtype", {
+  df <- pl$DataFrame(
+    a = c(1L, 2L, 3L),
+    b = c(1L, 2L, bitwShiftL(2L, 29)),
+    c = c(-1L, 2L, bitwShiftL(1L, 15)),
+    d = c(-112L, 2L, 112L),
+    e = c(-112L, 2L, 129L),
+    f = c("a", "b", "c"),
+    g = c(0.1, 1.32, 0.12),
+    h = c(TRUE, NA, FALSE)
+  )$with_columns(pl$col("b")$cast(pl$Int64) * 32L)$select(pl$all()$shrink_dtype())
 
-#   expect_true(all(mapply(
-#     df$dtypes,
-#     pl$dtypes[c("Int8", "Int64", "Int32", "Int8", "Int16", "String", "Float32", "Boolean")],
-#     FUN = function(actual, expected) actual == expected
-#   )))
-# })
-
-
+  expect_equal(
+    df$schema,
+    list(
+      a = pl$Int8, b = pl$Int64, c = pl$Int32, d = pl$Int8, e = pl$Int16,
+      f = pl$String, g = pl$Float32, h = pl$Boolean
+    )
+  )
+})
 
 # test_that("concat_list", {
 #   # Create lagged columns and collect them into a list. This mimics a rolling window.
@@ -2577,102 +2575,6 @@ test_that("peak_min, peak_max", {
     pl$DataFrame(peak_max = c(rep(FALSE, 2), TRUE, rep(FALSE, 3), TRUE, FALSE))
   )
 })
-
-# TODO-REWRITE: should be in tests for functions
-# test_that("pl$any_horizontal works", {
-#   df <- pl$DataFrame(
-#     a = c(FALSE, FALSE, NA, NA),
-#     b = c(TRUE, FALSE, NA, NA),
-#     c = c(TRUE, FALSE, NA, TRUE)
-#   )
-#   expect_equal(
-#     df$select(
-#       pl$any_horizontal("a", "b", "c")$alias("any")
-#     ),
-#     list(any = c(TRUE, FALSE, NA, TRUE))
-#   )
-# })
-
-# TODO-REWRITE: should be in tests for functions
-# test_that("pl$all_horizontal works", {
-#   df <- pl$DataFrame(
-#     a = c(TRUE, TRUE, NA, NA),
-#     b = c(TRUE, FALSE, NA, NA),
-#     c = c(TRUE, FALSE, NA, TRUE)
-#   )
-#   expect_equal(
-#     df$select(
-#       pl$all_horizontal("a", "b", "c")$alias("all")
-#     ),
-#     list(all = c(TRUE, FALSE, NA, NA))
-#   )
-# })
-
-# TODO-REWRITE: should be in tests for functions
-# test_that("pl$sum_horizontal works", {
-#   df <- pl$DataFrame(
-#     a = NA,
-#     b = c(3:4, NA, NA),
-#     c = c(1:2, NA, -Inf)
-#   )
-#   expect_equal(
-#     df$select(
-#       pl$sum_horizontal("a", "b", "c", 2)$alias("sum")
-#     ),
-#     list(sum = c(6, 8, 2, -Inf))
-#   )
-# })
-
-# TODO-REWRITE: should be in tests for functions
-# test_that("pl$mean_horizontal works", {
-#   df <- pl$DataFrame(
-#     a = c(2, 7, 3, -Inf),
-#     b = c(4, 5, NA, 1),
-#     c = c("w", "x", "y", "z")
-#   )
-#   expect_equal(
-#     df$select(
-#       pl$mean_horizontal("a", "b")$alias("mean")
-#     ),
-#     list(mean = c(3, 6, 3, -Inf))
-#   )
-#   expect_equal(
-#     df$select(
-#       pl$mean_horizontal("a", "b", 3)$alias("mean")
-#     ),
-#     list(mean = c(3, 5, 3, -Inf))
-#   )
-# })
-
-# TODO-REWRITE: should be in tests for functions
-# test_that("pl$max_horizontal works", {
-#   df <- pl$select(
-#     a = NA,
-#     b = c(3:4, NA, NA),
-#     c = c(1:2, NA, -Inf)
-#   )
-#   expect_equal(
-#     df$select(
-#       pl$max_horizontal("a", "b", "c", 2)$alias("max")
-#     ),
-#     pl$DataFrame(max = c(3, 4, 2, 2))
-#   )
-# })
-
-# TODO-REWRITE: should be in tests for functions
-# test_that("pl$min_horizontal works", {
-#   df <- pl$select(
-#     a = NA,
-#     b = c(3:4, NA, NA),
-#     c = c(1:2, NA, -Inf)
-#   )
-#   expect_equal(
-#     df$select(
-#       pl$min_horizontal("a", "b", "c", 2)$alias("min")
-#     ),
-#     pl$DataFrame(min = c(1, 2, 2, -Inf))
-#   )
-# })
 
 test_that("rolling, basic", {
   dates <- c(
