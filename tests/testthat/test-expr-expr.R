@@ -2082,7 +2082,7 @@ test_that("clip clip_min clip_max", {
   )
 })
 
-# TODO: lower bound i32 becomes NA once converted to R
+# TODO-REWRITE: lower bound i32 becomes NA once converted to R
 test_that("upper lower bound", {
   expect_equal(
     pl$DataFrame(
