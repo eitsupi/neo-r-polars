@@ -1240,8 +1240,12 @@ expr__dot <- function(expr) {
 #'   pl$col("foo")$reshape(c(3, 2, 2), nested_type = pl$Array(pl$Float32, 2))
 #' )
 expr__reshape <- function(dimensions) {
-  self$`_rexpr`$reshape(dimensions) |>
-    wrap()
+  wrap({
+    if (is.numeric(dimensions) && anyNA(dimensions)) {
+      abort("`dimensions` must not contain any NA values.")
+    }
+    self$`_rexpr`$reshape(dimensions)
+  })
 }
 
 #' Check if any boolean value in a column is true
