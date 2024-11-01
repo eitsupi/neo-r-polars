@@ -3673,6 +3673,10 @@ expr__floor <- function() {
 #' inputs are parsed as literals.
 #' @param upper_bound Upper bound. Accepts expression input. Non-expression
 #' inputs are parsed as literals.
+#' 
+#' @details
+#' This method only works for numeric and temporal columns. To clip other data 
+#' types, consider writing a when-then-otherwise expression. 
 #'
 #' @inherit as_polars_expr return
 #' @examples

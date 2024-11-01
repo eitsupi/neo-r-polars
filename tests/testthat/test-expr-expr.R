@@ -1976,103 +1976,78 @@ test_that("kurtosis", {
   )
 })
 
-# TODO-REWRITE: panicks when one of the bounds is NaN
-test_that("clip clip_min clip_max", {
-  r_clip_min <- \(X, a) sapply(X, \(x) {
-    if (is.na(x)) {
-      x
-    } else if (is.nan(a) || is.nan(x)) {
-      x
-    } else if (x <= a) {
-      a
-    } else {
-      x
-    }
-  })
-  r_clip_max <- \(X, a) sapply(X, \(x) {
-    if (is.na(x)) {
-      x
-    } else if (is.nan(a) || is.nan(x)) {
-      x
-    } else if (x >= a) {
-      a
-    } else {
-      x
-    }
-  })
-  r_clip <- \(x, a, b) r_clip_min(x, a) |> r_clip_max(b)
-
-  l <- list(
-    int   = c(NA_integer_, -.Machine$integer.max, -4:4, .Machine$integer.max),
-    float = c(NA, -Inf, .Machine$double.xmin, -3:2, .Machine$double.xmax, Inf, NaN)
+test_that("clip", {
+  df <- pl$DataFrame(
+    int = c(1:3, NA, -.Machine$integer.max, .Machine$integer.max),
+    float = c(1, 2, 3, NA, -Inf, Inf),
+    bound = c(0, 3, 2, 1, 2, NA)
   )
 
   # clip min
   expect_equal(
-    pl$DataFrame(!!!l)$select(
-      int_mini32 = pl$col("int")$clip(lower_bound = -.Machine$integer.max),
-      int_m2i32 = pl$col("int")$clip(lower_bound = -2L),
-      int_p2i32 = pl$col("int")$clip(lower_bound = 2L),
-      float_minf64 = pl$col("float")$clip(lower_bound = -Inf),
-      # float_NaN2f64 = pl$col("float")$clip(lower_bound = NaN),
-      float_p2f64 = pl$col("float")$clip(lower_bound = 2)
+    df$select(
+      clip_min_int = pl$col("int")$clip(lower_bound = 2),
+      clip_min_float = pl$col("float")$clip(lower_bound = 2)
     ),
     pl$DataFrame(
-      int_mini32 = r_clip_min(l$int, -.Machine$integer.max),
-      int_m2i32 = r_clip_min(l$int, -2L),
-      int_p2i32 = r_clip_min(l$int, 2L),
-      float_minf64 = r_clip_min(l$float, -Inf),
-      # float_NaN2f64 = l$float,
-      float_p2f64 = r_clip_min(l$float, 2)
+      clip_min_int = c(2L, 2L, 3L, NA, 2L, .Machine$integer.max),
+      clip_min_float = c(2, 2, 3, NA, 2, Inf)
     )
   )
 
   # clip max
   expect_equal(
-    pl$DataFrame(!!!l)$select(
-      int_mini32 = pl$col("int")$clip(upper_bound = -.Machine$integer.max),
-      int_m2i32 = pl$col("int")$clip(upper_bound = -2L),
-      int_p2i32 = pl$col("int")$clip(upper_bound = 2L),
-      float_minf64 = pl$col("float")$clip(upper_bound = -Inf),
-      # float_NaN2f64 = pl$col("float")$clip(upper_bound = NaN),
-      float_p2f64 = pl$col("float")$clip(upper_bound = 2)
+    df$select(
+      clip_max_int = pl$col("int")$clip(upper_bound = 2),
+      clip_max_float = pl$col("float")$clip(upper_bound = 2)
     ),
     pl$DataFrame(
-      int_mini32 = r_clip_max(l$int, -.Machine$integer.max),
-      int_m2i32 = r_clip_max(l$int, -2L),
-      int_p2i32 = r_clip_max(l$int, 2L),
-      float_minf64 = r_clip_max(l$float, -Inf),
-      # float_NaN2f64 = r_clip_max(l$float, NaN),
-      float_p2f64 = r_clip_max(l$float, 2)
+      clip_max_int = c(1L, 2L, 2L, NA, -.Machine$integer.max, 2L),
+      clip_max_float = c(1, 2, 2, NA, -Inf, 2)
     )
   )
 
+  # clip min and max
   expect_equal(
-    pl$DataFrame(!!!l)$select(
-      a = pl$col("int")$clip(-.Machine$integer.max, -.Machine$integer.max + 1L),
-      b = pl$col("int")$clip(-2L, -2L + 1L),
-      c = pl$col("int")$clip(2L, 2L + 1L),
-      d = pl$col("float")$clip(-Inf, 1),
-      e = pl$col("float")$clip(2, 2 + 1)
+    df$select(
+      clip_int = pl$col("int")$clip(2, 3),
+      clip_float = pl$col("float")$clip(2, 3)
     ),
     pl$DataFrame(
-      a = r_clip(l$int, -.Machine$integer.max, -.Machine$integer.max + 1L),
-      b = r_clip(l$int, -2L, -2L + 1L),
-      c = r_clip(l$int, 2L, 2L + 1L),
-      d = r_clip(l$float, -Inf, 1),
-      e = r_clip(l$float, 2, 2 + 1)
+      clip_int = c(2L, 2L, 3L, NA, 2L, 3L),
+      clip_float = c(2, 2, 3, NA, 2, 3)
     )
   )
 
   # clip() accepts strings as column names
-  df <- pl$DataFrame(
-    foo = c(-50L, 5L, NA_integer_, 50L),
-    bound = c(1, 10, 1, 1)
-  )
   expect_equal(
-    df$select(clipped = pl$col("foo")$clip(lower_bound = "bound")),
-    pl$DataFrame(clipped = c(1L, 10L, NA_integer_, 50L))
+    df$select(
+      clip_min_int = pl$col("int")$clip(lower_bound = "bound"),
+      clip_min_float = pl$col("float")$clip(lower_bound = "bound")
+    ),
+    pl$DataFrame(
+      clip_min_int = c(1L, 3L, 3L, NA, 2L, .Machine$integer.max),
+      clip_min_float = c(1, 3, 3, NA, 2, Inf)
+    )
   )
+
+  # TODO-REWRITE: this should error instead of panick
+  # expect_snapshot(
+  #   df$select(pl$col("float")$clip(10, 1)),
+  #   error = TRUE
+  # )
+
+  # TODO-REWRITE: this should work instead of panick
+  # expect_equal(
+  #   df$select(
+  #     clip_min_int = pl$col("int")$clip(NaN),
+  #     clip_min_float = pl$col("float")$clip(NaN)
+  #   ),
+  #   pl$DataFrame(
+  #     clip_min_int = c(1:3, NA, -.Machine$integer.max, .Machine$integer.max),
+  #     clip_min_float = c(1, 2, 3, NA, -Inf, Inf)
+  #   )
+  # )
 
   # clip() works with temporal
   df <- pl$DataFrame(foo = as.Date(c("2020-01-01", "2020-01-02")))

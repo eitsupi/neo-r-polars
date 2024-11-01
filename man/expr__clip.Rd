@@ -20,6 +20,10 @@ A polars \link{expression}
 This method only works for numeric and temporal columns. To clip other data
 types, consider writing a when-then-otherwise expression.
 }
+\details{
+This method only works for numeric and temporal columns. To clip other data
+types, consider writing a when-then-otherwise expression.
+}
 \examples{
 df <- pl$DataFrame(a = c(-50, 5, 50, NA))
 
