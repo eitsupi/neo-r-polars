@@ -23,23 +23,19 @@ prepare_alpha <- function(com, span, half_life, alpha) {
   check_exclusive(com, span, half_life, alpha, .call = caller_env())
 
   if (!missing(com)) {
-    if (com < 0) {
-      abort("`com` must be >= 0.", call = caller_env())
-    }
+    check_number_decimal(com, min = 0)
     alpha <- 1 / (1 + com)
   } else if (!missing(span)) {
-    if (span < 1) {
-      abort("`span` must be >= 1.", call = caller_env())
-    }
+    check_number_decimal(span, min = 1)
     alpha <- 2 / (span + 1)
   } else if (!missing(half_life)) {
-    if (half_life < 0) {
-      abort("`half_life` must be >= 0.", call = caller_env())
-    }
+    check_number_decimal(half_life, min = 0)
     alpha <- 1 - exp(-log(2) / half_life)
   } else if (!missing(alpha)) {
+    # Can't use "min" arg in check_number_decimal() since requirement is > 0
+    check_number_decimal(alpha)
     if (alpha <= 0 || alpha > 1) {
-      abort("`half_life` must be between greater than 0 and lower or equal to 1.", call = caller_env())
+      abort("`alpha` must be between greater than 0 and lower or equal to 1.", call = caller_env())
     }
   }
 

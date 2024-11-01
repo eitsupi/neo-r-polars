@@ -2230,7 +2230,9 @@ test_that("sample", {
 
 
 test_that("ewm_", {
-  ewm_mean_res <- pl$DataFrame(a = c(1, rep(0, 10)))$select(
+  df <- pl$DataFrame(a = c(1, rep(0, 10)))
+
+  ewm_mean_res <- df$select(
     com1 = pl$col("a")$ewm_mean(com = 1),
     span2 = pl$col("a")$ewm_mean(span = 2),
     hl2 = pl$col("a")$ewm_mean(half_life = 2),
@@ -2241,8 +2243,20 @@ test_that("ewm_", {
     com1_min_periods = pl$col("a")$ewm_mean(com = 1, min_periods = 4)
   )
   expect_snapshot(ewm_mean_res)
+  expect_snapshot(
+    df$select(com1 = pl$col("a")$ewm_mean(com = "a")),
+    error = TRUE
+  )
+  expect_snapshot(
+    df$select(com1 = pl$col("a")$ewm_mean(span = 0.5)),
+    error = TRUE
+  )
+  expect_snapshot(
+    df$select(com1 = pl$col("a")$ewm_mean()),
+    error = TRUE
+  )
 
-  ewm_std_res <- pl$DataFrame(a = c(1, rep(0, 10)))$select(
+  ewm_std_res <- df$select(
     com1 = pl$col("a")$ewm_std(com = 1),
     span2 = pl$col("a")$ewm_std(span = 2),
     hl2 = pl$col("a")$ewm_std(half_life = 2),
@@ -2254,7 +2268,7 @@ test_that("ewm_", {
   )
   expect_snapshot(ewm_std_res)
 
-  ewm_var_res <- pl$DataFrame(a = c(1, rep(0, 10)))$select(
+  ewm_var_res <- df$select(
     com1 = pl$col("a")$ewm_var(com = 1),
     span2 = pl$col("a")$ewm_var(span = 2),
     hl2 = pl$col("a")$ewm_var(half_life = 2),

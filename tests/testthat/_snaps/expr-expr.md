@@ -298,6 +298,48 @@
 ---
 
     Code
+      df$select(com1 = pl$col("a")$ewm_mean(com = "a"))
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$ewm_mean()`.
+      Caused by error in `prepare_alpha()`:
+      ! `com` must be a number, not the string "a".
+
+---
+
+    Code
+      df$select(com1 = pl$col("a")$ewm_mean(span = 0.5))
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$ewm_mean()`.
+      Caused by error in `prepare_alpha()`:
+      ! `span` must be a number larger than or equal to 1, not the number 0.5.
+
+---
+
+    Code
+      df$select(com1 = pl$col("a")$ewm_mean())
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$ewm_mean()`.
+      Caused by error:
+      ! One of `com`, `span`, `half_life`, or `alpha` must be supplied.
+
+---
+
+    Code
       ewm_std_res
     Output
       shape: (11, 8)
