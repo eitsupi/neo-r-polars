@@ -3693,10 +3693,13 @@ expr__floor <- function() {
 #' )
 expr__clip <- function(lower_bound = NULL, upper_bound = NULL) {
   wrap({
-    self$`_rexpr`$clip(
-      as_polars_expr(lower_bound)$`_rexpr`,
-      as_polars_expr(upper_bound)$`_rexpr`
-    )
+    if (!is.null(lower_bound)) {
+      lower_bound <- as_polars_expr(lower_bound)$`_rexpr`
+    }
+    if (!is.null(upper_bound)) {
+      upper_bound <- as_polars_expr(upper_bound)$`_rexpr`
+    }
+    self$`_rexpr`$clip(lower_bound, upper_bound)
   })
 }
 
