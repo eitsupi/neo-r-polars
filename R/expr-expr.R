@@ -3473,7 +3473,6 @@ expr__append <- function(other, ..., upcast = TRUE) {
 
 #' Fill missing values with the next non-null value
 #'
-#' @inheritParams rlang::check_dots_empty0
 #' @param fill The number of consecutive null values to backward fill.
 #'
 #' @inherit as_polars_expr return
@@ -3486,15 +3485,12 @@ expr__append <- function(other, ..., upcast = TRUE) {
 #' df$select(pl$all()$backward_fill())
 #' df$select(pl$all()$backward_fill(limit = 1))
 expr__backward_fill <- function(limit = NULL) {
-  wrap({
-    check_dots_empty0(...)
-    self$`_rexpr`$backward_fill(limit)
-  })
+  self$`_rexpr`$backward_fill(limit) |>
+    wrap()
 }
 
 #' Fill missing values with the last non-null value
 #'
-#' @inheritParams rlang::check_dots_empty0
 #' @param fill The number of consecutive null values to forward fill.
 #'
 #' @inherit as_polars_expr return
@@ -3507,10 +3503,8 @@ expr__backward_fill <- function(limit = NULL) {
 #' df$select(pl$all()$forward_fill())
 #' df$select(pl$all()$forward_fill(limit = 1))
 expr__forward_fill <- function(limit = NULL) {
-  wrap({
-    check_dots_empty0(...)
-    self$`_rexpr`$forward_fill(limit)
-  })
+  self$`_rexpr`$forward_fill(limit) |>
+    wrap()
 }
 
 #' Return the `k` smallest elements
