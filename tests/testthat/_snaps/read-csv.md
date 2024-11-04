@@ -139,7 +139,7 @@
       Caused by error:
       ! Evaluation failed.
       Caused by error:
-      ! `storage_options` must be a named list.
+      ! `storage_options` must be a named list, not the number 1.
 
 ---
 

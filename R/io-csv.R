@@ -164,6 +164,9 @@ pl__scan_csv <- function(
     }
     check_list_of_polars_dtype(schema_overrides, allow_null = TRUE)
     check_list_of_polars_dtype(schema, allow_null = TRUE)
+    check_named_list(schema_overrides, allow_null = TRUE)
+    check_named_list(schema, allow_null = TRUE)
+    check_named_list(storage_options, allow_null = TRUE)
     encoding <- arg_match0(encoding, values = c("utf8", "utf8-lossy"))
 
     if (isFALSE(infer_schema)) {
@@ -185,14 +188,7 @@ pl__scan_csv <- function(
       abort("`null_values` must be a character vector or a named list.")
     }
 
-    if (any(names(schema_overrides) == "")) {
-      abort("`schema_overrides` must be a named list. Currently it has unnamed elements.")
-    }
     schema_overrides <- lapply(schema_overrides, \(x) x$`_dt`)
-
-    if (any(names(schema) == "")) {
-      abort("`schema` must be a named list. Currently it has unnamed elements.")
-    }
 
     if (length(schema) > 0) {
       schema <- lapply(schema, \(x) x$`_dt`)
@@ -203,17 +199,13 @@ pl__scan_csv <- function(
     }
 
     if (!is.null(storage_options)) {
-      if (is.list(storage_options)) {
-        all_character <- lapply(storage_options, \(x) {
-          length(x) == 1 && is.character(x)
-        }) |>
-          unlist() |>
-          all()
-        if (!all_character) {
-          abort("All elements of `storage_options` must be of type character.")
-        }
-      } else {
-        abort("`storage_options` must be a named list.")
+      all_character <- lapply(storage_options, \(x) {
+        length(x) == 1 && is.character(x)
+      }) |>
+        unlist() |>
+        all()
+      if (!all_character) {
+        abort("All elements of `storage_options` must be of type character.")
       }
     }
 
