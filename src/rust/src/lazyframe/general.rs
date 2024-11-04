@@ -227,12 +227,13 @@ impl PlRLazyFrame {
         n_rows: Option<NumericScalar>,
         overwrite_dtype: Option<ListSexp>,
         schema: Option<ListSexp>,
-        // cloud_options: Option<Vec<(String, String)>>,
+        cloud_options: Option<ListSexp>,
         // credential_provider: Option<PyObject>,
         file_cache_ttl: Option<NumericScalar>,
         include_file_paths: Option<&str>,
     ) -> Result<PlRLazyFrame> {
         use cloud::credential_provider::PlCredentialProvider;
+        use std::path::PathBuf;
 
         let path = std::path::PathBuf::from(path);
         let encoding = <Wrap<CsvEncoding>>::try_from(encoding)?.0;
@@ -317,8 +318,32 @@ impl PlRLazyFrame {
             None => None,
         };
 
+        let cloud_options: Option<Vec<(String, String)>> = match cloud_options {
+            Some(x) => {
+                let list_len = x.len();
+                let mut vec = Vec::with_capacity(x.len());
+                let names_list = x.names_iter().map(|x| x).collect::<Vec<&str>>();
+                let values_list = x
+                    .values_iter()
+                    .map(|x| match x.into_typed() {
+                        // TODO-REWRITE: probably need cleanup
+                        TypedSexp::String(elem) => {
+                            let foo = elem.to_vec();
+                            *foo.get(0).unwrap()
+                        }
+                        _ => unreachable!(),
+                    })
+                    .collect::<Vec<&str>>();
+                for i in 0..list_len {
+                    vec.push((names_list[i].to_string(), values_list[i].to_string()));
+                }
+                Some(vec)
+            }
+            None => None,
+        };
+
         let sources = path;
-        // let first_path = sources;
+        let first_path: Option<PathBuf> = sources.clone().into();
         // let sources = sources.0;
         // let (first_path, sources) = match source {
         //     None => (sources.first_path().map(|p| p.to_path_buf()), sources),
@@ -328,21 +353,20 @@ impl PlRLazyFrame {
         // let mut r = LazyCsvReader::new_with_sources(sources);
         let mut r = LazyCsvReader::new(sources);
 
-        // if let Some(first_path) = first_path {
-        //     let first_path_url = first_path.to_string_lossy();
+        if let Some(first_path) = first_path {
+            let first_path_url = first_path.to_string_lossy();
 
-        //     let mut cloud_options =
-        //         parse_cloud_options(&first_path_url, cloud_options.unwrap_or_default())?;
-        //     if let Some(file_cache_ttl) = file_cache_ttl {
-        //         cloud_options.file_cache_ttl = file_cache_ttl;
-        //     }
-        //     cloud_options = cloud_options
-        //         .with_max_retries(retries)
-        //         .with_credential_provider(
-        //             credential_provider.map(PlCredentialProvider::from_python_func_object),
-        //         );
-        //     r = r.with_cloud_options(Some(cloud_options));
-        // }
+            let mut cloud_options =
+                parse_cloud_options(&first_path_url, cloud_options.unwrap_or_default())?;
+            if let Some(file_cache_ttl) = file_cache_ttl {
+                cloud_options.file_cache_ttl = file_cache_ttl;
+            }
+            cloud_options = cloud_options.with_max_retries(retries);
+            // .with_credential_provider(
+            //     credential_provider.map(PlCredentialProvider::from_python_func_object),
+            // );
+            r = r.with_cloud_options(Some(cloud_options));
+        }
 
         let mut r = r
             .with_infer_schema_length(infer_schema_length)

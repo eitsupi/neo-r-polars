@@ -146,7 +146,7 @@ pl__scan_csv <- function(
     truncate_ragged_lines = FALSE,
     decimal_comma = FALSE,
     glob = TRUE,
-    # storage_options = NULL,
+    storage_options = NULL,
     # credential_provider = NULL,
     retries = 2,
     file_cache_ttl = NULL,
@@ -202,6 +202,21 @@ pl__scan_csv <- function(
       row_index_offset <- NULL
     }
 
+    if (!is.null(storage_options)) {
+      if (is.list(storage_options)) {
+        all_character <- lapply(storage_options, \(x) {
+          length(x) == 1 && is.character(x)
+        }) |>
+          unlist() |>
+          all()
+        if (!all_character) {
+          abort("All elements of `storage_options` must be of type character.")
+        }
+      } else {
+        abort("`storage_options` must be a named list.")
+      }
+    }
+
     PlRLazyFrame$new_from_csv(
       path = source,
       separator = separator,
@@ -231,7 +246,7 @@ pl__scan_csv <- function(
       n_rows = n_rows,
       overwrite_dtype = schema_overrides,
       schema = schema,
-      # cloud_options = cloud_options,
+      cloud_options = storage_options,
       # credential_provider = credential_provider,
       file_cache_ttl = file_cache_ttl,
       include_file_paths = include_file_paths
@@ -274,7 +289,7 @@ pl__read_csv <- function(
     truncate_ragged_lines = FALSE,
     decimal_comma = FALSE,
     glob = TRUE,
-    # storage_options = NULL,
+    storage_options = NULL,
     # credential_provider = NULL,
     retries = 2,
     file_cache_ttl = NULL,

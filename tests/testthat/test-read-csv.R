@@ -79,9 +79,9 @@ test_that("arg raise_if_empty works", {
 
 test_that("arg glob works", {
   skip_if_not_installed("withr")
-  file1 <- withr::local_tempfile(fileext = ".csv")
-  file2 <- withr::local_tempfile(fileext = ".csv")
-  tmpdir <- dirname(file1)
+  tmpdir <- withr::local_tempdir()
+  file1 <- withr::local_tempfile(fileext = ".csv", tmpdir = tmpdir)
+  file2 <- withr::local_tempfile(fileext = ".csv", tmpdir = tmpdir)
 
   writeLines("a\n1", file1)
   writeLines("a\n2", file2)
@@ -291,6 +291,19 @@ test_that("arg 'schema' works", {
   )
   expect_snapshot(
     pl$read_csv(tmpf, schema = list(a = pl$Binary, b = pl$Categorical(), c = pl$Int32)),
+    error = TRUE
+  )
+})
+
+# TODO: can't check if it actually works
+test_that("arg 'storage_options' throws basic errors", {
+  tmpf <- tempfile()
+  expect_snapshot(
+    pl$read_csv(tmpf, storage_options = 1),
+    error = TRUE
+  )
+  expect_snapshot(
+    pl$read_csv(tmpf, storage_options = list(a = "b", c = 1)),
     error = TRUE
   )
 })

@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use crate::{PlRDataFrame, PlRDataType, PlRExpr};
+use crate::{PlRDataFrame, PlRDataType, PlRExpr, RPolarsErr};
 use polars::prelude::cloud::CloudOptions;
 use polars::series::ops::NullBehavior;
 use savvy::{ListSexp, NumericScalar, NumericSexp, NumericTypedSexp, Sexp, TypedSexp};
@@ -525,4 +525,12 @@ impl TryFrom<ListSexp> for Wrap<Schema> {
 
         Ok(Wrap(schema))
     }
+}
+
+pub(crate) fn parse_cloud_options(
+    uri: &str,
+    kv: Vec<(String, String)>,
+) -> savvy::Result<CloudOptions> {
+    let out = CloudOptions::from_untyped_config(uri, kv).map_err(RPolarsErr::from)?;
+    Ok(out)
 }
