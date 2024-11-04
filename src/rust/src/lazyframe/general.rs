@@ -4,7 +4,7 @@ use crate::{
 use polars::io::RowIndex;
 use savvy::{
     r_println, savvy, ListSexp, LogicalSexp, NumericScalar, OwnedStringSexp, Result, Sexp,
-    TypedSexp,
+    StringSexp, TypedSexp,
 };
 
 #[savvy]
@@ -199,7 +199,7 @@ impl PlRLazyFrame {
     }
 
     fn new_from_csv(
-        path: &str,
+        path: StringSexp,
         separator: &str,
         has_header: bool,
         ignore_errors: bool,
@@ -235,7 +235,11 @@ impl PlRLazyFrame {
         use cloud::credential_provider::PlCredentialProvider;
         use std::path::PathBuf;
 
-        let path = std::path::PathBuf::from(path);
+        let path = path
+            .to_vec()
+            .iter()
+            .map(std::path::PathBuf::from)
+            .collect::<Vec<PathBuf>>();
         let encoding = <Wrap<CsvEncoding>>::try_from(encoding)?.0;
         let skip_rows = <Wrap<usize>>::try_from(skip_rows)?.0;
         let skip_rows_after_header = <Wrap<usize>>::try_from(skip_rows_after_header)?.0;
@@ -343,7 +347,7 @@ impl PlRLazyFrame {
         };
 
         let sources = path;
-        let first_path: Option<PathBuf> = sources.clone().into();
+        let first_path: Option<PathBuf> = sources.get(0).unwrap().clone().into();
         // let sources = sources.0;
         // let (first_path, sources) = match source {
         //     None => (sources.first_path().map(|p| p.to_path_buf()), sources),
@@ -351,7 +355,7 @@ impl PlRLazyFrame {
         // };
 
         // let mut r = LazyCsvReader::new_with_sources(sources);
-        let mut r = LazyCsvReader::new(sources);
+        let mut r = LazyCsvReader::new_paths(sources.into());
 
         if let Some(first_path) = first_path {
             let first_path_url = first_path.to_string_lossy();

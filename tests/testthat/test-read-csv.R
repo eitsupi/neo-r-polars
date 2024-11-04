@@ -199,21 +199,15 @@ test_that("multiple files errors if different schema", {
   write.csv(dat1, tmpf1, row.names = FALSE)
   write.csv(dat2, tmpf2, row.names = FALSE)
 
-  expect_grepl_error(
+  expect_snapshot(
     pl$read_csv(c(tmpf1, tmpf2)),
-    "schema lengths differ"
+    error = TRUE
   )
 })
 
 test_that("bad paths", {
-  expect_snapshot(
-    pl$read_csv(character()),
-    error = TRUE
-  )
-  expect_snapshot(
-    pl$read_csv("some invalid path"),
-    error = TRUE
-  )
+  expect_snapshot(pl$read_csv(character()), error = TRUE)
+  expect_snapshot(pl$read_csv("some invalid path"), error = TRUE)
 })
 
 # TODO-REWRITE: remove or replace by file_ttl arg?
@@ -237,13 +231,14 @@ test_that("scan_csv can include file path", {
   skip_if_not_installed("withr")
   temp_file_1 <- withr::local_tempfile()
   temp_file_2 <- withr::local_tempfile()
-  pl$DataFrame(mtcars)$write_csv(temp_file_1)
-  pl$DataFrame(mtcars)$write_csv(temp_file_2)
+  write.csv(mtcars, temp_file_1)
+  write.csv(mtcars, temp_file_2)
+
+  df <- pl$scan_csv(c(temp_file_1, temp_file_2), include_file_paths = "file_paths")$collect()
 
   expect_equal(
-    pl$scan_csv(c(temp_file_1, temp_file_2), include_file_paths = "file_paths")$collect()$unique("file_paths") |>
-      dim(),
-    c(2L, 12L)
+    df$select("file_paths"),
+    pl$DataFrame(file_paths = rep(c(temp_file_1, temp_file_2), each = 32))
   )
 })
 
