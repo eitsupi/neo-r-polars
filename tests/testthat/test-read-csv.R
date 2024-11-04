@@ -77,17 +77,22 @@ test_that("arg raise_if_empty works", {
   expect_equal(dim(out), c(0L, 0L))
 })
 
-# TODO: why does this one fail?
-# test_that("arg missing_utf8_is_empty_string works", {
-#   tmpf = tempfile()
-#   writeLines("a,b\n1,a\n2,", tmpf)
-#
-#   out = pl$read_csv(tmpf)
-#   expect_equal(out$b, c("a", NA))
-#
-#   out = pl$read_csv(tmpf, missing_utf8_is_empty_string = TRUE)
-#   expect_equal(out$b, c("a", ""))
-# })
+test_that("arg missing_utf8_is_empty_string works", {
+  tmpf <- tempfile()
+  writeLines("a,b\n1,a\n2,", tmpf)
+
+  out <- pl$read_csv(tmpf)
+  expect_equal(
+    out$select("b"),
+    pl$DataFrame(b = c("a", NA))
+  )
+
+  out <- pl$read_csv(tmpf, missing_utf8_is_empty_string = TRUE)
+  expect_equal(
+    out$select("b"),
+    pl$DataFrame(b = c("a", ""))
+  )
+})
 
 test_that("arg null_values works", {
   tmpf <- tempfile()
