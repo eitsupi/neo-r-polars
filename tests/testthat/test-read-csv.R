@@ -77,6 +77,26 @@ test_that("arg raise_if_empty works", {
   expect_equal(dim(out), c(0L, 0L))
 })
 
+test_that("arg glob works", {
+  skip_if_not_installed("withr")
+  file1 <- withr::local_tempfile(fileext = ".csv")
+  file2 <- withr::local_tempfile(fileext = ".csv")
+  tmpdir <- dirname(file1)
+
+  writeLines("a\n1", file1)
+  writeLines("a\n2", file2)
+
+  expect_equal(
+    pl$read_csv(paste0(tmpdir, "/*.csv")),
+    pl$DataFrame(a = 1:2)$cast(pl$Int64)
+  )
+  # Don't use snapshot because path printed in error message changes every time
+  expect_error(
+    pl$read_csv(paste0(tmpdir, "/*.csv"), glob = FALSE),
+    "No such file or directory"
+  )
+})
+
 test_that("arg missing_utf8_is_empty_string works", {
   tmpf <- tempfile()
   writeLines("a,b\n1,a\n2,", tmpf)
@@ -130,7 +150,7 @@ test_that("arg null_values works", {
   )
 })
 
-test_that("args row_index_ work", {
+test_that("args row_index_* work", {
   dat <- mtcars
   tmpf <- tempfile()
   write.csv(dat, tmpf, row.names = FALSE)
