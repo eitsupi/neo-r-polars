@@ -461,11 +461,6 @@ impl TryFrom<&str> for Wrap<CsvEncoding> {
     }
 }
 
-// pub(crate) fn parse_cloud_options(uri: &str, kv: Vec<(String, String)>) -> Result<CloudOptions> {
-//     let out = CloudOptions::from_untyped_config(uri, kv).map_err(RPolarsErr::from)?;
-//     Ok(out)
-// }
-
 // TODO: cleanup this, e.g remove the unreachable!()
 impl TryFrom<ListSexp> for Wrap<NullValues> {
     type Error = String;
