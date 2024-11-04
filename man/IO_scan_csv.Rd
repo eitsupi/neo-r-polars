@@ -98,10 +98,7 @@ values as an empty character.}
 You can also use \code{infer_schema = FALSE} to read all columns as UTF8 to
 check which values might cause an issue.}
 
-\item{cache}{Cache the result after reading.
-
-(when they are determined). This function will receive (and should return) a
-list of column names.}
+\item{cache}{Cache the result after reading.}
 
 \item{infer_schema}{If \code{TRUE} (default), the schema is inferred from the
 data using the first \code{infer_schema_length} rows. When \code{FALSE}, the schema is
@@ -137,11 +134,7 @@ succeed, the column remains of data type \code{pl$String}.}
 
 \item{eol_char}{Single byte end of line character (default: \verb{\\n}). When
 encountering a file with Windows line endings (\verb{\\r\\n}), one can go with the
-default \verb{\\n}. The extra \verb{\\r} will be removed when processed.
-
-(for example, when scanning a headerless CSV file). If the given list is
-shorter than the width of the DataFrame the remaining columns will have
-their original name.}
+default \verb{\\n}. The extra \verb{\\r} will be removed when processed.}
 
 \item{raise_if_empty}{If \code{FALSE}, parsing an empty file returns an empty
 DataFrame or LazyFrame.}

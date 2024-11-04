@@ -51,8 +51,8 @@
 #'
 #  TODO: enable this parameter
 #  @param with_column_names Apply a function over the column names just in time
-#' (when they are determined). This function will receive (and should return) a
-#' list of column names.
+#  (when they are determined). This function will receive (and should return) a
+#  list of column names.
 #'
 #' @param infer_schema If `TRUE` (default), the schema is inferred from the
 #' data using the first `infer_schema_length` rows. When `FALSE`, the schema is
@@ -82,9 +82,9 @@
 #'
 #  TODO: enable this parameter (requires infrastructure for with_column_names)
 #  @param new_columns Provide an explicit list of string column names to use
-#' (for example, when scanning a headerless CSV file). If the given list is
-#' shorter than the width of the DataFrame the remaining columns will have
-#' their original name.
+#  (for example, when scanning a headerless CSV file). If the given list is
+#  shorter than the width of the DataFrame the remaining columns will have
+#  their original name.
 #'
 #' @param raise_if_empty If `FALSE`, parsing an empty file returns an empty
 #' DataFrame or LazyFrame.
