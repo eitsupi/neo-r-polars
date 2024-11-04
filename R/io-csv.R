@@ -48,9 +48,12 @@
 #' You can also use `infer_schema = FALSE` to read all columns as UTF8 to
 #' check which values might cause an issue.
 #' @param cache Cache the result after reading.
-#' @param with_column_names Apply a function over the column names just in time
+#'
+#  TODO: enable this parameter
+#  @param with_column_names Apply a function over the column names just in time
 #' (when they are determined). This function will receive (and should return) a
 #' list of column names.
+#'
 #' @param infer_schema If `TRUE` (default), the schema is inferred from the
 #' data using the first `infer_schema_length` rows. When `FALSE`, the schema is
 #' not inferred and will be `pl$String` if not specified in `schema` or
@@ -76,10 +79,13 @@
 #' @param eol_char Single byte end of line character (default: `\n`). When
 #' encountering a file with Windows line endings (`\r\n`), one can go with the
 #' default `\n`. The extra `\r` will be removed when processed.
-#' @param new_columns Provide an explicit list of string column names to use
+#'
+#  TODO: enable this parameter (requires infrastructure for with_column_names)
+#  @param new_columns Provide an explicit list of string column names to use
 #' (for example, when scanning a headerless CSV file). If the given list is
 #' shorter than the width of the DataFrame the remaining columns will have
 #' their original name.
+#'
 #' @param raise_if_empty If `FALSE`, parsing an empty file returns an empty
 #' DataFrame or LazyFrame.
 #' @param truncate_ragged_lines Truncate lines that are longer than the schema.
@@ -129,7 +135,7 @@ pl__scan_csv <- function(
     missing_utf8_is_empty_string = FALSE,
     ignore_errors = FALSE,
     cache = FALSE,
-    with_column_names = NULL,
+    # with_column_names = NULL,
     infer_schema = TRUE,
     infer_schema_length = 100,
     n_rows = NULL,
@@ -141,7 +147,7 @@ pl__scan_csv <- function(
     row_index_offset = 0,
     try_parse_dates = FALSE,
     eol_char = "\n",
-    new_columns = NULL,
+    # new_columns = NULL,
     raise_if_empty = TRUE,
     truncate_ragged_lines = FALSE,
     decimal_comma = FALSE,
@@ -155,9 +161,6 @@ pl__scan_csv <- function(
     check_dots_empty0(...)
     if (length(source) == 0) {
       abort("`source` must have length > 0.")
-    }
-    if (!is.null(with_column_names) && !is.null(new_columns)) {
-      abort("`with_column_names` and `new_columns` cannot be both specified.")
     }
     check_list_of_polars_dtype(schema_overrides, allow_null = TRUE)
     check_list_of_polars_dtype(schema, allow_null = TRUE)
@@ -180,10 +183,6 @@ pl__scan_csv <- function(
       null_values <- as.list(null_values)
     } else if (!is.null(null_values)) {
       abort("`null_values` must be a character vector or a named list.")
-    }
-
-    if (!is.null(new_columns)) {
-      names(schema_overrides)[seq_along(new_columns)] <- new_columns
     }
 
     if (any(names(schema_overrides) == "")) {
@@ -273,7 +272,7 @@ pl__read_csv <- function(
     missing_utf8_is_empty_string = FALSE,
     ignore_errors = FALSE,
     cache = FALSE,
-    with_column_names = NULL,
+    # with_column_names = NULL,
     infer_schema = TRUE,
     infer_schema_length = 100,
     n_rows = NULL,
@@ -285,7 +284,7 @@ pl__read_csv <- function(
     row_index_offset = 0,
     try_parse_dates = FALSE,
     eol_char = "\n",
-    new_columns = NULL,
+    # new_columns = NULL,
     raise_if_empty = TRUE,
     truncate_ragged_lines = FALSE,
     decimal_comma = FALSE,
@@ -296,6 +295,7 @@ pl__read_csv <- function(
     file_cache_ttl = NULL,
     include_file_paths = NULL) {
   wrap({
+    check_dots_empty0(...)
     .args <- as.list(environment())
     do.call(pl$scan_csv, .args)$collect()
   })

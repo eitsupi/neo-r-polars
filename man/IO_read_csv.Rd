@@ -18,7 +18,6 @@ pl__read_csv(
   missing_utf8_is_empty_string = FALSE,
   ignore_errors = FALSE,
   cache = FALSE,
-  with_column_names = NULL,
   infer_schema = TRUE,
   infer_schema_length = 100,
   n_rows = NULL,
@@ -30,11 +29,11 @@ pl__read_csv(
   row_index_offset = 0,
   try_parse_dates = FALSE,
   eol_char = "\\n",
-  new_columns = NULL,
   raise_if_empty = TRUE,
   truncate_ragged_lines = FALSE,
   decimal_comma = FALSE,
   glob = TRUE,
+  storage_options = NULL,
   retries = 2,
   file_cache_ttl = NULL,
   include_file_paths = NULL
@@ -99,9 +98,8 @@ values as an empty character.}
 You can also use \code{infer_schema = FALSE} to read all columns as UTF8 to
 check which values might cause an issue.}
 
-\item{cache}{Cache the result after reading.}
+\item{cache}{Cache the result after reading.
 
-\item{with_column_names}{Apply a function over the column names just in time
 (when they are determined). This function will receive (and should return) a
 list of column names.}
 
@@ -139,9 +137,8 @@ succeed, the column remains of data type \code{pl$String}.}
 
 \item{eol_char}{Single byte end of line character (default: \verb{\\n}). When
 encountering a file with Windows line endings (\verb{\\r\\n}), one can go with the
-default \verb{\\n}. The extra \verb{\\r} will be removed when processed.}
+default \verb{\\n}. The extra \verb{\\r} will be removed when processed.
 
-\item{new_columns}{Provide an explicit list of string column names to use
 (for example, when scanning a headerless CSV file). If the given list is
 shorter than the width of the DataFrame the remaining columns will have
 their original name.}
@@ -155,6 +152,21 @@ DataFrame or LazyFrame.}
 instead of a period.}
 
 \item{glob}{Expand path given via globbing rules.}
+
+\item{storage_options}{Options that indicate how to connect to a cloud
+provider. The cloud providers currently supported are AWS, GCP, and Azure.
+See supported keys here:
+\itemize{
+\item \href{https://docs.rs/object_store/latest/object_store/aws/enum.AmazonS3ConfigKey.html}{aws}
+\item \href{https://docs.rs/object_store/latest/object_store/gcp/enum.GoogleConfigKey.html}{gcp}
+\item \href{https://docs.rs/object_store/latest/object_store/azure/enum.AzureConfigKey.html}{azure}
+\item Hugging Face (\verb{hf://}): Accepts an API key under the token parameter
+\code{list(token = YOUR_TOKEN)} or by setting the \code{HF_TOKEN} environment
+variable.
+}
+
+If \code{storage_options} is not provided, Polars will try to infer the
+information from environment variables.}
 
 \item{retries}{Number of retries if accessing a cloud instance fails.}
 

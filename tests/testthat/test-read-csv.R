@@ -238,24 +238,6 @@ test_that("arg 'schema_overrides' works", {
   )
 })
 
-# TODO: finish this
-# test_that("arg 'with_columns' works", {
-#   tmpf <- tempfile()
-#   writeLines("a,b,c\n1.5,a,2\n2,,", tmpf)
-#   expect_equal(
-#     pl$read_csv(
-#       tmpf,
-#       new_columns = c("idx", "txt"),
-#       schema_overrides = list(pl$UInt16, pl$String)
-#     ),
-#     pl$DataFrame(a = c(1.5, 2), b = factor(c("a", NA)), c = c(2L, NA))
-#   )
-#   expect_snapshot(
-#     pl$read_csv(tmpf, schema_overrides = list(b = 1, c = pl$Int32)),
-#     error = TRUE
-#   )
-# })
-
 test_that("arg 'schema' works", {
   tmpf <- tempfile()
   writeLines("a,b,c\n1.5,a,2\n2,,", tmpf)
