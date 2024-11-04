@@ -17,19 +17,19 @@ test_that("basic test", {
   )
 })
 
-test_that("works with single URL", {
+test_that("works with URLs", {
   skip_if_offline()
-  # hide messages from downloading to not clutter testthat output
-  zz <- file(tempfile(), open = "wt")
-  sink(zz, type = "message")
-  suppressMessages({
-    out <- pl$read_csv(
-      "https://vincentarelbundock.github.io/Rdatasets/csv/AER/BenderlyZwick.csv"
-    )
-  })
-  # put messages back in the console
-  sink(type = "message")
-  expect_equal(dim(out), c(31L, 6L))
+  # single URL
+  out <- pl$read_csv(
+    "https://vincentarelbundock.github.io/Rdatasets/csv/AER/BenderlyZwick.csv"
+  )
+  expect_equal(dim(out), c(31, 6))
+
+  # multiple URL
+  out <- pl$read_csv(
+    c("https://vincentarelbundock.github.io/Rdatasets/csv/AER/BenderlyZwick.csv", "https://vincentarelbundock.github.io/Rdatasets/csv/AER/BenderlyZwick.csv")
+  )
+  expect_equal(dim(out), c(62, 6))
 })
 
 test_that("args separator and eol work", {
@@ -209,23 +209,6 @@ test_that("bad paths", {
   expect_snapshot(pl$read_csv(character()), error = TRUE)
   expect_snapshot(pl$read_csv("some invalid path"), error = TRUE)
 })
-
-# TODO-REWRITE: remove or replace by file_ttl arg?
-# test_that("cache url tempfile", {
-#   skip_if_offline()
-#   url <- "https://vincentarelbundock.github.io/Rdatasets/csv/AER/BenderlyZwick.csv"
-#   local_mocked_bindings(
-#     download.file = function(...) invisible(NULL),
-#   )
-#   check_is_link(url, reuse_downloaded = TRUE)
-#   attempt_1 <- cache_temp_file[[url]]
-
-#   check_is_link(url, reuse_downloaded = TRUE)
-#   attempt_2 <- cache_temp_file[[url]]
-
-#   expect_false(is.null(cache_temp_file[[url]]))
-#   expect_equal(attempt_1, attempt_2)
-# })
 
 test_that("scan_csv can include file path", {
   skip_if_not_installed("withr")

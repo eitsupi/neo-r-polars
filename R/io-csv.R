@@ -160,8 +160,6 @@ pl__scan_csv <- function(
     check_list_of_polars_dtype(schema, allow_null = TRUE)
     encoding <- arg_match0(encoding, values = c("utf8", "utf8-lossy"))
 
-    # args[["path"]] <- lapply(source, check_is_link, raise_error = TRUE)
-
     if (isFALSE(infer_schema)) {
       infer_schema_length <- 0
     }
@@ -298,73 +296,4 @@ pl__read_csv <- function(
     .args <- as.list(environment())
     do.call(pl$scan_csv, .args)$collect()
   })
-}
-
-cache_temp_file <- new.env(parent = new.env())
-check_is_link <- function(path, raise_error = FALSE) {
-  # do nothing let path fail on rust side
-  if (is.na(path)) {
-    return(NULL)
-  }
-  if (!file.exists(path)) {
-    con <- NULL
-
-    # check if possible to open url connection
-    assumed_schemas <- c("", "https://", "http://", "ftp://")
-    for (i_schema in assumed_schemas) {
-      if (!is.null(con)) break
-      actual_url <- paste0(i_schema, path)
-      suppressWarnings(
-        tryCatch(
-          {
-            con <- url(actual_url, open = "rt")
-          },
-          error = function(e) {}
-        )
-      )
-    }
-
-    # try download file if valid url
-    if (!is.null(con)) {
-      close(con)
-      if (is.null(cache_temp_file[[actual_url]])) {
-        cache_temp_file[[actual_url]] <- tempfile()
-      }
-
-      path <- cache_temp_file[[actual_url]] # redirect path to tmp downloaded file
-    } else {
-      if (raise_error) {
-        Err_plain(paste("failed to locate file at path/url:", path)) |> unwrap()
-      }
-      # do nothing let path fail on rust side
-      path <- NULL
-    }
-  }
-
-  path
-}
-
-
-list_to_datatype_vector <- function(x) {
-  if (!is.list(x) || !is_named(x)) {
-    Err_plain("could not interpret dtypes, must be a named list of DataTypes") |>
-      unwrap()
-  }
-  datatype_vector <- RPolarsDataTypeVector$new() # mutable
-  mapply(
-    name = names(x),
-    type = unname(x),
-    FUN = function(name, type) {
-      # convert possible string to datatype
-      if (is_string(type)) {
-        type <- DataType$new(type)
-      }
-      if (!inherits(type, "RPolarsDataType")) {
-        Err_plain("arg dtypes must be a named list of dtypes or dtype names") |>
-          unwrap()
-      }
-      datatype_vector$push(name, type)
-    }
-  )
-  datatype_vector
 }
