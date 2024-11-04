@@ -153,6 +153,9 @@ pl__scan_csv <- function(
     include_file_paths = NULL) {
   wrap({
     check_dots_empty0(...)
+    if (length(source) == 0) {
+      abort("`source` must have length > 0.")
+    }
     if (!is.null(with_column_names) && !is.null(new_columns)) {
       abort("`with_column_names` and `new_columns` cannot be both specified.")
     }

@@ -68,7 +68,7 @@
       Caused by error:
       ! Evaluation failed.
       Caused by error:
-      ! panic happened
+      ! `source` must have length > 0.
 
 ---
 
