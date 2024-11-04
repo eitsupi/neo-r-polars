@@ -87,7 +87,7 @@ test_that("arg glob works", {
   writeLines("a\n2", file2)
 
   expect_equal(
-    pl$read_csv(paste0(tmpdir, "/*.csv")),
+    pl$read_csv(paste0(tmpdir, "/*.csv"))$sort("a"),
     pl$DataFrame(a = 1:2)$cast(pl$Int64)
   )
   # Don't use snapshot because path printed in error message changes every time
