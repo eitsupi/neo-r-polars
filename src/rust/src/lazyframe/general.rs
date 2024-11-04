@@ -3,8 +3,8 @@ use crate::{
 };
 use polars::io::RowIndex;
 use savvy::{
-    r_println, savvy, ListSexp, LogicalSexp, NumericScalar, OwnedStringSexp, Result, Sexp,
-    StringSexp, TypedSexp,
+    savvy, ListSexp, LogicalSexp, NumericScalar, OwnedStringSexp, Result, Sexp, StringSexp,
+    TypedSexp,
 };
 
 #[savvy]
@@ -221,7 +221,7 @@ impl PlRLazyFrame {
         quote_char: Option<&str>,
         null_values: Option<ListSexp>,
         infer_schema_length: Option<NumericScalar>,
-        // with_schema_modify: Option<PyObject>,
+        // with_schema_modify: Option<FunctionSexp>,
         row_index_name: Option<&str>,
         row_index_offset: Option<NumericScalar>,
         n_rows: Option<NumericScalar>,
@@ -232,7 +232,6 @@ impl PlRLazyFrame {
         file_cache_ttl: Option<NumericScalar>,
         include_file_paths: Option<&str>,
     ) -> Result<PlRLazyFrame> {
-        use cloud::credential_provider::PlCredentialProvider;
         use std::path::PathBuf;
 
         let path = path
@@ -372,7 +371,7 @@ impl PlRLazyFrame {
             r = r.with_cloud_options(Some(cloud_options));
         }
 
-        let mut r = r
+        let r = r
             .with_infer_schema_length(infer_schema_length)
             .with_separator(separator)
             .with_has_header(has_header)
@@ -398,29 +397,6 @@ impl PlRLazyFrame {
             .with_glob(glob)
             .with_raise_if_empty(raise_if_empty)
             .with_include_file_paths(include_file_paths.map(|x| x.into()));
-
-        // if let Some(lambda) = with_schema_modify {
-        //     let f = |schema: Schema| {
-        //         let iter = schema.iter_names().map(|s| s.as_str());
-        //         Python::with_gil(|py| {
-        //             let names = PyList::new_bound(py, iter);
-
-        //             let out = lambda.call1(py, (names,)).expect("python function failed");
-        //             let new_names = out
-        //                 .extract::<Vec<String>>(py)
-        //                 .expect("python function should return List[str]");
-        //             polars_ensure!(new_names.len() == schema.len(),
-        //                 ShapeMismatch: "The length of the new names list should be equal to or less than the original column length",
-        //             );
-        //             Ok(schema
-        //                 .iter_values()
-        //                 .zip(new_names)
-        //                 .map(|(dtype, name)| Field::new(name.into(), dtype.clone()))
-        //                 .collect())
-        //         })
-        //     };
-        //     r = r.with_schema_modify(f).map_err(RPolarsErr::from)?
-        // }
 
         Ok(r.finish().map_err(RPolarsErr::from)?.into())
     }
