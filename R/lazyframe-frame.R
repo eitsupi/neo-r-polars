@@ -477,9 +477,15 @@ lazyframe__std <- function(ddof = 1) {
 #' @inherit as_polars_lf return
 #' @examples
 #' as_polars_lf(mtcars)$quantile(.4)$collect()
-lazyframe__quantile <- function(quantile, interpolation = "nearest") {
+lazyframe__quantile <- function(
+    quantile,
+    interpolation = c("nearest", "higher", "lower", "midpoint", "linear")) {
   wrap({
-    self$`_rexpr`$quantile(wrap_e_result(quantile), interpolation)
+    interpolation <- arg_match0(
+      interpolation,
+      values = c("nearest", "higher", "lower", "midpoint", "linear")
+    )
+    self$`_rexpr`$quantile(as_polars_expr(quantile, as_lit = TRUE)$`_rexpr`, interpolation)
   })
 }
 
@@ -803,7 +809,7 @@ lazyframe__join <- function(
 #' `"x<suffix>"`.
 #' @param suffix Suffix to append to columns with a duplicate name.
 #'
-#' @return A LazyFrame
+#' @inherit as_polars_lf return
 #'
 #' @examples
 #' east <- pl$LazyFrame(
@@ -1017,7 +1023,7 @@ lazyframe__join_asof <- function(
 #'
 #'
 #'
-#' @return A LazyFrame
+#' @inherit as_polars_lf return
 #'
 #' @examples
 #' lf <- pl$LazyFrame(
@@ -1320,7 +1326,7 @@ lazyframe__explode <- function(...) {
 #' but this can be useful when dealing with attributes (see examples).
 #'
 #'
-#' @return A LazyFrame
+#' @inherit as_polars_lf return
 #' @examples
 #' df1 <- pl$LazyFrame(iris)
 #'
@@ -1354,7 +1360,7 @@ lazyframe__clone <- function() {
 #'
 #' @inheritParams DataFrame_unnest
 #'
-#' @return A LazyFrame where some or all columns of datatype Struct are unnested.
+#' @inherit as_polars_lf return where some or all columns of datatype Struct are unnested.
 #' @examples
 #' lf <- pl$LazyFrame(
 #'   a = 1:5,
@@ -1391,7 +1397,7 @@ lazyframe__unnest <- function(...) {
 #'
 #' @param other Data/LazyFrame to have access to. This can be a list of DataFrames
 #' and LazyFrames.
-#' @return A LazyFrame
+#' @inherit as_polars_lf return
 #'
 #' @examples
 #' lf <- pl$LazyFrame(a = c(1, 2, 3), b = c("a", "c", NA))
@@ -1727,7 +1733,7 @@ lazyframe__sql <- function(query, ..., table_name = NULL, envir = parent.frame()
 #' @param n Gather every `n`-th row.
 #' @param offset Starting index.
 #'
-#' @return A LazyFrame
+#' @inherit as_polars_lf return
 #'
 #' @examples
 #' lf <- pl$LazyFrame(a = 1:4, b = 5:8)
@@ -1751,7 +1757,7 @@ lazyframe__gather_every <- function(n, offset = 0) {
 #' @param strict If `TRUE` (default), throw an error if a cast could not be done
 #' (for instance, due to an overflow). Otherwise, return `null`.
 #'
-#' @return A LazyFrame
+#' @inherit as_polars_lf return
 #'
 #' @examples
 #' lf <- pl$LazyFrame(
@@ -1773,4 +1779,17 @@ lazyframe__cast <- function(dtypes, ..., strict = TRUE) {
     self$`_rexpr`$cast(dtypes = dtypes, strict = strict) |>
       unwrap("in $cast():")
   }
+}
+
+#' Return the number of non-null elements for each column
+#'
+#' @inherit as_polars_lf return
+#'
+#' @examples
+#' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, NA), c = rep(NA, 4))
+#' lf$count()$collect()
+lazyframe__count <- function() {
+  wrap({
+    self$`_rexpr`$count()
+  })
 }
