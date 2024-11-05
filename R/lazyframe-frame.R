@@ -102,6 +102,38 @@ lazyframe__select <- function(...) {
   })
 }
 
+#' Start a group by operation
+#'
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Column(s) to group by.
+#' Accepts expression input. Strings are parsed as column names.
+#' @param .maintain_order Ensure that the order of the groups is consistent with
+#' the input data. This is slower than a default group by. Setting this to
+#' `TRUE` blocks the possibility to run on the streaming engine.
+#'
+# TODO: need a proper definition to link to
+#' @return A lazy groupby
+#' @examples
+#' # Group by one column and call agg() to compute the grouped sum of another
+#' # column.
+#' lf <- pl$LazyFrame(
+#'   a = c("a", "b", "a", "b", "c"),
+#'   b = c(1, 2, 1, 3, 3),
+#'   c = c(5, 4, 3, 2, 1)
+#' )
+#' lf$group_by("a")$agg(pl$col("b")$sum())$collect()
+#'
+#' # Set .maintain_order = TRUE to ensure the order of the groups is consistent
+#' # with the input.
+#' lf$group_by("a", .maintain_order = TRUE)$agg(pl$col("b")$sum())$collect()
+#'
+#' # Group by multiple columns by passing a vector of column names.
+#' lf$group_by(c("a", "b"))$agg(pl$col("c")$max())$collect()
+#' 
+#' # Or use positional arguments to group by multiple columns in the same way. 
+#' # Expressions are also accepted.
+#' lf$
+#'   group_by("a", pl$col("b") / 2)$
+#'   agg(pl$col("c")$mean())$collect()
 lazyframe__group_by <- function(..., .maintain_order = FALSE) {
   wrap({
     exprs <- parse_into_list_of_expressions(...)
@@ -302,6 +334,38 @@ lazyframe__cast <- function(..., .strict = TRUE) {
   })
 }
 
+#' Filter the rows in the LazyFrame based on a predicate expression
+#'
+#' The original order of the remaining rows is preserved. Rows where the filter
+#' does not evaluate to `TRUE` are discarded, including nulls.
+#'
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Expression that evaluates to
+#' a boolean Series.
+#'
+#' @inherit as_polars_lf return
+#' @examples
+#' lf <- pl$LazyFrame(
+#'   foo = c(1, 2, 3, NA, 4, NA, 0),
+#'   bar = c(6, 7, 8, NA, NA, 9, 0),
+#'   ham = c("a", "b", "c", NA, "d", "e", "f")
+#' )
+#'
+#' # Filter on one condition
+#' lf$filter(pl$col("foo") > 1)$collect()
+#'
+#' # Filter on multiple conditions
+#' lf$filter((pl$col("foo") < 3) & (pl$col("ham") == "a"))$collect()
+#'
+#' # Filter on an OR condition
+#' lf$filter((pl$col("foo") == 1) | (pl$col("ham") == " c"))$collect()
+#'
+#' # Filter by comparing two columns against each other
+#' lf$filter(pl$col("foo") == pl$col("bar"))$collect()
+#' lf$filter(pl$col("foo") != pl$col("bar"))$collect()
+#'
+#' # Notice how the row with null values is filtered out$ In order to keep the
+#' # rows with nulls, use:
+#' lf$filter(pl$col("foo")$ne_missing(pl$col("bar")))$collect()
 lazyframe__filter <- function(...) {
   parse_predicates_constraints_into_expression(...) |>
     self$`_ldf`$filter() |>
@@ -390,8 +454,8 @@ lazyframe__with_columns <- function(...) {
 
 #' Remove columns from the DataFrame
 #'
-#' @param  <[`dynamic-dots`][rlang::dyn-dots]> Names of the columns that should
-#' be removed from the dataframe. Accepts column selector input.
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Names of the columns that
+#' should be removed from the dataframe. Accepts column selector input.
 #' @param strict Validate that all column names exist in the current schema,
 #' and throw an exception if any do not.
 #'
@@ -436,19 +500,19 @@ lazyframe__tail <- function(n = 5) {
 }
 
 
-#' Get the first row of a LazyFrame
+#' Get the first row of the LazyFrame
 #'
 #' @inherit as_polars_lf return
 #' @examples
-#' as_polars_lf(mtcars)$first()$collect()
+#' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, 1))
+#' lf$first()$collect()
 lazyframe__first <- function() {
   wrap({
-    self$`_ldf`$first()
+    self$slice(0, 1)
   })
 }
 
-#' Get the last row of a LazyFrame
-#' @description Aggregate the columns in the LazyFrame to their maximum value.
+#' Get the last row of the LazyFrame
 #'
 #' @inherit as_polars_lf return
 #' @examples
@@ -456,7 +520,7 @@ lazyframe__first <- function() {
 #' lf$last()$collect()
 lazyframe__last <- function() {
   wrap({
-    self$`_ldf`$last()
+    self$tail(1)
   })
 }
 
@@ -712,47 +776,6 @@ lazyframe__unique <- function(
   wrap({
     self$`_ldf`$unique(subset, keep, maintain_order)
   })
-}
-
-#' Group a LazyFrame
-#' @description This doesn't modify the data but only stores information about
-#' the group structure. This structure can then be used by several functions
-#' (`$agg()`, `$filter()`, etc.).
-#'
-#' @param ... Column(s) to group by.
-#' Accepts [expression][expr__class] input. Characters are parsed as column names.
-#' @param maintain_order Ensure that the order of the groups is consistent with the input data.
-#' This is slower than a default group by.
-#' Setting this to `TRUE` blocks the possibility to run on the streaming engine.
-#' The default value can be changed with `options(polars.maintain_order = TRUE)`.
-#' @return [LazyGroupBy][LazyGroupBy_class] (a LazyFrame with special groupby methods like `$agg()`)
-#' @examples
-#' lf <- pl$LazyFrame(
-#'   a = c("a", "b", "a", "b", "c"),
-#'   b = c(1, 2, 1, 3, 3),
-#'   c = c(5, 4, 3, 2, 1)
-#' )
-#'
-#' lf$group_by("a")$agg(pl$col("b")$sum())$collect()
-#'
-#' # Set `maintain_order = TRUE` to ensure the order of the groups is consistent with the input.
-#' lf$group_by("a", maintain_order = TRUE)$agg(pl$col("c"))$collect()
-#'
-#' # Group by multiple columns by passing a list of column names.
-#' lf$group_by(c("a", "b"))$agg(pl$max("c"))$collect()
-#'
-#' # Or pass some arguments to group by multiple columns in the same way.
-#' # Expressions are also accepted.
-#' lf$group_by("a", pl$col("b") %/% 2)$agg(
-#'   pl$col("c")$mean()
-#' )$collect()
-#'
-#' # The columns will be renamed to the argument names.
-#' lf$group_by(d = "a", e = pl$col("b") %/% 2)$agg(
-#'   pl$col("c")$mean()
-#' )$collect()
-lazyframe__group_by <- function(..., maintain_order = polars_options()$maintain_order) {
-  self$`_ldf`$group_by(unpack_list(..., .context = "in $group_by():"), maintain_order)
 }
 
 #' Join LazyFrames

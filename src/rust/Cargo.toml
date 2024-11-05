@@ -63,6 +63,7 @@ features = [
     "pivot",
     "propagate_nans",
     "range",
+    "round_series",
     "semi_anti_join",
     "serde",
     "serde-lazy",
