@@ -502,6 +502,22 @@ lazyframe__head <- function(n = 5) {
     wrap()
 }
 
+#' Get the first `n` rows
+#'
+#' Alias for [`<LazyFrame>$head()`][lazyframe__head].
+#'
+#' @inheritParams lazyframe__head
+#' @inherit as_polars_lf return
+#' @examples
+#' lf <- pl$LazyFrame(a = 1:6, b = 7:12)
+#' lf$limit()$collect()
+#' lf$limit(2)$collect()
+lazyframe__limit <- function(n = 5) {
+  wrap({
+    self$head(n)
+  })
+}
+
 #' Get the last `n` rows
 #'
 #' @inheritParams lazyframe__head
@@ -694,12 +710,12 @@ lazyframe__shift <- function(n = 1, fill_value = NULL) {
   self$`_ldf`$shift(n, fill_value)
 }
 
-#' Reverse
-#' @description Reverse the LazyFrame (the last row becomes the first one, etc.).
+#' Reverse the LazyFrame
 #'
 #' @inherit as_polars_lf return
 #' @examples
-#' as_polars_lf(mtcars)$reverse()$collect()
+#' lf <- pl$LazyFrame(key = c("a", "b", "c"), val = 1:3)
+#' lf$reverse()$collect()
 lazyframe__reverse <- function() {
   wrap({
     self$`_ldf`$reverse()
@@ -1136,17 +1152,22 @@ lazyframe__unpivot <- function(
   ) |> unwrap("in $unpivot( ): ")
 }
 
-#' Rename column names of a LazyFrame
+#' Rename column names
+#'
+#' @param mapping Either a function that takes a character vector as input and
+#' returns one as input, or a named list where names are old column names and
+#' values are the new ones.
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> If `mapping` is missing,
+#' those values are used.
+#' @param strict Validate that all column names exist in the current schema,
+#' and throw an error if any do not. (Note that this parameter is a no-op when
+#' passing a function to `mapping`).
 #'
 #' @details
-#' If existing names are swapped (e.g. `A` points to `B` and `B` points to `A`),
-#' polars will block projection and predicate pushdowns at this node.
-#' @inherit pl_LazyFrame return
-#' @param ... One of the following:
-#' - Key value pairs that map from old name to new name, like `old_name = "new_name"`.
-#' - As above but with params wrapped in a list
-#' - An R function that takes the old names character vector as input and
-#'   returns the new names character vector.
+#' If existing names are swapped (e.g. 'A' points to 'B' and 'B' points to
+#' 'A'), polars will block projection and predicate pushdowns at this node.
+#'
+#' @inherit as_polars_lf return
 #' @examples
 #' lf <- pl$LazyFrame(
 #'   foo = 1:3,
@@ -1159,33 +1180,20 @@ lazyframe__unpivot <- function(
 #' lf$rename(
 #'   \(column_name) paste0("c", substr(column_name, 2, 100))
 #' )$collect()
-lazyframe__rename <- function(...) {
-  uw <- \(res) wrap({
-    res
-  })
-
-
-  if (!nargs()) {
-    Err_plain("No arguments provided for `$rename()`.") |>
-      uw()
-  }
-
-  mapping <- list2(...)
-  if (is.function(mapping[[1L]])) {
-    result({
-      existing <- names(self)
-      new <- mapping[[1L]](existing)
-    }) |>
-      uw()
-  } else {
-    if (is.list(mapping[[1L]])) {
-      mapping <- mapping[[1L]]
+lazyframe__rename <- function(mapping, ..., strict = TRUE) {
+  wrap({
+    if (!missing(mapping) && is_function(mapping)) {
+      check_dots_empty0(...)
+      self$select(pl$all()$name$map(mapping))
+    } else {
+      if (missing(mapping) || !is.list(mapping)) {
+        mapping <- list2(...)
+      }
+      existing <- names(mapping)
+      new <- unlist(mapping)
+      self$`_ldf`$rename(existing, new, strict)
     }
-    new <- unname(unlist(mapping))
-    existing <- names(mapping)
-  }
-  self$`_ldf`$rename(existing, new) |>
-    uw()
+  })
 }
 
 #' Fetch `n` rows of a LazyFrame
@@ -1988,5 +1996,34 @@ lazyframe__top_k <- function(k, ..., by, reverse = FALSE) {
 lazyframe__interpolate <- function() {
   wrap({
     self$select(pl$col("*")$interpolate())
+  })
+}
+
+#' Take two sorted DataFrames and merge them by the sorted key
+#'
+#' The output of this operation will also be sorted. It is the callers
+#' responsibility that the frames are sorted by that key, otherwise the output
+#' will not make sense. The schemas of both LazyFrames must be equal.
+#'
+#' @param other Other DataFrame that must be merged.
+#' @param key Key that is sorted.
+#'
+#' @inherit as_polars_lf return
+#'
+#' @examples
+#' lf1 <- pl$LazyFrame(
+#'   name = c("steve", "elise", "bob"),
+#'   age = c(42, 44, 18)
+#' )$sort("age")
+#'
+#' lf2 <- pl$LazyFrame(
+#'   name = c("anna", "megan", "steve", "thomas"),
+#'   age = c(21, 33, 42, 20)
+#' )$sort("age")
+#'
+#' lf1$merge_sorted(lf2, key = "age")$collect()
+lazyframe__merge_sorted <- function(other, key) {
+  wrap({
+    self$`_ldf`$merge_sorted(other$`_ldf`, key)
   })
 }
