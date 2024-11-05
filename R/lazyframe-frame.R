@@ -567,18 +567,18 @@ lazyframe__quantile <- function(
   })
 }
 
-#' @inherit Expr_fill_nan title params
+#' @inherit expr__fill_nan title params
 #'
 #' @inherit as_polars_lf return
 #' @examples
-#' df <- pl$LazyFrame(
+#' lf <- pl$LazyFrame(
 #'   a = c(1.5, 2, NaN, 4),
 #'   b = c(1.5, NaN, NaN, 4)
 #' )
-#' df$fill_nan(99)$collect()
+#' lf$fill_nan(99)$collect()
 lazyframe__fill_nan <- function(value) {
   wrap({
-    self$`_ldf`$fill_nan(value)
+    self$`_ldf`$fill_nan(as_polars_expr(value)$`_rexpr`)
   })
 }
 
@@ -586,14 +586,14 @@ lazyframe__fill_nan <- function(value) {
 #'
 #' @inherit as_polars_lf return
 #' @examples
-#' df <- pl$LazyFrame(
+#' lf <- pl$LazyFrame(
 #'   a = c(1.5, 2, NA, 4),
 #'   b = c(1.5, NA, NA, 4)
 #' )
-#' df$fill_null(99)$collect()
+#' lf$fill_null(99)$collect()
 lazyframe__fill_null <- function(fill_value) {
   wrap({
-    self$`_ldf`$fill_null(wrap_e_result(fill_value))
+    self$`_ldf`$fill_null(as_polars_expr(fill_value)$`_rexpr`)
   })
 }
 
@@ -720,7 +720,7 @@ lazyframe__unique <- function(
 #' (`$agg()`, `$filter()`, etc.).
 #'
 #' @param ... Column(s) to group by.
-#' Accepts [expression][Expr_class] input. Characters are parsed as column names.
+#' Accepts [expression][expr__class] input. Characters are parsed as column names.
 #' @param maintain_order Ensure that the order of the groups is consistent with the input data.
 #' This is slower than a default group by.
 #' Setting this to `TRUE` blocks the possibility to run on the streaming engine.
@@ -1426,7 +1426,7 @@ lazyframe__with_context <- function(other) {
 
 #' Create rolling groups based on a date/time or integer column
 #'
-#' @inherit Expr_rolling description details params
+#' @inherit expr__rolling description details params
 #' @param index_column Column used to group based on the time window. Often of
 #' type Date/Datetime. This column must be sorted in ascending order (or, if `by`
 #' is specified, then it must be sorted in ascending order within each group). In
