@@ -296,7 +296,7 @@ check_date_or_datetime <- function(
     arg = caller_arg(x),
     call = caller_env()) {
   if (!missing(x)) {
-    if (inherits(x, c("Date", "POSIXct", "polars_expr"))) {
+    if (inherits(x, c("Date", "POSIXct", "POSIXlt", "polars_expr"))) {
       return(invisible(NULL))
     }
     if (allow_null && is_null(x)) {

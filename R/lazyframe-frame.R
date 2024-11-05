@@ -128,8 +128,8 @@ lazyframe__select <- function(...) {
 #'
 #' # Group by multiple columns by passing a vector of column names.
 #' lf$group_by(c("a", "b"))$agg(pl$col("c")$max())$collect()
-#' 
-#' # Or use positional arguments to group by multiple columns in the same way. 
+#'
+#' # Or use positional arguments to group by multiple columns in the same way.
 #' # Expressions are also accepted.
 #' lf$
 #'   group_by("a", pl$col("b") / 2)$
@@ -489,11 +489,27 @@ lazyframe__slice <- function(offset, length = NULL) {
   })
 }
 
+#' Get the first `n` rows
+#'
+#' @param n Number of rows to return.
+#' @inherit as_polars_lf return
+#' @examples
+#' lf <- pl$LazyFrame(a = 1:6, b = 7:12)
+#' lf$head()$collect()
+#' lf$head(2)$collect()
 lazyframe__head <- function(n = 5) {
   self$slice(0, n) |>
     wrap()
 }
 
+#' Get the last `n` rows
+#'
+#' @inheritParams lazyframe__head
+#' @inherit as_polars_lf return
+#' @examples
+#' lf <- pl$LazyFrame(a = 1:6, b = 7:12)
+#' lf$tail()$collect()
+#' lf$tail(2)$collect()
 lazyframe__tail <- function(n = 5) {
   self$`_ldf`$tail(n) |>
     wrap()
@@ -785,13 +801,24 @@ lazyframe__unique <- function(
 #' observations based on matching observations, for example with `how =
 #' "inner"`).
 #'
+#' @inheritParams rlang::check_dots_empty0
 #' @param other LazyFrame to join with.
 #' @param on Either a vector of column names or a list of expressions and/or
 #'   strings. Use `left_on` and `right_on` if the column names to match on are
 #'   different between the two DataFrames.
-#' @param how One of the following methods: "inner", "left", "right", "full",
-#'   "semi", "anti", "cross".
-#' @param ... Ignored.
+#' @param how One of the following methods:
+#' * "inner": returns rows that have matching values in both tables
+#' * "left": returns all rows from the left table, and the matched rows from
+#'   the right table
+#' * "right": returns all rows from the right table, and the matched rows from
+#'   the left table
+#' * "full": returns all rows when there is a match in either left or right
+#'   table
+#' * "cross": returns the Cartesian product of rows from both tables
+#' * "semi": returns rows from the left table that have a match in the right
+#'   table.
+#' * "anti": returns rows from the left table that have no match in the right
+#'   table.
 #' @param left_on,right_on Same as `on` but only for the left or the right
 #'   DataFrame. They must have the same length.
 #' @param suffix Suffix to add to duplicated column names.
@@ -802,8 +829,7 @@ lazyframe__unique <- function(
 #' * `"1:m"`: one-to-many, check if join keys are unique in left dataset
 #' * `"m:1"`: many-to-one, check if join keys are unique in right dataset
 #'
-#' Note that this is currently not supported by the streaming engine, and is
-#' only supported when joining by single columns.
+#' Note that this is currently not supported by the streaming engine.
 #'
 #' @param join_nulls Join on null values. By default null values will never
 #'   produce matches.
@@ -815,29 +841,29 @@ lazyframe__unique <- function(
 #' - `NULL`: join specific.
 #' - `TRUE`: Always coalesce join columns.
 #' - `FALSE`: Never coalesce join columns.
+#' Note that joining on any other expressions than `col` will turn off
+#' coalescing.
 #'
 #' @inherit as_polars_lf return
 #' @examples
-#' # inner join by default
-#' df1 <- pl$LazyFrame(list(key = 1:3, payload = c("f", "i", NA)))
-#' df2 <- pl$LazyFrame(list(key = c(3L, 4L, 5L, NA_integer_)))
-#' df1$join(other = df2, on = "key")
-#'
-#' # cross join
-#' df1 <- pl$LazyFrame(x = letters[1:3])
-#' df2 <- pl$LazyFrame(y = 1:4)
-#' df1$join(other = df2, how = "cross")
-#'
-#' # use "validate" to ensure join keys are not duplicated
-#' df1 <- pl$LazyFrame(x = letters[1:5], y = 1:5)
-#' df2 <- pl$LazyFrame(x = c("a", letters[1:4]), y2 = 6:10)
-#'
-#' # this throws an error because there are two keys in df2 that match the key
-#' # in df1
-#' tryCatch(
-#'   df1$join(df2, on = "x", validate = "1:1")$collect(),
-#'   error = function(e) print(e)
+#' lf <- pl$LazyFrame(
+#'   foo = 1:3,
+#'   bar = c(6, 7, 8),
+#'   ham = c("a", "b", "c")
 #' )
+#' other_lf <- pl$LazyFrame(
+#'   apple = c("x", "y", "z"),
+#'   ham = c("a", "b", "d")
+#' )
+#' lf$join(other_lf, on = "ham")$collect()
+#'
+#' lf$join(other_lf, on = "ham", how = "full")$collect()
+#'
+#' lf$join(other_lf, on = "ham", how = "left", coalesce = TRUE)$collect()
+#'
+#' lf$join(other_lf, on = "ham", how = "semi")$collect()
+#'
+#' lf$join(other_lf, on = "ham", how = "anti")$collect()
 lazyframe__join <- function(
     other,
     on = NULL,
@@ -851,42 +877,65 @@ lazyframe__join <- function(
     allow_parallel = TRUE,
     force_parallel = FALSE,
     coalesce = NULL) {
-  uw <- \(res) wrap({
-    res
-  })
-
-
-  if (!is_polars_lf(other)) {
-    Err_plain("`other` must be a LazyFrame.") |> uw()
-  }
-
-  if (how == "cross") {
-    if (!is.null(on) || !is.null(left_on) || !is.null(right_on)) {
-      Err_plain("cross join should not pass join keys.") |> uw()
+  wrap({
+    check_dots_empty0(...)
+    check_polars_lf(other)
+    how <- arg_match0(
+      how,
+      values = c("inner", "full", "left", "right", "semi", "anti", "cross")
+    )
+    validate <- arg_match0(validate, values = c("m:m", "1:m", "m:1", "1:1"))
+    uses_on <- !is.null(on)
+    uses_left_on <- !is.null(left_on)
+    uses_right_on <- !is.null(right_on)
+    uses_lr_on <- uses_left_on | uses_right_on
+    if (uses_on && uses_lr_on) {
+      abort("cannot use 'on' in conjunction with 'left_on' or 'right_on'.")
     }
-    rexprs_left <- as.list(NULL)
-    rexprs_right <- as.list(NULL)
-  } else {
-    if (!is.null(on)) {
-      rexprs_right <- rexprs_left <- as.list(on)
-    } else if ((!is.null(left_on) && !is.null(right_on))) {
-      rexprs_left <- as.list(left_on)
-      rexprs_right <- as.list(right_on)
+    if (uses_left_on && !uses_right_on) {
+      abort("'left_on' requires corresponding 'right_on'")
+    }
+    if (!uses_left_on && uses_right_on) {
+      abort("'right_on' requires corresponding 'left_on'")
+    }
+    if (how == "cross") {
+      if (uses_on | uses_lr_on) {
+        abort("cross join should not pass join keys.")
+      }
+      return(
+        self$`_ldf`$join(
+          other$`_ldf`, as.list(NULL), as.list(NULL),
+          how = how, validate = validate,
+          join_nulls = join_nulls, suffix = suffix,
+          allow_parallel = allow_parallel, force_parallel = force_parallel,
+          coalesce = coalesce
+        )
+      )
+    }
+
+    if (uses_on) {
+      rexprs_right <- rexprs_left <- parse_into_list_of_expressions(!!!on)
+    } else if (uses_lr_on) {
+      rexprs_left <- parse_into_list_of_expressions(!!!left_on)
+      rexprs_right <- parse_into_list_of_expressions(!!!right_on)
     } else {
-      Err_plain("must specify either `on`, or `left_on` and `right_on`.") |> uw()
+      abort("must specify either `on`, or `left_on` and `right_on`.")
     }
-  }
-
-  self$`_ldf`$join(
-    lf, other, rexprs_left, rexprs_right, how, validate, join_nulls, suffix,
-    allow_parallel, force_parallel, coalesce
-  ) |>
-    uw()
+    self$`_ldf`$join(
+      other$`_ldf`, rexprs_left, rexprs_right,
+      how = how, validate = validate,
+      join_nulls = join_nulls, suffix = suffix,
+      allow_parallel = allow_parallel, force_parallel = force_parallel,
+      coalesce = coalesce
+    )
+  })
 }
 
 #' Perform a join based on one or multiple (in)equality predicates
 #'
 #' @description
+#' `r lifecycle::badge("experimental")`
+#'
 #' This performs an inner join, so only rows where all predicates are true are
 #' included in the result, and a row from either LazyFrame may be included
 #' multiple times in the result.
@@ -894,11 +943,11 @@ lazyframe__join <- function(
 #' Note that the row order of the input LazyFrames is not preserved.
 #'
 #' @param other LazyFrame to join with.
-#' @param ... (In)Equality condition to join the two tables on. When a column
-#' name occurs in both tables, the proper suffix must be applied in the
-#' predicate. For example, if both tables have a column `"x"` that you want to
-#' use in the conditions, you must refer to the column of the right table as
-#' `"x<suffix>"`.
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> (In)Equality condition to
+#' join the two tables on. When a column name occurs in both tables, the proper
+#' suffix must be applied in the predicate. For example, if both tables have a
+#' column `"x"` that you want to use in the conditions, you must refer to the
+#' column of the right table as `"x<suffix>"`.
 #' @param suffix Suffix to append to columns with a duplicate name.
 #'
 #' @inherit as_polars_lf return
@@ -929,7 +978,8 @@ lazyframe__join_where <- function(
     suffix = "_right") {
   wrap({
     check_polars_lf(other)
-    self$`_ldf`$join_where(other, unpack_list(..., .context = "in $join_where():"), suffix)
+    by <- parse_into_list_of_expressions(...)
+    self$`_ldf`$join_where(other$`_ldf`, by, suffix)
   })
 }
 
@@ -1499,12 +1549,35 @@ lazyframe__rolling <- function(
 
 #' Group based on a date/time or integer column
 #'
-#' @inherit lazyframe__rolling description details params
+#' Time windows are calculated and rows are assigned to windows. Different from
+#' a normal group by is that a row can be member of multiple groups. By
+#' default, the windows look like:
+#' * [start, start + period)
+#' * [start + every, start + every + period)
+#' * [start + 2*every, start + 2*every + period)
+#' * …
 #'
+#' where `start` is determined by `start_by`, `offset`, `every`, and the
+#' earliest datapoint. See the `start_by` argument description for details.
+#'
+#' @inheritParams rlang::check_dots_empty0
+#' @param index_column Column used to group based on the time window. Often of
+#' type Date/Datetime. This column must be sorted in ascending order (or, if
+#' `group_by` is specified, then it must be sorted in ascending order within
+#' each group).
+#' In case of a dynamic group by on indices, the data type needs to be either
+#' Int32 or In64. Note that Int32 gets temporarily cast to Int64, so if
+#' performance matters, use an Int64 column.
 #' @param every Interval of the window.
+#' @param period Length of the window. If `NULL` (default), it will equal
+#' `every`.
+#' @param offset Offset of the window, does not take effect if
+#' `start_by = "datapoint"`. Defaults to zero.
 #' @param include_boundaries Add two columns `"_lower_boundary"` and
 #' `"_upper_boundary"` columns that show the boundaries of the window. This will
 #' impact performance because it’s harder to parallelize.
+#' @param closed Define which sides of the interval are closed (inclusive).
+#' Default is `"left"`.
 #' @param label Define which label to use for the window:
 #' * `"left"`: lower boundary of the window
 #' * `"right"`: upper boundary of the window
@@ -1512,49 +1585,72 @@ lazyframe__rolling <- function(
 #' you don’t need the label to be at one of the boundaries, choose this option
 #' for maximum performance.
 #' @param start_by The strategy to determine the start of the first window by:
-#' * `"window"`: start by taking the earliest timestamp, truncating it with `every`,
-#'   and then adding `offset`. Note that weekly windows start on Monday.
+#' * `"window"`: start by taking the earliest timestamp, truncating it with
+#'   `every`, and then adding `offset`. Note that weekly windows start on
+#'   Monday.
 #' * `"datapoint"`: start from the first encountered data point.
 #' * a day of the week (only takes effect if `every` contains `"w"`): `"monday"`
 #'   starts the window on the Monday before the first data point, etc.
 #'
+#' @details
+#' The `every`, `period`, and `offset` arguments are created with the following
+#' string language:
+#' - 1ns # 1 nanosecond
+#' - 1us # 1 microsecond
+#' - 1ms # 1 millisecond
+#' - 1s  # 1 second
+#' - 1m  # 1 minute
+#' - 1h  # 1 hour
+#' - 1d  # 1 day
+#' - 1w  # 1 calendar week
+#' - 1mo # 1 calendar month
+#' - 1y  # 1 calendar year
+#' These strings can be combined:
+#'   - 3d12h4m25s # 3 days, 12 hours, 4 minutes, and 25 seconds
+#'
+#' In case of a `group_by_dynamic` on an integer column, the windows are
+#' defined by:
+#' - 1i # length 1
+#' - 10i # length 10
+#'
 #' @return A [LazyGroupBy][LazyGroupBy_class] object
 #' @seealso
 #' - [`<LazyFrame>$rolling()`][lazyframe__rolling]
+#'
 #' @examples
-#' lf <- pl$LazyFrame(
+#' lf <- pl$select(
 #'   time = pl$datetime_range(
 #'     start = strptime("2021-12-16 00:00:00", format = "%Y-%m-%d %H:%M:%S", tz = "UTC"),
 #'     end = strptime("2021-12-16 03:00:00", format = "%Y-%m-%d %H:%M:%S", tz = "UTC"),
 #'     interval = "30m"
 #'   ),
 #'   n = 0:6
-#' )
+#' )$lazy()
 #' lf$collect()
 #'
-#' # get the sum in the following hour relative to the "time" column
-#' lf$group_by_dynamic("time", every = "1h")$agg(
-#'   vals = pl$col("n"),
-#'   sum = pl$col("n")$sum()
-#' )$collect()
-#'
-#' # using "include_boundaries = TRUE" is helpful to see the period considered
-#' lf$group_by_dynamic("time", every = "1h", include_boundaries = TRUE)$agg(
-#'   vals = pl$col("n")
-#' )$collect()
-#'
-#' # in the example above, the values didn't include the one *exactly* 1h after
-#' # the start because "closed = 'left'" by default.
-#' # Changing it to "right" includes values that are exactly 1h after. Note that
-#' # the value at 00:00:00 now becomes included in the interval [23:00:00 - 00:00:00],
-#' # even if this interval wasn't there originally
+#' # Group by windows of 1 hour.
 #' lf$group_by_dynamic("time", every = "1h", closed = "right")$agg(
 #'   vals = pl$col("n")
 #' )$collect()
-#' # To keep both boundaries, we use "closed = 'both'". Some values now belong to
-#' # several groups:
+#'
+#' # The window boundaries can also be added to the aggregation result
+#' lf$group_by_dynamic(
+#'   "time",
+#'   every = "1h", include_boundaries = TRUE, closed = "right"
+#' )$agg(
+#'   pl$col("n")$mean()
+#' )$collect()
+#'
+#' # When closed = "left", the window excludes the right end of interval:
+#' # [lower_bound, upper_bound)
+#' lf$group_by_dynamic("time", every = "1h", closed = "left")$agg(
+#'   pl$col("n")
+#' )$collect()
+#'
+#' # When closed = "both" the time values at the window boundaries belong to 2
+#' # groups.
 #' lf$group_by_dynamic("time", every = "1h", closed = "both")$agg(
-#'   vals = pl$col("n")
+#'   pl$col("n")
 #' )$collect()
 #'
 #' # Dynamic group bys can also be combined with grouping on normal keys
@@ -1596,14 +1692,27 @@ lazyframe__group_by_dynamic <- function(
     label = "left",
     group_by = NULL,
     start_by = "window") {
-  every <- parse_as_polars_duration_string(every)
-  offset <- parse_as_polars_duration_string(offset) %||% negate_duration_string(every)
-  period <- parse_as_polars_duration_string(period) %||% every
+  wrap({
+    check_dots_empty0(...)
+    closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
+    start_by <- arg_match0(
+      start_by,
+      values = c(
+        "window", "datapoint", "monday", "tuesday", "wednesday", "thursday",
+        "friday", "saturday", "sunday"
+      )
+    )
+    every <- parse_as_polars_duration_string(every)
+    offset <- parse_as_polars_duration_string(offset) %||% "0ns"
+    period <- parse_as_polars_duration_string(period) %||% every
+    group_by <- parse_into_list_of_expressions(!!!group_by)
 
-  self$`_ldf`$group_by_dynamic(
-    lf, index_column, every, period, offset, label, include_boundaries, closed,
-    wrap_elist_result(group_by, str_to_lit = FALSE), start_by
-  )
+    self$`_ldf`$group_by_dynamic(
+      as_polars_expr(index_column)$`_rexpr`, every, period, offset, label,
+      include_boundaries, closed,
+      group_by, start_by
+    )
+  })
 }
 
 #' Plot the query plan
@@ -1860,5 +1969,24 @@ lazyframe__top_k <- function(k, ..., by, reverse = FALSE) {
     by <- parse_into_list_of_expressions(!!!by)
     reverse <- extend_bool(reverse, length(by), "reverse", "...")
     self$`_ldf`$top_k(k, by, reverse)
+  })
+}
+
+#' Interpolate intermediate values
+#'
+#' The interpolation method is linear.
+#' @inherit as_polars_lf return
+#'
+#' @examples
+#' lf <- pl$LazyFrame(
+#'   foo = c(1, NA, 9, 10),
+#'   bar = c(6, 7, 9, NA),
+#'   ham = c(1, NA, NA, 9)
+#' )
+#'
+#' lf$interpolate()$collect()
+lazyframe__interpolate <- function() {
+  wrap({
+    self$select(pl$col("*")$interpolate())
   })
 }
