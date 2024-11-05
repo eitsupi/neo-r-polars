@@ -648,13 +648,15 @@ impl PlRLazyFrame {
         Ok(out.into())
     }
 
-    fn std(&self, ddof: u8) -> Result<PlRLazyFrame> {
+    fn std(&self, ddof: NumericScalar) -> Result<PlRLazyFrame> {
+        let ddof = <Wrap<u8>>::try_from(ddof)?.0;
         let ldf = self.ldf.clone();
         let out = ldf.std(ddof);
         Ok(out.into())
     }
 
-    fn var(&self, ddof: u8) -> Result<PlRLazyFrame> {
+    fn var(&self, ddof: NumericScalar) -> Result<PlRLazyFrame> {
+        let ddof = <Wrap<u8>>::try_from(ddof)?.0;
         let ldf = self.ldf.clone();
         let out = ldf.var(ddof);
         Ok(out.into())

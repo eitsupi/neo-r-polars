@@ -57,7 +57,7 @@ wrap.PlRLazyFrame <- function(x, ...) {
 #' `$select()` call. For instance, if you create a variable `x`, you will only
 #' be able to use it in another `$select()` or `$with_columns()` call.
 #'
-#' @inherit pl__LazyFrame return
+#' @inherit as_polars_lf return
 #' @param ... <[`dynamic-dots`][rlang::dyn-dots]>
 #' Name-value pairs of objects to be converted to polars [expressions][Expr]
 #' by the [as_polars_expr()] function.
@@ -185,6 +185,38 @@ lazyframe__collect <- function(
   })
 }
 
+#' Create a string representation of the query plan
+#'
+#' The query plan is read from bottom to top. When `optimized = FALSE`, the
+#' query as it was written by the user is shown. This is not what Polars runs.
+#' Instead, it applies optimizations that are displayed by default by `$explain()`.
+#' One classic example is the predicate pushdown, which applies the filter as
+#' early as possible (i.e. at the bottom of the plan).
+#'
+#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams lazyframe__collect
+#' @param format The format to use for displaying the logical plan. Must be
+#' either `"plain"` (default) or `"tree"`.
+#' @param optimized Return an optimized query plan. If `TRUE` (default), the
+#' subsequent optimization flags control which optimizations run.
+#'
+#' @return A character value containing the query plan.
+#' @examples
+#' lazy_frame <- as_polars_lf(iris)
+#'
+#' # Prepare your query
+#' lazy_query <- lazy_frame$sort("Species")$filter(pl$col("Species") != "setosa")
+#'
+#' # This is the query that was written by the user, without any optimizations
+#' # (use cat() for better printing)
+#' lazy_query$explain(optimized = FALSE) |> cat()
+#'
+#' # This is the query after `polars` optimizes it: instead of sorting first and
+#' # then filtering, it is faster to filter first and then sort the rest.
+#' lazy_query$explain() |> cat()
+#'
+#' # Also possible to see this as tree format
+#' lazy_query$explain(format = "tree") |> cat()
 lazyframe__explain <- function(
     ...,
     format = c("plain", "tree"),
@@ -200,7 +232,6 @@ lazyframe__explain <- function(
     streaming = FALSE) {
   wrap({
     check_dots_empty0(...)
-
     format <- arg_match0(format, c("plain", "tree"))
 
     if (isTRUE(optimized)) {
@@ -232,6 +263,32 @@ lazyframe__explain <- function(
   })
 }
 
+#' Cast LazyFrame column(s) to the specified dtype(s)
+#'
+#' This allows to convert all columns to a datatype or to convert only specific
+#' columns. Contrarily to the Python implementation, it is not possible to
+#' convert all columns of a specific datatype to another datatype.
+#'
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Either a datatype to which
+#' all columns will be cast, or a list where the names are column names and the
+#' values are the datatypes to convert to.
+#' @param strict If `TRUE` (default), throw an error if a cast could not be done
+#' (for instance, due to an overflow). Otherwise, return `null`.
+#'
+#' @return A LazyFrame
+#'
+#' @examples
+#' lf <- pl$LazyFrame(
+#'   foo = 1:3,
+#'   bar = c(6, 7, 8),
+#'   ham = as.Date(c("2020-01-02", "2020-03-04", "2020-05-06"))
+#' )
+#'
+#' # Cast only some columns
+#' lf$cast(foo = pl$Float32, bar = pl$UInt8)$collect()
+#'
+#' # Cast all columns to the same type
+#' lf$cast(pl$String)$collect()
 lazyframe__cast <- function(..., .strict = TRUE) {
   wrap({
     check_bool(.strict)
@@ -285,7 +342,7 @@ lazyframe__sort <- function(
 #' variable `x`, you will only be able to use it in another `$with_columns()`
 #' or `$select()` call.
 #'
-#' @inherit pl__LazyFrame return
+#' @inherit as_polars_lf return
 #' @inheritParams lazyframe__select
 #' @examples
 #' # Pass an expression to add it as a new column.
@@ -331,10 +388,29 @@ lazyframe__with_columns <- function(...) {
   })
 }
 
+#' Remove columns from the DataFrame
+#'
+#' @param  <[`dynamic-dots`][rlang::dyn-dots]> Names of the columns that should
+#' be removed from the dataframe. Accepts column selector input.
+#' @param strict Validate that all column names exist in the current schema,
+#' and throw an exception if any do not.
+#'
+#' @inherit as_polars_lf return
+#' @examples
+#' # Drop columns by passing the name of those columns
+#' lf <- pl$LazyFrame(
+#'   foo = 1:3,
+#'   bar = c(6, 7, 8),
+#'   ham = c("a", "b", "c")
+#' )
+#' lf$drop("ham")$collect()
+#' lf$drop("ham", "bar")$collect()
+#'
+#' # Drop multiple columns by passing a selector
+#' lf$drop(cs$all())$collect()
 lazyframe__drop <- function(..., strict = TRUE) {
   wrap({
     check_dots_unnamed()
-
     parse_into_list_of_expressions(...) |>
       self$`_ldf`$drop(strict)
   })
@@ -367,7 +443,7 @@ lazyframe__tail <- function(n = 5) {
 #' as_polars_lf(mtcars)$first()$collect()
 lazyframe__first <- function() {
   wrap({
-    self$`_rexpr`$first()
+    self$`_ldf`$first()
   })
 }
 
@@ -376,107 +452,109 @@ lazyframe__first <- function() {
 #'
 #' @inherit as_polars_lf return
 #' @examples
-#' as_polars_lf(mtcars)$last()$collect()
+#' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, 1))
+#' lf$last()$collect()
 lazyframe__last <- function() {
   wrap({
-    self$`_rexpr`$last()
+    self$`_ldf`$last()
   })
 }
 
-#' Max
-#' @description Aggregate the columns in the LazyFrame to their maximum value.
+#' Aggregate the columns in the LazyFrame to their maximum value
 #'
 #' @inherit as_polars_lf return
 #' @examples
-#' as_polars_lf(mtcars)$max()$collect()
+#' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, 1))
+#' lf$max()$collect()
 lazyframe__max <- function() {
   wrap({
-    self$`_rexpr`$max()
+    self$`_ldf`$max()
   })
 }
 
-#' Mean
-#' @description Aggregate the columns in the LazyFrame to their mean value.
+#' Aggregate the columns in the LazyFrame to their mean value
 #'
 #' @inherit as_polars_lf return
 #' @examples
-#' as_polars_lf(mtcars)$mean()$collect()
+#' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, 1))
+#' lf$mean()$collect()
 lazyframe__mean <- function() {
   wrap({
-    self$`_rexpr`$mean()
+    self$`_ldf`$mean()
   })
 }
 
-#' Median
-#' @description Aggregate the columns in the LazyFrame to their median value.
+#' Aggregate the columns in the LazyFrame to their median value
 #'
 #' @inherit as_polars_lf return
 #' @examples
-#' as_polars_lf(mtcars)$median()$collect()
+#' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, 1))
+#' lf$median()$collect()
 lazyframe__median <- function() {
   wrap({
-    self$`_rexpr`$median()
+    self$`_ldf`$median()
   })
 }
 
-#' Min
-#' @description Aggregate the columns in the LazyFrame to their minimum value.
+#' Aggregate the columns in the LazyFrame to their minimum value
 #'
 #' @inherit as_polars_lf return
 #' @examples
-#' as_polars_lf(mtcars)$min()$collect()
+#' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, 1))
+#' lf$min()$collect()
 lazyframe__min <- function() {
   wrap({
-    self$`_rexpr`$min()
+    self$`_ldf`$min()
   })
 }
 
-#' Sum
-#' @description Aggregate the columns of this LazyFrame to their sum values.
+#' Aggregate the columns of this LazyFrame to their sum values
 #'
 #' @inherit as_polars_lf return
 #' @examples
-#' as_polars_lf(mtcars)$sum()$collect()
+#' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, 1))
+#' lf$sum()$collect()
 lazyframe__sum <- function() {
   wrap({
-    self$`_rexpr`$sum()
+    self$`_ldf`$sum()
   })
 }
 
-#' Var
-#' @description Aggregate the columns of this LazyFrame to their variance values.
+#' Aggregate the columns in the LazyFrame to their variance value
 #'
 #' @inheritParams DataFrame_var
 #' @inherit as_polars_lf return
 #' @examples
-#' as_polars_lf(mtcars)$var()$collect()
+#' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, 1))
+#' lf$var()$collect()
+#' lf$var(ddof = 0)$collect()
 lazyframe__var <- function(ddof = 1) {
   wrap({
-    self$`_rexpr`$var(ddof)
+    self$`_ldf`$var(ddof)
   })
 }
 
-#' Std
-#' @description Aggregate the columns of this LazyFrame to their standard
-#' deviation values.
+#' Aggregate the columns of this LazyFrame to their standard deviation values
 #'
 #' @inheritParams DataFrame_std
 #' @inherit as_polars_lf return
 #' @examples
-#' as_polars_lf(mtcars)$std()$collect()
+#' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, 1))
+#' lf$std()$collect()
+#' lf$std(ddof = 0)$collect()
 lazyframe__std <- function(ddof = 1) {
   wrap({
-    self$`_rexpr`$std(ddof)
+    self$`_ldf`$std(ddof)
   })
 }
 
-#' Quantile
-#' @description Aggregate the columns in the DataFrame to a unique quantile
-#' value. Use `$describe()` to specify several quantiles.
+#' Aggregate the columns in the DataFrame to a unique quantile value
+#'
 #' @inheritParams DataFrame_quantile
 #' @inherit as_polars_lf return
 #' @examples
-#' as_polars_lf(mtcars)$quantile(.4)$collect()
+#' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, 1))
+#' lf$quantile(0.7)$collect()
 lazyframe__quantile <- function(
     quantile,
     interpolation = c("nearest", "higher", "lower", "midpoint", "linear")) {
@@ -485,7 +563,7 @@ lazyframe__quantile <- function(
       interpolation,
       values = c("nearest", "higher", "lower", "midpoint", "linear")
     )
-    self$`_rexpr`$quantile(as_polars_expr(quantile, as_lit = TRUE)$`_rexpr`, interpolation)
+    self$`_ldf`$quantile(as_polars_expr(quantile, as_lit = TRUE)$`_rexpr`, interpolation)
   })
 }
 
@@ -500,7 +578,7 @@ lazyframe__quantile <- function(
 #' df$fill_nan(99)$collect()
 lazyframe__fill_nan <- function(value) {
   wrap({
-    self$`_rexpr`$fill_nan(value)
+    self$`_ldf`$fill_nan(value)
   })
 }
 
@@ -515,7 +593,7 @@ lazyframe__fill_nan <- function(value) {
 #' df$fill_null(99)$collect()
 lazyframe__fill_null <- function(fill_value) {
   wrap({
-    self$`_rexpr`$fill_null(wrap_e_result(fill_value))
+    self$`_ldf`$fill_null(wrap_e_result(fill_value))
   })
 }
 
@@ -533,26 +611,7 @@ lazyframe__fill_null <- function(fill_value) {
 #'
 #' lf$shift(-2, fill_value = 100)$collect()
 lazyframe__shift <- function(n = 1, fill_value = NULL) {
-  self$`_rexpr`$shift(n, fill_value)
-}
-
-#' Drop columns of a LazyFrame
-#'
-#' @inheritParams DataFrame_drop
-#'
-#' @inherit as_polars_lf return
-#' @examples
-#' as_polars_lf(mtcars)$drop(c("mpg", "hp"))$collect()
-#'
-#' # equivalent
-#' as_polars_lf(mtcars)$drop("mpg", "hp")$collect()
-lazyframe__drop <- function(..., strict = TRUE) {
-  cols <- unpack_list(..., .context = "in $drop():") |>
-    unlist()
-  if (length(cols) == 0) {
-    return(self)
-  }
-  self$`_rexpr`$drop(cols, strict)
+  self$`_ldf`$shift(n, fill_value)
 }
 
 #' Reverse
@@ -563,7 +622,7 @@ lazyframe__drop <- function(..., strict = TRUE) {
 #' as_polars_lf(mtcars)$reverse()$collect()
 lazyframe__reverse <- function() {
   wrap({
-    self$`_rexpr`$reverse()
+    self$`_ldf`$reverse()
   })
 }
 
@@ -577,7 +636,7 @@ lazyframe__reverse <- function() {
 #' mtcars[2:6, ]
 lazyframe__slice <- function(offset, length = NULL) {
   wrap({
-    self$`_rexpr`$slice(offset, length)
+    self$`_ldf`$slice(offset, length)
   })
 }
 
@@ -594,28 +653,38 @@ lazyframe__slice <- function(offset, length = NULL) {
 #' lf$tail(2)$collect()
 lazyframe__tail <- function(n = 5L) {
   wrap({
-    self$`_rexpr`$tail(n)
+    self$`_ldf`$tail(n)
   })
 }
 
-#' @inherit DataFrame_drop_nulls title description params
+#' Drop all rows that contain null values
+#'
+#' The original order of the remaining rows is preserved.
+#'
+#' @param subset Column name(s) for which null values are considered. If `NULL`
+#' (default), use all columns.
 #'
 #' @inherit as_polars_lf return
 #' @examples
-#' tmp <- mtcars
-#' tmp[1:3, "mpg"] <- NA
-#' tmp[4, "hp"] <- NA
-#' tmp <- pl$LazyFrame(tmp)
+#' lf <- pl$LazyFrame(
+#'   foo = 1:3,
+#'   bar = c(6, NA, 8),
+#'   ham = c("a", "b", NA)
+#' )
 #'
-#' # number of rows in `tmp` before dropping nulls
-#' tmp$collect()$height
+#' # The default behavior of this method is to drop rows where any single value
+#' # of the row is null.
+#' lf$drop_nulls()$collect()
 #'
-#' tmp$drop_nulls()$collect()$height
-#' tmp$drop_nulls("mpg")$collect()$height
-#' tmp$drop_nulls(c("mpg", "hp"))$collect()$height
+#' # This behaviour can be constrained to consider only a subset of columns, as
+#' # defined by name or with a selector. For example, dropping rows if there is
+#' # a null in any of the integer columns:
+#' lf$drop_nulls(subset = cs$integer())$collect()
 lazyframe__drop_nulls <- function(subset = NULL) {
-  if (!is.null(subset)) subset <- as.list(subset)
-  self$`_rexpr`$drop_nulls(subset)
+  wrap({
+    subset <- parse_into_list_of_expressions(!!!subset)
+    self$`_ldf`$drop_nulls(subset)
+  })
 }
 
 #' @inherit DataFrame_unique title description params
@@ -641,7 +710,7 @@ lazyframe__unique <- function(
     keep = "any",
     maintain_order = FALSE) {
   wrap({
-    self$`_rexpr`$unique(subset, keep, maintain_order)
+    self$`_ldf`$unique(subset, keep, maintain_order)
   })
 }
 
@@ -683,7 +752,7 @@ lazyframe__unique <- function(
 #'   pl$col("c")$mean()
 #' )$collect()
 lazyframe__group_by <- function(..., maintain_order = polars_options()$maintain_order) {
-  self$`_rexpr`$group_by(unpack_list(..., .context = "in $group_by():"), maintain_order)
+  self$`_ldf`$group_by(unpack_list(..., .context = "in $group_by():"), maintain_order)
 }
 
 #' Join LazyFrames
@@ -785,7 +854,7 @@ lazyframe__join <- function(
     }
   }
 
-  self$`_rexpr`$join(
+  self$`_ldf`$join(
     lf, other, rexprs_left, rexprs_right, how, validate, join_nulls, suffix,
     allow_parallel, force_parallel, coalesce
   ) |>
@@ -835,61 +904,11 @@ lazyframe__join_where <- function(
     other,
     ...,
     suffix = "_right") {
-  uw <- \(res) wrap({
-    res
+  wrap({
+    check_polars_lf(other)
+    self$`_ldf`$join_where(other, unpack_list(..., .context = "in $join_where():"), suffix)
   })
-
-
-  if (!is_polars_lf(other)) {
-    Err_plain("`other` must be a LazyFrame.") |> uw()
-  }
-
-  self$`_rexpr`$join_where(lf, other, unpack_list(..., .context = "in $join_where():"), suffix) |>
-    uw()
 }
-
-
-
-#' Sort the LazyFrame by the given columns
-#'
-#' @inheritParams Series_sort
-#' @param by Column(s) to sort by. Can be character vector of column names,
-#' a list of Expr(s) or a list with a mix of Expr(s) and column names.
-#' @param ... More columns to sort by as above but provided one Expr per argument.
-#' @param descending Logical. Sort in descending order (default is `FALSE`). This must be
-#' either of length 1 or a logical vector of the same length as the number of
-#' Expr(s) specified in `by` and `...`.
-#' @param nulls_last A logical or logical vector of the same length as the number of columns.
-#' If `TRUE`, place `null` values last insead of first.
-#' @param maintain_order Whether the order should be maintained if elements are
-#' equal. If `TRUE`, streaming is not possible and performance might be worse
-#' since this requires a stable search.
-#' @inherit as_polars_lf return
-#' @keywords  LazyFrame
-#' @examples
-#' df <- mtcars
-#' df$mpg[1] <- NA
-#' df <- pl$LazyFrame(df)
-#' df$sort("mpg")$collect()
-#' df$sort("mpg", nulls_last = TRUE)$collect()
-#' df$sort("cyl", "mpg")$collect()
-#' df$sort(c("cyl", "mpg"))$collect()
-#' df$sort(c("cyl", "mpg"), descending = TRUE)$collect()
-#' df$sort(c("cyl", "mpg"), descending = c(TRUE, FALSE))$collect()
-#' df$sort(pl$col("cyl"), pl$col("mpg"))$collect()
-lazyframe__sort <- function(
-    by,
-    ...,
-    descending = FALSE,
-    nulls_last = FALSE,
-    maintain_order = FALSE,
-    multithreaded = TRUE) {
-  self$`_rexpr`$sort_by_exprs(
-    lf, wrap_elist_result(by, str_to_lit = FALSE), err_on_named_args(...),
-    descending, nulls_last, maintain_order, multithreaded
-  )
-}
-
 
 #' Perform joins on nearest keys
 #'
@@ -984,7 +1003,7 @@ lazyframe__join_asof <- function(
   tolerance_str <- if (is.character(tolerance)) tolerance else NULL
   tolerance_num <- if (!is.character(tolerance)) tolerance else NULL
 
-  self$`_rexpr`$join_asof(
+  self$`_ldf`$join_asof(
     lf = self,
     other = other,
     left_on = left_on,
@@ -1038,7 +1057,7 @@ lazyframe__unpivot <- function(
     index = NULL,
     variable_name = NULL,
     value_name = NULL) {
-  self$`_rexpr`$unpivot(
+  self$`_ldf`$unpivot(
     lf, on %||% character(), index %||% character(),
     value_name, variable_name
   ) |> unwrap("in $unpivot( ): ")
@@ -1092,7 +1111,7 @@ lazyframe__rename <- function(...) {
     new <- unname(unlist(mapping))
     existing <- names(mapping)
   }
-  self$`_rexpr`$rename(existing, new) |>
+  self$`_ldf`$rename(existing, new) |>
     uw()
 }
 
@@ -1123,11 +1142,11 @@ lazyframe__rename <- function(...) {
 #'
 #' @examples
 #' # fetch 3 rows
-#' pl$LazyFrame(iris)$fetch(3)
+#' as_polars_lf(iris)$fetch(3)
 #'
 #' # this fetch-query returns 4 rows, because we started with 3 and appended one
 #' # row in the query (see section 'Details')
-#' pl$LazyFrame(iris)$
+#' as_polars_lf(iris)$
 #'   select(pl$col("Species")$append("flora gigantica, alien"))$
 #'   fetch(3)
 lazyframe__fetch <- function(
@@ -1157,7 +1176,7 @@ lazyframe__fetch <- function(
   }
 
   lf <- self |>
-    self$`_rexpr`$optimization_toggle(
+    self$`_ldf`$optimization_toggle(
       pe_coercion = type_coercion,
       predicate_pushdown = predicate_pushdown,
       projection_pushdown = projection_pushdown,
@@ -1170,7 +1189,7 @@ lazyframe__fetch <- function(
       eager = FALSE
     )
 
-  self$`_rexpr`$fetch(n_rows)
+  self$`_ldf`$fetch(n_rows)
 }
 
 #' Collect and profile a lazy query.
@@ -1205,7 +1224,7 @@ lazyframe__fetch <- function(
 #' ## Use $profile() to compare two queries
 #'
 #' # -1-  map each Species-group with native polars, takes ~120us only
-#' pl$LazyFrame(iris)$
+#' as_polars_lf(iris)$
 #'   sort("Sepal.Length")$
 #'   group_by("Species", maintain_order = TRUE)$
 #'   agg(pl$col(pl$Float64)$first() + 5)$
@@ -1219,7 +1238,7 @@ lazyframe__fetch <- function(
 #'   s$to_r()[1] + 5
 #' }
 #'
-#' pl$LazyFrame(iris)$
+#' as_polars_lf(iris)$
 #'   sort("Sepal.Length")$
 #'   group_by("Species", maintain_order = TRUE)$
 #'   agg(pl$col(pl$Float64)$map_elements(r_func))$
@@ -1252,7 +1271,7 @@ lazyframe__profile <- function(
   }
 
   lf <- self |>
-    self$`_rexpr`$optimization_toggle(
+    self$`_ldf`$optimization_toggle(
       pe_coercion = type_coercion,
       predicate_pushdown = predicate_pushdown,
       projection_pushdown = projection_pushdown,
@@ -1266,7 +1285,7 @@ lazyframe__profile <- function(
     )
 
   out <- lf |>
-    self$`_rexpr`$profile() >
+    self$`_ldf`$profile() >
     unwrap("in $profile()")
 
   if (isTRUE(show_plot)) {
@@ -1278,44 +1297,26 @@ lazyframe__profile <- function(
   out
 }
 
-#' Explode columns containing a list of values
-#' @description This will take every element of a list column and add it on an
-#' additional row.
+#' Explode the DataFrame to long format by exploding the given columns
 #'
-#'
-#'
-#' @param ... Column(s) to be exploded as individual `Into<Expr>` or list/vector
-#' of `Into<Expr>`. In a handful of places in rust-polars, only the plain variant
-#' `Expr::Column` is accepted. This is currenly one of such places. Therefore
-#' `pl$col("name")` and `pl$all()` is allowed, not `pl$col("name")$alias("newname")`.
-#' `"name"` is implicitly converted to `pl$col("name")`.
-#'
-#' @details
-#' Only columns of DataType `List` or `Array` can be exploded.
-#'
-#' Named expressions like `$explode(a = pl$col("b"))` will not implicitly trigger
-#' `$alias("a")` here, due to only variant `Expr::Column` is supported in
-#' rust-polars.
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Column names, expressions, or
+#' a selector defining them. The underlying columns being exploded must be of
+#' the `List` or `Array` data type.
 #'
 #' @inherit as_polars_lf return
 #' @examples
-#' df <- pl$LazyFrame(
-#'   letters = c("aa", "aa", "bb", "cc"),
-#'   numbers = list(1, c(2, 3), c(4, 5), c(6, 7, 8)),
-#'   numbers_2 = list(0, c(1, 2), c(3, 4), c(5, 6, 7)) # same structure as numbers
+#' lf <- pl$LazyFrame(
+#'   letters = c("a", "a", "b", "c"),
+#'   numbers = list(1, c(2, 3), c(4, 5), c(6, 7, 8))
 #' )
-#' df
 #'
-#' # explode a single column, append others
-#' df$explode("numbers")$collect()
-#'
-#' # explode two columns of same nesting structure, by names or the common dtype
-#' # "List(Float64)"
-#' df$explode("numbers", "numbers_2")$collect()
-#' df$explode(pl$col(pl$List(pl$Float64)))$collect()
+#' lf$explode("numbers")$collect()
 lazyframe__explode <- function(...) {
-  dotdotdot_args <- unpack_list(..., .context = "in explode():")
-  self$`_rexpr`$explode(dotdotdot_args)
+  wrap({
+    check_dots_unnamed()
+    by <- parse_into_list_of_expressions(...)
+    self$`_ldf`$explode(by)
+  })
 }
 
 #' Clone a LazyFrame
@@ -1328,7 +1329,7 @@ lazyframe__explode <- function(...) {
 #'
 #' @inherit as_polars_lf return
 #' @examples
-#' df1 <- pl$LazyFrame(iris)
+#' df1 <- as_polars_lf(iris)
 #'
 #' # Make a function to take a LazyFrame, add an attribute, and return a LazyFrame
 #' give_attr <- function(data) {
@@ -1346,13 +1347,13 @@ lazyframe__explode <- function(...) {
 #'   attr(data, "created_on") <- "2024-01-29"
 #'   data
 #' }
-#' df1 <- pl$LazyFrame(iris)
+#' df1 <- as_polars_lf(iris)
 #' df2 <- give_attr(df1)
 #'
 #' # now, the original LazyFrame doesn't get this attribute
 #' attributes(df1)
 lazyframe__clone <- function() {
-  self$`_rexpr`$clone_in_rust()
+  self$`_ldf`$clone_in_rust()
 }
 
 
@@ -1381,12 +1382,12 @@ lazyframe__clone <- function() {
 lazyframe__unnest <- function(...) {
   columns <- unpack_list(..., .context = "in $unnest():")
   if (length(columns) == 0) {
-    columns <- names(which(dtypes_are_struct(self$`_rexpr`$schema(ok))))
+    columns <- names(which(dtypes_are_struct(self$`_ldf`$schema(ok))))
   } else {
     columns <- unlist(columns)
   }
   wrap({
-    self$`_rexpr`$unnest(columns)
+    self$`_ldf`$unnest(columns)
   })
 }
 
@@ -1419,7 +1420,7 @@ lazyframe__unnest <- function(...) {
 #'   pl$col("feature_0")$fill_null(pl$col("feature_0_train")$median())
 #' )$collect()
 lazyframe__with_context <- function(other) {
-  self$`_rexpr`$with_context(other)
+  self$`_ldf`$with_context(other)
 }
 
 
@@ -1466,7 +1467,7 @@ lazyframe__rolling <- function(
     group_by = NULL) {
   period <- parse_as_polars_duration_string(period)
   offset <- parse_as_polars_duration_string(offset) %||% negate_duration_string(period)
-  self$`_rexpr`$rolling(
+  self$`_ldf`$rolling(
     lf, index_column, period, offset, closed,
     wrap_elist_result(group_by, str_to_lit = FALSE)
   )
@@ -1576,7 +1577,7 @@ lazyframe__group_by_dynamic <- function(
   offset <- parse_as_polars_duration_string(offset) %||% negate_duration_string(every)
   period <- parse_as_polars_duration_string(period) %||% every
 
-  self$`_rexpr`$group_by_dynamic(
+  self$`_ldf`$group_by_dynamic(
     lf, index_column, every, period, offset, label, include_boundaries, closed,
     wrap_elist_result(group_by, str_to_lit = FALSE), start_by
   )
@@ -1623,7 +1624,7 @@ lazyframe__to_dot <- function(
     cluster_with_columns = TRUE,
     streaming = FALSE) {
   lf <- self |>
-    self$`_rexpr`$optimization_toggle(
+    self$`_ldf`$optimization_toggle(
       pe_coercion = type_coercion,
       predicate_pushdown = predicate_pushdown,
       projection_pushdown = projection_pushdown,
@@ -1636,7 +1637,7 @@ lazyframe__to_dot <- function(
       eager = FALSE
     )
 
-  self$`_rexpr`$to_dot(optimized)
+  self$`_ldf`$to_dot(optimized)
 }
 
 #' Create an empty or n-row null-filled copy of the LazyFrame
@@ -1644,7 +1645,7 @@ lazyframe__to_dot <- function(
 #' Returns a n-row null-filled LazyFrame with an identical schema. `n` can be
 #' greater than the current number of rows in the LazyFrame.
 #'
-#' @inheritParams DataFrame_clear
+#' @param n Number of (empty) rows to return in the cleared frame.
 #'
 #' @return A n-row null-filled LazyFrame with an identical schema
 #'
@@ -1744,43 +1745,6 @@ lazyframe__gather_every <- function(n, offset = 0) {
   self$select(pl$col("*")$gather_every(n, offset))
 }
 
-
-#' Cast LazyFrame column(s) to the specified dtype
-#'
-#' This allows to convert all columns to a datatype or to convert only specific
-#' columns. Contrarily to the Python implementation, it is not possible to
-#' convert all columns of a specific datatype to another datatype.
-#'
-#' @param dtypes Either a datatype or a list where the names are column names and
-#' the values are the datatypes to convert to.
-#' @param ... Ignored.
-#' @param strict If `TRUE` (default), throw an error if a cast could not be done
-#' (for instance, due to an overflow). Otherwise, return `null`.
-#'
-#' @inherit as_polars_lf return
-#'
-#' @examples
-#' lf <- pl$LazyFrame(
-#'   foo = 1:3,
-#'   bar = c(6, 7, 8),
-#'   ham = as.Date(c("2020-01-02", "2020-03-04", "2020-05-06"))
-#' )
-#'
-#' # Cast only some columns
-#' lf$cast(list(foo = pl$Float32, bar = pl$UInt8))$collect()
-#'
-#' # Cast all columns to the same type
-#' lf$cast(pl$String)$collect()
-lazyframe__cast <- function(dtypes, ..., strict = TRUE) {
-  if (!is.list(dtypes)) {
-    self$`_rexpr`$cast_all(dtype = dtypes, strict = strict) |>
-      unwrap("in $cast():")
-  } else {
-    self$`_rexpr`$cast(dtypes = dtypes, strict = strict) |>
-      unwrap("in $cast():")
-  }
-}
-
 #' Return the number of non-null elements for each column
 #'
 #' @inherit as_polars_lf return
@@ -1790,6 +1754,88 @@ lazyframe__cast <- function(dtypes, ..., strict = TRUE) {
 #' lf$count()$collect()
 lazyframe__count <- function() {
   wrap({
-    self$`_rexpr`$count()
+    self$`_ldf`$count()
+  })
+}
+
+#' Return the number of null elements for each column
+#'
+#' @inherit as_polars_lf return
+#'
+#' @examples
+#' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, NA), c = rep(NA, 4))
+#' lf$null_count()$collect()
+lazyframe__null_count <- function() {
+  wrap({
+    self$`_ldf`$null_count()
+  })
+}
+
+#' Return the `k` smallest rows
+#'
+#' @description
+#' Non-null elements are always preferred over null elements, regardless of the
+#' value of `reverse`. The output is not guaranteed to be in any particular
+#' order, call `sort()` after this function if you wish the output to be sorted.
+#'
+#' @inheritParams rlang::check_dots_empty
+#' @param k Number of rows to return.
+#' @param by Column(s) used to determine the bottom rows. Accepts expression
+#' input. Strings are parsed as column names.
+#' @param reverse Consider the `k` largest elements of the by column(s)
+#' (instead of the k smallest). This can be specified per column by passing a
+#' sequence of booleans.
+#'
+#' @inherit as_polars_lf return
+#'
+#' @examples
+#' lf <- pl$LazyFrame(
+#'   a = c("a", "b", "a", "b", "b", "c"),
+#'   b = c(2, 1, 1, 3, 2, 1)
+#' )
+#'
+#' # Get the rows which contain the 4 smallest values in column b.
+#' lf$bottom_k(4, by = "b")$collect()
+#'
+#' # Get the rows which contain the 4 smallest values when sorting on column a
+#' # and b$
+#' lf$bottom_k(4, by = c("a", "b"))$collect()
+lazyframe__bottom_k <- function(k, ..., by, reverse = FALSE) {
+  wrap({
+    check_dots_empty0(...)
+    by <- parse_into_list_of_expressions(!!!by)
+    reverse <- extend_bool(reverse, length(by), "reverse", "...")
+    self$`_ldf`$bottom_k(k, by, reverse)
+  })
+}
+
+#' Return the `k` largest rows
+#'
+#' @inherit lazyframe__bottom_k description params
+#' @inheritParams rlang::check_dots_empty0
+#' @param reverse Consider the `k` smallest elements of the `by` column(s)
+#' (instead of the `k` largest). This can be specified per column by passing a
+#' sequence of booleans.
+
+#' @inherit as_polars_lf return
+#'
+#' @examples
+#' lf <- pl$LazyFrame(
+#'   a = c("a", "b", "a", "b", "b", "c"),
+#'   b = c(2, 1, 1, 3, 2, 1)
+#' )
+#'
+#' # Get the rows which contain the 4 largest values in column b.
+#' lf$top_k(4, by = "b")$collect()
+#'
+#' # Get the rows which contain the 4 largest values when sorting on column a
+#' # and b$
+#' lf$top_k(4, by = c("a", "b"))$collect()
+lazyframe__top_k <- function(k, ..., by, reverse = FALSE) {
+  wrap({
+    check_dots_empty0(...)
+    by <- parse_into_list_of_expressions(!!!by)
+    reverse <- extend_bool(reverse, length(by), "reverse", "...")
+    self$`_ldf`$top_k(k, by, reverse)
   })
 }
