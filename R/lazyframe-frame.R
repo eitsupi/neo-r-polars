@@ -45,7 +45,6 @@ wrap.PlRLazyFrame <- function(x, ...) {
   self
 }
 
-# TODO: link to pl__select
 #' Select and modify columns of a LazyFrame
 #'
 #' @description
@@ -58,11 +57,11 @@ wrap.PlRLazyFrame <- function(x, ...) {
 #' be able to use it in another `$select()` or `$with_columns()` call.
 #'
 #' @inherit as_polars_lf return
-#' @param ... <[`dynamic-dots`][rlang::dyn-dots]>
-#' Name-value pairs of objects to be converted to polars [expressions][Expr]
-#' by the [as_polars_expr()] function.
-#' Characters are parsed as column names, other non-expression inputs are parsed as [literals][pl__lit].
-#' Each name will be used as the expression name.
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Name-value pairs of objects
+#' to be converted to polars [expressions][Expr] by the [as_polars_expr()]
+#' function. Characters are parsed as column names, other non-expression inputs
+#' are parsed as [literals][pl__lit]. Each name will be used as the expression
+#' name.
 #' @examples
 #' # Pass the name of a column to select that column.
 #' lf <- pl$LazyFrame(
@@ -96,9 +95,31 @@ wrap.PlRLazyFrame <- function(x, ...) {
 lazyframe__select <- function(...) {
   wrap({
     structify <- parse_env_auto_structify()
-
     parse_into_list_of_expressions(..., `__structify` = structify) |>
       self$`_ldf`$select()
+  })
+}
+
+#' Select columns from this LazyFrame
+#'
+#' This will run all expression sequentially instead of in parallel. Use this
+#' when the work per expression is cheap.
+#'
+#' @inherit as_polars_lf return
+#' @inheritParams lazyframe__select
+#'
+#' @examples
+#' lf <- pl$LazyFrame(
+#'   foo = 1:3,
+#'   bar = 6:8,
+#'   ham = letters[1:3]
+#' )
+#' lf$select_seq("foo")$collect()
+lazyframe__select_seq <- function(...) {
+  wrap({
+    structify <- parse_env_auto_structify()
+    parse_into_list_of_expressions(..., `__structify` = structify) |>
+      self$`_ldf`$select_seq()
   })
 }
 
@@ -372,6 +393,38 @@ lazyframe__filter <- function(...) {
     wrap()
 }
 
+#' Sort the LazyFrame by the given columns
+#'
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Column(s) to sort by. Can be
+#' character values indicating column names or Expr(s).
+#' @param descending Sort in descending order. When sorting by multiple
+#' columns, this can be specified per column by passing a logical vector.
+#' @param nulls_last Place null values last. When sorting by multiple
+#' columns, this can be specified per column by passing a logical vector.
+#' @param maintain_order Whether the order should be maintained if elements are
+#' equal. If `TRUE`, streaming is not possible and performance might be worse
+#' since this requires a stable search.
+#' @param multithreaded Sort using multiple threads.
+#'
+#' @inherit as_polars_lf return
+#' @examples
+#' lf <- pl$LazyFrame(
+#'   a = c(1, 2, NA, 4),
+#'   b = c(6, 5, 4, 3),
+#'   c = c("a", "c", "b", "a")
+#' )
+#'
+#' # Pass a single column name to sort by that column.
+#' lf$sort("a")$collect()
+#'
+#' # Sorting by expressions is also supported
+#' lf$sort(pl$col("a") + pl$col("b") * 2, nulls_last = TRUE)$collect()
+#'
+#' # Sort by multiple columns by passing a vector of columns
+#' lf$sort(c("c", "a"), descending = TRUE)$collect()
+#'
+#' # Or use positional arguments to sort by multiple columns in the same way
+#' lf$sort("c", "a", descending = c(FALSE, TRUE))$collect()
 lazyframe__sort <- function(
     ...,
     descending = FALSE,
@@ -693,21 +746,31 @@ lazyframe__fill_null <- function(fill_value) {
   })
 }
 
-#' Shift a LazyFrame
+#' Shift values by the given number of indices
 #'
-#' @inherit DataFrame_shift description params
+#' @inheritParams rlang::check_dots_empty0
+#' @param n Number of indices to shift forward. If a negative value is passed,
+#' values are shifted in the opposite direction instead.
+#' @param fill_value Fill the resulting null values with this value. Accepts
+#' expression input. Non-expression inputs are parsed as literals.
 #'
 #' @inherit as_polars_lf return
 #' @examples
 #' lf <- pl$LazyFrame(a = 1:4, b = 5:8)
 #'
-#' lf$shift(2)$collect()
+#' # By default, values are shifted forward by one index.
+#' lf$shift()$collect()
 #'
+#' # Pass a negative value to shift in the opposite direction instead.
 #' lf$shift(-2)$collect()
 #'
+#' # Specify fill_value to fill the resulting null values.
 #' lf$shift(-2, fill_value = 100)$collect()
-lazyframe__shift <- function(n = 1, fill_value = NULL) {
-  self$`_ldf`$shift(n, fill_value)
+lazyframe__shift <- function(n = 1, ..., fill_value = NULL) {
+  wrap({
+    check_dots_empty0(...)
+    self$`_ldf`$shift(as_polars_expr(n)$`_rexpr`, as_polars_expr(fill_value)$`_rexpr`)
+  })
 }
 
 #' Reverse the LazyFrame
@@ -722,14 +785,16 @@ lazyframe__reverse <- function() {
   })
 }
 
-#' Slice
-#' @description Get a slice of the LazyFrame.
-#' @inheritParams DataFrame_slice
+#' Get a slice of the LazyFrame.
+#'
+#' @param offset Start index. Negative indexing is supported.
+#' @param length Length of the slice. If `NULL` (default), all rows starting at
+#' the offset will be selected.
+#'
 #' @return A [LazyFrame][lazyframe__class]
 #' @examples
-#' as_polars_lf(mtcars)$slice(2, 4)$collect()
-#' as_polars_lf(mtcars)$slice(30)$collect()
-#' mtcars[2:6, ]
+#' lf <- pl$LazyFrame(x = c("a", "b", "c"), y = 1:3, z = 4:6)
+#' lf$slice(1, 2)$collect()
 lazyframe__slice <- function(offset, length = NULL) {
   wrap({
     self$`_ldf`$slice(offset, length)
@@ -783,30 +848,45 @@ lazyframe__drop_nulls <- function(subset = NULL) {
   })
 }
 
-#' @inherit DataFrame_unique title description params
+#' Drop duplicate rows from this DataFrame
+#'
+#' @inheritParams rlang::check_dots_empty0
+#' @param subset Column name(s) or selector(s), to consider when identifying
+#' duplicate rows. If `NULL` (default), use all columns.
+#' @param keep Which of the duplicate rows to keep. Must be one of:
+#' * `"any"`: does not give any guarantee of which row is kept. This allows
+#'   more optimizations.
+#' * `"none"`: don’t keep duplicate rows.
+#' * `"first"`: keep first unique row.
+#' * `"last"`: keep last unique row.
+#' @param maintain_order Keep the same order as the original LazyFrame. This is
+#' more expensive to compute. Setting this to `TRUE` blocks the possibility to
+#' run on the streaming engine.
 #'
 #' @inherit as_polars_lf return
 #' @examples
-#' df <- pl$LazyFrame(
-#'   x = sample(10, 100, rep = TRUE),
-#'   y = sample(10, 100, rep = TRUE)
+#' lf <- pl$LazyFrame(
+#'   foo = c(1, 2, 3, 1),
+#'   bar = c("a", "a", "a", "a"),
+#'   ham = c("b", "b", "b", "b"),
 #' )
-#' df$collect()$height
+#' lf$unique(maintain_order = TRUE)$collect()
 #'
-#' df$unique()$collect()$height
-#' df$unique(subset = "x")$collect()$height
+#' lf$unique(subset = c("bar", "ham"), maintain_order = TRUE)$collect()
 #'
-#' df$unique(keep = "last")
-#'
-#' # only keep unique rows
-#' df$unique(keep = "none")
+#' lf$unique(keep = "last", maintain_order = TRUE)$collect()
 lazyframe__unique <- function(
     subset = NULL,
     ...,
-    keep = "any",
+    keep = c("any", "none", "first", "last"),
     maintain_order = FALSE) {
   wrap({
-    self$`_ldf`$unique(subset, keep, maintain_order)
+    check_dots_empty0(...)
+    keep <- arg_match0(keep, values = c("any", "none", "first", "last"))
+    if (!is.null(subset)) {
+      subset <- parse_into_list_of_expressions(!!!subset)
+    }
+    self$`_ldf`$unique(subset = subset, keep = keep, maintain_order = maintain_order)
   })
 }
 
@@ -1438,11 +1518,15 @@ lazyframe__clone <- function() {
 }
 
 
-#' Unnest the Struct columns of a LazyFrame
+#' Decompose struct columns into separate columns for each of their fields
 #'
-#' @inheritParams DataFrame_unnest
+#' The new columns will be inserted into the LazyFrame at the location of the
+#' struct column.
 #'
-#' @inherit as_polars_lf return where some or all columns of datatype Struct are unnested.
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Name of the struct column(s)
+#' that should be unnested.
+#'
+#' @inherit as_polars_lf return
 #' @examples
 #' lf <- pl$LazyFrame(
 #'   a = 1:5,
@@ -1455,19 +1539,10 @@ lazyframe__clone <- function() {
 #' )
 #' lf$collect()
 #'
-#' # by default, all struct columns are unnested
-#' lf$unnest()$collect()
-#'
-#' # we can specify specific columns to unnest
 #' lf$unnest("a_and_c")$collect()
 lazyframe__unnest <- function(...) {
-  columns <- unpack_list(..., .context = "in $unnest():")
-  if (length(columns) == 0) {
-    columns <- names(which(dtypes_are_struct(self$`_ldf`$schema(ok))))
-  } else {
-    columns <- unlist(columns)
-  }
   wrap({
+    columns <- parse_into_list_of_expressions(...)
     self$`_ldf`$unnest(columns)
   })
 }
@@ -1507,16 +1582,30 @@ lazyframe__with_context <- function(other) {
 
 #' Create rolling groups based on a date/time or integer column
 #'
-#' @inherit expr__rolling description details params
-#' @param index_column Column used to group based on the time window. Often of
-#' type Date/Datetime. This column must be sorted in ascending order (or, if `by`
-#' is specified, then it must be sorted in ascending order within each group). In
-#' case of a rolling group by on indices, dtype needs to be either Int32 or Int64.
-#' Note that Int32 gets temporarily cast to Int64, so if performance matters use
-#' an Int64 column.
-#' @param group_by Also group by this column/these columns.
+#' @description
+#' Different from `group_by_dynamic`, the windows are now determined by the
+#' individual values and are not of constant intervals. For constant intervals
+#' use [`<LazyFrame>$group_by_dynamic()`][lazyframe__group_by_dynamic].
 #'
-#' @inheritSection polars_duration_string  Polars duration string language
+#' If you have a time series `<t_0, t_1, ..., t_n>`, then by default the
+#' windows created will be:
+#' * `(t_0 - period, t_0]`
+#' * `(t_1 - period, t_1]`
+#' * …
+#' * `(t_n - period, t_n]`
+#'
+#' whereas if you pass a non-default `offset`, then the windows will be:
+#' * `(t_0 + offset, t_0 + offset + period]`
+#' * `(t_1 + offset, t_1 + offset + period]`
+#' * …
+#' * `(t_n + offset, t_n + offset + period]`
+#'
+#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams lazyframe__group_by_dynamic
+#' @param period Length of the window - must be non-negative.
+#' @param offset Offset of the window. Default is `-period`.
+#'
+#' @inherit expr__rolling_max params details
 #' @return A [LazyGroupBy][LazyGroupBy_class] object
 #' @seealso
 #' - [`<LazyFrame>$group_by_dynamic()`][lazyframe__group_by_dynamic]
@@ -1531,13 +1620,13 @@ lazyframe__with_context <- function(other) {
 #' )
 #'
 #' df <- pl$LazyFrame(dt = dates, a = c(3, 7, 5, 9, 2, 1))$with_columns(
-#'   pl$col("dt")$str$strptime(pl$Datetime())$set_sorted()
+#'   pl$col("dt")$str$strptime(pl$Datetime())
 #' )
 #'
 #' df$rolling(index_column = "dt", period = "2d")$agg(
-#'   sum_a = pl$sum("a"),
-#'   min_a = pl$min("a"),
-#'   max_a = pl$max("a")
+#'   sum_a = pl$col("a")$sum(),
+#'   min_a = pl$col("a")$min(),
+#'   max_a = pl$col("a")$max()
 #' )$collect()
 lazyframe__rolling <- function(
     index_column,
@@ -1546,12 +1635,16 @@ lazyframe__rolling <- function(
     offset = NULL,
     closed = "right",
     group_by = NULL) {
-  period <- parse_as_polars_duration_string(period)
-  offset <- parse_as_polars_duration_string(offset) %||% negate_duration_string(period)
-  self$`_ldf`$rolling(
-    lf, index_column, period, offset, closed,
-    wrap_elist_result(group_by, str_to_lit = FALSE)
-  )
+  wrap({
+    check_dots_empty0(...)
+    closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
+    period <- parse_as_polars_duration_string(period)
+    offset <- parse_as_polars_duration_string(offset) %||% negate_duration_string(period)
+    by <- parse_into_list_of_expressions(!!!group_by)
+    self$`_ldf`$rolling(
+      as_polars_expr(index_column)$`_rexpr`, period, offset, closed, by
+    )
+  })
 }
 
 
@@ -2025,5 +2118,22 @@ lazyframe__interpolate <- function() {
 lazyframe__merge_sorted <- function(other, key) {
   wrap({
     self$`_ldf`$merge_sorted(other$`_ldf`, key)
+  })
+}
+
+#' Indicate that one or multiple columns are sorted
+#'
+#' This can speed up future operations, but it can lead to incorrect results if
+#' the data is **not** sorted! Use with care!
+#'
+#' @inheritParams rlang::check_dots_empty0
+#' @param column Columns that are sorted.
+#' @param descending Whether the columns are sorted in descending order.
+#'
+#' @inherit as_polars_lf return
+lazyframe__set_sorted <- function(column, ..., descending = FALSE) {
+  wrap({
+    check_dots_empty0(...)
+    self$with_columns(pl$col(column)$set_sorted(descending = descending))
   })
 }
