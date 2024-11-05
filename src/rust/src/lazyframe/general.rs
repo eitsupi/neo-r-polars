@@ -1,6 +1,8 @@
 use super::*;
 use crate::{PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame, PlRLazyGroupBy, RPolarsErr};
-use savvy::{savvy, ListSexp, LogicalSexp, NumericScalar, OwnedStringSexp, Result, Sexp};
+use savvy::{
+    savvy, ListSexp, LogicalSexp, NumericScalar, OwnedStringSexp, Result, Sexp, StringSexp,
+};
 
 #[savvy]
 impl PlRLazyFrame {
@@ -220,8 +222,9 @@ impl PlRLazyFrame {
             .into())
     }
 
-    fn top_k(&self, k: IdxSize, by: ListSexp, reverse: LogicalSexp) -> Result<PlRLazyFrame> {
+    fn top_k(&self, k: NumericScalar, by: ListSexp, reverse: LogicalSexp) -> Result<PlRLazyFrame> {
         let ldf = self.ldf.clone();
+        let k = <Wrap<u32>>::try_from(k)?.0;
         let exprs = <Wrap<Vec<Expr>>>::from(by).0;
         let reverse = reverse.to_vec();
         Ok(ldf
@@ -233,8 +236,14 @@ impl PlRLazyFrame {
             .into())
     }
 
-    fn bottom_k(&self, k: IdxSize, by: ListSexp, reverse: LogicalSexp) -> Result<PlRLazyFrame> {
+    fn bottom_k(
+        &self,
+        k: NumericScalar,
+        by: ListSexp,
+        reverse: LogicalSexp,
+    ) -> Result<PlRLazyFrame> {
         let ldf = self.ldf.clone();
+        let k = <Wrap<u32>>::try_from(k)?.0;
         let exprs = <Wrap<Vec<Expr>>>::from(by).0;
         let reverse = reverse.to_vec();
         Ok(ldf
@@ -399,12 +408,12 @@ impl PlRLazyFrame {
     //         Ok(())
     //     }
 
-    fn fetch(&self, py: Python, n_rows: NumericScalar) -> Result<PlRDataFrame> {
-        let ldf = self.ldf.clone();
-        let n_rows = <Wrap<usize>>::try_from(n_rows)?.0;
-        let df = py.allow_threads(|| ldf.fetch(n_rows).map_err(RPolarsErr::from))?;
-        Ok(df.into())
-    }
+    // fn fetch(&self, py: Python, n_rows: NumericScalar) -> Result<PlRDataFrame> {
+    //     let ldf = self.ldf.clone();
+    //     let n_rows = <Wrap<usize>>::try_from(n_rows)?.0;
+    //     let df = py.allow_threads(|| ldf.fetch(n_rows).map_err(RPolarsErr::from))?;
+    //     Ok(df.into())
+    // }
 
     fn select_seq(&mut self, exprs: ListSexp) -> Result<PlRLazyFrame> {
         let ldf = self.ldf.clone();
@@ -424,7 +433,7 @@ impl PlRLazyFrame {
         let ldf = self.ldf.clone();
         let by = <Wrap<Vec<Expr>>>::from(by).0;
         let lazy_gb = ldf.rolling(
-            index_column.inner,
+            index_column.inner.clone(),
             by,
             RollingGroupOptions {
                 index_column: "".into(),
@@ -443,26 +452,28 @@ impl PlRLazyFrame {
         every: &str,
         period: &str,
         offset: &str,
-        label: Wrap<Label>,
+        label: &str,
         include_boundaries: bool,
         closed: &str,
         group_by: ListSexp,
-        start_by: Wrap<StartBy>,
+        start_by: &str,
     ) -> Result<PlRLazyGroupBy> {
         let closed_window = <Wrap<ClosedWindow>>::try_from(closed)?.0;
         let group_by = <Wrap<Vec<Expr>>>::from(group_by).0;
         let ldf = self.ldf.clone();
+        let label = <Wrap<Label>>::try_from(label)?.0;
+        let start_by = <Wrap<StartBy>>::try_from(start_by)?.0;
         let lazy_gb = ldf.group_by_dynamic(
-            index_column.inner,
+            index_column.inner.clone(),
             group_by,
             DynamicGroupOptions {
                 every: Duration::try_parse(every).map_err(RPolarsErr::from)?,
                 period: Duration::try_parse(period).map_err(RPolarsErr::from)?,
                 offset: Duration::try_parse(offset).map_err(RPolarsErr::from)?,
-                label: label.0,
+                label,
                 include_boundaries,
                 closed_window,
-                start_by: start_by.0,
+                start_by,
                 ..Default::default()
             },
         );
@@ -470,8 +481,8 @@ impl PlRLazyFrame {
         Ok(PlRLazyGroupBy { lgb: Some(lazy_gb) })
     }
 
-    fn with_context(&self, contexts: Vec<Self>) -> Result<PlRLazyFrame> {
-        let contexts = contexts.into_iter().map(|ldf| ldf.ldf).collect::<Vec<_>>();
+    fn with_context(&self, contexts: ListSexp) -> Result<PlRLazyFrame> {
+        let contexts = <Wrap<Vec<LazyFrame>>>::try_from(contexts)?.0;
         Ok(self.ldf.clone().with_context(contexts).into())
     }
 
@@ -527,9 +538,9 @@ impl PlRLazyFrame {
         allow_parallel: bool,
         force_parallel: bool,
         join_nulls: bool,
-        how: Wrap<JoinType>,
-        suffix: String,
-        validate: Wrap<JoinValidation>,
+        how: &str,
+        suffix: &str,
+        validate: &str,
         coalesce: Option<bool>,
     ) -> Result<PlRLazyFrame> {
         let coalesce = match coalesce {
@@ -538,16 +549,11 @@ impl PlRLazyFrame {
             Some(false) => JoinCoalesce::KeepColumns,
         };
         let ldf = self.ldf.clone();
-        let other = other.ldf;
-        let left_on = left_on
-            .into_iter()
-            .map(|pyexpr| pyexpr.inner)
-            .collect::<Vec<_>>();
-        let right_on = right_on
-            .into_iter()
-            .map(|pyexpr| pyexpr.inner)
-            .collect::<Vec<_>>();
-
+        let other = other.ldf.clone();
+        let left_on = <Wrap<Vec<Expr>>>::from(left_on).0;
+        let right_on = <Wrap<Vec<Expr>>>::from(right_on).0;
+        let how = <Wrap<JoinType>>::try_from(how)?.0;
+        let validate = <Wrap<JoinValidation>>::try_from(validate)?.0;
         Ok(ldf
             .join_builder()
             .with(other)
@@ -556,9 +562,9 @@ impl PlRLazyFrame {
             .allow_parallel(allow_parallel)
             .force_parallel(force_parallel)
             .join_nulls(join_nulls)
-            .how(how.0)
+            .how(how)
             .coalesce(coalesce)
-            .validate(validate.0)
+            .validate(validate)
             .suffix(suffix)
             .finish()
             .into())
@@ -568,10 +574,10 @@ impl PlRLazyFrame {
         &self,
         other: &PlRLazyFrame,
         predicates: ListSexp,
-        suffix: String,
+        suffix: &str,
     ) -> Result<PlRLazyFrame> {
         let ldf = self.ldf.clone();
-        let other = other.ldf;
+        let other = other.ldf.clone();
 
         let predicates = <Wrap<Vec<Expr>>>::from(predicates).0;
 
@@ -591,12 +597,12 @@ impl PlRLazyFrame {
 
     fn rename(
         &mut self,
-        existing: Vec<String>,
-        new: Vec<String>,
+        existing: StringSexp,
+        new: StringSexp,
         strict: bool,
     ) -> Result<PlRLazyFrame> {
         let ldf = self.ldf.clone();
-        Ok(ldf.rename(existing, new, strict).into())
+        Ok(ldf.rename(existing.to_vec(), new.to_vec(), strict).into())
     }
 
     fn reverse(&self) -> Result<PlRLazyFrame> {
@@ -607,15 +613,15 @@ impl PlRLazyFrame {
     fn shift(&self, n: &PlRExpr, fill_value: Option<&PlRExpr>) -> Result<PlRLazyFrame> {
         let lf = self.ldf.clone();
         let out = match fill_value {
-            Some(v) => lf.shift_and_fill(n.inner, v.inner),
-            None => lf.shift(n.inner),
+            Some(v) => lf.shift_and_fill(n.inner.clone(), v.inner.clone()),
+            None => lf.shift(n.inner.clone()),
         };
         Ok(out.into())
     }
 
     fn fill_nan(&self, fill_value: &PlRExpr) -> Result<PlRLazyFrame> {
         let ldf = self.ldf.clone();
-        ldf.fill_nan(fill_value.inner).into()
+        Ok(ldf.fill_nan(fill_value.inner.clone()).into())
     }
 
     fn min(&self) -> Result<PlRLazyFrame> {
@@ -660,13 +666,10 @@ impl PlRLazyFrame {
         Ok(out.into())
     }
 
-    fn quantile(
-        &self,
-        quantile: &PlRExpr,
-        interpolation: Wrap<QuantileMethod>,
-    ) -> Result<PlRLazyFrame> {
+    fn quantile(&self, quantile: &PlRExpr, interpolation: &str) -> Result<PlRLazyFrame> {
         let ldf = self.ldf.clone();
-        let out = ldf.quantile(quantile.inner, interpolation.0);
+        let interpolation = <Wrap<QuantileMethod>>::try_from(interpolation)?.0;
+        let out = ldf.quantile(quantile.inner.clone(), interpolation);
         Ok(out.into())
     }
 
@@ -684,14 +687,15 @@ impl PlRLazyFrame {
     fn unique(
         &self,
         maintain_order: bool,
-        keep: Wrap<UniqueKeepStrategy>,
+        keep: &str,
         subset: Option<ListSexp>,
     ) -> Result<PlRLazyFrame> {
         let ldf = self.ldf.clone();
+        let keep = <Wrap<UniqueKeepStrategy>>::try_from(keep)?.0;
         let subset = subset.map(|e| <Wrap<Vec<Expr>>>::from(e).0);
         let out = match maintain_order {
-            true => ldf.unique_stable_generic(subset, keep.0),
-            false => ldf.unique_generic(subset, keep.0),
+            true => ldf.unique_stable_generic(subset, keep),
+            false => ldf.unique_generic(subset, keep),
         };
         Ok(out.into())
     }
@@ -706,12 +710,14 @@ impl PlRLazyFrame {
         &self,
         on: ListSexp,
         index: ListSexp,
-        value_name: Option<String>,
-        variable_name: Option<String>,
+        value_name: Option<&str>,
+        variable_name: Option<&str>,
     ) -> Result<PlRLazyFrame> {
+        let on = <Wrap<Vec<Expr>>>::from(on).0;
+        let index = <Wrap<Vec<Expr>>>::from(index).0;
         let args = UnpivotArgsDSL {
-            on: on.into_iter().map(|e| e.inner.into()).collect(),
-            index: index.into_iter().map(|e| e.inner.into()).collect(),
+            on: on.into_iter().map(|e| e.into()).collect(),
+            index: index.into_iter().map(|e| e.into()).collect(),
             value_name: value_name.map(|s| s.into()),
             variable_name: variable_name.map(|s| s.into()),
         };
@@ -720,8 +726,12 @@ impl PlRLazyFrame {
         Ok(ldf.unpivot(args).into())
     }
 
-    fn with_row_index(&self, name: &str, offset: Option<IdxSize>) -> Result<PlRLazyFrame> {
+    fn with_row_index(&self, name: &str, offset: Option<NumericScalar>) -> Result<PlRLazyFrame> {
         let ldf = self.ldf.clone();
+        let offset: Option<u32> = match offset {
+            Some(x) => Some(<Wrap<u32>>::try_from(x)?.0),
+            None => None,
+        };
         Ok(ldf.with_row_index(name, offset).into())
     }
 
@@ -756,19 +766,19 @@ impl PlRLazyFrame {
         Ok(self.ldf.clone().into())
     }
 
-    fn collect_schema(&mut self, py: Python) -> Result<ListSexp> {
-        let schema = py
-            .allow_threads(|| self.ldf.collect_schema())
-            .map_err(RPolarsErr::from)?;
+    // fn collect_schema(&mut self, py: Python) -> Result<ListSexp> {
+    //     let schema = py
+    //         .allow_threads(|| self.ldf.collect_schema())
+    //         .map_err(RPolarsErr::from)?;
 
-        let schema_dict = PyDict::new_bound(py);
-        schema.iter_fields().for_each(|fld| {
-            schema_dict
-                .set_item(fld.name().as_str(), Wrap(fld.dtype().clone()))
-                .unwrap()
-        });
-        Ok(schema_dict.to_object(py))
-    }
+    //     let schema_dict = PyDict::new_bound(py);
+    //     schema.iter_fields().for_each(|fld| {
+    //         schema_dict
+    //             .set_item(fld.name().as_str(), Wrap(fld.dtype().clone()))
+    //             .unwrap()
+    //     });
+    //     Ok(schema_dict.to_object(py))
+    // }
 
     fn unnest(&self, columns: ListSexp) -> Result<PlRLazyFrame> {
         let columns = <Wrap<Vec<Expr>>>::from(columns).0;
@@ -784,7 +794,7 @@ impl PlRLazyFrame {
         let out = self
             .ldf
             .clone()
-            .merge_sorted(other.ldf, key)
+            .merge_sorted(other.ldf.clone(), key)
             .map_err(RPolarsErr::from)?;
         Ok(out.into())
     }

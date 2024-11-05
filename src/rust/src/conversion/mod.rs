@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use crate::{PlRDataFrame, PlRDataType, PlRExpr};
+use crate::{PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame};
 use polars::series::ops::NullBehavior;
 use savvy::{ListSexp, NumericScalar, NumericSexp, NumericTypedSexp, TypedSexp};
 pub mod base_date;
@@ -89,6 +89,21 @@ impl TryFrom<ListSexp> for Wrap<Vec<DataFrame>> {
             .values_iter()
             .map(|sexp| match sexp.into_typed() {
                 TypedSexp::Environment(e) => Ok(<&PlRDataFrame>::try_from(e)?.df.clone()),
+                _ => Err("Only accept a list of polars data frames".to_string()),
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        Ok(Wrap(dfs))
+    }
+}
+
+impl TryFrom<ListSexp> for Wrap<Vec<LazyFrame>> {
+    type Error = savvy::Error;
+
+    fn try_from(list: ListSexp) -> Result<Self, savvy::Error> {
+        let dfs = list
+            .values_iter()
+            .map(|sexp| match sexp.into_typed() {
+                TypedSexp::Environment(e) => Ok(<&PlRLazyFrame>::try_from(e)?.ldf.clone()),
                 _ => Err("Only accept a list of polars data frames".to_string()),
             })
             .collect::<Result<Vec<_>, _>>()?;
@@ -427,7 +442,7 @@ impl TryFrom<&str> for Wrap<ClosedWindow> {
             "left" => ClosedWindow::Left,
             "none" => ClosedWindow::None,
             "right" => ClosedWindow::Right,
-            v => return Err(format!("unreachable",)),
+            _ => return Err(format!("unreachable",)),
         };
         Ok(Wrap(parsed))
     }
@@ -441,7 +456,106 @@ impl TryFrom<&str> for Wrap<Roll> {
             "raise" => Roll::Raise,
             "forward" => Roll::Forward,
             "backward" => Roll::Backward,
-            v => return Err(format!("unreachable",)),
+            _ => return Err(format!("unreachable",)),
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
+impl TryFrom<&str> for Wrap<QuantileMethod> {
+    type Error = String;
+
+    fn try_from(interpolation: &str) -> Result<Self, String> {
+        let parsed = match interpolation {
+            "nearest" => QuantileMethod::Nearest,
+            "higher" => QuantileMethod::Higher,
+            "lower" => QuantileMethod::Lower,
+            "midpoint" => QuantileMethod::Midpoint,
+            "linear" => QuantileMethod::Linear,
+            "equiprobable" => QuantileMethod::Equiprobable,
+            _ => return Err(format!("unreachable")),
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
+impl TryFrom<&str> for Wrap<UniqueKeepStrategy> {
+    type Error = String;
+
+    fn try_from(strategy: &str) -> Result<Self, String> {
+        let parsed = match strategy {
+            "first" => UniqueKeepStrategy::First,
+            "last" => UniqueKeepStrategy::Last,
+            "none" => UniqueKeepStrategy::None,
+            "any" => UniqueKeepStrategy::Any,
+            _ => return Err(format!("unreachable")),
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
+impl TryFrom<&str> for Wrap<JoinType> {
+    type Error = String;
+
+    fn try_from(how: &str) -> Result<Self, String> {
+        let parsed = match how {
+            "cross" => JoinType::Cross,
+            "inner" => JoinType::Inner,
+            "left" => JoinType::Left,
+            "right" => JoinType::Right,
+            "full" => JoinType::Full,
+            "semi" => JoinType::Semi,
+            "anti" => JoinType::Anti,
+            _ => return Err(format!("unreachable")),
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
+impl TryFrom<&str> for Wrap<JoinValidation> {
+    type Error = String;
+
+    fn try_from(validation: &str) -> Result<Self, String> {
+        let parsed = match validation {
+            "m:m" => JoinValidation::ManyToMany,
+            "1:m" => JoinValidation::OneToMany,
+            "1:1" => JoinValidation::OneToOne,
+            "m:1" => JoinValidation::ManyToOne,
+            _ => return Err(format!("unreachable")),
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
+impl TryFrom<&str> for Wrap<Label> {
+    type Error = String;
+
+    fn try_from(label: &str) -> Result<Self, String> {
+        let parsed = match label {
+            "left" => Label::Left,
+            "right" => Label::Right,
+            "datapoint" => Label::DataPoint,
+            _ => return Err(format!("unreachable")),
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
+impl TryFrom<&str> for Wrap<StartBy> {
+    type Error = String;
+
+    fn try_from(start_by: &str) -> Result<Self, String> {
+        let parsed = match start_by {
+            "window" => StartBy::WindowBound,
+            "datapoint" => StartBy::DataPoint,
+            "monday" => StartBy::Monday,
+            "tuesday" => StartBy::Tuesday,
+            "wednesday" => StartBy::Wednesday,
+            "thursday" => StartBy::Thursday,
+            "friday" => StartBy::Friday,
+            "saturday" => StartBy::Saturday,
+            "sunday" => StartBy::Sunday,
+            _ => return Err(format!("unreachable")),
         };
         Ok(Wrap(parsed))
     }
