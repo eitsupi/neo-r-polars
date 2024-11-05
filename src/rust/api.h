@@ -344,6 +344,7 @@ SEXP savvy_PlRLazyFrame_drop_nulls__ffi(SEXP self__, SEXP c_arg__subset);
 SEXP savvy_PlRLazyFrame_unpivot__ffi(SEXP self__, SEXP c_arg__on, SEXP c_arg__index, SEXP c_arg__value_name, SEXP c_arg__variable_name);
 SEXP savvy_PlRLazyFrame_with_row_index__ffi(SEXP self__, SEXP c_arg__name, SEXP c_arg__offset);
 SEXP savvy_PlRLazyFrame_clone__ffi(SEXP self__);
+SEXP savvy_PlRLazyFrame_collect_schema__ffi(SEXP self__);
 SEXP savvy_PlRLazyFrame_unnest__ffi(SEXP self__, SEXP c_arg__columns);
 SEXP savvy_PlRLazyFrame_count__ffi(SEXP self__);
 SEXP savvy_PlRLazyFrame_merge_sorted__ffi(SEXP self__, SEXP c_arg__other, SEXP c_arg__key);

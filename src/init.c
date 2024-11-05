@@ -1704,6 +1704,11 @@ SEXP savvy_PlRLazyFrame_clone__impl(SEXP self__) {
     return handle_result(res);
 }
 
+SEXP savvy_PlRLazyFrame_collect_schema__impl(SEXP self__) {
+    SEXP res = savvy_PlRLazyFrame_collect_schema__ffi(self__);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRLazyFrame_unnest__impl(SEXP self__, SEXP c_arg__columns) {
     SEXP res = savvy_PlRLazyFrame_unnest__ffi(self__, c_arg__columns);
     return handle_result(res);
@@ -2250,6 +2255,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRLazyFrame_unpivot__impl", (DL_FUNC) &savvy_PlRLazyFrame_unpivot__impl, 5},
     {"savvy_PlRLazyFrame_with_row_index__impl", (DL_FUNC) &savvy_PlRLazyFrame_with_row_index__impl, 3},
     {"savvy_PlRLazyFrame_clone__impl", (DL_FUNC) &savvy_PlRLazyFrame_clone__impl, 1},
+    {"savvy_PlRLazyFrame_collect_schema__impl", (DL_FUNC) &savvy_PlRLazyFrame_collect_schema__impl, 1},
     {"savvy_PlRLazyFrame_unnest__impl", (DL_FUNC) &savvy_PlRLazyFrame_unnest__impl, 2},
     {"savvy_PlRLazyFrame_count__impl", (DL_FUNC) &savvy_PlRLazyFrame_count__impl, 1},
     {"savvy_PlRLazyFrame_merge_sorted__impl", (DL_FUNC) &savvy_PlRLazyFrame_merge_sorted__impl, 3},

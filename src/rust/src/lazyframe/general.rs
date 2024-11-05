@@ -1,7 +1,8 @@
 use super::*;
 use crate::{PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame, PlRLazyGroupBy, RPolarsErr};
 use savvy::{
-    savvy, ListSexp, LogicalSexp, NumericScalar, OwnedStringSexp, Result, Sexp, StringSexp,
+    savvy, ListSexp, LogicalSexp, NumericScalar, OwnedListSexp, OwnedStringSexp, Result, Sexp,
+    StringSexp,
 };
 
 #[savvy]
@@ -768,19 +769,55 @@ impl PlRLazyFrame {
         Ok(self.ldf.clone().into())
     }
 
-    // fn collect_schema(&mut self, py: Python) -> Result<ListSexp> {
-    //     let schema = py
-    //         .allow_threads(|| self.ldf.collect_schema())
-    //         .map_err(RPolarsErr::from)?;
+    fn collect_schema(&mut self) -> Result<Sexp> {
+        use crate::{
+            r_threads::{concurrent_handler, ThreadCom},
+            r_udf::{RUdfReturn, RUdfSignature, CONFIG},
+        };
+        fn serve_r(
+            udf_sig: RUdfSignature,
+        ) -> std::result::Result<RUdfReturn, Box<dyn std::error::Error>> {
+            udf_sig.eval()
+        }
 
-    //     let schema_dict = PyDict::new_bound(py);
-    //     schema.iter_fields().for_each(|fld| {
-    //         schema_dict
-    //             .set_item(fld.name().as_str(), Wrap(fld.dtype().clone()))
-    //             .unwrap()
-    //     });
-    //     Ok(schema_dict.to_object(py))
-    // }
+        let mut ldf = self.ldf.clone();
+        let schema = if ThreadCom::try_from_global(&CONFIG).is_ok() {
+            ldf.collect_schema().map_err(RPolarsErr::from)?
+        } else {
+            concurrent_handler(
+                // closure 1: spawned by main thread
+                // tc is a ThreadCom which any child thread can use to submit R jobs to main thread
+                move |tc| {
+                    // get return value
+                    let retval = ldf.collect_schema();
+
+                    // drop the last two ThreadCom clones, signals to main/R-serving thread to shut down.
+                    ThreadCom::kill_global(&CONFIG);
+                    drop(tc);
+
+                    retval
+                },
+                // closure 2: how to serve polars worker R job request in main thread
+                serve_r,
+                // CONFIG is "global variable" where any new thread can request a clone of ThreadCom to establish contact with main thread
+                &CONFIG,
+            )
+            .map_err(|e| e.to_string())?
+            .map_err(RPolarsErr::from)?
+        };
+
+        let mut out = OwnedListSexp::new(schema.len(), true)?;
+        for i in 0..schema.len() {
+            let (fld_name, fld_value) = schema.get_at_index(i).unwrap();
+            let fld_value = <PlRDataType>::from(fld_value);
+            let _ = out.set_name(i, fld_name.as_str());
+            unsafe {
+                let _ = out.set_value_unchecked(i, Sexp::try_from(fld_value)?.0);
+            }
+        }
+
+        Ok(out.into())
+    }
 
     fn unnest(&self, columns: ListSexp) -> Result<PlRLazyFrame> {
         let columns = <Wrap<Vec<Expr>>>::from(columns).0;

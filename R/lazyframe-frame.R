@@ -162,28 +162,45 @@ lazyframe__group_by <- function(..., .maintain_order = FALSE) {
   })
 }
 
-# TODO: see also section
 #' Materialize this LazyFrame into a DataFrame
 #'
 #' By default, all query optimizations are enabled.
-#' Individual optimizations may be disabled by setting the corresponding parameter to `FALSE`.
-#' @inherit pl__DataFrame return
-#' @inheritParams rlang::args_dots_empty
-#' @param type_coercion A logical, indicats type coercion optimization.
-#' @param predicate_pushdown A logical, indicats predicate pushdown optimization.
-#' @param projection_pushdown A logical, indicats projection pushdown optimization.
-#' @param simplify_expression A logical, indicats simplify expression optimization.
-#' @param slice_pushdown A logical, indicats slice pushdown optimization.
-#' @param comm_subplan_elim A logical, indicats tring to cache branching subplans that occur on self-joins or unions.
-#' @param comm_subexpr_elim A logical, indicats tring to cache common subexpressions.
-#' @param cluster_with_columns A logical, indicats to combine sequential independent calls to with_columns.
-#' @param no_optimization A logical. If `TRUE`, turn off (certain) optimizations.
-#' @param streaming A logical. If `TRUE`, process the query in batches to handle larger-than-memory data.
-#' If `FALSE` (default), the entire query is processed in a single batch.
-#' Note that streaming mode is considered unstable.
-#' It may be changed at any point without it being considered a breaking change.
-#' @param _eager A logical, indicates to turn off multi-node optimizations and the other optimizations.
-#' This option is intended for internal use only.
+#'
+#' @inheritParams rlang::check_dots_empty0
+#' @param type_coercion Logical. Coerce types such that operations succeed and
+#' run on minimal required memory.
+#' @param predicate_pushdown Logical. Applies filters as early as possible at
+#' scan level.
+#' @param projection_pushdown Logical. Select only the columns that are needed
+#' at the scan level.
+#' @param simplify_expression Logical. Various optimizations, such as constant
+#' folding and replacing expensive operations with faster alternatives.
+#' @param slice_pushdown Logical. Only load the required slice from the scan
+#' level. Don't materialize sliced outputs (e.g. `join$head(10)`).
+#' @param comm_subplan_elim Logical. Will try to cache branching subplans that
+#'  occur on self-joins or unions.
+#' @param comm_subexpr_elim Logical. Common subexpressions will be cached and
+#' reused.
+#' @param cluster_with_columns Combine sequential independent calls to
+#' [`with_columns()`][lazyframe__with_columns].
+#' @param streaming `r lifecycle::badge("experimental")` Logical. Process the
+#' query in batches to handle larger-than-memory data. If `FALSE` (default),
+#' the entire query is processed in a single batch.
+#' @param _eager A logical, indicates to turn off multi-node optimizations and
+#' the other optimizations. This option is intended for internal use only.
+#'
+#' @inherit as_polars_lf return
+#'
+#' @seealso
+#'  - [`$fetch()`][lazyframe__fetch] - fast limited query check
+#'  - [`$profile()`][lazyframe__profile] - same as `$collect()` but also returns
+#'    a table with each operation profiled.
+#'  - [`$collect_in_background()`][lazyframe__collect_in_background] - non-blocking
+#'    collect returns a future handle. Can also just be used via
+#'    `$collect(collect_in_background = TRUE)`.
+#'  - [`$sink_parquet()`][lazyframe__sink_parquet()] streams query to a parquet file.
+#'  - [`$sink_ipc()`][lazyframe__sink_ipc()] streams query to a arrow file.
+#'
 #' @examples
 #' lf <- pl$LazyFrame(
 #'   a = c("a", "b", "a", "b", "b", "c"),
@@ -235,6 +252,35 @@ lazyframe__collect <- function(
     )
 
     ldf$collect()
+  })
+}
+
+#' Resolve the schema of this LazyFrame
+#'
+#' This resolves the query plan but does not trigger computations.
+#'
+#' @return A named list with names indicating column names and values indicating
+#' column data types.
+#'
+#' @examples
+#' lf <- pl$LazyFrame(
+#'   foo = 1:3,
+#'   bar = 6:8,
+#'   ham = c("a", "b", "c")
+#' )
+#'
+#' lf$collect_schema()
+#'
+#' lf$with_columns(
+#'   baz = (pl$col("foo") + pl$col("bar"))$cast(pl$String),
+#'   pl$col("bar")$cast(pl$Int64)
+#' )$collect_schema()
+lazyframe__collect_schema <- function() {
+  wrap({
+    lapply(self$`_ldf`$collect_schema(), function(x) {
+      .savvy_wrap_PlRDataType(x) |>
+        wrap()
+    })
   })
 }
 
@@ -502,6 +548,66 @@ lazyframe__with_columns <- function(...) {
 
     parse_into_list_of_expressions(..., `__structify` = structify) |>
       self$`_ldf`$with_columns()
+  })
+}
+
+#' Modify/append column(s) of a LazyFrame
+#'
+#' @description
+#' This will run all expression sequentially instead of in parallel. Use this
+#' only when the work per expression is cheap.
+#'
+#' Add columns or modify existing ones with expressions. This is similar to
+#' `dplyr::mutate()` as it keeps unmentioned columns (unlike `$select()`).
+#'
+#' However, unlike `dplyr::mutate()`, one cannot use new variables in subsequent
+#' expressions in the same `$with_columns_seq()`call. For instance, if you create a
+#' variable `x`, you will only be able to use it in another `$with_columns_seq()`
+#' or `$select()` call.
+#'
+#' @inherit as_polars_lf return
+#' @inheritParams lazyframe__select
+#' @examples
+#' # Pass an expression to add it as a new column.
+#' lf <- pl$LazyFrame(
+#'   a = 1:4,
+#'   b = c(0.5, 4, 10, 13),
+#'   c = c(TRUE, TRUE, FALSE, TRUE),
+#' )
+#' lf$with_columns_seq((pl$col("a")^2)$alias("a^2"))$collect()
+#'
+#' # Added columns will replace existing columns with the same name.
+#' lf$with_columns_seq(a = pl$col("a")$cast(pl$Float64))$collect()
+#'
+#' # Multiple columns can be added
+#' lf$with_columns_seq(
+#'   (pl$col("a")^2)$alias("a^2"),
+#'   (pl$col("b") / 2)$alias("b/2"),
+#'   (pl$col("c")$not())$alias("not c"),
+#' )$collect()
+#'
+#' # Name expression instead of `$alias()`
+#' lf$with_columns_seq(
+#'   `a^2` = pl$col("a")^2,
+#'   `b/2` = pl$col("b") / 2,
+#'   `not c` = pl$col("c")$not(),
+#' )$collect()
+#'
+#' # Expressions with multiple outputs can automatically be instantiated
+#' # as Structs by enabling the experimental setting `POLARS_AUTO_STRUCTIFY`:
+#' if (requireNamespace("withr", quietly = TRUE)) {
+#'   withr::with_envvar(c(POLARS_AUTO_STRUCTIFY = "1"), {
+#'     lf$drop("c")$with_columns_seq(
+#'       diffs = pl$col("a", "b")$diff()$name$suffix("_diff"),
+#'     )$collect()
+#'   })
+#' }
+lazyframe__with_columns_seq <- function(...) {
+  wrap({
+    structify <- parse_env_auto_structify()
+
+    parse_into_list_of_expressions(..., `__structify` = structify) |>
+      self$`_ldf`$with_columns_seq()
   })
 }
 
@@ -1190,26 +1296,21 @@ lazyframe__join_asof <- function(
 }
 
 
-#' Unpivot a Frame from wide to long format
+#' Unpivot a LazyFrame from wide to long format
 #'
+#' This function is useful to massage a LazyFrame into a format where one or
+#' more columns are identifier variables (`index`) while all other columns,
+#' considered measured variables (`on`), are “unpivoted” to the row axis
+#' leaving just two non-identifier columns, "variable" and "value".
+#'
+#' @inheritParams rlang::check_dots_empty0
 #' @param on Values to use as identifier variables. If `value_vars` is
 #' empty all columns that are not in `id_vars` will be used.
-#' @param ... Not used.
 #' @param index Columns to use as identifier variables.
 #' @param variable_name Name to give to the new column containing the names of
 #' the melted columns. Defaults to "variable".
 #' @param value_name Name to give to the new column containing the values of
 #' the melted columns. Defaults to `"value"`.
-#'
-#' @details
-#' Optionally leaves identifiers set.
-#'
-#' This function is useful to massage a Frame into a format where one or more
-#' columns are identifier variables (id_vars), while all other columns, considered
-#' measured variables (value_vars), are "unpivoted" to the row axis, leaving just
-#' two non-identifier columns, 'variable' and 'value'.
-#'
-#'
 #'
 #' @inherit as_polars_lf return
 #'
@@ -1226,10 +1327,16 @@ lazyframe__unpivot <- function(
     index = NULL,
     variable_name = NULL,
     value_name = NULL) {
-  self$`_ldf`$unpivot(
-    lf, on %||% character(), index %||% character(),
-    value_name, variable_name
-  ) |> unwrap("in $unpivot( ): ")
+  wrap({
+    check_dots_empty0(...)
+    if (!is.null(on)) {
+      on <- parse_into_list_of_expressions(!!!on)
+    }
+    if (!is.null(index)) {
+      index <- parse_into_list_of_expressions(!!!index)
+    }
+    self$`_ldf`$unpivot(on, index, value_name, variable_name)
+  })
 }
 
 #' Rename column names
@@ -2135,5 +2242,33 @@ lazyframe__set_sorted <- function(column, ..., descending = FALSE) {
   wrap({
     check_dots_empty0(...)
     self$with_columns(pl$col(column)$set_sorted(descending = descending))
+  })
+}
+
+#' Add a row index as the first column in the LazyFrame
+#'
+#' @description
+#' Using this function can have a negative effect on query performance. This
+#' may, for instance, block predicate pushdown optimization.
+#'
+#' @inheritParams rlang::check_dots_empty0
+#' @param name Name of the index column.
+#' @param offset Start the index at this offset. Cannot be negative.
+#'
+#' @inherit as_polars_lf return
+#' @examples
+#' lf <- pl$LazyFrame(x = c(1, 3, 5), y = c(2, 4, 6))
+#' lf$with_row_index()$collect()
+#'
+#' lf$with_row_index("id", offset = 1000)$collect()
+#'
+#' # An index column can also be created using the expressions int_range()
+#' # and len()$
+#' lf$with_columns(
+#'   index = pl$int_range(pl$len(), dtype = pl$UInt32)
+#' )$collect()
+lazyframe__with_row_index <- function(name = "index", offset = 0) {
+  wrap({
+    self$`_ldf`$with_row_index(name, offset)
   })
 }
