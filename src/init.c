@@ -1584,6 +1584,11 @@ SEXP savvy_PlRLazyFrame_profile__impl(SEXP self__) {
     return handle_result(res);
 }
 
+SEXP savvy_PlRLazyFrame_sink_parquet__impl(SEXP self__, SEXP c_arg__path, SEXP c_arg__compression, SEXP c_arg__maintain_order, SEXP c_arg__statistics, SEXP c_arg__compression_level, SEXP c_arg__row_group_size, SEXP c_arg__data_page_size) {
+    SEXP res = savvy_PlRLazyFrame_sink_parquet__ffi(self__, c_arg__path, c_arg__compression, c_arg__maintain_order, c_arg__statistics, c_arg__compression_level, c_arg__row_group_size, c_arg__data_page_size);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRLazyFrame_serialize__impl(SEXP self__) {
     SEXP res = savvy_PlRLazyFrame_serialize__ffi(self__);
     return handle_result(res);
@@ -2246,6 +2251,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRLazyFrame_bottom_k__impl", (DL_FUNC) &savvy_PlRLazyFrame_bottom_k__impl, 4},
     {"savvy_PlRLazyFrame_cache__impl", (DL_FUNC) &savvy_PlRLazyFrame_cache__impl, 1},
     {"savvy_PlRLazyFrame_profile__impl", (DL_FUNC) &savvy_PlRLazyFrame_profile__impl, 1},
+    {"savvy_PlRLazyFrame_sink_parquet__impl", (DL_FUNC) &savvy_PlRLazyFrame_sink_parquet__impl, 8},
     {"savvy_PlRLazyFrame_serialize__impl", (DL_FUNC) &savvy_PlRLazyFrame_serialize__impl, 1},
     {"savvy_PlRLazyFrame_select_seq__impl", (DL_FUNC) &savvy_PlRLazyFrame_select_seq__impl, 2},
     {"savvy_PlRLazyFrame_rolling__impl", (DL_FUNC) &savvy_PlRLazyFrame_rolling__impl, 6},

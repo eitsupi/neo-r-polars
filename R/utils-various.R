@@ -76,3 +76,56 @@ make_profile_plot <- function(data, truncate_nodes) {
   }
   plot
 }
+
+#' @noRd
+translate_statistics <- function(statistics, call = caller_env()) {
+  if (length(statistics) != 1 && !is.list(statistics)) {
+    abort("`statistics` must be of length 1.", call = call)
+  }
+  if (is.logical(statistics)) {
+    if (isTRUE(statistics)) {
+      statistics <- list(
+        min = TRUE,
+        max = TRUE,
+        distinct_count = FALSE,
+        null_count = TRUE
+      )
+    } else {
+      statistics <- list(
+        min = FALSE,
+        max = FALSE,
+        distinct_count = FALSE,
+        null_count = FALSE
+      )
+    }
+  } else if (is.character(statistics)) {
+    if (statistics == "full") {
+      statistics <- list(
+        min = TRUE,
+        max = TRUE,
+        distinct_count = TRUE,
+        null_count = TRUE
+      )
+    } else {
+      abort("`statistics` must be TRUE/FALSE, \"full\", or a named list.", call = call)
+    }
+  } else if (is.list(statistics)) {
+    default <- list(
+      min = TRUE,
+      max = TRUE,
+      distinct_count = FALSE,
+      null_count = TRUE
+    )
+    statistics <- utils::modifyList(default, statistics)
+    nms <- names(statistics)
+    invalid <- nms[!nms %in% c("min", "max", "distinct_count", "null_count")]
+    if (length(invalid) > 0) {
+      msg <- paste0("`", invalid, "`", collapse = ", ")
+      abort(
+        paste0("In `statistics`,", msg, "are not valid keys."),
+        call = call
+      )
+    }
+  }
+  statistics
+}

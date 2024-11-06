@@ -560,3 +560,69 @@ impl TryFrom<&str> for Wrap<StartBy> {
         Ok(Wrap(parsed))
     }
 }
+
+pub(crate) fn parse_parquet_compression(
+    compression: &str,
+    compression_level: Option<i32>,
+) -> savvy::Result<ParquetCompression> {
+    let parsed = match compression {
+        "uncompressed" => ParquetCompression::Uncompressed,
+        "snappy" => ParquetCompression::Snappy,
+        "gzip" => ParquetCompression::Gzip(
+            compression_level
+                .map(|lvl| {
+                    GzipLevel::try_new(lvl as u8)
+                        .map_err(|e| savvy::Error::new(format!("{e:?}").as_str()))
+                })
+                .transpose()?,
+        ),
+        "lzo" => ParquetCompression::Lzo,
+        "brotli" => ParquetCompression::Brotli(
+            compression_level
+                .map(|lvl| {
+                    BrotliLevel::try_new(lvl as u32)
+                        .map_err(|e| savvy::Error::new(format!("{e:?}").as_str()))
+                })
+                .transpose()?,
+        ),
+        "lz4" => ParquetCompression::Lz4Raw,
+        "zstd" => ParquetCompression::Zstd(
+            compression_level
+                .map(|lvl| {
+                    ZstdLevel::try_new(lvl)
+                        .map_err(|e| savvy::Error::new(format!("{e:?}").as_str()))
+                })
+                .transpose()?,
+        ),
+        _ => unreachable!(),
+    };
+    Ok(parsed)
+}
+
+impl TryFrom<ListSexp> for Wrap<StatisticsOptions> {
+    type Error = String;
+
+    fn try_from(statistics: ListSexp) -> Result<Self, String> {
+        let hm = statistics
+            .iter()
+            .map(|xi| {
+                let name = xi.0;
+                let value = xi.1.into_typed();
+                let value = match value {
+                    TypedSexp::Logical(val) => {
+                        let tmp = val.to_vec();
+                        *tmp.get(0).unwrap()
+                    }
+                    _ => unreachable!(),
+                };
+                (name, value)
+            })
+            .collect::<std::collections::HashMap<&str, bool>>();
+        let mut out = StatisticsOptions::default();
+        out.min_value = *hm.get(&"min").unwrap();
+        out.max_value = *hm.get(&"max").unwrap();
+        out.distinct_count = *hm.get(&"distinct_count").unwrap();
+        out.null_count = *hm.get(&"null_count").unwrap();
+        Ok(Wrap(out))
+    }
+}

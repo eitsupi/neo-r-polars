@@ -2408,3 +2408,111 @@ lazyframe__with_row_index <- function(name = "index", offset = 0) {
     self$`_ldf`$with_row_index(name, offset)
   })
 }
+
+#' Evaluate the query in streaming mode and write to a Parquet file
+#'
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
+#' This allows streaming results that are larger than RAM to be written to disk.
+#'
+#' @inheritParams rlang::check_dots_empty0
+#' @param path A character. File path to which the file should be written.
+#' @param compression The compression method. Must be one of:
+#' * `"lz4"`: fast compression/decompression.
+#' * `"uncompressed"`
+#' * `"snappy"`: this guarantees that the parquet file will be compatible with
+#'   older parquet readers.
+#' * `"gzip"`
+#' * `"lzo"`
+#' * `"brotli"`
+#' * `"zstd"`: good compression performance.
+#' @param compression_level `NULL` or integer. The level of compression to use.
+#'  Only used if method is one of `"gzip"`, `"brotli"`, or `"zstd"`. Higher
+#' compression means smaller files on disk:
+#'  * `"gzip"`: min-level: 0, max-level: 10.
+#'  * `"brotli"`: min-level: 0, max-level: 11.
+#'  * `"zstd"`: min-level: 1, max-level: 22.
+#' @param statistics Whether statistics should be written to the Parquet
+#' headers. Possible values:
+#' * `TRUE`: enable default set of statistics (default)
+#' * `FALSE`: disable all statistics
+#' * `"full"`: calculate and write all available statistics.
+#' * A named list where all values must be `TRUE` or `FALSE`, e.g.
+#'   `list(min = TRUE, max = FALSE)`. Statistics available are `"min"`, `"max"`,
+#'   `"distinct_count"`, `"null_count"`.
+#' @param row_group_size Size of the row groups in number of rows. If `NULL`
+#' (default), the chunks of the DataFrame are used. Writing in smaller chunks
+#' may reduce memory pressure and improve writing speeds.
+#' @param data_page_size Size of the data page in bytes. If `NULL` (default), it
+#' is set to 1024^2 bytes.
+#' @param maintain_order Maintain the order in which data is processed. Setting
+#' this to `FALSE` will be slightly faster.
+#' @inheritParams lazyframe__collect
+#'
+#' @rdname IO_sink_parquet
+#' @return Invisibly returns the input LazyFrame
+#'
+#' @examples
+#' # sink table 'mtcars' from mem to parquet
+#' tmpf <- tempfile()
+#' pl$LazyFrame(mtcars)$sink_parquet(tmpf)
+#'
+#' # stream a query end-to-end
+#' tmpf2 <- tempfile()
+#' pl$scan_parquet(tmpf)$select(pl$col("cyl") * 2)$sink_parquet(tmpf2)
+#'
+#' # load parquet directly into a DataFrame / memory
+#' pl$scan_parquet(tmpf2)$collect()
+lazyframe__sink_parquet <- function(
+    path,
+    ...,
+    compression = "zstd",
+    compression_level = 3,
+    statistics = TRUE,
+    row_group_size = NULL,
+    data_page_size = NULL,
+    maintain_order = TRUE,
+    type_coercion = TRUE,
+    predicate_pushdown = TRUE,
+    projection_pushdown = TRUE,
+    simplify_expression = TRUE,
+    slice_pushdown = TRUE,
+    no_optimization = FALSE) {
+  wrap({
+    check_dots_empty0(...)
+
+    if (isTRUE(no_optimization)) {
+      predicate_pushdown <- FALSE
+      projection_pushdown <- FALSE
+      slice_pushdown <- FALSE
+    }
+
+    lf <- self$`_ldf`$optimization_toggle(
+      type_coercion = type_coercion,
+      predicate_pushdown = predicate_pushdown,
+      projection_pushdown = projection_pushdown,
+      simplify_expression = simplify_expression,
+      slice_pushdown = slice_pushdown,
+      comm_subplan_elim = FALSE,
+      comm_subexpr_elim = FALSE,
+      cluster_with_columns = FALSE,
+      streaming = FALSE,
+      `_eager` = FALSE
+    )
+
+    statistics <- translate_statistics(statistics)
+
+    self$`_ldf`$sink_parquet(
+      path = path,
+      compression = compression,
+      compression_level = compression_level,
+      statistics = statistics,
+      row_group_size = row_group_size,
+      data_page_size = data_page_size,
+      maintain_order = maintain_order
+    )
+
+    invisible(self)
+  })
+}

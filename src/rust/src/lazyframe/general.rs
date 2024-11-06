@@ -4,6 +4,7 @@ use savvy::{
     savvy, ListSexp, LogicalSexp, NumericScalar, OwnedListSexp, OwnedStringSexp, Result, Sexp,
     StringSexp,
 };
+use std::path::PathBuf;
 
 #[savvy]
 impl PlRLazyFrame {
@@ -310,35 +311,47 @@ impl PlRLazyFrame {
         Ok(out.into())
     }
 
-    // fn sink_parquet(
-    //     &self,
-    //     py: Python,
-    //     path: PathBuf,
-    //     compression: &str,
-    //     compression_level: Option<i32>,
-    //     statistics: Wrap<StatisticsOptions>,
-    //     row_group_size: Option<usize>,
-    //     data_page_size: Option<usize>,
-    //     maintain_order: bool,
-    // ) -> Result<()> {
-    //     let compression = parse_parquet_compression(compression, compression_level)?;
+    fn sink_parquet(
+        &self,
+        path: &str,
+        compression: &str,
+        maintain_order: bool,
+        statistics: ListSexp,
+        compression_level: Option<NumericScalar>,
+        row_group_size: Option<NumericScalar>,
+        data_page_size: Option<NumericScalar>,
+    ) -> Result<()> {
+        let path: PathBuf = path.into();
+        let statistics = <Wrap<StatisticsOptions>>::try_from(statistics)?.0;
+        let compression_level: Option<i32> = match compression_level {
+            Some(x) => Some(x.as_i32()?),
+            None => None,
+        };
+        let compression = parse_parquet_compression(compression, compression_level)?;
+        let row_group_size: Option<usize> = match row_group_size {
+            Some(x) => Some(<Wrap<usize>>::try_from(x)?.0),
+            None => None,
+        };
+        let data_page_size: Option<usize> = match data_page_size {
+            Some(x) => Some(<Wrap<usize>>::try_from(x)?.0),
+            None => None,
+        };
 
-    //     let options = ParquetWriteOptions {
-    //         compression,
-    //         statistics: statistics.0,
-    //         row_group_size,
-    //         data_page_size,
-    //         maintain_order,
-    //     };
+        let options = ParquetWriteOptions {
+            compression,
+            statistics,
+            row_group_size,
+            data_page_size,
+            maintain_order,
+        };
 
-    //     // if we don't allow threads and we have udfs trying to acquire the gil from different
-    //     // threads we deadlock.
-    //     py.allow_threads(|| {
-    //         let ldf = self.ldf.clone();
-    //         ldf.sink_parquet(path, options).map_err(RPolarsErr::from)
-    //     })?;
-    //     Ok(())
-    // }
+        let _ = self
+            .ldf
+            .clone()
+            .sink_parquet(path, options)
+            .map_err(RPolarsErr::from);
+        Ok(())
+    }
 
     // fn sink_ipc(
     //     &self,
