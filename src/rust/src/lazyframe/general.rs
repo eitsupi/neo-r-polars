@@ -444,17 +444,17 @@ impl PlRLazyFrame {
         Ok(())
     }
 
-    // fn sink_json(&self, py: Python, path: PathBuf, maintain_order: bool) -> Result<()> {
-    //     let options = JsonWriterOptions { maintain_order };
+    fn sink_json(&self, path: &str, maintain_order: bool) -> Result<()> {
+        let path: PathBuf = path.into();
+        let options = JsonWriterOptions { maintain_order };
 
-    //     // if we don't allow threads and we have udfs trying to acquire the gil from different
-    //     // threads we deadlock.
-    //     py.allow_threads(|| {
-    //         let ldf = self.ldf.clone();
-    //         ldf.sink_json(path, options).map_err(RPolarsErr::from)
-    //     })?;
-    //     Ok(())
-    // }
+        let _ = self
+            .ldf
+            .clone()
+            .sink_json(path, options)
+            .map_err(RPolarsErr::from);
+        Ok(())
+    }
 
     fn serialize(&self) -> Result<Sexp> {
         let dump = serde_json::to_string(&self.ldf.logical_plan)

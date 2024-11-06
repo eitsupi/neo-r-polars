@@ -2629,7 +2629,6 @@ lazyframe__sink_ipc <- function(
 #'   Namely, when writing a field that does not parse as a valid float or
 #'   integer, then quotes will be used even if they aren`t strictly necessary.
 #'
-#' @inherit LazyFrame_sink_parquet return
 #' @rdname IO_sink_csv
 #'
 #' @examples
@@ -2705,6 +2704,60 @@ lazyframe__sink_csv <- function(
       float_precision = float_precision,
       null_value = null_value,
       quote_style = quote_style,
+      maintain_order = maintain_order
+    )
+
+    invisible(self)
+  })
+}
+
+#' Evaluate the query in streaming mode and write to an NDJSON file
+#'
+#' @inherit lazyframe__sink_parquet description params return
+#' @inheritParams rlang::check_dots_empty0
+#'
+#' @rdname IO_sink_ndjson
+#'
+#' @examples
+#' # sink table 'mtcars' from mem to NDJSON
+#' tmpf <- tempfile(fileext = ".ndjson")
+#' pl$LazyFrame(mtcars)$sink_ndjson(tmpf)
+#'
+#' # load parquet directly into a DataFrame / memory
+#' pl$scan_ndjson(tmpf)$collect()
+lazyframe__sink_ndjson <- function(
+    path,
+    ...,
+    maintain_order = TRUE,
+    type_coercion = TRUE,
+    predicate_pushdown = TRUE,
+    projection_pushdown = TRUE,
+    simplify_expression = TRUE,
+    slice_pushdown = TRUE,
+    no_optimization = FALSE) {
+  wrap({
+    check_dots_empty0(...)
+    if (isTRUE(no_optimization)) {
+      predicate_pushdown <- FALSE
+      projection_pushdown <- FALSE
+      slice_pushdown <- FALSE
+    }
+
+    lf <- self$`_ldf`$optimization_toggle(
+      type_coercion = type_coercion,
+      predicate_pushdown = predicate_pushdown,
+      projection_pushdown = projection_pushdown,
+      simplify_expression = simplify_expression,
+      slice_pushdown = slice_pushdown,
+      comm_subplan_elim = FALSE,
+      comm_subexpr_elim = FALSE,
+      cluster_with_columns = FALSE,
+      streaming = FALSE,
+      `_eager` = FALSE
+    )
+
+    lf$sink_json(
+      path = path,
       maintain_order = maintain_order
     )
 

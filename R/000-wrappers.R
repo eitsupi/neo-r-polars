@@ -2359,6 +2359,12 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
   }
 }
 
+`PlRLazyFrame_sink_json` <- function(self) {
+  function(`path`, `maintain_order`) {
+    invisible(.Call(savvy_PlRLazyFrame_sink_json__impl, `self`, `path`, `maintain_order`))
+  }
+}
+
 `PlRLazyFrame_serialize` <- function(self) {
   function() {
     .Call(savvy_PlRLazyFrame_serialize__impl, `self`)
@@ -2582,6 +2588,7 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
   e$`sink_parquet` <- `PlRLazyFrame_sink_parquet`(ptr)
   e$`sink_ipc` <- `PlRLazyFrame_sink_ipc`(ptr)
   e$`sink_csv` <- `PlRLazyFrame_sink_csv`(ptr)
+  e$`sink_json` <- `PlRLazyFrame_sink_json`(ptr)
   e$`serialize` <- `PlRLazyFrame_serialize`(ptr)
   e$`select_seq` <- `PlRLazyFrame_select_seq`(ptr)
   e$`rolling` <- `PlRLazyFrame_rolling`(ptr)
