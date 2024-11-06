@@ -19,6 +19,22 @@ lazyframe__profile(
   show_plot = FALSE,
   truncate_nodes = 0
 )
+
+lazyframe__profile(
+  type_coercion = TRUE,
+  predicate_pushdown = TRUE,
+  projection_pushdown = TRUE,
+  simplify_expression = TRUE,
+  slice_pushdown = TRUE,
+  comm_subplan_elim = TRUE,
+  comm_subexpr_elim = TRUE,
+  cluster_with_columns = TRUE,
+  streaming = FALSE,
+  no_optimization = FALSE,
+  collect_in_background = FALSE,
+  show_plot = FALSE,
+  truncate_nodes = 0
+)
 }
 \arguments{
 \item{type_coercion}{Logical. Coerce types such that operations succeed and
@@ -58,16 +74,51 @@ number of characters. If \code{0} (default), do not truncate.}
 List of two \code{DataFrame}s: one with the collected result, the other
 with the timings of each step. If \code{show_graph = TRUE}, then the plot is
 also stored in the list.
+
+List of two \code{DataFrame}s: one with the collected result, the other
+with the timings of each step. If \code{show_graph = TRUE}, then the plot is
+also stored in the list.
 }
 \description{
+This will run the query and return a list containing the materialized
+DataFrame and a DataFrame that contains profiling information of each node
+that is executed.
+
 This will run the query and return a list containing the
 materialized DataFrame and a DataFrame that contains profiling information
 of each node that is executed.
 }
 \details{
 The units of the timings are microseconds.
+
+The units of the timings are microseconds.
 }
 \examples{
+## Simplest use case
+pl$LazyFrame()$select(pl$lit(2) + 2)$profile()
+
+## Use $profile() to compare two queries
+
+# -1-  map each Species-group with native polars
+pl$LazyFrame(iris)$
+  sort("Sepal.Length")$
+  group_by("Species", maintain_order = TRUE)$
+  agg(pl$col(pl$Float64)$first() + 5)$
+  profile()
+
+# -2-  map each Species-group of each numeric column with an R function
+
+# some R function, prints `.` for each time called by polars
+r_func <- \(s) {
+  cat(".")
+  s$to_r()[1] + 5
+}
+
+pl$LazyFrame(iris)$
+  sort("Sepal.Length")$
+  group_by("Species", maintain_order = TRUE)$
+  agg(pl$col(pl$Float64)$map_elements(r_func))$
+  profile()
 ## Simplest use case
 pl$LazyFrame()$select(pl$lit(2) + 2)$profile()
 
@@ -95,6 +146,16 @@ as_polars_lf(iris)$
   profile()
 }
 \seealso{
+\itemize{
+\item \code{\link[=LazyFrame_collect]{$collect()}} - regular collect.
+\item \code{\link[=LazyFrame_fetch]{$fetch()}} - fast limited query check
+\item \code{\link[=LazyFrame_collect_in_background]{$collect_in_background()}} - non-blocking
+collect returns a future handle. Can also just be used via
+\verb{$collect(collect_in_background = TRUE)}.
+\item \code{\link[=LazyFrame_sink_parquet]{$sink_parquet()}} streams query to a parquet file.
+\item \code{\link[=LazyFrame_sink_ipc]{$sink_ipc()}} streams query to a arrow file.
+}
+
 \itemize{
 \item \code{\link[=lazyframe__collect]{$collect()}} - regular collect.
 \item \code{\link[=lazyframe__fetch]{$fetch()}} - fast limited query check

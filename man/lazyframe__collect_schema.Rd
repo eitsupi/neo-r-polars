@@ -23,6 +23,7 @@ lf <- pl$LazyFrame(
 lf$collect_schema()
 
 lf$with_columns(
-  baz = (pl$col("foo") + pl$col("bar"))$cast(pl$String)
+  baz = (pl$col("foo") + pl$col("bar"))$cast(pl$String),
+  pl$col("bar")$cast(pl$Int64)
 )$collect_schema()
 }
