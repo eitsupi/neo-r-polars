@@ -1294,117 +1294,6 @@ lazyframe__join_where <- function(
   })
 }
 
-#' Perform joins on nearest keys
-#'
-#' This is similar to a left-join except that we match on nearest key rather
-#' than equal keys.
-#'
-#' Both tables (DataFrames or LazyFrames) must be sorted by the asof_join key.
-#' @param other LazyFrame
-#' @param ...  Not used, blocks use of further positional arguments
-#' @inheritParams DataFrame_join
-#' @param by Join on these columns before performing asof join. Either a vector
-#' of column names or a list of expressions and/or strings. Use `left_by` and
-#' `right_by` if the column names to match on are different between the two
-#' tables.
-#' @param by_left,by_right Same as `by` but only for the left or the right
-#' table. They must have the same length.
-#' @param strategy Strategy for where to find match:
-#' * "backward" (default): search for the last row in the right table whose `on`
-#'   key is less than or equal to the left key.
-#' * "forward": search for the first row in the right table whose `on` key is
-#'   greater than or equal to the left key.
-#' * "nearest": search for the last row in the right table whose value is nearest
-#'   to the left key. String keys are not currently supported for a nearest
-#'   search.
-#' @param tolerance
-#' Numeric tolerance. By setting this the join will only be done if the near
-#' keys are within this distance. If an asof join is done on columns of dtype
-#' "Date", "Datetime", "Duration" or "Time", use the Polars duration string language.
-#' About the language, see the `Polars duration string language` section for details.
-#'
-#' There may be a circumstance where R types are not sufficient to express a
-#' numeric tolerance. In that case, you can use the expression syntax like
-#' `tolerance = pl$lit(42)$cast(pl$Uint64)`
-#' @param coalesce Coalescing behavior (merging of `on` / `left_on` / `right_on`
-#' columns):
-#' * `TRUE`: Always coalesce join columns;
-#' * `FALSE`: Never coalesce join columns.
-#' Note that joining on any other expressions than `col` will turn off coalescing.
-#'
-#' @inheritSection polars_duration_string  Polars duration string language
-#' @examples #
-#' # create two LazyFrame to join asof
-#' gdp <- pl$LazyFrame(
-#'   date = as.Date(c("2015-1-1", "2016-1-1", "2017-5-1", "2018-1-1", "2019-1-1")),
-#'   gdp = c(4321, 4164, 4411, 4566, 4696),
-#'   group = c("b", "a", "a", "b", "b")
-#' )
-#'
-#' pop <- pl$LazyFrame(
-#'   date = as.Date(c("2016-5-12", "2017-5-12", "2018-5-12", "2019-5-12")),
-#'   population = c(82.19, 82.66, 83.12, 83.52),
-#'   group = c("b", "b", "a", "a")
-#' )
-#'
-#' # optional make sure tables are already sorted with "on" join-key
-#' gdp <- gdp$sort("date")
-#' pop <- pop$sort("date")
-#'
-#'
-#' # Left-join_asof LazyFrame pop with gdp on "date"
-#' # Look backward in gdp to find closest matching date
-#' pop$join_asof(gdp, on = "date", strategy = "backward")$collect()
-#'
-#' # .... and forward
-#' pop$join_asof(gdp, on = "date", strategy = "forward")$collect()
-#'
-#' # join by a group: "only look within groups"
-#' pop$join_asof(gdp, on = "date", by = "group", strategy = "backward")$collect()
-#'
-#' # only look 2 weeks and 2 days back
-#' pop$join_asof(gdp, on = "date", strategy = "backward", tolerance = "2w2d")$collect()
-#'
-#' # only look 11 days back (numeric tolerance depends on polars type, <date> is in days)
-#' pop$join_asof(gdp, on = "date", strategy = "backward", tolerance = 11)$collect()
-lazyframe__join_asof <- function(
-    other,
-    ...,
-    left_on = NULL,
-    right_on = NULL,
-    on = NULL,
-    by_left = NULL,
-    by_right = NULL,
-    by = NULL,
-    strategy = c("backward", "forward", "nearest"),
-    suffix = "_right",
-    tolerance = NULL,
-    allow_parallel = TRUE,
-    force_parallel = FALSE,
-    coalesce = TRUE) {
-  if (!is.null(by)) by_left <- by_right <- by
-  if (!is.null(on)) left_on <- right_on <- on
-  tolerance_str <- if (is.character(tolerance)) tolerance else NULL
-  tolerance_num <- if (!is.character(tolerance)) tolerance else NULL
-
-  self$`_ldf`$join_asof(
-    lf = self,
-    other = other,
-    left_on = left_on,
-    right_on = right_on,
-    left_by = by_left,
-    right_by = by_right,
-    allow_parallel = allow_parallel,
-    force_parallel = force_parallel,
-    suffix = suffix,
-    strategy = strategy,
-    tolerance = tolerance_num,
-    tolerance_str = tolerance_str,
-    coalesce = coalesce
-  )
-}
-
-
 #' Unpivot a LazyFrame from wide to long format
 #'
 #' This function is useful to massage a LazyFrame into a format where one or
@@ -2762,5 +2651,154 @@ lazyframe__sink_ndjson <- function(
     )
 
     invisible(self)
+  })
+}
+
+#' Perform joins on nearest keys
+#'
+#' @description
+#' This is similar to a left-join except that we match on nearest key rather
+#' than equal keys. Both frames must be sorted by the `asof_join` key.
+#'
+#' @inheritParams rlang::check_dots_empty0
+#' @param other LazyFrame to join with.
+#' @inheritParams dataframe__join
+#' @param by Join on these columns before performing asof join. Either a vector
+#' of column names or a list of expressions and/or strings. Use `left_by` and
+#' `right_by` if the column names to match on are different between the two
+#' tables.
+#' @param by_left,by_right Same as `by` but only for the left or the right
+#' table. They must have the same length.
+#' @param strategy Strategy for where to find match:
+#' * `"backward"` (default): search for the last row in the right table whose
+#'   `on` key is less than or equal to the left key.
+#' * `"forward"`: search for the first row in the right table whose `on` key is
+#'   greater than or equal to the left key.
+#' * `"nearest"`: search for the last row in the right table whose value is
+#'   nearest to the left key. String keys are not currently supported for a
+#'   nearest search.
+#' @param tolerance Numeric tolerance. By setting this the join will only be
+#' done if the near keys are within this distance. If an asof join is done on
+#' columns of dtype "Date", "Datetime", "Duration" or "Time", use the Polars
+#' duration string language (see details).
+#'
+#' @param coalesce Coalescing behavior (merging of `on` / `left_on` /
+#' `right_on` columns):
+#' * `TRUE`: Always coalesce join columns;
+#' * `FALSE`: Never coalesce join columns.
+#' Note that joining on any other expressions than `col` will turn off
+#' coalescing.
+#'
+#' @inheritSection polars_duration_string Polars duration string language
+#' @examples
+#' gdp <- pl$LazyFrame(
+#'   date = as.Date(c("2016-1-1", "2017-5-1", "2018-1-1", "2019-1-1", "2020-1-1")),
+#'   gdp = c(4164, 4411, 4566, 4696, 4827)
+#' )
+#'
+#' pop <- pl$LazyFrame(
+#'   date = as.Date(c("2016-3-1", "2018-8-1", "2019-1-1")),
+#'   population = c(82.19, 82.66, 83.12)
+#' )
+#'
+#' # optional make sure tables are already sorted with "on" join-key
+#' gdp <- gdp$sort("date")
+#' pop <- pop$sort("date")
+#'
+#'
+#' # Note how the dates don’t quite match. If we join them using join_asof and
+#' # strategy = 'backward', then each date from population which doesn’t have
+#' # an exact match is matched with the closest earlier date from gdp:
+#' pop$join_asof(gdp, on = "date", strategy = "backward")$collect()
+#'
+#' # Note how:
+#' # - date 2016-03-01 from population is matched with 2016-01-01 from gdp;
+#' # - date 2018-08-01 from population is matched with 2018-01-01 from gdp.
+#' # You can verify this by passing coalesce = FALSE:
+#' pop$join_asof(
+#'   gdp,
+#'   on = "date", strategy = "backward", coalesce = FALSE
+#' )$collect()
+#'
+#' # If we instead use strategy = 'forward', then each date from population
+#' # which doesn’t have an exact match is matched with the closest later date
+#' # from gdp:
+#' pop$join_asof(gdp, on = "date", strategy = "forward")$collect()
+#'
+#' # Note how:
+#' # - date 2016-03-01 from population is matched with 2017-01-01 from gdp;
+#' # - date 2018-08-01 from population is matched with 2019-01-01 from gdp.
+#'
+#' # Finally, strategy = 'nearest' gives us a mix of the two results above, as
+#' # each date from population which doesn’t have an exact match is matched
+#' # with the closest date from gdp, regardless of whether it’s earlier or
+#' # later:
+#' pop$join_asof(gdp, on = "date", strategy = "nearest")$collect()
+#'
+#' # Note how:
+#' # - date 2016-03-01 from population is matched with 2016-01-01 from gdp;
+#' # - date 2018-08-01 from population is matched with 2019-01-01 from gdp.
+#'
+#' # The `by` argument allows joining on another column first, before the asof
+#' # join. In this example we join by country first, then asof join by date, as
+#' # above.
+#' gdp2 <- pl$LazyFrame(
+#'   country = rep(c("Germany", "Netherlands"), each = 5),
+#'   date = rep(
+#'     as.Date(c("2016-1-1", "2017-1-1", "2018-1-1", "2019-1-1", "2020-1-1")),
+#'     2
+#'   ),
+#'   gdp = c(4164, 4411, 4566, 4696, 4827, 784, 833, 914, 910, 909)
+#' )$sort("country", "date")
+#' gdp2$collect()
+#'
+#' pop2 <- pl$LazyFrame(
+#'   country = rep(c("Germany", "Netherlands"), each = 3),
+#'   date = rep(as.Date(c("2016-3-1", "2018-8-1", "2019-1-1")), 2),
+#'   population = c(82.19, 82.66, 83.12, 17.11, 17.32, 17.40)
+#' )$sort("country", "date")
+#' pop2$collect()
+#'
+#' pop2$join_asof(
+#'   gdp2,
+#'   by = "country", on = "date", strategy = "nearest"
+#' )$collect()
+lazyframe__join_asof <- function(
+    other,
+    ...,
+    left_on = NULL,
+    right_on = NULL,
+    on = NULL,
+    by_left = NULL,
+    by_right = NULL,
+    by = NULL,
+    strategy = c("backward", "forward", "nearest"),
+    suffix = "_right",
+    tolerance = NULL,
+    allow_parallel = TRUE,
+    force_parallel = FALSE,
+    coalesce = TRUE) {
+  wrap({
+    check_dots_empty0(...)
+    strategy <- arg_match0(strategy, values = c("backward", "forward", "nearest"))
+    if (!is.null(by)) by_left <- by_right <- by
+    if (!is.null(on)) left_on <- right_on <- on
+    tolerance_str <- if (is.character(tolerance)) tolerance else NULL
+    tolerance_num <- if (!is.character(tolerance)) tolerance else NULL
+
+    self$`_ldf`$join_asof(
+      other = other$`_ldf`,
+      left_on = as_polars_expr(left_on)$`_rexpr`,
+      right_on = as_polars_expr(right_on)$`_rexpr`,
+      left_by = by_left,
+      right_by = by_right,
+      allow_parallel = allow_parallel,
+      force_parallel = force_parallel,
+      suffix = suffix,
+      strategy = strategy,
+      tolerance = tolerance_num,
+      tolerance_str = tolerance_str,
+      coalesce = coalesce
+    )
   })
 }

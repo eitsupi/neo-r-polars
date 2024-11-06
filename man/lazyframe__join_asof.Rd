@@ -22,9 +22,9 @@ lazyframe__join_asof(
 )
 }
 \arguments{
-\item{other}{LazyFrame}
+\item{other}{LazyFrame to join with.}
 
-\item{...}{Not used, blocks use of further positional arguments}
+\item{...}{Dots which should be empty.}
 
 \item{by_left, by_right}{Same as \code{by} but only for the left or the right
 table. They must have the same length.}
@@ -36,38 +36,32 @@ tables.}
 
 \item{strategy}{Strategy for where to find match:
 \itemize{
-\item "backward" (default): search for the last row in the right table whose \code{on}
-key is less than or equal to the left key.
-\item "forward": search for the first row in the right table whose \code{on} key is
+\item \code{"backward"} (default): search for the last row in the right table whose
+\code{on} key is less than or equal to the left key.
+\item \code{"forward"}: search for the first row in the right table whose \code{on} key is
 greater than or equal to the left key.
-\item "nearest": search for the last row in the right table whose value is nearest
-to the left key. String keys are not currently supported for a nearest
-search.
+\item \code{"nearest"}: search for the last row in the right table whose value is
+nearest to the left key. String keys are not currently supported for a
+nearest search.
 }}
 
-\item{tolerance}{Numeric tolerance. By setting this the join will only be done if the near
-keys are within this distance. If an asof join is done on columns of dtype
-"Date", "Datetime", "Duration" or "Time", use the Polars duration string language.
-About the language, see the \verb{Polars duration string language} section for details.
+\item{tolerance}{Numeric tolerance. By setting this the join will only be
+done if the near keys are within this distance. If an asof join is done on
+columns of dtype "Date", "Datetime", "Duration" or "Time", use the Polars
+duration string language (see details).}
 
-There may be a circumstance where R types are not sufficient to express a
-numeric tolerance. In that case, you can use the expression syntax like
-\code{tolerance = pl$lit(42)$cast(pl$Uint64)}}
-
-\item{coalesce}{Coalescing behavior (merging of \code{on} / \code{left_on} / \code{right_on}
-columns):
+\item{coalesce}{Coalescing behavior (merging of \code{on} / \code{left_on} /
+\code{right_on} columns):
 \itemize{
 \item \code{TRUE}: Always coalesce join columns;
 \item \code{FALSE}: Never coalesce join columns.
-Note that joining on any other expressions than \code{col} will turn off coalescing.
+Note that joining on any other expressions than \code{col} will turn off
+coalescing.
 }}
 }
 \description{
 This is similar to a left-join except that we match on nearest key rather
-than equal keys.
-}
-\details{
-Both tables (DataFrames or LazyFrames) must be sorted by the asof_join key.
+than equal keys. Both frames must be sorted by the \code{asof_join} key.
 }
 \section{Polars duration string language}{
 
@@ -97,18 +91,14 @@ Similarly for "calendar week", "calendar month", "calendar quarter", and "calend
 }
 
 \examples{
-#
-# create two LazyFrame to join asof
 gdp <- pl$LazyFrame(
-  date = as.Date(c("2015-1-1", "2016-1-1", "2017-5-1", "2018-1-1", "2019-1-1")),
-  gdp = c(4321, 4164, 4411, 4566, 4696),
-  group = c("b", "a", "a", "b", "b")
+  date = as.Date(c("2016-1-1", "2017-5-1", "2018-1-1", "2019-1-1", "2020-1-1")),
+  gdp = c(4164, 4411, 4566, 4696, 4827)
 )
 
 pop <- pl$LazyFrame(
-  date = as.Date(c("2016-5-12", "2017-5-12", "2018-5-12", "2019-5-12")),
-  population = c(82.19, 82.66, 83.12, 83.52),
-  group = c("b", "b", "a", "a")
+  date = as.Date(c("2016-3-1", "2018-8-1", "2019-1-1")),
+  population = c(82.19, 82.66, 83.12)
 )
 
 # optional make sure tables are already sorted with "on" join-key
@@ -116,19 +106,61 @@ gdp <- gdp$sort("date")
 pop <- pop$sort("date")
 
 
-# Left-join_asof LazyFrame pop with gdp on "date"
-# Look backward in gdp to find closest matching date
+# Note how the dates don’t quite match. If we join them using join_asof and
+# strategy = 'backward', then each date from population which doesn’t have
+# an exact match is matched with the closest earlier date from gdp:
 pop$join_asof(gdp, on = "date", strategy = "backward")$collect()
 
-# .... and forward
+# Note how:
+# - date 2016-03-01 from population is matched with 2016-01-01 from gdp;
+# - date 2018-08-01 from population is matched with 2018-01-01 from gdp.
+# You can verify this by passing coalesce = FALSE:
+pop$join_asof(
+  gdp,
+  on = "date", strategy = "backward", coalesce = FALSE
+)$collect()
+
+# If we instead use strategy = 'forward', then each date from population
+# which doesn’t have an exact match is matched with the closest later date
+# from gdp:
 pop$join_asof(gdp, on = "date", strategy = "forward")$collect()
 
-# join by a group: "only look within groups"
-pop$join_asof(gdp, on = "date", by = "group", strategy = "backward")$collect()
+# Note how:
+# - date 2016-03-01 from population is matched with 2017-01-01 from gdp;
+# - date 2018-08-01 from population is matched with 2019-01-01 from gdp.
 
-# only look 2 weeks and 2 days back
-pop$join_asof(gdp, on = "date", strategy = "backward", tolerance = "2w2d")$collect()
+# Finally, strategy = 'nearest' gives us a mix of the two results above, as
+# each date from population which doesn’t have an exact match is matched
+# with the closest date from gdp, regardless of whether it’s earlier or
+# later:
+pop$join_asof(gdp, on = "date", strategy = "nearest")$collect()
 
-# only look 11 days back (numeric tolerance depends on polars type, <date> is in days)
-pop$join_asof(gdp, on = "date", strategy = "backward", tolerance = 11)$collect()
+# Note how:
+# - date 2016-03-01 from population is matched with 2016-01-01 from gdp;
+# - date 2018-08-01 from population is matched with 2019-01-01 from gdp.
+
+# The `by` argument allows joining on another column first, before the asof
+# join. In this example we join by country first, then asof join by date, as
+# above.
+gdp2 <- pl$LazyFrame(
+  country = rep(c("Germany", "Netherlands"), each = 5),
+  date = rep(
+    as.Date(c("2016-1-1", "2017-1-1", "2018-1-1", "2019-1-1", "2020-1-1")),
+    2
+  ),
+  gdp = c(4164, 4411, 4566, 4696, 4827, 784, 833, 914, 910, 909)
+)$sort("country", "date")
+gdp2$collect()
+
+pop2 <- pl$LazyFrame(
+  country = rep(c("Germany", "Netherlands"), each = 3),
+  date = rep(as.Date(c("2016-3-1", "2018-8-1", "2019-1-1")), 2),
+  population = c(82.19, 82.66, 83.12, 17.11, 17.32, 17.40)
+)$sort("country", "date")
+pop2$collect()
+
+pop2$join_asof(
+  gdp2,
+  by = "country", on = "date", strategy = "nearest"
+)$collect()
 }

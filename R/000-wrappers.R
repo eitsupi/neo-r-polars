@@ -2397,6 +2397,15 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
   }
 }
 
+`PlRLazyFrame_join_asof` <- function(self) {
+  function(`other`, `left_on`, `right_on`, `allow_parallel`, `force_parallel`, `suffix`, `coalesce`, `strategy`, `left_by` = NULL, `right_by` = NULL, `tolerance` = NULL, `tolerance_str` = NULL) {
+    `other` <- .savvy_extract_ptr(`other`, "PlRLazyFrame")
+    `left_on` <- .savvy_extract_ptr(`left_on`, "PlRExpr")
+    `right_on` <- .savvy_extract_ptr(`right_on`, "PlRExpr")
+    .savvy_wrap_PlRLazyFrame(.Call(savvy_PlRLazyFrame_join_asof__impl, `self`, `other`, `left_on`, `right_on`, `allow_parallel`, `force_parallel`, `suffix`, `coalesce`, `strategy`, `left_by`, `right_by`, `tolerance`, `tolerance_str`))
+  }
+}
+
 `PlRLazyFrame_join` <- function(self) {
   function(`other`, `left_on`, `right_on`, `allow_parallel`, `force_parallel`, `join_nulls`, `how`, `suffix`, `validate`, `coalesce` = NULL) {
     `other` <- .savvy_extract_ptr(`other`, "PlRLazyFrame")
@@ -2594,6 +2603,7 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
   e$`rolling` <- `PlRLazyFrame_rolling`(ptr)
   e$`group_by_dynamic` <- `PlRLazyFrame_group_by_dynamic`(ptr)
   e$`with_context` <- `PlRLazyFrame_with_context`(ptr)
+  e$`join_asof` <- `PlRLazyFrame_join_asof`(ptr)
   e$`join` <- `PlRLazyFrame_join`(ptr)
   e$`join_where` <- `PlRLazyFrame_join_where`(ptr)
   e$`with_columns_seq` <- `PlRLazyFrame_with_columns_seq`(ptr)

@@ -533,49 +533,56 @@ impl PlRLazyFrame {
         Ok(self.ldf.clone().with_context(contexts).into())
     }
 
-    // fn join_asof(
-    //     &self,
-    //     other: &PlRLazyFrame,
-    //     left_on: &PlRExpr,
-    //     right_on: &PlRExpr,
-    //     left_by: Option<Vec<&str>>,
-    //     right_by: Option<Vec<&str>>,
-    //     allow_parallel: bool,
-    //     force_parallel: bool,
-    //     suffix: String,
-    //     strategy: Wrap<AsofStrategy>,
-    //     tolerance: Option<Wrap<AnyValue<'_>>>,
-    //     tolerance_str: Option<String>,
-    //     coalesce: bool,
-    // ) -> Result<PlRLazyFrame> {
-    //     let coalesce = if coalesce {
-    //         JoinCoalesce::CoalesceColumns
-    //     } else {
-    //         JoinCoalesce::KeepColumns
-    //     };
-    //     let ldf = self.ldf.clone();
-    //     let other = other.ldf;
-    //     let left_on = left_on.inner;
-    //     let right_on = right_on.inner;
-    //     Ok(ldf
-    //         .join_builder()
-    //         .with(other)
-    //         .left_on([left_on])
-    //         .right_on([right_on])
-    //         .allow_parallel(allow_parallel)
-    //         .force_parallel(force_parallel)
-    //         .coalesce(coalesce)
-    //         .how(JoinType::AsOf(AsOfOptions {
-    //             strategy: strategy.0,
-    //             left_by: left_by.map(strings_to_pl_smallstr),
-    //             right_by: right_by.map(strings_to_pl_smallstr),
-    //             tolerance: tolerance.map(|t| t.0.into_static()),
-    //             tolerance_str: tolerance_str.map(|s| s.into()),
-    //         }))
-    //         .suffix(suffix)
-    //         .finish()
-    //         .into())
-    // }
+    fn join_asof(
+        &self,
+        other: &PlRLazyFrame,
+        left_on: &PlRExpr,
+        right_on: &PlRExpr,
+        allow_parallel: bool,
+        force_parallel: bool,
+        suffix: &str,
+        coalesce: bool,
+        strategy: &str,
+        left_by: Option<StringSexp>,
+        right_by: Option<StringSexp>,
+        tolerance: Option<Sexp>,
+        tolerance_str: Option<&str>,
+    ) -> Result<PlRLazyFrame> {
+        let coalesce = if coalesce {
+            JoinCoalesce::CoalesceColumns
+        } else {
+            JoinCoalesce::KeepColumns
+        };
+        let strategy = <Wrap<AsofStrategy>>::try_from(strategy)?.0;
+        let ldf = self.ldf.clone();
+        let other = other.ldf.clone();
+        let left_on = left_on.inner.clone();
+        let right_on = right_on.inner.clone();
+        let left_by = left_by.map(|x| x.to_vec().into_iter().map(|y| y.into()).collect());
+        let right_by = right_by.map(|x| x.to_vec().into_iter().map(|y| y.into()).collect());
+        let tolerance = match tolerance {
+            Some(x) => Some(<Wrap<AnyValue<'_>>>::try_from(x)?.0),
+            None => None,
+        };
+        Ok(ldf
+            .join_builder()
+            .with(other)
+            .left_on([left_on])
+            .right_on([right_on])
+            .allow_parallel(allow_parallel)
+            .force_parallel(force_parallel)
+            .coalesce(coalesce)
+            .how(JoinType::AsOf(AsOfOptions {
+                strategy,
+                left_by,
+                right_by,
+                tolerance: tolerance.map(|t| t.into_static()),
+                tolerance_str: tolerance_str.map(|s| s.into()),
+            }))
+            .suffix(suffix)
+            .finish()
+            .into())
+    }
 
     fn join(
         &self,

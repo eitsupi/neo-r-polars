@@ -3,9 +3,9 @@ use std::num::NonZeroUsize;
 use crate::prelude::*;
 use crate::{PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame};
 use polars::series::ops::NullBehavior;
-use savvy::{ListSexp, NumericScalar, NumericSexp, NumericTypedSexp, TypedSexp};
+use savvy::{ListSexp, NumericScalar, NumericSexp, NumericTypedSexp, Sexp, TypedSexp};
 pub mod base_date;
-mod chunked_array;
+pub mod chunked_array;
 pub mod clock;
 pub mod data_table;
 
@@ -28,6 +28,25 @@ where
 impl<T> From<T> for Wrap<T> {
     fn from(t: T) -> Self {
         Wrap(t)
+    }
+}
+
+impl TryFrom<Sexp> for Wrap<AnyValue<'_>> {
+    type Error = String;
+    fn try_from(obj: Sexp) -> Result<Self, String> {
+        let typed = obj.into_typed();
+        let out = match typed {
+            TypedSexp::Integer(x) => AnyValue::Int64(*(x.to_vec().get(0).unwrap()) as i64),
+            TypedSexp::Real(x) => AnyValue::Float64(*(x.to_vec().get(0).unwrap())),
+            TypedSexp::Logical(x) => AnyValue::Boolean(*(x.to_vec().get(0).unwrap())),
+            TypedSexp::String(x) => {
+                let val = x.to_vec();
+                AnyValue::StringOwned((*val.get(0).unwrap()).into())
+            }
+            TypedSexp::Null(_) => AnyValue::Null,
+            _ => return Err(format!("Cannot cast to AnyValue")),
+        };
+        Ok(Wrap(out))
     }
 }
 
@@ -80,6 +99,20 @@ impl From<ListSexp> for Wrap<Vec<Option<Vec<u8>>>> {
             })
             .collect::<Vec<_>>();
         Wrap(raw_list)
+    }
+}
+
+impl TryFrom<&str> for Wrap<u8> {
+    type Error = String;
+
+    fn try_from(string: &str) -> Result<Self, String> {
+        let mut utf8_byte_iter = string.as_bytes().iter();
+        match (utf8_byte_iter.next(), utf8_byte_iter.next()) {
+            (Some(s), None) => Ok(Wrap(*s)),
+            (None, None) => Err(format!("cannot extract single byte from empty string")),
+            (Some(_), Some(_)) => Err(format!("multi byte-string not allowed")),
+            (None, Some(_)) => unreachable!("the iter() cannot yield Some after None(depleted)"),
+        }
     }
 }
 
@@ -670,16 +703,16 @@ impl TryFrom<&str> for Wrap<QuoteStyle> {
     }
 }
 
-impl TryFrom<&str> for Wrap<u8> {
+impl TryFrom<&str> for Wrap<AsofStrategy> {
     type Error = String;
 
-    fn try_from(string: &str) -> Result<Self, String> {
-        let mut utf8_byte_iter = string.as_bytes().iter();
-        match (utf8_byte_iter.next(), utf8_byte_iter.next()) {
-            (Some(s), None) => Ok(Wrap(*s)),
-            (None, None) => Err(format!("cannot extract single byte from empty string")),
-            (Some(_), Some(_)) => Err(format!("multi byte-string not allowed")),
-            (None, Some(_)) => unreachable!("the iter() cannot yield Some after None(depleted)"),
-        }
+    fn try_from(strategy: &str) -> Result<Self, String> {
+        let parsed = match strategy {
+            "forward" => AsofStrategy::Forward,
+            "backward" => AsofStrategy::Backward,
+            "nearest" => AsofStrategy::Nearest,
+            _ => return Err(format!("unreachable")),
+        };
+        Ok(Wrap(parsed))
     }
 }
