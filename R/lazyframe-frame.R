@@ -1569,8 +1569,10 @@ lazyframe__fetch <- function(
   self$`_ldf`$fetch(n_rows)
 }
 
-#' Collect and profile a lazy query.
-#' @description This will run the query and return a list containing the
+#' Collect and profile a lazy query
+#'
+#' @description
+#' This will run the query and return a list containing the
 #' materialized DataFrame and a DataFrame that contains profiling information
 #' of each node that is executed.
 #'
@@ -1580,7 +1582,6 @@ lazyframe__fetch <- function(
 #' number of characters. If `0` (default), do not truncate.
 #'
 #' @details The units of the timings are microseconds.
-#'
 #'
 #' @return List of two `DataFrame`s: one with the collected result, the other
 #' with the timings of each step. If `show_graph = TRUE`, then the plot is
@@ -1671,6 +1672,33 @@ lazyframe__profile <- function(
   }
 
   out
+}
+
+#' Serialize the logical plan of this LazyFrame to a string in JSON format
+#'
+#' @return A character value
+#' @examples
+#' lf <- pl$LazyFrame(a = 1:3)$sum()
+#' lf$serialize()
+lazyframe__serialize <- function() {
+  wrap({
+    self$`_ldf`$serialize()
+  })
+}
+
+#' Read a logical plan from a file to construct a LazyFrame
+#'
+#' @param source String containing the LazyFrame logical plan in JSON format.
+#'
+#' @return A character value
+#' @examples
+#' lf <- pl$LazyFrame(a = 1:3)$sum()
+#' ser <- lf$serialize()
+#' pl$deserialize_lf(ser)
+pl__deserialize_lf <- function(source) {
+  wrap({
+    deserialize_lf(source)
+  })
 }
 
 #' Explode the DataFrame to long format by exploding the given columns

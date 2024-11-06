@@ -29,6 +29,7 @@ SEXP savvy_datetime_ranges__ffi(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__
 SEXP savvy_time_range__ffi(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__every, SEXP c_arg__closed);
 SEXP savvy_time_ranges__ffi(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__every, SEXP c_arg__closed);
 SEXP savvy_when__ffi(SEXP c_arg__condition);
+SEXP savvy_deserialize_lf__ffi(SEXP c_arg__json);
 
 // methods and associated functions for PlRChainedThen
 SEXP savvy_PlRChainedThen_when__ffi(SEXP self__, SEXP c_arg__condition);
@@ -319,6 +320,7 @@ SEXP savvy_PlRLazyFrame_top_k__ffi(SEXP self__, SEXP c_arg__k, SEXP c_arg__by, S
 SEXP savvy_PlRLazyFrame_bottom_k__ffi(SEXP self__, SEXP c_arg__k, SEXP c_arg__by, SEXP c_arg__reverse);
 SEXP savvy_PlRLazyFrame_cache__ffi(SEXP self__);
 SEXP savvy_PlRLazyFrame_profile__ffi(SEXP self__);
+SEXP savvy_PlRLazyFrame_serialize__ffi(SEXP self__);
 SEXP savvy_PlRLazyFrame_select_seq__ffi(SEXP self__, SEXP c_arg__exprs);
 SEXP savvy_PlRLazyFrame_rolling__ffi(SEXP self__, SEXP c_arg__index_column, SEXP c_arg__period, SEXP c_arg__offset, SEXP c_arg__closed, SEXP c_arg__by);
 SEXP savvy_PlRLazyFrame_group_by_dynamic__ffi(SEXP self__, SEXP c_arg__index_column, SEXP c_arg__every, SEXP c_arg__period, SEXP c_arg__offset, SEXP c_arg__label, SEXP c_arg__include_boundaries, SEXP c_arg__closed, SEXP c_arg__group_by, SEXP c_arg__start_by);

@@ -425,12 +425,11 @@ impl PlRLazyFrame {
     //         Ok(())
     //     }
 
-    // fn fetch(&self, py: Python, n_rows: NumericScalar) -> Result<PlRDataFrame> {
-    //     let ldf = self.ldf.clone();
-    //     let n_rows = <Wrap<usize>>::try_from(n_rows)?.0;
-    //     let df = py.allow_threads(|| ldf.fetch(n_rows).map_err(RPolarsErr::from))?;
-    //     Ok(df.into())
-    // }
+    fn serialize(&self) -> Result<Sexp> {
+        let dump = serde_json::to_string(&self.ldf.logical_plan)
+            .map_err(|err| RPolarsErr::Other(err.to_string()))?;
+        dump.try_into()
+    }
 
     fn select_seq(&mut self, exprs: ListSexp) -> Result<PlRLazyFrame> {
         let ldf = self.ldf.clone();

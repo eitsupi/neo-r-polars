@@ -230,6 +230,11 @@ NULL
   .savvy_wrap_PlRWhen(.Call(savvy_when__impl, `condition`))
 }
 
+
+`deserialize_lf` <- function(`json`) {
+  .savvy_wrap_PlRLazyFrame(.Call(savvy_deserialize_lf__impl, `json`))
+}
+
 ### wrapper functions for PlRChainedThen
 
 `PlRChainedThen_when` <- function(self) {
@@ -2336,6 +2341,12 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
   }
 }
 
+`PlRLazyFrame_serialize` <- function(self) {
+  function() {
+    .Call(savvy_PlRLazyFrame_serialize__impl, `self`)
+  }
+}
+
 `PlRLazyFrame_select_seq` <- function(self) {
   function(`exprs`) {
     .savvy_wrap_PlRLazyFrame(.Call(savvy_PlRLazyFrame_select_seq__impl, `self`, `exprs`))
@@ -2550,6 +2561,7 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
   e$`bottom_k` <- `PlRLazyFrame_bottom_k`(ptr)
   e$`cache` <- `PlRLazyFrame_cache`(ptr)
   e$`profile` <- `PlRLazyFrame_profile`(ptr)
+  e$`serialize` <- `PlRLazyFrame_serialize`(ptr)
   e$`select_seq` <- `PlRLazyFrame_select_seq`(ptr)
   e$`rolling` <- `PlRLazyFrame_rolling`(ptr)
   e$`group_by_dynamic` <- `PlRLazyFrame_group_by_dynamic`(ptr)
