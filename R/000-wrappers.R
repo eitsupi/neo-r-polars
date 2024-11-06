@@ -2353,6 +2353,12 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
   }
 }
 
+`PlRLazyFrame_sink_csv` <- function(self) {
+  function(`path`, `include_bom`, `include_header`, `separator`, `line_terminator`, `quote_char`, `maintain_order`, `batch_size`, `datetime_format` = NULL, `date_format` = NULL, `time_format` = NULL, `float_scientific` = NULL, `float_precision` = NULL, `null_value` = NULL, `quote_style` = NULL) {
+    invisible(.Call(savvy_PlRLazyFrame_sink_csv__impl, `self`, `path`, `include_bom`, `include_header`, `separator`, `line_terminator`, `quote_char`, `maintain_order`, `batch_size`, `datetime_format`, `date_format`, `time_format`, `float_scientific`, `float_precision`, `null_value`, `quote_style`))
+  }
+}
+
 `PlRLazyFrame_serialize` <- function(self) {
   function() {
     .Call(savvy_PlRLazyFrame_serialize__impl, `self`)
@@ -2575,6 +2581,7 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
   e$`profile` <- `PlRLazyFrame_profile`(ptr)
   e$`sink_parquet` <- `PlRLazyFrame_sink_parquet`(ptr)
   e$`sink_ipc` <- `PlRLazyFrame_sink_ipc`(ptr)
+  e$`sink_csv` <- `PlRLazyFrame_sink_csv`(ptr)
   e$`serialize` <- `PlRLazyFrame_serialize`(ptr)
   e$`select_seq` <- `PlRLazyFrame_select_seq`(ptr)
   e$`rolling` <- `PlRLazyFrame_rolling`(ptr)

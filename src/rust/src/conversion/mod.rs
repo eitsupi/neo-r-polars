@@ -1,3 +1,5 @@
+use std::num::NonZeroUsize;
+
 use crate::prelude::*;
 use crate::{PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame};
 use polars::series::ops::NullBehavior;
@@ -221,6 +223,19 @@ impl TryFrom<NumericScalar> for Wrap<usize> {
     fn try_from(n: NumericScalar) -> Result<Self, savvy::Error> {
         let n = n.as_usize()?;
         Ok(Wrap(n))
+    }
+}
+
+impl TryFrom<NumericScalar> for Wrap<NonZeroUsize> {
+    type Error = savvy::Error;
+
+    fn try_from(n: NumericScalar) -> Result<Self, savvy::Error> {
+        let n = n.as_usize()?;
+        if n == 0 {
+            Err("Cannot convert to non-zero usize.".into())
+        } else {
+            Ok(Wrap(NonZeroUsize::new(n).unwrap()))
+        }
     }
 }
 
@@ -637,5 +652,34 @@ impl TryFrom<&str> for Wrap<IpcCompression> {
             _ => return Err(format!("unreachable")),
         };
         Ok(Wrap(parsed))
+    }
+}
+
+impl TryFrom<&str> for Wrap<QuoteStyle> {
+    type Error = String;
+
+    fn try_from(compression: &str) -> Result<Self, String> {
+        let parsed = match compression {
+            "always" => QuoteStyle::Always,
+            "necessary" => QuoteStyle::Necessary,
+            "non_numeric" => QuoteStyle::NonNumeric,
+            "never" => QuoteStyle::Never,
+            _ => return Err(format!("unreachable")),
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
+impl TryFrom<&str> for Wrap<u8> {
+    type Error = String;
+
+    fn try_from(string: &str) -> Result<Self, String> {
+        let mut utf8_byte_iter = string.as_bytes().iter();
+        match (utf8_byte_iter.next(), utf8_byte_iter.next()) {
+            (Some(s), None) => Ok(Wrap(*s)),
+            (None, None) => Err(format!("cannot extract single byte from empty string")),
+            (Some(_), Some(_)) => Err(format!("multi byte-string not allowed")),
+            (None, Some(_)) => unreachable!("the iter() cannot yield Some after None(depleted)"),
+        }
     }
 }

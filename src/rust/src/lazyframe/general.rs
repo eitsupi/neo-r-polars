@@ -4,6 +4,7 @@ use savvy::{
     savvy, ListSexp, LogicalSexp, NumericScalar, OwnedListSexp, OwnedStringSexp, Result, Sexp,
     StringSexp,
 };
+use std::num::NonZeroUsize;
 use std::path::PathBuf;
 
 #[savvy]
@@ -380,69 +381,80 @@ impl PlRLazyFrame {
         Ok(())
     }
 
-    // fn sink_csv(
-    //     &self,
-    //     py: Python,
-    //     path: PathBuf,
-    //     include_bom: bool,
-    //     include_header: bool,
-    //     separator: u8,
-    //     line_terminator: String,
-    //     quote_char: u8,
-    //     batch_size: NonZeroUsize,
-    //     datetime_format: Option<String>,
-    //     date_format: Option<String>,
-    //     time_format: Option<String>,
-    //     float_scientific: Option<bool>,
-    //     float_precision: Option<usize>,
-    //     null_value: Option<String>,
-    //     quote_style: Option<Wrap<QuoteStyle>>,
-    //     maintain_order: bool,
-    // ) -> Result<()> {
-    //     let quote_style = quote_style.map_or(QuoteStyle::default(), |wrap| wrap.0);
-    //     let null_value = null_value.unwrap_or(SerializeOptions::default().null);
+    fn sink_csv(
+        &self,
+        path: &str,
+        include_bom: bool,
+        include_header: bool,
+        separator: &str,
+        line_terminator: &str,
+        quote_char: &str,
+        maintain_order: bool,
+        batch_size: NumericScalar,
+        datetime_format: Option<&str>,
+        date_format: Option<&str>,
+        time_format: Option<&str>,
+        float_scientific: Option<bool>,
+        float_precision: Option<NumericScalar>,
+        null_value: Option<&str>,
+        quote_style: Option<&str>,
+    ) -> Result<()> {
+        let path: PathBuf = path.into();
+        let quote_style = match quote_style {
+            Some(x) => <Wrap<QuoteStyle>>::try_from(x)?.0,
+            None => QuoteStyle::default(),
+        };
+        let null_value = null_value
+            .map(|x| x.to_string())
+            .unwrap_or(SerializeOptions::default().null);
+        let batch_size = <Wrap<NonZeroUsize>>::try_from(batch_size)?.0;
+        let float_precision = match float_precision {
+            Some(x) => Some(<Wrap<usize>>::try_from(x)?.0),
+            None => None,
+        };
+        let separator = <Wrap<u8>>::try_from(separator)?.0;
+        let quote_char = <Wrap<u8>>::try_from(quote_char)?.0;
 
-    //     let serialize_options = SerializeOptions {
-    //         date_format,
-    //         time_format,
-    //         datetime_format,
-    //         float_scientific,
-    //         float_precision,
-    //         separator,
-    //         quote_char,
-    //         null: null_value,
-    //         line_terminator,
-    //         quote_style,
-    //     };
+        let serialize_options = SerializeOptions {
+            date_format: date_format.map(|x| x.to_string()),
+            time_format: time_format.map(|x| x.to_string()),
+            datetime_format: datetime_format.map(|x| x.to_string()),
+            float_scientific,
+            float_precision,
+            separator,
+            quote_char,
+            null: null_value.to_string(),
+            line_terminator: line_terminator.to_string(),
+            quote_style,
+        };
 
-    //     let options = CsvWriterOptions {
-    //         include_bom,
-    //         include_header,
-    //         maintain_order,
-    //         batch_size,
-    //         serialize_options,
-    //     };
+        let options = CsvWriterOptions {
+            include_bom,
+            include_header,
+            maintain_order,
+            batch_size,
+            serialize_options,
+        };
+
+        let _ = self
+            .ldf
+            .clone()
+            .sink_csv(path, options)
+            .map_err(RPolarsErr::from);
+        Ok(())
+    }
+
+    // fn sink_json(&self, py: Python, path: PathBuf, maintain_order: bool) -> Result<()> {
+    //     let options = JsonWriterOptions { maintain_order };
 
     //     // if we don't allow threads and we have udfs trying to acquire the gil from different
     //     // threads we deadlock.
     //     py.allow_threads(|| {
     //         let ldf = self.ldf.clone();
-    //         ldf.sink_csv(path, options).map_err(RPolarsErr::from)
+    //         ldf.sink_json(path, options).map_err(RPolarsErr::from)
     //     })?;
     //     Ok(())
     // }
-
-    //     fn sink_json(&self, py: Python, path: PathBuf, maintain_order: bool) -> Result<()> {
-    //         let options = JsonWriterOptions { maintain_order };
-
-    //         // if we don't allow threads and we have udfs trying to acquire the gil from different
-    //         // threads we deadlock.
-    //         py.allow_threads(|| {
-    //             let ldf = self.ldf.clone();
-    //             ldf.sink_json(path, options).map_err(RPolarsErr::from)
-    //         })?;
-    //         Ok(())
-    //     }
 
     fn serialize(&self) -> Result<Sexp> {
         let dump = serde_json::to_string(&self.ldf.logical_plan)
