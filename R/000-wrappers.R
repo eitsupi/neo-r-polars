@@ -124,6 +124,21 @@ NULL
 }
 
 
+`index_cols` <- function(`indices`) {
+  .savvy_wrap_PlRExpr(.Call(savvy_index_cols__impl, `indices`))
+}
+
+
+`first` <- function() {
+  .savvy_wrap_PlRExpr(.Call(savvy_first__impl))
+}
+
+
+`last` <- function() {
+  .savvy_wrap_PlRExpr(.Call(savvy_last__impl))
+}
+
+
 `lit_from_bool` <- function(`value`) {
   .savvy_wrap_PlRExpr(.Call(savvy_lit_from_bool__impl, `value`))
 }

@@ -5,7 +5,7 @@
 \alias{cs}
 \title{Polars column selector function namespace}
 \format{
-An object of class \code{polars_object} of length 22.
+An object of class \code{polars_object} of length 29.
 }
 \usage{
 cs

@@ -16,6 +16,9 @@ idiographic, etc).}
 \item{ignore_spaces}{Indicate whether to ignore the presence of spaces in
 column names; if so, only the other (non-space) characters are considered.}
 }
+\value{
+A Polars selector
+}
 \description{
 Select all columns with alphabetic names (e.g. only letters)
 }
@@ -43,6 +46,6 @@ df$select(cs$alpha(ascii_only = TRUE))
 df$select(cs$alpha(ascii_only = TRUE, ignore_spaces = TRUE))
 
 # Select all columns except for those with alphabetic names:
-df$select(~ cs$alpha())
-df$select(~ cs$alpha(ignore_spaces = TRUE))
+df$select(!cs$alpha())
+df$select(!cs$alpha(ignore_spaces = TRUE))
 }

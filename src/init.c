@@ -104,6 +104,21 @@ SEXP savvy_dtype_cols__impl(SEXP c_arg__dtypes) {
     return handle_result(res);
 }
 
+SEXP savvy_index_cols__impl(SEXP c_arg__indices) {
+    SEXP res = savvy_index_cols__ffi(c_arg__indices);
+    return handle_result(res);
+}
+
+SEXP savvy_first__impl(void) {
+    SEXP res = savvy_first__ffi();
+    return handle_result(res);
+}
+
+SEXP savvy_last__impl(void) {
+    SEXP res = savvy_last__ffi();
+    return handle_result(res);
+}
+
 SEXP savvy_lit_from_bool__impl(SEXP c_arg__value) {
     SEXP res = savvy_lit_from_bool__ffi(c_arg__value);
     return handle_result(res);
@@ -1760,6 +1775,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_col__impl", (DL_FUNC) &savvy_col__impl, 1},
     {"savvy_cols__impl", (DL_FUNC) &savvy_cols__impl, 1},
     {"savvy_dtype_cols__impl", (DL_FUNC) &savvy_dtype_cols__impl, 1},
+    {"savvy_index_cols__impl", (DL_FUNC) &savvy_index_cols__impl, 1},
+    {"savvy_first__impl", (DL_FUNC) &savvy_first__impl, 0},
+    {"savvy_last__impl", (DL_FUNC) &savvy_last__impl, 0},
     {"savvy_lit_from_bool__impl", (DL_FUNC) &savvy_lit_from_bool__impl, 1},
     {"savvy_lit_from_i32__impl", (DL_FUNC) &savvy_lit_from_i32__impl, 1},
     {"savvy_lit_from_f64__impl", (DL_FUNC) &savvy_lit_from_f64__impl, 1},

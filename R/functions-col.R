@@ -64,3 +64,57 @@ pl__col <- function(...) {
     }
   })
 }
+
+#' Get the nth column(s) of the context
+#'
+#' @param indices One or more indices representing the columns to retrieve.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = c(1, 8, 3),
+#'   b = c(4, 5, 2),
+#'   c = c("foo", "bar", "baz")
+#' )
+#'
+#' df$select(pl$nth(1))
+#' df$select(pl$nth(c(2, 0)))
+pl__nth <- function(indices) {
+  wrap({
+    index_cols(indices)
+  })
+}
+
+#' Get the first column of the context
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = c(1, 8, 3),
+#'   b = c(4, 5, 2),
+#'   c = c("foo", "bar", "baz")
+#' )
+#'
+#' df$select(pl$first())
+pl__first <- function() {
+  wrap({
+    first()
+  })
+}
+
+#' Get the last column of the context
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = c(1, 8, 3),
+#'   b = c(4, 5, 2),
+#'   c = c("foo", "bar", "baz")
+#' )
+#'
+#' df$select(pl$last())
+pl__last <- function() {
+  wrap({
+    last()
+  })
+}

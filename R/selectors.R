@@ -70,6 +70,17 @@ selector__as_expr <- function() {
     wrap()
 }
 
+#' Indicate whether the given object/expression is a selector
+#'
+#' @return A logical value
+#' @export
+#' @examples
+#' is_selector(pl$col("colx"))
+#' is_selector(!cs$integer())
+is_selector <- function(x) {
+  inherits(x, "polars_selector")
+}
+
 #' Select all columns
 #'
 #' @return A Polars selector
@@ -250,7 +261,6 @@ cs__by_dtype <- function(...) {
   )
 }
 
-# TODO: requires pl$nth()
 #' Select all columns matching the given indices (or range objects)
 #'
 #' @param indices One or more column indices (or ranges). Negative indexing is
@@ -268,16 +278,16 @@ cs__by_dtype <- function(...) {
 #' df
 #'
 #' # Select columns by index (the two first/last columns):
-#' df$select(cs$by_index(0, 1, -2, -1))
+#' df$select(cs$by_index(c(0, 1, -2, -1)))
 #'
 #' # Use seq()
-#' df$select(cs$by_index(0, seq(1, 101, 20)))
-#' df$select(cs$by_index(0, seq(101, 0, -25)))
+#' df$select(cs$by_index(c(0, seq(1, 101, 20))))
+#' df$select(cs$by_index(c(0, seq(101, 0, -25))))
 #'
-#' # Select all columns except for the even-indexed ones:
-#' df$select(!cs$by_index(seq(1, 100, 2)))
-cs__by_index <- function(...) {
-
+#' # Select only odd-indexed columns:
+#' df$select(!cs$by_index(seq(0, 100, 2)))
+cs__by_index <- function(indices) {
+  wrap_to_selector(pl$nth(indices), name = "by_index")
 }
 
 # TODO: check dots no name
@@ -533,33 +543,39 @@ cs__digit <- function(ascii_only = FALSE) {
 }
 
 # TODO: finish examples
-#' Select all duration columns
+#' Select all duration columns, optionally filtering by time unit
 #'
 #' @inheritParams cs__datetime
 #'
 #' @inherit cs__all return
-#' @examples
+#' @examplesIf requireNamespace("clock", quietly = TRUE)
 #' df <- pl$DataFrame(
-#'   a = charToRaw("hello"),
-#'   b = "world",
-#'   c = charToRaw("!"),
-#'   d = ":"
+#'   dtm = as.POSIXct(c("2001-5-7 10:25", "2031-12-31 00:30")),
+#'   dur_ms = clock::duration_milliseconds(1:2),
+#'   dur_us = clock::duration_microseconds(1:2),
+#'   dur_ns = clock::duration_nanoseconds(1:2),
 #' )
 #'
 #' # Select duration columns:
 #' df$select(cs$duration())
 #'
+#' # Select all duration columns that have "ms" precision:
+#' df$select(cs$duration("ms"))
+#'
+#' # Select all duration columns that have "ms" OR "ns" precision:
+#' df$select(cs$duration(c("ms", "ns")))
+#'
 #' # Select all columns except for those that are duration:
 #' df$select(!cs$duration())
-cs__duration <- function(time_unit = NULL) {
-  time_unit <- time_unit %||% c("ms", "us", "ns")
+cs__duration <- function(time_unit = c("ms", "us", "ns")) {
+  time_unit <- arg_match(time_unit, values = c("ms", "us", "ns"), multiple = TRUE)
   duration_dtypes <- list()
   for (tu in time_unit) {
     duration_dtypes <- append(duration_dtypes, pl$Duration(time_unit = tu))
   }
 
   wrap_to_selector(
-    pl$col(duration_types),
+    pl$col(duration_dtypes),
     name = "duration"
   )
 }
@@ -628,6 +644,26 @@ cs__exclude <- function(...) {
   )
 }
 
+#' Select the first column in the current scope
+#'
+#' @inherit cs__all return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = c("x", "y"),
+#'   bar = c(123L, 456L),
+#'   baz = c(2.0, 5.5),
+#'   zap = c(FALSE, TRUE)
+#' )
+#'
+#' # Select the first column:
+#' df$select(cs$first())
+#'
+#' # Select everything except for the first column:
+#' df$select(!cs$first())
+cs__first <- function() {
+  wrap_to_selector(pl$first(), name = "first")
+}
+
 #' Select all float columns.
 #'
 #' @inherit cs__all return
@@ -680,6 +716,73 @@ cs__integer <- function() {
     name = "integer",
     parameters = list_dtypes
   )
+}
+
+#' Select the last column in the current scope
+#'
+#' @inherit cs__all return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = c("x", "y"),
+#'   bar = c(123L, 456L),
+#'   baz = c(2.0, 5.5),
+#'   zap = c(FALSE, TRUE)
+#' )
+#'
+#' # Select the last column:
+#' df$select(cs$last())
+#'
+#' # Select everything except for the last column:
+#' df$select(!cs$last())
+cs__last <- function() {
+  wrap_to_selector(pl$last(), name = "last")
+}
+
+#' Select all columns that match the given regex pattern
+#'
+#' @param pattern A valid regular expression pattern, compatible with the
+#' `regex crate <https://docs.rs/regex/latest/regex/>`_.
+#'
+#' @inherit cs__all return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = c("x", "y"),
+#'   bar = c(123, 456),
+#'   baz = c(2.0, 5.5),
+#'   zap = c(0, 1)
+#' )
+#'
+#' # Match column names containing an "a", preceded by a character that is not
+#' # "z":
+#' df$select(cs$matches("[^z]a"))
+#'
+#' # Do not match column names ending in "R" or "z" (case-insensitively):
+#' df$select(!cs$matches(r"((?i)R|z$)"))
+cs__matches <- function(pattern) {
+  check_character(pattern)
+  if (pattern == ".*") {
+    cs$all()
+  }
+
+  if (startsWith(pattern, ".*")) {
+    pattern <- substr(pattern, 2, nchar(pattern))
+  } else if (endsWith(pattern, ".*")) {
+    pattern <- substr(pattern, 1, nchar(pattern) - 2)
+  }
+
+  if (!startsWith(pattern, ".*")) {
+    pfx <- "^.*"
+  } else {
+    pfx <- ""
+  }
+
+  if (!endsWith(pattern, ".*")) {
+    sfx <- ".*$"
+  } else {
+    sfx <- ""
+  }
+  raw_params <- paste0(pfx, pattern, sfx)
+  wrap_to_selector(pl$col(raw_params), name = "matches")
 }
 
 #' Select all numeric columns.
@@ -800,22 +903,49 @@ cs__string <- function(include_categorical = FALSE) {
   wrap_to_selector(pl$col(list_dtypes), name = "string")
 }
 
-#' Select all binary columns
+# TODO: doesn't detect datetime
+#' Select all temporal columns
 #'
 #' @inherit cs__all return
 #' @examples
 #' df <- pl$DataFrame(
-#'   a = charToRaw("hello"),
-#'   b = "world",
-#'   c = charToRaw("!"),
-#'   d = ":"
+#'   dtm = as.POSIXct(c("2001-5-7 10:25", "2031-12-31 00:30")),
+#'   dt = as.Date(c("1999-12-31", "2024-8-9")),
+#'   value = 1:2
 #' )
 #'
-#' # Select binary columns:
-#' df$select(cs$binary())
+#' # Match all temporal columns:
+#' df$select(cs$temporal())
 #'
-#' # Select all columns except for those that are binary:
-#' df$select(!cs$binary())
+#' # Match all temporal columns except for time columns:
+#' df$select(cs$temporal() - cs$datetime())
+#'
+#' # Match all columns except for temporal columns:
+#' df$select(!cs$temporal())
+cs__temporal <- function() {
+  list_dtypes <- list(pl$Date, pl$Time, pl$Datetime(), pl$Duration())
+  wrap_to_selector(
+    pl$col(list_dtypes),
+    name = "temporal",
+    parameters = list_dtypes
+  )
+}
+
+#' Select all time columns
+#'
+#' @inherit cs__all return
+#' @examplesIf requireNamespace("hms", quietly = TRUE)
+#' df <- pl$DataFrame(
+#'   dtm = as.POSIXct(c("2001-5-7 10:25", "2031-12-31 00:30")),
+#'   dt = as.Date(c("1999-12-31", "2024-8-9")),
+#'   tm = hms::parse_hms(c("0:0:0", "23:59:59"))
+#' )
+#'
+#' # Select time columns:
+#' df$select(cs$time())
+#'
+#' # Select all columns except for those that are time:
+#' df$select(!cs$time())
 cs__time <- function() {
   wrap_to_selector(pl$col(pl$Time), name = "time")
 }
