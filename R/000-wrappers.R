@@ -2330,6 +2330,12 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
   }
 }
 
+`PlRLazyFrame_profile` <- function(self) {
+  function() {
+    .Call(savvy_PlRLazyFrame_profile__impl, `self`)
+  }
+}
+
 `PlRLazyFrame_select_seq` <- function(self) {
   function(`exprs`) {
     .savvy_wrap_PlRLazyFrame(.Call(savvy_PlRLazyFrame_select_seq__impl, `self`, `exprs`))
@@ -2543,6 +2549,7 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
   e$`top_k` <- `PlRLazyFrame_top_k`(ptr)
   e$`bottom_k` <- `PlRLazyFrame_bottom_k`(ptr)
   e$`cache` <- `PlRLazyFrame_cache`(ptr)
+  e$`profile` <- `PlRLazyFrame_profile`(ptr)
   e$`select_seq` <- `PlRLazyFrame_select_seq`(ptr)
   e$`rolling` <- `PlRLazyFrame_rolling`(ptr)
   e$`group_by_dynamic` <- `PlRLazyFrame_group_by_dynamic`(ptr)

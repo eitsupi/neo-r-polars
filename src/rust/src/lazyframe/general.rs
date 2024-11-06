@@ -261,38 +261,54 @@ impl PlRLazyFrame {
         Ok(ldf.cache().into())
     }
 
-    // fn profile(&self, py: Python) -> Result<(PlRDataFrame, PlRDataFrame)> {
-    //     // if we don't allow threads and we have udfs trying to acquire the gil from different
-    //     // threads we deadlock.
-    //     let (df, time_df) = py.allow_threads(|| {
-    //         let ldf = self.ldf.clone();
-    //         ldf.profile().map_err(RPolarsErr::from)
-    //     })?;
-    //     Ok((df.into(), time_df.into()))
-    // }
+    fn profile(&self) -> Result<Sexp> {
+        use crate::{
+            r_threads::{concurrent_handler, ThreadCom},
+            r_udf::{RUdfReturn, RUdfSignature, CONFIG},
+        };
+        fn serve_r(
+            udf_sig: RUdfSignature,
+        ) -> std::result::Result<RUdfReturn, Box<dyn std::error::Error>> {
+            udf_sig.eval()
+        }
 
-    //     fn collect_with_callback(&self, lambda: PyObject) {
-    //         let ldf = self.ldf.clone();
+        let ldf = self.ldf.clone();
+        let (data, timings) = if ThreadCom::try_from_global(&CONFIG).is_ok() {
+            let ldf = self.ldf.clone();
+            ldf.profile().map_err(RPolarsErr::from)?
+        } else {
+            concurrent_handler(
+                // closure 1: spawned by main thread
+                // tc is a ThreadCom which any child thread can use to submit R jobs to main thread
+                move |tc| {
+                    // get return value
+                    let retval = ldf.profile();
 
-    //         polars_core::POOL.spawn(move || {
-    //             let result = ldf
-    //                 .collect()
-    //                 .map(PlRDataFrame::new)
-    //                 .map_err(RPolarsErr::from);
+                    // drop the last two ThreadCom clones, signals to main/R-serving thread to shut down.
+                    ThreadCom::kill_global(&CONFIG);
+                    drop(tc);
 
-    //             Python::with_gil(|py| match result {
-    //                 Ok(df) => {
-    //                     lambda.call1(py, (df,)).map_err(|err| err.restore(py)).ok();
-    //                 }
-    //                 Err(err) => {
-    //                     lambda
-    //                         .call1(py, (PyErr::from(err).to_object(py),))
-    //                         .map_err(|err| err.restore(py))
-    //                         .ok();
-    //                 }
-    //             });
-    //         });
-    //     }
+                    retval
+                },
+                // closure 2: how to serve polars worker R job request in main thread
+                serve_r,
+                // CONFIG is "global variable" where any new thread can request a clone of ThreadCom to establish contact with main thread
+                &CONFIG,
+            )
+            .map_err(|e| e.to_string())?
+            .map_err(RPolarsErr::from)?
+        };
+
+        let data = <PlRDataFrame>::from(data);
+        let timings = <PlRDataFrame>::from(timings);
+
+        let mut out = OwnedListSexp::new(2, true)?;
+        unsafe {
+            let _ = out.set_value_unchecked(0, Sexp::try_from(data)?.0);
+            let _ = out.set_value_unchecked(1, Sexp::try_from(timings)?.0);
+        };
+        Ok(out.into())
+    }
 
     // fn sink_parquet(
     //     &self,
