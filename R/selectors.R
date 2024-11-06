@@ -592,6 +592,59 @@ cs__ends_with <- function(suffix) {
   wrap_to_selector(pl$col(raw_params), name = "ends_with")
 }
 
+# TODO: errors if mixing characters and datatypes
+#' Select all columns except those matching the given columns, datatypes, or selectors
+#'
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Column names to exclude.
+#'
+#' @details
+#' If excluding a single selector it is simpler to write as `!selector` instead.
+#'
+#' @inherit cs__all return
+#' @examples
+#' df <- pl$DataFrame(
+#'   aa = c(1, 2, 3),
+#'   ba = c("a", "b", NA),
+#'   cc = c(NA, 2.5, 1.5)
+#' )
+#'
+#' # Exclude by column name(s):
+#' df$select(cs$exclude("ba", "xx"))
+#'
+#' # Exclude using a column name, a selector, and a dtype:
+#' df$select(cs$exclude("aa", cs$string(), pl$UInt32))
+cs__exclude <- function(...) {
+  input <- list2(...)
+  all_character <- lapply(input, is.character) |>
+    unlist() |>
+    all()
+  if (all_character) {
+    input <- unlist(input)
+  }
+  !wrap_to_selector(
+    pl$col(input),
+    name = "exclude",
+    parameters = input
+  )
+}
+
+#' Select all float columns.
+#'
+#' @inherit cs__all return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = c("x", "y"),
+#'   bar = c(123L, 456L),
+#'   baz = c(2.0, 5.5),
+#'   zap = c(FALSE, TRUE),
+#'   .schema_overrides = list(baz = pl$Float32, zap = pl$Float64),
+#' )
+#'
+#' # Select all float columns:
+#' df$select(cs$float())
+#'
+#' # Select all columns except for those that are float:
+#' df$select(!cs$float())
 cs__float <- function() {
   list_dtypes <- list(pl$Float32, pl$Float64)
   wrap_to_selector(
@@ -601,6 +654,51 @@ cs__float <- function() {
   )
 }
 
+#' Select all integer columns.
+#'
+#' @inherit cs__all return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = c("x", "y"),
+#'   bar = c(123L, 456L),
+#'   baz = c(2.0, 5.5),
+#'   zap = 0:1
+#' )
+#'
+#' # Select all integer columns:
+#' df$select(cs$integer())
+#'
+#' # Select all columns except for those that are integer:
+#' df$select(!cs$integer())
+cs__integer <- function() {
+  list_dtypes <- list(
+    pl$Int8, pl$Int16, pl$Int32, pl$Int64,
+    pl$UInt8, pl$UInt16, pl$UInt32, pl$UInt64
+  )
+  wrap_to_selector(
+    pl$col(list_dtypes),
+    name = "integer",
+    parameters = list_dtypes
+  )
+}
+
+#' Select all numeric columns.
+#'
+#' @inherit cs__all return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = c("x", "y"),
+#'   bar = c(123L, 456L),
+#'   baz = c(2.0, 5.5),
+#'   zap = 0:1,
+#'   .schema_overrides = list(bar = pl$Int16, baz = pl$Float32, zap = pl$UInt8),
+#' )
+#'
+#' # Select all numeric columns:
+#' df$select(cs$numeric())
+#'
+#' # Select all columns except for those that are numeric:
+#' df$select(!cs$numeric())
 cs__numeric <- function() {
   list_dtypes <- list(
     pl$Float32, pl$Float64,
@@ -614,50 +712,26 @@ cs__numeric <- function() {
   )
 }
 
-#' Select all binary columns
+#' Select all signed integer columns
 #'
 #' @inherit cs__all return
 #' @examples
 #' df <- pl$DataFrame(
-#'   a = charToRaw("hello"),
-#'   b = "world",
-#'   c = charToRaw("!"),
-#'   d = ":"
+#'   foo = c(-123L, -456L),
+#'   bar = c(3456L, 6789L),
+#'   baz = c(7654L, 4321L),
+#'   zap = c("ab", "cd"),
+#'   .schema_overrides = list(bar = pl$UInt32, baz = pl$UInt64),
 #' )
 #'
-#' # Select binary columns:
-#' df$select(cs$binary())
+#' # Select signed integer columns:
+#' df$select(cs$signed_integer())
 #'
-#' # Select all columns except for those that are binary:
-#' df$select(!cs$binary())
-cs__integer <- function() {
-  list_dtypes <- list(
-    pl$Int8, pl$Int16, pl$Int32, pl$Int64,
-    pl$UInt8, pl$UInt16, pl$UInt32, pl$UInt64
-  )
-  wrap_to_selector(
-    pl$col(list_dtypes),
-    name = "integer",
-    parameters = list_dtypes
-  )
-}
-
-#' Select all binary columns
+#' # Select all columns except for those that are signed integer:
+#' df$select(!cs$signed_integer())
 #'
-#' @inherit cs__all return
-#' @examples
-#' df <- pl$DataFrame(
-#'   a = charToRaw("hello"),
-#'   b = "world",
-#'   c = charToRaw("!"),
-#'   d = ":"
-#' )
-#'
-#' # Select binary columns:
-#' df$select(cs$binary())
-#'
-#' # Select all columns except for those that are binary:
-#' df$select(!cs$binary())
+#' # Select all integer columns (both signed and unsigned):
+#' df$select(cs$integer())
 cs__signed_integer <- function() {
   list_dtypes <- list(pl$Int8, pl$Int16, pl$Int32, pl$Int64)
   wrap_to_selector(
@@ -680,14 +754,14 @@ cs__signed_integer <- function() {
 #'   zap = c(FALSE, TRUE)
 #' )
 #'
-#' # Select columns that start with the substring "z":
-#' df$select(cs$starts_with("z"))
+#' # Select columns that start with the substring "b":
+#' df$select(cs$starts_with("b"))
 #'
-#' # Select columns that start with either the letter "z" or "r":
-#' df$select(cs$starts_with(c("z", "r")))
+#' # Select columns that start with either the letter "b" or "z":
+#' df$select(cs$starts_with(c("b", "z")))
 #'
-#' # Select all columns except for those that start with the substring "z":
-#' df$select(!cs$starts_with("z"))
+#' # Select all columns except for those that start with the substring "b":
+#' df$select(!cs$starts_with("b"))
 cs__starts_with <- function(prefix) {
   check_character(prefix)
   prefix <- paste(prefix, collapse = "|")
@@ -746,22 +820,26 @@ cs__time <- function() {
   wrap_to_selector(pl$col(pl$Time), name = "time")
 }
 
-#' Select all binary columns
+#' Select all unsigned integer columns
 #'
 #' @inherit cs__all return
 #' @examples
 #' df <- pl$DataFrame(
-#'   a = charToRaw("hello"),
-#'   b = "world",
-#'   c = charToRaw("!"),
-#'   d = ":"
+#'   foo = c(-123L, -456L),
+#'   bar = c(3456L, 6789L),
+#'   baz = c(7654L, 4321L),
+#'   zap = c("ab", "cd"),
+#'   .schema_overrides = list(bar = pl$UInt32, baz = pl$UInt64),
 #' )
 #'
-#' # Select binary columns:
-#' df$select(cs$binary())
+#' # Select unsigned integer columns:
+#' df$select(cs$unsigned_integer())
 #'
-#' # Select all columns except for those that are binary:
-#' df$select(!cs$binary())
+#' # Select all columns except for those that are unsigned integer:
+#' df$select(!cs$unsigned_integer())
+#'
+#' # Select all integer columns (both unsigned and unsigned):
+#' df$select(cs$integer())
 cs__unsigned_integer <- function() {
   list_dtypes <- list(pl$UInt8, pl$UInt16, pl$UInt32, pl$UInt64)
   wrap_to_selector(
