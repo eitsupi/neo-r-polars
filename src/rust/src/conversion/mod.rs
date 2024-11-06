@@ -626,3 +626,16 @@ impl TryFrom<ListSexp> for Wrap<StatisticsOptions> {
         Ok(Wrap(out))
     }
 }
+
+impl TryFrom<&str> for Wrap<IpcCompression> {
+    type Error = String;
+
+    fn try_from(compression: &str) -> Result<Self, String> {
+        let parsed = match compression {
+            "lz4" => IpcCompression::LZ4,
+            "zstd" => IpcCompression::ZSTD,
+            _ => return Err(format!("unreachable")),
+        };
+        Ok(Wrap(parsed))
+    }
+}

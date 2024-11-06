@@ -353,26 +353,32 @@ impl PlRLazyFrame {
         Ok(())
     }
 
-    // fn sink_ipc(
-    //     &self,
-    //     py: Python,
-    //     path: PathBuf,
-    //     compression: Option<Wrap<IpcCompression>>,
-    //     maintain_order: bool,
-    // ) -> Result<()> {
-    //     let options = IpcWriterOptions {
-    //         compression: compression.map(|c| c.0),
-    //         maintain_order,
-    //     };
+    fn sink_ipc(&self, path: &str, maintain_order: bool, compression: Option<&str>) -> Result<()> {
+        let path: PathBuf = path.into();
 
-    //     // if we don't allow threads and we have udfs trying to acquire the gil from different
-    //     // threads we deadlock.
-    //     py.allow_threads(|| {
-    //         let ldf = self.ldf.clone();
-    //         ldf.sink_ipc(path, options).map_err(RPolarsErr::from)
-    //     })?;
-    //     Ok(())
-    // }
+        let compression: Option<IpcCompression> = match compression {
+            Some(x) => {
+                if x == "uncompressed" {
+                    None
+                } else {
+                    Some(<Wrap<IpcCompression>>::try_from(x)?.0)
+                }
+            }
+
+            None => None,
+        };
+        let options = IpcWriterOptions {
+            compression,
+            maintain_order,
+        };
+
+        let _ = self
+            .ldf
+            .clone()
+            .sink_ipc(path, options)
+            .map_err(RPolarsErr::from);
+        Ok(())
+    }
 
     // fn sink_csv(
     //     &self,

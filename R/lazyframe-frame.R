@@ -2456,7 +2456,7 @@ lazyframe__with_row_index <- function(name = "index", offset = 0) {
 #' @examples
 #' # sink table 'mtcars' from mem to parquet
 #' tmpf <- tempfile()
-#' pl$LazyFrame(mtcars)$sink_parquet(tmpf)
+#' as_polars_lf(mtcars)$sink_parquet(tmpf)
 #'
 #' # stream a query end-to-end
 #' tmpf2 <- tempfile()
@@ -2481,6 +2481,10 @@ lazyframe__sink_parquet <- function(
     no_optimization = FALSE) {
   wrap({
     check_dots_empty0(...)
+    compression <- arg_match0(
+      compression,
+      values = c("lz4", "uncompressed", "snappy", "gzip", "lzo", "brotli", "zstd")
+    )
 
     if (isTRUE(no_optimization)) {
       predicate_pushdown <- FALSE
@@ -2503,13 +2507,83 @@ lazyframe__sink_parquet <- function(
 
     statistics <- translate_statistics(statistics)
 
-    self$`_ldf`$sink_parquet(
+    lf$sink_parquet(
       path = path,
       compression = compression,
       compression_level = compression_level,
       statistics = statistics,
       row_group_size = row_group_size,
       data_page_size = data_page_size,
+      maintain_order = maintain_order
+    )
+
+    invisible(self)
+  })
+}
+
+#' Evaluate the query in streaming mode and write to an IPC file
+#'
+#' @inherit lazyframe__sink_parquet description params return
+#' @inheritParams rlang::check_dots_empty0
+#' @param compression `NULL` or one of:
+#' * `"uncompressed"`: same as `NULL`.
+#' * `"lz4"`: fast compression/decompression.
+#' * `"zstd"`: good compression performance.
+#'
+#' @rdname IO_sink_ipc
+#'
+#' @examples
+#' # sink table 'mtcars' from mem to ipc
+#' tmpf <- tempfile()
+#' as_polars_lf(mtcars)$sink_ipc(tmpf)
+#'
+#' # stream a query end-to-end (not supported yet, https://github.com/pola-rs/polars/issues/1040)
+#' # tmpf2 = tempfile()
+#' # pl$scan_ipc(tmpf)$select(pl$col("cyl") * 2)$sink_ipc(tmpf2)
+#'
+#' # load ipc directly into a DataFrame / memory
+#' # pl$scan_ipc(tmpf2)$collect()
+lazyframe__sink_ipc <- function(
+    path,
+    ...,
+    compression = c("zstd", "lz4", "uncompressed"),
+    maintain_order = TRUE,
+    type_coercion = TRUE,
+    predicate_pushdown = TRUE,
+    projection_pushdown = TRUE,
+    simplify_expression = TRUE,
+    slice_pushdown = TRUE,
+    no_optimization = FALSE) {
+  wrap({
+    check_dots_empty0(...)
+    compression <- compression %||% "uncompressed"
+    compression <- arg_match0(
+      compression,
+      values = c("lz4", "uncompressed", "zstd")
+    )
+
+    if (isTRUE(no_optimization)) {
+      predicate_pushdown <- FALSE
+      projection_pushdown <- FALSE
+      slice_pushdown <- FALSE
+    }
+
+    lf <- self$`_ldf`$optimization_toggle(
+      type_coercion = type_coercion,
+      predicate_pushdown = predicate_pushdown,
+      projection_pushdown = projection_pushdown,
+      simplify_expression = simplify_expression,
+      slice_pushdown = slice_pushdown,
+      comm_subplan_elim = FALSE,
+      comm_subexpr_elim = FALSE,
+      cluster_with_columns = FALSE,
+      streaming = FALSE,
+      `_eager` = FALSE
+    )
+
+    lf$sink_ipc(
+      path = path,
+      compression = compression,
       maintain_order = maintain_order
     )
 

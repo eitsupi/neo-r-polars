@@ -321,6 +321,7 @@ SEXP savvy_PlRLazyFrame_bottom_k__ffi(SEXP self__, SEXP c_arg__k, SEXP c_arg__by
 SEXP savvy_PlRLazyFrame_cache__ffi(SEXP self__);
 SEXP savvy_PlRLazyFrame_profile__ffi(SEXP self__);
 SEXP savvy_PlRLazyFrame_sink_parquet__ffi(SEXP self__, SEXP c_arg__path, SEXP c_arg__compression, SEXP c_arg__maintain_order, SEXP c_arg__statistics, SEXP c_arg__compression_level, SEXP c_arg__row_group_size, SEXP c_arg__data_page_size);
+SEXP savvy_PlRLazyFrame_sink_ipc__ffi(SEXP self__, SEXP c_arg__path, SEXP c_arg__maintain_order, SEXP c_arg__compression);
 SEXP savvy_PlRLazyFrame_serialize__ffi(SEXP self__);
 SEXP savvy_PlRLazyFrame_select_seq__ffi(SEXP self__, SEXP c_arg__exprs);
 SEXP savvy_PlRLazyFrame_rolling__ffi(SEXP self__, SEXP c_arg__index_column, SEXP c_arg__period, SEXP c_arg__offset, SEXP c_arg__closed, SEXP c_arg__by);
