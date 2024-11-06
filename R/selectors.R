@@ -45,7 +45,7 @@ wrap_to_selector <- function(x, name, parameters = NULL) {
 selector__invert <- function() {
   inverted <- cs$all()$sub(self)
   # TODO: we want to print something like `!cs$all()` when call `!cs$all()`
-  inverted$`_print_override` <- deparse1(sys.call(sys.nframe() - 1))
+  # inverted$`_print_override` <- deparse1(sys.call(sys.nframe() - 1))
 
   inverted
 }
@@ -70,12 +70,241 @@ selector__as_expr <- function() {
     wrap()
 }
 
+#' Select all columns
+#'
+#' @return A Polars selector
+#' @examples
+#' df <- pl$DataFrame(dt = as.Date(c("2000-1-1")), value = 10)
+#'
+#' # Select all columns, casting them to string:
+#' df$select(cs$all()$cast(pl$String))
+#'
+#' # Select all columns except for those matching the given dtypes:
+#' df$select(cs$all() - cs$numeric())
 cs__all <- function() {
   pl$all() |>
     wrap_to_selector("all")
 }
 
+#' Select all columns with alphabetic names (e.g. only letters)
+#'
+#' @inheritParams rlang::check_dots_empty0
+#' @param ascii_only Indicate whether to consider only ASCII alphabetic
+#' characters, or the full Unicode range of valid letters (accented,
+#' idiographic, etc).
+#' @param ignore_spaces Indicate whether to ignore the presence of spaces in
+#' column names; if so, only the other (non-space) characters are considered.
+#'
+#' @details
+#' Matching column names cannot contain any non-alphabetic characters. Note
+#' that the definition of “alphabetic” consists of all valid Unicode alphabetic
+#' characters (`p{Alphabetic}`) by default; this can be changed by setting
+#' `ascii_only = TRUE`.
+#'
+#' @inherit cs__all return
+#' @examples
+#' df <- pl$DataFrame(
+#'   no1 = c(100, 200, 300),
+#'   café = c("espresso", "latte", "mocha"),
+#'   `t or f` = c(TRUE, FALSE, NA),
+#'   hmm = c("aaa", "bbb", "ccc"),
+#'   都市 = c("東京", "大阪", "京都")
+#' )
+#'
+#' # Select columns with alphabetic names; note that accented characters and
+#' # kanji are recognised as alphabetic here:
+#' df$select(cs$alpha())
+#'
+#' # Constrain the definition of “alphabetic” to ASCII characters only:
+#' df$select(cs$alpha(ascii_only = TRUE))
+#' df$select(cs$alpha(ascii_only = TRUE, ignore_spaces = TRUE))
+#'
+#' # Select all columns except for those with alphabetic names:
+#' df$select(!cs$alpha())
+#' df$select(!cs$alpha(ignore_spaces = TRUE))
+cs__alpha <- function(ascii_only = FALSE, ..., ignore_spaces = FALSE) {
+  check_dots_empty0(...)
+  if (isTRUE(ascii_only)) {
+    re_alpha <- r"(a-zA-Z)"
+  } else {
+    re_alpha <- r"(\p{Alphabetic})"
+  }
+  if (isTRUE(ignore_spaces)) {
+    re_space <- " "
+  } else {
+    re_space <- ""
+  }
+  raw_params <- paste0("^[", re_alpha, re_space, "]+$")
+  wrap_to_selector(pl$col(raw_params), name = "alpha")
+}
+
+#' Select all columns with alphanumeric names (e.g. only letters and the digits 0-9)
+#'
+#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams cs__alpha
+#'
+#' @details
+#' Matching column names cannot contain any non-alphabetic characters. Note
+#' that the definition of “alphabetic” consists of all valid Unicode alphabetic
+#' characters (`p{Alphabetic}`) and digit characters (`d`) by default; this can
+#' be changed by setting `ascii_only = TRUE`.
+#'
+#' @inherit cs__all return
+#' @examples
+#' df <- pl$DataFrame(
+#'   `1st_col` = c(100, 200, 300),
+#'   flagged = c(TRUE, FALSE, TRUE),
+#'   `00prefix` = c("01:aa", "02:bb", "03:cc"),
+#'   `last col` = c("x", "y", "z")
+#' )
+#'
+#' # Select columns with alphanumeric names:
+#' df$select(cs$alphanumeric())
+#' df$select(cs$alphanumeric(ignore_spaces = TRUE))
+#'
+#' # Select all columns except for those with alphanumeric names:
+#' df$select(!cs$alphanumeric())
+#' df$select(!cs$alphanumeric(ignore_spaces = TRUE))
+cs__alphanumeric <- function(ascii_only = FALSE, ..., ignore_spaces = FALSE) {
+  check_dots_empty0(...)
+  if (isTRUE(ascii_only)) {
+    re_alphanumeric <- r"(a-zA-Z)"
+    re_digit <- "0-9"
+  } else {
+    re_alphanumeric <- r"(\p{Alphabetic})"
+    re_digit <- r"(\d)"
+  }
+  if (isTRUE(ignore_spaces)) {
+    re_space <- " "
+  } else {
+    re_space <- ""
+  }
+  raw_params <- paste0("^[", re_alphanumeric, re_digit, re_space, "]+$")
+  wrap_to_selector(pl$col(raw_params), name = "alphanumeric")
+}
+
+#' Select all binary columns
+#'
+#' @inherit cs__all return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = charToRaw("hello"),
+#'   b = "world",
+#'   c = charToRaw("!"),
+#'   d = ":"
+#' )
+#'
+#' # Select binary columns:
+#' df$select(cs$binary())
+#'
+#' # Select all columns except for those that are binary:
+#' df$select(!cs$binary())
+cs__binary <- function() {
+  wrap_to_selector(pl$col(pl$Binary), name = "binary")
+}
+
+#' Select all boolean columns
+#'
+#' @inherit cs__all return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = 1:4,
+#'   b = c(FALSE, TRUE, FALSE, TRUE)
+#' )
+#'
+#' # Select and invert boolean columns:
+#' df$with_columns(inverted = cs$boolean()$not())
+#'
+#' # Select all columns except for those that are boolean:
+#' df$select(!cs$boolean())
+cs__boolean <- function() {
+  wrap_to_selector(pl$col(pl$Boolean), name = "boolean")
+}
+
+#' Select all columns matching the given dtypes
+#'
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Data types to select.
+#'
+#' @inherit cs__all return
+#' @examples
+#' df <- pl$DataFrame(
+#'   dt = as.Date(c("1999-12-31", "2024-1-1", "2010-7-5")),
+#'   value = c(1234500, 5000555, -4500000),
+#'   other = c("foo", "bar", "foo")
+#' )
+#'
+#' # Select all columns with date or string dtypes:
+#' df$select(cs$by_dtype(pl$Date, pl$String))
+#'
+#' # Select all columns that are not of date or string dtype:
+#' df$select(!cs$by_dtype(pl$Date, pl$String))
+#'
+#' # Group by string columns and sum the numeric columns:
+#' df$group_by(cs$string())$agg(cs$numeric()$sum())$sort("other")
+cs__by_dtype <- function(...) {
+  list_dtypes <- list2(...)
+  wrap_to_selector(
+    pl$col(list_dtypes),
+    name = "by_dtype",
+    parameters = list_dtypes
+  )
+}
+
+# TODO: requires pl$nth()
+#' Select all columns matching the given indices (or range objects)
+#'
+#' @param indices One or more column indices (or ranges). Negative indexing is
+#' supported.
+#'
+#' @details
+#' Matching columns are returned in the order in which their indexes appear in
+#' the selector, not the underlying schema order.
+#'
+#' @inherit cs__all return
+#' @examples
+#' vals <- as.list(0.5 * 0:100)
+#' names(vals) <- paste0("c", 0:100)
+#' df <- pl$DataFrame(!!!vals)
+#' df
+#'
+#' # Select columns by index (the two first/last columns):
+#' df$select(cs$by_index(0, 1, -2, -1))
+#'
+#' # Use seq()
+#' df$select(cs$by_index(0, seq(1, 101, 20)))
+#' df$select(cs$by_index(0, seq(101, 0, -25)))
+#'
+#' # Select all columns except for the even-indexed ones:
+#' df$select(!cs$by_index(seq(1, 100, 2)))
+cs__by_index <- function(...) {
+
+}
+
 # TODO: check dots no name
+#' Select all columns matching the given names
+#'
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Column names to select.
+#' @param .require_all Whether to match all names (the default) or any of the
+#' names.
+#'
+#' @inherit cs__by_index details
+#' @inherit cs__all return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = c("x", "y"),
+#'   bar = c(123, 456),
+#'   baz = c(2.0, 5.5),
+#'   zap = c(FALSE, TRUE)
+#' )
+#'
+#' # Select columns by name:
+#' df$select(cs$by_name("foo", "bar"))
+#'
+#' # Match any of the given columns by name:
+#' df$select(cs$by_name("baz", "moose", "foo", "bear", .require_all = FALSE))
+#'
+#' # Match all columns except for those given:
+#' df$select(!cs$by_name("foo", "bar"))
 cs__by_name <- function(..., .require_all = TRUE) {
   all_names <- list2(...) |>
     unlist()
@@ -99,5 +328,445 @@ cs__by_name <- function(..., .require_all = TRUE) {
     pl$col(match_cols),
     name = "by_name",
     parameters = selector_params
+  )
+}
+
+#' Select all categorical columns
+#'
+#' @inherit cs__all return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = c("xx", "yy"),
+#'   bar = c(123, 456),
+#'   baz = c(2.0, 5.5),
+#'   .schema_overrides = list(foo = pl$Categorical()),
+#' )
+#'
+#' # Select categorical columns:
+#' df$select(cs$categorical())
+#'
+#' # Select all columns except for those that are categorical:
+#' df$select(!cs$categorical())
+cs__categorical <- function() {
+  wrap_to_selector(pl$col(pl$Categorical()), name = "categorical")
+}
+
+#' Select columns whose names contain the given literal substring(s)
+#'
+#' @param substring Substring(s) that matching column names should contain.
+#'
+#' @inherit cs__all return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = c("x", "y"),
+#'   bar = c(123, 456),
+#'   baz = c(2.0, 5.5),
+#'   zap = c(FALSE, TRUE)
+#' )
+#'
+#' # Select columns that contain the substring "ba":
+#' df$select(cs$contains("ba"))
+#'
+#' # Select columns that contain the substring "ba" or the letter "z":
+#' df$select(cs$contains(c("ba", "z")))
+#'
+#' # Select all columns except for those that contain the substring "ba":
+#' df$select(!cs$contains("ba"))
+cs__contains <- function(substring) {
+  check_character(substring)
+  substring <- paste(substring, collapse = "|")
+  raw_params <- paste0("^.*", substring, ".*$")
+  wrap_to_selector(pl$col(raw_params), name = "contains")
+}
+
+#' Select all date columns
+#'
+#' @inherit cs__all return
+#' @examples
+#' df <- pl$DataFrame(
+#'   dtm = as.POSIXct(c("2001-5-7 10:25", "2031-12-31 00:30")),
+#'   dt = as.Date(c("1999-12-31", "2024-8-9"))
+#' )
+#'
+#' # Select date columns:
+#' df$select(cs$date())
+#'
+#' # Select all columns except for those that are dates:
+#' df$select(!cs$date())
+cs__date <- function() {
+  wrap_to_selector(pl$col(pl$Date), name = "date")
+}
+
+# TODO: fix this, doesn't match python
+#' Select all datetime columns
+#'
+#' @param time_unit One (or more) of the allowed time unit precision strings,
+#' `"ms"`, `"us"`, and `"ns"`. Default is to select columns with any valid
+#' timeunit.
+#' @param time_zone One of the following:
+#' * one or more timezone strings, as defined in [OlsonNames()],
+#' * `NULL` (default) to select Datetime columns that do not have a timezone,
+#' * `"*"` to select Datetime columns that have any timezone.
+#'
+#' @inherit cs__all return
+#' @examples
+#' df <- pl$DataFrame(
+#'   tstamp_tokyo = as.POSIXct(
+#'     c(
+#'       "1999-7-21  5:20:16:987654",
+#'       "2000-5-16  6:21:21:123465"
+#'     ),
+#'     tz = "Asia/Tokyo"
+#'   ),
+#'   tstamp_utc = as.POSIXct(
+#'     c(
+#'       "1999-7-21  5:20:16:987654",
+#'       "2000-5-16  6:21:21:123465"
+#'     ),
+#'     tz = "UTC"
+#'   ),
+#'   tstamp = as.POSIXct(c(
+#'     "1999-7-21  5:20:16:987654",
+#'     "2000-5-16  6:21:21:123465"
+#'   )),
+#'   dt = as.Date(c(
+#'     "1999-12-31", "2010-7-5"
+#'   ))
+#' )
+#'
+#' # Select all datetime columns:
+#' df$select(cs$datetime())
+#'
+#' # Select all datetime columns that have "us" precision:
+#' df$select(cs$datetime("us"))
+#'
+#' # Select all datetime columns that have any timezone:
+#' df$select(cs$datetime(time_zone = "*"))
+#'
+#' # Select all datetime columns that have a specific timezone:
+#' df$select(cs$datetime(time_zone = "UTC"))
+#'
+#' # Select all datetime columns that have NO timezone:
+#' df$select(cs$datetime(time_zone = NULL))
+#'
+#' # Select all columns except for datetime columns:
+#' df$select(!cs$datetime())
+cs__datetime <- function(time_unit = c("ms", "us", "ns"), time_zone = "*") {
+  time_unit <- arg_match(time_unit, values = c("ms", "us", "ns"), multiple = TRUE)
+  datetime_dtypes <- list()
+  if (is.null(time_zone)) {
+    for (tu in time_unit) {
+      datetime_dtypes <- append(datetime_dtypes, pl$Datetime(time_unit = tu, time_zone = NULL))
+    }
+  } else {
+    for (tz in time_zone) {
+      for (tu in time_unit) {
+        datetime_dtypes <- append(datetime_dtypes, pl$Datetime(time_unit = tu, time_zone = tz))
+      }
+    }
+  }
+
+  wrap_to_selector(
+    pl$col(datetime_dtypes),
+    name = "datetime"
+  )
+}
+
+#' Select all decimal columns
+#'
+#' @inherit cs__all return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = c("x", "y"),
+#'   bar = c(123, 456),
+#'   baz = c("2.0005", "-50.5555"),
+#'   .schema_overrides = list(
+#'     bar = pl$Decimal(),
+#'     baz = pl$Decimal(scale = 5, precision = 10)
+#'   )
+#' )
+#'
+#' # Select decimal columns:
+#' df$select(cs$decimal())
+#'
+#' # Select all columns except for those that are decimal:
+#' df$select(!cs$decimal())
+cs__decimal <- function() {
+  wrap_to_selector(pl$col(pl$Decimal()), name = "decimal")
+}
+
+#' Select all columns having names consisting only of digits
+#'
+#' @inheritParams cs__alpha
+#'
+#' @details
+#' Matching column names cannot contain any non-digit characters. Note that the
+#' definition of "digit" consists of all valid Unicode digit characters (`d`)
+#' by default; this can be changed by setting `ascii_only = TRUE`.
+#'
+#' @inherit cs__all return
+#' @examples
+#' df <- pl$DataFrame(
+#'   key = c("aaa", "bbb"),
+#'   `2001` = 1:2,
+#'   `2025` = 3:4
+#' )
+#'
+#' # Select columns with digit names:
+#' df$select(cs$digit())
+#'
+#' # Select all columns except for those with digit names:
+#' df$select(!cs$digit())
+#'
+#' # Demonstrate use of ascii_only flag (by default all valid unicode digits
+#' # are considered, but this can be constrained to ascii 0-9):
+#' df <- pl$DataFrame(`१९९९` = 1999, `२०७७` = 2077, `3000` = 3000)
+#' df$select(cs$digit())
+#' df$select(cs$digit(ascii_only = TRUE))
+cs__digit <- function(ascii_only = FALSE) {
+  if (isTRUE(ascii_only)) {
+    re_digit <- "[0-9]"
+  } else {
+    re_digit <- r"(\d)"
+  }
+  wrap_to_selector(pl$col(paste0("^", re_digit, "+$")), name = "digit")
+}
+
+# TODO: finish examples
+#' Select all duration columns
+#'
+#' @inheritParams cs__datetime
+#'
+#' @inherit cs__all return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = charToRaw("hello"),
+#'   b = "world",
+#'   c = charToRaw("!"),
+#'   d = ":"
+#' )
+#'
+#' # Select duration columns:
+#' df$select(cs$duration())
+#'
+#' # Select all columns except for those that are duration:
+#' df$select(!cs$duration())
+cs__duration <- function(time_unit = NULL) {
+  time_unit <- time_unit %||% c("ms", "us", "ns")
+  duration_dtypes <- list()
+  for (tu in time_unit) {
+    duration_dtypes <- append(duration_dtypes, pl$Duration(time_unit = tu))
+  }
+
+  wrap_to_selector(
+    pl$col(duration_types),
+    name = "duration"
+  )
+}
+
+#' Select columns that end with the given substring(s)
+#'
+#' @param suffix Substring(s) that matching column names should end with.
+#'
+#' @inherit cs__all return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = c("x", "y"),
+#'   bar = c(123, 456),
+#'   baz = c(2.0, 5.5),
+#'   zap = c(FALSE, TRUE)
+#' )
+#'
+#' # Select columns that end with the substring "z":
+#' df$select(cs$ends_with("z"))
+#'
+#' # Select columns that end with either the letter "z" or "r":
+#' df$select(cs$ends_with(c("z", "r")))
+#'
+#' # Select all columns except for those that end with the substring "z":
+#' df$select(!cs$ends_with("z"))
+cs__ends_with <- function(suffix) {
+  check_character(suffix)
+  substring <- paste(suffix, collapse = "|")
+  raw_params <- paste0("^.*", suffix, "$")
+  wrap_to_selector(pl$col(raw_params), name = "ends_with")
+}
+
+cs__float <- function() {
+  list_dtypes <- list(pl$Float32, pl$Float64)
+  wrap_to_selector(
+    pl$col(list_dtypes),
+    name = "float",
+    parameters = list_dtypes
+  )
+}
+
+cs__numeric <- function() {
+  list_dtypes <- list(
+    pl$Float32, pl$Float64,
+    pl$Int8, pl$Int16, pl$Int32, pl$Int64,
+    pl$UInt8, pl$UInt16, pl$UInt32, pl$UInt64
+  )
+  wrap_to_selector(
+    pl$col(list_dtypes),
+    name = "numeric",
+    parameters = list_dtypes
+  )
+}
+
+#' Select all binary columns
+#'
+#' @inherit cs__all return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = charToRaw("hello"),
+#'   b = "world",
+#'   c = charToRaw("!"),
+#'   d = ":"
+#' )
+#'
+#' # Select binary columns:
+#' df$select(cs$binary())
+#'
+#' # Select all columns except for those that are binary:
+#' df$select(!cs$binary())
+cs__integer <- function() {
+  list_dtypes <- list(
+    pl$Int8, pl$Int16, pl$Int32, pl$Int64,
+    pl$UInt8, pl$UInt16, pl$UInt32, pl$UInt64
+  )
+  wrap_to_selector(
+    pl$col(list_dtypes),
+    name = "integer",
+    parameters = list_dtypes
+  )
+}
+
+#' Select all binary columns
+#'
+#' @inherit cs__all return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = charToRaw("hello"),
+#'   b = "world",
+#'   c = charToRaw("!"),
+#'   d = ":"
+#' )
+#'
+#' # Select binary columns:
+#' df$select(cs$binary())
+#'
+#' # Select all columns except for those that are binary:
+#' df$select(!cs$binary())
+cs__signed_integer <- function() {
+  list_dtypes <- list(pl$Int8, pl$Int16, pl$Int32, pl$Int64)
+  wrap_to_selector(
+    pl$col(list_dtypes),
+    name = "signed_integer",
+    parameters = list_dtypes
+  )
+}
+
+#' Select columns that start with the given substring(s)
+#'
+#' @param prefix Substring(s) that matching column names should end with.
+#'
+#' @inherit cs__all return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = c("x", "y"),
+#'   bar = c(123, 456),
+#'   baz = c(2.0, 5.5),
+#'   zap = c(FALSE, TRUE)
+#' )
+#'
+#' # Select columns that start with the substring "z":
+#' df$select(cs$starts_with("z"))
+#'
+#' # Select columns that start with either the letter "z" or "r":
+#' df$select(cs$starts_with(c("z", "r")))
+#'
+#' # Select all columns except for those that start with the substring "z":
+#' df$select(!cs$starts_with("z"))
+cs__starts_with <- function(prefix) {
+  check_character(prefix)
+  prefix <- paste(prefix, collapse = "|")
+  raw_params <- paste0("^", prefix, ".*$")
+  wrap_to_selector(pl$col(raw_params), name = "starts_with")
+}
+
+#' Select all String (and, optionally, Categorical) string columns.
+#'
+#' @inherit cs__all return
+#' @examples
+#' df <- pl$DataFrame(
+#'   w = c("xx", "yy", "xx", "yy", "xx"),
+#'   x = c(1, 2, 1, 4, -2),
+#'   y = c(3.0, 4.5, 1.0, 2.5, -2.0),
+#'   z = c("a", "b", "a", "b", "b")
+#' )$with_columns(
+#'   z = pl$col("z")$cast(pl$Categorical("lexical"))
+#' )
+#'
+#' # Group by all string columns, sum the numeric columns, then sort by the
+#' # string cols:
+#' df$group_by(cs$string())$agg(cs$numeric()$sum())$sort(cs$string())
+#'
+#' # Group by all string and categorical columns:
+#' df$
+#'   group_by(cs$string(include_categorical = TRUE))$
+#'   agg(cs$numeric()$sum())$
+#'   sort(cs$string(include_categorical = TRUE))
+cs__string <- function(include_categorical = FALSE) {
+  if (isTRUE(include_categorical)) {
+    list_dtypes <- list(pl$String, pl$Categorical())
+  } else {
+    list_dtypes <- list(pl$String)
+  }
+  wrap_to_selector(pl$col(list_dtypes), name = "string")
+}
+
+#' Select all binary columns
+#'
+#' @inherit cs__all return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = charToRaw("hello"),
+#'   b = "world",
+#'   c = charToRaw("!"),
+#'   d = ":"
+#' )
+#'
+#' # Select binary columns:
+#' df$select(cs$binary())
+#'
+#' # Select all columns except for those that are binary:
+#' df$select(!cs$binary())
+cs__time <- function() {
+  wrap_to_selector(pl$col(pl$Time), name = "time")
+}
+
+#' Select all binary columns
+#'
+#' @inherit cs__all return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = charToRaw("hello"),
+#'   b = "world",
+#'   c = charToRaw("!"),
+#'   d = ":"
+#' )
+#'
+#' # Select binary columns:
+#' df$select(cs$binary())
+#'
+#' # Select all columns except for those that are binary:
+#' df$select(!cs$binary())
+cs__unsigned_integer <- function() {
+  list_dtypes <- list(pl$UInt8, pl$UInt16, pl$UInt32, pl$UInt64)
+  wrap_to_selector(
+    pl$col(list_dtypes),
+    name = "integer",
+    parameters = list_dtypes
   )
 }
