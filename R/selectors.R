@@ -542,7 +542,6 @@ cs__digit <- function(ascii_only = FALSE) {
   wrap_to_selector(pl$col(paste0("^", re_digit, "+$")), name = "digit")
 }
 
-# TODO: finish examples
 #' Select all duration columns, optionally filtering by time unit
 #'
 #' @inheritParams cs__datetime
