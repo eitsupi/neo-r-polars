@@ -34,7 +34,7 @@ test_that("'minus' operator works", {
   )
 })
 
-test_that("is_selector", {
+test_that("is_polars_selector", {
   expect_false(is_polars_selector(pl$col("colx")))
   expect_true(is_polars_selector(cs$integer()))
   expect_true(is_polars_selector(!cs$integer()))
@@ -124,6 +124,10 @@ test_that("by_dtype", {
     df$select(!cs$by_dtype(pl$Date, pl$String)),
     "value"
   )
+  expect_snapshot(
+    df$select(cs$by_dtype(a = pl$String)),
+    error = TRUE
+  )
 })
 
 test_that("by_index", {
@@ -149,6 +153,10 @@ test_that("by_name", {
   expect_named(
     df$select(cs$by_name("baz", "moose", "foo", "bear", .require_all = FALSE)),
     c("foo", "baz")
+  )
+  expect_snapshot(
+    df$select(cs$by_name(a = "foo")),
+    error = TRUE
   )
 })
 

@@ -288,6 +288,7 @@ cs__boolean <- function() {
 #' # Group by string columns and sum the numeric columns:
 #' df$group_by(cs$string())$agg(cs$numeric()$sum())$sort("other")
 cs__by_dtype <- function(...) {
+  check_dots_unnamed()
   list_dtypes <- list2(...)
   wrap_to_selector(
     pl$col(list_dtypes),
@@ -351,6 +352,7 @@ cs__by_index <- function(indices) {
 #' # Match all columns except for those given:
 #' df$select(!cs$by_name("foo", "bar"))
 cs__by_name <- function(..., .require_all = TRUE) {
+  check_dots_unnamed()
   all_names <- list2(...) |>
     unlist()
 
@@ -664,6 +666,7 @@ cs__ends_with <- function(suffix) {
 #' # Exclude using a column name, a selector, and a dtype:
 #' df$select(cs$exclude("aa", cs$string(), pl$UInt32))
 cs__exclude <- function(...) {
+  check_dots_unnamed()
   input <- list2(...)
   all_character <- lapply(input, is.character) |>
     unlist() |>
