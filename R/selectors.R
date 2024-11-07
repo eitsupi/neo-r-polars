@@ -950,6 +950,8 @@ cs__starts_with <- function(prefix) {
 
 #' Select all String (and, optionally, Categorical) string columns.
 #'
+#' @inheritParams rlang::check_dots_empty0
+#' @param include_categorical If `TRUE`, also select categorical columns.
 #' @inherit cs__all return seealso
 #' @examples
 #' df <- pl$DataFrame(
@@ -970,7 +972,8 @@ cs__starts_with <- function(prefix) {
 #'   group_by(cs$string(include_categorical = TRUE))$
 #'   agg(cs$numeric()$sum())$
 #'   sort(cs$string(include_categorical = TRUE))
-cs__string <- function(include_categorical = FALSE) {
+cs__string <- function(..., include_categorical = FALSE) {
+  check_dots_empty0(...)
   if (isTRUE(include_categorical)) {
     list_dtypes <- list(pl$String, pl$Categorical())
   } else {

@@ -4,7 +4,12 @@
 \alias{cs__string}
 \title{Select all String (and, optionally, Categorical) string columns.}
 \usage{
-cs__string(include_categorical = FALSE)
+cs__string(..., include_categorical = FALSE)
+}
+\arguments{
+\item{...}{Dots which should be empty.}
+
+\item{include_categorical}{If \code{TRUE}, also select categorical columns.}
 }
 \value{
 A Polars selector
