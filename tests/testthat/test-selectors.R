@@ -12,6 +12,10 @@ test_that("minus operator works", {
     df$select(cs$alphanumeric() - cs$alpha()),
     c("foo2", "foo3")
   )
+  expect_snapshot(
+    cs$alphanumeric() - 1,
+    error = TRUE
+  )
 })
 
 test_that("is_selector", {
