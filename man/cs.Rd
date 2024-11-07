@@ -30,6 +30,8 @@ names except those that contain \code{"a"} with
 \item \code{!} to invert the selection, e.g. select all columns that \emph{are not} of data
 type \code{String} with \code{!cs$string()}.
 }
+
+Note that Python Polars uses \code{~} instead of \code{!} to invert selectors.
 }
 
 \examples{

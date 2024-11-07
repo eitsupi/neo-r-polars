@@ -17,6 +17,8 @@
 #' * `!` to invert the selection, e.g. select all columns that *are not* of data
 #'   type `String` with `!cs$string()`.
 #'
+#' Note that Python Polars uses `~` instead of `!` to invert selectors.
+#'
 #' @examples
 #' cs
 #'
