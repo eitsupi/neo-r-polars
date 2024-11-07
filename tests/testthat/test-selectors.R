@@ -69,6 +69,10 @@ test_that("alpha", {
     df$select(cs$alpha(ascii_only = TRUE, ignore_spaces = TRUE)),
     c("t or f", "hmm")
   )
+  expect_snapshot(
+    df$select(cs$alpha(TRUE, TRUE)),
+    error = TRUE
+  )
 })
 
 test_that("alphanumeric", {
@@ -86,6 +90,10 @@ test_that("alphanumeric", {
   expect_named(
     df$select(cs$alphanumeric(ignore_spaces = TRUE)),
     c("flagged", "00prefix", "last col")
+  )
+  expect_snapshot(
+    df$select(cs$alphanumeric(TRUE, TRUE)),
+    error = TRUE
   )
 })
 

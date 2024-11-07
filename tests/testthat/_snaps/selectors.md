@@ -6,6 +6,36 @@
       Error:
       ! `e2` must be a polars selector, not the number 1.
 
+# alpha
+
+    Code
+      df$select(cs$alpha(TRUE, TRUE))
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$select()`.
+      Caused by error in `cs$alpha()`:
+      ! `...` must be empty.
+      x Problematic argument:
+      * ..1 = TRUE
+      i Did you forget to name an argument?
+
+# alphanumeric
+
+    Code
+      df$select(cs$alphanumeric(TRUE, TRUE))
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$select()`.
+      Caused by error in `cs$alphanumeric()`:
+      ! `...` must be empty.
+      x Problematic argument:
+      * ..1 = TRUE
+      i Did you forget to name an argument?
+
 # by_dtype
 
     Code
