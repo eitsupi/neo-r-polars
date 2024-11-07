@@ -81,6 +81,9 @@ pl__col <- function(...) {
 #' df$select(pl$nth(c(2, 0)))
 pl__nth <- function(indices) {
   wrap({
+    if (anyNA(indices)) {
+      abort("`indices` must not contain NA.")
+    }
     index_cols(indices)
   })
 }
