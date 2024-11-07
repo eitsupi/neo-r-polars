@@ -1,3 +1,19 @@
+test_that("invert operator works", {
+  df <- pl$DataFrame(foo = 1, foo2 = 2, foo3 = 3)
+  expect_named(
+    df$select(!cs$alpha()),
+    c("foo2", "foo3")
+  )
+})
+
+test_that("minus operator works", {
+  df <- pl$DataFrame(foo = 1, foo2 = 2, foo3 = 3)
+  expect_named(
+    df$select(cs$alphanumeric() - cs$alpha()),
+    c("foo2", "foo3")
+  )
+})
+
 test_that("all", {
   expect_named(
     pl$DataFrame(dt = as.Date(c("2000-1-1")), value = 10)$select(cs$all()),
