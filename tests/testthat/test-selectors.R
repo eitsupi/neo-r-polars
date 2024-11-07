@@ -470,6 +470,24 @@ test_that("string", {
 })
 
 test_that("temporal", {
+  skip_if_not_installed("clock")
+  skip_if_not_installed("hms")
+  df <- pl$DataFrame(
+    dtm = as.POSIXct(c("2001-5-7 10:25", "2031-12-31 00:30")),
+    dt = as.Date(c("1999-12-31", "2024-8-9")),
+    dur = clock::duration_years(1:2),
+    tm = hms::parse_hms(c("0:0:0", "23:59:59")),
+    value = 1:2
+  )
+
+  expect_named(
+    df$select(cs$temporal()),
+    c("dtm", "dt", "dur", "tm")
+  )
+  expect_named(
+    df$select(cs$temporal() - cs$datetime()),
+    c("dt", "dur", "tm")
+  )
 })
 
 test_that("time", {

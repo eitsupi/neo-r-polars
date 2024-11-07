@@ -999,12 +999,12 @@ cs__string <- function(include_categorical = FALSE) {
 #' # Match all columns except for temporal columns:
 #' df$select(!cs$temporal())
 cs__temporal <- function() {
-  list_dtypes <- list(pl$Date, pl$Time, pl$Datetime(), pl$Duration())
+  list_dtypes <- list(pl$Date, pl$Time)
   wrap_to_selector(
     pl$col(list_dtypes),
     name = "temporal",
     parameters = list_dtypes
-  )
+  ) | cs$datetime() | cs$duration()
 }
 
 #' Select all time columns
