@@ -979,7 +979,6 @@ cs__string <- function(include_categorical = FALSE) {
   wrap_to_selector(pl$col(list_dtypes), name = "string")
 }
 
-# TODO: doesn't detect datetime
 #' Select all temporal columns
 #'
 #' @inherit cs__all return seealso
