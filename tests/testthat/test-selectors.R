@@ -312,6 +312,28 @@ test_that("ends_with", {
 })
 
 test_that("exclude", {
+  df <- pl$DataFrame(
+    aa = 1:3,
+    ba = c("a", "b", NA),
+    cc = c(NA, 2.5, 1.5)
+  )
+
+  expect_named(
+    df$select(cs$exclude("ba", "xx")),
+    c("aa", "cc")
+  )
+  expect_named(
+    df$select(cs$exclude("aa", cs$string(), pl$Int32)),
+    "cc"
+  )
+  expect_named(
+    df$select(cs$exclude("^b.*$", pl$Int32)),
+    "cc"
+  )
+  expect_snapshot(
+    df$select(cs$exclude("^b.*$", pl$Int32, 1)),
+    error = TRUE
+  )
 })
 
 test_that("first", {

@@ -2,7 +2,8 @@
 % Please edit documentation in R/selectors.R
 \name{cs__exclude}
 \alias{cs__exclude}
-\title{Select all columns except those matching the given columns, datatypes, or selectors}
+\title{Select all columns except those matching the given columns, datatypes, or
+selectors}
 \usage{
 cs__exclude(...)
 }
@@ -13,14 +14,15 @@ cs__exclude(...)
 A Polars selector
 }
 \description{
-Select all columns except those matching the given columns, datatypes, or selectors
+Select all columns except those matching the given columns, datatypes, or
+selectors
 }
 \details{
 If excluding a single selector it is simpler to write as \code{!selector} instead.
 }
 \examples{
 df <- pl$DataFrame(
-  aa = c(1, 2, 3),
+  aa = 1:3,
   ba = c("a", "b", NA),
   cc = c(NA, 2.5, 1.5)
 )
@@ -29,7 +31,7 @@ df <- pl$DataFrame(
 df$select(cs$exclude("ba", "xx"))
 
 # Exclude using a column name, a selector, and a dtype:
-df$select(cs$exclude("aa", cs$string(), pl$UInt32))
+df$select(cs$exclude("aa", cs$string(), pl$Int32))
 }
 \seealso{
 \link{cs} for the documentation on operators supported by Polars

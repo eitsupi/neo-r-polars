@@ -4,7 +4,7 @@
 \alias{cs__datetime}
 \title{Select all datetime columns}
 \usage{
-cs__datetime(time_unit = c("ms", "us", "ns"), time_zone = "*")
+cs__datetime(time_unit = c("ms", "us", "ns"), time_zone)
 }
 \arguments{
 \item{time_unit}{One (or more) of the allowed time unit precision strings,
@@ -46,7 +46,12 @@ df <- pl$DataFrame(
   )),
   dt = as.Date(c(
     "1999-12-31", "2010-7-5"
-  ))
+  )),
+  .schema_overrides = list(
+    tstamp_tokyo = pl$Datetime("ns", "Asia/Tokyo"),
+    tstamp_utc = pl$Datetime("us", "UTC"),
+    tstamp = pl$Datetime("us")
+  )
 )
 
 # Select all datetime columns:

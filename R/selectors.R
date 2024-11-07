@@ -654,8 +654,8 @@ cs__ends_with <- function(suffix) {
   wrap_to_selector(pl$col(raw_params), name = "ends_with")
 }
 
-# TODO: errors if mixing characters and datatypes
-#' Select all columns except those matching the given columns, datatypes, or selectors
+#' Select all columns except those matching the given columns, datatypes, or
+#' selectors
 #'
 #' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Column names to exclude.
 #'
@@ -665,7 +665,7 @@ cs__ends_with <- function(suffix) {
 #' @inherit cs__all return seealso
 #' @examples
 #' df <- pl$DataFrame(
-#'   aa = c(1, 2, 3),
+#'   aa = 1:3,
 #'   ba = c("a", "b", NA),
 #'   cc = c(NA, 2.5, 1.5)
 #' )
@@ -674,21 +674,50 @@ cs__ends_with <- function(suffix) {
 #' df$select(cs$exclude("ba", "xx"))
 #'
 #' # Exclude using a column name, a selector, and a dtype:
-#' df$select(cs$exclude("aa", cs$string(), pl$UInt32))
+#' df$select(cs$exclude("aa", cs$string(), pl$Int32))
 cs__exclude <- function(...) {
   check_dots_unnamed()
   input <- list2(...)
-  all_character <- lapply(input, is.character) |>
-    unlist() |>
-    all()
-  if (all_character) {
-    input <- unlist(input)
-  }
-  !wrap_to_selector(
-    pl$col(input),
-    name = "exclude",
-    parameters = input
+
+  names <- Filter(
+    \(x) is_character(x) && !(startsWith(x, "^") && endsWith(x, "$")),
+    input
   )
+  regexes <- Filter(
+    \(x) is_character(x) && startsWith(x, "^") && endsWith(x, "$"),
+    input
+  )
+  dtypes <- Filter(is_polars_dtype, input)
+  selectors <- Filter(is_polars_selector, input)
+  unknown <- Filter(
+    \(x) !is_character(x) && !is_polars_dtype(x) && !is_polars_selector(x),
+    input
+  )
+  if (length(unknown) > 0) {
+    abort("`...` can only contain column names, regexes, polars data types or polars selectors.")
+  }
+
+  selected <- list()
+  if (length(names) > 0) {
+    selected <- append(selected, cs$by_name(names))
+  }
+  if (length(regexes) > 0) {
+    if (length(regexes) > 1) {
+      regexes <- paste(unlist(regexes), collapse = "|")
+    } else {
+      regexes <- regexes[[1]]
+    }
+    selected <- append(selected, cs$matches(regexes))
+  }
+  if (length(dtypes) > 0) {
+    selected <- append(selected, cs$by_dtype(!!!dtypes))
+  }
+  if (length(selectors) > 0) {
+    selected <- append(selected, selectors)
+  }
+  all_selected <- Reduce(`|`, selected)
+
+  !all_selected
 }
 
 #' Select the first column in the current scope

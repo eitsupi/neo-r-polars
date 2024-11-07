@@ -34,3 +34,15 @@
       x Problematic argument:
       * a = "foo"
 
+# exclude
+
+    Code
+      df$select(cs$exclude("^b.*$", pl$Int32, 1))
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$select()`.
+      Caused by error in `cs$exclude()`:
+      ! `...` can only contain column names, regexes, polars data types or polars selectors.
+
