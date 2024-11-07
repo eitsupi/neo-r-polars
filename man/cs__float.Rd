@@ -27,3 +27,7 @@ df$select(cs$float())
 # Select all columns except for those that are float:
 df$select(!cs$float())
 }
+\seealso{
+\link{cs} for the documentation on operators supported by Polars
+selectors.
+}

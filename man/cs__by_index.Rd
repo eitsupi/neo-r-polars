@@ -36,3 +36,7 @@ df$select(cs$by_index(c(0, seq(101, 0, -25))))
 # Select only odd-indexed columns:
 df$select(!cs$by_index(seq(0, 100, 2)))
 }
+\seealso{
+\link{cs} for the documentation on operators supported by Polars
+selectors.
+}

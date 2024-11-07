@@ -31,3 +31,7 @@ df$select(!cs$by_dtype(pl$Date, pl$String))
 # Group by string columns and sum the numeric columns:
 df$group_by(cs$string())$agg(cs$numeric()$sum())$sort("other")
 }
+\seealso{
+\link{cs} for the documentation on operators supported by Polars
+selectors.
+}

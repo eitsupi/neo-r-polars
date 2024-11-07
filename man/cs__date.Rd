@@ -24,3 +24,7 @@ df$select(cs$date())
 # Select all columns except for those that are dates:
 df$select(!cs$date())
 }
+\seealso{
+\link{cs} for the documentation on operators supported by Polars
+selectors.
+}

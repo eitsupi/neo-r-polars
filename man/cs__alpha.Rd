@@ -49,3 +49,7 @@ df$select(cs$alpha(ascii_only = TRUE, ignore_spaces = TRUE))
 df$select(!cs$alpha())
 df$select(!cs$alpha(ignore_spaces = TRUE))
 }
+\seealso{
+\link{cs} for the documentation on operators supported by Polars
+selectors.
+}

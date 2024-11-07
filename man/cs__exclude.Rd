@@ -31,3 +31,7 @@ df$select(cs$exclude("ba", "xx"))
 # Exclude using a column name, a selector, and a dtype:
 df$select(cs$exclude("aa", cs$string(), pl$UInt32))
 }
+\seealso{
+\link{cs} for the documentation on operators supported by Polars
+selectors.
+}

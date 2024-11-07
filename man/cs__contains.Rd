@@ -32,3 +32,7 @@ df$select(cs$contains(c("ba", "z")))
 # Select all columns except for those that contain the substring "ba":
 df$select(!cs$contains("ba"))
 }
+\seealso{
+\link{cs} for the documentation on operators supported by Polars
+selectors.
+}

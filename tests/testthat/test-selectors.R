@@ -1,4 +1,4 @@
-test_that("invert operator works", {
+test_that("'invert' operator works", {
   df <- pl$DataFrame(foo = 1, foo2 = 2, foo3 = 3)
   expect_named(
     df$select(!cs$alpha()),
@@ -6,7 +6,23 @@ test_that("invert operator works", {
   )
 })
 
-test_that("minus operator works", {
+test_that("'union' operator works", {
+  df <- pl$DataFrame(foo = 1, foo2 = 2, foo3 = 3)
+  expect_named(
+    df$select(cs$alpha() | cs$contains("2")),
+    c("foo", "foo2")
+  )
+})
+
+test_that("'and' operator works", {
+  df <- pl$DataFrame(foo = 1, foot = 2, fox = 3)
+  expect_named(
+    df$select(cs$contains("oo") & cs$ends_with("t")),
+    "foot"
+  )
+})
+
+test_that("'minus' operator works", {
   df <- pl$DataFrame(foo = 1, foo2 = 2, foo3 = 3)
   expect_named(
     df$select(cs$alphanumeric() - cs$alpha()),
@@ -19,10 +35,10 @@ test_that("minus operator works", {
 })
 
 test_that("is_selector", {
-  expect_false(is_selector(pl$col("colx")))
-  expect_true(is_selector(cs$integer()))
-  expect_true(is_selector(!cs$integer()))
-  expect_true(is_selector(cs$integer() - cs$numeric()))
+  expect_false(is_polars_selector(pl$col("colx")))
+  expect_true(is_polars_selector(cs$integer()))
+  expect_true(is_polars_selector(!cs$integer()))
+  expect_true(is_polars_selector(cs$integer() - cs$numeric()))
 })
 
 test_that("all", {

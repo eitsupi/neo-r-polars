@@ -26,3 +26,7 @@ df$select(cs$integer())
 # Select all columns except for those that are integer:
 df$select(!cs$integer())
 }
+\seealso{
+\link{cs} for the documentation on operators supported by Polars
+selectors.
+}

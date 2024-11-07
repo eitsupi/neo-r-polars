@@ -41,3 +41,7 @@ df <- pl$DataFrame(`१९९९` = 1999, `२०७७` = 2077, `3000` = 3000)
 df$select(cs$digit())
 df$select(cs$digit(ascii_only = TRUE))
 }
+\seealso{
+\link{cs} for the documentation on operators supported by Polars
+selectors.
+}

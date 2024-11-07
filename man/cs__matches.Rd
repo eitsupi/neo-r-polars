@@ -31,3 +31,7 @@ df$select(cs$matches("[^z]a"))
 # Do not match column names ending in "R" or "z" (case-insensitively):
 df$select(!cs$matches(r"((?i)R|z$)"))
 }
+\seealso{
+\link{cs} for the documentation on operators supported by Polars
+selectors.
+}

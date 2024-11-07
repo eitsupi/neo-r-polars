@@ -26,3 +26,7 @@ df$select(cs$categorical())
 # Select all columns except for those that are categorical:
 df$select(!cs$categorical())
 }
+\seealso{
+\link{cs} for the documentation on operators supported by Polars
+selectors.
+}

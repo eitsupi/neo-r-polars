@@ -26,3 +26,7 @@ df$select(cs$last())
 # Select everything except for the last column:
 df$select(!cs$last())
 }
+\seealso{
+\link{cs} for the documentation on operators supported by Polars
+selectors.
+}

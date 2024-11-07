@@ -67,3 +67,7 @@ df$select(cs$datetime(time_zone = NULL))
 # Select all columns except for datetime columns:
 df$select(!cs$datetime())
 }
+\seealso{
+\link{cs} for the documentation on operators supported by Polars
+selectors.
+}

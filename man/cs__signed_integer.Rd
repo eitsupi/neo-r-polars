@@ -30,3 +30,7 @@ df$select(!cs$signed_integer())
 # Select all integer columns (both signed and unsigned):
 df$select(cs$integer())
 }
+\seealso{
+\link{cs} for the documentation on operators supported by Polars
+selectors.
+}

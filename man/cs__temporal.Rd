@@ -28,3 +28,7 @@ df$select(cs$temporal() - cs$datetime())
 # Match all columns except for temporal columns:
 df$select(!cs$temporal())
 }
+\seealso{
+\link{cs} for the documentation on operators supported by Polars
+selectors.
+}

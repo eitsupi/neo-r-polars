@@ -21,3 +21,7 @@ df$select(cs$all()$cast(pl$String))
 # Select all columns except for those matching the given dtypes:
 df$select(cs$all() - cs$numeric())
 }
+\seealso{
+\link{cs} for the documentation on operators supported by Polars
+selectors.
+}

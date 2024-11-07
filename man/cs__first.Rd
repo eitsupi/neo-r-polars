@@ -26,3 +26,7 @@ df$select(cs$first())
 # Select everything except for the first column:
 df$select(!cs$first())
 }
+\seealso{
+\link{cs} for the documentation on operators supported by Polars
+selectors.
+}

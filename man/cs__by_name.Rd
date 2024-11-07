@@ -39,3 +39,7 @@ df$select(cs$by_name("baz", "moose", "foo", "bear", .require_all = FALSE))
 # Match all columns except for those given:
 df$select(!cs$by_name("foo", "bar"))
 }
+\seealso{
+\link{cs} for the documentation on operators supported by Polars
+selectors.
+}

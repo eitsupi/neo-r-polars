@@ -29,3 +29,7 @@ df$select(cs$decimal())
 # Select all columns except for those that are decimal:
 df$select(!cs$decimal())
 }
+\seealso{
+\link{cs} for the documentation on operators supported by Polars
+selectors.
+}

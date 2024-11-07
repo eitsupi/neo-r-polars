@@ -27,3 +27,7 @@ df$select(cs$numeric())
 # Select all columns except for those that are numeric:
 df$select(!cs$numeric())
 }
+\seealso{
+\link{cs} for the documentation on operators supported by Polars
+selectors.
+}

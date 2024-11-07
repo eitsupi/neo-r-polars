@@ -24,3 +24,7 @@ df$with_columns(inverted = cs$boolean()$not())
 # Select all columns except for those that are boolean:
 df$select(!cs$boolean())
 }
+\seealso{
+\link{cs} for the documentation on operators supported by Polars
+selectors.
+}

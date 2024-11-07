@@ -26,3 +26,7 @@ df$select(cs$binary())
 # Select all columns except for those that are binary:
 df$select(!cs$binary())
 }
+\seealso{
+\link{cs} for the documentation on operators supported by Polars
+selectors.
+}

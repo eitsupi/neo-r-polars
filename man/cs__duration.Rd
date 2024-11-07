@@ -39,3 +39,7 @@ df$select(cs$duration(c("ms", "ns")))
 df$select(!cs$duration())
 \dontshow{\}) # examplesIf}
 }
+\seealso{
+\link{cs} for the documentation on operators supported by Polars
+selectors.
+}

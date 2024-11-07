@@ -1,10 +1,22 @@
 #' Polars column selector function namespace
 #'
-#' `cs` is an [environment class][environment-class] object
-#' that stores all selector functions of the R Polars API
-#' which mimics the Python Polars API.
+#' `cs` is an [environment class][environment-class] object that stores all
+#' selector functions of the R Polars API which mimics the Python Polars API.
 #' It is intended to work the same way in Python as if you had imported
 #' Python Polars Selectors with `import polars.selectors as cs`.
+#'
+#' @section Supported operators:
+#' There are 4 supported operators for selectors:
+#' * `&` to combine conditions with AND, e.g. select columns that contain
+#'   `"oo"` *and* end with `"t"` with `cs$contains("oo") & cs$ends_with("t")`;
+#' * `|` to combine conditions with OR, e.g. select columns that contain
+#'   `"oo"` *or* end with `"t"` with `cs$contains("oo") | cs$ends_with("t")`;
+#' * `-` to substract conditions, e.g. select all columns that have alphanumeric
+#'   names except those that contain `"a"` with
+#'   `cs$alphanumeric() - cs$contains("a")`;
+#' * `!` to invert the selection, e.g. select all columns that *are not* of data
+#'   type `String` with `!cs$string()`.
+#'
 #' @examples
 #' cs
 #'
@@ -65,25 +77,46 @@ selector__sub <- function(other) {
   }
 }
 
+selector__or <- function(other) {
+  if (is_polars_selector(other)) {
+    wrap_to_selector(
+      self$meta$`_as_selector`()$meta$`_selector_add`(other),
+      name = "or",
+      parameters = list(
+        self = self,
+        other = other
+      )
+    )
+  } else {
+    self$as_expr()$or(other)
+  }
+}
+
+selector__and <- function(other) {
+  if (is_polars_selector(other)) {
+    wrap_to_selector(
+      self$meta$`_as_selector`()$meta$`_selector_and`(other),
+      name = "and",
+      parameters = list(
+        self = self,
+        other = other
+      )
+    )
+  } else {
+    self$as_expr()$and(other)
+  }
+}
+
 selector__as_expr <- function() {
   self$`_rexpr` |>
     wrap()
 }
 
-#' Indicate whether the given object/expression is a selector
-#'
-#' @return A logical value
-#' @export
-#' @examples
-#' is_selector(pl$col("colx"))
-#' is_selector(!cs$integer())
-is_selector <- function(x) {
-  inherits(x, "polars_selector")
-}
-
 #' Select all columns
 #'
 #' @return A Polars selector
+#' @seealso [cs] for the documentation on operators supported by Polars
+#' selectors.
 #' @examples
 #' df <- pl$DataFrame(dt = as.Date(c("2000-1-1")), value = 10)
 #'
@@ -112,7 +145,7 @@ cs__all <- function() {
 #' characters (`p{Alphabetic}`) by default; this can be changed by setting
 #' `ascii_only = TRUE`.
 #'
-#' @inherit cs__all return
+#' @inherit cs__all return seealso
 #' @examples
 #' df <- pl$DataFrame(
 #'   no1 = c(100, 200, 300),
@@ -160,7 +193,7 @@ cs__alpha <- function(ascii_only = FALSE, ..., ignore_spaces = FALSE) {
 #' characters (`p{Alphabetic}`) and digit characters (`d`) by default; this can
 #' be changed by setting `ascii_only = TRUE`.
 #'
-#' @inherit cs__all return
+#' @inherit cs__all return seealso
 #' @examples
 #' df <- pl$DataFrame(
 #'   `1st_col` = c(100, 200, 300),
@@ -196,7 +229,7 @@ cs__alphanumeric <- function(ascii_only = FALSE, ..., ignore_spaces = FALSE) {
 
 #' Select all binary columns
 #'
-#' @inherit cs__all return
+#' @inherit cs__all return seealso
 #' @examples
 #' df <- pl$DataFrame(
 #'   a = charToRaw("hello"),
@@ -216,7 +249,7 @@ cs__binary <- function() {
 
 #' Select all boolean columns
 #'
-#' @inherit cs__all return
+#' @inherit cs__all return seealso
 #' @examples
 #' df <- pl$DataFrame(
 #'   a = 1:4,
@@ -236,7 +269,7 @@ cs__boolean <- function() {
 #'
 #' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Data types to select.
 #'
-#' @inherit cs__all return
+#' @inherit cs__all return seealso
 #' @examples
 #' df <- pl$DataFrame(
 #'   dt = as.Date(c("1999-12-31", "2024-1-1", "2010-7-5")),
@@ -270,7 +303,7 @@ cs__by_dtype <- function(...) {
 #' Matching columns are returned in the order in which their indexes appear in
 #' the selector, not the underlying schema order.
 #'
-#' @inherit cs__all return
+#' @inherit cs__all return seealso
 #' @examples
 #' vals <- as.list(0.5 * 0:100)
 #' names(vals) <- paste0("c", 0:100)
@@ -298,7 +331,7 @@ cs__by_index <- function(indices) {
 #' names.
 #'
 #' @inherit cs__by_index details
-#' @inherit cs__all return
+#' @inherit cs__all return seealso
 #' @examples
 #' df <- pl$DataFrame(
 #'   foo = c("x", "y"),
@@ -343,7 +376,7 @@ cs__by_name <- function(..., .require_all = TRUE) {
 
 #' Select all categorical columns
 #'
-#' @inherit cs__all return
+#' @inherit cs__all return seealso
 #' @examples
 #' df <- pl$DataFrame(
 #'   foo = c("xx", "yy"),
@@ -365,7 +398,7 @@ cs__categorical <- function() {
 #'
 #' @param substring Substring(s) that matching column names should contain.
 #'
-#' @inherit cs__all return
+#' @inherit cs__all return seealso
 #' @examples
 #' df <- pl$DataFrame(
 #'   foo = c("x", "y"),
@@ -391,7 +424,7 @@ cs__contains <- function(substring) {
 
 #' Select all date columns
 #'
-#' @inherit cs__all return
+#' @inherit cs__all return seealso
 #' @examples
 #' df <- pl$DataFrame(
 #'   dtm = as.POSIXct(c("2001-5-7 10:25", "2031-12-31 00:30")),
@@ -418,7 +451,7 @@ cs__date <- function() {
 #' * `NULL` (default) to select Datetime columns that do not have a timezone,
 #' * `"*"` to select Datetime columns that have any timezone.
 #'
-#' @inherit cs__all return
+#' @inherit cs__all return seealso
 #' @examples
 #' df <- pl$DataFrame(
 #'   tstamp_tokyo = as.POSIXct(
@@ -484,7 +517,7 @@ cs__datetime <- function(time_unit = c("ms", "us", "ns"), time_zone = "*") {
 
 #' Select all decimal columns
 #'
-#' @inherit cs__all return
+#' @inherit cs__all return seealso
 #' @examples
 #' df <- pl$DataFrame(
 #'   foo = c("x", "y"),
@@ -514,7 +547,7 @@ cs__decimal <- function() {
 #' definition of "digit" consists of all valid Unicode digit characters (`d`)
 #' by default; this can be changed by setting `ascii_only = TRUE`.
 #'
-#' @inherit cs__all return
+#' @inherit cs__all return seealso
 #' @examples
 #' df <- pl$DataFrame(
 #'   key = c("aaa", "bbb"),
@@ -546,7 +579,7 @@ cs__digit <- function(ascii_only = FALSE) {
 #'
 #' @inheritParams cs__datetime
 #'
-#' @inherit cs__all return
+#' @inherit cs__all return seealso
 #' @examplesIf requireNamespace("clock", quietly = TRUE)
 #' df <- pl$DataFrame(
 #'   dtm = as.POSIXct(c("2001-5-7 10:25", "2031-12-31 00:30")),
@@ -583,7 +616,7 @@ cs__duration <- function(time_unit = c("ms", "us", "ns")) {
 #'
 #' @param suffix Substring(s) that matching column names should end with.
 #'
-#' @inherit cs__all return
+#' @inherit cs__all return seealso
 #' @examples
 #' df <- pl$DataFrame(
 #'   foo = c("x", "y"),
@@ -615,7 +648,7 @@ cs__ends_with <- function(suffix) {
 #' @details
 #' If excluding a single selector it is simpler to write as `!selector` instead.
 #'
-#' @inherit cs__all return
+#' @inherit cs__all return seealso
 #' @examples
 #' df <- pl$DataFrame(
 #'   aa = c(1, 2, 3),
@@ -645,7 +678,7 @@ cs__exclude <- function(...) {
 
 #' Select the first column in the current scope
 #'
-#' @inherit cs__all return
+#' @inherit cs__all return seealso
 #' @examples
 #' df <- pl$DataFrame(
 #'   foo = c("x", "y"),
@@ -665,7 +698,7 @@ cs__first <- function() {
 
 #' Select all float columns.
 #'
-#' @inherit cs__all return
+#' @inherit cs__all return seealso
 #' @examples
 #' df <- pl$DataFrame(
 #'   foo = c("x", "y"),
@@ -691,7 +724,7 @@ cs__float <- function() {
 
 #' Select all integer columns.
 #'
-#' @inherit cs__all return
+#' @inherit cs__all return seealso
 #' @examples
 #' df <- pl$DataFrame(
 #'   foo = c("x", "y"),
@@ -719,7 +752,7 @@ cs__integer <- function() {
 
 #' Select the last column in the current scope
 #'
-#' @inherit cs__all return
+#' @inherit cs__all return seealso
 #' @examples
 #' df <- pl$DataFrame(
 #'   foo = c("x", "y"),
@@ -742,7 +775,7 @@ cs__last <- function() {
 #' @param pattern A valid regular expression pattern, compatible with the
 #' `regex crate <https://docs.rs/regex/latest/regex/>`_.
 #'
-#' @inherit cs__all return
+#' @inherit cs__all return seealso
 #' @examples
 #' df <- pl$DataFrame(
 #'   foo = c("x", "y"),
@@ -786,7 +819,7 @@ cs__matches <- function(pattern) {
 
 #' Select all numeric columns.
 #'
-#' @inherit cs__all return
+#' @inherit cs__all return seealso
 #' @examples
 #' df <- pl$DataFrame(
 #'   foo = c("x", "y"),
@@ -816,7 +849,7 @@ cs__numeric <- function() {
 
 #' Select all signed integer columns
 #'
-#' @inherit cs__all return
+#' @inherit cs__all return seealso
 #' @examples
 #' df <- pl$DataFrame(
 #'   foo = c(-123L, -456L),
@@ -847,7 +880,7 @@ cs__signed_integer <- function() {
 #'
 #' @param prefix Substring(s) that matching column names should end with.
 #'
-#' @inherit cs__all return
+#' @inherit cs__all return seealso
 #' @examples
 #' df <- pl$DataFrame(
 #'   foo = c("x", "y"),
@@ -873,7 +906,7 @@ cs__starts_with <- function(prefix) {
 
 #' Select all String (and, optionally, Categorical) string columns.
 #'
-#' @inherit cs__all return
+#' @inherit cs__all return seealso
 #' @examples
 #' df <- pl$DataFrame(
 #'   w = c("xx", "yy", "xx", "yy", "xx"),
@@ -905,7 +938,7 @@ cs__string <- function(include_categorical = FALSE) {
 # TODO: doesn't detect datetime
 #' Select all temporal columns
 #'
-#' @inherit cs__all return
+#' @inherit cs__all return seealso
 #' @examples
 #' df <- pl$DataFrame(
 #'   dtm = as.POSIXct(c("2001-5-7 10:25", "2031-12-31 00:30")),
@@ -932,7 +965,7 @@ cs__temporal <- function() {
 
 #' Select all time columns
 #'
-#' @inherit cs__all return
+#' @inherit cs__all return seealso
 #' @examplesIf requireNamespace("hms", quietly = TRUE)
 #' df <- pl$DataFrame(
 #'   dtm = as.POSIXct(c("2001-5-7 10:25", "2031-12-31 00:30")),
@@ -951,7 +984,7 @@ cs__time <- function() {
 
 #' Select all unsigned integer columns
 #'
-#' @inherit cs__all return
+#' @inherit cs__all return seealso
 #' @examples
 #' df <- pl$DataFrame(
 #'   foo = c(-123L, -456L),

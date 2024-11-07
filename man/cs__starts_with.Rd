@@ -32,3 +32,7 @@ df$select(cs$starts_with(c("b", "z")))
 # Select all columns except for those that start with the substring "b":
 df$select(!cs$starts_with("b"))
 }
+\seealso{
+\link{cs} for the documentation on operators supported by Polars
+selectors.
+}

@@ -32,3 +32,7 @@ df$select(cs$ends_with(c("z", "r")))
 # Select all columns except for those that end with the substring "z":
 df$select(!cs$ends_with("z"))
 }
+\seealso{
+\link{cs} for the documentation on operators supported by Polars
+selectors.
+}
