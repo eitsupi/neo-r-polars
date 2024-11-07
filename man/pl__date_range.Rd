@@ -28,7 +28,7 @@ object or using the Polars duration string language. See the \verb{Polars durati
 One of the following: \code{"both"} (default), \code{"left"}, \code{"right"}, \code{"none"}.}
 }
 \value{
-An \link[=Expr_class]{Expr} of data type Date or \link[=DataType_Datetime]{Datetime}
+A polars \link{expression}
 }
 \description{
 If both \code{start} and \code{end} are passed as the Date types (not Datetime), and
