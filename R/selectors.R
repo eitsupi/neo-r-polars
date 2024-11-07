@@ -443,7 +443,6 @@ cs__date <- function() {
   wrap_to_selector(pl$col(pl$Date), name = "date")
 }
 
-# TODO: fix this, doesn't match python
 #' Select all datetime columns
 #'
 #' @param time_unit One (or more) of the allowed time unit precision strings,
@@ -477,7 +476,12 @@ cs__date <- function() {
 #'   )),
 #'   dt = as.Date(c(
 #'     "1999-12-31", "2010-7-5"
-#'   ))
+#'   )),
+#'   .schema_overrides = list(
+#'     tstamp_tokyo = pl$Datetime("ns", "Asia/Tokyo"),
+#'     tstamp_utc = pl$Datetime("us", "UTC"),
+#'     tstamp = pl$Datetime("us")
+#'   )
 #' )
 #'
 #' # Select all datetime columns:
@@ -497,10 +501,17 @@ cs__date <- function() {
 #'
 #' # Select all columns except for datetime columns:
 #' df$select(!cs$datetime())
-cs__datetime <- function(time_unit = c("ms", "us", "ns"), time_zone = "*") {
+cs__datetime <- function(time_unit = c("ms", "us", "ns"), time_zone) {
   time_unit <- arg_match(time_unit, values = c("ms", "us", "ns"), multiple = TRUE)
   datetime_dtypes <- list()
-  if (is.null(time_zone)) {
+  # When time_zone is missing, we want to detect all datetime, no matter the
+  # presence/absence or the value of the timezone.
+  if (missing(time_zone)) {
+    for (tu in time_unit) {
+      datetime_dtypes <- append(datetime_dtypes, pl$Datetime(time_unit = tu, time_zone = "*"))
+      datetime_dtypes <- append(datetime_dtypes, pl$Datetime(time_unit = tu, time_zone = NULL))
+    }
+  } else if (is.null(time_zone)) {
     for (tu in time_unit) {
       datetime_dtypes <- append(datetime_dtypes, pl$Datetime(time_unit = tu, time_zone = NULL))
     }

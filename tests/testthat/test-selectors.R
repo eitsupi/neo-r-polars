@@ -197,6 +197,38 @@ test_that("date", {
 })
 
 test_that("datetime", {
+  df <- pl$DataFrame(
+    tstamp_tokyo = as.POSIXct("1999-7-21  5:20:16:987654", tz = "Asia/Tokyo"),
+    tstamp_utc = as.POSIXct("1999-7-21  5:20:16:987654", tz = "UTC"),
+    tstamp = as.POSIXct("1999-7-21  5:20:16:987654"),
+    dt = as.Date("1999-12-31"),
+    .schema_overrides = list(
+      tstamp_tokyo = pl$Datetime("ns", "Asia/Tokyo"),
+      tstamp_utc = pl$Datetime("us", "UTC"),
+      tstamp = pl$Datetime("us")
+    )
+  )
+
+  expect_named(
+    df$select(cs$datetime()),
+    c("tstamp_tokyo", "tstamp_utc", "tstamp")
+  )
+  expect_named(
+    df$select(cs$datetime("us")),
+    c("tstamp_utc", "tstamp")
+  )
+  expect_named(
+    df$select(cs$datetime(time_zone = "*")),
+    c("tstamp_tokyo", "tstamp_utc")
+  )
+  expect_named(
+    df$select(cs$datetime(time_zone = "UTC")),
+    "tstamp_utc"
+  )
+  expect_named(
+    df$select(cs$datetime(time_zone = NULL)),
+    "tstamp"
+  )
 })
 
 test_that("decimal", {
