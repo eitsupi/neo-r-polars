@@ -14,6 +14,13 @@ test_that("minus operator works", {
   )
 })
 
+test_that("is_selector", {
+  expect_false(is_selector(pl$col("colx")))
+  expect_true(is_selector(cs$integer()))
+  expect_true(is_selector(!cs$integer()))
+  expect_true(is_selector(cs$integer() - cs$numeric()))
+})
+
 test_that("all", {
   expect_named(
     pl$DataFrame(dt = as.Date(c("2000-1-1")), value = 10)$select(cs$all()),
