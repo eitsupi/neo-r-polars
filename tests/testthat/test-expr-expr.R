@@ -2057,7 +2057,8 @@ test_that("clip", {
   )
 })
 
-# TODO-REWRITE: lower bound i32 becomes NA once converted to R
+# TODO: this shouldn't need casting to int64
+# https://github.com/eitsupi/neo-r-polars/pull/19#discussion_r1824131404
 test_that("upper lower bound", {
   expect_equal(
     pl$DataFrame(
@@ -2066,13 +2067,13 @@ test_that("upper lower bound", {
     )$select(
       pl$all()$upper_bound()$name$suffix("_ub"),
       pl$all()$lower_bound()$name$suffix("_lb")
-    ),
+    )$cast(i32_lb = pl$Int64),
     pl$DataFrame(
       i32_ub = .Machine$integer.max,
       f64_ub = Inf,
-      i32_lb = NA_integer_, # R encodes lower bound as NA
+      i32_lb = -2147483648,
       f64_lb = -Inf
-    )
+    )$cast(i32_lb = pl$Int64)
   )
 })
 
