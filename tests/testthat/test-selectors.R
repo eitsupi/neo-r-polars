@@ -28,9 +28,22 @@ test_that("'minus' operator works", {
     df$select(cs$alphanumeric() - cs$alpha()),
     c("foo2", "foo3")
   )
-  expect_snapshot(
-    cs$alphanumeric() - 1,
-    error = TRUE
+})
+
+test_that("can use selectors in expressions", {
+  df <- pl$DataFrame(
+    dt = as.Date(c("1999-12-31", "2024-1-1", "2010-7-5")),
+    value = c(1, 2, -3),
+    other = c("foo", "bar", "foo")
+  )
+
+  expect_equal(
+    df$select(cs$string()$str$to_uppercase()),
+    pl$DataFrame(other = c("FOO", "BAR", "FOO"))
+  )
+  expect_equal(
+    df$group_by(cs$string())$agg(cs$numeric()$sum())$sort("other"),
+    pl$DataFrame(other = c("bar", "foo"), value = c(2, -2))
   )
 })
 
