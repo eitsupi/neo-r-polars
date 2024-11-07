@@ -326,7 +326,6 @@ cs__by_index <- function(indices) {
   wrap_to_selector(pl$nth(indices), name = "by_index")
 }
 
-# TODO: check dots no name
 #' Select all columns matching the given names
 #'
 #' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Column names to select.
