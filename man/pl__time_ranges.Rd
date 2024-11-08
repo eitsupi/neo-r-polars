@@ -9,7 +9,7 @@ pl__time_ranges(
   end = NULL,
   interval = "1h",
   ...,
-  closed = "both"
+  closed = c("both", "left", "none", "right")
 )
 }
 \arguments{

@@ -321,7 +321,7 @@ pl__time_range <- function(
     end = NULL,
     interval = "1h",
     ...,
-    closed = "both") {
+    closed = c("both", "left", "none", "right")) {
   wrap({
     check_installed("hms")
     check_dots_empty0(...)
@@ -365,9 +365,8 @@ pl__time_ranges <- function(
     end = NULL,
     interval = "1h",
     ...,
-    closed = "both") {
+    closed = c("both", "left", "none", "right")) {
   wrap({
-    check_installed("hms")
     check_dots_empty0(...)
     closed <- arg_match0(closed, values = c("both", "left", "none", "right"))
     interval <- parse_as_polars_duration_string(interval)
@@ -377,10 +376,10 @@ pl__time_ranges <- function(
       }
     }
     if (is.null(start)) {
-      start <- hms::parse_hms("00:00:00")
+      start <- pl$lit(0)$cast(pl$Time)
     }
     if (is.null(end)) {
-      end <- hms::parse_hms("23:59:59.999")
+      end <- pl$lit(86399999999999)$cast(pl$Time)
     }
     time_ranges(
       as_polars_expr(start)$`_rexpr`,

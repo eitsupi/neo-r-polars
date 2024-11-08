@@ -4,7 +4,13 @@
 \alias{pl__time_range}
 \title{Generate a time range}
 \usage{
-pl__time_range(start = NULL, end = NULL, interval = "1h", ..., closed = "both")
+pl__time_range(
+  start = NULL,
+  end = NULL,
+  interval = "1h",
+  ...,
+  closed = c("both", "left", "none", "right")
+)
 }
 \arguments{
 \item{start}{Lower bound of the time range. If omitted, defaults to
