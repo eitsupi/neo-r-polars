@@ -2031,13 +2031,14 @@ test_that("clip", {
     )
   )
 
-  # TODO-REWRITE: this should error instead of panick
+  # TODO: those panick in dev profile but not in release profile. Either
+  # uncomment or remove when https://github.com/pola-rs/polars/issues/19692
+  # is resolved
+
   # expect_snapshot(
   #   df$select(pl$col("float")$clip(10, 1)),
   #   error = TRUE
   # )
-
-  # TODO-REWRITE: this should work instead of panick
   # expect_equal(
   #   df$select(
   #     clip_min_int = pl$col("int")$clip(NaN),
