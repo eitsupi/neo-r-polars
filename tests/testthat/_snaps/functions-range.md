@@ -96,5 +96,5 @@
       Error in `pl$time_ranges()`:
       ! Evaluation failed in `$time_ranges()`.
       Caused by error in `pl$time_ranges()`:
-      ! invalid interval unit: found y
+      ! invalid unit in `interval`: found "y"
 

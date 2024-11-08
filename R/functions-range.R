@@ -371,7 +371,7 @@ pl__time_ranges <- function(
     interval <- parse_as_polars_duration_string(interval)
     for (unit in c("y", "mo", "w", "d")) {
       if (grepl(unit, interval)) {
-        abort(paste0("invalid interval unit: found ", unit))
+        abort(paste0("invalid unit in `interval`: found \"", unit, "\""))
       }
     }
     if (is.null(start)) {
