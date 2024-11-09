@@ -34,6 +34,16 @@ SEXP handle_result(SEXP res_) {
     return (SEXP)res;
 }
 
+SEXP savvy_rust_polars_version__impl(void) {
+    SEXP res = savvy_rust_polars_version__ffi();
+    return handle_result(res);
+}
+
+SEXP savvy_thread_pool_size__impl(void) {
+    SEXP res = savvy_thread_pool_size__ffi();
+    return handle_result(res);
+}
+
 SEXP savvy_all_horizontal__impl(SEXP c_arg__exprs) {
     SEXP res = savvy_all_horizontal__ffi(c_arg__exprs);
     return handle_result(res);
@@ -2531,6 +2541,8 @@ SEXP savvy_PlRWhen_then__impl(SEXP self__, SEXP c_arg__statement) {
 
 
 static const R_CallMethodDef CallEntries[] = {
+    {"savvy_rust_polars_version__impl", (DL_FUNC) &savvy_rust_polars_version__impl, 0},
+    {"savvy_thread_pool_size__impl", (DL_FUNC) &savvy_thread_pool_size__impl, 0},
     {"savvy_all_horizontal__impl", (DL_FUNC) &savvy_all_horizontal__impl, 1},
     {"savvy_any_horizontal__impl", (DL_FUNC) &savvy_any_horizontal__impl, 1},
     {"savvy_max_horizontal__impl", (DL_FUNC) &savvy_max_horizontal__impl, 1},

@@ -38,6 +38,16 @@ NULL
 }
 
 
+`rust_polars_version` <- function() {
+  .Call(savvy_rust_polars_version__impl)
+}
+
+
+`thread_pool_size` <- function() {
+  .Call(savvy_thread_pool_size__impl)
+}
+
+
 `all_horizontal` <- function(`exprs`) {
   .savvy_wrap_PlRExpr(.Call(savvy_all_horizontal__impl, `exprs`))
 }
