@@ -93,6 +93,7 @@ expr_struct_field <- function(...) {
 #' )
 expr_struct_rename_fields <- function(names) {
   wrap({
+    check_character(names, allow_na = FALSE)
     self$`_rexpr`$struct_rename_fields(names)
   })
 }
