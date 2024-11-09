@@ -28,5 +28,5 @@ df <- pl$DataFrame(
   by = c("_", "_", "*")
 )
 df
-df$select(pl$col("s")$str$split(by = pl$col("by"))$alias("split"))
+df$select(split = pl$col("s")$str$split(by = pl$col("by")))
 }

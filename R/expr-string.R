@@ -721,7 +721,7 @@ expr_str_count_matches <- function(pattern, ..., literal = FALSE) {
 #'   by = c("_", "_", "*")
 #' )
 #' df
-#' df$select(pl$col("s")$str$split(by = pl$col("by"))$alias("split"))
+#' df$select(split = pl$col("s")$str$split(by = pl$col("by")))
 expr_str_split <- function(by, ..., inclusive = FALSE) {
   wrap({
     check_dots_empty0(...)
