@@ -267,7 +267,7 @@ pl__struct <- function(...) {
 pl__concat_list <- function(...) {
   wrap({
     check_dots_unnamed()
-    dots <- parse_into_list_of_expressions(...)
-    concat_list(dots)
+    parse_into_list_of_expressions(...) |>
+      concat_list()
   })
 }
