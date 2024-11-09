@@ -4,10 +4,12 @@
 \alias{expr_str_split}
 \title{Split the string by a substring}
 \usage{
-expr_str_split(by, inclusive = FALSE)
+expr_str_split(by, ..., inclusive = FALSE)
 }
 \arguments{
 \item{by}{Substring to split by. Can be an Expr.}
+
+\item{...}{Dots which should be empty.}
 
 \item{inclusive}{If \code{TRUE}, include the split character/string in the results.}
 }
