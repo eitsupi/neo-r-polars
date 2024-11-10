@@ -66,22 +66,10 @@ will be parsed at this offset.}
 \item{schema}{Provide the schema. This means that polars doesn't do schema
 inference. This argument expects the complete schema, whereas
 \code{schema_overrides} can be used to partially overwrite a schema. This must
-be a named list of column names - dtypes or dtype - column names. Supported
-types so far are:
-\itemize{
-\item "Boolean" or "logical" for DataType::Boolean,
-\item "Categorical" or "factor" for DataType::Categorical,
-\item "Float32" or "double" for DataType::Float32,
-\item "Float64" or "float64" for DataType::Float64,
-\item "Int32" or "integer" for DataType::Int32,
-\item "Int64" or "integer64" for DataType::Int64,
-\item "String" or "character" for DataType::String,
-}}
+be a named list of column names - dtypes or dtype - column names.}
 
 \item{schema_overrides}{Overwrite dtypes during inference. This must be a
-named list of column names - dtypes. See \code{schema} for supported types. If
-\code{new_columns} is specified, then it can also be an unnamed list of dtypes of
-the same length.}
+named list of column names - dtypes.}
 
 \item{null_values}{Values to interpret as \code{NA} values. Can be:
 \itemize{

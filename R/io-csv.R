@@ -24,19 +24,9 @@
 #' @param schema Provide the schema. This means that polars doesn't do schema
 #' inference. This argument expects the complete schema, whereas
 #' `schema_overrides` can be used to partially overwrite a schema. This must
-#' be a named list of column names - dtypes or dtype - column names. Supported
-#' types so far are:
-#' * "Boolean" or "logical" for DataType::Boolean,
-#' * "Categorical" or "factor" for DataType::Categorical,
-#' * "Float32" or "double" for DataType::Float32,
-#' * "Float64" or "float64" for DataType::Float64,
-#' * "Int32" or "integer" for DataType::Int32,
-#' * "Int64" or "integer64" for DataType::Int64,
-#' * "String" or "character" for DataType::String,
+#' be a named list of column names - dtypes or dtype - column names.
 #' @param schema_overrides Overwrite dtypes during inference. This must be a
-#' named list of column names - dtypes. See `schema` for supported types. If
-#' `new_columns` is specified, then it can also be an unnamed list of dtypes of
-#' the same length.
+#' named list of column names - dtypes.
 #' @param null_values Values to interpret as `NA` values. Can be:
 #' * a character vector: all values that match one of the values in this vector
 #'   will be `NA`;
