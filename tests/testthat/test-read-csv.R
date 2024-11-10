@@ -267,3 +267,16 @@ test_that("arg 'storage_options' throws basic errors", {
     error = TRUE
   )
 })
+
+test_that("arg 'decimal_comma' works", {
+  tmpf <- tempfile()
+  writeLines("a|b|c\n1,5|a|2\n2||", tmpf)
+  expect_equal(
+    pl$read_csv(tmpf, separator = "|"),
+    pl$DataFrame(a = c("1,5", "2"), b = c("a", NA), c = c(2L, NA))$cast(c = pl$Int64)
+  )
+  expect_equal(
+    pl$read_csv(tmpf, separator = "|", decimal_comma = TRUE),
+    pl$DataFrame(a = c(1.5, 2), b = c("a", NA), c = c(2L, NA))$cast(c = pl$Int64)
+  )
+})
