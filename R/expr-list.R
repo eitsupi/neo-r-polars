@@ -155,8 +155,7 @@ expr_list_n_unique <- function() {
 #' )
 expr_list_concat <- function(other) {
   wrap({
-    class(self) <- c("polars_expr", "polars_object")
-    pl$concat_list(self, other)
+    pl$concat_list(wrap(self$`_rexpr`), other)
   })
 }
 
