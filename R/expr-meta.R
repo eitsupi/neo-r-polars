@@ -199,7 +199,6 @@ expr_meta_tree_format <- function() {
   })
 }
 
-# TODO: add examples with selectors when implemented
 #' Indicate if this expression only selects columns (optionally with aliasing)
 #'
 #' This can include bare columns, column matches by regex or dtype, selectors
