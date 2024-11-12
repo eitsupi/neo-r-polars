@@ -149,6 +149,7 @@ pl__scan_csv <- function(
     include_file_paths = NULL) {
   wrap({
     check_dots_empty0(...)
+    check_character(source)
     if (length(source) == 0) {
       abort("`source` must have length > 0.")
     }
