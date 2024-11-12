@@ -1209,6 +1209,11 @@ SEXP savvy_PlRExpr_meta_is_column_selection__impl(SEXP self__, SEXP c_arg__allow
     return handle_result(res);
 }
 
+SEXP savvy_PlRExpr_meta_is_column__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_meta_is_column__ffi(self__);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRExpr_name_keep__impl(SEXP self__) {
     SEXP res = savvy_PlRExpr_name_keep__ffi(self__);
     return handle_result(res);
@@ -2001,6 +2006,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_meta_tree_format__impl", (DL_FUNC) &savvy_PlRExpr_meta_tree_format__impl, 1},
     {"savvy_PlRExpr_meta_is_regex_projection__impl", (DL_FUNC) &savvy_PlRExpr_meta_is_regex_projection__impl, 1},
     {"savvy_PlRExpr_meta_is_column_selection__impl", (DL_FUNC) &savvy_PlRExpr_meta_is_column_selection__impl, 2},
+    {"savvy_PlRExpr_meta_is_column__impl", (DL_FUNC) &savvy_PlRExpr_meta_is_column__impl, 1},
     {"savvy_PlRExpr_name_keep__impl", (DL_FUNC) &savvy_PlRExpr_name_keep__impl, 1},
     {"savvy_PlRExpr_name_prefix__impl", (DL_FUNC) &savvy_PlRExpr_name_prefix__impl, 2},
     {"savvy_PlRExpr_name_suffix__impl", (DL_FUNC) &savvy_PlRExpr_name_suffix__impl, 2},

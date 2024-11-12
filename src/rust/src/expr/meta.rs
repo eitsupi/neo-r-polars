@@ -115,4 +115,8 @@ impl PlRExpr {
             .is_column_selection(allow_aliasing)
             .try_into()
     }
+
+    fn meta_is_column(&self) -> Result<Sexp> {
+        self.inner.clone().meta().is_column().try_into()
+    }
 }

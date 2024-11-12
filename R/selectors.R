@@ -56,6 +56,10 @@ wrap_to_selector <- function(x, name, parameters = NULL) {
   self
 }
 
+is_column <- function(obj) {
+  is_polars_expr(obj) && obj$meta$is_column()
+}
+
 selector__invert <- function() {
   inverted <- cs$all()$sub(self)
   # TODO: we want to print something like `!cs$all()` when call `!cs$all()`
@@ -80,6 +84,9 @@ selector__sub <- function(other) {
 }
 
 selector__or <- function(other) {
+  if (is_column(other)) {
+    other <- cs$by_name(other$meta$output_name())
+  }
   if (is_polars_selector(other)) {
     wrap_to_selector(
       self$meta$`_as_selector`()$meta$`_selector_add`(other),
@@ -95,6 +102,18 @@ selector__or <- function(other) {
 }
 
 selector__and <- function(other) {
+  if (is_column(other)) {
+    colname <- other$meta$output_name()
+    # TODO: uncomment or remove when this is resolved:
+    # https://github.com/pola-rs/polars/issues/19740
+    # if (self$`_attrs`[["name"]] == "by_name") {
+    #   params <- self$`_attrs`[["parameters"]]
+    #   if (isTRUE(params[[".require_all"]])) {
+    #     return(cs__by_name(params[["..."]]))
+    #   }
+    # }
+    other <- cs__by_name(colname)
+  }
   if (is_polars_selector(other)) {
     wrap_to_selector(
       self$meta$`_as_selector`()$meta$`_selector_and`(other),

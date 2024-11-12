@@ -243,6 +243,7 @@ SEXP savvy_PlRExpr__meta_as_selector__ffi(SEXP self__);
 SEXP savvy_PlRExpr_meta_tree_format__ffi(SEXP self__);
 SEXP savvy_PlRExpr_meta_is_regex_projection__ffi(SEXP self__);
 SEXP savvy_PlRExpr_meta_is_column_selection__ffi(SEXP self__, SEXP c_arg__allow_aliasing);
+SEXP savvy_PlRExpr_meta_is_column__ffi(SEXP self__);
 SEXP savvy_PlRExpr_name_keep__ffi(SEXP self__);
 SEXP savvy_PlRExpr_name_prefix__ffi(SEXP self__, SEXP c_arg__prefix);
 SEXP savvy_PlRExpr_name_suffix__ffi(SEXP self__, SEXP c_arg__suffix);

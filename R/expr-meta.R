@@ -222,10 +222,31 @@ expr_meta_tree_format <- function() {
 #'
 #' e <- pl$col("foo") * pl$col("bar")
 #' e$meta$is_column_selection()
+#' 
+#' e <- cs$starts_with("foo")
+#' e$meta$is_column_selection()
 expr_meta_is_column_selection <- function(..., allow_aliasing = FALSE) {
   wrap({
     check_dots_empty0(...)
     self$`_rexpr`$meta_is_column_selection(allow_aliasing)
+  })
+}
+
+#' Indicate if this expression is a basic (non-regex) unaliased column
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' e <- pl$col("foo")
+#' e$meta$is_column()
+#'
+#' e <- pl.col("foo") * pl.col("bar")
+#' e$meta$is_column()
+#'
+#' e <- pl.col(r"^col.*\d+$")
+#' e$meta$is_column()
+expr_meta_is_column <- function() {
+  wrap({
+    self$`_rexpr`$meta_is_column()
   })
 }
 

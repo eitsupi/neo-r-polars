@@ -1,5 +1,5 @@
 test_that("'invert' operator works", {
-  df <- pl$DataFrame(foo = 1, foo2 = 2, foo3 = 3)
+  df <- pl$DataFrame(foo = "a", foo2 = 2, foo3 = 3)
   expect_named(
     df$select(!cs$alpha()),
     c("foo2", "foo3")
@@ -7,23 +7,31 @@ test_that("'invert' operator works", {
 })
 
 test_that("'union' operator works", {
-  df <- pl$DataFrame(foo = 1, foo2 = 2, foo3 = 3)
+  df <- pl$DataFrame(foo = "a", foo2 = 2, foo3 = 3)
   expect_named(
     df$select(cs$alpha() | cs$contains("2")),
+    c("foo", "foo2")
+  )
+  expect_named(
+    df$select(cs$string() | pl$col("foo2")),
     c("foo", "foo2")
   )
 })
 
 test_that("'and' operator works", {
-  df <- pl$DataFrame(foo = 1, foot = 2, fox = 3)
+  df <- pl$DataFrame(foo = "a", foot = 2, fox = 3)
   expect_named(
     df$select(cs$contains("oo") & cs$ends_with("t")),
+    "foot"
+  )
+  expect_named(
+    df$select(cs$numeric() & pl$col("foot")),
     "foot"
   )
 })
 
 test_that("'minus' operator works", {
-  df <- pl$DataFrame(foo = 1, foo2 = 2, foo3 = 3)
+  df <- pl$DataFrame(foo = "a", foo2 = 2, foo3 = 3)
   expect_named(
     df$select(cs$alphanumeric() - cs$alpha()),
     c("foo2", "foo3")
