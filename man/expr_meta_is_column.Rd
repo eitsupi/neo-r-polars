@@ -7,7 +7,7 @@
 expr_meta_is_column()
 }
 \value{
-A polars \link{expression}
+A logical value.
 }
 \description{
 Indicate if this expression is a basic (non-regex) unaliased column

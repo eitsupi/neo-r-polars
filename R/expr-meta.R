@@ -209,7 +209,7 @@ expr_meta_tree_format <- function() {
 #' pure column selection. Set `TRUE` to allow for column selection that also
 #' includes aliasing.
 #'
-#' @inherit as_polars_expr return
+#' @return A logical value.
 #' @examples
 #' e <- pl$col("foo")
 #' e$meta$is_column_selection()
@@ -233,7 +233,7 @@ expr_meta_is_column_selection <- function(..., allow_aliasing = FALSE) {
 
 #' Indicate if this expression is a basic (non-regex) unaliased column
 #'
-#' @inherit as_polars_expr return
+#' @inherit expr_meta_is_column_selection return
 #' @examples
 #' e <- pl$col("foo")
 #' e$meta$is_column()
@@ -251,7 +251,7 @@ expr_meta_is_column <- function() {
 
 #' Indicate if this expression expands to columns that match a regex pattern
 #'
-#' @inherit as_polars_expr return
+#' @inherit expr_meta_is_column_selection return
 #' @examples
 #' e <- pl$col("^.*$")$name$prefix("foo_")
 #' e$meta$is_regex_projection()

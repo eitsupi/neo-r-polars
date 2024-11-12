@@ -14,7 +14,7 @@ pure column selection. Set \code{TRUE} to allow for column selection that also
 includes aliasing.}
 }
 \value{
-A polars \link{expression}
+A logical value.
 }
 \description{
 This can include bare columns, column matches by regex or dtype, selectors
