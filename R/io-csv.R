@@ -178,10 +178,10 @@ pl__scan_csv <- function(
       abort("`null_values` must be a character vector or a named list.")
     }
 
-    schema_overrides <- lapply(schema_overrides, \(x) x$`_dt`)
+    schema_overrides <- parse_into_list_of_datatypes(!!!schema_overrides)
 
     if (length(schema) > 0) {
-      schema <- lapply(schema, \(x) x$`_dt`)
+      schema <- parse_into_list_of_datatypes(!!!schema)
     }
 
     if (is.null(row_index_name) && !is.null(row_index_offset)) {
