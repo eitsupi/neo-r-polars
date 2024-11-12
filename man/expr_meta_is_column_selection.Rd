@@ -31,4 +31,7 @@ e$meta$is_column_selection(allow_aliasing = TRUE)
 
 e <- pl$col("foo") * pl$col("bar")
 e$meta$is_column_selection()
+
+e <- cs$starts_with("foo")
+e$meta$is_column_selection()
 }
