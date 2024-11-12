@@ -4,10 +4,11 @@
 \alias{cs__contains}
 \title{Select columns whose names contain the given literal substring(s)}
 \usage{
-cs__contains(substring)
+cs__contains(...)
 }
 \arguments{
-\item{substring}{Substring(s) that matching column names should contain.}
+\item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> Substring(s) that matching
+column names should contain.}
 }
 \value{
 A Polars selector
@@ -27,7 +28,7 @@ df <- pl$DataFrame(
 df$select(cs$contains("ba"))
 
 # Select columns that contain the substring "ba" or the letter "z":
-df$select(cs$contains(c("ba", "z")))
+df$select(cs$contains("ba", "z"))
 
 # Select all columns except for those that contain the substring "ba":
 df$select(!cs$contains("ba"))

@@ -204,8 +204,12 @@ test_that("contains", {
     c("bar", "baz")
   )
   expect_named(
-    df$select(cs$contains(c("ba", "z"))),
+    df$select(cs$contains("ba", "z")),
     c("bar", "baz", "zap")
+  )
+  expect_snapshot(
+    df$select(cs$contains("ba", 1)),
+    error = TRUE
   )
 })
 
@@ -327,8 +331,12 @@ test_that("ends_with", {
     "baz"
   )
   expect_named(
-    df$select(cs$ends_with(c("z", "r"))),
-    c("baz", "bar")
+    df$select(cs$ends_with("z", "r")),
+    c("bar", "baz")
+  )
+  expect_snapshot(
+    df$select(cs$ends_with("z", 1)),
+    error = TRUE
   )
 })
 
@@ -465,8 +473,12 @@ test_that("starts_with", {
     c("bar", "baz")
   )
   expect_named(
-    df$select(cs$starts_with(c("b", "z"))),
+    df$select(cs$starts_with("b", "z")),
     c("bar", "baz", "zap")
+  )
+  expect_snapshot(
+    df$select(cs$starts_with("b", 1)),
+    error = TRUE
   )
 })
 

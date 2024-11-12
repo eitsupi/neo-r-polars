@@ -4,10 +4,11 @@
 \alias{cs__starts_with}
 \title{Select columns that start with the given substring(s)}
 \usage{
-cs__starts_with(prefix)
+cs__starts_with(...)
 }
 \arguments{
-\item{prefix}{Substring(s) that matching column names should end with.}
+\item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> Substring(s) that matching
+column names should end with.}
 }
 \value{
 A Polars selector
@@ -27,7 +28,7 @@ df <- pl$DataFrame(
 df$select(cs$starts_with("b"))
 
 # Select columns that start with either the letter "b" or "z":
-df$select(cs$starts_with(c("b", "z")))
+df$select(cs$starts_with("b", "z"))
 
 # Select all columns except for those that start with the substring "b":
 df$select(!cs$starts_with("b"))

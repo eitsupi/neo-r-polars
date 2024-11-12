@@ -56,6 +56,30 @@
       x Problematic argument:
       * a = "foo"
 
+# contains
+
+    Code
+      df$select(cs$contains("ba", 1))
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$select()`.
+      Caused by error in `cs$contains()`:
+      ! All elements of `...` must be of type character.
+
+# ends_with
+
+    Code
+      df$select(cs$ends_with("z", 1))
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$select()`.
+      Caused by error in `cs$ends_with()`:
+      ! All elements of `...` must be of type character.
+
 # exclude
 
     Code
@@ -67,4 +91,16 @@
       ! Evaluation failed in `$select()`.
       Caused by error in `cs$exclude()`:
       ! `...` can only contain column names, regexes, polars data types or polars selectors.
+
+# starts_with
+
+    Code
+      df$select(cs$starts_with("b", 1))
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$select()`.
+      Caused by error in `cs$starts_with()`:
+      ! All elements of `...` must be of type character.
 

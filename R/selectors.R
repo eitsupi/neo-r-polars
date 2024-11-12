@@ -399,7 +399,8 @@ cs__categorical <- function() {
 
 #' Select columns whose names contain the given literal substring(s)
 #'
-#' @param substring Substring(s) that matching column names should contain.
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Substring(s) that matching
+#' column names should contain.
 #'
 #' @inherit cs__all return seealso
 #' @examples
@@ -414,13 +415,18 @@ cs__categorical <- function() {
 #' df$select(cs$contains("ba"))
 #'
 #' # Select columns that contain the substring "ba" or the letter "z":
-#' df$select(cs$contains(c("ba", "z")))
+#' df$select(cs$contains("ba", "z"))
 #'
 #' # Select all columns except for those that contain the substring "ba":
 #' df$select(!cs$contains("ba"))
-cs__contains <- function(substring) {
-  check_character(substring)
-  substring <- paste(substring, collapse = "|")
+cs__contains <- function(...) {
+  check_dots_unnamed()
+  input <- list2(...)
+  if (!all(vapply(input, is_character, FUN.VALUE = logical(1)))) {
+    abort("All elements of `...` must be of type character.")
+  }
+  substring <- unlist(input, use.names = FALSE) |>
+    paste(collapse = "|")
   raw_params <- paste0("^.*", substring, ".*$")
   wrap_to_selector(pl$col(raw_params), name = "contains")
 }
@@ -628,7 +634,8 @@ cs__duration <- function(time_unit = c("ms", "us", "ns")) {
 
 #' Select columns that end with the given substring(s)
 #'
-#' @param suffix Substring(s) that matching column names should end with.
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Substring(s) that matching
+#' column names should end with.
 #'
 #' @inherit cs__all return seealso
 #' @examples
@@ -643,14 +650,19 @@ cs__duration <- function(time_unit = c("ms", "us", "ns")) {
 #' df$select(cs$ends_with("z"))
 #'
 #' # Select columns that end with either the letter "z" or "r":
-#' df$select(cs$ends_with(c("z", "r")))
+#' df$select(cs$ends_with("z", "r"))
 #'
 #' # Select all columns except for those that end with the substring "z":
 #' df$select(!cs$ends_with("z"))
-cs__ends_with <- function(suffix) {
-  check_character(suffix)
-  substring <- paste(suffix, collapse = "|")
-  raw_params <- paste0("^.*", suffix, "$")
+cs__ends_with <- function(...) {
+  check_dots_unnamed()
+  input <- list2(...)
+  if (!all(vapply(input, is_character, FUN.VALUE = logical(1)))) {
+    abort("All elements of `...` must be of type character.")
+  }
+  substring <- unlist(input, use.names = FALSE) |>
+    paste(collapse = "|")
+  raw_params <- paste0("^.*(", substring, ")$")
   wrap_to_selector(pl$col(raw_params), name = "ends_with")
 }
 
@@ -922,7 +934,8 @@ cs__signed_integer <- function() {
 
 #' Select columns that start with the given substring(s)
 #'
-#' @param prefix Substring(s) that matching column names should end with.
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Substring(s) that matching
+#' column names should end with.
 #'
 #' @inherit cs__all return seealso
 #' @examples
@@ -937,14 +950,19 @@ cs__signed_integer <- function() {
 #' df$select(cs$starts_with("b"))
 #'
 #' # Select columns that start with either the letter "b" or "z":
-#' df$select(cs$starts_with(c("b", "z")))
+#' df$select(cs$starts_with("b", "z"))
 #'
 #' # Select all columns except for those that start with the substring "b":
 #' df$select(!cs$starts_with("b"))
-cs__starts_with <- function(prefix) {
-  check_character(prefix)
-  prefix <- paste(prefix, collapse = "|")
-  raw_params <- paste0("^", prefix, ".*$")
+cs__starts_with <- function(...) {
+  check_dots_unnamed()
+  input <- list2(...)
+  if (!all(vapply(input, is_character, FUN.VALUE = logical(1)))) {
+    abort("All elements of `...` must be of type character.")
+  }
+  substring <- unlist(input, use.names = FALSE) |>
+    paste(collapse = "|")
+  raw_params <- paste0("^(", substring, ").*$")
   wrap_to_selector(pl$col(raw_params), name = "starts_with")
 }
 

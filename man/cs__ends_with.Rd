@@ -4,10 +4,11 @@
 \alias{cs__ends_with}
 \title{Select columns that end with the given substring(s)}
 \usage{
-cs__ends_with(suffix)
+cs__ends_with(...)
 }
 \arguments{
-\item{suffix}{Substring(s) that matching column names should end with.}
+\item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> Substring(s) that matching
+column names should end with.}
 }
 \value{
 A Polars selector
@@ -27,7 +28,7 @@ df <- pl$DataFrame(
 df$select(cs$ends_with("z"))
 
 # Select columns that end with either the letter "z" or "r":
-df$select(cs$ends_with(c("z", "r")))
+df$select(cs$ends_with("z", "r"))
 
 # Select all columns except for those that end with the substring "z":
 df$select(!cs$ends_with("z"))
