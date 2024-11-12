@@ -106,7 +106,7 @@
       Caused by error:
       ! could not parse `a` as dtype `i32` at column 'c' (column number 2)
       
-      The current offset in the file is 10 bytes.
+      The current offset in the file is 4 bytes.
       
       You might want to try:
       - increasing `infer_schema_length` (e.g. `infer_schema_length=10000`),
