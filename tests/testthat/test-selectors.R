@@ -28,6 +28,10 @@ test_that("'and' operator works", {
     df$select(cs$numeric() & pl$col("foot")),
     "foot"
   )
+  expect_named(
+    df$select(cs$by_name("foo") & pl$col("foot")),
+    character(0)
+  )
 })
 
 test_that("'minus' operator works", {

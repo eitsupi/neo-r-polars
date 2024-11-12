@@ -104,14 +104,6 @@ selector__or <- function(other) {
 selector__and <- function(other) {
   if (is_column(other)) {
     colname <- other$meta$output_name()
-    # TODO: uncomment or remove when this is resolved:
-    # https://github.com/pola-rs/polars/issues/19740
-    # if (self$`_attrs`[["name"]] == "by_name") {
-    #   params <- self$`_attrs`[["parameters"]]
-    #   if (isTRUE(params[[".require_all"]])) {
-    #     return(cs__by_name(params[["..."]]))
-    #   }
-    # }
     other <- cs__by_name(colname)
   }
   if (is_polars_selector(other)) {
