@@ -373,12 +373,9 @@ pl__time_ranges <- function(
         abort(paste0("invalid unit in `interval`: found \"", unit, "\""))
       }
     }
-    if (is.null(start)) {
-      start <- pl$lit(0)$cast(pl$Time)
-    }
-    if (is.null(end)) {
-      end <- pl$lit(86399999999999)$cast(pl$Time)
-    }
+    start <- start %||% pl$lit(0)$cast(pl$Time)
+    end <- end %||% pl$lit(86399999999999)$cast(pl$Time)
+
     time_ranges(
       as_polars_expr(start)$`_rexpr`,
       as_polars_expr(end)$`_rexpr`,
