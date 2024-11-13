@@ -327,18 +327,15 @@ pl__time_range <- function(
   wrap({
     check_dots_empty0(...)
     closed <- arg_match0(closed, values = c("both", "left", "none", "right"))
-    interval <- parse_as_polars_duration_string(interval)
+    interval <- parse_as_duration_string(interval)
     for (unit in c("y", "mo", "w", "d")) {
       if (grepl(unit, interval)) {
         abort(paste0("invalid unit in `interval`: found \"", unit, "\""))
       }
     }
-    if (is.null(start)) {
-      start <- pl$lit(0)$cast(pl$Time)
-    }
-    if (is.null(end)) {
-      end <- pl$lit(86399999999999)$cast(pl$Time)
-    }
+    start <- start %||% pl$lit(0)$cast(pl$Time)
+    end <- end %||% pl$lit(86399999999999)$cast(pl$Time)
+
     time_range(
       as_polars_expr(start)$`_rexpr`,
       as_polars_expr(end)$`_rexpr`,
@@ -370,7 +367,7 @@ pl__time_ranges <- function(
   wrap({
     check_dots_empty0(...)
     closed <- arg_match0(closed, values = c("both", "left", "none", "right"))
-    interval <- parse_as_polars_duration_string(interval)
+    interval <- parse_as_duration_string(interval)
     for (unit in c("y", "mo", "w", "d")) {
       if (grepl(unit, interval)) {
         abort(paste0("invalid unit in `interval`: found \"", unit, "\""))
