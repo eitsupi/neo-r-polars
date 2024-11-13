@@ -23,7 +23,7 @@ impl TryFrom<EnvironmentSexp> for &PlRLazyFrame {
         let ptr = env
             .get(".ptr")
             .expect("Failed to get `.ptr` from the object")
-            .ok_or("The object is not a valid polars data frame")?;
+            .ok_or("The object is not a valid polars lazy frame")?;
         <&PlRLazyFrame>::try_from(ptr).map_err(|e| e.to_string())
     }
 }
