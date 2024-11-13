@@ -330,7 +330,7 @@ pl__time_range <- function(
     interval <- parse_as_duration_string(interval)
     for (unit in c("y", "mo", "w", "d")) {
       if (grepl(unit, interval)) {
-        abort(paste0("invalid unit in `interval`: found \"", unit, "\""))
+        abort(sprintf("invalid unit in `interval`: found '%s'", unit))
       }
     }
     start <- start %||% pl$lit(0)$cast(pl$Time)
@@ -370,7 +370,7 @@ pl__time_ranges <- function(
     interval <- parse_as_duration_string(interval)
     for (unit in c("y", "mo", "w", "d")) {
       if (grepl(unit, interval)) {
-        abort(paste0("invalid unit in `interval`: found \"", unit, "\""))
+        abort(sprintf("invalid unit in `interval`: found '%s'", unit))
       }
     }
     start <- start %||% pl$lit(0)$cast(pl$Time)
