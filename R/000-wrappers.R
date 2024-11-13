@@ -171,6 +171,21 @@ NULL
 }
 
 
+`concat_lf` <- function(`lfs`, `rechunk`, `parallel`, `to_supertypes`) {
+  .savvy_wrap_PlRLazyFrame(.Call(savvy_concat_lf__impl, `lfs`, `rechunk`, `parallel`, `to_supertypes`))
+}
+
+
+`concat_df_diagonal` <- function(`dfs`) {
+  .savvy_wrap_PlRDataFrame(.Call(savvy_concat_df_diagonal__impl, `dfs`))
+}
+
+
+`concat_df_horizontal` <- function(`dfs`) {
+  .savvy_wrap_PlRDataFrame(.Call(savvy_concat_df_horizontal__impl, `dfs`))
+}
+
+
 `int_range` <- function(`start`, `end`, `step`, `dtype`) {
   `start` <- .savvy_extract_ptr(`start`, "PlRExpr")
   `end` <- .savvy_extract_ptr(`end`, "PlRExpr")
