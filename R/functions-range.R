@@ -251,6 +251,7 @@ pl__int_range <- function(
     dtype = pl$Int64) {
   wrap({
     check_dots_empty0(...)
+    check_polars_dtype(dtype)
     if (is.null(end)) {
       end <- start
       start <- 0
@@ -283,6 +284,7 @@ pl__int_ranges <- function(
     dtype = pl$Int64) {
   wrap({
     check_dots_empty0(...)
+    check_polars_dtype(dtype)
     if (is.null(end)) {
       end <- start
       start <- 0
