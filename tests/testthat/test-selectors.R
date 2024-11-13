@@ -223,6 +223,10 @@ test_that("contains", {
     df$select(cs$contains("ba", 1)),
     error = TRUE
   )
+  expect_snapshot(
+    df$select(cs$contains("ba", NA_character_)),
+    error = TRUE
+  )
 })
 
 test_that("date", {

@@ -66,7 +66,19 @@
       Caused by error:
       ! Evaluation failed in `$select()`.
       Caused by error in `cs$contains()`:
-      ! All elements of `...` must be of type character.
+      ! All elements of `...` must be non-missing values of type character.
+
+---
+
+    Code
+      df$select(cs$contains("ba", NA_character_))
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$select()`.
+      Caused by error in `cs$contains()`:
+      ! All elements of `...` must be non-missing values of type character.
 
 # ends_with
 
@@ -78,7 +90,7 @@
       Caused by error:
       ! Evaluation failed in `$select()`.
       Caused by error in `cs$ends_with()`:
-      ! All elements of `...` must be of type character.
+      ! All elements of `...` must be non-missing values of type character.
 
 # exclude
 
@@ -102,5 +114,5 @@
       Caused by error:
       ! Evaluation failed in `$select()`.
       Caused by error in `cs$starts_with()`:
-      ! All elements of `...` must be of type character.
+      ! All elements of `...` must be non-missing values of type character.
 

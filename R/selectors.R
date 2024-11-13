@@ -433,8 +433,9 @@ cs__categorical <- function() {
 cs__contains <- function(...) {
   check_dots_unnamed()
   input <- list2(...)
-  if (!all(vapply(input, is_character, FUN.VALUE = logical(1)))) {
-    abort("All elements of `...` must be of type character.")
+  is_char <- vapply(input, \(x) is_character(x) && !is.na(x), FUN.VALUE = logical(1))
+  if (!all(is_char)) {
+    abort("All elements of `...` must be non-missing values of type character.")
   }
   substring <- unlist(input, use.names = FALSE) |>
     paste(collapse = "|")
@@ -668,8 +669,9 @@ cs__duration <- function(time_unit = c("ms", "us", "ns")) {
 cs__ends_with <- function(...) {
   check_dots_unnamed()
   input <- list2(...)
-  if (!all(vapply(input, is_character, FUN.VALUE = logical(1)))) {
-    abort("All elements of `...` must be of type character.")
+  is_char <- vapply(input, \(x) is_character(x) && !is.na(x), FUN.VALUE = logical(1))
+  if (!all(is_char)) {
+    abort("All elements of `...` must be non-missing values of type character.")
   }
   substring <- unlist(input, use.names = FALSE) |>
     paste(collapse = "|")
@@ -968,8 +970,9 @@ cs__signed_integer <- function() {
 cs__starts_with <- function(...) {
   check_dots_unnamed()
   input <- list2(...)
-  if (!all(vapply(input, is_character, FUN.VALUE = logical(1)))) {
-    abort("All elements of `...` must be of type character.")
+  is_char <- vapply(input, \(x) is_character(x) && !is.na(x), FUN.VALUE = logical(1))
+  if (!all(is_char)) {
+    abort("All elements of `...` must be non-missing values of type character.")
   }
   substring <- unlist(input, use.names = FALSE) |>
     paste(collapse = "|")
