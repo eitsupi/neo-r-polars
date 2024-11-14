@@ -80,7 +80,7 @@ pl__concat <- function(
     }
 
     if (how == "align") {
-      if (!inherits(first, c("polars_data_frame", "polars_lazy_frame"))) {
+      if (!is_polars_df(first) && !is_polars_lf(first)) {
         abort("'align' strategy is only supported on DataFrames and LazyFrames.")
       }
 
