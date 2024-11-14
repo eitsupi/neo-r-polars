@@ -458,6 +458,18 @@ class(`PlRChainedWhen`) <- c("PlRChainedWhen__bundle", "savvy_neopolars__sealed"
   }
 }
 
+`PlRDataFrame_n_chunks` <- function(self) {
+  function() {
+    .Call(savvy_PlRDataFrame_n_chunks__impl, `self`)
+  }
+}
+
+`PlRDataFrame_rechunk` <- function(self) {
+  function() {
+    .savvy_wrap_PlRDataFrame(.Call(savvy_PlRDataFrame_rechunk__impl, `self`))
+  }
+}
+
 `.savvy_wrap_PlRDataFrame` <- function(ptr) {
   e <- new.env(parent = emptyenv())
   e$.ptr <- ptr
@@ -477,6 +489,8 @@ class(`PlRChainedWhen`) <- c("PlRChainedWhen__bundle", "savvy_neopolars__sealed"
   e$`clone` <- `PlRDataFrame_clone`(ptr)
   e$`lazy` <- `PlRDataFrame_lazy`(ptr)
   e$`to_struct` <- `PlRDataFrame_to_struct`(ptr)
+  e$`n_chunks` <- `PlRDataFrame_n_chunks`(ptr)
+  e$`rechunk` <- `PlRDataFrame_rechunk`(ptr)
 
   class(e) <- c("PlRDataFrame", "savvy_neopolars__sealed")
   e
@@ -2597,6 +2611,12 @@ class(`PlRLazyGroupBy`) <- c("PlRLazyGroupBy__bundle", "savvy_neopolars__sealed"
   }
 }
 
+`PlRSeries_n_chunks` <- function(self) {
+  function() {
+    .Call(savvy_PlRSeries_n_chunks__impl, `self`)
+  }
+}
+
 `.savvy_wrap_PlRSeries` <- function(ptr) {
   e <- new.env(parent = emptyenv())
   e$.ptr <- ptr
@@ -2621,6 +2641,7 @@ class(`PlRLazyGroupBy`) <- c("PlRLazyGroupBy__bundle", "savvy_neopolars__sealed"
   e$`len` <- `PlRSeries_len`(ptr)
   e$`cast` <- `PlRSeries_cast`(ptr)
   e$`slice` <- `PlRSeries_slice`(ptr)
+  e$`n_chunks` <- `PlRSeries_n_chunks`(ptr)
 
   class(e) <- c("PlRSeries", "savvy_neopolars__sealed")
   e

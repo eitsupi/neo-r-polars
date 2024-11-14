@@ -40,18 +40,19 @@ test_that("concat() on length-1 input return input for Series", {
   expect_equal(input, output)
 })
 
-# TODO-REWRITE: requires $n_chunks()
-# test_that("arg 'rechunk' works", {
-#   df <- as_polars_df(mtcars)
-#   expect_equal(
-#     pl$concat(c(df, df), rechunk = TRUE)$n_chunks("all"),
-#     rep(1, 11)
-#   )
-#   expect_equal(
-#     pl$concat(c(df, df), rechunk = FALSE)$n_chunks("all"),
-#     rep(2, 11)
-#   )
-# })
+test_that("arg 'rechunk' works", {
+  df <- as_polars_df(mtcars)
+  expect_equal(
+    pl$concat(c(df, df), rechunk = TRUE)$n_chunks("all") |>
+      unname(),
+    rep(1, 11)
+  )
+  expect_equal(
+    pl$concat(c(df, df), rechunk = FALSE)$n_chunks("all") |>
+      unname(),
+    rep(2, 11)
+  )
+})
 
 test_that("how = 'vertical' works", {
   df <- pl$DataFrame(a = 1:2, b = letters[1:2])
