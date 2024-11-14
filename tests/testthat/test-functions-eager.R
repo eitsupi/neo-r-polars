@@ -199,3 +199,5 @@ test_that("how = 'diagonal_relaxed' works", {
     )
   )
 })
+
+# TODO: test for "align" when pl$coalesce() is implemented
