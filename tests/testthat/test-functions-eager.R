@@ -71,8 +71,7 @@ test_that("how = 'vertical_relaxed' works", {
   )
 })
 
-
-test_that("how = 'vertical' works", {
+test_that("how = 'horizontal' works", {
   df <- pl$DataFrame(a = 1:2, b = letters[1:2])
   df2 <- pl$DataFrame(a2 = 1:2, b2 = letters[1:2])
   df3 <- pl$DataFrame(a3 = 1:2, b3 = letters[1:2])
@@ -111,4 +110,60 @@ test_that("how = 'vertical' works", {
   )
 })
 
-# TODO: test diagonal
+test_that("how = 'diagonal' works", {
+  df <- pl$DataFrame(a = 1:2, b = 1:2)
+  df2 <- pl$DataFrame(b = 1:2, b2 = letters[1:2])
+
+  expect_equal(
+    pl$concat(c(df, df2), how = "diagonal"),
+    pl$DataFrame(
+      a = c(1:2, NA, NA), b = c(1:2, 1:2), b2 = c(NA, NA, "a", "b")
+    )
+  )
+
+  # wrong schema
+  df <- pl$DataFrame(a = 1:2, b = 1:2)
+  df2 <- pl$DataFrame(b = letters[1:2], b2 = letters[1:2])
+  expect_snapshot(
+    pl$concat(c(df, df2), how = "diagonal"),
+    error = TRUE
+  )
+
+  # works with lazy
+  lf <- pl$LazyFrame(a = 1:2, b = 1:2)
+  lf2 <- pl$LazyFrame(b = 1:2, b2 = letters[1:2])
+
+  expect_equal(
+    pl$concat(c(lf, lf2), how = "diagonal")$collect(),
+    pl$DataFrame(
+      a = c(1:2, NA, NA), b = c(1:2, 1:2), b2 = c(NA, NA, "a", "b")
+    )
+  )
+
+  # doesn't work with Series
+  expect_snapshot(
+    pl$concat(c(as_polars_series(1:2, "a"), as_polars_series(5:1, "b")), how = "horizontal"),
+    error = TRUE
+  )
+})
+
+test_that("how = 'diagonal_relaxed' works", {
+  df <- pl$DataFrame(a = 1:2, b = 1:2)
+  df2 <- pl$DataFrame(b = letters[1:2], b2 = letters[1:2])
+  expect_equal(
+    pl$concat(c(df, df2), how = "diagonal_relaxed"),
+    pl$DataFrame(
+      a = c(1:2, NA, NA), b = c("1", "2", "a", "b"), b2 = c(NA, NA, "a", "b")
+    )
+  )
+
+  # works with lazy
+  lf <- pl$LazyFrame(a = 1:2, b = 1:2)
+  lf2 <- pl$LazyFrame(b = letters[1:2], b2 = letters[1:2])
+  expect_equal(
+    pl$concat(c(lf, lf2), how = "diagonal_relaxed")$collect(),
+    pl$DataFrame(
+      a = c(1:2, NA, NA), b = c("1", "2", "a", "b"), b2 = c(NA, NA, "a", "b")
+    )
+  )
+})

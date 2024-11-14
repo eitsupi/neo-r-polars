@@ -186,6 +186,22 @@ pub fn concat_list(s: ListSexp) -> Result<PlRExpr> {
 }
 
 #[savvy]
+pub fn concat_df_diagonal(dfs: ListSexp) -> Result<PlRDataFrame> {
+    let dfs = <Wrap<Vec<DataFrame>>>::try_from(dfs)?.0;
+
+    let df = functions::concat_df_diagonal(&dfs).map_err(RPolarsErr::from)?;
+    Ok(df.into())
+}
+
+#[savvy]
+pub fn concat_df_horizontal(dfs: ListSexp) -> Result<PlRDataFrame> {
+    let dfs = <Wrap<Vec<DataFrame>>>::try_from(dfs)?.0;
+
+    let df = functions::concat_df_horizontal(&dfs, true).map_err(RPolarsErr::from)?;
+    Ok(df.into())
+}
+
+#[savvy]
 pub fn concat_lf(
     lfs: ListSexp,
     rechunk: bool,
@@ -208,22 +224,6 @@ pub fn concat_lf(
 }
 
 #[savvy]
-pub fn concat_df_diagonal(dfs: ListSexp) -> Result<PlRDataFrame> {
-    let dfs = <Wrap<Vec<DataFrame>>>::try_from(dfs)?.0;
-
-    let df = functions::concat_df_diagonal(&dfs).map_err(RPolarsErr::from)?;
-    Ok(df.into())
-}
-
-#[savvy]
-pub fn concat_df_horizontal(dfs: ListSexp) -> Result<PlRDataFrame> {
-    let dfs = <Wrap<Vec<DataFrame>>>::try_from(dfs)?.0;
-
-    let df = functions::concat_df_horizontal(&dfs, true).map_err(RPolarsErr::from)?;
-    Ok(df.into())
-}
-
-#[savvy]
 pub fn concat_lf_horizontal(lfs: ListSexp, parallel: bool) -> Result<PlRLazyFrame> {
     let lfs = <Wrap<Vec<LazyFrame>>>::try_from(lfs)?.0;
 
@@ -234,6 +234,28 @@ pub fn concat_lf_horizontal(lfs: ListSexp, parallel: bool) -> Result<PlRLazyFram
         ..Default::default()
     };
     let lf = dsl::functions::concat_lf_horizontal(lfs, args).map_err(RPolarsErr::from)?;
+    Ok(lf.into())
+}
+
+#[savvy]
+pub fn concat_lf_diagonal(
+    lfs: ListSexp,
+    rechunk: bool,
+    parallel: bool,
+    to_supertypes: bool,
+) -> Result<PlRLazyFrame> {
+    let lfs = <Wrap<Vec<LazyFrame>>>::try_from(lfs)?.0;
+
+    let lf = dsl::functions::concat_lf_diagonal(
+        lfs,
+        UnionArgs {
+            rechunk,
+            parallel,
+            to_supertypes,
+            ..Default::default()
+        },
+    )
+    .map_err(RPolarsErr::from)?;
     Ok(lf.into())
 }
 

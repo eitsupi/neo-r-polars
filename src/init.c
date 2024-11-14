@@ -169,11 +169,6 @@ SEXP savvy_concat_list__impl(SEXP c_arg__s) {
     return handle_result(res);
 }
 
-SEXP savvy_concat_lf__impl(SEXP c_arg__lfs, SEXP c_arg__rechunk, SEXP c_arg__parallel, SEXP c_arg__to_supertypes) {
-    SEXP res = savvy_concat_lf__ffi(c_arg__lfs, c_arg__rechunk, c_arg__parallel, c_arg__to_supertypes);
-    return handle_result(res);
-}
-
 SEXP savvy_concat_df_diagonal__impl(SEXP c_arg__dfs) {
     SEXP res = savvy_concat_df_diagonal__ffi(c_arg__dfs);
     return handle_result(res);
@@ -184,8 +179,18 @@ SEXP savvy_concat_df_horizontal__impl(SEXP c_arg__dfs) {
     return handle_result(res);
 }
 
+SEXP savvy_concat_lf__impl(SEXP c_arg__lfs, SEXP c_arg__rechunk, SEXP c_arg__parallel, SEXP c_arg__to_supertypes) {
+    SEXP res = savvy_concat_lf__ffi(c_arg__lfs, c_arg__rechunk, c_arg__parallel, c_arg__to_supertypes);
+    return handle_result(res);
+}
+
 SEXP savvy_concat_lf_horizontal__impl(SEXP c_arg__lfs, SEXP c_arg__parallel) {
     SEXP res = savvy_concat_lf_horizontal__ffi(c_arg__lfs, c_arg__parallel);
+    return handle_result(res);
+}
+
+SEXP savvy_concat_lf_diagonal__impl(SEXP c_arg__lfs, SEXP c_arg__rechunk, SEXP c_arg__parallel, SEXP c_arg__to_supertypes) {
+    SEXP res = savvy_concat_lf_diagonal__ffi(c_arg__lfs, c_arg__rechunk, c_arg__parallel, c_arg__to_supertypes);
     return handle_result(res);
 }
 
@@ -1838,10 +1843,11 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_lit_from_series__impl", (DL_FUNC) &savvy_lit_from_series__impl, 1},
     {"savvy_lit_from_series_first__impl", (DL_FUNC) &savvy_lit_from_series_first__impl, 1},
     {"savvy_concat_list__impl", (DL_FUNC) &savvy_concat_list__impl, 1},
-    {"savvy_concat_lf__impl", (DL_FUNC) &savvy_concat_lf__impl, 4},
     {"savvy_concat_df_diagonal__impl", (DL_FUNC) &savvy_concat_df_diagonal__impl, 1},
     {"savvy_concat_df_horizontal__impl", (DL_FUNC) &savvy_concat_df_horizontal__impl, 1},
+    {"savvy_concat_lf__impl", (DL_FUNC) &savvy_concat_lf__impl, 4},
     {"savvy_concat_lf_horizontal__impl", (DL_FUNC) &savvy_concat_lf_horizontal__impl, 2},
+    {"savvy_concat_lf_diagonal__impl", (DL_FUNC) &savvy_concat_lf_diagonal__impl, 4},
     {"savvy_concat_expr__impl", (DL_FUNC) &savvy_concat_expr__impl, 2},
     {"savvy_int_range__impl", (DL_FUNC) &savvy_int_range__impl, 4},
     {"savvy_int_ranges__impl", (DL_FUNC) &savvy_int_ranges__impl, 4},
