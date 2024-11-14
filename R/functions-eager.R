@@ -112,10 +112,11 @@ pl__concat <- function(
       )$sort(common_cols)
 
       if (is_polars_df(first)) {
-        lf$collect()
+        out <- lf$collect()
       } else {
-        lf
+        out <- lf
       }
+      return(out)
     }
 
     out <- if (is_polars_df(first)) {
