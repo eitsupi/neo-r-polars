@@ -89,7 +89,35 @@ pl__concat <- function(
         abort("'align' strategy is only supported on DataFrames and LazyFrames.")
       }
 
-      # TODO: "align"
+      # TODO: requires pl$coalesce()
+
+      all_columns <- lapply(items, \(x) names(x))
+      common_cols <- Reduce(intersect, all_columns)
+      if (length(common_cols) == 0) {
+        abort("'align' strategy requires at least one common column.")
+      }
+
+      # align the frame data using a full outer join with no suffix-resolution
+      # (so we raise an error in case of column collision, like "horizontal")
+      items <- lapply(items, \(x) x$lazy())
+      lf <- Reduce(
+        x = items,
+        \(x, y) {
+          x$
+            join(y, how = "full", on = common_cols, suffix = "_PL_CONCAT_RIGHT")$
+            with_columns(
+            !!!lapply(common_cols, \(col) pl$coalesce(pl$col(col), pl$col(paste0(col, "_PL_CONCAT_RIGHT"))))
+          )$
+            drop(paste0(common_cols, "_PL_CONCAT_RIGHT"))
+        },
+        accumulate = TRUE
+      )$sort(common_cols)
+
+      if (is_polars_df(first)) {
+        lf$collect()
+      } else {
+        lf
+      }
     }
 
     out <- if (is_polars_df(first)) {
