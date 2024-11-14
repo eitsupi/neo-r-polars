@@ -59,7 +59,7 @@ test_that("how = 'vertical_relaxed' works", {
     error = TRUE
   )
 
-  # check lazy eager is identical
+  # works with lazy
   lf <- pl$LazyFrame(a = 1:2, b = letters[1:2])
   expect_equal(
     pl$concat(c(lf, pl$LazyFrame(a = 2, b = 42L)), how = "vertical_relaxed")$collect(),
