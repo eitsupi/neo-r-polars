@@ -1,4 +1,3 @@
-# TODO: implement `how = "align"`
 #' Combine multiple DataFrames, LazyFrames, or Series into a single object
 #'
 #' @inheritParams rlang::check_dots_empty0
