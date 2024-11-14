@@ -1,0 +1,110 @@
+test_that("concat() doesn't accept mix of classes", {
+  expect_snapshot(
+    pl$concat(c(as_polars_df(mtcars), as_polars_lf(mtcars)), how = "vertical"),
+    error = TRUE
+  )
+  expect_snapshot(
+    pl$concat(c(as_polars_df(mtcars), mtcars$hp, pl$lit(mtcars$mpg))),
+    error = TRUE
+  )
+})
+
+# TODO-REWRITE: requires $n_chunks()
+# test_that("arg 'rechunk' works", {
+#   df <- as_polars_df(mtcars)
+#   expect_equal(
+#     pl$concat(c(df, df), rechunk = TRUE)$n_chunks("all"),
+#     rep(1, 11)
+#   )
+#   expect_equal(
+#     pl$concat(c(df, df), rechunk = FALSE)$n_chunks("all"),
+#     rep(2, 11)
+#   )
+# })
+
+test_that("how = 'vertical' works", {
+  df <- pl$DataFrame(a = 1:2, b = letters[1:2])
+  expect_equal(
+    pl$concat(c(df, df, df), how = "vertical"),
+    pl$DataFrame(
+      !!!do.call(rbind, lapply(list(df, df, df), as.data.frame))
+    )
+  )
+
+  # works with lazy
+  lf <- pl$LazyFrame(a = 1:2, b = letters[1:2])
+  expect_equal(
+    pl$concat(c(lf, lf, lf), how = "vertical")$collect(),
+    pl$DataFrame(
+      !!!do.call(rbind, lapply(list(lf, lf, lf), as.data.frame))
+    )
+  )
+
+  # works with Series
+  expect_equal(
+    pl$concat(c(as_polars_series(1:2, "a"), as_polars_series(5:1, "b")), how = "vertical")
+  )
+})
+
+test_that("how = 'vertical_relaxed' works", {
+  df <- pl$DataFrame(a = 1:2, b = letters[1:2])
+  expect_equal(
+    pl$concat(c(df, pl$DataFrame(a = 2, b = 42L)), how = "vertical_relaxed"),
+    pl$DataFrame(a = c(1:2, 2), b = c(letters[1:2], "42"))
+  )
+
+  # doesn't work without 'relaxed'
+  expect_snapshot(
+    pl$concat(c(df, pl$DataFrame(a = 2, b = 42L)), how = "vertical"),
+    error = TRUE
+  )
+
+  # check lazy eager is identical
+  lf <- pl$LazyFrame(a = 1:2, b = letters[1:2])
+  expect_equal(
+    pl$concat(c(lf, pl$LazyFrame(a = 2, b = 42L)), how = "vertical_relaxed")$collect(),
+    pl$DataFrame(a = c(1:2, 2), b = c(letters[1:2], "42"))
+  )
+})
+
+
+test_that("how = 'vertical' works", {
+  df <- pl$DataFrame(a = 1:2, b = letters[1:2])
+  df2 <- pl$DataFrame(a2 = 1:2, b2 = letters[1:2])
+  df3 <- pl$DataFrame(a3 = 1:2, b3 = letters[1:2])
+
+  expect_equal(
+    pl$concat(c(df, df2, df3), how = "horizontal"),
+    pl$DataFrame(
+      a = 1:2, b = letters[1:2], a2 = 1:2, b2 = letters[1:2],
+      a3 = 1:2, b3 = letters[1:2]
+    )
+  )
+
+  # Duplicated columns
+  expect_snapshot(
+    pl$concat(c(df, df), how = "horizontal"),
+    error = TRUE
+  )
+
+  # works with lazy
+  lf <- pl$LazyFrame(a = 1:2, b = letters[1:2])
+  lf2 <- pl$LazyFrame(a2 = 1:2, b2 = letters[1:2])
+  lf3 <- pl$LazyFrame(a3 = 1:2, b3 = letters[1:2])
+
+  expect_equal(
+    pl$concat(c(lf, lf2, lf3), how = "horizontal")$collect(),
+    pl$DataFrame(
+      a = 1:2, b = letters[1:2], a2 = 1:2, b2 = letters[1:2],
+      a3 = 1:2, b3 = letters[1:2]
+    )
+  )
+
+  # doesn't work with Series
+  expect_snapshot(
+    pl$concat(c(as_polars_series(1:2, "a"), as_polars_series(5:1, "b")), how = "horizontal"),
+    error = TRUE
+  )
+})
+
+# TODO: test diagonal

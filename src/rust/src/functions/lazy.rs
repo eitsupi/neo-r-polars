@@ -222,3 +222,24 @@ pub fn concat_df_horizontal(dfs: ListSexp) -> Result<PlRDataFrame> {
     let df = functions::concat_df_horizontal(&dfs, true).map_err(RPolarsErr::from)?;
     Ok(df.into())
 }
+
+#[savvy]
+pub fn concat_lf_horizontal(lfs: ListSexp, parallel: bool) -> Result<PlRLazyFrame> {
+    let lfs = <Wrap<Vec<LazyFrame>>>::try_from(lfs)?.0;
+
+    let args = UnionArgs {
+        rechunk: false, // No need to rechunk with horizontal concatenation
+        parallel,
+        to_supertypes: false,
+        ..Default::default()
+    };
+    let lf = dsl::functions::concat_lf_horizontal(lfs, args).map_err(RPolarsErr::from)?;
+    Ok(lf.into())
+}
+
+#[savvy]
+pub fn concat_expr(e: ListSexp, rechunk: bool) -> Result<PlRExpr> {
+    let e = <Wrap<Vec<Expr>>>::try_from(e)?.0;
+    let e = dsl::functions::concat_expr(e, rechunk).map_err(RPolarsErr::from)?;
+    Ok(e.into())
+}
