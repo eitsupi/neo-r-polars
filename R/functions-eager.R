@@ -75,11 +75,10 @@ pl__concat <- function(
       return(first)
     }
 
-    all_df_lf_series <-
-      all(vapply(items, is_polars_df, FUN.VALUE = logical(1))) ||
-        all(vapply(items, is_polars_lf, FUN.VALUE = logical(1))) ||
-        all(vapply(items, is_polars_series, FUN.VALUE = logical(1))) ||
-        all(vapply(items, is_polars_expr, FUN.VALUE = logical(1)))
+    all_df_lf_series <- all(vapply(items, is_polars_df, FUN.VALUE = logical(1))) ||
+      all(vapply(items, is_polars_lf, FUN.VALUE = logical(1))) ||
+      all(vapply(items, is_polars_series, FUN.VALUE = logical(1))) ||
+      all(vapply(items, is_polars_expr, FUN.VALUE = logical(1)))
     if (!all_df_lf_series) {
       abort("All elements in `items` must be of the same class (Polars DataFrame, LazyFrame, Series, or Expr).")
     }
