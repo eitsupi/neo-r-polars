@@ -1,4 +1,4 @@
-use crate::{prelude::*, PlRDataFrame, RPolarsErr};
+use crate::{prelude::*, PlRDataFrame, PlRSeries, RPolarsErr};
 use savvy::{savvy, ListSexp, Result};
 
 #[savvy]
@@ -28,4 +28,20 @@ pub fn concat_df(dfs: ListSexp) -> Result<PlRDataFrame> {
         .map_err(RPolarsErr::from)?;
 
     Ok(df.into())
+}
+
+#[savvy]
+pub fn concat_series(series: ListSexp) -> Result<PlRSeries> {
+    let series = <Wrap<Vec<Series>>>::try_from(series)?.0;
+    let mut iter = series.iter()?;
+    let first = iter.next().unwrap()?;
+
+    let mut s = get_series(&first)?;
+
+    for res in iter {
+        let item = res?;
+        let item = get_series(&item)?;
+        s.append(&item).map_err(RPolarsErr::from)?;
+    }
+    Ok(s.into())
 }

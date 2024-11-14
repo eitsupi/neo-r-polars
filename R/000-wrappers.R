@@ -186,6 +186,16 @@ NULL
 }
 
 
+`concat_lf_horizontal` <- function(`lfs`, `parallel`) {
+  .savvy_wrap_PlRLazyFrame(.Call(savvy_concat_lf_horizontal__impl, `lfs`, `parallel`))
+}
+
+
+`concat_expr` <- function(`e`, `rechunk`) {
+  .savvy_wrap_PlRExpr(.Call(savvy_concat_expr__impl, `e`, `rechunk`))
+}
+
+
 `int_range` <- function(`start`, `end`, `step`, `dtype`) {
   `start` <- .savvy_extract_ptr(`start`, "PlRExpr")
   `end` <- .savvy_extract_ptr(`end`, "PlRExpr")

@@ -64,8 +64,16 @@ pl__concat <- function(
     if (length(items) == 0L) {
       abort("`items` cannot be empty.")
     }
+    all_df_lf_series <-
+      all(vapply(items, is_polars_df, FUN.VALUE = logical(1))) ||
+        all(vapply(items, is_polars_lf, FUN.VALUE = logical(1))) ||
+        all(vapply(items, is_polars_series, FUN.VALUE = logical(1)))
+    if (!all_df_lf_series) {
+      abort("All elements in `items` must be of the same class (Polars DataFrame, LazyFrame, Series, or Expr).")
+    }
 
     first <- items[[1]]
+
 
     if (length(items) == 1L && (is_polars_df(first) || is_polars_series(first) || is_polars_lf(first))) {
       return(first)
@@ -131,7 +139,7 @@ pl__concat <- function(
         "vertical" = ,
         "vertical_relaxed" = {
           items |>
-            lapply(\(x) x$`_df`) |>
+            lapply(\(x) x$`_ldf`) |>
             concat_lf(
               rechunk = rechunk,
               parallel = parallel,
@@ -142,7 +150,7 @@ pl__concat <- function(
         "diagonal" = ,
         "diagonal_relaxed" = {
           items |>
-            lapply(\(x) x$`_df`) |>
+            lapply(\(x) x$`_ldf`) |>
             concat_lf_diagonal(
               rechunk = rechunk,
               parallel = parallel,
@@ -152,11 +160,8 @@ pl__concat <- function(
         },
         "horizontal" = {
           items |>
-            lapply(\(x) x$`_df`) |>
-            concat_lf_horizontal(
-              rechunk = rechunk,
-              parallel = parallel
-            ) |>
+            lapply(\(x) x$`_ldf`) |>
+            concat_lf_horizontal(parallel = parallel) |>
             wrap()
         }
       )
