@@ -24,14 +24,9 @@ impl PlRSeries {
     }
 }
 
-impl TryFrom<EnvironmentSexp> for &PlRSeries {
-    type Error = String;
-
-    fn try_from(env: EnvironmentSexp) -> Result<Self, String> {
-        let ptr = env
-            .get(".ptr")
-            .expect("Failed to get `.ptr` from the object")
-            .ok_or("The object is not a valid polars series")?;
-        <&PlRSeries>::try_from(ptr).map_err(|e| e.to_string())
+impl From<EnvironmentSexp> for &PlRSeries {
+    fn from(env: EnvironmentSexp) -> Self {
+        let ptr = env.get(".ptr").unwrap().unwrap();
+        <&PlRSeries>::try_from(ptr).unwrap()
     }
 }

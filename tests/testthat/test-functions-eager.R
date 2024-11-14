@@ -42,7 +42,11 @@ test_that("how = 'vertical' works", {
 
   # works with Series
   expect_equal(
-    pl$concat(c(as_polars_series(1:2, "a"), as_polars_series(5:1, "b")), how = "vertical")
+    pl$concat(
+      c(as_polars_series(1:2, "a"), as_polars_series(5:1, "b")),
+      how = "vertical"
+    ),
+    as_polars_series(c(1:2, 5:1), "a")
   )
 })
 

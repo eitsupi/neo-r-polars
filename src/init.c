@@ -69,6 +69,11 @@ SEXP savvy_concat_df__impl(SEXP c_arg__dfs) {
     return handle_result(res);
 }
 
+SEXP savvy_concat_series__impl(SEXP c_arg__series) {
+    SEXP res = savvy_concat_series__ffi(c_arg__series);
+    return handle_result(res);
+}
+
 SEXP savvy_as_struct__impl(SEXP c_arg__exprs) {
     SEXP res = savvy_as_struct__ffi(c_arg__exprs);
     return handle_result(res);
@@ -1813,6 +1818,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_sum_horizontal__impl", (DL_FUNC) &savvy_sum_horizontal__impl, 1},
     {"savvy_mean_horizontal__impl", (DL_FUNC) &savvy_mean_horizontal__impl, 1},
     {"savvy_concat_df__impl", (DL_FUNC) &savvy_concat_df__impl, 1},
+    {"savvy_concat_series__impl", (DL_FUNC) &savvy_concat_series__impl, 1},
     {"savvy_as_struct__impl", (DL_FUNC) &savvy_as_struct__impl, 1},
     {"savvy_datetime__impl", (DL_FUNC) &savvy_datetime__impl, 10},
     {"savvy_duration__impl", (DL_FUNC) &savvy_duration__impl, 9},

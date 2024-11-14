@@ -73,6 +73,11 @@ NULL
 }
 
 
+`concat_series` <- function(`series`) {
+  .savvy_wrap_PlRSeries(.Call(savvy_concat_series__impl, `series`))
+}
+
+
 `as_struct` <- function(`exprs`) {
   .savvy_wrap_PlRExpr(.Call(savvy_as_struct__impl, `exprs`))
 }

@@ -118,7 +118,7 @@ impl TryFrom<ListSexp> for Wrap<Vec<Series>> {
         let dfs = list
             .values_iter()
             .map(|sexp| match sexp.into_typed() {
-                TypedSexp::Environment(e) => Ok(<&PlRSeries>::try_from(e)?.series.clone()),
+                TypedSexp::Environment(e) => Ok(<&PlRSeries>::from(e).series.clone()),
                 _ => Err("Only accept a list of polars series".to_string()),
             })
             .collect::<Result<Vec<_>, _>>()?;
