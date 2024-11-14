@@ -329,6 +329,16 @@ SEXP savvy_PlRDataFrame_to_struct__impl(SEXP self__, SEXP c_arg__name) {
     return handle_result(res);
 }
 
+SEXP savvy_PlRDataFrame_n_chunks__impl(SEXP self__) {
+    SEXP res = savvy_PlRDataFrame_n_chunks__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRDataFrame_rechunk__impl(SEXP self__) {
+    SEXP res = savvy_PlRDataFrame_rechunk__ffi(self__);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRDataType_new_from_name__impl(SEXP c_arg__name) {
     SEXP res = savvy_PlRDataType_new_from_name__ffi(c_arg__name);
     return handle_result(res);
@@ -1779,6 +1789,11 @@ SEXP savvy_PlRSeries_slice__impl(SEXP self__, SEXP c_arg__offset, SEXP c_arg__le
     return handle_result(res);
 }
 
+SEXP savvy_PlRSeries_n_chunks__impl(SEXP self__) {
+    SEXP res = savvy_PlRSeries_n_chunks__ffi(self__);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRThen_when__impl(SEXP self__, SEXP c_arg__condition) {
     SEXP res = savvy_PlRThen_when__ffi(self__, c_arg__condition);
     return handle_result(res);
@@ -1855,6 +1870,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRDataFrame_clone__impl", (DL_FUNC) &savvy_PlRDataFrame_clone__impl, 1},
     {"savvy_PlRDataFrame_lazy__impl", (DL_FUNC) &savvy_PlRDataFrame_lazy__impl, 1},
     {"savvy_PlRDataFrame_to_struct__impl", (DL_FUNC) &savvy_PlRDataFrame_to_struct__impl, 2},
+    {"savvy_PlRDataFrame_n_chunks__impl", (DL_FUNC) &savvy_PlRDataFrame_n_chunks__impl, 1},
+    {"savvy_PlRDataFrame_rechunk__impl", (DL_FUNC) &savvy_PlRDataFrame_rechunk__impl, 1},
     {"savvy_PlRDataType_new_from_name__impl", (DL_FUNC) &savvy_PlRDataType_new_from_name__impl, 1},
     {"savvy_PlRDataType_new_decimal__impl", (DL_FUNC) &savvy_PlRDataType_new_decimal__impl, 2},
     {"savvy_PlRDataType_new_datetime__impl", (DL_FUNC) &savvy_PlRDataType_new_datetime__impl, 2},
@@ -2145,6 +2162,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRSeries_len__impl", (DL_FUNC) &savvy_PlRSeries_len__impl, 1},
     {"savvy_PlRSeries_cast__impl", (DL_FUNC) &savvy_PlRSeries_cast__impl, 3},
     {"savvy_PlRSeries_slice__impl", (DL_FUNC) &savvy_PlRSeries_slice__impl, 3},
+    {"savvy_PlRSeries_n_chunks__impl", (DL_FUNC) &savvy_PlRSeries_n_chunks__impl, 1},
     {"savvy_PlRThen_when__impl", (DL_FUNC) &savvy_PlRThen_when__impl, 2},
     {"savvy_PlRThen_otherwise__impl", (DL_FUNC) &savvy_PlRThen_otherwise__impl, 2},
     {"savvy_PlRWhen_then__impl", (DL_FUNC) &savvy_PlRWhen_then__impl, 2},

@@ -63,6 +63,8 @@ SEXP savvy_PlRDataFrame_equals__ffi(SEXP self__, SEXP c_arg__other, SEXP c_arg__
 SEXP savvy_PlRDataFrame_clone__ffi(SEXP self__);
 SEXP savvy_PlRDataFrame_lazy__ffi(SEXP self__);
 SEXP savvy_PlRDataFrame_to_struct__ffi(SEXP self__, SEXP c_arg__name);
+SEXP savvy_PlRDataFrame_n_chunks__ffi(SEXP self__);
+SEXP savvy_PlRDataFrame_rechunk__ffi(SEXP self__);
 
 // methods and associated functions for PlRDataType
 SEXP savvy_PlRDataType_new_from_name__ffi(SEXP c_arg__name);
@@ -363,6 +365,7 @@ SEXP savvy_PlRSeries_equals__ffi(SEXP self__, SEXP c_arg__other, SEXP c_arg__che
 SEXP savvy_PlRSeries_len__ffi(SEXP self__);
 SEXP savvy_PlRSeries_cast__ffi(SEXP self__, SEXP c_arg__dtype, SEXP c_arg__strict);
 SEXP savvy_PlRSeries_slice__ffi(SEXP self__, SEXP c_arg__offset, SEXP c_arg__length);
+SEXP savvy_PlRSeries_n_chunks__ffi(SEXP self__);
 
 // methods and associated functions for PlRThen
 SEXP savvy_PlRThen_when__ffi(SEXP self__, SEXP c_arg__condition);
