@@ -207,10 +207,12 @@ pl__concat <- function(
         abort("Series only supports 'vertical' concat strategy.")
       }
     } else if (is_polars_expr(first)) {
-      items |>
-        lapply(\(x) x$`_rexpr`) |>
-        concat_expr() |>
-        wrap()
+      return(
+        items |>
+          lapply(\(x) x$`_rexpr`) |>
+          concat_expr(rechunk = rechunk) |>
+          wrap()
+      )
     } else {
       abort(
         sprintf("`items` only accepts polars DataFrames, LazyFrames, Series, and Expr. Found '%s'.", class(first)[1])
