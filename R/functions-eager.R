@@ -74,7 +74,6 @@ pl__concat <- function(
 
     first <- items[[1]]
 
-
     if (length(items) == 1L && (is_polars_df(first) || is_polars_series(first) || is_polars_lf(first))) {
       return(first)
     }
