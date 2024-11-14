@@ -9,6 +9,37 @@ test_that("concat() doesn't accept mix of classes", {
   )
 })
 
+patrick::with_parameters_test_that(
+  "concat() on length-1 input returns input for DataFrame/LazyFrame",
+  {
+    input <- fun(x = 1)
+    output <- pl$concat(input, how = how)
+    if (is_polars_lf(input)) {
+      input <- input$collect()
+      output <- output$collect()
+    }
+    expect_equal(input, output)
+  },
+  patrick::cases(
+    list(fun = pl$DataFrame, how = "vertical"),
+    list(fun = pl$DataFrame, how = "horizontal"),
+    list(fun = pl$DataFrame, how = "diagonal"),
+    list(fun = pl$LazyFrame, how = "vertical"),
+    list(fun = pl$LazyFrame, how = "horizontal"),
+    list(fun = pl$LazyFrame, how = "diagonal")
+  )
+)
+
+test_that("concat() on length-1 input return input for Series", {
+  input <- pl$Series("x", 1)
+  output <- pl$concat(input, how = "vertical")
+  if (is_polars_lf(input)) {
+    input <- input$collect()
+    output <- output$collect()
+  }
+  expect_equal(input, output)
+})
+
 # TODO-REWRITE: requires $n_chunks()
 # test_that("arg 'rechunk' works", {
 #   df <- as_polars_df(mtcars)

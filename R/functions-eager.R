@@ -64,18 +64,24 @@ pl__concat <- function(
     if (length(items) == 0L) {
       abort("`items` cannot be empty.")
     }
+
+    if (!is.list(items)) {
+      first <- items
+    } else {
+      first <- items[[1]]
+    }
+
+    if (!is.list(items) && (is_polars_df(first) || is_polars_series(first) || is_polars_lf(first))) {
+      return(first)
+    }
+
     all_df_lf_series <-
       all(vapply(items, is_polars_df, FUN.VALUE = logical(1))) ||
         all(vapply(items, is_polars_lf, FUN.VALUE = logical(1))) ||
-        all(vapply(items, is_polars_series, FUN.VALUE = logical(1)))
+        all(vapply(items, is_polars_series, FUN.VALUE = logical(1))) ||
+        all(vapply(items, is_polars_expr, FUN.VALUE = logical(1)))
     if (!all_df_lf_series) {
       abort("All elements in `items` must be of the same class (Polars DataFrame, LazyFrame, Series, or Expr).")
-    }
-
-    first <- items[[1]]
-
-    if (length(items) == 1L && (is_polars_df(first) || is_polars_series(first) || is_polars_lf(first))) {
-      return(first)
     }
 
     if (how == "align") {
