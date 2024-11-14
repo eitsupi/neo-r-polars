@@ -168,7 +168,7 @@ pl__concat <- function(
     } else if (is_polars_series(first)) {
       if (how == "vertical") {
         items |>
-          lapply(\(x) x$`_df`) |>
+          lapply(\(x) x$`_s`) |>
           concat_series() |>
           wrap()
       } else {
