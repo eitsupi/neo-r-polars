@@ -176,11 +176,6 @@ NULL
 }
 
 
-`concat_lf` <- function(`lfs`, `rechunk`, `parallel`, `to_supertypes`) {
-  .savvy_wrap_PlRLazyFrame(.Call(savvy_concat_lf__impl, `lfs`, `rechunk`, `parallel`, `to_supertypes`))
-}
-
-
 `concat_df_diagonal` <- function(`dfs`) {
   .savvy_wrap_PlRDataFrame(.Call(savvy_concat_df_diagonal__impl, `dfs`))
 }
@@ -191,8 +186,18 @@ NULL
 }
 
 
+`concat_lf` <- function(`lfs`, `rechunk`, `parallel`, `to_supertypes`) {
+  .savvy_wrap_PlRLazyFrame(.Call(savvy_concat_lf__impl, `lfs`, `rechunk`, `parallel`, `to_supertypes`))
+}
+
+
 `concat_lf_horizontal` <- function(`lfs`, `parallel`) {
   .savvy_wrap_PlRLazyFrame(.Call(savvy_concat_lf_horizontal__impl, `lfs`, `parallel`))
+}
+
+
+`concat_lf_diagonal` <- function(`lfs`, `rechunk`, `parallel`, `to_supertypes`) {
+  .savvy_wrap_PlRLazyFrame(.Call(savvy_concat_lf_diagonal__impl, `lfs`, `rechunk`, `parallel`, `to_supertypes`))
 }
 
 
