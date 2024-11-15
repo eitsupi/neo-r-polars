@@ -17,6 +17,7 @@ namespace_expr_str <- function(x) {
   self
 }
 
+# TODO: example of parse Time type
 #' Convert a String column into a Date/Datetime/Time column.
 #'
 #' Similar to the [strptime()] function.
@@ -681,7 +682,7 @@ expr_str_extract <- function(pattern, group_index) {
 #'   pl$col("foo")$str$extract_all(r"((\d+))")$alias("extracted_nrs")
 #' )
 expr_str_extract_all <- function(pattern) {
-  self$`_rexpr`$str_extract_all(as_polars_expr(pattern)$`_rexpr`) |>
+  self$`_rexpr`$str_extract_all(as_polars_expr(pattern, as_lit = TRUE)$`_rexpr`) |>
     wrap()
 }
 
@@ -706,6 +707,7 @@ expr_str_count_matches <- function(pattern, ..., literal = FALSE) {
 
 #' Split the string by a substring
 #'
+#' @inheritParams rlang::args_dots_empty
 #' @param by Substring to split by. Can be an Expr.
 #' @param inclusive If `TRUE`, include the split character/string in the results.
 #'
@@ -720,19 +722,25 @@ expr_str_count_matches <- function(pattern, ..., literal = FALSE) {
 #'   by = c("_", "_", "*")
 #' )
 #' df
-#' df$select(pl$col("s")$str$split(by = pl$col("by"))$alias("split"))
-expr_str_split <- function(by, inclusive = FALSE) {
-  self$`_rexpr`$str_split(result(by), result(inclusive)) |>
-    wrap()
+#' df$select(split = pl$col("s")$str$split(by = pl$col("by")))
+expr_str_split <- function(by, ..., inclusive = FALSE) {
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$str_split(
+      as_polars_expr(by, as_lit = TRUE)$`_rexpr`,
+      inclusive
+    )
+  })
 }
 
 #' Split the string by a substring using `n` splits
 #'
 #' @description This results in a struct of `n+1` fields. If it cannot make `n`
 #' splits, the remaining field elements will be null.
-#' @param by Substring to split by.
+#'
+#' @inheritParams rlang::args_dots_empty
+#' @inheritParams expr_str_split
 #' @param n Number of splits to make.
-#' @param inclusive If `TRUE`, include the split character/string in the results.
 #'
 #' @inherit as_polars_expr return
 #'
@@ -742,11 +750,16 @@ expr_str_split <- function(by, inclusive = FALSE) {
 #'   split = pl$col("s")$str$split_exact(by = "_", 1),
 #'   split_inclusive = pl$col("s")$str$split_exact(by = "_", 1, inclusive = TRUE)
 #' )
-expr_str_split_exact <- function(by, n, inclusive = FALSE) {
-  self$`_rexpr`$str_split_exact(by, result(n), result(inclusive)) |>
-    wrap()
+expr_str_split_exact <- function(by, n, ..., inclusive = FALSE) {
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$str_split_exact(
+      as_polars_expr(by, as_lit = TRUE)$`_rexpr`,
+      n,
+      inclusive
+    )
+  })
 }
-
 
 #' Split the string by a substring, restricted to returning at most `n` items
 #'
@@ -754,8 +767,8 @@ expr_str_split_exact <- function(by, n, inclusive = FALSE) {
 #' If the number of possible splits is less than `n-1`, the remaining field
 #' elements will be null. If the number of possible splits is `n-1` or greater,
 #' the last (nth) substring will contain the remainder of the string.
-#' @param by Substring to split by.
-#' @param n Number of splits to make.
+#'
+#' @inheritParams expr_str_split_exact
 #'
 #' @inherit as_polars_expr return
 #'
