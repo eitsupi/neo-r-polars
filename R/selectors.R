@@ -466,10 +466,14 @@ cs__date <- function() {
 #' @param time_unit One (or more) of the allowed time unit precision strings,
 #' `"ms"`, `"us"`, and `"ns"`. Default is to select columns with any valid
 #' timeunit.
-#' @param time_zone One of the following:
-#' * one or more timezone strings, as defined in [OlsonNames()],
-#' * `NULL` (default) to select Datetime columns that do not have a timezone,
+#' @param time_zone One of the followings. The value or each element of the vector
+#' will be passed to the `time_zone` argument of the [`pl$Datetime()`][DataType] function:
+#' * A character vector of one or more timezone strings, as defined in [OlsonNames()].
+#' * `NULL` to select Datetime columns that do not have a timezone.
 #' * `"*"` to select Datetime columns that have any timezone.
+#' * A list of single timezone strings , `"*"`, and `NULL` to select Datetime columns
+#'   that do not have a timezone or have the (specific) timezone.
+#'   For example, the default value `list("*", NULL)` selects all Datetime columns.
 #'
 #' @inherit cs__all return seealso
 #' @examples
@@ -519,27 +523,22 @@ cs__date <- function() {
 #'
 #' # Select all columns except for datetime columns:
 #' df$select(!cs$datetime())
-cs__datetime <- function(time_unit = c("ms", "us", "ns"), time_zone) {
+cs__datetime <- function(time_unit = c("ms", "us", "ns"), time_zone = list("*", NULL)) {
   time_unit <- arg_match(time_unit, values = c("ms", "us", "ns"), multiple = TRUE)
-  datetime_dtypes <- list()
-  # When time_zone is missing, we want to detect all datetime, no matter the
-  # presence/absence or the value of the timezone.
-  if (missing(time_zone)) {
-    for (tu in time_unit) {
-      datetime_dtypes <- append(datetime_dtypes, pl$Datetime(time_unit = tu, time_zone = "*"))
-      datetime_dtypes <- append(datetime_dtypes, pl$Datetime(time_unit = tu, time_zone = NULL))
-    }
-  } else if (is.null(time_zone)) {
-    for (tu in time_unit) {
-      datetime_dtypes <- append(datetime_dtypes, pl$Datetime(time_unit = tu, time_zone = NULL))
-    }
-  } else {
-    for (tz in time_zone) {
-      for (tu in time_unit) {
-        datetime_dtypes <- append(datetime_dtypes, pl$Datetime(time_unit = tu, time_zone = tz))
-      }
-    }
+  if (!is_character(time_zone) && is_list(time_zone) && is.null(time_zone)) {
+    abort("`time_zone` must be a character vector, `NULL`, or a list.")
   }
+  if (is.null(time_zone)) {
+    time_zone <- list(NULL)
+  }
+
+  datetime_dtypes <- time_unit |>
+    lapply(\(tu) {
+      time_zone |>
+        lapply(\(tz) pl$Datetime(tu, tz))
+    }) |>
+    unlist() |>
+    as.list()
 
   wrap_to_selector(
     pl$col(datetime_dtypes),
@@ -633,10 +632,9 @@ cs__digit <- function(ascii_only = FALSE) {
 #' df$select(!cs$duration())
 cs__duration <- function(time_unit = c("ms", "us", "ns")) {
   time_unit <- arg_match(time_unit, values = c("ms", "us", "ns"), multiple = TRUE)
-  duration_dtypes <- list()
-  for (tu in time_unit) {
-    duration_dtypes <- append(duration_dtypes, pl$Duration(time_unit = tu))
-  }
+
+  duration_dtypes <- time_unit |>
+    lapply(pl$Duration)
 
   wrap_to_selector(
     pl$col(duration_dtypes),

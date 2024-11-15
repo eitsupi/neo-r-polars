@@ -4,18 +4,22 @@
 \alias{cs__datetime}
 \title{Select all datetime columns}
 \usage{
-cs__datetime(time_unit = c("ms", "us", "ns"), time_zone)
+cs__datetime(time_unit = c("ms", "us", "ns"), time_zone = list("*", NULL))
 }
 \arguments{
 \item{time_unit}{One (or more) of the allowed time unit precision strings,
 \code{"ms"}, \code{"us"}, and \code{"ns"}. Default is to select columns with any valid
 timeunit.}
 
-\item{time_zone}{One of the following:
+\item{time_zone}{One of the followings. The value or each element of the vector
+will be passed to the \code{time_zone} argument of the \code{\link[=DataType]{pl$Datetime()}} function:
 \itemize{
-\item one or more timezone strings, as defined in \code{\link[=OlsonNames]{OlsonNames()}},
-\item \code{NULL} (default) to select Datetime columns that do not have a timezone,
+\item A character vector of one or more timezone strings, as defined in \code{\link[=OlsonNames]{OlsonNames()}}.
+\item \code{NULL} to select Datetime columns that do not have a timezone.
 \item \code{"*"} to select Datetime columns that have any timezone.
+\item A list of single timezone strings , \code{"*"}, and \code{NULL} to select Datetime columns
+that do not have a timezone or have the (specific) timezone.
+For example, the default value \code{list("*", NULL)} selects all Datetime columns.
 }}
 }
 \value{
