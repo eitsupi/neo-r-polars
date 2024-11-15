@@ -79,7 +79,7 @@
 ---
 
     Code
-      pl$concat(as_polars_series(1:2, "a"), as_polars_series(5:1, "b"), how = "horizontal")
+      pl$concat(as_polars_series(1:2, "a"), as_polars_series(5:1, "b"), how = "diagonal")
     Condition
       Error in `pl$concat()`:
       ! Evaluation failed in `$concat()`.
