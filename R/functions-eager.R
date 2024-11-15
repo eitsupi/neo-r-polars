@@ -1,7 +1,7 @@
-#' Combine multiple DataFrames, LazyFrames, or Series into a single object
+#' Combine multiple DataFrames, LazyFrames, Series, or Expr into a single object
 #'
-#' @inheritParams rlang::check_dots_empty0
-#' @param items DataFrames, LazyFrames, or Series to concatenate.
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> DataFrames, LazyFrames,
+#' Series, or Expr to concatenate. All elements must have the same class.
 #' @param how Strategy to concatenate items. Must be one of:
 #' * `"vertical"`: applies multiple vstack operations;
 #' * `"vertical_relaxed"`: same as `"vertical"`, but additionally coerces
@@ -31,46 +31,42 @@
 #' # default is 'vertical' strategy
 #' df1 <- pl$DataFrame(a = 1L, b = 3L)
 #' df2 <- pl$DataFrame(a = 2L, b = 4L)
-#' pl$concat(c(df1, df2))
+#' pl$concat(df1, df2)
 #'
 #' # 'a' is coerced to float64
 #' df1 <- pl$DataFrame(a = 1L, b = 3L)
 #' df2 <- pl$DataFrame(a = 2, b = 4L)
-#' pl$concat(c(df1, df2), how = "vertical_relaxed")
+#' pl$concat(df1, df2, how = "vertical_relaxed")
 #'
 #' df_h1 <- pl$DataFrame(l1 = 1:2, l2 = 3:4)
 #' df_h2 <- pl$DataFrame(r1 = 5:6, r2 = 7:8, r3 = 9:10)
-#' pl$concat(c(df_h1, df_h2), how = "horizontal")
+#' pl$concat(df_h1, df_h2, how = "horizontal")
 #'
 #' # use 'diagonal' strategy to fill empty column values with nulls
 #' df1 <- pl$DataFrame(a = 1L, b = 3L)
 #' df2 <- pl$DataFrame(a = 2L, c = 4L)
-#' pl$concat(c(df1, df2), how = "diagonal")
+#' pl$concat(df1, df2, how = "diagonal")
 #'
 #' df_a1 <- pl$DataFrame(id = 1:2, x = 3:4)
 #' df_a2 <- pl$DataFrame(id = 2:3, y = 5:6)
 #' df_a3 <- pl$DataFrame(id = c(1L, 3L), z = 7:8)
-#' pl$concat(c(df_a1, df_a2, df_a3), how = "align")
+#' pl$concat(df_a1, df_a2, df_a3, how = "align")
 pl__concat <- function(
-    items,
     ...,
     how = "vertical",
     rechunk = FALSE,
     parallel = TRUE) {
   wrap({
-    check_dots_empty0(...)
+    check_dots_unnamed()
+    items <- list2(...)
 
     if (length(items) == 0L) {
       abort("`items` cannot be empty.")
     }
 
-    if (!is.list(items)) {
-      first <- items
-    } else {
-      first <- items[[1]]
-    }
+    first <- items[[1]]
 
-    if (!is.list(items) && (is_polars_df(first) || is_polars_series(first) || is_polars_lf(first))) {
+    if (length(items) == 1 && (is_polars_df(first) || is_polars_series(first) || is_polars_lf(first))) {
       return(first)
     }
 

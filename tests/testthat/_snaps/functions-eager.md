@@ -1,7 +1,7 @@
 # concat() doesn't accept mix of classes
 
     Code
-      pl$concat(c(as_polars_df(mtcars), as_polars_lf(mtcars)), how = "vertical")
+      pl$concat(as_polars_df(mtcars), as_polars_lf(mtcars))
     Condition
       Error in `pl$concat()`:
       ! Evaluation failed in `$concat()`.
@@ -11,17 +11,29 @@
 ---
 
     Code
-      pl$concat(c(as_polars_df(mtcars), mtcars$hp, pl$lit(mtcars$mpg)))
+      pl$concat(as_polars_df(mtcars), mtcars$hp, pl$lit(mtcars$mpg))
     Condition
       Error in `pl$concat()`:
       ! Evaluation failed in `$concat()`.
       Caused by error in `pl$concat()`:
       ! All elements in `items` must be of the same class (Polars DataFrame, LazyFrame, Series, or Expr).
 
+# concat() doesn't accept named input
+
+    Code
+      pl$concat(x = as_polars_df(mtcars))
+    Condition
+      Error in `pl$concat()`:
+      ! Evaluation failed in `$concat()`.
+      Caused by error in `pl$concat()`:
+      ! Arguments in `...` must be passed by position, not name.
+      x Problematic argument:
+      * x = as_polars_df(mtcars)
+
 # how = 'vertical_relaxed' works
 
     Code
-      pl$concat(c(df, pl$DataFrame(a = 2, b = 42L)), how = "vertical")
+      pl$concat(df, pl$DataFrame(a = 2, b = 42L), how = "vertical")
     Condition
       Error in `pl$concat()`:
       ! Evaluation failed in `$concat()`.
@@ -33,7 +45,7 @@
 # how = 'horizontal' works
 
     Code
-      pl$concat(c(df, df), how = "horizontal")
+      pl$concat(df, df, how = "horizontal")
     Condition
       Error in `pl$concat()`:
       ! Evaluation failed in `$concat()`.
@@ -45,7 +57,7 @@
 ---
 
     Code
-      pl$concat(c(as_polars_series(1:2, "a"), as_polars_series(5:1, "b")), how = "horizontal")
+      pl$concat(as_polars_series(1:2, "a"), as_polars_series(5:1, "b"), how = "horizontal")
     Condition
       Error in `pl$concat()`:
       ! Evaluation failed in `$concat()`.
@@ -55,7 +67,7 @@
 # how = 'diagonal' works
 
     Code
-      pl$concat(c(df, df2), how = "diagonal")
+      pl$concat(df, df2, how = "diagonal")
     Condition
       Error in `pl$concat()`:
       ! Evaluation failed in `$concat()`.
@@ -67,7 +79,7 @@
 ---
 
     Code
-      pl$concat(c(as_polars_series(1:2, "a"), as_polars_series(5:1, "b")), how = "horizontal")
+      pl$concat(as_polars_series(1:2, "a"), as_polars_series(5:1, "b"), how = "horizontal")
     Condition
       Error in `pl$concat()`:
       ! Evaluation failed in `$concat()`.

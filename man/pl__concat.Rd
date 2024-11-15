@@ -2,14 +2,13 @@
 % Please edit documentation in R/functions-eager.R
 \name{pl__concat}
 \alias{pl__concat}
-\title{Combine multiple DataFrames, LazyFrames, or Series into a single object}
+\title{Combine multiple DataFrames, LazyFrames, Series, or Expr into a single object}
 \usage{
-pl__concat(items, ..., how = "vertical", rechunk = FALSE, parallel = TRUE)
+pl__concat(..., how = "vertical", rechunk = FALSE, parallel = TRUE)
 }
 \arguments{
-\item{items}{DataFrames, LazyFrames, or Series to concatenate.}
-
-\item{...}{Dots which should be empty.}
+\item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> DataFrames, LazyFrames,
+Series, or Expr to concatenate. All elements must have the same class.}
 
 \item{how}{Strategy to concatenate items. Must be one of:
 \itemize{
@@ -43,30 +42,30 @@ The same class (\code{polars_data_frame}, \code{polars_lazy_frame} or
 \code{polars_series}) as the input.
 }
 \description{
-Combine multiple DataFrames, LazyFrames, or Series into a single object
+Combine multiple DataFrames, LazyFrames, Series, or Expr into a single object
 }
 \examples{
 # default is 'vertical' strategy
 df1 <- pl$DataFrame(a = 1L, b = 3L)
 df2 <- pl$DataFrame(a = 2L, b = 4L)
-pl$concat(c(df1, df2))
+pl$concat(df1, df2)
 
 # 'a' is coerced to float64
 df1 <- pl$DataFrame(a = 1L, b = 3L)
 df2 <- pl$DataFrame(a = 2, b = 4L)
-pl$concat(c(df1, df2), how = "vertical_relaxed")
+pl$concat(df1, df2, how = "vertical_relaxed")
 
 df_h1 <- pl$DataFrame(l1 = 1:2, l2 = 3:4)
 df_h2 <- pl$DataFrame(r1 = 5:6, r2 = 7:8, r3 = 9:10)
-pl$concat(c(df_h1, df_h2), how = "horizontal")
+pl$concat(df_h1, df_h2, how = "horizontal")
 
 # use 'diagonal' strategy to fill empty column values with nulls
 df1 <- pl$DataFrame(a = 1L, b = 3L)
 df2 <- pl$DataFrame(a = 2L, c = 4L)
-pl$concat(c(df1, df2), how = "diagonal")
+pl$concat(df1, df2, how = "diagonal")
 
 df_a1 <- pl$DataFrame(id = 1:2, x = 3:4)
 df_a2 <- pl$DataFrame(id = 2:3, y = 5:6)
 df_a3 <- pl$DataFrame(id = c(1L, 3L), z = 7:8)
-pl$concat(c(df_a1, df_a2, df_a3), how = "align")
+pl$concat(df_a1, df_a2, df_a3, how = "align")
 }
