@@ -181,7 +181,7 @@ test_that("how = 'diagonal' works", {
 
   # doesn't work with Series
   expect_snapshot(
-    pl$concat(as_polars_series(1:2, "a"), as_polars_series(5:1, "b"), how = "horizontal"),
+    pl$concat(as_polars_series(1:2, "a"), as_polars_series(5:1, "b"), how = "diagonal"),
     error = TRUE
   )
 })
