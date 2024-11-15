@@ -165,11 +165,7 @@ pl__scan_csv <- function(
     }
 
     if (is.list(null_values)) {
-      all_character <- lapply(null_values, \(x) {
-        length(x) == 1 && is.character(x)
-      }) |>
-        unlist() |>
-        all()
+      all_character <- all(vapply(null_values, is_character, n = 1, FUN.VALUE = logical(1)))
       if (!all_character) {
         abort("When `null_values` is a list, each element must be of type character.")
       }
@@ -190,11 +186,7 @@ pl__scan_csv <- function(
     }
 
     if (!is.null(storage_options)) {
-      all_character <- lapply(storage_options, \(x) {
-        length(x) == 1 && is.character(x)
-      }) |>
-        unlist() |>
-        all()
+      all_character <- all(vapply(storage_options, is_character, n = 1, FUN.VALUE = logical(1)))
       if (!all_character) {
         abort("All elements of `storage_options` must be of type character.")
       }
@@ -240,7 +232,12 @@ pl__scan_csv <- function(
 #' New DataFrame from CSV
 #' @rdname IO_read_csv
 #' @inheritParams pl__scan_csv
-#' @return [DataFrame][DataFrame_class]
+#' @inherit as_polars_df return
+#' @examples
+#' my_file <- tempfile()
+#' write.csv(iris, my_file)
+#' pl$read_csv(my_file)
+#' unlink(my_file)
 pl__read_csv <- function(
     source,
     ...,

@@ -159,8 +159,14 @@ environment variable (which defaults to 1 hour) if not given.}
 with this name.}
 }
 \value{
-\link[=DataFrame_class]{DataFrame}
+A polars \link{DataFrame}
 }
 \description{
 New DataFrame from CSV
+}
+\examples{
+my_file <- tempfile()
+write.csv(iris, my_file)
+pl$read_csv(my_file)
+unlink(my_file)
 }
