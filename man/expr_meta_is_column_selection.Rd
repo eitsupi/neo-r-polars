@@ -7,14 +7,14 @@
 expr_meta_is_column_selection(..., allow_aliasing = FALSE)
 }
 \arguments{
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{allow_aliasing}{If \code{FALSE} (default), any aliasing is not considered
 pure column selection. Set \code{TRUE} to allow for column selection that also
 includes aliasing.}
 }
 \value{
-A polars \link{expression}
+A logical value.
 }
 \description{
 This can include bare columns, column matches by regex or dtype, selectors
@@ -30,5 +30,8 @@ e$meta$is_column_selection()
 e$meta$is_column_selection(allow_aliasing = TRUE)
 
 e <- pl$col("foo") * pl$col("bar")
+e$meta$is_column_selection()
+
+e <- cs$starts_with("foo")
 e$meta$is_column_selection()
 }
