@@ -154,9 +154,8 @@ expr_list_n_unique <- function() {
 #'   conc_to_lit_list = pl$col("a")$list$concat(pl$lit(list("hello", c("hello", "world"))))
 #' )
 expr_list_concat <- function(other) {
-  wrap({
-    pl$concat_list(wrap(self$`_rexpr`), other)
-  })
+  pl$concat_list(wrap(self$`_rexpr`), other) |>
+    wrap()
 }
 
 #' Get the value by index in every sub-list
