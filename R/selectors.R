@@ -145,7 +145,7 @@ cs__all <- function() {
 
 #' Select all columns with alphabetic names (e.g. only letters)
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param ascii_only Indicate whether to consider only ASCII alphabetic
 #' characters, or the full Unicode range of valid letters (accented,
 #' idiographic, etc).
@@ -197,7 +197,7 @@ cs__alpha <- function(ascii_only = FALSE, ..., ignore_spaces = FALSE) {
 
 #' Select all columns with alphanumeric names (e.g. only letters and the digits 0-9)
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @inheritParams cs__alpha
 #'
 #' @details
@@ -982,7 +982,7 @@ cs__starts_with <- function(...) {
 
 #' Select all String (and, optionally, Categorical) string columns.
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param include_categorical If `TRUE`, also select categorical columns.
 #' @inherit cs__all return seealso
 #' @examples

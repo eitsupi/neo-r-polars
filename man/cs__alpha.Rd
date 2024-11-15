@@ -11,7 +11,7 @@ cs__alpha(ascii_only = FALSE, ..., ignore_spaces = FALSE)
 characters, or the full Unicode range of valid letters (accented,
 idiographic, etc).}
 
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{ignore_spaces}{Indicate whether to ignore the presence of spaces in
 column names; if so, only the other (non-space) characters are considered.}

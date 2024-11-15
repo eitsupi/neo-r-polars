@@ -7,7 +7,7 @@
 cs__string(..., include_categorical = FALSE)
 }
 \arguments{
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{include_categorical}{If \code{TRUE}, also select categorical columns.}
 }
