@@ -270,6 +270,10 @@ test_that("datetime", {
     df$select(cs$datetime(time_zone = NULL)),
     "tstamp"
   )
+  expect_snapshot(
+    df$select(cs$datetime(time_zone = 1)),
+    error = TRUE
+  )
 })
 
 test_that("decimal", {

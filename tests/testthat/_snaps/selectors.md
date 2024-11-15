@@ -80,6 +80,18 @@
       Caused by error in `cs$contains()`:
       ! All elements of `...` must be non-missing values of type character.
 
+# datetime
+
+    Code
+      df$select(cs$datetime(time_zone = 1))
+    Condition
+      Error in `df$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$select()`.
+      Caused by error in `cs$datetime()`:
+      ! `time_zone` must be a character vector, `NULL`, or a list.
+
 # ends_with
 
     Code
