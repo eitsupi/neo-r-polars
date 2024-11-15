@@ -100,9 +100,8 @@ pl__nth <- function(indices) {
 #'
 #' df$select(pl$first())
 pl__first <- function() {
-  wrap({
-    first()
-  })
+  first() |>
+    wrap()
 }
 
 #' Get the last column of the context
@@ -117,7 +116,6 @@ pl__first <- function() {
 #'
 #' df$select(pl$last())
 pl__last <- function() {
-  wrap({
-    last()
-  })
+  last() |>
+    wrap()
 }
