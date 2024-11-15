@@ -100,14 +100,14 @@ impl TryFrom<ListSexp> for Wrap<Vec<LazyFrame>> {
     type Error = savvy::Error;
 
     fn try_from(list: ListSexp) -> Result<Self, savvy::Error> {
-        let dfs = list
+        let lfs = list
             .values_iter()
             .map(|sexp| match sexp.into_typed() {
                 TypedSexp::Environment(e) => Ok(<&PlRLazyFrame>::try_from(e)?.ldf.clone()),
                 _ => Err("Only accept a list of polars lazy frames".to_string()),
             })
             .collect::<Result<Vec<_>, _>>()?;
-        Ok(Wrap(dfs))
+        Ok(Wrap(lfs))
     }
 }
 
@@ -115,14 +115,14 @@ impl TryFrom<ListSexp> for Wrap<Vec<Series>> {
     type Error = savvy::Error;
 
     fn try_from(list: ListSexp) -> Result<Self, savvy::Error> {
-        let dfs = list
+        let s = list
             .values_iter()
             .map(|sexp| match sexp.into_typed() {
                 TypedSexp::Environment(e) => Ok(<&PlRSeries>::from(e).series.clone()),
                 _ => Err("Only accept a list of polars series".to_string()),
             })
             .collect::<Result<Vec<_>, _>>()?;
-        Ok(Wrap(dfs))
+        Ok(Wrap(s))
     }
 }
 
