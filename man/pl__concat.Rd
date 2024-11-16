@@ -2,13 +2,13 @@
 % Please edit documentation in R/functions-eager.R
 \name{pl__concat}
 \alias{pl__concat}
-\title{Combine multiple DataFrames, LazyFrames, Series, or Expr into a single object}
+\title{Combine multiple DataFrames, LazyFrames, or Series into a single object}
 \usage{
 pl__concat(..., how = "vertical", rechunk = FALSE, parallel = TRUE)
 }
 \arguments{
-\item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> DataFrames, LazyFrames,
-Series, or Expr to concatenate. All elements must have the same class.}
+\item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> \link[=DataFrame]{DataFrames},
+\link{LazyFrames}, \link{Series}. All elements must have the same class.}
 
 \item{how}{Strategy to concatenate items. Must be one of:
 \itemize{
@@ -30,11 +30,11 @@ column-name collision. (If you need more control, you should use a
 suitable join method instead).
 }
 
-Series only support the \code{"vertical"} strategy.}
+\link{Series} only support the \code{"vertical"} strategy.}
 
 \item{rechunk}{Make sure that the result data is in contiguous memory.}
 
-\item{parallel}{Only relevant for LazyFrames. This determines if the
+\item{parallel}{Only relevant for \link[=LazyFrame]{LazyFrames}. This determines if the
 concatenated lazy computations may be executed in parallel.}
 }
 \value{
@@ -42,7 +42,7 @@ The same class (\code{polars_data_frame}, \code{polars_lazy_frame} or
 \code{polars_series}) as the input.
 }
 \description{
-Combine multiple DataFrames, LazyFrames, Series, or Expr into a single object
+Combine multiple DataFrames, LazyFrames, or Series into a single object
 }
 \examples{
 # default is 'vertical' strategy
