@@ -264,10 +264,3 @@ pub fn concat_lf_diagonal(
     .map_err(RPolarsErr::from)?;
     Ok(lf.into())
 }
-
-#[savvy]
-pub fn concat_expr(e: ListSexp, rechunk: bool) -> Result<PlRExpr> {
-    let e = <Wrap<Vec<Expr>>>::try_from(e)?.0;
-    let e = dsl::functions::concat_expr(e, rechunk).map_err(RPolarsErr::from)?;
-    Ok(e.into())
-}

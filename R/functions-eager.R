@@ -54,178 +54,178 @@
 pl__concat <- function(
     ...,
     how = c(
-      "vertical", "vertical_relaxed", "diagonal", "diagonal_relaxed",
-      "horizontal", "align"
+      "vertical",
+      "vertical_relaxed",
+      "diagonal",
+      "diagonal_relaxed",
+      "horizontal",
+      "align"
     ),
     rechunk = FALSE,
     parallel = TRUE) {
-  wrap({
-    check_dots_unnamed()
-    dots <- list2(...)
-    how <- arg_match0(
-      how,
-      values = c(
-        "vertical",
-        "vertical_relaxed",
-        "diagonal",
-        "diagonal_relaxed",
-        "horizontal",
-        "align"
-      )
+  check_dots_unnamed()
+  dots <- list2(...)
+  how <- arg_match0(
+    how,
+    values = c(
+      "vertical",
+      "vertical_relaxed",
+      "diagonal",
+      "diagonal_relaxed",
+      "horizontal",
+      "align"
     )
+  )
 
-    if (length(dots) == 0L) {
-      abort("`...` must not be empty.")
+  if (length(dots) == 0L) {
+    abort("`...` must not be empty.")
+  }
+
+  first <- dots[[1]]
+
+  if (length(dots) == 1 && (is_polars_df(first) || is_polars_series(first) || is_polars_lf(first))) {
+    return(first)
+  }
+
+  all_df_lf_series <- all(vapply(dots, is_polars_df, FUN.VALUE = logical(1))) ||
+    all(vapply(dots, is_polars_lf, FUN.VALUE = logical(1))) ||
+    all(vapply(dots, is_polars_series, FUN.VALUE = logical(1)))
+  if (!all_df_lf_series) {
+    abort(
+      "All elements in `...` must be of the same class (`polars_data_frame`, `polars_lazy_frame`, or `polars_series`)."
+    )
+  }
+
+  if (how == "align") {
+    if (!is_polars_df(first) && !is_polars_lf(first)) {
+      abort(r"("align" strategy is only supported on DataFrames and LazyFrames.)")
     }
 
-    first <- dots[[1]]
-
-    if (length(dots) == 1 && (is_polars_df(first) || is_polars_series(first) || is_polars_lf(first))) {
-      return(first)
+    all_columns <- lapply(dots, \(x) names(x))
+    common_cols <- Reduce(intersect, all_columns)
+    if (length(common_cols) == 0) {
+      abort("'align' strategy requires at least one common column.")
     }
 
-    all_df_lf_series <- all(vapply(dots, is_polars_df, FUN.VALUE = logical(1))) ||
-      all(vapply(dots, is_polars_lf, FUN.VALUE = logical(1))) ||
-      all(vapply(dots, is_polars_series, FUN.VALUE = logical(1)))
-    if (!all_df_lf_series) {
-      abort(
-        "All elements in `...` must be of the same class (`polars_data_frame`, `polars_lazy_frame`, or `polars_series`)."
-      )
-    }
-
-    if (how == "align") {
-      if (!is_polars_df(first) && !is_polars_lf(first)) {
-        abort(r"("align" strategy is only supported on DataFrames and LazyFrames.)")
-      }
-
-      # TODO: requires pl$coalesce()
-
-      all_columns <- lapply(dots, \(x) names(x))
-      common_cols <- Reduce(intersect, all_columns)
-      if (length(common_cols) == 0) {
-        abort("'align' strategy requires at least one common column.")
-      }
-
-      # align the frame data using a full outer join with no suffix-resolution
-      # (so we raise an error in case of column collision, like "horizontal")
-      lfs <- lapply(dots, as_polars_lf)
-      # TODO: requires <lazyframe>$join
-      lf <- Reduce(
-        x = lfs,
-        \(x, y) {
-          x$join(
-            y,
-            how = "full", on = common_cols, suffix = "_PL_CONCAT_RIGHT"
-          )$with_columns(
-            !!!lapply(common_cols, \(col) pl$coalesce(pl$col(col), pl$col(paste0(col, "_PL_CONCAT_RIGHT"))))
-          )$drop(paste0(common_cols, "_PL_CONCAT_RIGHT"))
-        },
-        accumulate = TRUE
-      )$sort(common_cols)
-
-      if (is_polars_df(first)) {
-        out <- lf$collect()
-      } else {
-        out <- lf
-      }
-      return(out)
-    }
+    # align the frame data using a full outer join with no suffix-resolution
+    # (so we raise an error in case of column collision, like "horizontal")
+    lfs <- lapply(dots, as_polars_lf)
+    # TODO: requires <lazyframe>$join
+    abort("TODO")
+    lf <- Reduce(
+      x = lfs,
+      \(x, y) {
+        x$join(
+          y,
+          how = "full", on = common_cols, suffix = "_PL_CONCAT_RIGHT"
+        )$with_columns(
+          !!!lapply(common_cols, \(col) pl$coalesce(pl$col(col), pl$col(paste0(col, "_PL_CONCAT_RIGHT"))))
+        )$drop(paste0(common_cols, "_PL_CONCAT_RIGHT"))
+      },
+      accumulate = TRUE
+    )$sort(common_cols)
 
     if (is_polars_df(first)) {
-      out <- switch(how,
-        vertical = {
+      out <- lf$collect()
+    } else {
+      out <- lf
+    }
+    return(out)
+  }
+
+  if (is_polars_df(first)) {
+    out <- switch(how,
+      vertical = {
+        dots |>
+          lapply(\(x) x$`_df`) |>
+          concat_df() |>
+          wrap()
+      },
+      vertical_relaxed = {
+        (
           dots |>
-            lapply(\(x) x$`_df`) |>
-            concat_df() |>
-            wrap()
-        },
-        vertical_relaxed = {
-          (
-            dots |>
-              lapply(\(x) x$lazy()$`_ldf`) |>
-              concat_lf(
-                rechunk = rechunk,
-                parallel = parallel,
-                to_supertypes = TRUE
-              ) |>
-              wrap()
-          )$collect(no_optimization = TRUE)
-        },
-        diagonal = {
-          dots |>
-            lapply(\(x) x$`_df`) |>
-            concat_df_diagonal() |>
-            wrap()
-        },
-        diagonal_relaxed = {
-          (
-            dots |>
-              lapply(\(x) x$lazy()$`_ldf`) |>
-              concat_lf_diagonal(
-                rechunk = rechunk,
-                parallel = parallel,
-                to_supertypes = TRUE
-              ) |>
-              wrap()
-          )$collect(no_optimization = TRUE)
-        },
-        horizontal = {
-          dots |>
-            lapply(\(x) x$`_df`) |>
-            concat_df_horizontal() |>
-            wrap()
-        },
-        abort("Unreachable")
-      )
-    } else if (is_polars_lf(first)) {
-      out <- switch(how,
-        vertical = ,
-        vertical_relaxed = {
-          dots |>
-            lapply(\(x) x$`_ldf`) |>
+            lapply(\(x) x$lazy()$`_ldf`) |>
             concat_lf(
               rechunk = rechunk,
               parallel = parallel,
-              to_supertypes = endsWith(how, "relaxed")
-            )
-        },
-        diagonal = ,
-        diagonal_relaxed = {
+              to_supertypes = TRUE
+            ) |>
+            wrap()
+        )$collect(no_optimization = TRUE)
+      },
+      diagonal = {
+        dots |>
+          lapply(\(x) x$`_df`) |>
+          concat_df_diagonal() |>
+          wrap()
+      },
+      diagonal_relaxed = {
+        (
           dots |>
-            lapply(\(x) x$`_ldf`) |>
+            lapply(\(x) x$lazy()$`_ldf`) |>
             concat_lf_diagonal(
               rechunk = rechunk,
               parallel = parallel,
-              to_supertypes = endsWith(how, "relaxed")
-            )
-        },
-        horizontal = {
-          dots |>
-            lapply(\(x) x$`_ldf`) |>
-            concat_lf_horizontal(parallel = parallel)
-        },
-        abort("Unreachable")
-      ) |>
-        wrap()
-    } else if (is_polars_series(first)) {
-      out <- switch(how,
-        vertical = {
-          dots |>
-            lapply(\(x) x$`_s`) |>
-            concat_series() |>
+              to_supertypes = TRUE
+            ) |>
             wrap()
-        },
-        abort("Series only supports 'vertical' concat strategy.")
-      )
-    } else {
-      abort(
-        sprintf("Unsupported class for `concat`: %s", toString(class(first)))
-      )
-    }
+        )$collect(no_optimization = TRUE)
+      },
+      horizontal = {
+        dots |>
+          lapply(\(x) x$`_df`) |>
+          concat_df_horizontal() |>
+          wrap()
+      },
+      abort("Unreachable")
+    )
+  } else if (is_polars_lf(first)) {
+    out <- switch(how,
+      vertical = ,
+      vertical_relaxed = {
+        dots |>
+          lapply(\(x) x$`_ldf`) |>
+          concat_lf(
+            rechunk = rechunk,
+            parallel = parallel,
+            to_supertypes = endsWith(how, "relaxed")
+          )
+      },
+      diagonal = ,
+      diagonal_relaxed = {
+        dots |>
+          lapply(\(x) x$`_ldf`) |>
+          concat_lf_diagonal(
+            rechunk = rechunk,
+            parallel = parallel,
+            to_supertypes = endsWith(how, "relaxed")
+          )
+      },
+      horizontal = {
+        dots |>
+          lapply(\(x) x$`_ldf`) |>
+          concat_lf_horizontal(parallel = parallel)
+      },
+      abort("Unreachable")
+    ) |>
+      wrap()
+  } else if (is_polars_series(first)) {
+    out <- switch(how,
+      vertical = {
+        dots |>
+          lapply(\(x) x$`_s`) |>
+          concat_series() |>
+          wrap()
+      },
+      abort("Series only supports 'vertical' concat strategy.")
+    )
+  } else {
+    abort("Unreachable")
+  }
 
-    if (isTRUE(rechunk)) {
-      out <- out$rechunk()
-    }
+  if (isTRUE(rechunk)) {
+    out$rechunk()
+  } else {
     out
-  })
+  }
 }

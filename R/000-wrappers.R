@@ -221,11 +221,6 @@ NULL
 }
 
 
-`concat_expr` <- function(`e`, `rechunk`) {
-  .savvy_wrap_PlRExpr(.Call(savvy_concat_expr__impl, `e`, `rechunk`))
-}
-
-
 `int_range` <- function(`start`, `end`, `step`, `dtype`) {
   `start` <- .savvy_extract_ptr(`start`, "PlRExpr")
   `end` <- .savvy_extract_ptr(`end`, "PlRExpr")
