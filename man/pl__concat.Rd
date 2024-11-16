@@ -4,7 +4,13 @@
 \alias{pl__concat}
 \title{Combine multiple DataFrames, LazyFrames, or Series into a single object}
 \usage{
-pl__concat(..., how = "vertical", rechunk = FALSE, parallel = TRUE)
+pl__concat(
+  ...,
+  how = c("vertical", "vertical_relaxed", "diagonal", "diagonal_relaxed", "horizontal",
+    "align"),
+  rechunk = FALSE,
+  parallel = TRUE
+)
 }
 \arguments{
 \item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> \link[=DataFrame]{DataFrames},

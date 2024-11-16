@@ -207,17 +207,4 @@ test_that("how = 'diagonal_relaxed' works", {
   )
 })
 
-test_that("concat() with Expr", {
-  df <- pl$DataFrame(x = c(3, 4), y = c(2, 1))
-
-  expect_equal(
-    df$select(pl$concat(pl$col("x"), pl$col("y"))),
-    pl$DataFrame(x = c(3, 4, 2, 1))
-  )
-  expect_equal(
-    df$select(pl$concat(pl$col("x"), pl$col("y"), how = "horizontal")),
-    pl$DataFrame(x = c(3, 4, 2, 1))
-  )
-})
-
 # TODO: test for "align" when pl$coalesce() is implemented

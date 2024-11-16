@@ -6,7 +6,7 @@
       Error in `pl$concat()`:
       ! Evaluation failed in `$concat()`.
       Caused by error in `pl$concat()`:
-      ! All elements in `...` must be of the same class (`polars_data_frame`, `polars_lazy_frame`, `polars_series`, or `polars_expr`).
+      ! All elements in `...` must be of the same class (`polars_data_frame`, `polars_lazy_frame`, or `polars_series`).
 
 ---
 
@@ -16,7 +16,7 @@
       Error in `pl$concat()`:
       ! Evaluation failed in `$concat()`.
       Caused by error in `pl$concat()`:
-      ! All elements in `...` must be of the same class (`polars_data_frame`, `polars_lazy_frame`, `polars_series`, or `polars_expr`).
+      ! All elements in `...` must be of the same class (`polars_data_frame`, `polars_lazy_frame`, or `polars_series`).
 
 # concat() doesn't accept named input
 

@@ -53,7 +53,10 @@
 #' pl$concat(df_a1, df_a2, df_a3, how = "align")
 pl__concat <- function(
     ...,
-    how = "vertical",
+    how = c(
+      "vertical", "vertical_relaxed", "diagonal", "diagonal_relaxed",
+      "horizontal", "align"
+    ),
     rechunk = FALSE,
     parallel = TRUE) {
   wrap({
@@ -83,11 +86,10 @@ pl__concat <- function(
 
     all_df_lf_series <- all(vapply(dots, is_polars_df, FUN.VALUE = logical(1))) ||
       all(vapply(dots, is_polars_lf, FUN.VALUE = logical(1))) ||
-      all(vapply(dots, is_polars_series, FUN.VALUE = logical(1))) ||
-      all(vapply(dots, is_polars_expr, FUN.VALUE = logical(1)))
+      all(vapply(dots, is_polars_series, FUN.VALUE = logical(1)))
     if (!all_df_lf_series) {
       abort(
-        "All elements in `...` must be of the same class (`polars_data_frame`, `polars_lazy_frame`, `polars_series`, or `polars_expr`)."
+        "All elements in `...` must be of the same class (`polars_data_frame`, `polars_lazy_frame`, or `polars_series`)."
       )
     }
 
@@ -214,13 +216,6 @@ pl__concat <- function(
             wrap()
         },
         abort("Series only supports 'vertical' concat strategy.")
-      )
-    } else if (is_polars_expr(first)) {
-      return(
-        dots |>
-          lapply(\(x) x$`_rexpr`) |>
-          concat_expr(rechunk = rechunk) |>
-          wrap()
       )
     } else {
       abort(
