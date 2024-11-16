@@ -98,7 +98,6 @@ pl__concat <- function(
 
       # TODO: requires pl$coalesce()
 
-      # TODO: names.polars_lazy_frame
       all_columns <- lapply(dots, \(x) names(x))
       common_cols <- Reduce(intersect, all_columns)
       if (length(common_cols) == 0) {
