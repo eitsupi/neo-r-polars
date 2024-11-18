@@ -63,6 +63,9 @@ pl__scan_ipc <- function(
     include_file_paths = NULL) {
   wrap({
     check_dots_empty0(...)
+    if (length(hive_schema) > 0) {
+      hive_schema <- parse_into_list_of_datatypes(!!!hive_schema)
+    }
     PlRLazyFrame$new_from_ipc(
       path = source,
       n_rows = n_rows,
