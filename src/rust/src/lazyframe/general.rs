@@ -1,8 +1,10 @@
 use crate::{
     prelude::*, PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame, PlRLazyGroupBy, RPolarsErr,
 };
+use polars::io::{HiveOptions, RowIndex};
 use savvy::{
     savvy, ListSexp, LogicalSexp, NumericScalar, OwnedListSexp, OwnedStringSexp, Result, Sexp,
+    StringSexp,
 };
 
 #[savvy]
@@ -205,5 +207,112 @@ impl PlRLazyFrame {
         let ldf = self.ldf.clone();
         let exprs = <Wrap<Vec<Expr>>>::from(exprs).0;
         Ok(ldf.with_columns(exprs).into())
+    }
+
+    fn new_from_ipc(
+        path: StringSexp,
+        cache: bool,
+        rechunk: bool,
+        try_parse_hive_dates: bool,
+        retries: NumericScalar,
+        n_rows: Option<NumericScalar>,
+        row_index_name: Option<&str>,
+        row_index_offset: Option<NumericScalar>,
+        cloud_options: Option<StringSexp>,
+        // credential_provider: Option<PyObject>,
+        hive_partitioning: Option<bool>,
+        hive_schema: Option<ListSexp>,
+        file_cache_ttl: Option<NumericScalar>,
+        include_file_paths: Option<&str>,
+    ) -> Result<Self> {
+        use std::path::PathBuf;
+
+        let path = path
+            .to_vec()
+            .iter()
+            .map(std::path::PathBuf::from)
+            .collect::<Vec<PathBuf>>();
+        let row_index_offset: Option<u32> = match row_index_offset {
+            Some(x) => Some(<Wrap<u32>>::try_from(x)?.0),
+            None => None,
+        };
+        let hive_schema: Option<Wrap<Schema>> = match hive_schema {
+            Some(x) => Some(<Wrap<Schema>>::try_from(x)?),
+            None => None,
+        };
+        let n_rows: Option<usize> = match n_rows {
+            Some(x) => Some(<Wrap<usize>>::try_from(x)?.0),
+            None => None,
+        };
+        let row_index: Option<RowIndex> = match row_index_name {
+            Some(x) => Some(RowIndex {
+                name: x.into(),
+                // TODO: remove unwrap()
+                offset: row_index_offset.unwrap(),
+            }),
+            None => None,
+        };
+        let retries = <Wrap<usize>>::try_from(retries)?.0;
+        let file_cache_ttl: Option<u64> = match file_cache_ttl {
+            Some(x) => Some(<Wrap<u64>>::try_from(x)?.0),
+            None => None,
+        };
+
+        let hive_options = HiveOptions {
+            enabled: hive_partitioning,
+            hive_start_idx: 0,
+            schema: hive_schema.map(|x| Arc::new(x.0)),
+            try_parse_dates: try_parse_hive_dates,
+        };
+
+        let cloud_options: Option<Vec<(String, String)>> = match cloud_options {
+            Some(x) => {
+                let values = x.to_vec();
+                let names = x.get_names().unwrap();
+                let vec = names
+                    .into_iter()
+                    .zip(values.into_iter())
+                    .map(|(xi, yi)| (xi.to_string(), yi.to_string()))
+                    .collect::<Vec<(String, String)>>();
+                Some(vec)
+            }
+            None => None,
+        };
+
+        let mut args = ScanArgsIpc {
+            n_rows,
+            cache,
+            rechunk,
+            row_index,
+            cloud_options: None,
+            hive_options,
+            include_file_paths: include_file_paths.map(|x| x.into()),
+        };
+
+        let sources = path;
+        let first_path: Option<PathBuf> = sources.get(0).unwrap().clone().into();
+        // let sources = sources.0;
+        // let (first_path, sources) = match source {
+        //     None => (sources.first_path().map(|p| p.to_path_buf()), sources),
+        //     Some(source) => pyobject_to_first_path_and_scan_sources(source)?,
+        // };
+
+        if let Some(first_path) = first_path {
+            let first_path_url = first_path.to_string_lossy();
+
+            let mut cloud_options =
+                parse_cloud_options(&first_path_url, cloud_options.unwrap_or_default())?;
+            if let Some(file_cache_ttl) = file_cache_ttl {
+                cloud_options.file_cache_ttl = file_cache_ttl;
+            }
+            args.cloud_options = Some(
+                cloud_options.with_max_retries(retries), // .with_credential_provider(
+                                                         //     credential_provider.map(PlCredentialProvider::from_python_func_object),
+                                                         // ),
+            );
+        }
+
+        let lf = LazyFrame::scan_ipc_files(sources.into(), args).map_err(RPolarsErr::from)?;
+        Ok(lf.into())
     }
 }
