@@ -147,16 +147,31 @@ test_that("dt$combine", {
   )
 })
 
-test_that("dt$strftime and dt$to_string", {
-  expect_equal(
-    pl$DataFrame(x = as.POSIXct("2021-01-02 12:13:14", tz = "GMT"))$with_columns(pl$col("x")$dt$strftime("this is the year: %Y")),
-    pl$DataFrame(x = "this is the year: 2021")
-  )
-  expect_equal(
-    pl$DataFrame(x = as.POSIXct("2021-01-02 12:13:14", tz = "GMT"))$with_columns(pl$col("x")$dt$to_string("this is the year: %Y")),
-    pl$DataFrame(x = "this is the year: 2021")
-  )
-})
+patrick::with_parameters_test_that(
+  "dt$to_string and dt$strftime works",
+  .cases = {
+    tibble::tribble(
+      ~.test_name, ~temporal_dtype, ~format_to_test,
+      "datetime_ns", pl$Datetime("ns"), "%F %T",
+      "datetime_ms_utc", pl$Datetime("ms", "UTC"), "%F %T",
+      "date", pl$Date, "%F",
+      "time", pl$Time, "%T",
+      "duration_ns", pl$Duration("ns"), "polars",
+      "duration_ms", pl$Duration("ms"), "polars"
+    )
+  },
+  code = {
+    temporal_lit <- pl$lit(1L)$cast(temporal_dtype)
+
+    expect_snapshot(
+      pl$select(
+        to_string_default = temporal_lit$dt$to_string(),
+        "to_string_{format_to_test}" := temporal_lit$dt$to_string(format_to_test),
+        strftime_iso = temporal_lit$dt$strftime("iso"),
+      )
+    )
+  }
+)
 
 test_that("dt$year iso_year", {
   df <- pl$select(
