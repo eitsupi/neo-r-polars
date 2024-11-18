@@ -35,6 +35,7 @@ features = [
     "concat_str",
     "cse",
     "csv",
+    "diagonal_concat",
     "diff",
     "dtype-full",
     "extract_groups",

@@ -3,8 +3,8 @@ use crate::{
 };
 use polars::io::RowIndex;
 use savvy::{
-    savvy, ListSexp, LogicalSexp, NumericScalar, OwnedStringSexp, Result, Sexp, StringSexp,
-    TypedSexp,
+    savvy, ListSexp, LogicalSexp, NumericScalar, OwnedListSexp, OwnedStringSexp, Result, Sexp, 
+    StringSexp, TypedSexp,
 };
 
 #[savvy]
@@ -167,6 +167,16 @@ impl PlRLazyFrame {
 
     fn cast_all(&self, dtype: &PlRDataType, strict: bool) -> Result<Self> {
         Ok(self.ldf.clone().cast_all(dtype.dt.clone(), strict).into())
+    }
+
+    fn collect_schema(&mut self) -> Result<Sexp> {
+        let schema = self.ldf.collect_schema().map_err(RPolarsErr::from)?;
+        let mut out = OwnedListSexp::new(schema.len(), true)?;
+        for (i, (name, dtype)) in schema.iter().enumerate() {
+            let value: Sexp = PlRDataType::from(dtype.clone()).try_into()?;
+            let _ = out.set_name_and_value(i, name.as_str(), value);
+        }
+        Ok(out.into())
     }
 
     fn sort_by_exprs(

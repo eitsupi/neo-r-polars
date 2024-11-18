@@ -5,13 +5,18 @@ SEXP savvy_min_horizontal__ffi(SEXP c_arg__exprs);
 SEXP savvy_sum_horizontal__ffi(SEXP c_arg__exprs);
 SEXP savvy_mean_horizontal__ffi(SEXP c_arg__exprs);
 SEXP savvy_concat_df__ffi(SEXP c_arg__dfs);
+SEXP savvy_concat_series__ffi(SEXP c_arg__series);
 SEXP savvy_as_struct__ffi(SEXP c_arg__exprs);
 SEXP savvy_datetime__ffi(SEXP c_arg__year, SEXP c_arg__month, SEXP c_arg__day, SEXP c_arg__time_unit, SEXP c_arg__ambiguous, SEXP c_arg__hour, SEXP c_arg__minute, SEXP c_arg__second, SEXP c_arg__microsecond, SEXP c_arg__time_zone);
 SEXP savvy_duration__ffi(SEXP c_arg__time_unit, SEXP c_arg__weeks, SEXP c_arg__days, SEXP c_arg__hours, SEXP c_arg__minutes, SEXP c_arg__seconds, SEXP c_arg__milliseconds, SEXP c_arg__microseconds, SEXP c_arg__nanoseconds);
 SEXP savvy_field__ffi(SEXP c_arg__names);
+SEXP savvy_coalesce__ffi(SEXP c_arg__exprs);
 SEXP savvy_col__ffi(SEXP c_arg__name);
 SEXP savvy_cols__ffi(SEXP c_arg__names);
 SEXP savvy_dtype_cols__ffi(SEXP c_arg__dtypes);
+SEXP savvy_index_cols__ffi(SEXP c_arg__indices);
+SEXP savvy_first__ffi(void);
+SEXP savvy_last__ffi(void);
 SEXP savvy_lit_from_bool__ffi(SEXP c_arg__value);
 SEXP savvy_lit_from_i32__ffi(SEXP c_arg__value);
 SEXP savvy_lit_from_f64__ffi(SEXP c_arg__value);
@@ -21,6 +26,11 @@ SEXP savvy_lit_null__ffi(void);
 SEXP savvy_lit_from_series__ffi(SEXP c_arg__value);
 SEXP savvy_lit_from_series_first__ffi(SEXP c_arg__value);
 SEXP savvy_concat_list__ffi(SEXP c_arg__s);
+SEXP savvy_concat_df_diagonal__ffi(SEXP c_arg__dfs);
+SEXP savvy_concat_df_horizontal__ffi(SEXP c_arg__dfs);
+SEXP savvy_concat_lf__ffi(SEXP c_arg__lfs, SEXP c_arg__rechunk, SEXP c_arg__parallel, SEXP c_arg__to_supertypes);
+SEXP savvy_concat_lf_horizontal__ffi(SEXP c_arg__lfs, SEXP c_arg__parallel);
+SEXP savvy_concat_lf_diagonal__ffi(SEXP c_arg__lfs, SEXP c_arg__rechunk, SEXP c_arg__parallel, SEXP c_arg__to_supertypes);
 SEXP savvy_int_range__ffi(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__step, SEXP c_arg__dtype);
 SEXP savvy_int_ranges__ffi(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__step, SEXP c_arg__dtype);
 SEXP savvy_date_range__ffi(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__interval, SEXP c_arg__closed);
@@ -56,6 +66,8 @@ SEXP savvy_PlRDataFrame_equals__ffi(SEXP self__, SEXP c_arg__other, SEXP c_arg__
 SEXP savvy_PlRDataFrame_clone__ffi(SEXP self__);
 SEXP savvy_PlRDataFrame_lazy__ffi(SEXP self__);
 SEXP savvy_PlRDataFrame_to_struct__ffi(SEXP self__, SEXP c_arg__name);
+SEXP savvy_PlRDataFrame_n_chunks__ffi(SEXP self__);
+SEXP savvy_PlRDataFrame_rechunk__ffi(SEXP self__);
 
 // methods and associated functions for PlRDataType
 SEXP savvy_PlRDataType_new_from_name__ffi(SEXP c_arg__name);
@@ -242,6 +254,7 @@ SEXP savvy_PlRExpr__meta_selector_and__ffi(SEXP self__, SEXP c_arg__other);
 SEXP savvy_PlRExpr__meta_selector_sub__ffi(SEXP self__, SEXP c_arg__other);
 SEXP savvy_PlRExpr__meta_as_selector__ffi(SEXP self__);
 SEXP savvy_PlRExpr_compute_tree_format__ffi(SEXP self__, SEXP c_arg__display_as_dot);
+SEXP savvy_PlRExpr_meta_is_column__ffi(SEXP self__);
 SEXP savvy_PlRExpr_name_keep__ffi(SEXP self__);
 SEXP savvy_PlRExpr_name_prefix__ffi(SEXP self__, SEXP c_arg__prefix);
 SEXP savvy_PlRExpr_name_suffix__ffi(SEXP self__, SEXP c_arg__suffix);
@@ -314,6 +327,7 @@ SEXP savvy_PlRLazyFrame_tail__ffi(SEXP self__, SEXP c_arg__n);
 SEXP savvy_PlRLazyFrame_drop__ffi(SEXP self__, SEXP c_arg__columns, SEXP c_arg__strict);
 SEXP savvy_PlRLazyFrame_cast__ffi(SEXP self__, SEXP c_arg__dtypes, SEXP c_arg__strict);
 SEXP savvy_PlRLazyFrame_cast_all__ffi(SEXP self__, SEXP c_arg__dtype, SEXP c_arg__strict);
+SEXP savvy_PlRLazyFrame_collect_schema__ffi(SEXP self__);
 SEXP savvy_PlRLazyFrame_sort_by_exprs__ffi(SEXP self__, SEXP c_arg__by, SEXP c_arg__descending, SEXP c_arg__nulls_last, SEXP c_arg__maintain_order, SEXP c_arg__multithreaded);
 SEXP savvy_PlRLazyFrame_with_columns__ffi(SEXP self__, SEXP c_arg__exprs);
 SEXP savvy_PlRLazyFrame_new_from_csv__ffi(SEXP c_arg__path, SEXP c_arg__separator, SEXP c_arg__has_header, SEXP c_arg__ignore_errors, SEXP c_arg__skip_rows, SEXP c_arg__cache, SEXP c_arg__missing_utf8_is_empty_string, SEXP c_arg__low_memory, SEXP c_arg__rechunk, SEXP c_arg__skip_rows_after_header, SEXP c_arg__encoding, SEXP c_arg__try_parse_dates, SEXP c_arg__eol_char, SEXP c_arg__raise_if_empty, SEXP c_arg__truncate_ragged_lines, SEXP c_arg__decimal_comma, SEXP c_arg__glob, SEXP c_arg__retries, SEXP c_arg__comment_prefix, SEXP c_arg__quote_char, SEXP c_arg__null_values, SEXP c_arg__infer_schema_length, SEXP c_arg__row_index_name, SEXP c_arg__row_index_offset, SEXP c_arg__n_rows, SEXP c_arg__overwrite_dtype, SEXP c_arg__schema, SEXP c_arg__cloud_options, SEXP c_arg__file_cache_ttl, SEXP c_arg__include_file_paths);
@@ -339,7 +353,7 @@ SEXP savvy_PlRSeries_new_single_binary__ffi(SEXP c_arg__name, SEXP c_arg__values
 SEXP savvy_PlRSeries_new_binary__ffi(SEXP c_arg__name, SEXP c_arg__values);
 SEXP savvy_PlRSeries_new_series_list__ffi(SEXP c_arg__name, SEXP c_arg__values, SEXP c_arg__strict);
 SEXP savvy_PlRSeries_new_i32_from_date__ffi(SEXP c_arg__name, SEXP c_arg__values);
-SEXP savvy_PlRSeries_new_i64_from_numeric_and_multiplier__ffi(SEXP c_arg__name, SEXP c_arg__values, SEXP c_arg__multiplier);
+SEXP savvy_PlRSeries_new_i64_from_numeric_and_multiplier__ffi(SEXP c_arg__name, SEXP c_arg__values, SEXP c_arg__multiplier, SEXP c_arg__rounding);
 SEXP savvy_PlRSeries_new_i64_from_clock_pair__ffi(SEXP c_arg__name, SEXP c_arg__left, SEXP c_arg__right, SEXP c_arg__precision);
 SEXP savvy_PlRSeries_to_r_vector__ffi(SEXP self__, SEXP c_arg__ensure_vector, SEXP c_arg__int64, SEXP c_arg__date, SEXP c_arg__time, SEXP c_arg__struct, SEXP c_arg__decimal, SEXP c_arg__as_clock_class, SEXP c_arg__ambiguous, SEXP c_arg__non_existent, SEXP c_arg__local_time_zone);
 SEXP savvy_PlRSeries_print__ffi(SEXP self__);
@@ -357,6 +371,7 @@ SEXP savvy_PlRSeries_equals__ffi(SEXP self__, SEXP c_arg__other, SEXP c_arg__che
 SEXP savvy_PlRSeries_len__ffi(SEXP self__);
 SEXP savvy_PlRSeries_cast__ffi(SEXP self__, SEXP c_arg__dtype, SEXP c_arg__strict);
 SEXP savvy_PlRSeries_slice__ffi(SEXP self__, SEXP c_arg__offset, SEXP c_arg__length);
+SEXP savvy_PlRSeries_n_chunks__ffi(SEXP self__);
 
 // methods and associated functions for PlRThen
 SEXP savvy_PlRThen_when__ffi(SEXP self__, SEXP c_arg__condition);
