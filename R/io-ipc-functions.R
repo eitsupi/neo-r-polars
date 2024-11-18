@@ -139,16 +139,7 @@ pl__read_ipc <- function(
     try_parse_hive_dates = TRUE,
     include_file_paths = NULL) {
   wrap({
-    if (isTRUE(is.raw(source))) {
-      .pr$DataFrame$from_raw_ipc(
-        source,
-        n_rows,
-        row_index_name,
-        row_index_offset
-      )
-    } else {
-      .args <- as.list(environment())
-      do.call(pl__scan_ipc, .args)$collect()
-    }
+    .args <- as.list(environment())
+    do.call(pl__scan_ipc, .args)$collect()
   })
 }
