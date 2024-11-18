@@ -115,30 +115,29 @@ pl__scan_ipc <- function(
 #' )
 #' list.files(temp_dir, recursive = TRUE)
 #'
-#' # Read the dataset
-#' # Sinse hive-style partitioning is not supported,
-#' # the `cyl` and `gear` columns are not contained in the result
-#' pl$read_ipc(
-#'   file.path(temp_dir, "**/*.arrow")
-#' )
+#' # If the path is a folder, Polars automatically tries to detect partitions
+#' # and includes them in the output
+#' pl$read_ipc(temp_dir)
 #'
-#' # Read a raw vector
-#' arrow::arrow_table(
-#'   foo = 1:5,
-#'   bar = 6:10,
-#'   ham = letters[1:5]
-#' ) |>
-#'   arrow::write_to_raw(format = "file") |>
-#'   pl$read_ipc()
+#' # We can also impose a schema to the partition
+#' pl$read_ipc(temp_dir, hive_schema = list(cyl = pl$String, gear = pl$Int32))
 pl__read_ipc <- function(
     source,
     ...,
+    columns = NULL,
     n_rows = NULL,
-    memory_map = TRUE,
+    cache = TRUE,
+    rechunk = FALSE,
     row_index_name = NULL,
     row_index_offset = 0L,
-    rechunk = FALSE,
-    cache = TRUE) {
+    storage_options = NULL,
+    memory_map = TRUE,
+    retries = 2,
+    file_cache_ttl = NULL,
+    hive_partitioning = NULL,
+    hive_schema = NULL,
+    try_parse_hive_dates = TRUE,
+    include_file_paths = NULL) {
   wrap({
     if (isTRUE(is.raw(source))) {
       .pr$DataFrame$from_raw_ipc(
