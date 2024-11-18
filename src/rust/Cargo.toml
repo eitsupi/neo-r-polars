@@ -37,6 +37,7 @@ features = [
     "cse",
     "cum_agg",
     "cutqcut",
+    "diagonal_concat",
     "diff",
     "dot_product",
     "dtype-full",
