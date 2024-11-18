@@ -20,19 +20,7 @@
       Caused by error:
       ! Evaluation failed.
       Caused by error:
-      ! `null_values` must be a character vector or a named list.
-
----
-
-    Code
-      pl$read_csv(tmpf, null_values = list(b = "a", c = 2))
-    Condition
-      Error in `pl$read_csv()`:
-      ! Evaluation failed in `$read_csv()`.
-      Caused by error:
-      ! Evaluation failed.
-      Caused by error:
-      ! When `null_values` is a list, each element must be of type character.
+      ! `null_values` must be a character vector or `NULL`, not an integer vector.
 
 # arg encoding works
 
@@ -139,7 +127,7 @@
       Caused by error:
       ! Evaluation failed.
       Caused by error:
-      ! `storage_options` must be a named list, not the number 1.
+      ! `storage_options` must be a character vector or `NULL`, not the number 1.
 
 ---
 
@@ -151,5 +139,5 @@
       Caused by error:
       ! Evaluation failed.
       Caused by error:
-      ! All elements of `storage_options` must be of type character.
+      ! `storage_options` must be a character vector or `NULL`, not a list.
 

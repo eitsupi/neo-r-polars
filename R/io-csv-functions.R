@@ -27,10 +27,9 @@
 #' be a named list of column names - dtypes or dtype - column names.
 #' @param schema_overrides Overwrite dtypes during inference. This must be a
 #' named list of column names - dtypes.
-#' @param null_values Values to interpret as `NA` values. Can be:
-#' * a character vector: all values that match one of the values in this vector
-#'   will be `NA`;
-#' * a named list with column names and null values.
+#' @param null_values Character vector specifying the values to interpret as
+#' `NA` values. It can be named, in which case names specify the columns in
+#' which this replacement must be made (e.g. `c(col1 = "a")`).
 #' @param missing_utf8_is_empty_string By default, a missing value is considered
 #' to be `NA`. Setting this parameter to `TRUE` will consider missing UTF8
 #' values as an empty character.
@@ -82,14 +81,15 @@
 #' @param decimal_comma Parse floats using a comma as the decimal separator
 #' instead of a period.
 #' @param glob Expand path given via globbing rules.
-#' @param storage_options Options that indicate how to connect to a cloud
-#' provider. The cloud providers currently supported are AWS, GCP, and Azure.
+#' @param storage_options Named vector containing options that indicate how to
+#' connect to a cloud provider. The cloud providers currently supported are
+#' AWS, GCP, and Azure.
 #' See supported keys here:
 #' * [aws](https://docs.rs/object_store/latest/object_store/aws/enum.AmazonS3ConfigKey.html)
 #' * [gcp](https://docs.rs/object_store/latest/object_store/gcp/enum.GoogleConfigKey.html)
 #' * [azure](https://docs.rs/object_store/latest/object_store/azure/enum.AzureConfigKey.html)
 #' * Hugging Face (`hf://`): Accepts an API key under the token parameter
-#'   `list(token = YOUR_TOKEN)` or by setting the `HF_TOKEN` environment
+#'   `c(token = YOUR_TOKEN)` or by setting the `HF_TOKEN` environment
 #'   variable.
 #'
 #' If `storage_options` is not provided, Polars will try to infer the
@@ -157,22 +157,12 @@ pl__scan_csv <- function(
     check_list_of_polars_dtype(schema, allow_null = TRUE)
     check_named_list(schema_overrides, allow_null = TRUE)
     check_named_list(schema, allow_null = TRUE)
-    check_named_list(storage_options, allow_null = TRUE)
+    check_character(storage_options, allow_null = TRUE)
+    check_character(null_values, allow_null = TRUE)
     encoding <- arg_match0(encoding, values = c("utf8", "utf8-lossy"))
 
     if (isFALSE(infer_schema)) {
       infer_schema_length <- 0
-    }
-
-    if (is.list(null_values)) {
-      all_character <- all(vapply(null_values, is_character, n = 1, FUN.VALUE = logical(1)))
-      if (!all_character) {
-        abort("When `null_values` is a list, each element must be of type character.")
-      }
-    } else if (is.character(null_values)) {
-      null_values <- as.list(null_values)
-    } else if (!is.null(null_values)) {
-      abort("`null_values` must be a character vector or a named list.")
     }
 
     schema_overrides <- parse_into_list_of_datatypes(!!!schema_overrides)
@@ -183,13 +173,6 @@ pl__scan_csv <- function(
 
     if (is.null(row_index_name) && !is.null(row_index_offset)) {
       row_index_offset <- NULL
-    }
-
-    if (!is.null(storage_options)) {
-      all_character <- all(vapply(storage_options, is_character, n = 1, FUN.VALUE = logical(1)))
-      if (!all_character) {
-        abort("All elements of `storage_options` must be of type character.")
-      }
     }
 
     PlRLazyFrame$new_from_csv(

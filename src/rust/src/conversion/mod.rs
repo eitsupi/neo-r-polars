@@ -2,7 +2,7 @@ use crate::prelude::*;
 use crate::{PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame, PlRSeries, RPolarsErr};
 use polars::prelude::cloud::CloudOptions;
 use polars::series::ops::NullBehavior;
-use savvy::{ListSexp, NumericScalar, NumericSexp, NumericTypedSexp, Sexp, TypedSexp};
+use savvy::{ListSexp, NumericScalar, NumericSexp, NumericTypedSexp, StringSexp, TypedSexp};
 pub mod base_date;
 mod chunked_array;
 pub mod clock;
@@ -492,44 +492,31 @@ impl TryFrom<&str> for Wrap<CsvEncoding> {
 }
 
 // TODO: cleanup this, e.g remove the unreachable!()
-impl TryFrom<ListSexp> for Wrap<NullValues> {
+impl TryFrom<StringSexp> for Wrap<NullValues> {
     type Error = String;
 
-    fn try_from(null_values: ListSexp) -> Result<Self, String> {
-        let has_names = Sexp(null_values.inner()).get_names().is_some();
+    fn try_from(null_values: StringSexp) -> Result<Self, String> {
+        let has_names = null_values.get_names().is_some();
         if has_names {
-            let list = null_values
-                .iter()
-                .map(|(x_name, x_value)| {
-                    let typed = x_value.into_typed();
-                    let out = match typed {
-                        TypedSexp::String(x) => x.to_vec()[0],
-                        _ => unreachable!(),
-                    };
-                    (x_name.into(), out.into())
-                })
+            let values = null_values.to_vec();
+            let names = null_values.get_names().unwrap();
+            let res = names
+                .into_iter()
+                .zip(values.into_iter())
+                .map(|(xi, yi)| (xi.into(), yi.into()))
                 .collect::<Vec<(PlSmallStr, PlSmallStr)>>();
-            return Ok(Wrap(NullValues::Named(list)));
+            return Ok(Wrap(NullValues::Named(res)));
         } else if null_values.len() == 1 {
-            let val = null_values.get_by_index(0).unwrap().into_typed();
-            let out = match val {
-                TypedSexp::String(x) => x.to_vec()[0],
-                _ => unreachable!(),
-            };
-            return Ok(Wrap(NullValues::AllColumnsSingle(out.into())));
+            let vals = null_values.to_vec();
+            let val = *(vals.get(0).unwrap());
+            return Ok(Wrap(NullValues::AllColumnsSingle(val.into())));
         } else {
-            let out = null_values
-                .iter()
-                .map(|x| {
-                    let res = x.1.into_typed();
-                    let val = match res {
-                        TypedSexp::String(x) => x.to_vec()[0],
-                        _ => unreachable!(),
-                    };
-                    val.into()
-                })
+            let vals = null_values
+                .to_vec()
+                .into_iter()
+                .map(|x| x.into())
                 .collect::<Vec<PlSmallStr>>();
-            return Ok(Wrap(NullValues::AllColumns(out)));
+            return Ok(Wrap(NullValues::AllColumns(vals.into())));
         }
     }
 }

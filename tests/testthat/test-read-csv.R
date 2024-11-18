@@ -127,26 +127,25 @@ test_that("arg null_values works", {
       c = c(NA_character_, NA_character_)
     )
   )
-
   expect_snapshot(
     pl$read_csv(tmpf, null_values = 1:2),
     error = TRUE
   )
-  expect_snapshot(
-    pl$read_csv(tmpf, null_values = list(b = "a", c = 2)),
-    error = TRUE
-  )
 
-  out <- pl$read_csv(tmpf, null_values = list(b = "a", c = "2"))
+  expected <- pl$DataFrame(
+    a = c(1.5, 2), b = c(
+      NA_character_,
+      NA_character_
+    ),
+    c = c(NA_character_, NA_character_)
+  )
   expect_equal(
-    out,
-    pl$DataFrame(
-      a = c(1.5, 2), b = c(
-        NA_character_,
-        NA_character_
-      ),
-      c = c(NA_character_, NA_character_)
-    )
+    pl$read_csv(tmpf, null_values = c(b = "a", c = "2")),
+    expected
+  )
+  expect_equal(
+    pl$read_csv(tmpf, null_values = c(b = "a", c = 2)),
+    expected
   )
 })
 

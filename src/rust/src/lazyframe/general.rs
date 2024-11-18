@@ -3,7 +3,7 @@ use crate::{
 };
 use polars::io::RowIndex;
 use savvy::{
-    savvy, ListSexp, LogicalSexp, NumericScalar, OwnedListSexp, OwnedStringSexp, Result, Sexp, 
+    savvy, ListSexp, LogicalSexp, NumericScalar, OwnedListSexp, OwnedStringSexp, Result, Sexp,
     StringSexp, TypedSexp,
 };
 
@@ -230,7 +230,7 @@ impl PlRLazyFrame {
         retries: NumericScalar,
         comment_prefix: Option<&str>,
         quote_char: Option<&str>,
-        null_values: Option<ListSexp>,
+        null_values: Option<StringSexp>,
         infer_schema_length: Option<NumericScalar>,
         // with_schema_modify: Option<FunctionSexp>,
         row_index_name: Option<&str>,
@@ -238,7 +238,7 @@ impl PlRLazyFrame {
         n_rows: Option<NumericScalar>,
         overwrite_dtype: Option<ListSexp>,
         schema: Option<ListSexp>,
-        cloud_options: Option<ListSexp>,
+        cloud_options: Option<StringSexp>,
         // credential_provider: Option<PyObject>,
         file_cache_ttl: Option<NumericScalar>,
         include_file_paths: Option<&str>,
@@ -334,23 +334,13 @@ impl PlRLazyFrame {
 
         let cloud_options: Option<Vec<(String, String)>> = match cloud_options {
             Some(x) => {
-                let list_len = x.len();
-                let mut vec = Vec::with_capacity(x.len());
-                let names_list = x.names_iter().map(|x| x).collect::<Vec<&str>>();
-                let values_list = x
-                    .values_iter()
-                    .map(|x| match x.into_typed() {
-                        // TODO-REWRITE: probably need cleanup
-                        TypedSexp::String(elem) => {
-                            let foo = elem.to_vec();
-                            *foo.get(0).unwrap()
-                        }
-                        _ => unreachable!(),
-                    })
-                    .collect::<Vec<&str>>();
-                for i in 0..list_len {
-                    vec.push((names_list[i].to_string(), values_list[i].to_string()));
-                }
+                let values = x.to_vec();
+                let names = x.get_names().unwrap();
+                let vec = names
+                    .into_iter()
+                    .zip(values.into_iter())
+                    .map(|(xi, yi)| (xi.to_string(), yi.to_string()))
+                    .collect::<Vec<(String, String)>>();
                 Some(vec)
             }
             None => None,
