@@ -64,17 +64,5 @@
       pl$scan_ipc(temp_dir, hive_schema = list(cyl = "a"))
     Condition
       Error in `pl$scan_ipc()`:
-      ! Evaluation failed in `$scan_ipc()`.
-      Caused by error in `pl$scan_ipc()`:
       ! Dynamic dots `...` must be polars data types, got character
-
----
-
-    Code
-      pl$scan_ipc(temp_dir, hive_schema = list(cyl = pl$String))$collect()
-    Condition
-      Error:
-      ! Evaluation failed in `$collect()`.
-      Caused by error:
-      ! field not found: path contains column not present in the given Hive schema: "gear", path = "/tmp/RtmpCC0x0a/file985ef33df5488/cyl=4/gear=3/part-0.arrow"
 
