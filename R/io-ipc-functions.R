@@ -1,3 +1,4 @@
+# TODO: read raw vector
 #' Lazily read from an Arrow IPC (Feather v2) file or multiple files via glob
 #' patterns
 #'
@@ -64,7 +65,7 @@ pl__scan_ipc <- function(
     rechunk = rechunk,
     retries = retries,
     file_cache_ttl = file_cache_ttl,
-    cloud_options = storage_options,
+    storage_options = storage_options,
     row_index_name = row_index_name,
     row_index_offset = row_index_offset,
     hive_partitioning = hive_partitioning,

@@ -219,7 +219,7 @@ impl PlRLazyFrame {
         row_index_offset: NumericScalar,
         n_rows: Option<NumericScalar>,
         row_index_name: Option<&str>,
-        cloud_options: Option<StringSexp>,
+        storage_options: Option<StringSexp>,
         hive_partitioning: Option<bool>,
         hive_schema: Option<ListSexp>,
         file_cache_ttl: Option<NumericScalar>,
@@ -260,10 +260,10 @@ impl PlRLazyFrame {
         };
 
         // TODO: better error message
-        let cloud_options = match cloud_options {
+        let cloud_options = match storage_options {
             Some(x) => {
                 let out = <Wrap<Vec<(String, String)>>>::try_from(x).map_err(
-                    |_| RPolarsErr::Other(format!("`cloud_options` must be a named character vector")),
+                    |_| RPolarsErr::Other(format!("`storage_options` must be a named character vector")),
                 )?;
                 Some(out.0)
             }

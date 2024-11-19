@@ -41,6 +41,16 @@
 ---
 
     Code
+      pl$scan_ipc(tmpf, storage_options = c("foo", "bar"))
+    Condition
+      Error in `pl$scan_ipc()`:
+      ! Evaluation failed in `$scan_ipc()`.
+      Caused by error:
+      ! `storage_options` must be a named character vector
+
+---
+
+    Code
       pl$scan_ipc(tmpf, row_index_name = c("x", "y"))
     Condition
       Error in `pl$scan_ipc()`:

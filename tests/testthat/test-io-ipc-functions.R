@@ -29,6 +29,7 @@ test_that("Test reading data from Apache Arrow IPC", {
   expect_snapshot(pl$scan_ipc(tmpf, n_rows = "?"), error = TRUE)
   expect_snapshot(pl$scan_ipc(tmpf, cache = 0L), error = TRUE)
   expect_snapshot(pl$scan_ipc(tmpf, rechunk = list()), error = TRUE)
+  expect_snapshot(pl$scan_ipc(tmpf, storage_options = c("foo", "bar")), error = TRUE)
   expect_snapshot(
     pl$scan_ipc(tmpf, row_index_name = c("x", "y")),
     error = TRUE
@@ -106,7 +107,7 @@ test_that("scanning from hive partition works", {
   # i.e. "cyl" and "gear" are in the data and the data is sorted by the
   # partitioning columns
   expect_identical(
-    pl$scan_ipc(temp_dir)$select("mpg", "gear")$collect() |> as.data.frame(),
+    pl$scan_ipc(temp_dir)$select("mpg", "gear") |> as.data.frame(),
     mtcars[order(mtcars$cyl, mtcars$gear), c("mpg", "gear")],
     ignore_attr = TRUE
   )
