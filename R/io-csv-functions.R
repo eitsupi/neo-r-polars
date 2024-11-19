@@ -164,12 +164,8 @@ pl__scan_csv <- function(
 
     schema_overrides <- parse_into_list_of_datatypes(!!!schema_overrides)
 
-    if (length(schema) > 0) {
+    if (!is.null(schema)) {
       schema <- parse_into_list_of_datatypes(!!!schema)
-    }
-
-    if (is.null(row_index_name)) {
-      row_index_offset <- 0
     }
 
     PlRLazyFrame$new_from_csv(
