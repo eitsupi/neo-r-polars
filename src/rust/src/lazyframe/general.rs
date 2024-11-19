@@ -279,6 +279,15 @@ impl PlRLazyFrame {
             include_file_paths: include_file_paths.map(|x| x.into()),
         };
         let first_path: Option<PathBuf> = source.get(0).unwrap().clone().into();
+        if let Some(first_path) = first_path {
+            let first_path_url = first_path.to_string_lossy();
+            let mut cloud_options =
+                parse_cloud_options(&first_path_url, cloud_options.unwrap_or_default())?;
+            if let Some(file_cache_ttl) = file_cache_ttl {
+                cloud_options.file_cache_ttl = file_cache_ttl;
+            }
+            args.cloud_options = Some(cloud_options.with_max_retries(retries));
+        }
         let lf = LazyFrame::scan_ipc_files(source.into(), args).map_err(RPolarsErr::from)?;
         Ok(lf.into())
     }
