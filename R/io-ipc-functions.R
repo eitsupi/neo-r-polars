@@ -115,6 +115,7 @@ pl__read_ipc <- function(
     try_parse_hive_dates = TRUE,
     include_file_paths = NULL) {
   wrap({
+    check_dots_empty0(...)
     .args <- as.list(environment())
     do.call(pl__scan_ipc, .args)$collect()
   })
