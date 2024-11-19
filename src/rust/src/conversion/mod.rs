@@ -225,7 +225,7 @@ impl TryFrom<&str> for Wrap<TimeUnit> {
             "ns" => TimeUnit::Nanoseconds,
             "us" => TimeUnit::Microseconds,
             "ms" => TimeUnit::Milliseconds,
-            v => return Err(format!("unsupported value: '{v}'",)),
+            _ => return Err(format!("unreachable")),
         };
         Ok(Wrap(time_unit))
     }
@@ -381,6 +381,22 @@ impl TryFrom<&str> for Wrap<char> {
     }
 }
 
+impl TryFrom<StringSexp> for Wrap<Vec<(String, String)>> {
+    type Error = savvy::Error;
+
+    fn try_from(sexp: StringSexp) -> Result<Self, savvy::Error> {
+        let Some(names) = sexp.get_names() else {
+            return Err(format!("Expected a named vector").into());
+        };
+        let out = names
+            .into_iter()
+            .zip(sexp.iter())
+            .map(|(name, value)| (name.to_string(), value.to_string()))
+            .collect::<Vec<_>>();
+        Ok(Wrap(out))
+    }
+}
+
 impl TryFrom<&str> for Wrap<NonExistent> {
     type Error = String;
 
@@ -388,7 +404,7 @@ impl TryFrom<&str> for Wrap<NonExistent> {
         let parsed = match non_existent {
             "null" => NonExistent::Null,
             "raise" => NonExistent::Raise,
-            v => return Err(format!("unsupported value: '{v}'",)),
+            _ => return Err(format!("unreachable")),
         };
         Ok(Wrap(parsed))
     }
@@ -401,7 +417,7 @@ impl TryFrom<&str> for Wrap<NullBehavior> {
         let parsed = match null_behavior {
             "drop" => NullBehavior::Drop,
             "ignore" => NullBehavior::Ignore,
-            v => return Err(format!("unsupported value: '{v}'",)),
+            _ => return Err(format!("unreachable")),
         };
         Ok(Wrap(parsed))
     }
@@ -415,7 +431,7 @@ impl TryFrom<&str> for Wrap<WindowMapping> {
             "group_to_rows" => WindowMapping::GroupsToRows,
             "join" => WindowMapping::Join,
             "explode" => WindowMapping::Explode,
-            v => return Err(format!("unsupported value: '{v}'",)),
+            _ => return Err(format!("unreachable")),
         };
         Ok(Wrap(parsed))
     }
@@ -430,7 +446,7 @@ impl TryFrom<&str> for Wrap<SetOperation> {
             "intersection" => SetOperation::Intersection,
             "difference" => SetOperation::Difference,
             "symmetric_difference" => SetOperation::SymmetricDifference,
-            v => return Err(format!("unsupported value: '{v}'",)),
+            _ => return Err(format!("unreachable")),
         };
         Ok(Wrap(parsed))
     }
@@ -443,7 +459,7 @@ impl TryFrom<&str> for Wrap<ListToStructWidthStrategy> {
         let parsed = match operation {
             "first_non_null" => ListToStructWidthStrategy::FirstNonNull,
             "max_width" => ListToStructWidthStrategy::MaxWidth,
-            v => return Err(format!("unsupported value: '{v}'",)),
+            _ => return Err(format!("unreachable")),
         };
         Ok(Wrap(parsed))
     }
@@ -458,7 +474,7 @@ impl TryFrom<&str> for Wrap<ClosedWindow> {
             "left" => ClosedWindow::Left,
             "none" => ClosedWindow::None,
             "right" => ClosedWindow::Right,
-            v => return Err(format!("unreachable",)),
+            _ => return Err(format!("unreachable")),
         };
         Ok(Wrap(parsed))
     }
@@ -472,7 +488,7 @@ impl TryFrom<&str> for Wrap<Roll> {
             "raise" => Roll::Raise,
             "forward" => Roll::Forward,
             "backward" => Roll::Backward,
-            v => return Err(format!("unreachable",)),
+            _ => return Err(format!("unreachable")),
         };
         Ok(Wrap(parsed))
     }
@@ -485,7 +501,7 @@ impl TryFrom<&str> for Wrap<CsvEncoding> {
         let parsed = match encoding {
             "utf8" => CsvEncoding::Utf8,
             "utf8-lossy" => CsvEncoding::LossyUtf8,
-            v => return Err(format!("unreachable",)),
+            _ => return Err(format!("unreachable")),
         };
         Ok(Wrap(parsed))
     }

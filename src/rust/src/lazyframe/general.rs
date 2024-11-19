@@ -1,11 +1,12 @@
 use crate::{
     prelude::*, PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame, PlRLazyGroupBy, RPolarsErr,
 };
-use polars::io::RowIndex;
+use polars::io::{HiveOptions, RowIndex};
 use savvy::{
     savvy, ListSexp, LogicalSexp, NumericScalar, OwnedListSexp, OwnedStringSexp, Result, Sexp,
-    StringSexp, TypedSexp,
+    StringSexp,
 };
+use std::path::PathBuf;
 
 #[savvy]
 impl PlRLazyFrame {

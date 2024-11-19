@@ -42,6 +42,7 @@ features = [
     "extract_jsonpath",
     "find_many",
     "fused",
+    "ipc",
     "is_in",
     "json",
     "lazy",
