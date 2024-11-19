@@ -8,7 +8,6 @@ patterns}
 pl__scan_ipc(
   source,
   ...,
-  columns = NULL,
   n_rows = NULL,
   cache = TRUE,
   rechunk = FALSE,
@@ -26,9 +25,6 @@ pl__scan_ipc(
 }
 \arguments{
 \item{...}{These dots are for future extensions and must be empty.}
-
-\item{columns}{Columns to select. Accepts a vector of column indices
-(starting at zero) or a vector of column names.}
 
 \item{memory_map}{A logical. If \code{TRUE}, try to memory map the file. This can
 greatly improve performance on repeated queries as the OS may cache pages.

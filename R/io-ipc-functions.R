@@ -6,8 +6,6 @@
 #'
 #' @inheritParams rlang::args_dots_empty
 #' @inheritParams pl_scan_parquet
-#' @param columns Columns to select. Accepts a vector of column indices
-#' (starting at zero) or a vector of column names.
 #' @param memory_map A logical. If `TRUE`, try to memory map the file. This can
 #' greatly improve performance on repeated queries as the OS may cache pages.
 #' Only uncompressed Arrow IPC files can be memory mapped.
@@ -50,7 +48,6 @@
 pl__scan_ipc <- function(
     source,
     ...,
-    columns = NULL,
     n_rows = NULL,
     cache = TRUE,
     rechunk = FALSE,
@@ -65,13 +62,10 @@ pl__scan_ipc <- function(
     try_parse_hive_dates = TRUE,
     include_file_paths = NULL) {
   check_dots_empty0(...)
-  if (!is_null(columns) && !is_character(columns) && !is_integerish(columns)) {
-    abort("`columns` must be a character vector, an integerish vector, or `NULL`.")
-  }
   if (length(hive_schema) > 0) {
     hive_schema <- parse_into_list_of_datatypes(!!!hive_schema)
   }
-  out <- PlRLazyFrame$new_from_ipc(
+  PlRLazyFrame$new_from_ipc(
     path = source,
     n_rows = n_rows,
     cache = cache,
@@ -87,14 +81,6 @@ pl__scan_ipc <- function(
     include_file_paths = include_file_paths
   ) |>
     wrap()
-  if (!is_null(columns)) {
-    if (is_integerish(columns)) {
-      out <- out$select(pl$nth(columns))
-    } else if (is_character(columns)) {
-      out <- out$select(columns)
-    }
-  }
-  out
 }
 
 
@@ -124,7 +110,6 @@ pl__scan_ipc <- function(
 pl__read_ipc <- function(
     source,
     ...,
-    columns = NULL,
     n_rows = NULL,
     cache = TRUE,
     rechunk = FALSE,

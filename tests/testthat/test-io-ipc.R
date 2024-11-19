@@ -39,23 +39,6 @@ test_that("Test reading data from Apache Arrow IPC", {
   )
 })
 
-test_that("arg 'columns' works", {
-  skip_if_not_installed("arrow")
-
-  tmpf <- tempfile()
-  on.exit(unlink(tmpf))
-  arrow::write_ipc_file(iris, tmpf, compression = "uncompressed")
-
-  expect_equal(
-    pl$scan_ipc(tmpf, columns = c("Species", "Sepal.Length"))$collect(),
-    as_polars_df(iris)$select("Species", "Sepal.Length")
-  )
-  expect_equal(
-    pl$scan_ipc(tmpf, columns = c(4, 0))$collect(),
-    as_polars_df(iris)$select("Species", "Sepal.Length")
-  )
-})
-
 # TODO-REWRITE: needs $write_ipc()
 # patrick::with_parameters_test_that("write and read Apache Arrow file",
 #   {

@@ -7,7 +7,6 @@
 pl__read_ipc(
   source,
   ...,
-  columns = NULL,
   n_rows = NULL,
   cache = TRUE,
   rechunk = FALSE,
