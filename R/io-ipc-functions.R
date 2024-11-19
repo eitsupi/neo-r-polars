@@ -6,9 +6,6 @@
 #'
 #' @inheritParams rlang::args_dots_empty
 #' @inheritParams pl_scan_parquet
-#' @param memory_map A logical. If `TRUE`, try to memory map the file. This can
-#' greatly improve performance on repeated queries as the OS may cache pages.
-#' Only uncompressed Arrow IPC files can be memory mapped.
 #' @param hive_partitioning Infer statistics and schema from Hive partitioned
 #' sources and use them to prune reads. If `NULL` (default), it is automatically
 #' enabled when a single directory is passed, and otherwise disabled.
@@ -20,13 +17,6 @@
 #' datetime types.
 #' @param include_file_paths Character value indicating the column name that
 #' will include the path of the source file(s).
-#'
-#' @details
-#' If `memory_map` is set, the bytes on disk are mapped 1:1 to memory. That
-#' means that you cannot write to the same filename, e.g.
-#' `pl$read_ipc("my_file.arrow")$write_ipc("my_file.arrow")` will fail.
-#'
-#' @rdname IO_scan_ipc
 #' @examplesIf requireNamespace("arrow", quietly = TRUE) && arrow::arrow_with_dataset()
 #' temp_dir <- tempfile()
 #' # Write a hive-style partitioned arrow file dataset
@@ -54,7 +44,6 @@ pl__scan_ipc <- function(
     row_index_name = NULL,
     row_index_offset = 0L,
     storage_options = NULL,
-    memory_map = TRUE,
     retries = 2,
     file_cache_ttl = NULL,
     hive_partitioning = NULL,
@@ -62,11 +51,14 @@ pl__scan_ipc <- function(
     try_parse_hive_dates = TRUE,
     include_file_paths = NULL) {
   check_dots_empty0(...)
-  if (length(hive_schema) > 0) {
+  check_list_of_polars_dtype(hive_schema, allow_null = TRUE)
+
+  if (!is.null(hive_schema)) {
     hive_schema <- parse_into_list_of_datatypes(!!!hive_schema)
   }
+
   PlRLazyFrame$new_from_ipc(
-    path = source,
+    source = source,
     n_rows = n_rows,
     cache = cache,
     rechunk = rechunk,
@@ -88,7 +80,6 @@ pl__scan_ipc <- function(
 #'
 #' @inherit pl_read_csv return
 #' @inheritParams pl_scan_ipc
-#' @rdname IO_read_ipc
 #' @examplesIf requireNamespace("arrow", quietly = TRUE) && arrow::arrow_with_dataset()
 #' temp_dir <- tempfile()
 #' # Write a hive-style partitioned arrow file dataset
@@ -116,7 +107,6 @@ pl__read_ipc <- function(
     row_index_name = NULL,
     row_index_offset = 0L,
     storage_options = NULL,
-    memory_map = TRUE,
     retries = 2,
     file_cache_ttl = NULL,
     hive_partitioning = NULL,

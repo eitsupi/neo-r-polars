@@ -2,7 +2,7 @@ use crate::prelude::*;
 use crate::{PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame, PlRSeries, RPolarsErr};
 use polars::prelude::cloud::CloudOptions;
 use polars::series::ops::NullBehavior;
-use savvy::{ListSexp, NumericScalar, NumericSexp, NumericTypedSexp, TypedSexp};
+use savvy::{ListSexp, NumericScalar, NumericSexp, NumericTypedSexp, StringSexp, TypedSexp};
 pub mod base_date;
 mod chunked_array;
 pub mod clock;
@@ -378,6 +378,22 @@ impl TryFrom<&str> for Wrap<char> {
                 "Expected a string with one character only, currently has {n_chars:?} (from {v:?})."
             ))?
         }
+    }
+}
+
+impl TryFrom<StringSexp> for Wrap<Vec<(String, String)>> {
+    type Error = savvy::Error;
+
+    fn try_from(sexp: StringSexp) -> Result<Self, savvy::Error> {
+        let Some(names) = sexp.get_names() else {
+            return Err(format!("Expected a named vector").into());
+        };
+        let out = names
+            .into_iter()
+            .zip(sexp.iter())
+            .map(|(name, value)| (name.to_string(), value.to_string()))
+            .collect::<Vec<_>>();
+        Ok(Wrap(out))
     }
 }
 

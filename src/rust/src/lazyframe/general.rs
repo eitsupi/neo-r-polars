@@ -6,6 +6,7 @@ use savvy::{
     savvy, ListSexp, LogicalSexp, NumericScalar, OwnedListSexp, OwnedStringSexp, Result, Sexp,
     StringSexp,
 };
+use std::path::PathBuf;
 
 #[savvy]
 impl PlRLazyFrame {
@@ -210,32 +211,27 @@ impl PlRLazyFrame {
     }
 
     fn new_from_ipc(
-        path: StringSexp,
+        source: StringSexp,
         cache: bool,
         rechunk: bool,
         try_parse_hive_dates: bool,
         retries: NumericScalar,
+        row_index_offset: NumericScalar,
         n_rows: Option<NumericScalar>,
         row_index_name: Option<&str>,
-        row_index_offset: Option<NumericScalar>,
         cloud_options: Option<StringSexp>,
-        // credential_provider: Option<PyObject>,
         hive_partitioning: Option<bool>,
         hive_schema: Option<ListSexp>,
         file_cache_ttl: Option<NumericScalar>,
         include_file_paths: Option<&str>,
     ) -> Result<Self> {
-        use std::path::PathBuf;
-
-        let path = path
+        let source = source
             .to_vec()
             .iter()
-            .map(std::path::PathBuf::from)
+            .map(PathBuf::from)
             .collect::<Vec<PathBuf>>();
-        let row_index_offset: Option<u32> = match row_index_offset {
-            Some(x) => Some(<Wrap<u32>>::try_from(x)?.0),
-            None => None,
-        };
+        let row_index_offset = <Wrap<u32>>::try_from(row_index_offset)?.0;
+        let retries = <Wrap<usize>>::try_from(retries)?.0;
         let hive_schema: Option<Wrap<Schema>> = match hive_schema {
             Some(x) => Some(<Wrap<Schema>>::try_from(x)?),
             None => None,
@@ -247,12 +243,10 @@ impl PlRLazyFrame {
         let row_index: Option<RowIndex> = match row_index_name {
             Some(x) => Some(RowIndex {
                 name: x.into(),
-                // TODO: remove unwrap()
-                offset: row_index_offset.unwrap(),
+                offset: row_index_offset,
             }),
             None => None,
         };
-        let retries = <Wrap<usize>>::try_from(retries)?.0;
         let file_cache_ttl: Option<u64> = match file_cache_ttl {
             Some(x) => Some(<Wrap<u64>>::try_from(x)?.0),
             None => None,
@@ -265,16 +259,13 @@ impl PlRLazyFrame {
             try_parse_dates: try_parse_hive_dates,
         };
 
-        let cloud_options: Option<Vec<(String, String)>> = match cloud_options {
+        // TODO: better error message
+        let cloud_options = match cloud_options {
             Some(x) => {
-                let values = x.to_vec();
-                let names = x.get_names().unwrap();
-                let vec = names
-                    .into_iter()
-                    .zip(values.into_iter())
-                    .map(|(xi, yi)| (xi.to_string(), yi.to_string()))
-                    .collect::<Vec<(String, String)>>();
-                Some(vec)
+                let out = <Wrap<Vec<(String, String)>>>::try_from(x).map_err(
+                    |_| RPolarsErr::Other(format!("`cloud_options` must be a named character vector")),
+                )?;
+                Some(out.0)
             }
             None => None,
         };
@@ -289,13 +280,7 @@ impl PlRLazyFrame {
             include_file_paths: include_file_paths.map(|x| x.into()),
         };
 
-        let sources = path;
-        let first_path: Option<PathBuf> = sources.get(0).unwrap().clone().into();
-        // let sources = sources.0;
-        // let (first_path, sources) = match source {
-        //     None => (sources.first_path().map(|p| p.to_path_buf()), sources),
-        //     Some(source) => pyobject_to_first_path_and_scan_sources(source)?,
-        // };
+        let first_path: Option<PathBuf> = source.get(0).unwrap().clone().into();
 
         if let Some(first_path) = first_path {
             let first_path_url = first_path.to_string_lossy();
@@ -306,13 +291,11 @@ impl PlRLazyFrame {
                 cloud_options.file_cache_ttl = file_cache_ttl;
             }
             args.cloud_options = Some(
-                cloud_options.with_max_retries(retries), // .with_credential_provider(
-                                                         //     credential_provider.map(PlCredentialProvider::from_python_func_object),
-                                                         // ),
+                cloud_options.with_max_retries(retries),
             );
         }
 
-        let lf = LazyFrame::scan_ipc_files(sources.into(), args).map_err(RPolarsErr::from)?;
+        let lf = LazyFrame::scan_ipc_files(source.into(), args).map_err(RPolarsErr::from)?;
         Ok(lf.into())
     }
 }

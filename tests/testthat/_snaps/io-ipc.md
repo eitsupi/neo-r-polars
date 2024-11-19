@@ -6,7 +6,7 @@
       Error in `pl$scan_ipc()`:
       ! Evaluation failed in `$scan_ipc()`.
       Caused by error:
-      ! Argument `path` must be character, not double
+      ! Argument `source` must be character, not double
 
 ---
 
@@ -64,5 +64,5 @@
       pl$scan_ipc(temp_dir, hive_schema = list(cyl = "a"))
     Condition
       Error in `pl$scan_ipc()`:
-      ! Dynamic dots `...` must be polars data types, got character
+      ! `hive_schema` must be a list of polars data types or `NULL`, not a list.
 

@@ -14,7 +14,6 @@ pl__scan_ipc(
   row_index_name = NULL,
   row_index_offset = 0L,
   storage_options = NULL,
-  memory_map = TRUE,
   retries = 2,
   file_cache_ttl = NULL,
   hive_partitioning = NULL,
@@ -25,10 +24,6 @@ pl__scan_ipc(
 }
 \arguments{
 \item{...}{These dots are for future extensions and must be empty.}
-
-\item{memory_map}{A logical. If \code{TRUE}, try to memory map the file. This can
-greatly improve performance on repeated queries as the OS may cache pages.
-Only uncompressed Arrow IPC files can be memory mapped.}
 
 \item{hive_partitioning}{Infer statistics and schema from Hive partitioned
 sources and use them to prune reads. If \code{NULL} (default), it is automatically
@@ -48,11 +43,6 @@ will include the path of the source file(s).}
 \description{
 This allows the query optimizer to push down predicates and projections to
 the scan level, thereby potentially reducing memory overhead.
-}
-\details{
-If \code{memory_map} is set, the bytes on disk are mapped 1:1 to memory. That
-means that you cannot write to the same filename, e.g.
-\code{pl$read_ipc("my_file.arrow")$write_ipc("my_file.arrow")} will fail.
 }
 \examples{
 \dontshow{if (requireNamespace("arrow", quietly = TRUE) && arrow::arrow_with_dataset()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}

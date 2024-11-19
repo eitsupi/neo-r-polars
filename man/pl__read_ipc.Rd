@@ -13,7 +13,6 @@ pl__read_ipc(
   row_index_name = NULL,
   row_index_offset = 0L,
   storage_options = NULL,
-  memory_map = TRUE,
   retries = 2,
   file_cache_ttl = NULL,
   hive_partitioning = NULL,
