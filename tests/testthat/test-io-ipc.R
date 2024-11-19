@@ -110,7 +110,6 @@ test_that("arg 'columns' works", {
 
 test_that("scanning from hive partition works", {
   skip_if_not_installed("arrow")
-  skip_if_not_installed("withr")
   temp_dir <- withr::local_tempdir()
   arrow::write_dataset(
     mtcars,
@@ -154,7 +153,6 @@ test_that("scanning from hive partition works", {
 
 test_that("try_parse_hive_dates works", {
   skip_if_not_installed("arrow")
-  skip_if_not_installed("withr")
   temp_dir <- withr::local_tempdir()
   test <- data.frame(dt = as.Date(c("2020-01-01", "2020-01-01", "2020-01-02")), y = 1:3)
   arrow::write_dataset(
@@ -179,7 +177,6 @@ test_that("try_parse_hive_dates works", {
 
 test_that("scan_ipc can include file path", {
   skip_if_not_installed("arrow")
-  skip_if_not_installed("withr")
   temp_dir <- withr::local_tempdir()
   arrow::write_dataset(
     mtcars,
