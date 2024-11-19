@@ -171,12 +171,12 @@ pl__scan_csv <- function(
       schema <- parse_into_list_of_datatypes(!!!schema)
     }
 
-    if (is.null(row_index_name) && !is.null(row_index_offset)) {
-      row_index_offset <- NULL
+    if (is.null(row_index_name)) {
+      row_index_offset <- 0
     }
 
     PlRLazyFrame$new_from_csv(
-      path = source,
+      source = source,
       separator = separator,
       has_header = has_header,
       ignore_errors = ignore_errors,
@@ -204,8 +204,7 @@ pl__scan_csv <- function(
       n_rows = n_rows,
       overwrite_dtype = schema_overrides,
       schema = schema,
-      cloud_options = storage_options,
-      # credential_provider = credential_provider,
+      storage_options = storage_options,
       file_cache_ttl = file_cache_ttl,
       include_file_paths = include_file_paths
     )

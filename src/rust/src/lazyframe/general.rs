@@ -293,7 +293,7 @@ impl PlRLazyFrame {
     }
 
     fn new_from_csv(
-        path: StringSexp,
+        source: StringSexp,
         separator: &str,
         has_header: bool,
         ignore_errors: bool,
@@ -311,27 +311,23 @@ impl PlRLazyFrame {
         decimal_comma: bool,
         glob: bool,
         retries: NumericScalar,
+        row_index_offset: NumericScalar,
         comment_prefix: Option<&str>,
         quote_char: Option<&str>,
         null_values: Option<StringSexp>,
         infer_schema_length: Option<NumericScalar>,
-        // with_schema_modify: Option<FunctionSexp>,
         row_index_name: Option<&str>,
-        row_index_offset: Option<NumericScalar>,
         n_rows: Option<NumericScalar>,
         overwrite_dtype: Option<ListSexp>,
         schema: Option<ListSexp>,
-        cloud_options: Option<StringSexp>,
-        // credential_provider: Option<PyObject>,
+        storage_options: Option<StringSexp>,
         file_cache_ttl: Option<NumericScalar>,
         include_file_paths: Option<&str>,
     ) -> Result<PlRLazyFrame> {
-        use std::path::PathBuf;
-
-        let path = path
+        let source = source
             .to_vec()
             .iter()
-            .map(std::path::PathBuf::from)
+            .map(PathBuf::from)
             .collect::<Vec<PathBuf>>();
         let encoding = <Wrap<CsvEncoding>>::try_from(encoding)?.0;
         let skip_rows = <Wrap<usize>>::try_from(skip_rows)?.0;
@@ -340,10 +336,7 @@ impl PlRLazyFrame {
             Some(x) => Some(<Wrap<usize>>::try_from(x)?.0),
             None => None,
         };
-        let row_index_offset: Option<u32> = match row_index_offset {
-            Some(x) => Some(<Wrap<u32>>::try_from(x)?.0),
-            None => None,
-        };
+        let row_index_offset = <Wrap<u32>>::try_from(row_index_offset)?.0;
         let n_rows: Option<usize> = match n_rows {
             Some(x) => Some(<Wrap<usize>>::try_from(x)?.0),
             None => None,
@@ -358,7 +351,6 @@ impl PlRLazyFrame {
             None => None,
         };
 
-        // let null_values = null_values.map(|w| w.0);
         let quote_char = quote_char
             .map(|s| {
                 s.as_bytes()
@@ -384,8 +376,7 @@ impl PlRLazyFrame {
         let row_index: Option<RowIndex> = match row_index_name {
             Some(x) => Some(RowIndex {
                 name: x.into(),
-                // TODO: remove unwrap()
-                offset: row_index_offset.unwrap(),
+                offset: row_index_offset,
             }),
             None => None,
         };
@@ -415,31 +406,20 @@ impl PlRLazyFrame {
             None => None,
         };
 
-        let cloud_options: Option<Vec<(String, String)>> = match cloud_options {
+        let cloud_options = match storage_options {
             Some(x) => {
-                let values = x.to_vec();
-                let names = x.get_names().unwrap();
-                let vec = names
-                    .into_iter()
-                    .zip(values.into_iter())
-                    .map(|(xi, yi)| (xi.to_string(), yi.to_string()))
-                    .collect::<Vec<(String, String)>>();
-                Some(vec)
+                let out = <Wrap<Vec<(String, String)>>>::try_from(x).map_err(|_| {
+                    RPolarsErr::Other(format!(
+                        "`storage_options` must be a named character vector"
+                    ))
+                })?;
+                Some(out.0)
             }
             None => None,
         };
 
-        let sources = path;
-        let first_path: Option<PathBuf> = sources.get(0).unwrap().clone().into();
-        // let sources = sources.0;
-        // let (first_path, sources) = match source {
-        //     None => (sources.first_path().map(|p| p.to_path_buf()), sources),
-        //     Some(source) => pyobject_to_first_path_and_scan_sources(source)?,
-        // };
-
-        // let mut r = LazyCsvReader::new_with_sources(sources);
-        let mut r = LazyCsvReader::new_paths(sources.into());
-
+        let mut r = LazyCsvReader::new_paths(source.clone().into());
+        let first_path: Option<PathBuf> = source.get(0).unwrap().clone().into();
         if let Some(first_path) = first_path {
             let first_path_url = first_path.to_string_lossy();
 
@@ -449,9 +429,6 @@ impl PlRLazyFrame {
                 cloud_options.file_cache_ttl = file_cache_ttl;
             }
             cloud_options = cloud_options.with_max_retries(retries);
-            // .with_credential_provider(
-            //     credential_provider.map(PlCredentialProvider::from_python_func_object),
-            // );
             r = r.with_cloud_options(Some(cloud_options));
         }
 
