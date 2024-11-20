@@ -185,7 +185,7 @@ impl PlRSeries {
                 DataType::Array(inner, _) => unsafe {
                     let len = series.len();
                     let mut list = OwnedListSexp::new(len, false)?;
-                    let _ = list.set_class(&["vctrs_list_of", "vctrs_vctr", "list"]);
+                    let _ = list.set_class(["vctrs_list_of", "vctrs_vctr", "list"]);
                     let empty_inner_series = Series::new_empty("".into(), &inner.clone());
                     let _ = list.set_attrib(
                         "ptype",

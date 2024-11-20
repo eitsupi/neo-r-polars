@@ -386,7 +386,7 @@ impl TryFrom<StringSexp> for Wrap<Vec<(String, String)>> {
 
     fn try_from(sexp: StringSexp) -> Result<Self, savvy::Error> {
         let Some(names) = sexp.get_names() else {
-            return Err(format!("Expected a named vector").into());
+            return Err("Expected a named vector".to_string().into());
         };
         let out = names
             .into_iter()
@@ -474,7 +474,7 @@ impl TryFrom<&str> for Wrap<ClosedWindow> {
             "left" => ClosedWindow::Left,
             "none" => ClosedWindow::None,
             "right" => ClosedWindow::Right,
-            v => return Err(format!("unreachable",)),
+            v => return Err("unreachable".to_string()),
         };
         Ok(Wrap(parsed))
     }
@@ -488,7 +488,7 @@ impl TryFrom<&str> for Wrap<Roll> {
             "raise" => Roll::Raise,
             "forward" => Roll::Forward,
             "backward" => Roll::Backward,
-            v => return Err(format!("unreachable",)),
+            v => return Err("unreachable".to_string()),
         };
         Ok(Wrap(parsed))
     }
@@ -503,7 +503,7 @@ impl TryFrom<ListSexp> for Wrap<Schema> {
         let mut schema = Schema::with_capacity(hm.capacity());
 
         for i in 0..hm.len() {
-            schema.with_column(names_list[i].into(), hm[i].clone().into());
+            schema.with_column(names_list[i].into(), hm[i].clone());
         }
 
         Ok(Wrap(schema))
