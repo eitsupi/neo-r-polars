@@ -474,7 +474,7 @@ impl TryFrom<&str> for Wrap<ClosedWindow> {
             "left" => ClosedWindow::Left,
             "none" => ClosedWindow::None,
             "right" => ClosedWindow::Right,
-            v => return Err("unreachable".to_string()),
+            _ => return Err("unreachable".to_string()),
         };
         Ok(Wrap(parsed))
     }
@@ -488,7 +488,7 @@ impl TryFrom<&str> for Wrap<Roll> {
             "raise" => Roll::Raise,
             "forward" => Roll::Forward,
             "backward" => Roll::Backward,
-            v => return Err("unreachable".to_string()),
+            _ => return Err("unreachable".to_string()),
         };
         Ok(Wrap(parsed))
     }
