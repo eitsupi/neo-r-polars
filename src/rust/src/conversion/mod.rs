@@ -386,7 +386,7 @@ impl TryFrom<StringSexp> for Wrap<Vec<(String, String)>> {
 
     fn try_from(sexp: StringSexp) -> Result<Self, savvy::Error> {
         let Some(names) = sexp.get_names() else {
-            return Err(format!("Expected a named vector").into());
+            return Err("Expected a named vector".to_string().into());
         };
         let out = names
             .into_iter()
@@ -474,7 +474,7 @@ impl TryFrom<&str> for Wrap<ClosedWindow> {
             "left" => ClosedWindow::Left,
             "none" => ClosedWindow::None,
             "right" => ClosedWindow::Right,
-            _ => return Err(format!("unreachable")),
+            _ => return Err("unreachable".to_string()),
         };
         Ok(Wrap(parsed))
     }
@@ -488,7 +488,7 @@ impl TryFrom<&str> for Wrap<Roll> {
             "raise" => Roll::Raise,
             "forward" => Roll::Forward,
             "backward" => Roll::Backward,
-            _ => return Err(format!("unreachable")),
+            _ => return Err("unreachable".to_string()),
         };
         Ok(Wrap(parsed))
     }
@@ -538,19 +538,14 @@ impl TryFrom<StringSexp> for Wrap<NullValues> {
 }
 
 impl TryFrom<ListSexp> for Wrap<Schema> {
-    type Error = String;
+    type Error = savvy::Error;
 
-    fn try_from(schema: ListSexp) -> Result<Self, String> {
-        let names_list = schema.iter().map(|x| x.0).collect::<Vec<&str>>();
-        // TODO: try to improve that
-        // Can't have "?" here, hence the unwrap()
-        let hm = <Wrap<Vec<DataType>>>::try_from(schema).unwrap().0;
-        let mut schema = Schema::with_capacity(hm.capacity());
-
-        for i in 0..hm.len() {
-            schema.with_column(names_list[i].into(), hm[i].clone().into());
+    fn try_from(dtypes: ListSexp) -> Result<Self, savvy::Error> {
+        let fields = <Wrap<Vec<Field>>>::try_from(dtypes)?.0;
+        let mut schema = Schema::with_capacity(fields.len());
+        for field in fields {
+            schema.with_column(field.name, field.dtype);
         }
-
         Ok(Wrap(schema))
     }
 }
