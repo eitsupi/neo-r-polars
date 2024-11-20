@@ -235,6 +235,13 @@ test_that("arg 'schema_overrides' works", {
     pl$read_csv(tmpf, schema_overrides = list(b = 1, c = pl$Int32)),
     error = TRUE
   )
+
+  # works with unnamed elements
+  writeLines("a,,c\n1.5,a,2\n2,,", tmpf)
+  expect_equal(
+    pl$read_csv(tmpf, schema_overrides = list(pl$Categorical())),
+    pl$DataFrame(a = c(1.5, 2), factor(c("a", NA)), c = c(2L, NA))$cast(c = pl$Int64)
+  )
 })
 
 test_that("arg 'schema' works", {
@@ -243,6 +250,12 @@ test_that("arg 'schema' works", {
   expect_equal(
     pl$read_csv(tmpf, schema = list(a = pl$Float32, b = pl$Categorical(), c = pl$Int32)),
     pl$DataFrame(a = c(1.5, 2), b = factor(c("a", NA)), c = c(2L, NA))$cast(a = pl$Float32)
+  )
+
+  # works with unnamed elements
+  expect_equal(
+    pl$read_csv(tmpf, schema = list(a = pl$Float64, pl$Categorical(), c = pl$Int32)),
+    pl$DataFrame(a = c(1.5, 2), factor(c("a", NA)), c = c(2L, NA))
   )
   expect_snapshot(
     pl$read_csv(tmpf, schema = list(b = pl$Categorical(), c = pl$Int32)),

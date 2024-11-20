@@ -23,10 +23,10 @@
 #' will be parsed at this offset.
 #' @param schema Provide the schema. This means that polars doesn't do schema
 #' inference. This argument expects the complete schema, whereas
-#' `schema_overrides` can be used to partially overwrite a schema. This must
-#' be a named list of column names - dtypes or dtype - column names.
+#' `schema_overrides` can be used to partially overwrite a schema. This must be
+#' a list. Names of list elements are used to match to inferred columns.
 #' @param schema_overrides Overwrite dtypes during inference. This must be a
-#' named list of column names - dtypes.
+#' list. Names of list elements are used to match to inferred columns.
 #' @param null_values Character vector specifying the values to interpret as
 #' `NA` values. It can be named, in which case names specify the columns in
 #' which this replacement must be made (e.g. `c(col1 = "a")`).
@@ -152,8 +152,6 @@ pl__scan_csv <- function(
     }
     check_list_of_polars_dtype(schema_overrides, allow_null = TRUE)
     check_list_of_polars_dtype(schema, allow_null = TRUE)
-    check_named_list(schema_overrides, allow_null = TRUE)
-    check_named_list(schema, allow_null = TRUE)
     check_character(storage_options, allow_null = TRUE)
     check_character(null_values, allow_null = TRUE)
     encoding <- arg_match0(encoding, values = c("utf8", "utf8-lossy"))

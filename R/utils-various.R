@@ -16,27 +16,3 @@ extend_bool <- function(value, n_match, value_name, match_name) {
     value
   }
 }
-
-#' @noRd
-check_named_list <- function(
-    x,
-    ...,
-    allow_null = FALSE,
-    arg = caller_arg(x),
-    call = caller_env()) {
-  if (is.null(x) && allow_null) {
-    return(invisible(NULL))
-  }
-  if (!is.list(x) || is.null(names(x)) || any(names(x) == "")) {
-    what <- "a named list"
-  } else {
-    return(invisible(NULL))
-  }
-  stop_input_type(
-    x,
-    what,
-    ...,
-    arg = arg,
-    call = call
-  )
-}

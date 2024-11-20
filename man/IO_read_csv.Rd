@@ -65,11 +65,11 @@ will be parsed at this offset.}
 
 \item{schema}{Provide the schema. This means that polars doesn't do schema
 inference. This argument expects the complete schema, whereas
-\code{schema_overrides} can be used to partially overwrite a schema. This must
-be a named list of column names - dtypes or dtype - column names.}
+\code{schema_overrides} can be used to partially overwrite a schema. This must be
+a list. Names of list elements are used to match to inferred columns.}
 
 \item{schema_overrides}{Overwrite dtypes during inference. This must be a
-named list of column names - dtypes.}
+list. Names of list elements are used to match to inferred columns.}
 
 \item{null_values}{Character vector specifying the values to interpret as
 \code{NA} values. It can be named, in which case names specify the columns in
