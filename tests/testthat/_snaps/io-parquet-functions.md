@@ -1,3 +1,11 @@
+# plain scan read parquet
+
+    Code
+      pl$scan_parquet(character(0))
+    Condition
+      Error in `pl$scan_parquet()`:
+      ! `source` must have length > 0.
+
 # scan read parquet - parallel strategies
 
     Code

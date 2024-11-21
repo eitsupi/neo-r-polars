@@ -95,6 +95,9 @@ pl__scan_parquet <- function(
     include_file_paths = NULL,
     allow_missing_columns = FALSE) {
   check_dots_empty0(...)
+  if (length(source) == 0) {
+    abort("`source` must have length > 0.")
+  }
   parallel <- arg_match0(
     parallel,
     values = c("auto", "columns", "row_groups", "prefiltered", "none")

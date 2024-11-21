@@ -15,6 +15,8 @@ test_that("plain scan read parquet", {
     pl$read_parquet(tmpf),
     as_polars_df(mtcars)
   )
+
+  expect_snapshot(pl$scan_parquet(character(0)), error = TRUE)
 })
 
 
