@@ -96,44 +96,50 @@ test_that("scanning from hive partition works", {
   )
 })
 
-# test_that("try_parse_hive_dates works", {
-#   skip_if_not_installed("arrow")
-#   skip_if_not_installed("withr")
-#   temp_dir <- withr::local_tempdir()
-#   test <- data.frame(dt = as.Date(c("2020-01-01", "2020-01-01", "2020-01-02")), y = 1:3)
-#   arrow::write_dataset(
-#     test,
-#     temp_dir,
-#     partitioning = "dt",
-#     format = "parquet",
-#     hive_style = TRUE
-#   )
+test_that("try_parse_hive_dates works", {
+  skip_if_not_installed("arrow")
+  temp_dir <- withr::local_tempdir()
+  test <- data.frame(dt = as.Date(c("2020-01-01", "2020-01-01", "2020-01-02")), y = 1:3)
+  arrow::write_dataset(
+    test,
+    temp_dir,
+    partitioning = "dt",
+    format = "parquet",
+    hive_style = TRUE
+  )
 
-#   # default is to parse dates
-#   expect_equal(
-#     pl$scan_parquet(temp_dir)$select("dt")$collect()$to_list(),
-#     list(dt = as.Date(c("2020-01-01", "2020-01-01", "2020-01-02")))
-#   )
+  # default is to parse dates
+  expect_equal(
+    pl$scan_parquet(temp_dir)$select("dt")$collect(),
+    pl$DataFrame(dt = as.Date(c("2020-01-01", "2020-01-01", "2020-01-02")))
+  )
 
-#   expect_equal(
-#     pl$scan_parquet(temp_dir, try_parse_hive_dates = FALSE)$select("dt")$collect()$to_list(),
-#     list(dt = c("2020-01-01", "2020-01-01", "2020-01-02"))
-#   )
-# })
+  expect_equal(
+    pl$scan_parquet(temp_dir, try_parse_hive_dates = FALSE)$select("dt")$collect(),
+    pl$DataFrame(dt = c("2020-01-01", "2020-01-01", "2020-01-02"))
+  )
+})
 
-# test_that("scan_parquet can include file path", {
-#   skip_if_not_installed("withr")
-#   temp_dir <- withr::local_tempdir()
-#   as_polars_df(mtcars)$write_parquet(temp_dir, partition_by = c("cyl", "gear"))
+test_that("scan_parquet can include file path", {
+  skip_if_not_installed("arrow")
+  temp_dir <- withr::local_tempdir()
+  arrow::write_dataset(mtcars, temp_dir, partitioning = c("cyl", "gear"))
+  out <- pl$scan_parquet(temp_dir, include_file_paths = "file_paths")$collect()
 
-#   # There are 8 partitions so 8 file paths
-#   expect_equal(
-#     pl$scan_parquet(temp_dir, include_file_paths = "file_paths")$collect()$unique("file_paths") |>
-#       dim(),
-#     c(8L, 12L)
-#   )
-# })
+  # There are 8 partitions so 8 file paths
+  expect_equal(dim(out), c(32L, 12L))
+  expect_equal(
+    out$
+      select("file_paths") |>
+      as.data.frame() |>
+      unique() |>
+      dim(),
+    c(8L, 1L)
+  )
+})
 
+
+# TODO-REWRITE: uncomment when $write_parquet() is implemented
 
 # test_that("write_parquet works", {
 #   tmpf <- tempfile()
@@ -162,7 +168,7 @@ test_that("scanning from hive partition works", {
 #   dat <- as_polars_df(mtcars)
 #   tmpf <- tempfile()
 #   x <- dat$write_parquet(tmpf)
-#   expect_equal(x$to_list(), dat$to_list())
+#   expect_equal(x, dat)
 # })
 
 # test_that("write_parquet: argument 'statistics'", {
@@ -192,8 +198,7 @@ test_that("scanning from hive partition works", {
 # })
 
 # test_that("write_parquet can create a hive partition", {
-#   skip_if_not_installed("withr")
-#   temp_dir <- withr::local_tempdir()
+# #   temp_dir <- withr::local_tempdir()
 #   dat <- as_polars_df(mtcars)
 #   on.exit(unlink(temp_dir))
 
@@ -237,8 +242,7 @@ test_that("scanning from hive partition works", {
 
 # test_that("polars and arrow create the same hive partition", {
 #   skip_if_not_installed("arrow")
-#   skip_if_not_installed("withr")
-
+#
 #   # arrow
 #   temp_dir_arrow <- withr::local_tempdir()
 #   dat <- mtcars
