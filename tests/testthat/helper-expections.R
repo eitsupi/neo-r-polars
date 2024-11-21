@@ -16,11 +16,6 @@ expect_equal_lazy <- function(x, y, ...) {
   if (inherits(y, "polars_lazy_frame")) {
     y <- y$collect()
   }
-  dots <- list2(...)
-  if (isTRUE(dots$skip_for_lazy)) {
-    skip("Test skipped for LazyFrame")
-    return(invisible())
-  }
   expect_equal(x, y, ...)
 }
 
