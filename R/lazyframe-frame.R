@@ -471,6 +471,15 @@ lazyframe__explain <- function(
   })
 }
 
+lazyframe__collect_schema <- function() {
+  self$`_ldf`$collect_schema() |>
+    lapply(function(x) {
+      .savvy_wrap_PlRDataType(x) |>
+        wrap()
+    }) |>
+    wrap()
+}
+
 #' Cast LazyFrame column(s) to the specified dtype(s)
 #'
 #' This allows to convert all columns to a datatype or to convert only specific

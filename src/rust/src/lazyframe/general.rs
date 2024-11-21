@@ -1,5 +1,6 @@
 use super::*;
 use crate::{PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame, PlRLazyGroupBy, RPolarsErr};
+use polars::io::{HiveOptions, RowIndex};
 use savvy::{
     savvy, ListSexp, LogicalSexp, NumericScalar, OwnedListSexp, OwnedStringSexp, Result, Sexp,
     StringSexp,
@@ -135,10 +136,7 @@ impl PlRLazyFrame {
     fn slice(&self, offset: NumericScalar, len: Option<NumericScalar>) -> Result<PlRLazyFrame> {
         let ldf = self.ldf.clone();
         let offset = <Wrap<i64>>::try_from(offset)?.0;
-        let len = len
-            .map(|l| <Wrap<u32>>::try_from(l))
-            .transpose()?
-            .map(|l| l.0);
+        let len = len.map(<Wrap<u32>>::try_from).transpose()?.map(|l| l.0);
         Ok(ldf.slice(offset, len.unwrap_or(u32::MAX)).into())
     }
 
@@ -167,6 +165,16 @@ impl PlRLazyFrame {
 
     fn cast_all(&self, dtype: &PlRDataType, strict: bool) -> Result<PlRLazyFrame> {
         Ok(self.ldf.clone().cast_all(dtype.dt.clone(), strict).into())
+    }
+
+    fn collect_schema(&mut self) -> Result<Sexp> {
+        let schema = self.ldf.collect_schema().map_err(RPolarsErr::from)?;
+        let mut out = OwnedListSexp::new(schema.len(), true)?;
+        for (i, (name, dtype)) in schema.iter().enumerate() {
+            let value: Sexp = PlRDataType::from(dtype.clone()).try_into()?;
+            let _ = out.set_name_and_value(i, name.as_str(), value);
+        }
+        Ok(out.into())
     }
 
     fn sort_by_exprs(
@@ -221,6 +229,7 @@ impl PlRLazyFrame {
                     nulls_last: vec![nulls_last],
                     multithreaded,
                     maintain_order,
+                    limit: None,
                 },
             )
             .into())
@@ -823,56 +832,6 @@ impl PlRLazyFrame {
         Ok(self.ldf.clone().into())
     }
 
-    fn collect_schema(&mut self) -> Result<Sexp> {
-        use crate::{
-            r_threads::{concurrent_handler, ThreadCom},
-            r_udf::{RUdfReturn, RUdfSignature, CONFIG},
-        };
-        fn serve_r(
-            udf_sig: RUdfSignature,
-        ) -> std::result::Result<RUdfReturn, Box<dyn std::error::Error>> {
-            udf_sig.eval()
-        }
-
-        let mut ldf = self.ldf.clone();
-        let schema = if ThreadCom::try_from_global(&CONFIG).is_ok() {
-            ldf.collect_schema().map_err(RPolarsErr::from)?
-        } else {
-            concurrent_handler(
-                // closure 1: spawned by main thread
-                // tc is a ThreadCom which any child thread can use to submit R jobs to main thread
-                move |tc| {
-                    // get return value
-                    let retval = ldf.collect_schema();
-
-                    // drop the last two ThreadCom clones, signals to main/R-serving thread to shut down.
-                    ThreadCom::kill_global(&CONFIG);
-                    drop(tc);
-
-                    retval
-                },
-                // closure 2: how to serve polars worker R job request in main thread
-                serve_r,
-                // CONFIG is "global variable" where any new thread can request a clone of ThreadCom to establish contact with main thread
-                &CONFIG,
-            )
-            .map_err(|e| e.to_string())?
-            .map_err(RPolarsErr::from)?
-        };
-
-        let mut out = OwnedListSexp::new(schema.len(), true)?;
-        for i in 0..schema.len() {
-            let (fld_name, fld_value) = schema.get_at_index(i).unwrap();
-            let fld_value = <PlRDataType>::from(fld_value);
-            let _ = out.set_name(i, fld_name.as_str());
-            unsafe {
-                let _ = out.set_value_unchecked(i, Sexp::try_from(fld_value)?.0);
-            }
-        }
-
-        Ok(out.into())
-    }
-
     fn unnest(&self, columns: ListSexp) -> Result<PlRLazyFrame> {
         let columns = <Wrap<Vec<Expr>>>::from(columns).0;
         Ok(self.ldf.clone().unnest(columns).into())
@@ -890,5 +849,91 @@ impl PlRLazyFrame {
             .merge_sorted(other.ldf.clone(), key)
             .map_err(RPolarsErr::from)?;
         Ok(out.into())
+    }
+
+    fn new_from_ipc(
+        source: StringSexp,
+        cache: bool,
+        rechunk: bool,
+        try_parse_hive_dates: bool,
+        retries: NumericScalar,
+        row_index_offset: NumericScalar,
+        n_rows: Option<NumericScalar>,
+        row_index_name: Option<&str>,
+        storage_options: Option<StringSexp>,
+        hive_partitioning: Option<bool>,
+        hive_schema: Option<ListSexp>,
+        file_cache_ttl: Option<NumericScalar>,
+        include_file_paths: Option<&str>,
+    ) -> Result<Self> {
+        let source = source
+            .to_vec()
+            .iter()
+            .map(PathBuf::from)
+            .collect::<Vec<PathBuf>>();
+        let row_index_offset = <Wrap<u32>>::try_from(row_index_offset)?.0;
+        let retries = <Wrap<usize>>::try_from(retries)?.0;
+        let hive_schema = match hive_schema {
+            Some(x) => Some(<Wrap<Schema>>::try_from(x)?),
+            None => None,
+        };
+        let n_rows = match n_rows {
+            Some(x) => Some(<Wrap<usize>>::try_from(x)?.0),
+            None => None,
+        };
+        let row_index = row_index_name.map(|x| RowIndex {
+            name: x.into(),
+            offset: row_index_offset,
+        });
+        let file_cache_ttl = match file_cache_ttl {
+            Some(x) => Some(<Wrap<u64>>::try_from(x)?.0),
+            None => None,
+        };
+
+        let hive_options = HiveOptions {
+            enabled: hive_partitioning,
+            hive_start_idx: 0,
+            schema: hive_schema.map(|x| Arc::new(x.0)),
+            try_parse_dates: try_parse_hive_dates,
+        };
+
+        // TODO: better error message
+        let cloud_options = match storage_options {
+            Some(x) => {
+                let out = <Wrap<Vec<(String, String)>>>::try_from(x).map_err(|_| {
+                    RPolarsErr::Other(
+                        "`storage_options` must be a named character vector".to_string(),
+                    )
+                })?;
+                Some(out.0)
+            }
+            None => None,
+        };
+
+        let mut args = ScanArgsIpc {
+            n_rows,
+            cache,
+            rechunk,
+            row_index,
+            cloud_options: None,
+            hive_options,
+            include_file_paths: include_file_paths.map(|x| x.into()),
+        };
+
+        let first_path = source.first().unwrap().clone().into();
+
+        if let Some(first_path) = first_path {
+            let first_path_url = first_path.to_string_lossy();
+
+            let mut cloud_options =
+                parse_cloud_options(&first_path_url, cloud_options.unwrap_or_default())?;
+            if let Some(file_cache_ttl) = file_cache_ttl {
+                cloud_options.file_cache_ttl = file_cache_ttl;
+            }
+            args.cloud_options = Some(cloud_options.with_max_retries(retries));
+        }
+
+        let lf = LazyFrame::scan_ipc_files(source.into(), args).map_err(RPolarsErr::from)?;
+        Ok(lf.into())
     }
 }

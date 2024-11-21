@@ -1,9 +1,10 @@
 use std::num::NonZeroUsize;
 
 use crate::prelude::*;
-use crate::{PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame};
+use crate::{PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame, PlRSeries, RPolarsErr};
+use polars::prelude::cloud::CloudOptions;
 use polars::series::ops::NullBehavior;
-use savvy::{ListSexp, NumericScalar, NumericSexp, NumericTypedSexp, Sexp, TypedSexp};
+use savvy::{ListSexp, NumericScalar, NumericSexp, NumericTypedSexp, Sexp, StringSexp, TypedSexp};
 pub mod base_date;
 pub mod chunked_array;
 pub mod clock;
@@ -135,14 +136,29 @@ impl TryFrom<ListSexp> for Wrap<Vec<LazyFrame>> {
     type Error = savvy::Error;
 
     fn try_from(list: ListSexp) -> Result<Self, savvy::Error> {
-        let dfs = list
+        let lfs = list
             .values_iter()
             .map(|sexp| match sexp.into_typed() {
                 TypedSexp::Environment(e) => Ok(<&PlRLazyFrame>::try_from(e)?.ldf.clone()),
-                _ => Err("Only accept a list of polars data frames".to_string()),
+                _ => Err("Only accept a list of polars lazy frames".to_string()),
             })
             .collect::<Result<Vec<_>, _>>()?;
-        Ok(Wrap(dfs))
+        Ok(Wrap(lfs))
+    }
+}
+
+impl TryFrom<ListSexp> for Wrap<Vec<Series>> {
+    type Error = savvy::Error;
+
+    fn try_from(list: ListSexp) -> Result<Self, savvy::Error> {
+        let s = list
+            .values_iter()
+            .map(|sexp| match sexp.into_typed() {
+                TypedSexp::Environment(e) => Ok(<&PlRSeries>::from(e).series.clone()),
+                _ => Err("Only accept a list of polars series".to_string()),
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        Ok(Wrap(s))
     }
 }
 
@@ -413,6 +429,22 @@ impl TryFrom<&str> for Wrap<char> {
     }
 }
 
+impl TryFrom<StringSexp> for Wrap<Vec<(String, String)>> {
+    type Error = savvy::Error;
+
+    fn try_from(sexp: StringSexp) -> Result<Self, savvy::Error> {
+        let Some(names) = sexp.get_names() else {
+            return Err("Expected a named vector".to_string().into());
+        };
+        let out = names
+            .into_iter()
+            .zip(sexp.iter())
+            .map(|(name, value)| (name.to_string(), value.to_string()))
+            .collect::<Vec<_>>();
+        Ok(Wrap(out))
+    }
+}
+
 impl TryFrom<&str> for Wrap<NonExistent> {
     type Error = String;
 
@@ -490,7 +522,7 @@ impl TryFrom<&str> for Wrap<ClosedWindow> {
             "left" => ClosedWindow::Left,
             "none" => ClosedWindow::None,
             "right" => ClosedWindow::Right,
-            _ => return Err(format!("unreachable",)),
+            _ => return Err("unreachable".to_string()),
         };
         Ok(Wrap(parsed))
     }
@@ -715,4 +747,25 @@ impl TryFrom<&str> for Wrap<AsofStrategy> {
         };
         Ok(Wrap(parsed))
     }
+}
+
+impl TryFrom<ListSexp> for Wrap<Schema> {
+    type Error = savvy::Error;
+
+    fn try_from(dtypes: ListSexp) -> Result<Self, savvy::Error> {
+        let fields = <Wrap<Vec<Field>>>::try_from(dtypes)?.0;
+        let mut schema = Schema::with_capacity(fields.len());
+        for field in fields {
+            schema.with_column(field.name, field.dtype);
+        }
+        Ok(Wrap(schema))
+    }
+}
+
+pub(crate) fn parse_cloud_options(
+    uri: &str,
+    kv: Vec<(String, String)>,
+) -> savvy::Result<CloudOptions> {
+    let out = CloudOptions::from_untyped_config(uri, kv).map_err(RPolarsErr::from)?;
+    Ok(out)
 }

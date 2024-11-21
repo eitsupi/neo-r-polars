@@ -1,4 +1,5 @@
-use crate::{prelude::*, PlRExpr, PlRSeries, RPolarsErr};
+use crate::{prelude::*, PlRDataFrame, PlRExpr, PlRLazyFrame, PlRSeries, RPolarsErr};
+use polars::functions;
 use polars::lazy::dsl;
 use savvy::{savvy, ListSexp, NumericSexp, RawSexp, Result, StringSexp};
 
@@ -10,7 +11,7 @@ macro_rules! set_unwrapped_or_0 {
 
 #[savvy]
 pub fn as_struct(exprs: ListSexp) -> Result<PlRExpr> {
-    let exprs = <Wrap<Vec<Expr>>>::try_from(exprs)?.0;
+    let exprs = <Wrap<Vec<Expr>>>::from(exprs).0;
     if exprs.is_empty() {
         return Err(savvy::Error::from(
             "expected at least 1 expression in `as_struct`",
@@ -94,6 +95,12 @@ pub fn duration(
 #[savvy]
 pub fn field(names: StringSexp) -> Result<PlRExpr> {
     Ok(dsl::Expr::Field(names.iter().map(|name| name.into()).collect()).into())
+}
+
+#[savvy]
+pub fn coalesce(exprs: ListSexp) -> Result<PlRExpr> {
+    let exprs = <Wrap<Vec<Expr>>>::from(exprs).0;
+    Ok(dsl::coalesce(&exprs).into())
 }
 
 #[savvy]
@@ -182,4 +189,78 @@ pub fn concat_list(s: ListSexp) -> Result<PlRExpr> {
     let s = <Wrap<Vec<Expr>>>::from(s).0;
     let expr = dsl::concat_list(s).map_err(RPolarsErr::from)?;
     Ok(expr.into())
+}
+
+#[savvy]
+pub fn concat_df_diagonal(dfs: ListSexp) -> Result<PlRDataFrame> {
+    let dfs = <Wrap<Vec<DataFrame>>>::try_from(dfs)?.0;
+
+    let df = functions::concat_df_diagonal(&dfs).map_err(RPolarsErr::from)?;
+    Ok(df.into())
+}
+
+#[savvy]
+pub fn concat_df_horizontal(dfs: ListSexp) -> Result<PlRDataFrame> {
+    let dfs = <Wrap<Vec<DataFrame>>>::try_from(dfs)?.0;
+
+    let df = functions::concat_df_horizontal(&dfs, true).map_err(RPolarsErr::from)?;
+    Ok(df.into())
+}
+
+#[savvy]
+pub fn concat_lf(
+    lfs: ListSexp,
+    rechunk: bool,
+    parallel: bool,
+    to_supertypes: bool,
+) -> Result<PlRLazyFrame> {
+    let lfs = <Wrap<Vec<LazyFrame>>>::try_from(lfs)?.0;
+
+    let lf = dsl::concat(
+        lfs,
+        UnionArgs {
+            rechunk,
+            parallel,
+            to_supertypes,
+            ..Default::default()
+        },
+    )
+    .map_err(RPolarsErr::from)?;
+    Ok(lf.into())
+}
+
+#[savvy]
+pub fn concat_lf_horizontal(lfs: ListSexp, parallel: bool) -> Result<PlRLazyFrame> {
+    let lfs = <Wrap<Vec<LazyFrame>>>::try_from(lfs)?.0;
+
+    let args = UnionArgs {
+        rechunk: false, // No need to rechunk with horizontal concatenation
+        parallel,
+        to_supertypes: false,
+        ..Default::default()
+    };
+    let lf = dsl::functions::concat_lf_horizontal(lfs, args).map_err(RPolarsErr::from)?;
+    Ok(lf.into())
+}
+
+#[savvy]
+pub fn concat_lf_diagonal(
+    lfs: ListSexp,
+    rechunk: bool,
+    parallel: bool,
+    to_supertypes: bool,
+) -> Result<PlRLazyFrame> {
+    let lfs = <Wrap<Vec<LazyFrame>>>::try_from(lfs)?.0;
+
+    let lf = dsl::functions::concat_lf_diagonal(
+        lfs,
+        UnionArgs {
+            rechunk,
+            parallel,
+            to_supertypes,
+            ..Default::default()
+        },
+    )
+    .map_err(RPolarsErr::from)?;
+    Ok(lf.into())
 }

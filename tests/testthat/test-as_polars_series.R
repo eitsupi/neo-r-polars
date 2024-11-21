@@ -36,7 +36,7 @@ patrick::with_parameters_test_that(
         "difftime (weeks)", as.difftime(c(1, 0.001, 0.0001, 0.0015, NA), units = "weeks"), "", pl$Duration("ms"),
         "difftime (secs)", as.difftime(c(1.001, 0.001, 0.0001, 0.0015, NA), units = "secs"), "", pl$Duration("ms"),
         "hms", hms::as_hms(c("00:00:00", "01:00:00", NA)), "", pl$Time,
-        "hms (sub-second)", hms::as_hms(c(1.001, 32.000001, 1e-10, 6e-10, NA)), "", pl$Time,
+        "hms (sub-second)", hms::as_hms(c(1.001, 32.000001, 1e-10, 6e-10, 86400 - 1e-10, NA)), "", pl$Time,
         "blob", blob::as_blob(c("foo", "bar", NA)), "", pl$Binary,
         "NULL", NULL, "", pl$Null,
         "list", list("foo", 1L, NULL, NA, vctrs::unspecified(), as_polars_series(NULL), list(NULL)), "", pl$List(pl$String),
@@ -141,6 +141,24 @@ test_that("as_polars_series(<list>, strict = TRUE)", {
   expect_equal(
     as_polars_series(list(NULL, 1), strict = TRUE),
     as_polars_series(list(NULL, 1))
+  )
+})
+
+test_that("as_polars_series(<POSIXlt>) works for ambiguous time as like clock::as_zoned_time()", {
+  skip_if_not_installed("clock")
+
+  chr_vec <- c("2018-10-28 01:30:00", "2018-10-28 02:00:00", "2018-10-28 02:30:00")
+  lt_vec <- as.POSIXlt(chr_vec, tz = "Europe/Brussels")
+  zoned_time_vec <- clock::naive_time_parse(chr_vec, format = "%Y-%m-%d %H:%M:%S") |>
+    clock::as_zoned_time("Europe/Brussels", ambiguous = "earliest")
+
+  expect_equal(
+    as_polars_series(lt_vec)$dt$cast_time_unit("ms"),
+    as_polars_series(clock::as_zoned_time(lt_vec))
+  )
+  expect_equal(
+    as_polars_series(lt_vec)$dt$cast_time_unit("ms"),
+    as_polars_series(zoned_time_vec)
   )
 })
 

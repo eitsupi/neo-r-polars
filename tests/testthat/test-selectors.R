@@ -184,7 +184,7 @@ test_that("by_name", {
     c("foo", "bar")
   )
   expect_named(
-    df$select(cs$by_name("baz", "moose", "foo", "bear", .require_all = FALSE)),
+    df$select(cs$by_name("baz", "moose", "foo", "bear", require_all = FALSE)),
     c("foo", "baz")
   )
   expect_snapshot(
@@ -259,6 +259,10 @@ test_that("datetime", {
     c("tstamp_utc", "tstamp")
   )
   expect_named(
+    df$select(cs$datetime(c("us", "ms"))),
+    c("tstamp_utc", "tstamp")
+  )
+  expect_named(
     df$select(cs$datetime(time_zone = "*")),
     c("tstamp_tokyo", "tstamp_utc")
   )
@@ -267,8 +271,21 @@ test_that("datetime", {
     "tstamp_utc"
   )
   expect_named(
+    df$select(cs$datetime(time_zone = c("UTC", "Asia/Tokyo"))),
+    c("tstamp_tokyo", "tstamp_utc")
+  )
+  expect_named(
     df$select(cs$datetime(time_zone = NULL)),
     "tstamp"
+  )
+  expect_named(
+    df$select(cs$datetime(time_zone = list(NULL, "UTC"))),
+    c("tstamp_utc", "tstamp")
+  )
+
+  expect_error(
+    cs$datetime(time_zone = TRUE),
+    "`time_zone` must be a character vector, a list, or `NULL`"
   )
 })
 

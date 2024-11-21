@@ -73,6 +73,11 @@ NULL
 }
 
 
+`concat_series` <- function(`series`) {
+  .savvy_wrap_PlRSeries(.Call(savvy_concat_series__impl, `series`))
+}
+
+
 `as_struct` <- function(`exprs`) {
   .savvy_wrap_PlRExpr(.Call(savvy_as_struct__impl, `exprs`))
 }
@@ -106,6 +111,11 @@ NULL
 
 `field` <- function(`names`) {
   .savvy_wrap_PlRExpr(.Call(savvy_field__impl, `names`))
+}
+
+
+`coalesce` <- function(`exprs`) {
+  .savvy_wrap_PlRExpr(.Call(savvy_coalesce__impl, `exprs`))
 }
 
 
@@ -183,6 +193,31 @@ NULL
 
 `concat_list` <- function(`s`) {
   .savvy_wrap_PlRExpr(.Call(savvy_concat_list__impl, `s`))
+}
+
+
+`concat_df_diagonal` <- function(`dfs`) {
+  .savvy_wrap_PlRDataFrame(.Call(savvy_concat_df_diagonal__impl, `dfs`))
+}
+
+
+`concat_df_horizontal` <- function(`dfs`) {
+  .savvy_wrap_PlRDataFrame(.Call(savvy_concat_df_horizontal__impl, `dfs`))
+}
+
+
+`concat_lf` <- function(`lfs`, `rechunk`, `parallel`, `to_supertypes`) {
+  .savvy_wrap_PlRLazyFrame(.Call(savvy_concat_lf__impl, `lfs`, `rechunk`, `parallel`, `to_supertypes`))
+}
+
+
+`concat_lf_horizontal` <- function(`lfs`, `parallel`) {
+  .savvy_wrap_PlRLazyFrame(.Call(savvy_concat_lf_horizontal__impl, `lfs`, `parallel`))
+}
+
+
+`concat_lf_diagonal` <- function(`lfs`, `rechunk`, `parallel`, `to_supertypes`) {
+  .savvy_wrap_PlRLazyFrame(.Call(savvy_concat_lf_diagonal__impl, `lfs`, `rechunk`, `parallel`, `to_supertypes`))
 }
 
 
@@ -428,6 +463,18 @@ class(`PlRChainedWhen`) <- c("PlRChainedWhen__bundle", "savvy_neopolars__sealed"
   }
 }
 
+`PlRDataFrame_n_chunks` <- function(self) {
+  function() {
+    .Call(savvy_PlRDataFrame_n_chunks__impl, `self`)
+  }
+}
+
+`PlRDataFrame_rechunk` <- function(self) {
+  function() {
+    .savvy_wrap_PlRDataFrame(.Call(savvy_PlRDataFrame_rechunk__impl, `self`))
+  }
+}
+
 `.savvy_wrap_PlRDataFrame` <- function(ptr) {
   e <- new.env(parent = emptyenv())
   e$.ptr <- ptr
@@ -447,6 +494,8 @@ class(`PlRChainedWhen`) <- c("PlRChainedWhen__bundle", "savvy_neopolars__sealed"
   e$`clone` <- `PlRDataFrame_clone`(ptr)
   e$`lazy` <- `PlRDataFrame_lazy`(ptr)
   e$`to_struct` <- `PlRDataFrame_to_struct`(ptr)
+  e$`n_chunks` <- `PlRDataFrame_n_chunks`(ptr)
+  e$`rechunk` <- `PlRDataFrame_rechunk`(ptr)
 
   class(e) <- c("PlRDataFrame", "savvy_neopolars__sealed")
   e
@@ -2334,6 +2383,12 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
   }
 }
 
+`PlRLazyFrame_collect_schema` <- function(self) {
+  function() {
+    .Call(savvy_PlRLazyFrame_collect_schema__impl, `self`)
+  }
+}
+
 `PlRLazyFrame_sort_by_exprs` <- function(self) {
   function(`by`, `descending`, `nulls_last`, `maintain_order`, `multithreaded`) {
     .savvy_wrap_PlRLazyFrame(.Call(savvy_PlRLazyFrame_sort_by_exprs__impl, `self`, `by`, `descending`, `nulls_last`, `maintain_order`, `multithreaded`))
@@ -2585,12 +2640,6 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
   }
 }
 
-`PlRLazyFrame_collect_schema` <- function(self) {
-  function() {
-    .Call(savvy_PlRLazyFrame_collect_schema__impl, `self`)
-  }
-}
-
 `PlRLazyFrame_unnest` <- function(self) {
   function(`columns`) {
     .savvy_wrap_PlRLazyFrame(.Call(savvy_PlRLazyFrame_unnest__impl, `self`, `columns`))
@@ -2627,6 +2676,7 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
   e$`drop` <- `PlRLazyFrame_drop`(ptr)
   e$`cast` <- `PlRLazyFrame_cast`(ptr)
   e$`cast_all` <- `PlRLazyFrame_cast_all`(ptr)
+  e$`collect_schema` <- `PlRLazyFrame_collect_schema`(ptr)
   e$`sort_by_exprs` <- `PlRLazyFrame_sort_by_exprs`(ptr)
   e$`with_columns` <- `PlRLazyFrame_with_columns`(ptr)
   e$`to_dot` <- `PlRLazyFrame_to_dot`(ptr)
@@ -2667,7 +2717,6 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
   e$`unpivot` <- `PlRLazyFrame_unpivot`(ptr)
   e$`with_row_index` <- `PlRLazyFrame_with_row_index`(ptr)
   e$`clone` <- `PlRLazyFrame_clone`(ptr)
-  e$`collect_schema` <- `PlRLazyFrame_collect_schema`(ptr)
   e$`unnest` <- `PlRLazyFrame_unnest`(ptr)
   e$`count` <- `PlRLazyFrame_count`(ptr)
   e$`merge_sorted` <- `PlRLazyFrame_merge_sorted`(ptr)
@@ -2682,6 +2731,9 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
 
 ### associated functions for PlRLazyFrame
 
+`PlRLazyFrame`$`new_from_ipc` <- function(`source`, `cache`, `rechunk`, `try_parse_hive_dates`, `retries`, `row_index_offset`, `n_rows` = NULL, `row_index_name` = NULL, `storage_options` = NULL, `hive_partitioning` = NULL, `hive_schema` = NULL, `file_cache_ttl` = NULL, `include_file_paths` = NULL) {
+  .savvy_wrap_PlRLazyFrame(.Call(savvy_PlRLazyFrame_new_from_ipc__impl, `source`, `cache`, `rechunk`, `try_parse_hive_dates`, `retries`, `row_index_offset`, `n_rows`, `row_index_name`, `storage_options`, `hive_partitioning`, `hive_schema`, `file_cache_ttl`, `include_file_paths`))
+}
 
 
 class(`PlRLazyFrame`) <- c("PlRLazyFrame__bundle", "savvy_neopolars__sealed")
@@ -2873,6 +2925,12 @@ class(`PlRLazyGroupBy`) <- c("PlRLazyGroupBy__bundle", "savvy_neopolars__sealed"
   }
 }
 
+`PlRSeries_n_chunks` <- function(self) {
+  function() {
+    .Call(savvy_PlRSeries_n_chunks__impl, `self`)
+  }
+}
+
 `.savvy_wrap_PlRSeries` <- function(ptr) {
   e <- new.env(parent = emptyenv())
   e$.ptr <- ptr
@@ -2897,6 +2955,7 @@ class(`PlRLazyGroupBy`) <- c("PlRLazyGroupBy__bundle", "savvy_neopolars__sealed"
   e$`len` <- `PlRSeries_len`(ptr)
   e$`cast` <- `PlRSeries_cast`(ptr)
   e$`slice` <- `PlRSeries_slice`(ptr)
+  e$`n_chunks` <- `PlRSeries_n_chunks`(ptr)
 
   class(e) <- c("PlRSeries", "savvy_neopolars__sealed")
   e
@@ -2948,8 +3007,8 @@ class(`PlRLazyGroupBy`) <- c("PlRLazyGroupBy__bundle", "savvy_neopolars__sealed"
   .savvy_wrap_PlRSeries(.Call(savvy_PlRSeries_new_i32_from_date__impl, `name`, `values`))
 }
 
-`PlRSeries`$`new_i64_from_numeric_and_multiplier` <- function(`name`, `values`, `multiplier`) {
-  .savvy_wrap_PlRSeries(.Call(savvy_PlRSeries_new_i64_from_numeric_and_multiplier__impl, `name`, `values`, `multiplier`))
+`PlRSeries`$`new_i64_from_numeric_and_multiplier` <- function(`name`, `values`, `multiplier`, `rounding`) {
+  .savvy_wrap_PlRSeries(.Call(savvy_PlRSeries_new_i64_from_numeric_and_multiplier__impl, `name`, `values`, `multiplier`, `rounding`))
 }
 
 `PlRSeries`$`new_i64_from_clock_pair` <- function(`name`, `left`, `right`, `precision`) {

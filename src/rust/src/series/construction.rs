@@ -92,8 +92,7 @@ impl PlRSeries {
         if strict {
             let expected_dtype = series_vec
                 .iter()
-                .filter(|opt_s| opt_s.is_some())
-                .next()
+                .find(|opt_s| opt_s.is_some())
                 .map(|opt_s| {
                     opt_s
                         .as_ref()
@@ -165,6 +164,7 @@ impl PlRSeries {
         name: &str,
         values: NumericSexp,
         multiplier: i32,
+        rounding: &str,
     ) -> Result<Self> {
         let ca: Int64Chunked = match values.into_typed() {
             NumericTypedSexp::Integer(i) => i
@@ -183,7 +183,11 @@ impl PlRSeries {
                     if value.is_na() {
                         None
                     } else {
-                        Some((value * (multiplier as f64)).round_ties_even() as i64)
+                        match rounding {
+                            "floor" => Some((value * (multiplier as f64)) as i64),
+                            "round" => Some((value * (multiplier as f64)).round_ties_even() as i64),
+                            _ => unreachable!("`rounding` must be either `floor` or `round`"),
+                        }
                     }
                 })
                 .collect_trusted(),

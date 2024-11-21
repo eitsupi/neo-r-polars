@@ -16,12 +16,11 @@ impl PlRSeries {
 
     fn struct_fields(&self) -> Result<Sexp> {
         let ca = self.series.struct_().map_err(RPolarsErr::from)?;
-        Ok(ca
-            .struct_fields()
+        ca.struct_fields()
             .iter()
             .map(|s| s.name().as_str())
             .collect::<Vec<_>>()
-            .try_into()?)
+            .try_into()
     }
 
     pub fn cat_uses_lexical_ordering(&self) -> Result<Sexp> {
@@ -112,5 +111,9 @@ impl PlRSeries {
             .map(|l| <Wrap<usize>>::try_from(l).map(|l| l.0))
             .unwrap_or_else(|| Ok(self.series.len()))?;
         Ok(self.series.slice(offset, length).into())
+    }
+
+    fn n_chunks(&self) -> Result<Sexp> {
+        (self.series.n_chunks() as i32).try_into()
     }
 }
