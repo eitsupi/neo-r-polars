@@ -37,12 +37,12 @@ impl TryFrom<Sexp> for Wrap<AnyValue<'_>> {
     fn try_from(obj: Sexp) -> Result<Self, String> {
         let typed = obj.into_typed();
         let out = match typed {
-            TypedSexp::Integer(x) => AnyValue::Int64(*(x.to_vec().get(0).unwrap()) as i64),
-            TypedSexp::Real(x) => AnyValue::Float64(*(x.to_vec().get(0).unwrap())),
-            TypedSexp::Logical(x) => AnyValue::Boolean(*(x.to_vec().get(0).unwrap())),
+            TypedSexp::Integer(x) => AnyValue::Int64(*(x.to_vec().first().unwrap()) as i64),
+            TypedSexp::Real(x) => AnyValue::Float64(*(x.to_vec().first().unwrap())),
+            TypedSexp::Logical(x) => AnyValue::Boolean(*(x.to_vec().first().unwrap())),
             TypedSexp::String(x) => {
                 let val = x.to_vec();
-                AnyValue::StringOwned((*val.get(0).unwrap()).into())
+                AnyValue::StringOwned((*val.first().unwrap()).into())
             }
             TypedSexp::Null(_) => AnyValue::Null,
             _ => return Err(format!("Cannot cast to AnyValue")),
@@ -691,7 +691,7 @@ impl TryFrom<ListSexp> for Wrap<StatisticsOptions> {
                 let value = match value {
                     TypedSexp::Logical(val) => {
                         let tmp = val.to_vec();
-                        *tmp.get(0).unwrap()
+                        *tmp.first().unwrap()
                     }
                     _ => unreachable!(),
                 };
