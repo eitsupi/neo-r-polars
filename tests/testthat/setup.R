@@ -3,7 +3,6 @@ Sys.setenv(POLARS_IN_LAZY_TEST = FALSE)
 to_duplicate <- test_path("test-frame.R")
 
 for (i in to_duplicate) {
-  print(i)
   tmp <- readLines(i)
   out <- gsub("pl\\$DataFrame", "pl\\$LazyFrame", tmp)
   out <- gsub("as_polars_df\\(", "as_polars_lf(", out)
