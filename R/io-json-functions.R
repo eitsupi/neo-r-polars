@@ -1,11 +1,9 @@
-#' Lazily read from a local or cloud-hosted ndjson file (or files)
+#' Lazily read from a local or cloud-hosted NDJSON file(s)
 #'
 #' @inherit pl__scan_ipc description
 #'
 #' @inherit pl__LazyFrame return
 #' @inheritParams rlang::args_dots_empty
-#' @param source Path(s) to a file or directory. When needing to authenticate
-#' for scanning cloud locations, see the `storage_options` parameter.
 #' @inheritParams pl__scan_parquet
 #' @inheritParams pl__scan_csv
 #'
@@ -65,8 +63,7 @@ pl__scan_ndjson <- function(
     wrap()
 }
 
-
-#' Read into a DataFrame from Parquet file
+#' Read into a DataFrame from NDJSON file
 #'
 #' @inherit pl__DataFrame return
 #' @inheritParams pl__scan_ndjson

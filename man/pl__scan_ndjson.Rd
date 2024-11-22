@@ -2,7 +2,7 @@
 % Please edit documentation in R/io-json-functions.R
 \name{pl__scan_ndjson}
 \alias{pl__scan_ndjson}
-\title{Lazily read from a local or cloud-hosted ndjson file (or files)}
+\title{Lazily read from a local or cloud-hosted NDJSON file(s)}
 \usage{
 pl__scan_ndjson(
   source,

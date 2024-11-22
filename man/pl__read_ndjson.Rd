@@ -2,7 +2,7 @@
 % Please edit documentation in R/io-json-functions.R
 \name{pl__read_ndjson}
 \alias{pl__read_ndjson}
-\title{Read into a DataFrame from Parquet file}
+\title{Read into a DataFrame from NDJSON file}
 \usage{
 pl__read_ndjson(
   source,
@@ -71,7 +71,7 @@ will include the path of the source file(s).}
 A polars \link{DataFrame}
 }
 \description{
-Read into a DataFrame from Parquet file
+Read into a DataFrame from NDJSON file
 }
 \examples{
 \dontshow{if (requireNamespace("jsonlite", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
