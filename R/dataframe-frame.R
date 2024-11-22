@@ -539,3 +539,26 @@ dataframe__rechunk <- function() {
     self$`_df`$rechunk()
   })
 }
+
+#' @inherit lazyframe__unnest title description params
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = 1:5,
+#'   b = c("one", "two", "three", "four", "five"),
+#'   c = 6:10
+#' )$
+#'   select(
+#'   pl$struct("b"),
+#'   a_and_c = pl$struct(c("a", "c"))
+#' )
+#' df
+#'
+#' df$unnest("a_and_c")
+dataframe__unnest <- function(...) {
+  wrap({
+    columns <- unlist(list2(...))
+    check_character(columns, allow_na = FALSE)
+    self$`_df`$unnest(columns)
+  })
+}

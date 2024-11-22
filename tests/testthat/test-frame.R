@@ -196,3 +196,60 @@ test_that("slice/head/tail work", {
     )
   }
 })
+
+
+test_that("unnest works correctly", {
+  df <- pl$DataFrame(
+    a = 1:5,
+    b = c("one", "two", "three", "four", "five"),
+    c = 6:10
+  )$
+    select(
+    foo = pl$lit(1),
+    pl$struct("b"),
+    pl$struct(c("a", "c"))$alias("a_and_c")
+  )
+
+  expect_identical(
+    df$unnest("b", "a_and_c"),
+    df$unnest(c("b", "a_and_c"))
+  )
+
+  # wrong input
+  expect_snapshot(
+    df$unnest("b", pl$col("a_and_c")),
+    error = TRUE
+  )
+  expect_snapshot(df$unnest(1), error = TRUE)
+
+  # wrong datatype
+  expect_snapshot(df$unnest("foo"), error = TRUE)
+})
+
+
+make_cases <- function() {
+  tibble::tribble(
+    ~.test_name, ~pola, ~base,
+    "max", "max", max,
+    "mean", "mean", mean,
+    "median", "median", median,
+    "max", "max", max,
+    "min", "min", min,
+    "std", "std", sd,
+    "sum", "sum", sum,
+    "var", "var", var,
+    "first", "first", function(x) head(x, 1),
+    "last", "last", function(x) tail(x, 1)
+  )
+}
+
+patrick::with_parameters_test_that(
+  "simple translations: eager",
+  {
+    browser()
+    a <- as_polars_df(mtcars)[[pola]]()
+    b <- as_polars_df(!!!lapply(mtcars, base))
+    expect_equal(a, b)
+  },
+  .cases = make_cases()
+)

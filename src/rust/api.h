@@ -69,6 +69,7 @@ SEXP savvy_PlRDataFrame_lazy__ffi(SEXP self__);
 SEXP savvy_PlRDataFrame_to_struct__ffi(SEXP self__, SEXP c_arg__name);
 SEXP savvy_PlRDataFrame_n_chunks__ffi(SEXP self__);
 SEXP savvy_PlRDataFrame_rechunk__ffi(SEXP self__);
+SEXP savvy_PlRDataFrame_unnest__ffi(SEXP self__, SEXP c_arg__columns);
 
 // methods and associated functions for PlRDataType
 SEXP savvy_PlRDataType_new_from_name__ffi(SEXP c_arg__name);

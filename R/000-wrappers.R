@@ -475,6 +475,12 @@ class(`PlRChainedWhen`) <- c("PlRChainedWhen__bundle", "savvy_neopolars__sealed"
   }
 }
 
+`PlRDataFrame_unnest` <- function(self) {
+  function(`columns`) {
+    .savvy_wrap_PlRDataFrame(.Call(savvy_PlRDataFrame_unnest__impl, `self`, `columns`))
+  }
+}
+
 `.savvy_wrap_PlRDataFrame` <- function(ptr) {
   e <- new.env(parent = emptyenv())
   e$.ptr <- ptr
@@ -496,6 +502,7 @@ class(`PlRChainedWhen`) <- c("PlRChainedWhen__bundle", "savvy_neopolars__sealed"
   e$`to_struct` <- `PlRDataFrame_to_struct`(ptr)
   e$`n_chunks` <- `PlRDataFrame_n_chunks`(ptr)
   e$`rechunk` <- `PlRDataFrame_rechunk`(ptr)
+  e$`unnest` <- `PlRDataFrame_unnest`(ptr)
 
   class(e) <- c("PlRDataFrame", "savvy_neopolars__sealed")
   e
