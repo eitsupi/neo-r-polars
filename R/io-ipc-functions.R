@@ -1,4 +1,5 @@
 # TODO: read raw vector
+# TODO: swap param inheritance with pl__scan_parquet
 #' Lazily read from an Arrow IPC (Feather v2) file or multiple files via glob
 #' patterns
 #'
@@ -7,7 +8,7 @@
 #'
 #' @inherit pl__LazyFrame return
 #' @inheritParams rlang::args_dots_empty
-#' @inheritParams pl_scan_parquet
+#' @inheritParams pl__scan_parquet
 #' @param hive_partitioning Infer statistics and schema from Hive partitioned
 #' sources and use them to prune reads. If `NULL` (default), it is automatically
 #' enabled when a single directory is passed, and otherwise disabled.
