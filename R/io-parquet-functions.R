@@ -95,6 +95,7 @@ pl__scan_parquet <- function(
     include_file_paths = NULL,
     allow_missing_columns = FALSE) {
   check_dots_empty0(...)
+  check_character(source, allow_na = FALSE)
   if (length(source) == 0) {
     abort("`source` must have length > 0.")
   }

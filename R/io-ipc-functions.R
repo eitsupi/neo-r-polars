@@ -53,6 +53,7 @@ pl__scan_ipc <- function(
     try_parse_hive_dates = TRUE,
     include_file_paths = NULL) {
   check_dots_empty0(...)
+  check_character(source, allow_na = FALSE)
   if (length(source) == 0) {
     abort("`source` must have length > 0.")
   }
