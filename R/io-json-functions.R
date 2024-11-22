@@ -9,21 +9,10 @@
 #' @inheritParams pl__scan_parquet
 #' @inheritParams pl__scan_csv
 #'
-#' @examplesIf requireNamespace("withr", quietly = TRUE)
-#' # Write a Parquet file than we can then import as DataFrame
-#' temp_file <- withr::local_tempfile(fileext = ".ndjson")
-#' as_polars_df(mtcars)$write_ndjson(temp_file)
-#'
-#' pl$scan_ndjson(temp_file)$collect()
-#'
-#' # Write a hive-style partitioned ndjson dataset
-#' temp_dir <- withr::local_tempdir()
-#' as_polars_df(mtcars)$write_ndjson(temp_dir, partition_by = c("cyl", "gear"))
-#' list.files(temp_dir, recursive = TRUE)
-#'
-#' # If the path is a folder, Polars automatically tries to detect partitions
-#' # and includes them in the output
-#' pl$scan_ndjson(temp_dir)$collect()
+#' @examplesIf requireNamespace("jsonlite", quietly = TRUE)
+#' ndjson_filename <- tempfile()
+#' jsonlite::stream_out(iris, file(ndjson_filename), verbose = FALSE)
+#' pl$scan_ndjson(ndjson_filename)$collect()
 pl__scan_ndjson <- function(
     source,
     ...,
@@ -81,21 +70,10 @@ pl__scan_ndjson <- function(
 #'
 #' @inherit pl__DataFrame return
 #' @inheritParams pl__scan_ndjson
-#' @examplesIf requireNamespace("withr", quietly = TRUE)
-#' # Write a Parquet file than we can then import as DataFrame
-#' temp_file <- withr::local_tempfile(fileext = ".ndjson")
-#' as_polars_df(mtcars)$write_ndjson(temp_file)
-#'
-#' pl$read_ndjson(temp_file)
-#'
-#' # Write a hive-style partitioned ndjson dataset
-#' temp_dir <- withr::local_tempdir()
-#' as_polars_df(mtcars)$write_ndjson(temp_dir, partition_by = c("cyl", "gear"))
-#' list.files(temp_dir, recursive = TRUE)
-#'
-#' # If the path is a folder, Polars automatically tries to detect partitions
-#' # and includes them in the output
-#' pl$read_ndjson(temp_dir)
+#' @examplesIf requireNamespace("jsonlite", quietly = TRUE)
+#' ndjson_filename <- tempfile()
+#' jsonlite::stream_out(iris, file(ndjson_filename), verbose = FALSE)
+#' pl$read_ndjson(ndjson_filename)
 pl__read_ndjson <- function(
     source,
     ...,
