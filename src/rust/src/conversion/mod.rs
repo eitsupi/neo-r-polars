@@ -1,3 +1,5 @@
+use std::num::NonZeroUsize;
+
 use crate::prelude::*;
 use crate::{PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame, PlRSeries, RPolarsErr};
 use polars::prelude::cloud::CloudOptions;
@@ -228,6 +230,15 @@ impl TryFrom<&str> for Wrap<TimeUnit> {
             v => return Err(format!("unsupported value: '{v}'",)),
         };
         Ok(Wrap(time_unit))
+    }
+}
+
+impl TryFrom<NumericScalar> for Wrap<NonZeroUsize> {
+    type Error = savvy::Error;
+
+    fn try_from(n: NumericScalar) -> Result<Self, savvy::Error> {
+        let n = n.as_usize()?;
+        Ok(Wrap(NonZeroUsize::new(n).unwrap()))
     }
 }
 
