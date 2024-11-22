@@ -373,6 +373,7 @@ SEXP savvy_PlRLazyFrame_unnest__ffi(SEXP self__, SEXP c_arg__columns);
 SEXP savvy_PlRLazyFrame_count__ffi(SEXP self__);
 SEXP savvy_PlRLazyFrame_merge_sorted__ffi(SEXP self__, SEXP c_arg__other, SEXP c_arg__key);
 SEXP savvy_PlRLazyFrame_new_from_ipc__ffi(SEXP c_arg__source, SEXP c_arg__cache, SEXP c_arg__rechunk, SEXP c_arg__try_parse_hive_dates, SEXP c_arg__retries, SEXP c_arg__row_index_offset, SEXP c_arg__n_rows, SEXP c_arg__row_index_name, SEXP c_arg__storage_options, SEXP c_arg__hive_partitioning, SEXP c_arg__hive_schema, SEXP c_arg__file_cache_ttl, SEXP c_arg__include_file_paths);
+SEXP savvy_PlRLazyFrame_new_from_parquet__ffi(SEXP c_arg__source, SEXP c_arg__cache, SEXP c_arg__parallel, SEXP c_arg__rechunk, SEXP c_arg__low_memory, SEXP c_arg__use_statistics, SEXP c_arg__try_parse_hive_dates, SEXP c_arg__retries, SEXP c_arg__glob, SEXP c_arg__allow_missing_columns, SEXP c_arg__row_index_offset, SEXP c_arg__storage_options, SEXP c_arg__n_rows, SEXP c_arg__row_index_name, SEXP c_arg__hive_partitioning, SEXP c_arg__schema, SEXP c_arg__hive_schema, SEXP c_arg__include_file_paths);
 
 // methods and associated functions for PlRLazyGroupBy
 SEXP savvy_PlRLazyGroupBy_agg__ffi(SEXP self__, SEXP c_arg__aggs);
