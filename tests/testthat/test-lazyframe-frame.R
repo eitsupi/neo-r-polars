@@ -232,33 +232,5 @@ test_that("unnest works correctly", {
   # wrong datatype
   expect_snapshot_lazy(df$unnest("foo"), error = TRUE)
 })
-
-
-make_cases <- function() {
-  tibble::tribble(
-    ~.test_name, ~pola, ~base,
-    "max", "max", max,
-    "mean", "mean", mean,
-    "median", "median", median,
-    "max", "max", max,
-    "min", "min", min,
-    "std", "std", sd,
-    "sum", "sum", sum,
-    "var", "var", var,
-    "first", "first", function(x) head(x, 1),
-    "last", "last", function(x) tail(x, 1)
-  )
-}
-
-patrick::with_parameters_test_that(
-  "simple translations: eager",
-  {
-    browser()
-    a <- as_polars_lf(mtcars)[[pola]]()
-    b <- as_polars_lf(!!!lapply(mtcars, base))
-    expect_equal_lazy(a, b)
-  },
-  .cases = make_cases()
-)
 }
   )
