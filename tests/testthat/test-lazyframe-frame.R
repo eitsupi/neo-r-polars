@@ -132,3 +132,41 @@ test_that("slice/head/tail works lazy/eager", {
     r"(-4.0 is out of range that can be safely converted to u32)"
   )
 })
+
+test_that("shift works lazy/eager", {
+  .data <- as_polars_df(mtcars[1:3, 1:2])
+  expect_query_equal(
+    .input$shift(2),
+    .data,
+    pl$DataFrame(mpg = c(NA, NA, 21), cyl = c(NA, NA, 6))
+  )
+  expect_query_equal(
+    .input$shift(2, fill_value = 999),
+    .data,
+    pl$DataFrame(mpg = c(999, 999, 21), cyl = c(999, 999, 6))
+  )
+})
+
+test_that("joins work lazy/eager", {
+  df <- pl$DataFrame(
+    foo = 1:3,
+    bar = c(6, 7, 8),
+    ham = c("a", "b", "c")
+  )
+
+  other_df <- pl$DataFrame(
+    apple = c("x", "y", "z"),
+    ham = c("a", "b", "d")
+  )
+
+  expect_query_equal(
+    .input$join(.input2, on = "ham"),
+    .input = df, .input2 = other_df,
+    pl$DataFrame(
+      foo = 1:2,
+      bar = c(6, 7),
+      ham = c("a", "b"),
+      apple = c("x", "y")
+    )
+  )
+})

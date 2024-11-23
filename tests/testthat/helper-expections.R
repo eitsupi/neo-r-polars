@@ -3,20 +3,41 @@
 #' Inspired by `compare_dplyr_binding` of the arrow package.
 #' @param object A polars query, must be started with `.input`.
 #' See the examples for details.
-#' @param input R object will be converted to a DataFrame or LazyFrame
-#' by `as_polars_df` or `as_polars_lf`.
-#' @param expected A polars DataFrame, the expected result of the query.
+#' @param ... Dynamic dots taking the various inputs specified in `object`. The
+#' last element MUST be the expected output.
 #' @examples
 #' expect_query_equal(
 #'   .input$select("foo"),
 #'   pl$DataFrame(foo = NULL, bar = NULL),
 #'   pl$DataFrame(foo = NULL)
 #' )
+#'
+#' a <- pl$DataFrame(x = 1:2, y = 3:4)
+#' b <- pl$DataFrame(x = 2, z = 5)
+#' expect_query_equal(
+#'   .input$join(.input2, on = "x", how = "inner"),
+#'   .input = a, .input2 = b,
+#'   pl$DataFrame(a = 2, y = 4, z = 5)
+#' )
 #' @noRd
-expect_query_equal <- function(object, input, expected) {
+expect_query_equal <- function(object, ...) {
   query <- rlang::enquo(object)
-  out_lazy <- rlang::eval_tidy(query, rlang::new_data_mask(rlang::env(.input = as_polars_lf(input))))$collect()
-  out_eager <- rlang::eval_tidy(query, rlang::new_data_mask(rlang::env(.input = as_polars_df(input))))
+  inputs <- list2(...)
+
+  # Otherwise the expected output needs to be named in all expect_query_equal()
+  expected <- inputs[[length(inputs)]]
+  inputs[[length(inputs)]] <- NULL
+
+  # Just a convenience to avoid naming `.input` when it's the only input in the
+  # query
+  inputs_lazy <- lapply(inputs, \(x) x$lazy())
+  if (length(inputs) == 1 && is.null(names(inputs))) {
+    names(inputs) <- ".input"
+    names(inputs_lazy) <- ".input"
+  }
+
+  out_lazy <- rlang::eval_tidy(query, rlang::new_data_mask(rlang::env(!!!inputs_lazy)))$collect()
+  out_eager <- rlang::eval_tidy(query, rlang::new_data_mask(rlang::env(!!!inputs)))
 
   expect_equal(out_lazy, expected)
   expect_equal(out_eager, expected)
@@ -68,33 +89,4 @@ expect_eager_equal_lazy_error <- function(object, input, expected, regexp = NULL
     ...
   )
   invisible(NULL)
-}
-
-### Helper to detect whether an expectation runs in a test where data is in
-### lazy mode.
-is_in_lazy_test <- function() {
-  nzchar(Sys.getenv("POLARS_IN_LAZY_TEST")) && Sys.getenv("POLARS_IN_LAZY_TEST") == "TRUE"
-}
-
-### Those helpers are equivalent to their counterparts without the "_lazy"
-### suffix but they run on lazyframes
-###
-### They shouldn't be used manually. Instead they are automatically inserted in
-### some test files by the code in setup.R.
-expect_equal_lazy <- function(x, y, ...) {
-  if (inherits(x, "polars_lazy_frame")) {
-    x <- x$collect()
-  }
-  if (inherits(y, "polars_lazy_frame")) {
-    y <- y$collect()
-  }
-  expect_equal(x, y, ...)
-}
-
-expect_error_lazy <- function(current, pattern = ".*", ...) {
-  expect_error(current$collect(), pattern, ...)
-}
-
-expect_snapshot_lazy <- function(current, ...) {
-  expect_snapshot(current$collect(), ...)
 }
