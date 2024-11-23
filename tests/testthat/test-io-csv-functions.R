@@ -1,5 +1,5 @@
 test_that("basic test", {
-  tmpf <- tempfile()
+  tmpf <- withr::local_tempfile()
   write.csv(iris, tmpf, row.names = FALSE)
   lf <- pl$scan_csv(tmpf)
   df <- pl$read_csv(tmpf)
@@ -44,7 +44,7 @@ test_that("args separator and eol work", {
 
 test_that("args skip_rows and skip_rows_after_header work", {
   dat <- iris
-  tmpf <- tempfile()
+  tmpf <- withr::local_tempfile()
   write.csv(dat, tmpf, row.names = FALSE)
 
   out <- pl$read_csv(tmpf, skip_rows = 25)
@@ -58,7 +58,7 @@ test_that("args skip_rows and skip_rows_after_header work", {
 
 test_that("arg try_parse_date work", {
   dat <- data.frame(foo = c("2023-10-31", "2023-11-01"))
-  tmpf <- tempfile()
+  tmpf <- withr::local_tempfile()
   write.csv(dat, tmpf, row.names = FALSE)
 
   out <- pl$read_csv(tmpf)
@@ -69,7 +69,7 @@ test_that("arg try_parse_date work", {
 })
 
 test_that("arg raise_if_empty works", {
-  tmpf <- tempfile()
+  tmpf <- withr::local_tempfile()
   writeLines("", tmpf)
 
   expect_snapshot(pl$read_csv(tmpf), error = TRUE)
@@ -98,7 +98,7 @@ test_that("arg glob works", {
 })
 
 test_that("arg missing_utf8_is_empty_string works", {
-  tmpf <- tempfile()
+  tmpf <- withr::local_tempfile()
   writeLines("a,b\n1,a\n2,", tmpf)
 
   out <- pl$read_csv(tmpf)
@@ -115,7 +115,7 @@ test_that("arg missing_utf8_is_empty_string works", {
 })
 
 test_that("arg null_values works", {
-  tmpf <- tempfile()
+  tmpf <- withr::local_tempfile()
   writeLines("a,b,c\n1.5,a,2\n2,,", tmpf)
 
   out <- pl$read_csv(tmpf, null_values = c("a", "2"))
@@ -151,7 +151,7 @@ test_that("arg null_values works", {
 
 test_that("args row_index_* work", {
   dat <- mtcars
-  tmpf <- tempfile()
+  tmpf <- withr::local_tempfile()
   write.csv(dat, tmpf, row.names = FALSE)
 
   out <- pl$read_csv(tmpf, row_index_name = "foo")$select("foo")
@@ -168,7 +168,7 @@ test_that("args row_index_* work", {
 
 test_that("arg encoding works", {
   dat <- mtcars
-  tmpf <- tempfile()
+  tmpf <- withr::local_tempfile()
   write.csv(dat, tmpf, row.names = FALSE)
 
   expect_snapshot(
@@ -225,7 +225,7 @@ test_that("scan_csv can include file path", {
 })
 
 test_that("arg 'schema_overrides' works", {
-  tmpf <- tempfile()
+  tmpf <- withr::local_tempfile()
   writeLines("a,b,c\n1.5,a,2\n2,,", tmpf)
   expect_equal(
     pl$read_csv(tmpf, schema_overrides = list(b = pl$Categorical(), c = pl$Int32)),
@@ -245,7 +245,7 @@ test_that("arg 'schema_overrides' works", {
 })
 
 test_that("arg 'schema' works", {
-  tmpf <- tempfile()
+  tmpf <- withr::local_tempfile()
   writeLines("a,b,c\n1.5,a,2\n2,,", tmpf)
   expect_equal(
     pl$read_csv(tmpf, schema = list(a = pl$Float32, b = pl$Categorical(), c = pl$Int32)),
@@ -269,7 +269,7 @@ test_that("arg 'schema' works", {
 
 # TODO: can't check if it actually works
 test_that("arg 'storage_options' throws basic errors", {
-  tmpf <- tempfile()
+  tmpf <- withr::local_tempfile()
   expect_snapshot(
     pl$read_csv(tmpf, storage_options = 1),
     error = TRUE
@@ -281,7 +281,7 @@ test_that("arg 'storage_options' throws basic errors", {
 })
 
 test_that("arg 'decimal_comma' works", {
-  tmpf <- tempfile()
+  tmpf <- withr::local_tempfile()
   writeLines("a|b|c\n1,5|a|2\n2||", tmpf)
   expect_equal(
     pl$read_csv(tmpf, separator = "|"),
