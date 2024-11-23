@@ -238,9 +238,9 @@ impl PlRLazyFrame {
             None => None,
         };
         let row_index = row_index_name.map(|x| RowIndex {
-                name: x.into(),
-                offset: row_index_offset,
-            });
+            name: x.into(),
+            offset: row_index_offset,
+        });
         let file_cache_ttl = match file_cache_ttl {
             Some(x) => Some(<Wrap<u64>>::try_from(x)?.0),
             None => None,
@@ -255,7 +255,9 @@ impl PlRLazyFrame {
         let cloud_options = match storage_options {
             Some(x) => {
                 let out = <Wrap<Vec<(String, String)>>>::try_from(x).map_err(|_| {
-                    RPolarsErr::Other("`storage_options` must be a named character vector".to_string())
+                    RPolarsErr::Other(
+                        "`storage_options` must be a named character vector".to_string(),
+                    )
                 })?;
                 Some(out.0)
             }
@@ -270,7 +272,7 @@ impl PlRLazyFrame {
             hive_options,
             include_file_paths: include_file_paths.map(|x| x.into()),
         };
-      
+
         let first_path: Option<PathBuf> = source.first().unwrap().clone().into();
         if let Some(first_path) = first_path {
             let first_path_url = first_path.to_string_lossy();
@@ -325,21 +327,21 @@ impl PlRLazyFrame {
         let encoding = <Wrap<CsvEncoding>>::try_from(encoding)?.0;
         let skip_rows = <Wrap<usize>>::try_from(skip_rows)?.0;
         let skip_rows_after_header = <Wrap<usize>>::try_from(skip_rows_after_header)?.0;
-        let infer_schema_length: Option<usize> = match infer_schema_length {
+        let infer_schema_length = match infer_schema_length {
             Some(x) => Some(<Wrap<usize>>::try_from(x)?.0),
             None => None,
         };
         let row_index_offset = <Wrap<u32>>::try_from(row_index_offset)?.0;
-        let n_rows: Option<usize> = match n_rows {
+        let n_rows = match n_rows {
             Some(x) => Some(<Wrap<usize>>::try_from(x)?.0),
             None => None,
         };
-        let null_values: Option<NullValues> = match null_values {
+        let null_values = match null_values {
             Some(x) => Some(<Wrap<NullValues>>::try_from(x)?.0),
             None => None,
         };
         let retries = <Wrap<usize>>::try_from(retries)?.0;
-        let file_cache_ttl: Option<u64> = match file_cache_ttl {
+        let file_cache_ttl = match file_cache_ttl {
             Some(x) => Some(<Wrap<u64>>::try_from(x)?.0),
             None => None,
         };
@@ -366,7 +368,7 @@ impl PlRLazyFrame {
             .copied()
             .map_err(RPolarsErr::from)?;
 
-        let row_index: Option<RowIndex> = match row_index_name {
+        let row_index = match row_index_name {
             Some(x) => Some(RowIndex {
                 name: x.into(),
                 offset: row_index_offset,
@@ -374,28 +376,13 @@ impl PlRLazyFrame {
             None => None,
         };
 
-        let overwrite_dtype: Option<Vec<(&str, DataType)>> = match overwrite_dtype {
-            Some(x) => {
-                let list_len = x.len();
-                let mut vec = Vec::with_capacity(x.len());
-                let names_list = x.iter().map(|x| x.0).collect::<Vec<&str>>();
-                let vec_dt = <Wrap<Vec<DataType>>>::try_from(x)?.0;
-                for i in 0..list_len {
-                    vec.push((names_list[i], vec_dt[i].clone()));
-                }
-                Some(vec)
-            }
+        let overwrite_dtype = match overwrite_dtype {
+            Some(x) => Some(<Wrap<Schema>>::try_from(x)?.0),
             None => None,
         };
-        let overwrite_dtype = overwrite_dtype.map(|overwrite_dtype| {
-            overwrite_dtype
-                .into_iter()
-                .map(|(name, dtype)| Field::new((&*name).into(), dtype))
-                .collect::<Schema>()
-        });
 
-        let schema: Option<Wrap<Schema>> = match schema {
-            Some(x) => Some(<Wrap<Schema>>::try_from(x)?),
+        let schema = match schema {
+            Some(x) => Some(<Wrap<Schema>>::try_from(x)?.0),
             None => None,
         };
 
@@ -434,7 +421,7 @@ impl PlRLazyFrame {
             .with_n_rows(n_rows)
             .with_cache(cache)
             .with_dtype_overwrite(overwrite_dtype.map(Arc::new))
-            .with_schema(schema.map(|schema| Arc::new(schema.0)))
+            .with_schema(schema.map(Arc::new))
             .with_low_memory(low_memory)
             .with_comment_prefix(comment_prefix.map(|x| x.into()))
             .with_quote_char(quote_char)
