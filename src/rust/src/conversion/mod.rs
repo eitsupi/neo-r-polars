@@ -227,7 +227,7 @@ impl TryFrom<&str> for Wrap<TimeUnit> {
             "ns" => TimeUnit::Nanoseconds,
             "us" => TimeUnit::Microseconds,
             "ms" => TimeUnit::Milliseconds,
-            v => return Err(format!("unsupported value: '{v}'",)),
+            _ => return Err(format!("unreachable")),
         };
         Ok(Wrap(time_unit))
     }
@@ -415,7 +415,7 @@ impl TryFrom<&str> for Wrap<NonExistent> {
         let parsed = match non_existent {
             "null" => NonExistent::Null,
             "raise" => NonExistent::Raise,
-            v => return Err(format!("unsupported value: '{v}'",)),
+            _ => return Err(format!("unreachable")),
         };
         Ok(Wrap(parsed))
     }
@@ -428,7 +428,7 @@ impl TryFrom<&str> for Wrap<NullBehavior> {
         let parsed = match null_behavior {
             "drop" => NullBehavior::Drop,
             "ignore" => NullBehavior::Ignore,
-            v => return Err(format!("unsupported value: '{v}'",)),
+            _ => return Err(format!("unreachable")),
         };
         Ok(Wrap(parsed))
     }
@@ -442,7 +442,7 @@ impl TryFrom<&str> for Wrap<WindowMapping> {
             "group_to_rows" => WindowMapping::GroupsToRows,
             "join" => WindowMapping::Join,
             "explode" => WindowMapping::Explode,
-            v => return Err(format!("unsupported value: '{v}'",)),
+            _ => return Err(format!("unreachable")),
         };
         Ok(Wrap(parsed))
     }
@@ -457,7 +457,7 @@ impl TryFrom<&str> for Wrap<SetOperation> {
             "intersection" => SetOperation::Intersection,
             "difference" => SetOperation::Difference,
             "symmetric_difference" => SetOperation::SymmetricDifference,
-            v => return Err(format!("unsupported value: '{v}'",)),
+            _ => return Err(format!("unreachable")),
         };
         Ok(Wrap(parsed))
     }
@@ -470,7 +470,7 @@ impl TryFrom<&str> for Wrap<ListToStructWidthStrategy> {
         let parsed = match operation {
             "first_non_null" => ListToStructWidthStrategy::FirstNonNull,
             "max_width" => ListToStructWidthStrategy::MaxWidth,
-            v => return Err(format!("unsupported value: '{v}'",)),
+            _ => return Err(format!("unreachable")),
         };
         Ok(Wrap(parsed))
     }
@@ -502,6 +502,48 @@ impl TryFrom<&str> for Wrap<Roll> {
             _ => return Err("unreachable".to_string()),
         };
         Ok(Wrap(parsed))
+    }
+}
+
+impl TryFrom<&str> for Wrap<CsvEncoding> {
+    type Error = String;
+
+    fn try_from(encoding: &str) -> Result<Self, String> {
+        let parsed = match encoding {
+            "utf8" => CsvEncoding::Utf8,
+            "utf8-lossy" => CsvEncoding::LossyUtf8,
+            _ => return Err(format!("unreachable")),
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
+impl TryFrom<StringSexp> for Wrap<NullValues> {
+    type Error = String;
+
+    fn try_from(null_values: StringSexp) -> Result<Self, String> {
+        let has_names = null_values.get_names().is_some();
+        if has_names {
+            let values = null_values.to_vec();
+            let names = null_values.get_names().unwrap();
+            let res = names
+                .into_iter()
+                .zip(values.into_iter())
+                .map(|(xi, yi)| (xi.into(), yi.into()))
+                .collect::<Vec<(PlSmallStr, PlSmallStr)>>();
+            return Ok(Wrap(NullValues::Named(res)));
+        } else if null_values.len() == 1 {
+            let vals = null_values.to_vec();
+            let val = *(vals.get(0).unwrap());
+            return Ok(Wrap(NullValues::AllColumnsSingle(val.into())));
+        } else {
+            let vals = null_values
+                .to_vec()
+                .into_iter()
+                .map(|x| x.into())
+                .collect::<Vec<PlSmallStr>>();
+            return Ok(Wrap(NullValues::AllColumns(vals.into())));
+        }
     }
 }
 
