@@ -33,6 +33,13 @@ for scanning cloud locations, see the \code{storage_options} parameter.}
 the datatypes in the file(s). If there are extra columns that are not in the
 file(s), consider also enabling \code{allow_missing_columns}.}
 
+\item{schema_overrides}{Overwrite dtypes during inference. This must be a
+list. Names of list elements are used to match to inferred columns.}
+
+\item{infer_schema_length}{The maximum number of rows to scan for schema
+inference. If \code{NULL}, the full data may be scanned (this is slow). Set
+\code{infer_schema = FALSE} to read all columns as \code{pl$String}.}
+
 \item{n_rows}{Stop reading from parquet file after reading \code{n_rows}.}
 
 \item{low_memory}{Reduce memory pressure at the expense of performance}
@@ -45,6 +52,10 @@ the given name into the DataFrame.}
 
 \item{row_index_offset}{Offset to start the row index column (only used if
 the name is set).}
+
+\item{ignore_errors}{Keep reading the file even if some lines yield errors.
+You can also use \code{infer_schema = FALSE} to read all columns as UTF8 to
+check which values might cause an issue.}
 
 \item{storage_options}{Named vector containing options that indicate how to
 connect to a cloud provider. The cloud providers currently supported are
@@ -63,6 +74,10 @@ If \code{storage_options} is not provided, Polars will try to infer the
 information from environment variables.}
 
 \item{retries}{Number of retries if accessing a cloud instance fails.}
+
+\item{file_cache_ttl}{Amount of time to keep downloaded cloud files since
+their last access time, in seconds. Uses the \code{POLARS_FILE_CACHE_TTL}
+environment variable (which defaults to 1 hour) if not given.}
 
 \item{include_file_paths}{Character value indicating the column name that
 will include the path of the source file(s).}
