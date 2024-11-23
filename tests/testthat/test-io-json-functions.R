@@ -1,6 +1,6 @@
 test_that("read_ndjson: basic use", {
   skip_if_not_installed("jsonlite")
-  ndjson_filename <- tempfile()
+  ndjson_filename <- withr::local_tempfile()
   df <- data.frame(a = letters[1:3], b = c(1, 2.5, 3))
   jsonlite::stream_out(df, file(ndjson_filename), verbose = FALSE)
   expect_equal(
@@ -11,7 +11,7 @@ test_that("read_ndjson: basic use", {
 
 test_that("arg row_index_name works", {
   skip_if_not_installed("jsonlite")
-  ndjson_filename <- tempfile()
+  ndjson_filename <- withr::local_tempfile()
   df <- data.frame(a = letters[1:3], b = c(1, 2.5, 3))
   jsonlite::stream_out(df, file(ndjson_filename), verbose = FALSE)
   out <- pl$read_ndjson(ndjson_filename, row_index_name = "foo")
@@ -23,7 +23,7 @@ test_that("arg row_index_name works", {
 
 test_that("arg row_index_offset works", {
   skip_if_not_installed("jsonlite")
-  ndjson_filename <- tempfile()
+  ndjson_filename <- withr::local_tempfile()
   df <- data.frame(a = letters[1:3], b = c(1, 2.5, 3))
   jsonlite::stream_out(df, file(ndjson_filename), verbose = FALSE)
   out <- pl$read_ndjson(ndjson_filename,
@@ -38,7 +38,7 @@ test_that("arg row_index_offset works", {
 
 test_that("arg n_rows works", {
   skip_if_not_installed("jsonlite")
-  ndjson_filename <- tempfile()
+  ndjson_filename <- withr::local_tempfile()
   df <- data.frame(a = letters[1:3], b = c(1, 2.5, 3))
   jsonlite::stream_out(df, file(ndjson_filename), verbose = FALSE)
   out <- pl$read_ndjson(ndjson_filename, n_rows = 1)
@@ -47,7 +47,7 @@ test_that("arg n_rows works", {
 
 test_that("arg schema_overrides works", {
   skip_if_not_installed("jsonlite")
-  ndjson_filename <- tempfile()
+  ndjson_filename <- withr::local_tempfile()
   df <- data.frame(a = letters[1:3], b = c(1, 2.5, 3))
   jsonlite::stream_out(df, file(ndjson_filename), verbose = FALSE)
   out <- pl$read_ndjson(
@@ -62,8 +62,8 @@ test_that("arg schema_overrides works", {
 
 test_that("multiple paths works", {
   skip_if_not_installed("jsonlite")
-  ndjson_filename <- tempfile()
-  ndjson_filename2 <- tempfile()
+  ndjson_filename <- withr::local_tempfile()
+  ndjson_filename2 <- withr::local_tempfile()
   df <- data.frame(a = letters[1:3], b = c(1, 2.5, 3))
   jsonlite::stream_out(df, file(ndjson_filename), verbose = FALSE)
   jsonlite::stream_out(df, file(ndjson_filename2), verbose = FALSE)
@@ -75,8 +75,8 @@ test_that("multiple paths works", {
 # is resolved
 # test_that("multiple paths fails if different schema", {
 #   skip_if_not_installed("jsonlite")
-#   ndjson_filename = tempfile()
-#   ndjson_filename2 = tempfile()
+#   ndjson_filename = withr::local_tempfile()
+#   ndjson_filename2 = withr::local_tempfile()
 #   df = data.frame(a = letters[1:3], b = c(1, 2.5, 3))
 #   jsonlite::stream_out(df, file(ndjson_filename), verbose = FALSE)
 #   jsonlite::stream_out(iris, file(ndjson_filename2), verbose = FALSE)
