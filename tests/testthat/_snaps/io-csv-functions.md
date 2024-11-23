@@ -18,8 +18,6 @@
       Error in `pl$read_csv()`:
       ! Evaluation failed in `$read_csv()`.
       Caused by error:
-      ! Evaluation failed.
-      Caused by error:
       ! `null_values` must be a character vector or `NULL`, not an integer vector.
 
 # arg encoding works
@@ -29,8 +27,6 @@
     Condition
       Error in `pl$read_csv()`:
       ! Evaluation failed in `$read_csv()`.
-      Caused by error:
-      ! Evaluation failed.
       Caused by error:
       ! `encoding` must be one of "utf8" or "utf8-lossy", not "foo".
 
@@ -54,8 +50,6 @@
       Error in `pl$read_csv()`:
       ! Evaluation failed in `$read_csv()`.
       Caused by error:
-      ! Evaluation failed.
-      Caused by error:
       ! `source` must have length > 0.
 
 ---
@@ -77,8 +71,6 @@
     Condition
       Error in `pl$read_csv()`:
       ! Evaluation failed in `$read_csv()`.
-      Caused by error:
-      ! Evaluation failed.
       Caused by error:
       ! `schema_overrides` must be a list of polars data types or `NULL`, not a list.
 
@@ -125,8 +117,6 @@
       Error in `pl$read_csv()`:
       ! Evaluation failed in `$read_csv()`.
       Caused by error:
-      ! Evaluation failed.
-      Caused by error:
       ! `storage_options` must be a character vector or `NULL`, not the number 1.
 
 ---
@@ -136,8 +126,6 @@
     Condition
       Error in `pl$read_csv()`:
       ! Evaluation failed in `$read_csv()`.
-      Caused by error:
-      ! Evaluation failed.
       Caused by error:
       ! `storage_options` must be a character vector or `NULL`, not a list.
 

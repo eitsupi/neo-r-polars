@@ -144,61 +144,60 @@ pl__scan_csv <- function(
     retries = 2,
     file_cache_ttl = NULL,
     include_file_paths = NULL) {
-  wrap({
-    check_dots_empty0(...)
-    check_character(source, allow_na = FALSE)
-    if (length(source) == 0) {
-      abort("`source` must have length > 0.")
-    }
-    check_list_of_polars_dtype(schema_overrides, allow_null = TRUE)
-    check_list_of_polars_dtype(schema, allow_null = TRUE)
-    check_character(storage_options, allow_null = TRUE)
-    check_character(null_values, allow_null = TRUE)
-    encoding <- arg_match0(encoding, values = c("utf8", "utf8-lossy"))
+  check_dots_empty0(...)
+  check_character(source, allow_na = FALSE)
+  if (length(source) == 0) {
+    abort("`source` must have length > 0.")
+  }
+  check_list_of_polars_dtype(schema_overrides, allow_null = TRUE)
+  check_list_of_polars_dtype(schema, allow_null = TRUE)
+  check_character(storage_options, allow_null = TRUE)
+  check_character(null_values, allow_null = TRUE)
+  encoding <- arg_match0(encoding, values = c("utf8", "utf8-lossy"))
 
-    if (isFALSE(infer_schema)) {
-      infer_schema_length <- 0
-    }
+  if (isFALSE(infer_schema)) {
+    infer_schema_length <- 0
+  }
 
-    schema_overrides <- parse_into_list_of_datatypes(!!!schema_overrides)
+  schema_overrides <- parse_into_list_of_datatypes(!!!schema_overrides)
 
-    if (!is.null(schema)) {
-      schema <- parse_into_list_of_datatypes(!!!schema)
-    }
+  if (!is.null(schema)) {
+    schema <- parse_into_list_of_datatypes(!!!schema)
+  }
 
-    PlRLazyFrame$new_from_csv(
-      source = source,
-      separator = separator,
-      has_header = has_header,
-      ignore_errors = ignore_errors,
-      skip_rows = skip_rows,
-      cache = cache,
-      missing_utf8_is_empty_string = missing_utf8_is_empty_string,
-      low_memory = low_memory,
-      rechunk = rechunk,
-      skip_rows_after_header = skip_rows_after_header,
-      encoding = encoding,
-      try_parse_dates = try_parse_dates,
-      eol_char = eol_char,
-      raise_if_empty = raise_if_empty,
-      truncate_ragged_lines = truncate_ragged_lines,
-      decimal_comma = decimal_comma,
-      glob = glob,
-      retries = retries,
-      comment_prefix = comment_prefix,
-      quote_char = quote_char,
-      null_values = null_values,
-      infer_schema_length = infer_schema_length,
-      row_index_name = row_index_name,
-      row_index_offset = row_index_offset,
-      n_rows = n_rows,
-      overwrite_dtype = schema_overrides,
-      schema = schema,
-      storage_options = storage_options,
-      file_cache_ttl = file_cache_ttl,
-      include_file_paths = include_file_paths
-    )
-  })
+  PlRLazyFrame$new_from_csv(
+    source = source,
+    separator = separator,
+    has_header = has_header,
+    ignore_errors = ignore_errors,
+    skip_rows = skip_rows,
+    cache = cache,
+    missing_utf8_is_empty_string = missing_utf8_is_empty_string,
+    low_memory = low_memory,
+    rechunk = rechunk,
+    skip_rows_after_header = skip_rows_after_header,
+    encoding = encoding,
+    try_parse_dates = try_parse_dates,
+    eol_char = eol_char,
+    raise_if_empty = raise_if_empty,
+    truncate_ragged_lines = truncate_ragged_lines,
+    decimal_comma = decimal_comma,
+    glob = glob,
+    retries = retries,
+    comment_prefix = comment_prefix,
+    quote_char = quote_char,
+    null_values = null_values,
+    infer_schema_length = infer_schema_length,
+    row_index_name = row_index_name,
+    row_index_offset = row_index_offset,
+    n_rows = n_rows,
+    overwrite_dtype = schema_overrides,
+    schema = schema,
+    storage_options = storage_options,
+    file_cache_ttl = file_cache_ttl,
+    include_file_paths = include_file_paths
+  ) |>
+    wrap()
 }
 
 #' New DataFrame from CSV
@@ -243,9 +242,8 @@ pl__read_csv <- function(
     retries = 2,
     file_cache_ttl = NULL,
     include_file_paths = NULL) {
-  wrap({
-    check_dots_empty0(...)
-    .args <- as.list(environment())
-    do.call(pl$scan_csv, .args)$collect()
-  })
+  check_dots_empty0(...)
+  .args <- as.list(environment())
+  do.call(pl$scan_csv, .args)$collect() |>
+    wrap()
 }
