@@ -313,3 +313,86 @@ patrick::with_parameters_test_that(
   },
   fun = c("as_polars_df", "as_polars_lf")
 )
+
+# TODO-REWRITE: requires $name$map()
+# patrick::with_parameters_test_that(
+#   "rename works with lazy/eager",
+#   {
+#     dat <- do.call(fun, list(data.frame(foo = 1:3, bar = 6:8, ham = letters[1:3])))
+#     dat2 <- dat$rename(
+#       \(column_name) paste0("c", substr(column_name, 2, 100))
+#     )
+#     if (is_polars_lf(dat2)) {
+#       dat2 <- dat2$collect()
+#     }
+#     expect_named(dat2, c("coo", "car", "cam"))
+#   },
+#   fun = c("as_polars_df", "as_polars_lf")
+# )
+
+test_that("explode", {
+  df <- pl$DataFrame(
+    letters = c("a", "a", "b", "c"),
+    numbers = list(1, c(2, 3), c(4, 5), c(6, 7, 8)),
+    jumpers = list(1, c(2, 3), c(4, 5), c(6, 7, 8))
+  )
+
+  expected_df <- pl$DataFrame(
+    letters = c(rep("a", 3), "b", "b", rep("c", 3)),
+    numbers = 1:8,
+    jumpers = 1:8
+  )
+
+  # as vector
+  expect_query_equal(
+    .input$explode(c("numbers", "jumpers")),
+    df,
+    expected_df
+  )
+
+  # as ...
+  expect_query_equal(
+    df$explode("numbers", pl$col("jumpers")),
+    df,
+    expected_df
+  )
+
+
+  # empty values -> NA
+  df <- pl$DataFrame(
+    letters = c("a", "a", "b", "c"),
+    numbers = list(1, NULL, c(4, 5), c(6, 7, 8))
+  )
+  expect_query_equal(
+    .input$explode("numbers"),
+    df,
+    pl$DataFrame(
+      letters = c(rep("a", 2), "b", "b", rep("c", 3)),
+      numbers = c(1, NA, 4:8)
+    )
+  )
+
+  # several cols to explode test2
+  df <- pl$DataFrame(
+    letters = c("a", "a", "b", "c"),
+    numbers = list(1, NULL, c(4, 5), c(6, 7, 8)),
+    numbers2 = list(1, NULL, c(4, 5), c(6, 7, 8))
+  )
+  expect_query_equal(
+    .input$explode("numbers", pl$col("numbers2")),
+    df,
+    pl$DataFrame(
+      letters = c(rep("a", 2), "b", "b", rep("c", 3)),
+      numbers = c(1, NA, 4:8),
+      numbers2 = c(1, NA, 4:8)
+    )
+  )
+})
+
+test_that("with_row_index", {
+  expect_query_equal(
+    .input$with_row_index("idx", 42),
+    pl$DataFrame(x = 1:3),
+    pl$DataFrame(idx = 42:44, x = 1:3)$cast(idx = pl$UInt32)
+  )
+})
