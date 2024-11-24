@@ -595,21 +595,22 @@ lazyframe__sort <- function(
     nulls_last = FALSE,
     multithreaded = TRUE,
     maintain_order = FALSE) {
-  wrap({
-    check_dots_unnamed()
+  check_dots_unnamed()
 
-    by <- parse_into_list_of_expressions(...)
-    descending <- extend_bool(descending, length(by), "descending", "...")
-    nulls_last <- extend_bool(nulls_last, length(by), "nulls_last", "...")
+  by <- parse_into_list_of_expressions(...)
+  if (length(by) == 0) {
+    abort("`...` must contain at least one element.")
+  }
+  descending <- extend_bool(descending, length(by), "descending", "...")
+  nulls_last <- extend_bool(nulls_last, length(by), "nulls_last", "...")
 
-    self$`_ldf`$sort_by_exprs(
-      by,
-      descending = descending,
-      nulls_last = nulls_last,
-      multithreaded = multithreaded,
-      maintain_order = maintain_order
-    )
-  })
+  self$`_ldf`$sort_by_exprs(
+    by,
+    descending = descending,
+    nulls_last = nulls_last,
+    multithreaded = multithreaded,
+    maintain_order = maintain_order
+  ) |> wrap()
 }
 
 #' Modify/append column(s) of a LazyFrame
@@ -661,12 +662,11 @@ lazyframe__sort <- function(
 #'   })
 #' }
 lazyframe__with_columns <- function(...) {
-  wrap({
-    structify <- parse_env_auto_structify()
+  structify <- parse_env_auto_structify()
 
-    parse_into_list_of_expressions(..., `__structify` = structify) |>
-      self$`_ldf`$with_columns()
-  })
+  parse_into_list_of_expressions(..., `__structify` = structify) |>
+    self$`_ldf`$with_columns() |>
+    wrap()
 }
 
 #' Modify/append column(s) of a LazyFrame
