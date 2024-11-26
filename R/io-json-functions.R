@@ -39,9 +39,7 @@ pl__scan_ndjson <- function(
   if (!is.null(schema)) {
     schema <- parse_into_list_of_datatypes(!!!schema)
   }
-  if (!is.null(schema_overrides)) {
-    schema_overrides <- parse_into_list_of_datatypes(!!!schema_overrides)
-  }
+  schema_overrides <- parse_into_list_of_datatypes(!!!schema_overrides)
 
   PlRLazyFrame$new_from_ndjson(
     source = source,

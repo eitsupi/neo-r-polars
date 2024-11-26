@@ -86,7 +86,8 @@ test_that("multiple paths works", {
 #   )
 # })
 
-test_that("bad paths", {
+test_that("scan_ndjson/read_ndjson error", {
   expect_snapshot(pl$read_ndjson(character()), error = TRUE)
   expect_snapshot(pl$read_ndjson("foobar"), error = TRUE)
+  expect_snapshot(pl$scan_ndjson("foo", batch_size = 0), error = TRUE)
 })
