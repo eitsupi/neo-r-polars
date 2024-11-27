@@ -2783,11 +2783,11 @@ expr__rolling_var <- function(
 #' @inherit expr__rolling_max params details 
 #' @inheritParams pl__date_range
 #' @inheritParams rlang::check_dots_empty0
-#' @param index_column Column used to group based on the time window. Often of
-#' type Date/Datetime. This column must be sorted in ascending order. In case 
-#' of a rolling group by on indices, dtype needs to be one of UInt32, UInt64, 
-#' Int32, Int64. Note that the first three get temporarily cast to Int64, so if
-#' performance matters use an Int64 column.
+#' @param index_column Character. Name of the column used to group based on the 
+#' time window. Often of type Date/Datetime. This column must be sorted in 
+#' ascending order. In case of a rolling group by on indices, dtype needs to be 
+#' one of UInt32, UInt64, Int32, Int64. Note that the first three get cast to
+#' Int64, so if performance matters use an Int64 column.
 #' @param period Length of the window - must be non-negative.
 #' @param offset Offset of the window. Default is `-period`.
 #' 
@@ -2836,7 +2836,8 @@ expr__rolling <- function(
 #' * …
 #' * `(t_n - window_size, t_n]`
 #'
-#' @param by This column must be of dtype Datetime or Date.
+#' @param by This column must be of dtype Datetime or Date. Can be an Expr.
+#' Strings are parsed as column names.
 #' @param window_size The length of the window. Can be a dynamic temporal size
 #' indicated by a timedelta or the following string language:
 #' - 1ns (1 nanosecond)
