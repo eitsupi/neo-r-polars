@@ -266,6 +266,17 @@ impl TryFrom<&str> for Wrap<TimeUnit> {
     }
 }
 
+impl TryFrom<NumericScalar> for Wrap<NonZeroUsize> {
+    type Error = savvy::Error;
+
+    fn try_from(n: NumericScalar) -> Result<Self, savvy::Error> {
+        let n = <Wrap<usize>>::try_from(n)?.0;
+        Ok(Wrap(
+            <NonZeroUsize>::try_from(n).map_err(|e| RPolarsErr::Other(e.to_string()))?,
+        ))
+    }
+}
+
 impl TryFrom<NumericScalar> for Wrap<usize> {
     type Error = savvy::Error;
 
