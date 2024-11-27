@@ -2816,10 +2816,10 @@ expr__rolling <- function(
     check_dots_empty0(...)
     closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
     if (is.null(offset)) {
-      offset <- negate_duration_string(parse_as_polars_duration_string(period))
+      offset <- negate_duration_string(parse_as_duration_string(period))
     }
-    period <- parse_as_polars_duration_string(period)
-    offset <- parse_as_polars_duration_string(offset)
+    period <- parse_as_duration_string(period)
+    offset <- parse_as_duration_string(offset)
     self$`_rexpr`$rolling(index_column, period, offset, closed)
   })
 }
