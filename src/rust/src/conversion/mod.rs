@@ -228,7 +228,7 @@ impl TryFrom<&str> for Wrap<TimeUnit> {
             "ns" => TimeUnit::Nanoseconds,
             "us" => TimeUnit::Microseconds,
             "ms" => TimeUnit::Milliseconds,
-            _ => return Err(format!("unreachable")),
+            _ => return Err("unreachable".to_string()),
         };
         Ok(Wrap(time_unit))
     }
@@ -418,7 +418,7 @@ impl TryFrom<&str> for Wrap<NonExistent> {
         let parsed = match non_existent {
             "null" => NonExistent::Null,
             "raise" => NonExistent::Raise,
-            _ => return Err(format!("unreachable")),
+            _ => return Err("unreachable".to_string()),
         };
         Ok(Wrap(parsed))
     }
@@ -431,7 +431,7 @@ impl TryFrom<&str> for Wrap<NullBehavior> {
         let parsed = match null_behavior {
             "drop" => NullBehavior::Drop,
             "ignore" => NullBehavior::Ignore,
-            _ => return Err(format!("unreachable")),
+            _ => return Err("unreachable".to_string()),
         };
         Ok(Wrap(parsed))
     }
@@ -445,7 +445,7 @@ impl TryFrom<&str> for Wrap<WindowMapping> {
             "group_to_rows" => WindowMapping::GroupsToRows,
             "join" => WindowMapping::Join,
             "explode" => WindowMapping::Explode,
-            _ => return Err(format!("unreachable")),
+            _ => return Err("unreachable".to_string()),
         };
         Ok(Wrap(parsed))
     }
@@ -460,7 +460,7 @@ impl TryFrom<&str> for Wrap<SetOperation> {
             "intersection" => SetOperation::Intersection,
             "difference" => SetOperation::Difference,
             "symmetric_difference" => SetOperation::SymmetricDifference,
-            _ => return Err(format!("unreachable")),
+            _ => return Err("unreachable".to_string()),
         };
         Ok(Wrap(parsed))
     }
@@ -473,7 +473,7 @@ impl TryFrom<&str> for Wrap<ListToStructWidthStrategy> {
         let parsed = match operation {
             "first_non_null" => ListToStructWidthStrategy::FirstNonNull,
             "max_width" => ListToStructWidthStrategy::MaxWidth,
-            _ => return Err(format!("unreachable")),
+            _ => return Err("unreachable".to_string()),
         };
         Ok(Wrap(parsed))
     }
@@ -492,6 +492,82 @@ impl TryFrom<&str> for Wrap<ClosedWindow> {
         };
         Ok(Wrap(parsed))
     }
+}
+
+impl TryFrom<&str> for Wrap<ClosedInterval> {
+    type Error = String;
+
+    fn try_from(closed: &str) -> Result<Self, String> {
+        let parsed = match closed {
+            "both" => ClosedInterval::Both,
+            "left" => ClosedInterval::Left,
+            "right" => ClosedInterval::Right,
+            "none" => ClosedInterval::None,
+            _ => return Err("unreachable".to_string()),
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
+impl TryFrom<&str> for Wrap<RankMethod> {
+    type Error = String;
+
+    fn try_from(method: &str) -> Result<Self, String> {
+        let parsed = match method {
+            "average" => RankMethod::Average,
+            "min" => RankMethod::Min,
+            "max" => RankMethod::Max,
+            "dense" => RankMethod::Dense,
+            "ordinal" => RankMethod::Ordinal,
+            "random" => RankMethod::Random,
+            _ => return Err("unreachable".to_string()),
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
+impl TryFrom<&str> for Wrap<SearchSortedSide> {
+    type Error = String;
+
+    fn try_from(method: &str) -> Result<Self, String> {
+        let parsed = match method {
+            "any" => SearchSortedSide::Any,
+            "left" => SearchSortedSide::Left,
+            "right" => SearchSortedSide::Right,
+            _ => return Err("unreachable".to_string()),
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
+impl TryFrom<&str> for Wrap<InterpolationMethod> {
+    type Error = String;
+
+    fn try_from(method: &str) -> Result<Self, String> {
+        let parsed = match method {
+            "linear" => InterpolationMethod::Linear,
+            "nearest" => InterpolationMethod::Nearest,
+            _ => return Err("unreachable".to_string()),
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
+pub(crate) fn parse_fill_null_strategy(
+    strategy: &str,
+    limit: FillNullLimit,
+) -> Result<FillNullStrategy, String> {
+    let parsed = match strategy {
+        "forward" => FillNullStrategy::Forward(limit),
+        "backward" => FillNullStrategy::Backward(limit),
+        "min" => FillNullStrategy::Min,
+        "max" => FillNullStrategy::Max,
+        "mean" => FillNullStrategy::Mean,
+        "zero" => FillNullStrategy::Zero,
+        "one" => FillNullStrategy::One,
+        _ => return Err("unreachable".to_string()),
+    };
+    Ok(parsed)
 }
 
 impl TryFrom<&str> for Wrap<Roll> {
