@@ -329,28 +329,30 @@ test_that("arg 'order_by' in $over() works", {
 })
 
 test_that("col DataType + col(s) + col regex", {
+  df <- as_polars_df(iris)
+
   # one Datatype
   expect_equal(
-    as_polars_df(iris)$select(pl$col(pl$Float64)),
+    df$select(pl$col(pl$Float64)),
     as_polars_df(iris[, sapply(iris, is.numeric)])
   )
 
   # multiple
   expect_equal(
-    as_polars_df(iris)$select(pl$col(list(pl$Float64, pl$Categorical()))),
-    as_polars_df(iris)
+    df$select(pl$col(pl$Float64, pl$Categorical())),
+    df
   )
 
   # multiple cols
   Names <- c("Sepal.Length", "Sepal.Width")
   expect_equal(
-    as_polars_df(iris)$select(pl$col(Names)),
+    df$select(pl$col(!!!Names)),
     as_polars_df(iris[, Names])
   )
 
   # regex
   expect_equal(
-    as_polars_df(iris)$select(pl$col("^Sepal.*$")),
+    df$select(pl$col("^Sepal.*$")),
     as_polars_df(iris[, Names])
   )
 })
@@ -1516,10 +1518,10 @@ test_that("hash", {
   df <- as_polars_df(iris)
 
   hash_values1 <- df$select(
-    pl$col(c("Sepal.Width", "Species"))$unique()$hash()$implode()
+    pl$col("Sepal.Width", "Species")$unique()$hash()$implode()
   )
   hash_values2 <- df$select(
-    pl$col(c("Sepal.Width", "Species"))$unique()$hash(1, 2, 3, 4)$implode()
+    pl$col("Sepal.Width", "Species")$unique()$hash(1, 2, 3, 4)$implode()
   )
 
   expect_false(
