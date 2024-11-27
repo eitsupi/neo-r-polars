@@ -343,20 +343,16 @@ test_that("explode", {
     jumpers = 1:8
   )
 
-  # as vector
   expect_query_equal(
     .input$explode(c("numbers", "jumpers")),
     df,
     expected_df
   )
-
-  # as ...
   expect_query_equal(
     df$explode("numbers", pl$col("jumpers")),
     df,
     expected_df
   )
-
 
   # empty values -> NA
   df <- pl$DataFrame(
