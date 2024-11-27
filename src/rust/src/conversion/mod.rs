@@ -1,7 +1,10 @@
+use std::num::NonZeroUsize;
+
 use crate::prelude::*;
-use crate::{PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame, PlRSeries};
+use crate::{PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame, PlRSeries, RPolarsErr};
+use polars::prelude::cloud::CloudOptions;
 use polars::series::ops::NullBehavior;
-use savvy::{ListSexp, NumericScalar, NumericSexp, NumericTypedSexp, TypedSexp};
+use savvy::{ListSexp, NumericScalar, NumericSexp, NumericTypedSexp, StringSexp, TypedSexp};
 use search_sorted::SearchSortedSide;
 pub mod base_date;
 mod chunked_array;
@@ -231,6 +234,17 @@ impl TryFrom<&str> for Wrap<TimeUnit> {
     }
 }
 
+impl TryFrom<NumericScalar> for Wrap<NonZeroUsize> {
+    type Error = savvy::Error;
+
+    fn try_from(n: NumericScalar) -> Result<Self, savvy::Error> {
+        let n = <Wrap<usize>>::try_from(n)?.0;
+        Ok(Wrap(
+            <NonZeroUsize>::try_from(n).map_err(|e| RPolarsErr::Other(e.to_string()))?,
+        ))
+    }
+}
+
 impl TryFrom<NumericScalar> for Wrap<usize> {
     type Error = savvy::Error;
 
@@ -381,6 +395,22 @@ impl TryFrom<&str> for Wrap<char> {
     }
 }
 
+impl TryFrom<StringSexp> for Wrap<Vec<(String, String)>> {
+    type Error = savvy::Error;
+
+    fn try_from(sexp: StringSexp) -> Result<Self, savvy::Error> {
+        let Some(names) = sexp.get_names() else {
+            return Err("Expected a named vector".to_string().into());
+        };
+        let out = names
+            .into_iter()
+            .zip(sexp.iter())
+            .map(|(name, value)| (name.to_string(), value.to_string()))
+            .collect::<Vec<_>>();
+        Ok(Wrap(out))
+    }
+}
+
 impl TryFrom<&str> for Wrap<NonExistent> {
     type Error = String;
 
@@ -458,7 +488,7 @@ impl TryFrom<&str> for Wrap<ClosedWindow> {
             "left" => ClosedWindow::Left,
             "none" => ClosedWindow::None,
             "right" => ClosedWindow::Right,
-            _ => return Err(format!("unreachable")),
+            _ => return Err("unreachable".to_string()),
         };
         Ok(Wrap(parsed))
     }
@@ -472,7 +502,7 @@ impl TryFrom<&str> for Wrap<Roll> {
             "raise" => Roll::Raise,
             "forward" => Roll::Forward,
             "backward" => Roll::Backward,
-            _ => return Err(format!("unreachable")),
+            _ => return Err("unreachable".to_string()),
         };
         Ok(Wrap(parsed))
     }
@@ -489,83 +519,86 @@ impl TryFrom<&str> for Wrap<QuantileMethod> {
             "midpoint" => QuantileMethod::Midpoint,
             "linear" => QuantileMethod::Linear,
             "equiprobable" => QuantileMethod::Equiprobable,
-            _ => return Err(format!("unreachable")),
+            _ => return Err("unreachable".to_string()),
         };
         Ok(Wrap(parsed))
     }
 }
 
-impl TryFrom<&str> for Wrap<ClosedInterval> {
+impl TryFrom<&str> for Wrap<CsvEncoding> {
     type Error = String;
 
-    fn try_from(closed: &str) -> Result<Self, String> {
-        let parsed = match closed {
-            "both" => ClosedInterval::Both,
-            "left" => ClosedInterval::Left,
-            "right" => ClosedInterval::Right,
-            "none" => ClosedInterval::None,
-            _ => return Err(format!("unreachable")),
+    fn try_from(encoding: &str) -> Result<Self, String> {
+        let parsed = match encoding {
+            "utf8" => CsvEncoding::Utf8,
+            "utf8-lossy" => CsvEncoding::LossyUtf8,
+            _ => return Err("unreachable".to_string()),
         };
         Ok(Wrap(parsed))
     }
 }
 
-impl TryFrom<&str> for Wrap<RankMethod> {
+impl TryFrom<StringSexp> for Wrap<NullValues> {
     type Error = String;
 
-    fn try_from(method: &str) -> Result<Self, String> {
-        let parsed = match method {
-            "average" => RankMethod::Average,
-            "min" => RankMethod::Min,
-            "max" => RankMethod::Max,
-            "dense" => RankMethod::Dense,
-            "ordinal" => RankMethod::Ordinal,
-            "random" => RankMethod::Random,
-            _ => return Err(format!("unreachable")),
-        };
-        Ok(Wrap(parsed))
+    fn try_from(null_values: StringSexp) -> Result<Self, String> {
+        let has_names = null_values.get_names().is_some();
+        if has_names {
+            let values = null_values.to_vec();
+            let names = null_values.get_names().unwrap();
+            let res = names
+                .into_iter()
+                .zip(values.into_iter())
+                .map(|(xi, yi)| (xi.into(), yi.into()))
+                .collect::<Vec<(PlSmallStr, PlSmallStr)>>();
+            return Ok(Wrap(NullValues::Named(res)));
+        } else if null_values.len() == 1 {
+            let vals = null_values.to_vec();
+            let val = *(vals.get(0).unwrap());
+            return Ok(Wrap(NullValues::AllColumnsSingle(val.into())));
+        } else {
+            let vals = null_values
+                .to_vec()
+                .into_iter()
+                .map(|x| x.into())
+                .collect::<Vec<PlSmallStr>>();
+            return Ok(Wrap(NullValues::AllColumns(vals.into())));
+        }
     }
 }
 
-impl TryFrom<&str> for Wrap<SearchSortedSide> {
-    type Error = String;
+impl TryFrom<ListSexp> for Wrap<Schema> {
+    type Error = savvy::Error;
 
-    fn try_from(method: &str) -> Result<Self, String> {
-        let parsed = match method {
-            "any" => SearchSortedSide::Any,
-            "left" => SearchSortedSide::Left,
-            "right" => SearchSortedSide::Right,
-            _ => return Err(format!("unreachable")),
-        };
-        Ok(Wrap(parsed))
+    fn try_from(dtypes: ListSexp) -> Result<Self, savvy::Error> {
+        let fields = <Wrap<Vec<Field>>>::try_from(dtypes)?.0;
+        let mut schema = Schema::with_capacity(fields.len());
+        for field in fields {
+            schema.with_column(field.name, field.dtype);
+        }
+        Ok(Wrap(schema))
     }
 }
 
-pub(crate) fn parse_fill_null_strategy(
-    strategy: &str,
-    limit: FillNullLimit,
-) -> Result<FillNullStrategy, String> {
-    let parsed = match strategy {
-        "forward" => FillNullStrategy::Forward(limit),
-        "backward" => FillNullStrategy::Backward(limit),
-        "min" => FillNullStrategy::Min,
-        "max" => FillNullStrategy::Max,
-        "mean" => FillNullStrategy::Mean,
-        "zero" => FillNullStrategy::Zero,
-        "one" => FillNullStrategy::One,
-        _ => return Err(format!("unreachable")),
-    };
-    Ok(parsed)
+pub(crate) fn parse_cloud_options(
+    uri: &str,
+    kv: Vec<(String, String)>,
+) -> savvy::Result<CloudOptions> {
+    let out = CloudOptions::from_untyped_config(uri, kv).map_err(RPolarsErr::from)?;
+    Ok(out)
 }
 
-impl TryFrom<&str> for Wrap<InterpolationMethod> {
+impl TryFrom<&str> for Wrap<ParallelStrategy> {
     type Error = String;
 
-    fn try_from(method: &str) -> Result<Self, String> {
-        let parsed = match method {
-            "linear" => InterpolationMethod::Linear,
-            "nearest" => InterpolationMethod::Nearest,
-            _ => return Err(format!("unreachable")),
+    fn try_from(strategy: &str) -> Result<Self, String> {
+        let parsed = match strategy {
+            "auto" => ParallelStrategy::Auto,
+            "columns" => ParallelStrategy::Columns,
+            "row_groups" => ParallelStrategy::RowGroups,
+            "prefiltered" => ParallelStrategy::Prefiltered,
+            "none" => ParallelStrategy::None,
+            _ => return Err("unreachable".to_string()),
         };
         Ok(Wrap(parsed))
     }

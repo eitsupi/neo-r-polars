@@ -16,6 +16,7 @@ Depends:
 Imports:
     rlang (>= 1.1.0)
 Suggests:
+    arrow,
     bit64,
     blob,
     cli,
@@ -23,6 +24,7 @@ Suggests:
     data.table,
     hms,
     jsonlite,
+    nanoarrow,
     patrick,
     testthat (>= 3.0.0),
     tibble,
