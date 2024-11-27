@@ -13,7 +13,7 @@ of a rolling group by on indices, dtype needs to be one of UInt32, UInt64,
 Int32, Int64. Note that the first three get temporarily cast to Int64, so if
 performance matters use an Int64 column.}
 
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{period}{Length of the window - must be non-negative.}
 
