@@ -1779,8 +1779,12 @@ lazyframe__rolling <- function(
   wrap({
     check_dots_empty0(...)
     closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
-    period <- parse_as_polars_duration_string(period)
-    offset <- parse_as_polars_duration_string(offset) %||% negate_duration_string(period)
+    period <- parse_as_duration_string(period)
+    if (!is.null(offset)) {
+      offset <- parse_as_duration_string(offset)
+    } else {
+      offset <- negate_duration_string(period)
+    }
     by <- parse_into_list_of_expressions(!!!group_by)
     self$`_ldf`$rolling(
       as_polars_expr(index_column)$`_rexpr`, period, offset, closed, by
@@ -1944,9 +1948,9 @@ lazyframe__group_by_dynamic <- function(
         "friday", "saturday", "sunday"
       )
     )
-    every <- parse_as_polars_duration_string(every)
-    offset <- parse_as_polars_duration_string(offset) %||% "0ns"
-    period <- parse_as_polars_duration_string(period) %||% every
+    every <- parse_as_duration_string(every)
+    offset <- parse_as_duration_string(offset) %||% "0ns"
+    period <- parse_as_duration_string(period) %||% every
     group_by <- parse_into_list_of_expressions(!!!group_by)
 
     self$`_ldf`$group_by_dynamic(

@@ -172,7 +172,7 @@ test_that("joins work lazy/eager", {
   )
 })
 
-test_that("sort works with lazy/eager", {
+test_that("sort()", {
   expect_query_error(
     .input$sort(complex(1)),
     pl$DataFrame(x = 1),
@@ -293,7 +293,7 @@ test_that("sort works with lazy/eager", {
 
 # TODO-REWRITE: add $rename() for DataFrame
 patrick::with_parameters_test_that(
-  "rename works with lazy/eager",
+  "rename()",
   {
     dat <- do.call(fun, list(mtcars))
     dat2 <- dat$rename(mpg = "miles_per_gallon", hp = "horsepower")
@@ -316,7 +316,7 @@ patrick::with_parameters_test_that(
 
 # TODO-REWRITE: requires $name$map()
 # patrick::with_parameters_test_that(
-#   "rename works with lazy/eager",
+#   "rename()",
 #   {
 #     dat <- do.call(fun, list(data.frame(foo = 1:3, bar = 6:8, ham = letters[1:3])))
 #     dat2 <- dat$rename(
@@ -390,5 +390,31 @@ test_that("with_row_index", {
     .input$with_row_index("idx", 42),
     pl$DataFrame(x = 1:3),
     pl$DataFrame(idx = 42:44, x = 1:3)$cast(idx = pl$UInt32)
+  )
+})
+
+test_that("rolling: date variable", {
+  df <- pl$DataFrame(
+    dt = c(
+      "2020-01-01", "2020-01-01", "2020-01-01",
+      "2020-01-02", "2020-01-03", "2020-01-08"
+    ),
+    a = c(3, 7, 5, 9, 2, 1)
+  )$with_columns(
+    pl$col("dt")$str$strptime(pl$Date, format = NULL)
+  )
+
+  expect_query_equal(
+    .input$rolling(index_column = "dt", period = "2d")$agg(
+      pl$sum("a")$alias("sum_a"),
+      pl$min("a")$alias("min_a"),
+      pl$max("a")$alias("max_a")
+    )$select("sum_a", "min_a", "max_a"),
+    df,
+    pl$DataFrame(
+      sum_a = c(15, 15, 15, 24, 11, 1),
+      min_a = c(3, 3, 3, 3, 2, 1),
+      max_a = c(7, 7, 7, 9, 9, 1)
+    )
   )
 })

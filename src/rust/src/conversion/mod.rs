@@ -286,19 +286,6 @@ impl TryFrom<NumericScalar> for Wrap<usize> {
     }
 }
 
-impl TryFrom<NumericScalar> for Wrap<NonZeroUsize> {
-    type Error = savvy::Error;
-
-    fn try_from(n: NumericScalar) -> Result<Self, savvy::Error> {
-        let n = n.as_usize()?;
-        if n == 0 {
-            Err("Cannot convert to non-zero usize.".into())
-        } else {
-            Ok(Wrap(NonZeroUsize::new(n).unwrap()))
-        }
-    }
-}
-
 impl TryFrom<NumericSexp> for Wrap<Vec<usize>> {
     type Error = savvy::Error;
 
