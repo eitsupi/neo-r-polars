@@ -7,17 +7,18 @@
 expr__lt(other)
 }
 \arguments{
-\item{other}{Element to add. Can be a string (only if \code{expr} is a string), a
-numeric value or an other expression.}
+\item{other}{A literal or expression value to compare with.}
 }
 \value{
 A polars \link{expression}
 }
 \description{
-Method equivalent of addition operator \code{expr + other}.
+Check strictly lower inequality
 }
 \examples{
-pl$lit(5) < 10
-pl$lit(5) < pl$lit(10)
-pl$lit(5)$lt(pl$lit(10))
+df <- pl$DataFrame(x = 1:3)
+df$with_columns( 
+  with_lt = pl$col("x")$lt(pl$lit(2)),
+  with_symbol = pl$col("x") < pl$lit(2)
+)
 }

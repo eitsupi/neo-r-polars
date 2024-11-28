@@ -17,7 +17,8 @@ A polars \link{expression}
 }
 \description{
 Method equivalent of float division operator \code{expr / other}.
-\verb{$truediv()} is an alias for \verb{$true_div()}, which exists for compatibility with Python Polars.
+\verb{$truediv()} is an alias for \verb{$true_div()}, which exists for compatibility
+with Python Polars.
 }
 \details{
 Zero-division behaviour follows IEEE-754:

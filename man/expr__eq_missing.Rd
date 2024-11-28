@@ -7,14 +7,14 @@
 expr__eq_missing(other)
 }
 \arguments{
-\item{other}{Element to add. Can be a string (only if \code{expr} is a string), a
-numeric value or an other expression.}
+\item{other}{A literal or expression value to compare with.}
 }
 \value{
 A polars \link{expression}
 }
 \description{
-Method equivalent of addition operator \code{expr + other}.
+This considers that null values are equal. It differs from
+\code{\link[=expr__eq]{$eq()}} where null values are propagated.
 }
 \examples{
 df <- pl$DataFrame(x = c(NA, FALSE, TRUE), y = c(TRUE, TRUE, TRUE))

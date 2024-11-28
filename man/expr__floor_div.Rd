@@ -17,7 +17,8 @@ A polars \link{expression}
 }
 \description{
 Method equivalent of floor division operator \code{expr \%/\% other}.
-\verb{$floordiv()} is an alias for \verb{$floor_div()}, which exists for compatibility with Python Polars.
+\verb{$floordiv()} is an alias for \verb{$floor_div()}, which exists for compatibility
+with Python Polars.
 }
 \examples{
 df <- pl$DataFrame(x = 1:5)

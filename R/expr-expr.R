@@ -147,7 +147,8 @@ expr__mul <- function(other) {
 #' Divide two expressions
 #'
 #' Method equivalent of float division operator `expr / other`.
-#' `$truediv()` is an alias for `$true_div()`, which exists for compatibility with Python Polars.
+#' `$truediv()` is an alias for `$true_div()`, which exists for compatibility 
+#' with Python Polars.
 #'
 #' Zero-division behaviour follows IEEE-754:
 #' - `0/0`: Invalid operation - mathematically undefined, returns `NaN`.
@@ -223,7 +224,8 @@ expr__mod <- function(other) {
 #' Floor divide using two expressions
 #'
 #' Method equivalent of floor division operator `expr %/% other`.
-#' `$floordiv()` is an alias for `$floor_div()`, which exists for compatibility with Python Polars.
+#' `$floordiv()` is an alias for `$floor_div()`, which exists for compatibility
+#' with Python Polars.
 #' @inheritParams expr__true_div
 #' @inherit as_polars_expr return
 #' @seealso
@@ -254,14 +256,20 @@ expr__neg <- function() {
 
 #' Check equality
 #'
-#' @inherit expr__add description params
+#' This propagates null values, i.e. any comparison involving `null` will 
+#' return `null`. Use [`$eq_missing()`][expr__eq_missing] to consider null 
+#' values as equal.
+#' 
+#' @param other A literal or expression value to compare with. 
 #' @inherit as_polars_expr return
 #'
 #' @seealso [expr__eq_missing]
 #' @examples
-#' pl$lit(2) == 2
-#' pl$lit(2) == pl$lit(2)
-#' pl$lit(2)$eq(pl$lit(2))
+#' df <- pl$DataFrame(x = c(NA, FALSE, TRUE), y = c(TRUE, TRUE, TRUE))
+#' df$with_columns(
+#'   eq = pl$col("x")$eq(pl$col("y")),
+#'   eq_missing = pl$col("x")$eq_missing(pl$col("y"))
+#' )
 expr__eq <- function(other) {
   wrap({
     other <- as_polars_expr(other, as_lit = TRUE)
@@ -270,8 +278,11 @@ expr__eq <- function(other) {
 }
 
 #' Check equality without `null` propagation
+#' 
+#' This considers that null values are equal. It differs from 
+#' [`$eq()`][expr__eq] where null values are propagated.
 #'
-#' @inherit expr__add description params
+#' @inheritParams expr__eq
 #' @inherit as_polars_expr return
 #'
 #' @seealso [expr__eq]
@@ -289,16 +300,22 @@ expr__eq_missing <- function(other) {
 }
 
 #' Check inequality
+#' 
+#' This propagates null values, i.e. any comparison involving `null` will 
+#' return `null`. Use [`$ne_missing()`][expr__ne_missing] to consider null 
+#' values as equal.
 #'
-#' @inherit expr__add description params
+#' @inheritParams expr__eq
 #' @inherit as_polars_expr return
 #'
-#' @seealso [expr__neq_missing]
+#' @seealso [expr__ne_missing]
 #' @examples
-#' pl$lit(1) != 2
-#' pl$lit(1) != pl$lit(2)
-#' pl$lit(1)$neq(pl$lit(2))
-expr__neq <- function(other) {
+#' df <- pl$DataFrame(x = c(NA, FALSE, TRUE), y = c(TRUE, TRUE, TRUE))
+#' df$with_columns(
+#'   ne = pl$col("x")$ne(pl$col("y")),
+#'   ne_missing = pl$col("x")$ne_missing(pl$col("y"))
+#' )
+expr__ne <- function(other) {
   wrap({
     other <- as_polars_expr(other, as_lit = TRUE)
     self$`_rexpr`$neq(other$`_rexpr`)
@@ -310,14 +327,14 @@ expr__neq <- function(other) {
 #' @inherit expr__add description params
 #' @inherit as_polars_expr return
 #'
-#' @seealso [expr__neq]
+#' @seealso [expr__ne]
 #' @examples
 #' df <- pl$DataFrame(x = c(NA, FALSE, TRUE), y = c(TRUE, TRUE, TRUE))
 #' df$with_columns(
-#'   neq = pl$col("x")$neq("y"),
-#'   neq_missing = pl$col("x")$neq_missing("y")
+#'   ne = pl$col("x")$ne("y"),
+#'   ne_missing = pl$col("x")$ne_missing("y")
 #' )
-expr__neq_missing <- function(other) {
+expr__ne_missing <- function(other) {
   wrap({
     other <- as_polars_expr(other, as_lit = TRUE)
     self$`_rexpr`$neq_missing(other$`_rexpr`)
@@ -326,13 +343,15 @@ expr__neq_missing <- function(other) {
 
 #' Check greater or equal inequality
 #'
-#' @inherit expr__add description params
+#' @inheritParams expr__eq
 #' @inherit as_polars_expr return
 #'
 #' @examples
-#' pl$lit(2) >= 2
-#' pl$lit(2) >= pl$lit(2)
-#' pl$lit(2)$gt_eq(pl$lit(2))
+#' df <- pl$DataFrame(x = 1:3)
+#' df$with_columns( 
+#'   with_gt = pl$col("x")$gt(pl$lit(2)),
+#'   with_symbol = pl$col("x") > pl$lit(2)
+#' )
 expr__gt <- function(other) {
   wrap({
     other <- as_polars_expr(other, as_lit = TRUE)
@@ -342,14 +361,16 @@ expr__gt <- function(other) {
 
 #' Check greater or equal inequality
 #'
-#' @inherit expr__add description params
+#' @inheritParams expr__eq
 #' @inherit as_polars_expr return
 #'
 #' @examples
-#' pl$lit(2) >= 2
-#' pl$lit(2) >= pl$lit(2)
-#' pl$lit(2)$gt_eq(pl$lit(2))
-expr__gt_eq <- function(other) {
+#' df <- pl$DataFrame(x = 1:3)
+#' df$with_columns( 
+#'   with_ge = pl$col("x")$ge(pl$lit(2)),
+#'   with_symbol = pl$col("x") >= pl$lit(2)
+#' )
+expr__ge <- function(other) {
   wrap({
     other <- as_polars_expr(other, as_lit = TRUE)
     self$`_rexpr`$gt_eq(other$`_rexpr`)
@@ -358,14 +379,16 @@ expr__gt_eq <- function(other) {
 
 #' Check lower or equal inequality
 #'
-#' @inherit expr__add description params
+#' @inheritParams expr__eq
 #' @inherit as_polars_expr return
 #'
 #' @examples
-#' pl$lit(2) <= 2
-#' pl$lit(2) <= pl$lit(2)
-#' pl$lit(2)$lt_eq(pl$lit(2))
-expr__lt_eq <- function(other) {
+#' df <- pl$DataFrame(x = 1:3)
+#' df$with_columns( 
+#'   with_le = pl$col("x")$le(pl$lit(2)),
+#'   with_symbol = pl$col("x") <= pl$lit(2)
+#' )
+expr__le <- function(other) {
   wrap({
     other <- as_polars_expr(other, as_lit = TRUE)
     self$`_rexpr`$lt_eq(other$`_rexpr`)
@@ -374,13 +397,15 @@ expr__lt_eq <- function(other) {
 
 #' Check strictly lower inequality
 #'
-#' @inherit expr__add description params
+#' @inheritParams expr__eq
 #' @inherit as_polars_expr return
 #'
 #' @examples
-#' pl$lit(5) < 10
-#' pl$lit(5) < pl$lit(10)
-#' pl$lit(5)$lt(pl$lit(10))
+#' df <- pl$DataFrame(x = 1:3)
+#' df$with_columns( 
+#'   with_lt = pl$col("x")$lt(pl$lit(2)),
+#'   with_symbol = pl$col("x") < pl$lit(2)
+#' )
 expr__lt <- function(other) {
   wrap({
     other <- as_polars_expr(other, as_lit = TRUE)

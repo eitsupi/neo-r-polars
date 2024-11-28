@@ -2712,7 +2712,7 @@ test_that("eq_missing and ne_missing", {
   expect_equal(
     pl$DataFrame(x = x, y = y)$select(
       pl$col("x")$eq_missing(pl$col("y"))$alias("eq_missing"),
-      pl$col("x")$neq_missing(pl$col("y"))$alias("neq_missing")
+      pl$col("x")$ne_missing(pl$col("y"))$alias("ne_missing")
     ),
     pl$DataFrame(
       eq_missing = c(TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE),
