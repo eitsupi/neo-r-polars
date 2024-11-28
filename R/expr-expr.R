@@ -105,7 +105,7 @@ expr__add <- function(other) {
 #' Substract two expressions
 #'
 #' Method equivalent of subtraction operator `expr - other`.
-#' @inheritParams expr__truediv
+#' @inheritParams expr__true_div
 #' @inherit as_polars_expr return
 #' @seealso
 #' - [Arithmetic operators][S3_arithmetic]
@@ -126,7 +126,7 @@ expr__sub <- function(other) {
 #' Multiply two expressions
 #'
 #' Method equivalent of multiplication operator `expr * other`.
-#' @inheritParams expr__truediv
+#' @inheritParams expr__true_div
 #' @inherit as_polars_expr return
 #' @seealso
 #' - [Arithmetic operators][S3_arithmetic]
@@ -155,7 +155,7 @@ expr__mul <- function(other) {
 #' @param other Numeric literal or expression value.
 #' @seealso
 #' - [Arithmetic operators][S3_arithmetic]
-#' - [`<Expr>$floordiv()`][Expr_floordiv]
+#' - [`<Expr>$floor_div()`][Expr_floor_div]
 #' @examples
 #' df <- pl$DataFrame(
 #'   x = -2:2,
@@ -163,10 +163,10 @@ expr__mul <- function(other) {
 #' )
 #'
 #' df$with_columns(
-#'   `x/2` = pl$col("x")$truediv(2),
-#'   `x/y` = pl$col("x")$truediv(pl$col("y"))
+#'   `x/2` = pl$col("x")$true_div(2),
+#'   `x/y` = pl$col("x")$true_div(pl$col("y"))
 #' )
-expr__truediv <- function(other) {
+expr__true_div <- function(other) {
   wrap({
     other <- as_polars_expr(other, as_lit = TRUE)
     self$`_rexpr`$div(other$`_rexpr`)
@@ -198,7 +198,7 @@ expr__pow <- function(other) {
 #' Modulo using two expressions
 #'
 #' Method equivalent of modulus operator `expr %% other`.
-#' @inheritParams expr__truediv
+#' @inheritParams expr__true_div
 #' @inherit as_polars_expr return
 #' @seealso
 #' - [Arithmetic operators][S3_arithmetic]
@@ -219,20 +219,20 @@ expr__mod <- function(other) {
 #' Floor divide using two expressions
 #'
 #' Method equivalent of floor division operator `expr %/% other`.
-#' @inheritParams expr__truediv
+#' @inheritParams expr__true_div
 #' @inherit as_polars_expr return
 #' @seealso
 #' - [Arithmetic operators][S3_arithmetic]
-#' - [`<Expr>$truediv()`][expr__truediv]
+#' - [`<Expr>$true_div()`][expr__true_div]
 #' - [`<Expr>$mod()`][expr__mod]
 #' @examples
 #' df <- pl$DataFrame(x = 1:5)
 #'
 #' df$with_columns(
-#'   `x/2` = pl$col("x")$truediv(2),
-#'   `x%/%2` = pl$col("x")$floordiv(2)
+#'   `x/2` = pl$col("x")$true_div(2),
+#'   `x%/%2` = pl$col("x")$floor_div(2)
 #' )
-expr__floordiv <- function(other) {
+expr__floor_div <- function(other) {
   wrap({
     other <- as_polars_expr(other, as_lit = TRUE)
     self$`_rexpr`$floor_div(other$`_rexpr`)
@@ -242,7 +242,7 @@ expr__floordiv <- function(other) {
 # TODO-REWRITE: remove before next release
 expr__floor_div <- function(other) {
   wrap({
-    deprecate_warn("$floor_div() is deprecated. Use $floordiv() instead.")
+    deprecate_warn("$floor_div() is deprecated. Use $floor_div() instead.")
     other <- as_polars_expr(other, as_lit = TRUE)
     self$`_rexpr`$floor_div(other$`_rexpr`)
   })

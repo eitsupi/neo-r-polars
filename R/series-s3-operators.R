@@ -18,7 +18,7 @@
 
 #' @export
 `/.polars_series` <- function(e1, e2) {
-  as_polars_series(e1)$truediv(e2)
+  as_polars_series(e1)$true_div(e2)
 }
 
 #' @export

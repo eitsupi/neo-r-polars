@@ -111,7 +111,7 @@ series__sub <- function(other) {
     wrap()
 }
 
-series__truediv <- function(other) {
+series__true_div <- function(other) {
   self$`_s`$div(as_polars_series(other)$`_s`) |>
     wrap()
 }

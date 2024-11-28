@@ -23,7 +23,7 @@
 
 #' @export
 `/.polars_expr` <- function(e1, e2) {
-  as_polars_expr(e1, as_lit = TRUE)$truediv(e2)
+  as_polars_expr(e1, as_lit = TRUE)$true_div(e2)
 }
 
 #' @export
@@ -33,7 +33,7 @@
 
 #' @export
 `%/%.polars_expr` <- function(e1, e2) {
-  as_polars_expr(e1, as_lit = TRUE)$floordiv(e2)
+  as_polars_expr(e1, as_lit = TRUE)$floor_div(e2)
 }
 
 #' @export
