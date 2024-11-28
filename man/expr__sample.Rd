@@ -17,7 +17,7 @@ expr__sample(
 \item{n}{Number of items to return. Cannot be used with \code{fraction.} Defaults
 to 1 if \code{fraction} is \code{NULL}.}
 
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{fraction}{Fraction of items to return. Cannot be used with \code{n}.}
 

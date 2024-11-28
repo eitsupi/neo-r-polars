@@ -15,7 +15,7 @@ literals. Also accepts a list of values like \code{list(old = new)}.}
 input. Vectors are parsed as Series, other non-expression inputs are parsed
 as literals. Length must match the length of \code{old} or have length 1.}
 
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{default}{Set values that were not replaced to this value. If \code{NULL}
 (default), an error is raised if any values were not replaced. Accepts

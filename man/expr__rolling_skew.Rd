@@ -9,7 +9,7 @@ expr__rolling_skew(window_size, ..., bias = TRUE)
 \arguments{
 \item{window_size}{The length of the window in number of elements.}
 
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{bias}{If \code{FALSE}, the calculations are corrected for statistical bias.}
 }

@@ -7,7 +7,7 @@
 expr__any(..., ignore_nulls = TRUE)
 }
 \arguments{
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{ignore_nulls}{If \code{TRUE} (default), ignore null values. If \code{FALSE},
 \href{https://en.wikipedia.org/wiki/Three-valued_logic}{Kleene logic} is used to

@@ -25,7 +25,7 @@ order that the values occur in the Series.
 order that the values occur in the Series.
 }}
 
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{descending}{Rank in descending order.}
 

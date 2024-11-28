@@ -16,7 +16,7 @@ expr__hist(
 \item{bins}{Discretizations to make. If \code{NULL} (default), we determine the
 boundaries based on the data.}
 
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{bin_count}{If no bins provided, this will be used to determine the
 distance of the bins.}

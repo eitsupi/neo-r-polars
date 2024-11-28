@@ -9,7 +9,7 @@ expr__append(other, ..., upcast = TRUE)
 \arguments{
 \item{other}{Expression to append.}
 
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{upcast}{If \code{TRUE} (default), cast both Series to the same supertype.}
 }

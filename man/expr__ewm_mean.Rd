@@ -16,7 +16,7 @@ expr__ewm_mean(
 )
 }
 \arguments{
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{com}{Specify decay in terms of center of mass, \eqn{\gamma}, with
 \deqn{\alpha = \frac{1}{1 + \gamma} \; \forall \; \gamma \geq 0}.}

@@ -7,7 +7,7 @@
 expr__skew(..., bias = TRUE)
 }
 \arguments{
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{bias}{If \code{FALSE}, the calculations are corrected for statistical bias.}
 }

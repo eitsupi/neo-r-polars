@@ -9,10 +9,13 @@ expr__cast(dtype, ..., strict = TRUE, wrap_numerical = FALSE)
 \arguments{
 \item{dtype}{DataType to cast to.}
 
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{strict}{If \code{TRUE} (default), an error will be thrown if cast failed at
 resolve time.}
+
+\item{wrap_numerical}{If \code{TRUE}, numeric casts wrap overflowing values
+instead of marking the cast as invalid.}
 }
 \value{
 A polars \link{expression}

@@ -685,10 +685,12 @@ expr__sum <- function() {
 
 #' Cast between DataType
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param dtype DataType to cast to.
 #' @param strict If `TRUE` (default), an error will be thrown if cast failed at
 #' resolve time.
+#' @param wrap_numerical If `TRUE`, numeric casts wrap overflowing values 
+#' instead of marking the cast as invalid.
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -721,7 +723,7 @@ expr__cast <- function(dtype, ..., strict = TRUE, wrap_numerical = FALSE) {
 #' 
 #' If used in a groupby context, values within each group are sorted.
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param descending Sort in descending order.
 #' @param nulls_last Place null values last.
 #'
@@ -1061,7 +1063,7 @@ expr__filter <- function(...) {
 
 #' Map an expression with an R function
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param f a function to map with
 #' @param output_type `NULL` or a type available in `names(pl$dtypes)`. If `NULL`
 #' (default), the output datatype will match the input datatype. This is used
@@ -1299,7 +1301,7 @@ expr__any <- function(..., ignore_nulls = TRUE) {
 #' This method is an expression - not to be confused with [`pl$all()`][pl__all]
 #' which is a function to select all columns.
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param ignore_nulls If `TRUE` (default), ignore null values. If `FALSE`,
 #' [Kleene logic](https://en.wikipedia.org/wiki/Three-valued_logic) is used to
 #' deal with nulls: if the column contains any null values and no `TRUE` values,
@@ -1330,7 +1332,7 @@ expr__all <- function(..., ignore_nulls = TRUE) {
 
 #' Return the cumulative sum computed at every element.
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param reverse If `TRUE`, start with the total sum of elements and substract
 #' each row one by one.
 #'
@@ -1353,7 +1355,7 @@ expr__cum_sum <- function(..., reverse = FALSE) {
 
 #' Return the cumulative product computed at every element.
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param reverse If `TRUE`, start with the total product of elements and divide
 #' each row one by one.
 #' 
@@ -1372,7 +1374,7 @@ expr__cum_prod <- function(..., reverse = FALSE) {
 
 #' Return the cumulative min computed at every element.
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param reverse If `TRUE`, start from the last value.
 #' 
 #' @inherit expr__cum_sum return details
@@ -1390,7 +1392,7 @@ expr__cum_min <- function(..., reverse = FALSE) {
 
 #' Return the cumulative max computed at every element.
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @inheritParams expr__cum_min
 #' 
 #' @inherit expr__cum_sum return details
@@ -1408,7 +1410,7 @@ expr__cum_max <- function(..., reverse = FALSE) {
 
 #' Return the cumulative count of the non-null values in the column
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param reverse If `TRUE`, reverse the count.
 #' @inherit as_polars_expr return
 #'
@@ -1427,7 +1429,7 @@ expr__cum_count <- function(..., reverse = FALSE) {
 #' Return the cumulative count of the non-null values in the column
 #'
 #' @param expr Expression to evaluate.
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param min_periods Number of valid values (i.e. `length - null_count`) there
 #' should be in the window before the expression is evaluated.
 #' @param parallel Run in parallel. Don’t do this in a group by or another
@@ -1987,7 +1989,7 @@ expr__radians <- function() {
 #' Uses the formula `-sum(pk * log(pk)` where `pk` are discrete probabilities.
 #'
 #' @param base Numeric value used as base, defaults to `exp(1)`.
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param normalize Normalize `pk` if it doesn’t sum to 1.
 #' @inherit as_polars_expr return
 #' @examples
@@ -2146,7 +2148,7 @@ expr__peak_min <- function() {
 
 #' Assign ranks to data, dealing with ties appropriately
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param method The method used to assign ranks to tied elements. Must be one
 #' of the following:
 #' - `"average"` (default): The average of the ranks that would have been
@@ -2205,7 +2207,7 @@ expr__rank <- function(
 #' is calculated using `k` statistics to eliminate bias coming from biased
 #' moment estimators.
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param fisher If `TRUE` (default), Fisher’s definition is used
 #' (normal ==> 0.0). If `FALSE`, Pearson’s definition is used (normal ==> 3.0).
 #' @param bias If `FALSE`, the calculations are corrected for statistical bias.
@@ -2227,7 +2229,7 @@ expr__kurtosis <- function(..., fisher = TRUE, bias = TRUE) {
 #' unimodal continuous distributions, a skewness value greater than zero means
 #' that there is more weight in the right tail of the distribution.
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @inheritParams expr__kurtosis
 #'
 #' @details
@@ -2257,7 +2259,7 @@ expr__skew <- function(..., bias = TRUE) {
 #' 
 #' `r lifecycle::badge("experimental")`
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param bins Discretizations to make. If `NULL` (default), we determine the
 #' boundaries based on the data.
 #' @param bin_count If no bins provided, this will be used to determine the
@@ -2295,7 +2297,7 @@ expr__hist <- function(
 
 #' Count the occurrences of unique values
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param sort Sort the output by count in descending order. If `FALSE`
 #' (default), the order of the output is random.
 #' @param parallel Execute the computation in parallel. This option should
@@ -2805,7 +2807,7 @@ expr__rolling_var <- function(
 #' 
 #' @inherit expr__rolling_max params details 
 #' @inheritParams pl__date_range
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param index_column Character. Name of the column used to group based on the 
 #' time window. Often of type Date/Datetime. This column must be sorted in 
 #' ascending order. In case of a rolling group by on indices, dtype needs to be 
@@ -3304,7 +3306,7 @@ expr__rolling_var_by <- function(
 
 #' Compute exponentially-weighted moving variance
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @inheritParams expr__rolling_max
 #' @param com Specify decay in terms of center of mass, \eqn{\gamma}, with
 #' \deqn{\alpha = \frac{1}{1 + \gamma} \; \forall \; \gamma \geq 0}.
@@ -3363,7 +3365,7 @@ expr__ewm_var <- function(
 
 #' Compute exponentially-weighted moving standard deviation
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @inheritParams expr__ewm_var
 #'
 #' @inherit as_polars_expr
@@ -3395,7 +3397,7 @@ expr__ewm_std <- function(
 
 #' Compute exponentially-weighted moving mean
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @inheritParams expr__ewm_var
 #'
 #' @inherit as_polars_expr
@@ -3480,7 +3482,7 @@ expr__ewm_mean_by <- function(by, ..., half_life) {
 
 #' Append expressions
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param other Expression to append.
 #' @param upcast If `TRUE` (default), cast both Series to the same supertype.
 #'
@@ -4025,7 +4027,7 @@ expr__upper_bound <- function() {
 #' 
 #' `r lifecycle::badge("experimental")`
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param breaks List of unique cut points.
 #' @param labels Names of the categories. The number of labels must be equal to
 #' the number of cut points plus one.
@@ -4069,7 +4071,7 @@ expr__cut <- function(
 #' 
 #' `r lifecycle::badge("experimental")`
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @inheritParams expr__cut
 #' @param quantiles Either a vector of quantile probabilities between 0 and 1
 #' or a positive integer determining the number of bins with uniform
@@ -4146,7 +4148,7 @@ expr__rechunk <- function() {
 #' This operation is only allowed for 64bit integers. For lower bits integers,
 #' you can safely use the [$cast()][expr__cast] operation.
 #' 
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param signed If `TRUE` (default), reinterpret as pl$Int64. Otherwise, 
 #' reinterpret as pl$UInt64.
 #' 
@@ -4252,7 +4254,7 @@ expr__replace = function(old, new) {
 #' or a default one. See [`$replace()`][expr__replace] to replace only a subset
 #' of values.
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @inherit expr__replace params details
 #' @param default  Set values that were not replaced to this value. If `NULL`
 #' (default), an error is raised if any values were not replaced. Accepts
@@ -4372,7 +4374,7 @@ expr__rle_id <- function() {
 
 #' Sample from this expression
 #' 
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param n Number of items to return. Cannot be used with `fraction.` Defaults 
 #' to 1 if `fraction` is `NULL`.
 #' @param fraction Fraction of items to return. Cannot be used with `n`.
@@ -4457,7 +4459,7 @@ expr__round_sig_figs <- function(digits) {
 
 #' Shift values by the given number of indices
 #' 
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param n Number of indices to shift forward. If a negative value is 
 #' passed, values are shifted in the opposite direction instead.
 #' @param fill_value Fill the resulting null values with this value.
@@ -4529,7 +4531,7 @@ expr__shuffle <- function(seed = NULL) {
 #' **Warning:** This can lead to incorrect results if the data is NOT sorted!! 
 #' Use with care!
 #' 
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param descending Whether the Series order is descending.
 #' 
 #' @inherit as_polars_expr return

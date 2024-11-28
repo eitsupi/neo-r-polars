@@ -7,7 +7,7 @@
 expr__cum_count(..., reverse = FALSE)
 }
 \arguments{
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{reverse}{If \code{TRUE}, reverse the count.}
 }

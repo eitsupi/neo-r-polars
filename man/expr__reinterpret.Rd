@@ -7,7 +7,7 @@
 expr__reinterpret(..., signed = TRUE)
 }
 \arguments{
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{signed}{If \code{TRUE} (default), reinterpret as pl$Int64. Otherwise,
 reinterpret as pl$UInt64.}

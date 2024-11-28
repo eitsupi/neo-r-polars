@@ -9,7 +9,7 @@ expr__entropy(base = exp(1), ..., normalize = TRUE)
 \arguments{
 \item{base}{Numeric value used as base, defaults to \code{exp(1)}.}
 
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{normalize}{Normalize \code{pk} if it doesn’t sum to 1.}
 }

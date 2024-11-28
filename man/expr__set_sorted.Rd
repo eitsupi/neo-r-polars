@@ -7,7 +7,7 @@
 expr__set_sorted(..., descending = FALSE)
 }
 \arguments{
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{descending}{Whether the Series order is descending.}
 }

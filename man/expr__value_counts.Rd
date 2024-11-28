@@ -13,7 +13,7 @@ expr__value_counts(
 )
 }
 \arguments{
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{sort}{Sort the output by count in descending order. If \code{FALSE}
 (default), the order of the output is random.}

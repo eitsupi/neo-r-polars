@@ -7,7 +7,7 @@
 expr__kurtosis(..., fisher = TRUE, bias = TRUE)
 }
 \arguments{
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{fisher}{If \code{TRUE} (default), Fisher’s definition is used
 (normal ==> 0.0). If \code{FALSE}, Pearson’s definition is used (normal ==> 3.0).}

@@ -18,7 +18,7 @@ expr__qcut(
 or a positive integer determining the number of bins with uniform
 probability.}
 
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{labels}{Names of the categories. The number of labels must be equal to
 the number of categories.}

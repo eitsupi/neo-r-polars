@@ -9,7 +9,7 @@ expr__cumulative_eval(expr, ..., min_periods = 1, parallel = FALSE)
 \arguments{
 \item{expr}{Expression to evaluate.}
 
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{min_periods}{Number of valid values (i.e. \code{length - null_count}) there
 should be in the window before the expression is evaluated.}
