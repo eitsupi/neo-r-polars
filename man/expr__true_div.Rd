@@ -2,9 +2,12 @@
 % Please edit documentation in R/expr-expr.R
 \name{expr__true_div}
 \alias{expr__true_div}
+\alias{expr__truediv}
 \title{Divide two expressions}
 \usage{
 expr__true_div(other)
+
+expr__truediv(other)
 }
 \arguments{
 \item{other}{Numeric literal or expression value.}
@@ -14,6 +17,7 @@ A polars \link{expression}
 }
 \description{
 Method equivalent of float division operator \code{expr / other}.
+\verb{$truediv()} is an alias for \verb{$true_div()}, which exists for compatibility with Python Polars.
 }
 \details{
 Zero-division behaviour follows IEEE-754:

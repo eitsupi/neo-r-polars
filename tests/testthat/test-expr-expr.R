@@ -30,6 +30,12 @@ test_that("map_batches works", {
   )
 })
 
+test_that("floordiv and truediv exist for compatibility", {
+  expect_equal(pl$lit(1)$floordiv(2), pl$lit(1)$floor_div(2))
+  expect_equal(pl$lit(1)$truediv(2), pl$lit(1)$true_div(2))
+})
+
+# TODO: use parametrize test, and is_polars_expr
 test_that("expression boolean operators", {
   expect_true(inherits(pl$col("foo") == pl$col("bar"), "polars_expr"))
   expect_true(inherits(pl$col("foo") <= pl$col("bar"), "polars_expr"))

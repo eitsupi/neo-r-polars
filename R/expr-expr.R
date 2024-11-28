@@ -147,6 +147,7 @@ expr__mul <- function(other) {
 #' Divide two expressions
 #'
 #' Method equivalent of float division operator `expr / other`.
+#' `$truediv()` is an alias for `$true_div()`, which exists for compatibility with Python Polars.
 #'
 #' Zero-division behaviour follows IEEE-754:
 #' - `0/0`: Invalid operation - mathematically undefined, returns `NaN`.
@@ -172,6 +173,9 @@ expr__true_div <- function(other) {
     self$`_rexpr`$div(other$`_rexpr`)
   })
 }
+
+#' @rdname expr__true_div
+expr__truediv <- expr__true_div
 
 #' Exponentiation using two expressions
 #'
@@ -219,6 +223,7 @@ expr__mod <- function(other) {
 #' Floor divide using two expressions
 #'
 #' Method equivalent of floor division operator `expr %/% other`.
+#' `$floordiv()` is an alias for `$floor_div()`, which exists for compatibility with Python Polars.
 #' @inheritParams expr__true_div
 #' @inherit as_polars_expr return
 #' @seealso
@@ -239,15 +244,8 @@ expr__floor_div <- function(other) {
   })
 }
 
-# TODO-REWRITE: remove before next release
-expr__floor_div <- function(other) {
-  wrap({
-    deprecate_warn("$floor_div() is deprecated. Use $floor_div() instead.")
-    other <- as_polars_expr(other, as_lit = TRUE)
-    self$`_rexpr`$floor_div(other$`_rexpr`)
-  })
-}
-
+#' @rdname expr__floor_div
+expr__floordiv <- expr__floor_div
 
 expr__neg <- function() {
   self$`_rexpr`$neg() |>

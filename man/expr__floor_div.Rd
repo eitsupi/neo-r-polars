@@ -2,9 +2,12 @@
 % Please edit documentation in R/expr-expr.R
 \name{expr__floor_div}
 \alias{expr__floor_div}
+\alias{expr__floordiv}
 \title{Floor divide using two expressions}
 \usage{
 expr__floor_div(other)
+
+expr__floordiv(other)
 }
 \arguments{
 \item{other}{Numeric literal or expression value.}
@@ -14,6 +17,7 @@ A polars \link{expression}
 }
 \description{
 Method equivalent of floor division operator \code{expr \%/\% other}.
+\verb{$floordiv()} is an alias for \verb{$floor_div()}, which exists for compatibility with Python Polars.
 }
 \examples{
 df <- pl$DataFrame(x = 1:5)
