@@ -2716,7 +2716,7 @@ test_that("eq_missing and ne_missing", {
     ),
     pl$DataFrame(
       eq_missing = c(TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE),
-      neq_missing = c(FALSE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, FALSE)
+      ne_missing = c(FALSE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, FALSE)
     )
   )
 })
