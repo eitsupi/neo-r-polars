@@ -10,9 +10,8 @@ expr__drop_nulls()
 A polars \link{expression}
 }
 \description{
-The original order of the remaining elements is preserved.
-
-A \code{null} value is not the same as a \code{NaN} value. To drop \code{NaN} values, use
+The original order of the remaining elements is preserved. A \code{null} value is
+not the same as a \code{NaN} value. To drop \code{NaN} values, use
 \link[=expr__drop_nans]{$drop_nans()}.
 }
 \examples{

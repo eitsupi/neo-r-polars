@@ -13,8 +13,8 @@ expr__rolling_min_by(
 )
 }
 \arguments{
-\item{by}{This column must be of dtype Datetime or Date. Can be an Expr.
-Strings are parsed as column names.}
+\item{by}{This column must be of dtype Datetime or Date. Accepts expression
+input. Strings are parsed as column names.}
 
 \item{window_size}{The length of the window. Can be a dynamic temporal size
 indicated by a timedelta or the following string language:

@@ -7,7 +7,7 @@
 expr__is_in(other)
 }
 \arguments{
-\item{other}{Series or sequence of primitive type.}
+\item{other}{Accepts expression input. Strings are parsed as column names.}
 }
 \value{
 A polars \link{expression}

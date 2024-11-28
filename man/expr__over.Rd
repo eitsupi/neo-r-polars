@@ -15,8 +15,8 @@ expr__over(
 expression input. Characters are parsed as column names.}
 
 \item{order_by}{Order the window functions/aggregations with the partitioned
-groups by the result of the expression passed to \code{order_by}. Can be an Expr.
-Strings are parsed as column names.}
+groups by the result of the expression passed to \code{order_by}. Accepts
+expression input. Strings are parsed as column names.}
 
 \item{mapping_strategy}{One of the following:
 \itemize{

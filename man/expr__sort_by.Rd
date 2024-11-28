@@ -14,8 +14,8 @@ expr__sort_by(
 )
 }
 \arguments{
-\item{...}{Column(s) to sort by. Accepts expression input. Strings are parsed
-as column names.}
+\item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> Column(s) to sort by. Accepts
+expression input. Strings are parsed as column names.}
 
 \item{descending}{Sort in descending order. When sorting by multiple
 columns, can be specified per column by passing a sequence of booleans.}

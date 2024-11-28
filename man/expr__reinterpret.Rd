@@ -16,7 +16,7 @@ reinterpret as pl$UInt64.}
 A polars \link{expression}
 }
 \description{
-This operation is only allowed for 64bit integers. For lower bits integers,
+This operation is only allowed for 64-bit integers. For lower bits integers,
 you can safely use the \link[=expr__cast]{$cast()} operation.
 }
 \examples{

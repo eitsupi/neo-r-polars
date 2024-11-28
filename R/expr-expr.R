@@ -774,8 +774,8 @@ expr__arg_sort <- function(..., descending = FALSE, nulls_last = FALSE) {
 #' columns.
 #' 
 #' @inherit expr__sort description
-#' @param ... Column(s) to sort by. Accepts expression input. Strings are parsed
-#' as column names.
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Column(s) to sort by. Accepts
+#' expression input. Strings are parsed as column names.
 #' @param descending Sort in descending order. When sorting by multiple 
 #' columns, can be specified per column by passing a sequence of booleans.
 #' @param nulls_last Place null values last; can specify a single boolean 
@@ -944,8 +944,8 @@ expr__last <- function() {
 #' @param ... [`dynamic-dots`][rlang::dyn-dots]> Column(s) to group by. Accepts 
 #' expression input. Characters are parsed as column names.
 #' @param order_by Order the window functions/aggregations with the partitioned
-#' groups by the result of the expression passed to `order_by`. Can be an Expr.
-#' Strings are parsed as column names.
+#' groups by the result of the expression passed to `order_by`. Accepts 
+#' expression input. Strings are parsed as column names.
 #' @param mapping_strategy One of the following:
 #' * `"group_to_rows"` (default): if the aggregation results in multiple values,
 #'   assign them back to their position in the DataFrame. This can only be done
@@ -1038,7 +1038,8 @@ expr__over <- function(
 #' [`DataFrame$filter()`][dataframe__filter] or
 #' [`LazyFrame$filter()`][lazyframe__filter].
 #'
-#' @param ... Expression(s) that evaluates to a boolean Series.
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Expression(s) that evaluate
+#' to a boolean Series.
 #'
 #' @inherit as_polars_expr return
 #'
@@ -1722,7 +1723,7 @@ expr__is_last_distinct <- function() {
 
 #' Check if elements of an expression are present in another expression
 #'
-#' @param other Series or sequence of primitive type.
+#' @param other Accepts expression input. Strings are parsed as column names.
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
@@ -2185,7 +2186,7 @@ expr__peak_min <- function() {
 #'   rank = pl$col("b")$rank()$over("a")
 #' )
 expr__rank <- function(
-    method = "average",
+    method = c("average", "min", "max", "dense", "ordinal", "random"),
     ...,
     descending = FALSE,
     seed = NULL) {
@@ -2235,14 +2236,14 @@ expr__kurtosis <- function(..., fisher = TRUE, bias = TRUE) {
 #' @details
 #' The sample skewness is computed as the Fisher-Pearson coefficient of
 #' skewness, i.e.
-#' $g_1=\frac{m_3}{m_2^{3/2}}$
+#' \deqn{g_1=\frac{m_3}{m_2^{3/2}}}
 #' where
-#' $m_i=\frac{1}{N}\sum_{n=1}^N(x[n]-\bar{x})^i$
-#' is the biased sample $i\texttt{th}$ central moment, and $\bar{x}$ is the
-#' sample mean. If `bias` is `FALSE`, the calculations are corrected for bias
-#' and the value computed is the adjusted Fisher-Pearson standardized moment
-#' coefficient, i.e.
-#' $G_1 = \frac{k_3}{k_2^{3/2}} = \frac{\sqrt{N(N-1)}}{N-2}\frac{m_3}{m_2^{3/2}}$
+#' \deqn{m_i=\frac{1}{N}\sum_{n=1}^N(x[n]-\bar{x})^i}
+#' is the biased sample \eqn{i\texttt{th}} central moment, and \eqn{\bar{x}} 
+#' is the sample mean. If `bias = FALSE`, the calculations are corrected for 
+#' bias and the value computed is the adjusted Fisher-Pearson standardized 
+#' moment coefficient, i.e.
+#' \deqn{G_1 = \frac{k_3}{k_2^{3/2}} = \frac{\sqrt{N(N-1)}}{N-2}\frac{m_3}{m_2^{3/2}}}
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -2861,8 +2862,8 @@ expr__rolling <- function(
 #' * …
 #' * `(t_n - window_size, t_n]`
 #'
-#' @param by This column must be of dtype Datetime or Date. Can be an Expr.
-#' Strings are parsed as column names.
+#' @param by This column must be of dtype Datetime or Date. Accepts expression
+#' input. Strings are parsed as column names.
 #' @param window_size The length of the window. Can be a dynamic temporal size
 #' indicated by a timedelta or the following string language:
 #' - 1ns (1 nanosecond)
@@ -3726,9 +3727,8 @@ expr__clip <- function(lower_bound = NULL, upper_bound = NULL) {
 #' Drop all floating point NaN values
 #'
 #' @description
-#' The original order of the remaining elements is preserved.
-#'
-#' A `NaN` value is not the same as a `null` value. To drop `null` values, use
+#' The original order of the remaining elements is preserved. A `NaN` value is
+#' not the same as a `null` value. To drop `null` values, use
 #' [$drop_nulls()][expr__drop_nulls].
 #'
 #' @inherit as_polars_expr return
@@ -3744,9 +3744,8 @@ expr__drop_nans <- function() {
 #' Drop all floating point null values
 #'
 #' @description
-#' The original order of the remaining elements is preserved.
-#'
-#' A `null` value is not the same as a `NaN` value. To drop `NaN` values, use
+#' The original order of the remaining elements is preserved. A `null` value is
+#' not the same as a `NaN` value. To drop `NaN` values, use
 #' [$drop_nans()][expr__drop_nans].
 #'
 #' @inherit as_polars_expr return
@@ -3832,9 +3831,10 @@ expr__fill_nan <- function(value) {
 
 #' Fill floating point null value with a fill value
 #'
-#' @param value Value used to fill null values.
+#' @param value Value used to fill null values. Can be missing if `strategy` is
+#' specified. Accepts expression input, strings are parsed as column names.
 #' @param strategy Strategy used to fill null values. Must be one of
-#' `"forward"`, `"backward"`, `"min"`, `"max"`, `"mean"`, `"zero"`, `"one"`.
+#' `"forward"`, `"backward"`, `"min"`, `"max"`, `"mean"`, `"zero"`, `"one"`. 
 #' @param limit Number of consecutive null values to fill when using the
 #' `"forward"` or `"backward"` strategy.
 #'
@@ -3842,16 +3842,10 @@ expr__fill_nan <- function(value) {
 #' @examples
 #' df <- pl$DataFrame(a = c(1, NA, 2, NaN))
 #' df$with_columns(
-#'   filled_null = pl$col("a")$fill_null(strategy = "zero")
-#' )
-#' df$with_columns(
-#'   filled_null = pl$col("a")$fill_null(99)
-#' )
-#' df$with_columns(
-#'   filled_null = pl$col("a")$fill_null(strategy = "forward")
-#' )
-#' df$with_columns(
-#'   filled_null = pl$col("a")$fill_null(pl$col("a")$median())
+#'   filled_null_zero = pl$col("a")$fill_null(strategy = "zero"),
+#'   filled_null_99 = pl$col("a")$fill_null(99),
+#'   filled_null_forward = pl$col("a")$fill_null(strategy = "forward"),
+#'   filled_null_expr = pl$col("a")$fill_null(pl$col("a")$median())
 #' )
 expr__fill_null <- function(value, strategy = NULL, limit = NULL) {
   wrap({
@@ -4145,7 +4139,7 @@ expr__rechunk <- function() {
 
 #' Reinterpret the underlying bits as a signed/unsigned integer
 #' 
-#' This operation is only allowed for 64bit integers. For lower bits integers,
+#' This operation is only allowed for 64-bit integers. For lower bits integers,
 #' you can safely use the [$cast()][expr__cast] operation.
 #' 
 #' @inheritParams rlang::args_dots_empty
@@ -4173,7 +4167,8 @@ expr__reinterpret <- function(..., signed = TRUE) {
 #' 
 #' @param by Numeric column that determines how often the values will be 
 #' repeated. The column will be coerced to UInt32. Give this dtype to make the 
-#' coercion a no-op.
+#' coercion a no-op. Accepts expression input, strings are parsed as column 
+#' names.
 #' 
 #' @inherit as_polars_expr return
 #' @examples
@@ -4256,7 +4251,7 @@ expr__replace = function(old, new) {
 #'
 #' @inheritParams rlang::args_dots_empty
 #' @inherit expr__replace params details
-#' @param default  Set values that were not replaced to this value. If `NULL`
+#' @param default Set values that were not replaced to this value. If `NULL`
 #' (default), an error is raised if any values were not replaced. Accepts
 #' expression input. Non-expression inputs are parsed as literals.
 #' @param return_dtype The data type of the resulting expression. If `NULL` 

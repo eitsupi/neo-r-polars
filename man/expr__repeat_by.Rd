@@ -9,7 +9,8 @@ expr__repeat_by(by)
 \arguments{
 \item{by}{Numeric column that determines how often the values will be
 repeated. The column will be coerced to UInt32. Give this dtype to make the
-coercion a no-op.}
+coercion a no-op. Accepts expression input, strings are parsed as column
+names.}
 }
 \value{
 A polars \link{expression}

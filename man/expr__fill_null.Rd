@@ -7,7 +7,8 @@
 expr__fill_null(value, strategy = NULL, limit = NULL)
 }
 \arguments{
-\item{value}{Value used to fill null values.}
+\item{value}{Value used to fill null values. Can be missing if \code{strategy} is
+specified. Accepts expression input, strings are parsed as column names.}
 
 \item{strategy}{Strategy used to fill null values. Must be one of
 \code{"forward"}, \code{"backward"}, \code{"min"}, \code{"max"}, \code{"mean"}, \code{"zero"}, \code{"one"}.}
@@ -24,15 +25,9 @@ Fill floating point null value with a fill value
 \examples{
 df <- pl$DataFrame(a = c(1, NA, 2, NaN))
 df$with_columns(
-  filled_null = pl$col("a")$fill_null(strategy = "zero")
-)
-df$with_columns(
-  filled_null = pl$col("a")$fill_null(99)
-)
-df$with_columns(
-  filled_null = pl$col("a")$fill_null(strategy = "forward")
-)
-df$with_columns(
-  filled_null = pl$col("a")$fill_null(pl$col("a")$median())
+  filled_null_zero = pl$col("a")$fill_null(strategy = "zero"),
+  filled_null_99 = pl$col("a")$fill_null(99),
+  filled_null_forward = pl$col("a")$fill_null(strategy = "forward"),
+  filled_null_expr = pl$col("a")$fill_null(pl$col("a")$median())
 )
 }

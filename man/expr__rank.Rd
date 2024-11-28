@@ -4,7 +4,12 @@
 \alias{expr__rank}
 \title{Assign ranks to data, dealing with ties appropriately}
 \usage{
-expr__rank(method = "average", ..., descending = FALSE, seed = NULL)
+expr__rank(
+  method = c("average", "min", "max", "dense", "ordinal", "random"),
+  ...,
+  descending = FALSE,
+  seed = NULL
+)
 }
 \arguments{
 \item{method}{The method used to assign ranks to tied elements. Must be one

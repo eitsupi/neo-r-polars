@@ -7,7 +7,8 @@
 expr__filter(...)
 }
 \arguments{
-\item{...}{Expression(s) that evaluates to a boolean Series.}
+\item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> Expression(s) that evaluate
+to a boolean Series.}
 }
 \value{
 A polars \link{expression}
