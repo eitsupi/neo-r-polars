@@ -593,3 +593,155 @@ test_that("rolling: can be ungrouped", {
     df
   )
 })
+
+test_that("with_columns_seq", {
+  df <- pl$DataFrame(x = 1:2)
+
+  expect_query_equal(
+    .input$with_columns_seq(y = list(1:2, 3:4)),
+    df,
+    pl$DataFrame(x = 1:2, y = list(1:2, 3:4))
+  )
+
+  expect_query_equal(
+    .input$with_columns_seq(y = list(1:2, 3:4), z = list(c("a", "b"), c("c", "d"))),
+    df,
+    pl$DataFrame(x = 1:2, y = list(1:2, 3:4), z = list(c("a", "b"), c("c", "d")))
+  )
+})
+
+test_that("$clear() works", {
+  df <- pl$DataFrame(
+    a = c(NA, 2),
+    b = c("a", NA),
+    c = c(TRUE, TRUE)
+  )
+
+  expect_query_equal(
+    .input$clear(),
+    df,
+    pl$DataFrame(a = numeric(0), b = character(0), c = logical(0))
+  )
+
+  # n > number of rows
+  expect_query_equal(
+    .input$clear(3),
+    df,
+    pl$DataFrame(a = rep(NA_real_, 3), b = rep(NA_character_, 3), c = rep(NA, 3))
+  )
+
+  # error
+  expect_query_error(
+    .input$clear(-1),
+    df,
+    "greater or equal to 0"
+  )
+})
+
+test_that("$explain() works", {
+  lazy_query <- as_polars_lf(iris)$sort("Species")$filter(pl$col("Species") != "setosa")
+
+  expect_error(
+    lazy_query$explain(format = "foobar"),
+    "`format` must be one of"
+  )
+  expect_error(
+    lazy_query$explain(format = 1),
+    "`format` must be a string or character vector"
+  )
+
+  expect_snapshot(cat(lazy_query$explain(optimized = FALSE)))
+  expect_snapshot(cat(lazy_query$explain()))
+
+  expect_snapshot(cat(lazy_query$explain(format = "tree", optimized = FALSE)))
+  expect_snapshot(cat(lazy_query$explain(format = "tree", )))
+})
+
+test_that("$gather_every() works", {
+  df <- pl$DataFrame(a = 1:4, b = 5:8)
+
+  expect_query_equal(
+    .input$gather_every(2),
+    df,
+    pl$DataFrame(a = c(1L, 3L), b = c(5L, 7L))
+  )
+  expect_query_equal(
+    .input$gather_every(2, offset = 1),
+    df,
+    pl$DataFrame(a = c(2L, 4L), b = c(6L, 8L))
+  )
+
+  # must specify n
+  expect_query_error(
+    .input$gather_every(),
+    df,
+    r"(argument "n" is missing)"
+  )
+
+  # offset must be positive
+  expect_query_error(
+    .input$gather_every(2, offset = -1),
+    df,
+    "cannot be less than zero"
+  )
+  expect_query_error(
+    .input$gather_every(2, offset = "a"),
+    df,
+    "Expected a value of type"
+  )
+})
+
+test_that("$cast() works", {
+  df <- pl$DataFrame(
+    foo = 1:3,
+    bar = c(6, 7, 8),
+    ham = as.Date(c("2020-01-02", "2020-03-04", "2020-05-06"))
+  )
+
+  expect_query_equal(
+    .input$cast(foo = pl$Float32, bar = pl$UInt8),
+    df,
+    pl$DataFrame(
+      foo = 1:3,
+      bar = c(6, 7, 8),
+      ham = as.Date(c("2020-01-02", "2020-03-04", "2020-05-06")),
+      .schema_overrides = list(foo = pl$Float32, bar = pl$UInt8, ham = pl$Date)
+    )
+  )
+
+  expect_query_equal(
+    .input$cast(pl$String),
+    df,
+    pl$DataFrame(
+      foo = 1:3,
+      bar = c(6, 7, 8),
+      ham = as.Date(c("2020-01-02", "2020-03-04", "2020-05-06")),
+      .schema_overrides = list(foo = pl$String, bar = pl$String, ham = pl$String)
+    )
+  )
+
+  expect_query_equal(
+    .input$cast(),
+    df,
+    df
+  )
+
+  expect_query_error(.input$cast(1), df)
+  expect_query_error(.input$cast("a"), df)
+  expect_query_error(.input$cast(list(foo = "a")), df)
+  expect_query_error(.input$cast(list(), strict = 1), df)
+
+  # Test overflow error
+  df <- pl$DataFrame(x = 1024)
+
+  expect_query_error(
+    .input$cast(pl$Int8),
+    df,
+    "conversion from `f64` to `i8` failed"
+  )
+  expect_query_equal(
+    .input$cast(pl$Int8, .strict = FALSE),
+    df,
+    pl$DataFrame(x = NA_integer_, .schema_overrides = list(x = pl$Int8))
+  )
+})

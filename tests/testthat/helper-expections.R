@@ -37,10 +37,12 @@ expect_query_equal <- function(object, ...) {
   }
 
   out_lazy <- rlang::eval_tidy(query, rlang::new_data_mask(rlang::env(!!!inputs_lazy)))$collect()
-  out_eager <- rlang::eval_tidy(query, rlang::new_data_mask(rlang::env(!!!inputs)))
-
   expect_equal(out_lazy, expected)
-  expect_equal(out_eager, expected)
+
+  # TODO-REWRITE: uncomment when eager functions are implemented
+  # out_eager <- rlang::eval_tidy(query, rlang::new_data_mask(rlang::env(!!!inputs)))
+  # expect_equal(out_eager, expected)
+
 
   invisible(NULL)
 }
