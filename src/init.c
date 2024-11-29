@@ -1764,6 +1764,11 @@ SEXP savvy_PlRLazyFrame_fill_nan__impl(SEXP self__, SEXP c_arg__fill_value) {
     return handle_result(res);
 }
 
+SEXP savvy_PlRLazyFrame_fill_null__impl(SEXP self__, SEXP c_arg__fill_value) {
+    SEXP res = savvy_PlRLazyFrame_fill_null__ffi(self__, c_arg__fill_value);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRLazyFrame_min__impl(SEXP self__) {
     SEXP res = savvy_PlRLazyFrame_min__ffi(self__);
     return handle_result(res);
@@ -2422,6 +2427,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRLazyFrame_reverse__impl", (DL_FUNC) &savvy_PlRLazyFrame_reverse__impl, 1},
     {"savvy_PlRLazyFrame_shift__impl", (DL_FUNC) &savvy_PlRLazyFrame_shift__impl, 3},
     {"savvy_PlRLazyFrame_fill_nan__impl", (DL_FUNC) &savvy_PlRLazyFrame_fill_nan__impl, 2},
+    {"savvy_PlRLazyFrame_fill_null__impl", (DL_FUNC) &savvy_PlRLazyFrame_fill_null__impl, 2},
     {"savvy_PlRLazyFrame_min__impl", (DL_FUNC) &savvy_PlRLazyFrame_min__impl, 1},
     {"savvy_PlRLazyFrame_max__impl", (DL_FUNC) &savvy_PlRLazyFrame_max__impl, 1},
     {"savvy_PlRLazyFrame_sum__impl", (DL_FUNC) &savvy_PlRLazyFrame_sum__impl, 1},

@@ -356,6 +356,7 @@ SEXP savvy_PlRLazyFrame_rename__ffi(SEXP self__, SEXP c_arg__existing, SEXP c_ar
 SEXP savvy_PlRLazyFrame_reverse__ffi(SEXP self__);
 SEXP savvy_PlRLazyFrame_shift__ffi(SEXP self__, SEXP c_arg__n, SEXP c_arg__fill_value);
 SEXP savvy_PlRLazyFrame_fill_nan__ffi(SEXP self__, SEXP c_arg__fill_value);
+SEXP savvy_PlRLazyFrame_fill_null__ffi(SEXP self__, SEXP c_arg__fill_value);
 SEXP savvy_PlRLazyFrame_min__ffi(SEXP self__);
 SEXP savvy_PlRLazyFrame_max__ffi(SEXP self__);
 SEXP savvy_PlRLazyFrame_sum__ffi(SEXP self__);

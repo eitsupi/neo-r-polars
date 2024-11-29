@@ -931,3 +931,55 @@ test_that("join_asof", {
     )
   )
 })
+
+test_that("fill_null", {
+  df <- pl$DataFrame(
+    a = c(1.5, 2, NA, 4),
+    b = c(1.5, NA, NA, 4)
+  )
+  expect_query_equal(
+    .input$fill_null(99),
+    df,
+    pl$DataFrame(
+      a = c(1.5, 2, 99, 4),
+      b = c(1.5, 99, 99, 4)
+    )
+  )
+})
+
+test_that("unique", {
+  df <- pl$DataFrame(
+    x = c(1, 1, 2, 3),
+    y = c(1, 1, 3, 3),
+    z = c("a", "b", "c", "d")
+  )
+  expect_query_equal(
+    .input$unique("x")$sort("x"),
+    df,
+    pl$DataFrame(x = c(1, 2, 3), y = c(1, 3, 3), z = c("a", "c", "d"))
+  )
+  expect_query_equal(
+    .input$unique("x", keep = "first")$sort("x"),
+    df,
+    pl$DataFrame(x = c(1, 2, 3), y = c(1, 3, 3), z = c("a", "c", "d"))
+  )
+  expect_query_equal(
+    .input$unique("x", keep = "last")$sort("x"),
+    df,
+    pl$DataFrame(x = c(1, 2, 3), y = c(1, 3, 3), z = c("b", "c", "d"))
+  )
+  expect_query_equal(
+    .input$unique("x", keep = "none")$sort("x"),
+    df,
+    pl$DataFrame(x = c(2, 3), y = c(3, 3), z = c("c", "d"))
+  )
+})
+
+test_that("unique: maintain_order", {
+  df <- pl$DataFrame(x = rep(1:100, each = 2), y = 1:200)
+  expect_query_equal(
+    .input$unique("x", maintain_order = TRUE),
+    df,
+    pl$DataFrame(x = 1:100, y = seq(1, 200, 2))$cast(y = pl$Int32)
+  )
+})
