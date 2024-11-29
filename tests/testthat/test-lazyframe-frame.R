@@ -1,4 +1,4 @@
-test_that("select works lazy/eager", {
+test_that("select", {
   .data <- pl$DataFrame(
     int32 = 1:5,
     int64 = as_polars_series(1:5)$cast(pl$Int64),
@@ -62,7 +62,7 @@ test_that("POLARS_AUTO_STRUCTIFY works for select", {
   )
 })
 
-test_that("slice/head/tail works lazy/eager", {
+test_that("slice/head/tail", {
   .data <- pl$DataFrame(
     foo = 1:5,
     bar = 6:10,
@@ -133,7 +133,7 @@ test_that("slice/head/tail works lazy/eager", {
   )
 })
 
-test_that("shift works lazy/eager", {
+test_that("shift", {
   .data <- as_polars_df(mtcars[1:3, 1:2])
   expect_query_equal(
     .input$shift(2),
@@ -148,7 +148,7 @@ test_that("shift works lazy/eager", {
 })
 
 # TODO-REWRITE: add $join() for DataFrame
-test_that("joins work lazy/eager", {
+test_that("join", {
   df <- pl$DataFrame(
     foo = 1:3,
     bar = c(6, 7, 8),
@@ -743,5 +743,191 @@ test_that("$cast() works", {
     .input$cast(pl$Int8, .strict = FALSE),
     df,
     pl$DataFrame(x = NA_integer_, .schema_overrides = list(x = pl$Int8))
+  )
+})
+
+test_that("inequality joins work", {
+  east <- pl$DataFrame(
+    id = c(100, 101, 102),
+    dur = c(120, 140, 160),
+    rev = c(12, 14, 16),
+    cores = c(2, 8, 4)
+  )
+  west <- pl$DataFrame(
+    t_id = c(404, 498, 676, 742),
+    time = c(90, 130, 150, 170),
+    cost = c(9, 13, 15, 16),
+    cores = c(4, 2, 1, 4)
+  )
+
+  expect_query_equal(
+    .input$join_where(
+      .input2,
+      pl$col("dur") < pl$col("time"),
+      pl$col("rev") < pl$col("cost")
+    ),
+    .input = east, .input2 = west,
+    pl$DataFrame(
+      id = rep(c(100, 101), 3:2),
+      dur = rep(c(120, 140), 3:2),
+      rev = rep(c(12, 14), 3:2),
+      cores = rep(c(2, 8), 3:2),
+      t_id = c(498, 676, 742, 676, 742),
+      time = c(130, 150, 170, 150, 170),
+      cost = c(13, 15, 16, 15, 16),
+      cores_right = c(2, 1, 4, 1, 4)
+    )
+  )
+
+  expect_query_error(
+    east$join_where(
+      mtcars,
+      pl$col("dur") < pl$col("time"),
+      pl$col("rev") < pl$col("cost")
+    ),
+    "`other` must be a LazyFrame"
+  )
+})
+
+test_that("inequality joins require suffix when identical column names", {
+  east <- pl$DataFrame(
+    id = c(100, 101, 102),
+    dur = c(120, 140, 160),
+    rev = c(12, 14, 16),
+    cores = c(2, 8, 4)
+  )
+  west <- pl$DataFrame(
+    t_id = c(404, 498, 676, 742),
+    dur = c(90, 130, 150, 170),
+    rev = c(9, 13, 15, 16),
+    cores = c(4, 2, 1, 4)
+  )
+
+  expect_query_equal(
+    .input$join_where(
+      .input2,
+      pl$col("dur") < pl$col("dur_right"),
+      pl$col("rev") < pl$col("rev_right")
+    ),
+    .input = east, .input2 = west,
+    pl$DataFrame(
+      id = rep(c(100, 101), 3:2),
+      dur = rep(c(120, 140), 3:2),
+      rev = rep(c(12, 14), 3:2),
+      cores = rep(c(2, 8), 3:2),
+      t_id = c(498, 676, 742, 676, 742),
+      dur_right = c(130, 150, 170, 150, 170),
+      rev_right = c(13, 15, 16, 15, 16),
+      cores_right = c(2, 1, 4, 1, 4)
+    )
+  )
+})
+
+test_that("join_asof", {
+  l_gdp <- pl$DataFrame(
+    date = as.Date(c("2016-1-1", "2017-1-1", "2018-1-1", "2019-1-1")),
+    gdp = c(4164, 4411, 4566, 4696),
+    group = c("a", "a", "b", "b")
+  )$sort("date")
+
+  l_pop <- pl$DataFrame(
+    date = as.Date(c("2016-5-12", "2017-5-12", "2018-5-12", "2019-5-12")),
+    population = c(82.19, 82.66, 83.12, 83.52),
+    group_right = c("b", "b", "a", "a")
+  )$sort("date")
+
+  # strategy param
+  expect_query_equal(
+    .input$join_asof(.input2, on = "date", strategy = "backward"),
+    .input = l_gdp, .input2 = l_pop,
+    pl$DataFrame(
+      date = as.Date(c("2016-1-1", "2017-1-1", "2018-1-1", "2019-1-1")),
+      gdp = c(4164, 4411, 4566, 4696),
+      group = c("a", "a", "b", "b"),
+      population = c(NA, 82.19, 82.66, 83.12),
+      group_right = c(NA, "b", "b", "a")
+    )
+  )
+  expect_query_equal(
+    .input$join_asof(.input2, on = "date", strategy = "forward"),
+    .input = l_gdp, .input2 = l_pop,
+    pl$DataFrame(
+      date = as.Date(c("2016-1-1", "2017-1-1", "2018-1-1", "2019-1-1")),
+      gdp = c(4164, 4411, 4566, 4696),
+      group = c("a", "a", "b", "b"),
+      population = c(82.19, 82.66, 83.12, 83.52),
+      group_right = c("b", "b", "a", "a")
+    )
+  )
+  expect_snapshot(
+    l_gdp$lazy()$join_asof(l_pop$lazy(), on = "date", strategy = "fruitcake"),
+    error = TRUE
+  )
+
+  # left_on / right_on
+  expect_query_equal(
+    .input$join_asof(.input2, left_on = "date", right_on = "date", strategy = "forward"),
+    .input = l_gdp, .input2 = l_pop,
+    pl$DataFrame(
+      date = as.Date(c("2016-1-1", "2017-1-1", "2018-1-1", "2019-1-1")),
+      gdp = c(4164, 4411, 4566, 4696),
+      group = c("a", "a", "b", "b"),
+      population = c(82.19, 82.66, 83.12, 83.52),
+      group_right = c("b", "b", "a", "a")
+    )
+  )
+
+  # test by
+  expect_query_equal(
+    .input$join_asof(
+      .input2,
+      on = "date", by_left = "group",
+      by_right = "group_right", strategy = "backward"
+    ),
+    .input = l_gdp, .input2 = l_pop,
+    pl$DataFrame(
+      date = as.Date(c("2016-01-01", "2017-01-01", "2018-01-01", "2019-01-01")),
+      gdp = c(4164, 4411, 4566, 4696),
+      group = c("a", "a", "b", "b"),
+      population = c(NA, NA, 82.66, 82.66),
+    )
+  )
+  expect_query_equal(
+    .input$join_asof(
+      .input2,
+      on = "date", by_left = "group",
+      by_right = "group_right", strategy = "forward"
+    ),
+    .input = l_gdp, .input2 = l_pop,
+    pl$DataFrame(
+      date = as.Date(c("2016-01-01", "2017-01-01", "2018-01-01", "2019-01-01")),
+      gdp = c(4164, 4411, 4566, 4696),
+      group = c("a", "a", "b", "b"),
+      population = c(83.12, 83.12, NA, NA),
+    )
+  )
+
+  # tolerance exceeding 18w
+  expect_query_equal(
+    .input$join_asof(.input2, on = "date", strategy = "backward", tolerance = "18w"),
+    .input = l_gdp, .input2 = l_pop,
+    pl$DataFrame(
+      date = as.Date(c("2016-1-1", "2017-1-1", "2018-1-1", "2019-1-1")),
+      gdp = c(4164, 4411, 4566, 4696),
+      group = c("a", "a", "b", "b"),
+      population = rep(NA_real_, 4),
+      group_right = rep(NA_character_, 4)
+    )
+  )
+  expect_query_equal(
+    .input$join_asof(.input2, on = "date", strategy = "backward", tolerance = 18 * 7),
+    .input = l_gdp, .input2 = l_pop,
+    pl$DataFrame(
+      date = as.Date(c("2016-1-1", "2017-1-1", "2018-1-1", "2019-1-1")),
+      gdp = c(4164, 4411, 4566, 4696),
+      group = c("a", "a", "b", "b"),
+      population = rep(NA_real_, 4),
+      group_right = rep(NA_character_, 4)
+    )
   )
 })
