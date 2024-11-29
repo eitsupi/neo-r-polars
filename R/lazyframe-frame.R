@@ -733,7 +733,7 @@ lazyframe__with_columns_seq <- function(...) {
 #'
 #' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Names of the columns that
 #' should be removed from the dataframe. Accepts column selector input.
-#' @param strict Validate that all column names exist in the current schema,
+#' @param .strict Validate that all column names exist in the current schema,
 #' and throw an exception if any do not.
 #'
 #' @inherit as_polars_lf return
@@ -749,11 +749,11 @@ lazyframe__with_columns_seq <- function(...) {
 #'
 #' # Drop multiple columns by passing a selector
 #' lf$drop(cs$all())$collect()
-lazyframe__drop <- function(..., strict = TRUE) {
+lazyframe__drop <- function(..., .strict = TRUE) {
   wrap({
     check_dots_unnamed()
     parse_into_list_of_expressions(...) |>
-      self$`_ldf`$drop(strict)
+      self$`_ldf`$drop(.strict)
   })
 }
 
@@ -1067,7 +1067,9 @@ lazyframe__tail <- function(n = 5L) {
 #' lf$drop_nulls(subset = cs$integer())$collect()
 lazyframe__drop_nulls <- function(subset = NULL) {
   wrap({
-    subset <- parse_into_list_of_expressions(!!!subset)
+    if (!is.null(subset)) {
+      subset <- parse_into_list_of_expressions(!!!subset)
+    }
     self$`_ldf`$drop_nulls(subset)
   })
 }

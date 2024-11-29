@@ -4,7 +4,7 @@
 \alias{dataframe__drop}
 \title{Drop columns of a DataFrame}
 \usage{
-dataframe__drop(..., strict = TRUE)
+dataframe__drop(..., .strict = TRUE)
 }
 \arguments{
 \item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> Characters of column names to

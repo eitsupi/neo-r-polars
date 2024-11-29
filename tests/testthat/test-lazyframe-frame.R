@@ -932,16 +932,31 @@ test_that("join_asof", {
   )
 })
 
+test_that("fill_nan", {
+  df <- pl$DataFrame(
+    a = c(1.5, 2, NaN, NA),
+    b = c(1.5, NaN, NaN, 4)
+  )
+  expect_query_equal(
+    .input$fill_nan(99),
+    df,
+    pl$DataFrame(
+      a = c(1.5, 2, 99, NA),
+      b = c(1.5, 99, 99, 4)
+    )
+  )
+})
+
 test_that("fill_null", {
   df <- pl$DataFrame(
-    a = c(1.5, 2, NA, 4),
+    a = c(1.5, 2, NA, NaN),
     b = c(1.5, NA, NA, 4)
   )
   expect_query_equal(
     .input$fill_null(99),
     df,
     pl$DataFrame(
-      a = c(1.5, 2, 99, 4),
+      a = c(1.5, 2, 99, NaN),
       b = c(1.5, 99, 99, 4)
     )
   )
@@ -981,5 +996,178 @@ test_that("unique: maintain_order", {
     .input$unique("x", maintain_order = TRUE),
     df,
     pl$DataFrame(x = 1:100, y = seq(1, 200, 2))$cast(y = pl$Int32)
+  )
+})
+
+test_that("drop_nulls", {
+  df <- pl$DataFrame(x = c(1, NA, 2), y = c(NA, 1, 2))
+  expect_query_equal(
+    .input$drop_nulls(),
+    df,
+    pl$DataFrame(x = 2, y = 2)
+  )
+  expect_query_equal(
+    .input$drop_nulls(c("x", "y")),
+    df,
+    pl$DataFrame(x = 2, y = 2)
+  )
+  expect_query_equal(
+    .input$drop_nulls("x"),
+    df,
+    pl$DataFrame(x = c(1, 2), y = c(NA, 2))
+  )
+})
+
+test_that("drop", {
+  df <- pl$DataFrame(x = c(1, NA, 2), y = c(NA, 1, 2))
+  expect_query_equal(
+    .input$drop("x"),
+    df,
+    pl$DataFrame(y = c(NA, 1, 2))
+  )
+  expect_query_equal(
+    .input$drop("x", "y"),
+    df,
+    pl$DataFrame()
+  )
+
+  # arg 'strict' works
+  expect_query_error(
+    .input$drop("foo"),
+    df,
+    r"("foo" not found)"
+  )
+  expect_query_equal(
+    .input$drop("foo", .strict = FALSE),
+    df,
+    df
+  )
+})
+
+test_that("quantile", {
+  df <- pl$DataFrame(x = c(1, 2, 3, 1, 5, 6), y = 1:6)
+  expect_query_equal(
+    .input$quantile(1),
+    df,
+    pl$DataFrame(x = 6, y = 6)
+  )
+  expect_query_equal(
+    .input$quantile(0.5),
+    df,
+    pl$DataFrame(x = 3, y = 4)
+  )
+  expect_query_equal(
+    .input$quantile(0.5, "higher"),
+    df,
+    pl$DataFrame(x = 3, y = 4)
+  )
+  expect_query_equal(
+    .input$quantile(0.5, "lower"),
+    df,
+    pl$DataFrame(x = 2, y = 3)
+  )
+  expect_query_equal(
+    .input$quantile(0.5, "midpoint"),
+    df,
+    pl$DataFrame(x = 2.5, y = 3.5)
+  )
+  expect_query_equal(
+    .input$quantile(0.5, "linear"),
+    df,
+    pl$DataFrame(x = 2.5, y = 3.5)
+  )
+})
+
+
+test_that("lazy filter", {
+  df <- pl$DataFrame(
+    x = c(1, 2, 3, 4, 5),
+    y = letters[1:5],
+    z = c(TRUE, TRUE, FALSE, TRUE, FALSE)
+  )
+
+  # using ==
+  expect_query_equal(
+    .input$filter(pl$col("x") == 1),
+    df,
+    pl$DataFrame(x = 1, y = "a", z = TRUE)
+  )
+  expect_query_equal(
+    .input$filter(pl$col("z")),
+    df,
+    pl$DataFrame(x = c(1, 2, 4), y = c("a", "b", "d"), z = c(TRUE, TRUE, TRUE))
+  )
+  expect_query_equal(
+    .input$filter(!pl$col("z")),
+    df,
+    pl$DataFrame(x = c(3, 5), y = c("c", "e"), z = c(FALSE, FALSE))
+  )
+
+  # using inequality operators
+  expect_query_equal(
+    .input$filter(pl$col("x") > 4),
+    df,
+    pl$DataFrame(x = 5, y = "e", z = FALSE)
+  )
+  expect_query_equal(
+    .input$filter(pl$col("x") >= 4),
+    df,
+    pl$DataFrame(x = c(4, 5), y = c("d", "e"), z = c(TRUE, FALSE))
+  )
+  expect_query_equal(
+    .input$filter(pl$col("x") < 2),
+    df,
+    pl$DataFrame(x = 1, y = "a", z = TRUE)
+  )
+  expect_query_equal(
+    .input$filter(pl$col("x") <= 2),
+    df,
+    pl$DataFrame(x = c(1, 2), y = c("a", "b"), z = c(TRUE, TRUE))
+  )
+  expect_query_equal(
+    .input$filter(pl$col("x") != 3),
+    df,
+    pl$DataFrame(
+      x = c(1, 2, 4, 5),
+      y = c("a", "b", "d", "e"),
+      z = c(TRUE, TRUE, TRUE, FALSE)
+    )
+  )
+
+  # using &
+  expect_query_equal(
+    .input$filter(pl$col("x") <= 3 & pl$col("z")),
+    df,
+    pl$DataFrame(x = c(1, 2), y = c("a", "b"), z = c(TRUE, TRUE))
+  )
+  expect_query_equal(
+    .input$filter(pl$col("x") <= 3, pl$col("z")),
+    df,
+    pl$DataFrame(x = c(1, 2), y = c("a", "b"), z = c(TRUE, TRUE))
+  )
+
+  # using |
+  expect_query_equal(
+    .input$filter(pl$col("x") <= 3 | pl$col("z")),
+    df,
+    pl$DataFrame(
+      x = c(1, 2, 3, 4),
+      y = c("a", "b", "c", "d"),
+      z = c(TRUE, TRUE, FALSE, TRUE)
+    )
+  )
+})
+
+test_that("filter with nulls", {
+  df <- pl$DataFrame(x = c(1, 2, NA))
+  expect_query_equal(
+    .input$filter(pl$col("x") == 1),
+    df,
+    pl$DataFrame(x = 1)
+  )
+  expect_query_equal(
+    .input$filter(pl$col("x")$is_null()),
+    df,
+    pl$DataFrame(x = NA_real_)
   )
 })
