@@ -1785,6 +1785,9 @@ lazyframe__rolling <- function(
     } else {
       offset <- negate_duration_string(period)
     }
+    if (!is.null(group_by) && !is.list(group_by)) {
+      group_by <- list(group_by)
+    }
     by <- parse_into_list_of_expressions(!!!group_by)
     self$`_ldf`$rolling(
       as_polars_expr(index_column)$`_rexpr`, period, offset, closed, by
