@@ -1345,3 +1345,36 @@ test_that("filter with nulls", {
     pl$DataFrame(x = NA_real_)
   )
 })
+
+test_that("unnest", {
+  df <- pl$DataFrame(
+    a = 1:5,
+    b = c("one", "two", "three", "four", "five"),
+    c = rep(TRUE, 5),
+    d = rep(42.0, 5),
+    e = rep(NaN, 5),
+    f = rep(NA_real_, 5)
+  )
+
+  df2 <- df$
+    select(
+    pl$struct(c("a", "b", "c"))$alias("first_struct"),
+    pl$struct(c("d", "e", "f"))$alias("second_struct")
+  )
+
+  expect_query_equal(
+    .input$unnest("first_struct", "second_struct"),
+    .input = df2,
+    df
+  )
+
+  expect_query_equal(
+    .input$unnest("first_struct"),
+    .input = df2,
+    df$
+      select(
+      pl$col("a", "b", "c"),
+      pl$struct(c("d", "e", "f"))$alias("second_struct")
+    )
+  )
+})
