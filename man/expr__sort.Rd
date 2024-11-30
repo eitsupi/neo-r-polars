@@ -32,7 +32,7 @@ df$with_columns(
 df <- pl$DataFrame(
   group = c("one", "one", "one", "two", "two", "two"),
   value = c(1, 98, 2, 3, 99, 4)
-) 
+)
 
-df$group_by("group")$agg(pl$col("value")$sort())  
+df$group_by("group")$agg(pl$col("value")$sort())
 }

@@ -35,7 +35,7 @@ A polars \link{expression}
 Sample from this expression
 }
 \examples{
-df <- pl$DataFrame(a = 1:3) 
+df <- pl$DataFrame(a = 1:3)
 df$select(pl$col("a")$sample(
   fraction = 1, with_replacement = TRUE, seed = 1
 ))

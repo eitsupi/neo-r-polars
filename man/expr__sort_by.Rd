@@ -62,5 +62,5 @@ df$with_columns(
 # in an aggregation context, values are sorted within groups
 df$group_by("group")$agg(
   pl$col("value1")$sort_by("value2")
-) 
+)
 }

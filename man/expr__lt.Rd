@@ -17,7 +17,7 @@ Check strictly lower inequality
 }
 \examples{
 df <- pl$DataFrame(x = 1:3)
-df$with_columns( 
+df$with_columns(
   with_lt = pl$col("x")$lt(pl$lit(2)),
   with_symbol = pl$col("x") < pl$lit(2)
 )

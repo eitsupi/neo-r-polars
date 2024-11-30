@@ -38,8 +38,8 @@ df$with_columns(replaced = pl$col("a")$replace(c(2, 3), c(100, 200)))
 mapping <- list(`2` = 100, `3` = 200)
 df$with_columns(replaced = pl$col("a")$replace(mapping))
 
-# The original data type is preserved when replacing by values of a 
-# different data type. Use $replace_strict() to replace and change the 
+# The original data type is preserved when replacing by values of a
+# different data type. Use $replace_strict() to replace and change the
 # return data type.
 df <- pl$DataFrame(a = c("x", "y", "z"))
 mapping <- list(x = 1, y = 2, z = 3)

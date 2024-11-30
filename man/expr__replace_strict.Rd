@@ -50,7 +50,7 @@ df$with_columns(
 mapping <- list(`2` = 100, `3` = 200)
 df$with_columns(replaced = pl$col("a")$replace_strict(mapping, default = -1))
 
-# By default, an error is raised if any non-null values were not replaced. 
+# By default, an error is raised if any non-null values were not replaced.
 # Specify a default to set all values that were not matched.
 tryCatch(
   df$with_columns(replaced = pl$col("a")$replace_strict(mapping)),
