@@ -3322,8 +3322,8 @@ expr__rolling_var_by <- function(
 #' account for imbalance in relative weightings:
 #' * when `TRUE` (default), the EW function is calculated using weights
 #'  \eqn{w_i = (1 - \alpha)^i};
-#' * when `FALSE`, the EW function is calculated recursively by \deqn{y_0 &= x_0
-#'  \\y_t &= (1 - \alpha)y_{t - 1} + \alpha x_t}
+#' * when `FALSE`, the EW function is calculated recursively by \deqn{y_0 = x_0
+#'  ; y_t = (1 - \alpha)y_{t - 1} + \alpha x_t}
 #' @param bias If `FALSE` (default), apply a correction to make the estimate
 #' statistically unbiased.
 #' @param ignore_nulls Ignore missing values when calculating weights.
