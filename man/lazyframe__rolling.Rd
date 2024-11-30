@@ -56,6 +56,11 @@ whereas if you pass a non-default \code{offset}, then the windows will be:
 \item \verb{(t_n + offset, t_n + offset + period]}
 }
 }
+\details{
+If you want to compute multiple aggregation statistics over the same dynamic
+window, consider using \code{\link[=expr__rolling]{$rolling()}} - this method can cache
+the window size computation.
+}
 \examples{
 dates <- c(
   "2020-01-01 13:45:48",

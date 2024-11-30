@@ -620,15 +620,15 @@ impl TryFrom<&str> for Wrap<Roll> {
 impl TryFrom<&str> for Wrap<QuantileMethod> {
     type Error = String;
 
-    fn try_from(interpolation: &str) -> Result<Self, String> {
-        let parsed = match interpolation {
+    fn try_from(roll: &str) -> Result<Self, String> {
+        let parsed = match roll {
             "nearest" => QuantileMethod::Nearest,
             "higher" => QuantileMethod::Higher,
             "lower" => QuantileMethod::Lower,
             "midpoint" => QuantileMethod::Midpoint,
             "linear" => QuantileMethod::Linear,
             "equiprobable" => QuantileMethod::Equiprobable,
-            _ => return Err(format!("unreachable")),
+            _ => return Err("unreachable".to_string()),
         };
         Ok(Wrap(parsed))
     }
@@ -819,23 +819,6 @@ impl TryFrom<&str> for Wrap<AsofStrategy> {
             "backward" => AsofStrategy::Backward,
             "nearest" => AsofStrategy::Nearest,
             _ => return Err(format!("unreachable")),
-        };
-        Ok(Wrap(parsed))
-    }
-}
-
-impl TryFrom<&str> for Wrap<QuantileMethod> {
-    type Error = String;
-
-    fn try_from(roll: &str) -> Result<Self, String> {
-        let parsed = match roll {
-            "nearest" => QuantileMethod::Nearest,
-            "higher" => QuantileMethod::Higher,
-            "lower" => QuantileMethod::Lower,
-            "midpoint" => QuantileMethod::Midpoint,
-            "linear" => QuantileMethod::Linear,
-            "equiprobable" => QuantileMethod::Equiprobable,
-            _ => return Err("unreachable".to_string()),
         };
         Ok(Wrap(parsed))
     }
