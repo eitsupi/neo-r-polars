@@ -147,7 +147,7 @@ expr__mul <- function(other) {
 #' Divide two expressions
 #'
 #' Method equivalent of float division operator `expr / other`.
-#' `$truediv()` is an alias for `$true_div()`, which exists for compatibility 
+#' `$truediv()` is an alias for `$true_div()`, which exists for compatibility
 #' with Python Polars.
 #'
 #' Zero-division behaviour follows IEEE-754:
@@ -256,11 +256,11 @@ expr__neg <- function() {
 
 #' Check equality
 #'
-#' This propagates null values, i.e. any comparison involving `null` will 
-#' return `null`. Use [`$eq_missing()`][expr__eq_missing] to consider null 
+#' This propagates null values, i.e. any comparison involving `null` will
+#' return `null`. Use [`$eq_missing()`][expr__eq_missing] to consider null
 #' values as equal.
-#' 
-#' @param other A literal or expression value to compare with. 
+#'
+#' @param other A literal or expression value to compare with.
 #' @inherit as_polars_expr return
 #'
 #' @seealso [expr__eq_missing]
@@ -278,8 +278,8 @@ expr__eq <- function(other) {
 }
 
 #' Check equality without `null` propagation
-#' 
-#' This considers that null values are equal. It differs from 
+#'
+#' This considers that null values are equal. It differs from
 #' [`$eq()`][expr__eq] where null values are propagated.
 #'
 #' @inheritParams expr__eq
@@ -300,9 +300,9 @@ expr__eq_missing <- function(other) {
 }
 
 #' Check inequality
-#' 
-#' This propagates null values, i.e. any comparison involving `null` will 
-#' return `null`. Use [`$ne_missing()`][expr__ne_missing] to consider null 
+#'
+#' This propagates null values, i.e. any comparison involving `null` will
+#' return `null`. Use [`$ne_missing()`][expr__ne_missing] to consider null
 #' values as equal.
 #'
 #' @inheritParams expr__eq
@@ -348,7 +348,7 @@ expr__ne_missing <- function(other) {
 #'
 #' @examples
 #' df <- pl$DataFrame(x = 1:3)
-#' df$with_columns( 
+#' df$with_columns(
 #'   with_gt = pl$col("x")$gt(pl$lit(2)),
 #'   with_symbol = pl$col("x") > pl$lit(2)
 #' )
@@ -366,7 +366,7 @@ expr__gt <- function(other) {
 #'
 #' @examples
 #' df <- pl$DataFrame(x = 1:3)
-#' df$with_columns( 
+#' df$with_columns(
 #'   with_ge = pl$col("x")$ge(pl$lit(2)),
 #'   with_symbol = pl$col("x") >= pl$lit(2)
 #' )
@@ -384,7 +384,7 @@ expr__ge <- function(other) {
 #'
 #' @examples
 #' df <- pl$DataFrame(x = 1:3)
-#' df$with_columns( 
+#' df$with_columns(
 #'   with_le = pl$col("x")$le(pl$lit(2)),
 #'   with_symbol = pl$col("x") <= pl$lit(2)
 #' )
@@ -402,7 +402,7 @@ expr__le <- function(other) {
 #'
 #' @examples
 #' df <- pl$DataFrame(x = 1:3)
-#' df$with_columns( 
+#' df$with_columns(
 #'   with_lt = pl$col("x")$lt(pl$lit(2)),
 #'   with_symbol = pl$col("x") < pl$lit(2)
 #' )
@@ -439,22 +439,22 @@ expr__alias <- function(name) {
 
 
 #' Exclude columns from a multi-column expression.
-#' 
+#'
 #' @param ... The name or datatype of the column(s) to exclude. Accepts regular
 #' expression input. Regular expressions should start with `^` and end with `$`.
-#' 
+#'
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(aa = 1:2, ba = c("a", NA), cc = c(NA, 2.5))
 #' df
-#' 
+#'
 #' # Exclude by column name(s):
 #' df$select(pl$all()$exclude("ba"))
-#' 
+#'
 #' # Exclude by regex, e.g. removing all columns whose names end with the
 #' # letter "a":
 #' df$select(pl$all()$exclude("^.*a$"))
-#' 
+#'
 #' # Exclude by dtype(s), e.g. removing all columns of type Int64 or Float64:
 #' df$select(pl$all()$exclude(pl$Int64, pl$Float64))
 expr__exclude <- function(...) {
@@ -689,7 +689,7 @@ expr__sum <- function() {
 #' @param dtype DataType to cast to.
 #' @param strict If `TRUE` (default), an error will be thrown if cast failed at
 #' resolve time.
-#' @param wrap_numerical If `TRUE`, numeric casts wrap overflowing values 
+#' @param wrap_numerical If `TRUE`, numeric casts wrap overflowing values
 #' instead of marking the cast as invalid.
 #'
 #' @inherit as_polars_expr return
@@ -720,7 +720,7 @@ expr__cast <- function(dtype, ..., strict = TRUE, wrap_numerical = FALSE) {
 }
 
 #' Sort this expression
-#' 
+#'
 #' If used in a groupby context, values within each group are sorted.
 #'
 #' @inheritParams rlang::args_dots_empty
@@ -730,20 +730,20 @@ expr__cast <- function(dtype, ..., strict = TRUE, wrap_numerical = FALSE) {
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(a = c(6, 1, 0, NA, Inf, NaN))
-#' 
+#'
 #' df$with_columns(
 #'   sorted = pl$col("a")$sort(),
 #'   sorted_desc = pl$col("a")$sort(descending = TRUE),
 #'   sorted_nulls_last = pl$col("a")$sort(nulls_last = TRUE)
 #' )
-#' 
+#'
 #' # When sorting in a group by context, values in each group are sorted.
 #' df <- pl$DataFrame(
 #'   group = c("one", "one", "one", "two", "two", "two"),
 #'   value = c(1, 98, 2, 3, 99, 4)
-#' ) 
-#' 
-#' df$group_by("group")$agg(pl$col("value")$sort())  
+#' )
+#'
+#' df$group_by("group")$agg(pl$col("value")$sort())
 expr__sort <- function(..., descending = FALSE, nulls_last = FALSE) {
   wrap({
     check_dots_empty0(...)
@@ -772,13 +772,13 @@ expr__arg_sort <- function(..., descending = FALSE, nulls_last = FALSE) {
 
 #' Sort this column by the ordering of another column, or multiple other
 #' columns.
-#' 
+#'
 #' @inherit expr__sort description
 #' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Column(s) to sort by. Accepts
 #' expression input. Strings are parsed as column names.
-#' @param descending Sort in descending order. When sorting by multiple 
+#' @param descending Sort in descending order. When sorting by multiple
 #' columns, can be specified per column by passing a sequence of booleans.
-#' @param nulls_last Place null values last; can specify a single boolean 
+#' @param nulls_last Place null values last; can specify a single boolean
 #' applying to all columns or a sequence of booleans for per-column control.
 #' @param multithreaded Sort using multiple threads.
 #' @param maintain_order Whether the order should be maintained if elements are
@@ -809,11 +809,11 @@ expr__arg_sort <- function(..., descending = FALSE, nulls_last = FALSE) {
 #' df$with_columns(
 #'   sorted = pl$col("group")$sort_by(pl$col("value1") + pl$col("value2"))
 #' )
-#' 
+#'
 #' # in an aggregation context, values are sorted within groups
 #' df$group_by("group")$agg(
 #'   pl$col("value1")$sort_by("value2")
-#' ) 
+#' )
 expr__sort_by <- function(
     ...,
     descending = FALSE,
@@ -840,7 +840,7 @@ expr__sort_by <- function(
 #'   fruits = c("banana", "banana", "apple", "apple", "banana"),
 #'   b = 5:1
 #' )
-#' 
+#'
 #' df$with_columns(
 #'   pl$all()$reverse()$name$suffix("_reverse")
 #' )
@@ -854,7 +854,7 @@ expr__reverse <- function() {
 #'
 #' @param offset Numeric or expression, zero-indexed. Indicates where to start
 #' the slice. A negative value is one-indexed and starts from the end.
-#' @param length Maximum number of elements contained in the slice. If `NULL` 
+#' @param length Maximum number of elements contained in the slice. If `NULL`
 #' (default), all rows starting at the offset will be selected.
 #'
 #' @inherit as_polars_expr return
@@ -941,10 +941,10 @@ expr__last <- function() {
 #' The outcome is similar to how window functions work in
 #' [PostgreSQL](https://www.postgresql.org/docs/current/tutorial-window.html).
 #'
-#' @param ... [`dynamic-dots`][rlang::dyn-dots]> Column(s) to group by. Accepts 
+#' @param ... [`dynamic-dots`][rlang::dyn-dots]> Column(s) to group by. Accepts
 #' expression input. Characters are parsed as column names.
 #' @param order_by Order the window functions/aggregations with the partitioned
-#' groups by the result of the expression passed to `order_by`. Accepts 
+#' groups by the result of the expression passed to `order_by`. Accepts
 #' expression input. Strings are parsed as column names.
 #' @param mapping_strategy One of the following:
 #' * `"group_to_rows"` (default): if the aggregation results in multiple values,
@@ -1349,7 +1349,7 @@ expr__all <- function(..., ignore_nulls = TRUE) {
 expr__cum_sum <- function(..., reverse = FALSE) {
   wrap({
     check_dots_empty0(...)
-    self$`_rexpr`$cum_sum(reverse) 
+    self$`_rexpr`$cum_sum(reverse)
   })
 }
 
@@ -1359,7 +1359,7 @@ expr__cum_sum <- function(..., reverse = FALSE) {
 #' @inheritParams rlang::args_dots_empty
 #' @param reverse If `TRUE`, start with the total product of elements and divide
 #' each row one by one.
-#' 
+#'
 #' @inherit expr__cum_sum return details
 #' @examples
 #' pl$DataFrame(a = 1:4)$with_columns(
@@ -1369,7 +1369,7 @@ expr__cum_sum <- function(..., reverse = FALSE) {
 expr__cum_prod <- function(..., reverse = FALSE) {
   wrap({
     check_dots_empty0(...)
-    self$`_rexpr`$cum_prod(reverse) 
+    self$`_rexpr`$cum_prod(reverse)
   })
 }
 
@@ -1377,7 +1377,7 @@ expr__cum_prod <- function(..., reverse = FALSE) {
 #'
 #' @inheritParams rlang::args_dots_empty
 #' @param reverse If `TRUE`, start from the last value.
-#' 
+#'
 #' @inherit expr__cum_sum return details
 #' @examples
 #' pl$DataFrame(a = c(1:4, 2L))$with_columns(
@@ -1387,7 +1387,7 @@ expr__cum_prod <- function(..., reverse = FALSE) {
 expr__cum_min <- function(..., reverse = FALSE) {
   wrap({
     check_dots_empty0(...)
-    self$`_rexpr`$cum_min(reverse) 
+    self$`_rexpr`$cum_min(reverse)
   })
 }
 
@@ -1395,7 +1395,7 @@ expr__cum_min <- function(..., reverse = FALSE) {
 #'
 #' @inheritParams rlang::args_dots_empty
 #' @inheritParams expr__cum_min
-#' 
+#'
 #' @inherit expr__cum_sum return details
 #' @examples
 #' pl$DataFrame(a = c(1:4, 2L))$with_columns(
@@ -1405,7 +1405,7 @@ expr__cum_min <- function(..., reverse = FALSE) {
 expr__cum_max <- function(..., reverse = FALSE) {
   wrap({
     check_dots_empty0(...)
-    self$`_rexpr`$cum_max(reverse) 
+    self$`_rexpr`$cum_max(reverse)
   })
 }
 
@@ -1423,7 +1423,7 @@ expr__cum_max <- function(..., reverse = FALSE) {
 expr__cum_count <- function(..., reverse = FALSE) {
   wrap({
     check_dots_empty0(...)
-    self$`_rexpr`$cum_count(reverse) 
+    self$`_rexpr`$cum_count(reverse)
   })
 }
 
@@ -2075,7 +2075,7 @@ expr__hash <- function(seed = 0, seed_1 = NULL, seed_2 = NULL, seed_3 = NULL) {
     seed_2 <- seed_2 %||% seed
     seed_3 <- seed_3 %||% seed
     self$`_rexpr`$hash(seed, seed_1, seed_2, seed_3)
-  })    
+  })
 }
 
 #' Compute the most occurring value(s)
@@ -2239,9 +2239,9 @@ expr__kurtosis <- function(..., fisher = TRUE, bias = TRUE) {
 #' \deqn{g_1=\frac{m_3}{m_2^{3/2}}}
 #' where
 #' \deqn{m_i=\frac{1}{N}\sum_{n=1}^N(x[n]-\bar{x})^i}
-#' is the biased sample \eqn{i\texttt{th}} central moment, and \eqn{\bar{x}} 
-#' is the sample mean. If `bias = FALSE`, the calculations are corrected for 
-#' bias and the value computed is the adjusted Fisher-Pearson standardized 
+#' is the biased sample \eqn{i\texttt{th}} central moment, and \eqn{\bar{x}}
+#' is the sample mean. If `bias = FALSE`, the calculations are corrected for
+#' bias and the value computed is the adjusted Fisher-Pearson standardized
 #' moment coefficient, i.e.
 #' \deqn{G_1 = \frac{k_3}{k_2^{3/2}} = \frac{\sqrt{N(N-1)}}{N-2}\frac{m_3}{m_2^{3/2}}}
 #'
@@ -2257,7 +2257,7 @@ expr__skew <- function(..., bias = TRUE) {
 }
 
 #' Bin values into buckets and count their occurrences
-#' 
+#'
 #' `r lifecycle::badge("experimental")`
 #'
 #' @inheritParams rlang::args_dots_empty
@@ -2412,7 +2412,7 @@ expr__search_sorted <- function(element, side = c("any", "left", "right")) {
 #'
 #' @description
 #' `r lifecycle::badge("experimental")`
-#' 
+#'
 #' A window of length `window_size` will traverse the array. The values that
 #' fill this window will (optionally) be multiplied with the weights given by
 #' the `weights` vector. The resulting values will be aggregated.
@@ -2625,7 +2625,7 @@ expr__rolling_sum <- function(
 }
 
 #' Apply a rolling quantile over values
-#' 
+#'
 #' @inherit expr__rolling_max description params details
 #' @inheritParams expr__quantile
 #'
@@ -2798,25 +2798,25 @@ expr__rolling_var <- function(
 #' * `(t_1 - period, t_1]`
 #' * …
 #' * `(t_n - period, t_n]`
-#' 
+#'
 #' whereas if you pass a non-default `offset`, then the windows will be:
 #' * `(t_0 + offset, t_0 + offset + period]`
 #' * `(t_1 + offset, t_1 + offset + period]`
 #' * …
 #' * `(t_n + offset, t_n + offset + period]`
-#' 
-#' 
-#' @inherit expr__rolling_max params details 
+#'
+#'
+#' @inherit expr__rolling_max params details
 #' @inheritParams pl__date_range
 #' @inheritParams rlang::args_dots_empty
-#' @param index_column Character. Name of the column used to group based on the 
-#' time window. Often of type Date/Datetime. This column must be sorted in 
-#' ascending order. In case of a rolling group by on indices, dtype needs to be 
+#' @param index_column Character. Name of the column used to group based on the
+#' time window. Often of type Date/Datetime. This column must be sorted in
+#' ascending order. In case of a rolling group by on indices, dtype needs to be
 #' one of UInt32, UInt64, Int32, Int64. Note that the first three get cast to
 #' Int64, so if performance matters use an Int64 column.
 #' @param period Length of the window - must be non-negative.
 #' @param offset Offset of the window. Default is `-period`.
-#' 
+#'
 #' @inherit as_polars_expr return
 #' @examples
 #' dates <- as.POSIXct(
@@ -2826,7 +2826,7 @@ expr__rolling_var <- function(
 #'   )
 #' )
 #' df <- pl$DataFrame(dt = dates, a = c(3, 7, 5, 9, 2, 1))
-#' 
+#'
 #' df$with_columns(
 #'   sum_a = pl$col("a")$sum()$rolling(index_column = "dt", period = "2d"),
 #'   min_a = pl$col("a")$min()$rolling(index_column = "dt", period = "2d"),
@@ -2854,7 +2854,7 @@ expr__rolling <- function(
 #'
 #' @description
 #' `r lifecycle::badge("experimental")`
-#' 
+#'
 #' Given a `by` column `<t_0, t_1, ..., t_n>`, then `closed = "right"` (the
 #' default) means the windows will be:
 #' * `(t_0 - window_size, t_0]`
@@ -3694,10 +3694,10 @@ expr__floor <- function() {
 #' inputs are parsed as literals.
 #' @param upper_bound Upper bound. Accepts expression input. Non-expression
 #' inputs are parsed as literals.
-#' 
+#'
 #' @details
-#' This method only works for numeric and temporal columns. To clip other data 
-#' types, consider writing a when-then-otherwise expression. 
+#' This method only works for numeric and temporal columns. To clip other data
+#' types, consider writing a when-then-otherwise expression.
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -3834,7 +3834,7 @@ expr__fill_nan <- function(value) {
 #' @param value Value used to fill null values. Can be missing if `strategy` is
 #' specified. Accepts expression input, strings are parsed as column names.
 #' @param strategy Strategy used to fill null values. Must be one of
-#' `"forward"`, `"backward"`, `"min"`, `"max"`, `"mean"`, `"zero"`, `"one"`. 
+#' `"forward"`, `"backward"`, `"min"`, `"max"`, `"mean"`, `"zero"`, `"one"`.
 #' @param limit Number of consecutive null values to fill when using the
 #' `"forward"` or `"backward"` strategy.
 #'
@@ -4018,7 +4018,7 @@ expr__upper_bound <- function() {
 
 # TODO-REWRITE: requires unnest() in second example
 #' Bin continuous values into discrete categories
-#' 
+#'
 #' `r lifecycle::badge("experimental")`
 #'
 #' @inheritParams rlang::args_dots_empty
@@ -4062,7 +4062,7 @@ expr__cut <- function(
 
 # TODO-REWRITE: requires unnest() in third example
 #' Bin continuous values into discrete categories based on their quantiles
-#' 
+#'
 #' `r lifecycle::badge("experimental")`
 #'
 #' @inheritParams rlang::args_dots_empty
@@ -4124,11 +4124,11 @@ expr__qcut <- function(
 }
 
 #' Create a single chunk of memory for this Series
-#' 
+#'
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(a = c(1, 1, 2))
-#' 
+#'
 #' # Create a Series with 3 nulls, append column a then rechunk
 #' df$select(pl$repeat(NA, 3)$append(pl$col("a"))$rechunk())
 expr__rechunk <- function() {
@@ -4138,18 +4138,18 @@ expr__rechunk <- function() {
 }
 
 #' Reinterpret the underlying bits as a signed/unsigned integer
-#' 
+#'
 #' This operation is only allowed for 64-bit integers. For lower bits integers,
 #' you can safely use the [$cast()][expr__cast] operation.
-#' 
+#'
 #' @inheritParams rlang::args_dots_empty
-#' @param signed If `TRUE` (default), reinterpret as pl$Int64. Otherwise, 
+#' @param signed If `TRUE` (default), reinterpret as pl$Int64. Otherwise,
 #' reinterpret as pl$UInt64.
-#' 
+#'
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(a = c(1, 1, 2))$cast(pl$UInt64)
-#' 
+#'
 #' # Create a Series with 3 nulls, append column a then rechunk
 #' df$with_columns(
 #'   reinterpreted = pl$col("a")$reinterpret()
@@ -4162,18 +4162,18 @@ expr__reinterpret <- function(..., signed = TRUE) {
 }
 
 #' Repeat the elements in this Series as specified in the given expression
-#' 
+#'
 #' The repeated elements are expanded into a List dtype.
-#' 
-#' @param by Numeric column that determines how often the values will be 
-#' repeated. The column will be coerced to UInt32. Give this dtype to make the 
-#' coercion a no-op. Accepts expression input, strings are parsed as column 
+#'
+#' @param by Numeric column that determines how often the values will be
+#' repeated. The column will be coerced to UInt32. Give this dtype to make the
+#' coercion a no-op. Accepts expression input, strings are parsed as column
 #' names.
-#' 
+#'
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(a = c("x", "y", "z"), n = 1:3)
-#' 
+#'
 #' df$with_columns(
 #'   repeated = pl$col("a")$repeat_by("n")
 #' )
@@ -4190,12 +4190,12 @@ expr__repeat_by <- function(by) {
 #' value to all other values and to specify the output datatype.
 #'
 #' @param old Value or vector of values to replace. Accepts expression input.
-#' Vectors are parsed as Series, other non-expression inputs are parsed as 
+#' Vectors are parsed as Series, other non-expression inputs are parsed as
 #' literals. Also accepts a list of values like `list(old = new)`.
-#' @param new Value or vector of values to replace by. Accepts expression 
+#' @param new Value or vector of values to replace by. Accepts expression
 #' input. Vectors are parsed as Series, other non-expression inputs are parsed
 #' as literals. Length must match the length of `old` or have length 1.
-#' 
+#'
 #' @details
 #' The global string cache must be enabled when replacing categorical values.
 #'
@@ -4212,8 +4212,8 @@ expr__repeat_by <- function(by) {
 #' mapping <- list(`2` = 100, `3` = 200)
 #' df$with_columns(replaced = pl$col("a")$replace(mapping))
 #'
-#' # The original data type is preserved when replacing by values of a 
-#' # different data type. Use $replace_strict() to replace and change the 
+#' # The original data type is preserved when replacing by values of a
+#' # different data type. Use $replace_strict() to replace and change the
 #' # return data type.
 #' df <- pl$DataFrame(a = c("x", "y", "z"))
 #' mapping <- list(x = 1, y = 2, z = 3)
@@ -4237,7 +4237,7 @@ expr__replace = function(old, new) {
       old <- names(old)
     }
     self$`_rexpr`$replace(
-      as_polars_expr(old, as_lit = TRUE)$`_rexpr`, 
+      as_polars_expr(old, as_lit = TRUE)$`_rexpr`,
       as_polars_expr(new, as_lit = TRUE)$`_rexpr`
     )
   })
@@ -4254,8 +4254,8 @@ expr__replace = function(old, new) {
 #' @param default Set values that were not replaced to this value. If `NULL`
 #' (default), an error is raised if any values were not replaced. Accepts
 #' expression input. Non-expression inputs are parsed as literals.
-#' @param return_dtype The data type of the resulting expression. If `NULL` 
-#' (default), the data type is determined automatically based on the other 
+#' @param return_dtype The data type of the resulting expression. If `NULL`
+#' (default), the data type is determined automatically based on the other
 #' inputs.
 #'
 #' @inherit as_polars_expr return
@@ -4272,14 +4272,14 @@ expr__replace = function(old, new) {
 #' # the replacements
 #' mapping <- list(`2` = 100, `3` = 200)
 #' df$with_columns(replaced = pl$col("a")$replace_strict(mapping, default = -1))
-#' 
-#' # By default, an error is raised if any non-null values were not replaced. 
+#'
+#' # By default, an error is raised if any non-null values were not replaced.
 #' # Specify a default to set all values that were not matched.
 #' tryCatch(
 #'   df$with_columns(replaced = pl$col("a")$replace_strict(mapping)),
 #'   error = function(e) print(e)
 #' )
-#' 
+#'
 #' # one can specify the data type to return instead of automatically
 #' # inferring it
 #' df$with_columns(
@@ -4298,11 +4298,11 @@ expr__replace = function(old, new) {
 #'   )
 #' )
 expr__replace_strict = function(
-  old, 
-  new, 
-  ..., 
-  default = NULL, 
-  return_dtype = NULL) {  
+  old,
+  new,
+  ...,
+  default = NULL,
+  return_dtype = NULL) {
     wrap({
       check_dots_empty0(...)
       if (missing(new)) {
@@ -4316,7 +4316,7 @@ expr__replace_strict = function(
         default <- as_polars_expr(default, as_lit = TRUE)$`_rexpr`
       }
       self$`_rexpr`$replace_strict(
-        as_polars_expr(old, as_lit = TRUE)$`_rexpr`, 
+        as_polars_expr(old, as_lit = TRUE)$`_rexpr`,
         as_polars_expr(new, as_lit = TRUE)$`_rexpr`,
         default = default,
         return_dtype = return_dtype$`_dt`
@@ -4325,14 +4325,14 @@ expr__replace_strict = function(
 }
 
 #' Compress the column data using run-length encoding
-#' 
-#' Run-length encoding (RLE) encodes data by storing each run of identical 
+#'
+#' Run-length encoding (RLE) encodes data by storing each run of identical
 #' values as a single value and its length.
-#' 
+#'
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(a = c(1, 1, 2, 1, NA, 1, 3, 3))
-#' 
+#'
 #' df$select(pl$col("a")$rle())$unnest("a")
 expr__rle <- function() {
   wrap({
@@ -4341,22 +4341,22 @@ expr__rle <- function() {
 }
 
 #' Get a distinct integer ID for each run of identical values
-#' 
+#'
 #' The ID starts at 0 and increases by one each time the value of the column
 #' changes.
-#' 
+#'
 #' @details
-#' This functionality is especially useful for defining a new group for every 
+#' This functionality is especially useful for defining a new group for every
 #' time a column’s value changes, rather than for every distinct value of that
 #' column.
-#' 
+#'
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   a = c(1, 2, 1, 1, 1),
 #'   b = c("x", "x", NA, "y", "y")
 #' )
-#' 
+#'
 #' df$with_columns(
 #'   rle_id_a = pl$col("a")$rle_id(),
 #'   rle_id_ab = pl$struct("a", "b")$rle_id()
@@ -4368,19 +4368,19 @@ expr__rle_id <- function() {
 }
 
 #' Sample from this expression
-#' 
+#'
 #' @inheritParams rlang::args_dots_empty
-#' @param n Number of items to return. Cannot be used with `fraction.` Defaults 
+#' @param n Number of items to return. Cannot be used with `fraction.` Defaults
 #' to 1 if `fraction` is `NULL`.
 #' @param fraction Fraction of items to return. Cannot be used with `n`.
 #' @param with_replacement Allow values to be sampled more than once.
 #' @param shuffle Shuffle the order of sampled data points.
-#' @param seed Seed for the random number generator. If `NULL` (default), a 
+#' @param seed Seed for the random number generator. If `NULL` (default), a
 #' random seed is generated for each sample operation.
-#' 
+#'
 #' @inherit as_polars_expr return
 #' @examples
-#' df <- pl$DataFrame(a = 1:3) 
+#' df <- pl$DataFrame(a = 1:3)
 #' df$select(pl$col("a")$sample(
 #'   fraction = 1, with_replacement = TRUE, seed = 1
 #' ))
@@ -4399,7 +4399,7 @@ expr__sample <- function(
         abort("cannot specify both `n` and `fraction`")
       }
       self$`_rexpr`$sample_frac(
-        as_polars_expr(fraction, as_lit = TRUE)$`_rexpr`, 
+        as_polars_expr(fraction, as_lit = TRUE)$`_rexpr`,
         with_replacement = with_replacement,
         shuffle = shuffle,
         seed = seed
@@ -4409,23 +4409,23 @@ expr__sample <- function(
         n <- 1
       }
       self$`_rexpr`$sample_n(
-        as_polars_expr(n, as_lit = TRUE)$`_rexpr`, 
+        as_polars_expr(n, as_lit = TRUE)$`_rexpr`,
         with_replacement = with_replacement,
         shuffle = shuffle,
         seed = seed
       )
-    }    
+    }
   })
 }
 
 #' Round underlying floating point data by decimals digits
-#' 
+#'
 #' @param decimals Number of decimals to round by.
-#' 
+#'
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(a = c(0.33, 0.52, 1.02, 1.17))
-#' 
+#'
 #' df$with_columns(
 #'   rounded = pl$col("a")$round(1)
 #' )
@@ -4436,13 +4436,13 @@ expr__round <- function(decimals) {
 }
 
 #' Round to a number of significant figures
-#' 
+#'
 #' @param digits Number of significant figures to round to.
-#' 
+#'
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(a = c(0.01234, 3.333, 1234))
-#' 
+#'
 #' df$with_columns(
 #'   rounded = pl$col("a")$round_sig_figs(2)
 #' )
@@ -4453,21 +4453,21 @@ expr__round_sig_figs <- function(digits) {
 }
 
 #' Shift values by the given number of indices
-#' 
+#'
 #' @inheritParams rlang::args_dots_empty
-#' @param n Number of indices to shift forward. If a negative value is 
+#' @param n Number of indices to shift forward. If a negative value is
 #' passed, values are shifted in the opposite direction instead.
 #' @param fill_value Fill the resulting null values with this value.
-#' 
+#'
 #' @inherit as_polars_expr return
 #' @examples
 #' # By default, values are shifted forward by one index.
 #' df <- pl$DataFrame(a = 1:4)
 #' df$with_columns(shift = pl$col("a")$shift())
-#' 
+#'
 #' # Pass a negative value to shift in the opposite direction instead.
 #' df$with_columns(shift = pl$col("a")$shift(-2))
-#' 
+#'
 #' # Specify fill_value to fill the resulting null values.
 #' df$with_columns(shift = pl$col("a")$shift(-2, fill_value = 100))
 expr__shift <- function(n = 1, ..., fill_value = NULL) {
@@ -4481,10 +4481,10 @@ expr__shift <- function(n = 1, ..., fill_value = NULL) {
 }
 
 #' Shrink numeric columns to the minimal required datatype
-#' 
+#'
 #' Shrink to the dtype needed to fit the extrema of this Series. This can be
 #' used to reduce memory pressure.
-#' 
+#'
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(a = c(-112, 2, 112))$cast(pl$Int64)
@@ -4498,14 +4498,14 @@ expr__shrink_dtype <- function() {
 }
 
 #' Shuffle the contents of this expression
-#' 
-#' Note this is shuffled independently of any other column or Expression. 
-#' If you want each row to stay the same use 
+#'
+#' Note this is shuffled independently of any other column or Expression.
+#' If you want each row to stay the same use
 #' [`df$sample(shuffle = TRUE)`][dataframe_sample].
-#' 
-#' @param seed Integer indicating the seed for the random number generator. If 
+#'
+#' @param seed Integer indicating the seed for the random number generator. If
 #' `NULL` (default), a random seed is generated each time the shuffle is called.
-#' 
+#'
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(a = 1:3)
@@ -4519,16 +4519,16 @@ expr__shuffle <- function(seed = NULL) {
 }
 
 #' Flags the expression as "sorted"
-#' 
+#'
 #' @description
 #' Enables downstream code to user fast paths for sorted arrays.
-#' 
-#' **Warning:** This can lead to incorrect results if the data is NOT sorted!! 
+#'
+#' **Warning:** This can lead to incorrect results if the data is NOT sorted!!
 #' Use with care!
-#' 
+#'
 #' @inheritParams rlang::args_dots_empty
 #' @param descending Whether the Series order is descending.
-#' 
+#'
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(a = 1:3)
@@ -4541,7 +4541,7 @@ expr__set_sorted <- function(..., descending = FALSE) {
 }
 
 #' Cast to physical representation of the logical dtype
-#' 
+#'
 #' @description
 #' The following data types will be changed:
 #' * Date -> Int32
@@ -4550,9 +4550,9 @@ expr__set_sorted <- function(..., descending = FALSE) {
 #' * Duration -> Int64
 #' * Categorical -> UInt32
 #' * List(inner) -> List(physical of inner)
-#' 
+#'
 #' Other data types will be left unchanged.
-#' 
+#'
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(a = factor(c("a", "x", NA, "a")))
