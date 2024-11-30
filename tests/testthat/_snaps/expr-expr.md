@@ -306,7 +306,7 @@
       ! Evaluation failed in `$select()`.
       Caused by error:
       ! Evaluation failed in `$ewm_mean()`.
-      Caused by error in `prepare_alpha()`:
+      Caused by error:
       ! `com` must be a number, not the string "a".
 
 ---
@@ -320,7 +320,7 @@
       ! Evaluation failed in `$select()`.
       Caused by error:
       ! Evaluation failed in `$ewm_mean()`.
-      Caused by error in `prepare_alpha()`:
+      Caused by error:
       ! `span` must be a number larger than or equal to 1, not the number 0.5.
 
 ---
