@@ -39,13 +39,12 @@ By "calendar day", we mean the corresponding time on the next day
 A polars \link{expression}
 }
 \description{
-Given observations \eqn{x_0}, \eqn{x_1}, \ldots, \eqn{x_{n-1}} at times
-\eqn{t_0}, \eqn{t_1}, \ldots, \eqn{t_{n-1}}, the EWMA is calculated as
-\deqn{y_0 &= x_0
-\alpha_i &= 1 - \exp \left\{ \frac{ -\ln(2)(t_i-t_{i-1}) } { \tau } \right\}
-y_i &= \alpha_i x_i + (1 - \alpha_i) y_{i-1}; \quad i > 0
-}
-where \eqn{\tau} is the \code{half_life}.
+The \code{\link[=as_polars_expr]{as_polars_expr()}} function creates a polars \link{expression} from various R objects.
+This function is used internally by various polars functions that accept \link[=Expr]{expressions}.
+In most cases, users should use \code{\link[=pl__lit]{pl$lit()}} instead of this function, which is
+a shorthand for \code{as_polars_expr(x, as_lit = TRUE)}.
+(In other words, this function can be considered as an internal implementation to realize
+the \code{lit} function of the Polars API in other languages.)
 }
 \details{
 Because R objects are typically mapped to \link{Series}, this function often calls \code{\link[=as_polars_series]{as_polars_series()}} internally.

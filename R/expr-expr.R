@@ -2232,19 +2232,6 @@ expr__kurtosis <- function(..., fisher = TRUE, bias = TRUE) {
 #'
 #' @inheritParams rlang::args_dots_empty
 #' @inheritParams expr__kurtosis
-#'
-#' @details
-#' The sample skewness is computed as the Fisher-Pearson coefficient of
-#' skewness, i.e.
-#' \deqn{g_1=\frac{m_3}{m_2^{3/2}}}
-#' where
-#' \deqn{m_i=\frac{1}{N}\sum_{n=1}^N(x[n]-\bar{x})^i}
-#' is the biased sample \eqn{i\texttt{th}} central moment, and \eqn{\bar{x}}
-#' is the sample mean. If `bias = FALSE`, the calculations are corrected for
-#' bias and the value computed is the adjusted Fisher-Pearson standardized
-#' moment coefficient, i.e.
-#' \deqn{G_1 = \frac{k_3}{k_2^{3/2}} = \frac{\sqrt{N(N-1)}}{N-2}\frac{m_3}{m_2^{3/2}}}
-#'
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(x = c(1, 2, 3, 2, 1))
@@ -3309,34 +3296,16 @@ expr__rolling_var_by <- function(
 #'
 #' @inheritParams rlang::args_dots_empty
 #' @inheritParams expr__rolling_max
-#' @param com Specify decay in terms of center of mass, \eqn{\gamma}, with
-#' \deqn{\alpha = \frac{1}{1 + \gamma} \; \forall \; \gamma \geq 0}.
-#' @param span Specify decay in terms of span, \eqn{\theta}, with
-#' \deqn{\alpha = \frac{2}{\theta + 1} \; \forall \; \theta \geq 1}
-#' @param half_life Specify decay in terms of half-life, \eqn{\lambda}, with
-#' \deqn{\alpha = 1 - \exp \left\{ \frac{ -\ln(2) }{ \lambda } \right\} \;
-#' \forall \; \lambda > 0}
-#' @param alpha Specify smoothing factor alpha directly, \eqn{0 < \alpha
-#' \leq 1}.
+#' @param com Specify decay in terms of center of mass.
+#' @param span Specify decay in terms of span.
+#' @param half_life Specify decay in terms of half-life.
+#' @param alpha Specify smoothing factor alpha directly.
 #' @param adjust Divide by decaying adjustment factor in beginning periods to
-#' account for imbalance in relative weightings:
-#' * when `TRUE` (default), the EW function is calculated using weights
-#'  \eqn{w_i = (1 - \alpha)^i};
-#' * when `FALSE`, the EW function is calculated recursively by \deqn{y_0 = x_0
-#'  ; y_t = (1 - \alpha)y_{t - 1} + \alpha x_t}
+#' account for imbalance in relative weightings
 #' @param bias If `FALSE` (default), apply a correction to make the estimate
 #' statistically unbiased.
 #' @param ignore_nulls Ignore missing values when calculating weights.
-#' * when `FALSE` (default), weights are based on absolute positions. For
-#'   example, the weights of \eqn{x_0} and \eqn{x_2} used in calculating the
-#'   final weighted average of (\eqn{x_0}, null, \eqn{x_2}) are
-#'   \eqn{(1-\alpha)^2} and \eqn{1} if `adjust = TRUE`, and \eqn{(1-\alpha)^2}
-#'   and \eqn{\alpha} if `adjust = FALSE`.
-#' * when `TRUE`, weights are based on relative positions. For example, the
-#'   weights of \eqn{x_0} and \eqn{x_2} used in calculating the final weighted
-#'   average of (\eqn{x_0}, null, \eqn{x_2}) are \eqn{1-\alpha} and \eqn{1} if
-#'   `adjust = TRUE`, and \eqn{1-\alpha} and \eqn{\alpha} if `adjust = FALSE`.
-#'
+#' * when `FALSE` (default), weights are based on absolute positions.
 #' @inherit as_polars_expr
 #' @examples
 #' df <- pl$DataFrame(a = 1:3)
@@ -3427,15 +3396,6 @@ expr__ewm_mean <- function(
 }
 
 #' Compute time-based exponentially weighted moving average
-#'
-#' @description
-#' Given observations \eqn{x_0}, \eqn{x_1}, \ldots, \eqn{x_{n-1}} at times
-#' \eqn{t_0}, \eqn{t_1}, \ldots, \eqn{t_{n-1}}, the EWMA is calculated as
-#' \deqn{y_0 &= x_0
-#' \alpha_i &= 1 - \exp \left\{ \frac{ -\ln(2)(t_i-t_{i-1}) } { \tau } \right\}
-#' y_i &= \alpha_i x_i + (1 - \alpha_i) y_{i-1}; \quad i > 0
-#' }
-#' where \eqn{\tau} is the `half_life`.
 #'
 #' @param by Times to calculate average by. Should be DateTime, Date, UInt64,
 #' UInt32, Int64, or Int32 data type.

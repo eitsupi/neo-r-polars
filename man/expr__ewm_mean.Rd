@@ -18,27 +18,16 @@ expr__ewm_mean(
 \arguments{
 \item{...}{These dots are for future extensions and must be empty.}
 
-\item{com}{Specify decay in terms of center of mass, \eqn{\gamma}, with
-\deqn{\alpha = \frac{1}{1 + \gamma} \; \forall \; \gamma \geq 0}.}
+\item{com}{Specify decay in terms of center of mass.}
 
-\item{span}{Specify decay in terms of span, \eqn{\theta}, with
-\deqn{\alpha = \frac{2}{\theta + 1} \; \forall \; \theta \geq 1}}
+\item{span}{Specify decay in terms of span.}
 
-\item{half_life}{Specify decay in terms of half-life, \eqn{\lambda}, with
-\deqn{\alpha = 1 - \exp \left\{ \frac{ -\ln(2) }{ \lambda } \right\} \;
-\forall \; \lambda > 0}}
+\item{half_life}{Specify decay in terms of half-life.}
 
-\item{alpha}{Specify smoothing factor alpha directly, \eqn{0 < \alpha
-\leq 1}.}
+\item{alpha}{Specify smoothing factor alpha directly.}
 
 \item{adjust}{Divide by decaying adjustment factor in beginning periods to
-account for imbalance in relative weightings:
-\itemize{
-\item when \code{TRUE} (default), the EW function is calculated using weights
-\eqn{w_i = (1 - \alpha)^i};
-\item when \code{FALSE}, the EW function is calculated recursively by \deqn{y_0 = x_0
- ; y_t = (1 - \alpha)y_{t - 1} + \alpha x_t}
-}}
+account for imbalance in relative weightings}
 
 \item{min_periods}{The number of values in the window that should be
 non-null before computing a result. If \code{NULL} (default), it will be set
@@ -46,15 +35,7 @@ equal to \code{window_size}.}
 
 \item{ignore_nulls}{Ignore missing values when calculating weights.
 \itemize{
-\item when \code{FALSE} (default), weights are based on absolute positions. For
-example, the weights of \eqn{x_0} and \eqn{x_2} used in calculating the
-final weighted average of (\eqn{x_0}, null, \eqn{x_2}) are
-\eqn{(1-\alpha)^2} and \eqn{1} if \code{adjust = TRUE}, and \eqn{(1-\alpha)^2}
-and \eqn{\alpha} if \code{adjust = FALSE}.
-\item when \code{TRUE}, weights are based on relative positions. For example, the
-weights of \eqn{x_0} and \eqn{x_2} used in calculating the final weighted
-average of (\eqn{x_0}, null, \eqn{x_2}) are \eqn{1-\alpha} and \eqn{1} if
-\code{adjust = TRUE}, and \eqn{1-\alpha} and \eqn{\alpha} if \code{adjust = FALSE}.
+\item when \code{FALSE} (default), weights are based on absolute positions.
 }}
 }
 \value{
