@@ -1226,7 +1226,7 @@ lazyframe__join <- function(
       }
       return(
         self$`_ldf`$join(
-          other$`_ldf`, as.list(NULL), as.list(NULL),
+          other$`_ldf`, list(), list(),
           how = how, validate = validate,
           join_nulls = join_nulls, suffix = suffix,
           allow_parallel = allow_parallel, force_parallel = force_parallel,

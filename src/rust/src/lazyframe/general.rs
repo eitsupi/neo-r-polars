@@ -616,6 +616,7 @@ impl PlRLazyFrame {
         let other = other.ldf.clone();
         let left_on = <Wrap<Vec<Expr>>>::from(left_on).0;
         let right_on = <Wrap<Vec<Expr>>>::from(right_on).0;
+
         let how = <Wrap<JoinType>>::try_from(how)?.0;
         let validate = <Wrap<JoinValidation>>::try_from(validate)?.0;
         Ok(ldf
