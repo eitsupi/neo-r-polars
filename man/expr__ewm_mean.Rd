@@ -36,8 +36,8 @@ account for imbalance in relative weightings:
 \itemize{
 \item when \code{TRUE} (default), the EW function is calculated using weights
 \eqn{w_i = (1 - \alpha)^i};
-\item when \code{FALSE}, the EW function is calculated recursively by \deqn{y_0 &= x_0
- \\y_t &= (1 - \alpha)y_{t - 1} + \alpha x_t}
+\item when \code{FALSE}, the EW function is calculated recursively by \deqn{y_0 = x_0
+ ; y_t = (1 - \alpha)y_{t - 1} + \alpha x_t}
 }}
 
 \item{min_periods}{The number of values in the window that should be
