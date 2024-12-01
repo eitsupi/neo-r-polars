@@ -24,6 +24,18 @@ give 0.0 for a normal distribution. If \code{bias} is \code{FALSE} then the kurt
 is calculated using \code{k} statistics to eliminate bias coming from biased
 moment estimators.
 }
+\details{
+The sample skewness is computed as the Fisher-Pearson coefficient of
+skewness, i.e.
+\deqn{g_1=\frac{m_3}{m_2^{3/2}}}
+where
+\deqn{m_i=\frac{1}{N}\sum_{n=1}^N(x[n]-\bar{x})^i}
+is the biased sample \eqn{i\texttt{th}} central moment, and \eqn{\bar{x}}
+is the sample mean. If \code{bias = FALSE}, the calculations are corrected for
+bias and the value computed is the adjusted Fisher-Pearson standardized
+moment coefficient, i.e.
+\deqn{G_1 = \frac{k_3}{k_2^{3/2}} = \frac{\sqrt{N(N-1)}}{N-2}\frac{m_3}{m_2^{3/2}}}
+}
 \examples{
 df <- pl$DataFrame(x = c(1, 2, 3, 2, 1))
 df$select(pl$col("x")$kurtosis())

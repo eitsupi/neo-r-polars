@@ -2213,6 +2213,18 @@ expr__rank <- function(
 #' (normal ==> 0.0). If `FALSE`, Pearson’s definition is used (normal ==> 3.0).
 #' @param bias If `FALSE`, the calculations are corrected for statistical bias.
 #'
+#' @details
+#' The sample skewness is computed as the Fisher-Pearson coefficient of
+#' skewness, i.e.
+#' \deqn{g_1=\frac{m_3}{m_2^{3/2}}}
+#' where
+#' \deqn{m_i=\frac{1}{N}\sum_{n=1}^N(x[n]-\bar{x})^i}
+#' is the biased sample \eqn{i\texttt{th}} central moment, and \eqn{\bar{x}}
+#' is the sample mean. If `bias = FALSE`, the calculations are corrected for
+#' bias and the value computed is the adjusted Fisher-Pearson standardized
+#' moment coefficient, i.e.
+#' \deqn{G_1 = \frac{k_3}{k_2^{3/2}} = \frac{\sqrt{N(N-1)}}{N-2}\frac{m_3}{m_2^{3/2}}}
+#' 
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(x = c(1, 2, 3, 2, 1))
@@ -3296,10 +3308,15 @@ expr__rolling_var_by <- function(
 #'
 #' @inheritParams rlang::args_dots_empty
 #' @inheritParams expr__rolling_max
-#' @param com Specify decay in terms of center of mass.
-#' @param span Specify decay in terms of span.
-#' @param half_life Specify decay in terms of half-life.
-#' @param alpha Specify smoothing factor alpha directly.
+#' @param com Specify decay in terms of center of mass, \eqn{\gamma}, with
+#' \deqn{\alpha = \frac{1}{1 + \gamma} \; \forall \; \gamma \geq 0}.
+#' @param span Specify decay in terms of span, \eqn{\theta}, with
+#' \deqn{\alpha = \frac{2}{\theta + 1} \; \forall \; \theta \geq 1}
+#' @param half_life Specify decay in terms of half-life, \eqn{\lambda}, with
+#' \deqn{\alpha = 1 - \exp \left\{ \frac{ -\ln(2) }{ \lambda } \right\} \;
+#' \forall \; \lambda > 0}
+#' @param alpha Specify smoothing factor alpha directly, \eqn{0 < \alpha
+#' \leq 1}.
 #' @param adjust Divide by decaying adjustment factor in beginning periods to
 #' account for imbalance in relative weightings:
 #' * when `TRUE` (default), the EW function is calculated using weights

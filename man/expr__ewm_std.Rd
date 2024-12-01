@@ -19,13 +19,18 @@ expr__ewm_std(
 \arguments{
 \item{...}{These dots are for future extensions and must be empty.}
 
-\item{com}{Specify decay in terms of center of mass.}
+\item{com}{Specify decay in terms of center of mass, \eqn{\gamma}, with
+\deqn{\alpha = \frac{1}{1 + \gamma} \; \forall \; \gamma \geq 0}.}
 
-\item{span}{Specify decay in terms of span.}
+\item{span}{Specify decay in terms of span, \eqn{\theta}, with
+\deqn{\alpha = \frac{2}{\theta + 1} \; \forall \; \theta \geq 1}}
 
-\item{half_life}{Specify decay in terms of half-life.}
+\item{half_life}{Specify decay in terms of half-life, \eqn{\lambda}, with
+\deqn{\alpha = 1 - \exp \left\{ \frac{ -\ln(2) }{ \lambda } \right\} \;
+\forall \; \lambda > 0}}
 
-\item{alpha}{Specify smoothing factor alpha directly.}
+\item{alpha}{Specify smoothing factor alpha directly, \eqn{0 < \alpha
+\leq 1}.}
 
 \item{adjust}{Divide by decaying adjustment factor in beginning periods to
 account for imbalance in relative weightings:
