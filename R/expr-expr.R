@@ -2212,18 +2212,6 @@ expr__rank <- function(
 #' @param fisher If `TRUE` (default), Fisher’s definition is used
 #' (normal ==> 0.0). If `FALSE`, Pearson’s definition is used (normal ==> 3.0).
 #' @param bias If `FALSE`, the calculations are corrected for statistical bias.
-#'
-#' @details
-#' The sample skewness is computed as the Fisher-Pearson coefficient of
-#' skewness, i.e.
-#' \deqn{g_1=\frac{m_3}{m_2^{3/2}}}
-#' where
-#' \deqn{m_i=\frac{1}{N}\sum_{n=1}^N(x[n]-\bar{x})^i}
-#' is the biased sample \eqn{i\texttt{th}} central moment, and \eqn{\bar{x}}
-#' is the sample mean. If `bias = FALSE`, the calculations are corrected for
-#' bias and the value computed is the adjusted Fisher-Pearson standardized
-#' moment coefficient, i.e.
-#' \deqn{G_1 = \frac{k_3}{k_2^{3/2}} = \frac{\sqrt{N(N-1)}}{N-2}\frac{m_3}{m_2^{3/2}}}
 #' 
 #' @inherit as_polars_expr return
 #' @examples
@@ -2241,6 +2229,18 @@ expr__kurtosis <- function(..., fisher = TRUE, bias = TRUE) {
 #' For normally distributed data, the skewness should be about zero. For
 #' unimodal continuous distributions, a skewness value greater than zero means
 #' that there is more weight in the right tail of the distribution.
+#'
+#' @details
+#' The sample skewness is computed as the Fisher-Pearson coefficient of
+#' skewness, i.e.
+#' \deqn{g_1=\frac{m_3}{m_2^{3/2}}}
+#' where
+#' \deqn{m_i=\frac{1}{N}\sum_{n=1}^N(x[n]-\bar{x})^i}
+#' is the biased sample \eqn{i\texttt{th}} central moment, and \eqn{\bar{x}}
+#' is the sample mean. If `bias = FALSE`, the calculations are corrected for
+#' bias and the value computed is the adjusted Fisher-Pearson standardized
+#' moment coefficient, i.e.
+#' \deqn{G_1 = \frac{k_3}{k_2^{3/2}} = \frac{\sqrt{N(N-1)}}{N-2}\frac{m_3}{m_2^{3/2}}}
 #'
 #' @inheritParams rlang::args_dots_empty
 #' @inheritParams expr__kurtosis
