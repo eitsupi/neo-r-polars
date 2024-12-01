@@ -52,7 +52,7 @@ impl PlRLazyFrame {
         cluster_with_columns: bool,
         streaming: bool,
         _eager: bool,
-    ) -> Result<PlRLazyFrame> {
+    ) -> Result<Self> {
         let ldf = self
             .ldf
             .clone()

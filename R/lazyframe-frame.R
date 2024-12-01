@@ -276,12 +276,12 @@ lazyframe__collect <- function(
 #'   pl$col("bar")$cast(pl$Int64)
 #' )$collect_schema()
 lazyframe__collect_schema <- function() {
-  wrap({
-    lapply(self$`_ldf`$collect_schema(), function(x) {
+  self$`_ldf`$collect_schema() |>
+    lapply(function(x) {
       .savvy_wrap_PlRDataType(x) |>
         wrap()
-    })
-  })
+    }) |>
+    wrap()
 }
 
 #' Collect and profile a lazy query.
@@ -471,15 +471,6 @@ lazyframe__explain <- function(
   })
 }
 
-lazyframe__collect_schema <- function() {
-  self$`_ldf`$collect_schema() |>
-    lapply(function(x) {
-      .savvy_wrap_PlRDataType(x) |>
-        wrap()
-    }) |>
-    wrap()
-}
-
 #' Cast LazyFrame column(s) to the specified dtype(s)
 #'
 #' This allows to convert all columns to a datatype or to convert only specific
@@ -595,22 +586,23 @@ lazyframe__sort <- function(
     nulls_last = FALSE,
     multithreaded = TRUE,
     maintain_order = FALSE) {
-  check_dots_unnamed()
+  wrap({
+    check_dots_unnamed()
+    by <- parse_into_list_of_expressions(...)
+    if (length(by) == 0) {
+      abort("`...` must contain at least one element.")
+    }
+    descending <- extend_bool(descending, length(by), "descending", "...")
+    nulls_last <- extend_bool(nulls_last, length(by), "nulls_last", "...")
 
-  by <- parse_into_list_of_expressions(...)
-  if (length(by) == 0) {
-    abort("`...` must contain at least one element.")
-  }
-  descending <- extend_bool(descending, length(by), "descending", "...")
-  nulls_last <- extend_bool(nulls_last, length(by), "nulls_last", "...")
-
-  self$`_ldf`$sort_by_exprs(
-    by,
-    descending = descending,
-    nulls_last = nulls_last,
-    multithreaded = multithreaded,
-    maintain_order = maintain_order
-  ) |> wrap()
+    self$`_ldf`$sort_by_exprs(
+      by,
+      descending = descending,
+      nulls_last = nulls_last,
+      multithreaded = multithreaded,
+      maintain_order = maintain_order
+    )
+  })
 }
 
 #' Modify/append column(s) of a LazyFrame
@@ -733,7 +725,7 @@ lazyframe__with_columns_seq <- function(...) {
 #'
 #' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Names of the columns that
 #' should be removed from the dataframe. Accepts column selector input.
-#' @param .strict Validate that all column names exist in the current schema,
+#' @param strict Validate that all column names exist in the current schema,
 #' and throw an exception if any do not.
 #'
 #' @inherit as_polars_lf return
@@ -749,11 +741,11 @@ lazyframe__with_columns_seq <- function(...) {
 #'
 #' # Drop multiple columns by passing a selector
 #' lf$drop(cs$all())$collect()
-lazyframe__drop <- function(..., .strict = TRUE) {
+lazyframe__drop <- function(..., strict = TRUE) {
   wrap({
     check_dots_unnamed()
     parse_into_list_of_expressions(...) |>
-      self$`_ldf`$drop(.strict)
+      self$`_ldf`$drop(strict)
   })
 }
 

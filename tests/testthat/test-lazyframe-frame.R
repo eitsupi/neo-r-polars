@@ -1212,7 +1212,7 @@ test_that("drop", {
     r"("foo" not found)"
   )
   expect_query_equal(
-    .input$drop("foo", .strict = FALSE),
+    .input$drop("foo", strict = FALSE),
     df,
     df
   )

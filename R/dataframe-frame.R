@@ -419,8 +419,8 @@ dataframe__tail <- function(n = 5) {
 #'
 #' # equivalent
 #' as_polars_df(mtcars)$drop("mpg", "hp")
-dataframe__drop <- function(..., .strict = TRUE) {
-  self$lazy()$drop(..., .strict = .strict)$collect(`_eager` = TRUE) |>
+dataframe__drop <- function(..., strict = TRUE) {
+  self$lazy()$drop(..., strict = strict)$collect(`_eager` = TRUE) |>
     wrap()
 }
 

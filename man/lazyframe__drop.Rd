@@ -4,13 +4,13 @@
 \alias{lazyframe__drop}
 \title{Remove columns from the DataFrame}
 \usage{
-lazyframe__drop(..., .strict = TRUE)
+lazyframe__drop(..., strict = TRUE)
 }
 \arguments{
 \item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> Names of the columns that
 should be removed from the dataframe. Accepts column selector input.}
 
-\item{.strict}{Validate that all column names exist in the current schema,
+\item{strict}{Validate that all column names exist in the current schema,
 and throw an exception if any do not.}
 }
 \value{
