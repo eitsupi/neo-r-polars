@@ -2212,7 +2212,7 @@ expr__rank <- function(
 #' @param fisher If `TRUE` (default), Fisher’s definition is used
 #' (normal ==> 0.0). If `FALSE`, Pearson’s definition is used (normal ==> 3.0).
 #' @param bias If `FALSE`, the calculations are corrected for statistical bias.
-#' 
+#'
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(x = c(1, 2, 3, 2, 1))
@@ -2230,6 +2230,9 @@ expr__kurtosis <- function(..., fisher = TRUE, bias = TRUE) {
 #' unimodal continuous distributions, a skewness value greater than zero means
 #' that there is more weight in the right tail of the distribution.
 #'
+#' @inheritParams rlang::args_dots_empty
+#' @inheritParams expr__kurtosis
+#'
 #' @details
 #' The sample skewness is computed as the Fisher-Pearson coefficient of
 #' skewness, i.e.
@@ -2241,9 +2244,6 @@ expr__kurtosis <- function(..., fisher = TRUE, bias = TRUE) {
 #' bias and the value computed is the adjusted Fisher-Pearson standardized
 #' moment coefficient, i.e.
 #' \deqn{G_1 = \frac{k_3}{k_2^{3/2}} = \frac{\sqrt{N(N-1)}}{N-2}\frac{m_3}{m_2^{3/2}}}
-#'
-#' @inheritParams rlang::args_dots_empty
-#' @inheritParams expr__kurtosis
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(x = c(1, 2, 3, 2, 1))
