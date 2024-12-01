@@ -2244,6 +2244,7 @@ expr__kurtosis <- function(..., fisher = TRUE, bias = TRUE) {
 #' bias and the value computed is the adjusted Fisher-Pearson standardized
 #' moment coefficient, i.e.
 #' \deqn{G_1 = \frac{k_3}{k_2^{3/2}} = \frac{\sqrt{N(N-1)}}{N-2}\frac{m_3}{m_2^{3/2}}}
+#'
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(x = c(1, 2, 3, 2, 1))
