@@ -3433,8 +3433,7 @@ expr__ewm_mean <- function(
 #' \eqn{t_0}, \eqn{t_1}, \ldots, \eqn{t_{n-1}}, the EWMA is calculated as
 #' \deqn{y_0 = x_0}
 #' \deqn{\alpha_i = 1 - \exp \left\{ \frac{ -\ln(2)(t_i-t_{i-1}) } { \tau } \right\}}
-#' \deqn{y_i = \alpha_i x_i + (1 - \alpha_i) y_{i-1}; \quad i > 0
-#' }
+#' \deqn{y_i = \alpha_i x_i + (1 - \alpha_i) y_{i-1}; \quad i > 0}
 #' where \eqn{\tau} is the `half_life`.
 #'
 #' @param by Times to calculate average by. Should be DateTime, Date, UInt64,
