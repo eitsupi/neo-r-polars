@@ -2350,7 +2350,6 @@ lazyframe__with_row_index <- function(name = "index", offset = 0) {
 #' this to `FALSE` will be slightly faster.
 #' @inheritParams lazyframe__collect
 #'
-#' @rdname IO_sink_parquet
 #' @return Invisibly returns the input LazyFrame
 #'
 #' @examples
@@ -2429,8 +2428,6 @@ lazyframe__sink_parquet <- function(
 #' * `"uncompressed"`: same as `NULL`.
 #' * `"lz4"`: fast compression/decompression.
 #' * `"zstd"`: good compression performance.
-#'
-#' @rdname IO_sink_ipc
 #'
 #' @examples
 #' # sink table 'mtcars' from mem to ipc
@@ -2529,8 +2526,6 @@ lazyframe__sink_ipc <- function(
 #'   Namely, when writing a field that does not parse as a valid float or
 #'   integer, then quotes will be used even if they aren`t strictly necessary.
 #'
-#' @rdname IO_sink_csv
-#'
 #' @examples
 #' # sink table 'mtcars' from mem to CSV
 #' tmpf <- tempfile()
@@ -2615,8 +2610,6 @@ lazyframe__sink_csv <- function(
 #'
 #' @inherit lazyframe__sink_parquet description params return
 #' @inheritParams rlang::check_dots_empty0
-#'
-#' @rdname IO_sink_ndjson
 #'
 #' @examples
 #' # sink table 'mtcars' from mem to NDJSON
