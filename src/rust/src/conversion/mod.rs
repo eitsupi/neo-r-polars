@@ -46,7 +46,7 @@ impl TryFrom<Sexp> for Wrap<AnyValue<'_>> {
                 AnyValue::StringOwned((*val.first().unwrap()).into())
             }
             TypedSexp::Null(_) => AnyValue::Null,
-            _ => return Err(format!("Cannot cast to AnyValue")),
+            _ => return Err("Cannot cast to AnyValue".to_string()),
         };
         Ok(Wrap(out))
     }
@@ -643,7 +643,7 @@ impl TryFrom<&str> for Wrap<UniqueKeepStrategy> {
             "last" => UniqueKeepStrategy::Last,
             "none" => UniqueKeepStrategy::None,
             "any" => UniqueKeepStrategy::Any,
-            _ => return Err(format!("unreachable")),
+            _ => return Err("unreachable".to_string()),
         };
         Ok(Wrap(parsed))
     }
@@ -661,7 +661,7 @@ impl TryFrom<&str> for Wrap<JoinType> {
             "full" => JoinType::Full,
             "semi" => JoinType::Semi,
             "anti" => JoinType::Anti,
-            _ => return Err(format!("unreachable")),
+            _ => return Err("unreachable".to_string()),
         };
         Ok(Wrap(parsed))
     }
@@ -676,7 +676,7 @@ impl TryFrom<&str> for Wrap<JoinValidation> {
             "1:m" => JoinValidation::OneToMany,
             "1:1" => JoinValidation::OneToOne,
             "m:1" => JoinValidation::ManyToOne,
-            _ => return Err(format!("unreachable")),
+            _ => return Err("unreachable".to_string()),
         };
         Ok(Wrap(parsed))
     }
@@ -690,7 +690,7 @@ impl TryFrom<&str> for Wrap<Label> {
             "left" => Label::Left,
             "right" => Label::Right,
             "datapoint" => Label::DataPoint,
-            _ => return Err(format!("unreachable")),
+            _ => return Err("unreachable".to_string()),
         };
         Ok(Wrap(parsed))
     }
@@ -710,7 +710,7 @@ impl TryFrom<&str> for Wrap<StartBy> {
             "friday" => StartBy::Friday,
             "saturday" => StartBy::Saturday,
             "sunday" => StartBy::Sunday,
-            _ => return Err(format!("unreachable")),
+            _ => return Err("unreachable".to_string()),
         };
         Ok(Wrap(parsed))
     }
@@ -789,7 +789,7 @@ impl TryFrom<&str> for Wrap<IpcCompression> {
         let parsed = match compression {
             "lz4" => IpcCompression::LZ4,
             "zstd" => IpcCompression::ZSTD,
-            _ => return Err(format!("unreachable")),
+            _ => return Err("unreachable".to_string()),
         };
         Ok(Wrap(parsed))
     }
@@ -804,7 +804,7 @@ impl TryFrom<&str> for Wrap<QuoteStyle> {
             "necessary" => QuoteStyle::Necessary,
             "non_numeric" => QuoteStyle::NonNumeric,
             "never" => QuoteStyle::Never,
-            _ => return Err(format!("unreachable")),
+            _ => return Err("unreachable".to_string()),
         };
         Ok(Wrap(parsed))
     }
@@ -818,7 +818,7 @@ impl TryFrom<&str> for Wrap<AsofStrategy> {
             "forward" => AsofStrategy::Forward,
             "backward" => AsofStrategy::Backward,
             "nearest" => AsofStrategy::Nearest,
-            _ => return Err(format!("unreachable")),
+            _ => return Err("unreachable".to_string()),
         };
         Ok(Wrap(parsed))
     }
