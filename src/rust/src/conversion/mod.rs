@@ -749,7 +749,7 @@ pub(crate) fn parse_parquet_compression(
                 })
                 .transpose()?,
         ),
-        _ => unreachable!(),
+        _ => return Err(RPolarsErr::Other("unreachable".to_string()).into()),
     };
     Ok(parsed)
 }
