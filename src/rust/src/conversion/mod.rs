@@ -611,7 +611,7 @@ impl TryFrom<&str> for Wrap<Roll> {
             "raise" => Roll::Raise,
             "forward" => Roll::Forward,
             "backward" => Roll::Backward,
-            _ => return Err(format!("unreachable",)),
+            _ => return Err("unreachable".to_string()),
         };
         Ok(Wrap(parsed))
     }
