@@ -3428,7 +3428,6 @@ expr__ewm_mean <- function(
 
 #' Compute time-based exponentially weighted moving average
 #'
-#' @description
 #' Given observations \eqn{x_0}, \eqn{x_1}, \ldots, \eqn{x_{n-1}} at times
 #' \eqn{t_0}, \eqn{t_1}, \ldots, \eqn{t_{n-1}}, the EWMA is calculated as
 #' \deqn{y_0 = x_0}
