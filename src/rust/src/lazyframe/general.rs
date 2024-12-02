@@ -70,12 +70,12 @@ impl PlRLazyFrame {
         Ok(ldf.into())
     }
 
-    fn filter(&mut self, predicate: &PlRExpr) -> Result<PlRLazyFrame> {
+    fn filter(&mut self, predicate: &PlRExpr) -> Result<Self> {
         let ldf = self.ldf.clone();
         Ok(ldf.filter(predicate.inner.clone()).into())
     }
 
-    fn select(&mut self, exprs: ListSexp) -> Result<PlRLazyFrame> {
+    fn select(&mut self, exprs: ListSexp) -> Result<Self> {
         let ldf = self.ldf.clone();
         let exprs = <Wrap<Vec<Expr>>>::from(exprs).0;
         Ok(ldf.select(exprs).into())
@@ -133,20 +133,20 @@ impl PlRLazyFrame {
         Ok(df.into())
     }
 
-    fn slice(&self, offset: NumericScalar, len: Option<NumericScalar>) -> Result<PlRLazyFrame> {
+    fn slice(&self, offset: NumericScalar, len: Option<NumericScalar>) -> Result<Self> {
         let ldf = self.ldf.clone();
         let offset = <Wrap<i64>>::try_from(offset)?.0;
         let len = len.map(<Wrap<u32>>::try_from).transpose()?.map(|l| l.0);
         Ok(ldf.slice(offset, len.unwrap_or(u32::MAX)).into())
     }
 
-    fn tail(&self, n: NumericScalar) -> Result<PlRLazyFrame> {
+    fn tail(&self, n: NumericScalar) -> Result<Self> {
         let ldf = self.ldf.clone();
         let n = <Wrap<u32>>::try_from(n)?.0;
         Ok(ldf.tail(n).into())
     }
 
-    fn drop(&self, columns: ListSexp, strict: bool) -> Result<PlRLazyFrame> {
+    fn drop(&self, columns: ListSexp, strict: bool) -> Result<Self> {
         let ldf = self.ldf.clone();
         let columns = <Wrap<Vec<Expr>>>::from(columns).0;
         if strict {
@@ -156,14 +156,14 @@ impl PlRLazyFrame {
         }
     }
 
-    fn cast(&self, dtypes: ListSexp, strict: bool) -> Result<PlRLazyFrame> {
+    fn cast(&self, dtypes: ListSexp, strict: bool) -> Result<Self> {
         let dtypes = <Wrap<Vec<Field>>>::try_from(dtypes)?.0;
         let mut cast_map = PlHashMap::with_capacity(dtypes.len());
         cast_map.extend(dtypes.iter().map(|f| (f.name.as_ref(), f.dtype.clone())));
         Ok(self.ldf.clone().cast(cast_map, strict).into())
     }
 
-    fn cast_all(&self, dtype: &PlRDataType, strict: bool) -> Result<PlRLazyFrame> {
+    fn cast_all(&self, dtype: &PlRDataType, strict: bool) -> Result<Self> {
         Ok(self.ldf.clone().cast_all(dtype.dt.clone(), strict).into())
     }
 
@@ -184,7 +184,7 @@ impl PlRLazyFrame {
         nulls_last: LogicalSexp,
         maintain_order: bool,
         multithreaded: bool,
-    ) -> Result<PlRLazyFrame> {
+    ) -> Result<Self> {
         let ldf = self.ldf.clone();
         let by = <Wrap<Vec<Expr>>>::from(by).0;
         Ok(ldf
@@ -201,7 +201,7 @@ impl PlRLazyFrame {
             .into())
     }
 
-    fn with_columns(&mut self, exprs: ListSexp) -> Result<PlRLazyFrame> {
+    fn with_columns(&mut self, exprs: ListSexp) -> Result<Self> {
         let ldf = self.ldf.clone();
         let exprs = <Wrap<Vec<Expr>>>::from(exprs).0;
         Ok(ldf.with_columns(exprs).into())
@@ -219,7 +219,7 @@ impl PlRLazyFrame {
         nulls_last: bool,
         maintain_order: bool,
         multithreaded: bool,
-    ) -> Result<PlRLazyFrame> {
+    ) -> Result<Self> {
         let ldf = self.ldf.clone();
         Ok(ldf
             .sort(
@@ -235,7 +235,7 @@ impl PlRLazyFrame {
             .into())
     }
 
-    fn top_k(&self, k: NumericScalar, by: ListSexp, reverse: LogicalSexp) -> Result<PlRLazyFrame> {
+    fn top_k(&self, k: NumericScalar, by: ListSexp, reverse: LogicalSexp) -> Result<Self> {
         let ldf = self.ldf.clone();
         let k = <Wrap<u32>>::try_from(k)?.0;
         let exprs = <Wrap<Vec<Expr>>>::from(by).0;
@@ -249,12 +249,7 @@ impl PlRLazyFrame {
             .into())
     }
 
-    fn bottom_k(
-        &self,
-        k: NumericScalar,
-        by: ListSexp,
-        reverse: LogicalSexp,
-    ) -> Result<PlRLazyFrame> {
+    fn bottom_k(&self, k: NumericScalar, by: ListSexp, reverse: LogicalSexp) -> Result<Self> {
         let ldf = self.ldf.clone();
         let k = <Wrap<u32>>::try_from(k)?.0;
         let exprs = <Wrap<Vec<Expr>>>::from(by).0;
@@ -268,7 +263,7 @@ impl PlRLazyFrame {
             .into())
     }
 
-    fn cache(&self) -> Result<PlRLazyFrame> {
+    fn cache(&self) -> Result<Self> {
         let ldf = self.ldf.clone();
         Ok(ldf.cache().into())
     }
@@ -472,7 +467,7 @@ impl PlRLazyFrame {
         dump.try_into()
     }
 
-    fn select_seq(&mut self, exprs: ListSexp) -> Result<PlRLazyFrame> {
+    fn select_seq(&mut self, exprs: ListSexp) -> Result<Self> {
         let ldf = self.ldf.clone();
         let exprs = <Wrap<Vec<Expr>>>::from(exprs).0;
         Ok(ldf.select_seq(exprs).into())
@@ -538,7 +533,7 @@ impl PlRLazyFrame {
         Ok(PlRLazyGroupBy { lgb: Some(lazy_gb) })
     }
 
-    fn with_context(&self, contexts: ListSexp) -> Result<PlRLazyFrame> {
+    fn with_context(&self, contexts: ListSexp) -> Result<Self> {
         let contexts = <Wrap<Vec<LazyFrame>>>::try_from(contexts)?.0;
         Ok(self.ldf.clone().with_context(contexts).into())
     }
@@ -557,7 +552,7 @@ impl PlRLazyFrame {
         right_by: Option<StringSexp>,
         tolerance: Option<Sexp>,
         tolerance_str: Option<&str>,
-    ) -> Result<PlRLazyFrame> {
+    ) -> Result<Self> {
         let coalesce = if coalesce {
             JoinCoalesce::CoalesceColumns
         } else {
@@ -606,7 +601,7 @@ impl PlRLazyFrame {
         suffix: &str,
         validate: &str,
         coalesce: Option<bool>,
-    ) -> Result<PlRLazyFrame> {
+    ) -> Result<Self> {
         let coalesce = match coalesce {
             None => JoinCoalesce::JoinSpecific,
             Some(true) => JoinCoalesce::CoalesceColumns,
@@ -635,12 +630,7 @@ impl PlRLazyFrame {
             .into())
     }
 
-    fn join_where(
-        &self,
-        other: &PlRLazyFrame,
-        predicates: ListSexp,
-        suffix: &str,
-    ) -> Result<PlRLazyFrame> {
+    fn join_where(&self, other: &PlRLazyFrame, predicates: ListSexp, suffix: &str) -> Result<Self> {
         let ldf = self.ldf.clone();
         let other = other.ldf.clone();
 
@@ -654,28 +644,23 @@ impl PlRLazyFrame {
             .into())
     }
 
-    fn with_columns_seq(&mut self, exprs: ListSexp) -> Result<PlRLazyFrame> {
+    fn with_columns_seq(&mut self, exprs: ListSexp) -> Result<Self> {
         let ldf = self.ldf.clone();
         let exprs = <Wrap<Vec<Expr>>>::from(exprs).0;
         Ok(ldf.with_columns_seq(exprs).into())
     }
 
-    fn rename(
-        &mut self,
-        existing: StringSexp,
-        new: StringSexp,
-        strict: bool,
-    ) -> Result<PlRLazyFrame> {
+    fn rename(&mut self, existing: StringSexp, new: StringSexp, strict: bool) -> Result<Self> {
         let ldf = self.ldf.clone();
         Ok(ldf.rename(existing.to_vec(), new.to_vec(), strict).into())
     }
 
-    fn reverse(&self) -> Result<PlRLazyFrame> {
+    fn reverse(&self) -> Result<Self> {
         let ldf = self.ldf.clone();
         Ok(ldf.reverse().into())
     }
 
-    fn shift(&self, n: &PlRExpr, fill_value: Option<&PlRExpr>) -> Result<PlRLazyFrame> {
+    fn shift(&self, n: &PlRExpr, fill_value: Option<&PlRExpr>) -> Result<Self> {
         let lf = self.ldf.clone();
         let out = match fill_value {
             Some(v) => lf.shift_and_fill(n.inner.clone(), v.inner.clone()),
@@ -684,84 +669,79 @@ impl PlRLazyFrame {
         Ok(out.into())
     }
 
-    fn fill_nan(&self, fill_value: &PlRExpr) -> Result<PlRLazyFrame> {
+    fn fill_nan(&self, fill_value: &PlRExpr) -> Result<Self> {
         let ldf = self.ldf.clone();
         Ok(ldf.fill_nan(fill_value.inner.clone()).into())
     }
 
-    fn fill_null(&self, fill_value: &PlRExpr) -> Result<PlRLazyFrame> {
+    fn fill_null(&self, fill_value: &PlRExpr) -> Result<Self> {
         let ldf = self.ldf.clone();
         Ok(ldf.fill_null(fill_value.inner.clone()).into())
     }
 
-    fn min(&self) -> Result<PlRLazyFrame> {
+    fn min(&self) -> Result<Self> {
         let ldf = self.ldf.clone();
         let out = ldf.min();
         Ok(out.into())
     }
 
-    fn max(&self) -> Result<PlRLazyFrame> {
+    fn max(&self) -> Result<Self> {
         let ldf = self.ldf.clone();
         let out = ldf.max();
         Ok(out.into())
     }
 
-    fn sum(&self) -> Result<PlRLazyFrame> {
+    fn sum(&self) -> Result<Self> {
         let ldf = self.ldf.clone();
         let out = ldf.sum();
         Ok(out.into())
     }
 
-    fn mean(&self) -> Result<PlRLazyFrame> {
+    fn mean(&self) -> Result<Self> {
         let ldf = self.ldf.clone();
         let out = ldf.mean();
         Ok(out.into())
     }
 
-    fn std(&self, ddof: NumericScalar) -> Result<PlRLazyFrame> {
+    fn std(&self, ddof: NumericScalar) -> Result<Self> {
         let ddof = <Wrap<u8>>::try_from(ddof)?.0;
         let ldf = self.ldf.clone();
         let out = ldf.std(ddof);
         Ok(out.into())
     }
 
-    fn var(&self, ddof: NumericScalar) -> Result<PlRLazyFrame> {
+    fn var(&self, ddof: NumericScalar) -> Result<Self> {
         let ddof = <Wrap<u8>>::try_from(ddof)?.0;
         let ldf = self.ldf.clone();
         let out = ldf.var(ddof);
         Ok(out.into())
     }
 
-    fn median(&self) -> Result<PlRLazyFrame> {
+    fn median(&self) -> Result<Self> {
         let ldf = self.ldf.clone();
         let out = ldf.median();
         Ok(out.into())
     }
 
-    fn quantile(&self, quantile: &PlRExpr, interpolation: &str) -> Result<PlRLazyFrame> {
+    fn quantile(&self, quantile: &PlRExpr, interpolation: &str) -> Result<Self> {
         let ldf = self.ldf.clone();
         let interpolation = <Wrap<QuantileMethod>>::try_from(interpolation)?.0;
         let out = ldf.quantile(quantile.inner.clone(), interpolation);
         Ok(out.into())
     }
 
-    fn explode(&self, column: ListSexp) -> Result<PlRLazyFrame> {
+    fn explode(&self, column: ListSexp) -> Result<Self> {
         let ldf = self.ldf.clone();
         let column = <Wrap<Vec<Expr>>>::from(column).0;
         Ok(ldf.explode(column).into())
     }
 
-    fn null_count(&self) -> Result<PlRLazyFrame> {
+    fn null_count(&self) -> Result<Self> {
         let ldf = self.ldf.clone();
         Ok(ldf.null_count().into())
     }
 
-    fn unique(
-        &self,
-        maintain_order: bool,
-        keep: &str,
-        subset: Option<ListSexp>,
-    ) -> Result<PlRLazyFrame> {
+    fn unique(&self, maintain_order: bool, keep: &str, subset: Option<ListSexp>) -> Result<Self> {
         let ldf = self.ldf.clone();
         let keep = <Wrap<UniqueKeepStrategy>>::try_from(keep)?.0;
         let subset = subset.map(|e| <Wrap<Vec<Expr>>>::from(e).0);
@@ -772,7 +752,7 @@ impl PlRLazyFrame {
         Ok(out.into())
     }
 
-    fn drop_nulls(&self, subset: Option<ListSexp>) -> Result<PlRLazyFrame> {
+    fn drop_nulls(&self, subset: Option<ListSexp>) -> Result<Self> {
         let ldf = self.ldf.clone();
         let subset = subset.map(|e| <Wrap<Vec<Expr>>>::from(e).0);
         Ok(ldf.drop_nulls(subset).into())
@@ -784,7 +764,7 @@ impl PlRLazyFrame {
         index: ListSexp,
         value_name: Option<&str>,
         variable_name: Option<&str>,
-    ) -> Result<PlRLazyFrame> {
+    ) -> Result<Self> {
         let on = <Wrap<Vec<Expr>>>::from(on).0;
         let index = <Wrap<Vec<Expr>>>::from(index).0;
         let args = UnpivotArgsDSL {
@@ -798,7 +778,7 @@ impl PlRLazyFrame {
         Ok(ldf.unpivot(args).into())
     }
 
-    fn with_row_index(&self, name: &str, offset: Option<NumericScalar>) -> Result<PlRLazyFrame> {
+    fn with_row_index(&self, name: &str, offset: Option<NumericScalar>) -> Result<Self> {
         let ldf = self.ldf.clone();
         let offset: Option<u32> = match offset {
             Some(x) => Some(<Wrap<u32>>::try_from(x)?.0),
@@ -816,7 +796,7 @@ impl PlRLazyFrame {
     //     streamable: bool,
     //     schema: Option<Wrap<Schema>>,
     //     validate_output: bool,
-    // ) -> Result<PlRLazyFrame> {
+    // ) -> Result<Self> {
     //     let mut opt = OptFlags::default();
     //     opt.set(OptFlags::PREDICATE_PUSHDOWN, predicate_pushdown);
     //     opt.set(OptFlags::PROJECTION_PUSHDOWN, projection_pushdown);
@@ -834,21 +814,21 @@ impl PlRLazyFrame {
     //         .into()
     // }
 
-    fn clone(&self) -> Result<PlRLazyFrame> {
+    fn clone(&self) -> Result<Self> {
         Ok(self.ldf.clone().into())
     }
 
-    fn unnest(&self, columns: ListSexp) -> Result<PlRLazyFrame> {
+    fn unnest(&self, columns: ListSexp) -> Result<Self> {
         let columns = <Wrap<Vec<Expr>>>::from(columns).0;
         Ok(self.ldf.clone().unnest(columns).into())
     }
 
-    fn count(&self) -> Result<PlRLazyFrame> {
+    fn count(&self) -> Result<Self> {
         let ldf = self.ldf.clone();
         Ok(ldf.count().into())
     }
 
-    fn merge_sorted(&self, other: &PlRLazyFrame, key: &str) -> Result<PlRLazyFrame> {
+    fn merge_sorted(&self, other: &PlRLazyFrame, key: &str) -> Result<Self> {
         let out = self
             .ldf
             .clone()
@@ -968,7 +948,7 @@ impl PlRLazyFrame {
         storage_options: Option<StringSexp>,
         file_cache_ttl: Option<NumericScalar>,
         include_file_paths: Option<&str>,
-    ) -> Result<PlRLazyFrame> {
+    ) -> Result<Self> {
         let source = source
             .to_vec()
             .iter()
