@@ -45,6 +45,7 @@ wrap.PlRLazyFrame <- function(x, ...) {
   self
 }
 
+# TODO: link to pl__select
 #' Select and modify columns of a LazyFrame
 #'
 #' @description
