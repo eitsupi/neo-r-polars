@@ -1367,7 +1367,16 @@ test_that("unnest", {
     .input = df2,
     df
   )
-
+  # TODO: different accepted input in eager and lazy API, might be a bug
+  # https://github.com/pola-rs/polars/issues/20128
+  expect_equal(
+    df2$lazy()$unnest(pl$col("first_struct", "second_struct"))$collect(),
+    df
+  )
+  expect_error(
+    df2$unnest(pl$col("first_struct", "second_struct")),
+    "must be strings"
+  )
   expect_query_equal(
     .input$unnest("first_struct"),
     .input = df2,
@@ -1376,5 +1385,13 @@ test_that("unnest", {
       pl$col("a", "b", "c"),
       pl$struct(c("d", "e", "f"))$alias("second_struct")
     )
+  )
+  expect_error(
+    df$unnest(a = "first_struct"),
+    "must be passed by position"
+  )
+  expect_error(
+    df$lazy()$unnest(a = "first_struct"),
+    "must be passed by position"
   )
 })

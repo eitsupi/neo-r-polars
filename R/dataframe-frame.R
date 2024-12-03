@@ -557,8 +557,14 @@ dataframe__rechunk <- function() {
 #' df$unnest("a_and_c")
 dataframe__unnest <- function(...) {
   wrap({
-    columns <- unlist(list2(...))
-    check_character(columns, allow_na = FALSE)
-    self$`_df`$unnest(columns)
+    check_dots_unnamed()
+    dots <- list2(...)
+
+    if (is_list_of_string(dots)) {
+      dots <- unlist(dots)
+    } else {
+      abort("All elements of `...` must be strings.")
+    }
+    self$`_df`$unnest(dots)
   })
 }

@@ -1676,8 +1676,10 @@ lazyframe__clone <- function() {
 #' lf$collect()
 #'
 #' lf$unnest("a_and_c")$collect()
+#' lf$unnest(pl$col("a_and_c"))$collect()
 lazyframe__unnest <- function(...) {
   wrap({
+    check_dots_unnamed()
     columns <- parse_into_list_of_expressions(...)
     self$`_ldf`$unnest(columns)
   })

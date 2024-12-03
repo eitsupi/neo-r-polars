@@ -30,4 +30,5 @@ lf <- pl$LazyFrame(
 lf$collect()
 
 lf$unnest("a_and_c")$collect()
+lf$unnest(pl$col("a_and_c"))$collect()
 }
