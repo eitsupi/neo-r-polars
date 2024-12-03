@@ -1,28 +1,79 @@
-# unnest works correctly
+# $explain() works
 
     Code
-      current$collect()
-    Condition
-      Error in `current$collect()`:
-      ! Evaluation failed in `$collect()`.
-      Caused by error:
-      ! Invalid operation: invalid selector expression: dyn float: 1.0
-      
-      Resolved plan until failure:
-      
-      	---> FAILED HERE RESOLVING THIS_NODE <---
-       SELECT [dyn float: 1.0.alias("foo"), col("b").as_struct(), col("a").as_struct([col("c")]).alias("a_and_c")] FROM
-        DF ["a", "b", "c"]; PROJECT */3 COLUMNS; SELECTION: None
+      cat(lazy_query$explain(optimized = FALSE))
+    Output
+      FILTER [(col("Species")) != (String(setosa))] FROM
+        SORT BY [col("Species")]
+          DF ["Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"]; PROJECT */5 COLUMNS; SELECTION: None
 
 ---
 
     Code
-      current$collect()
+      cat(lazy_query$explain())
     Output
-      polars: closing concurrent R handler
+      SORT BY [col("Species")]
+        DF ["Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"]; PROJECT */5 COLUMNS; SELECTION: [(col("Species")) != (String(setosa))]
+
+---
+
+    Code
+      cat(lazy_query$explain(format = "tree", optimized = FALSE))
+    Output
+                                0                               1                                             2
+         ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+         │
+         │                  ╭────────╮
+       0 │                  │ FILTER │
+         │                  ╰───┬┬───╯
+         │                      ││
+         │                      │╰──────────────────────────────╮
+         │                      │                               │
+         │  ╭───────────────────┴────────────────────╮     ╭────┴────╮
+         │  │ predicate:                             │     │ FROM:   │
+       1 │  │ [(col("Species")) != (String(setosa))] │     │ SORT BY │
+         │  ╰────────────────────────────────────────╯     ╰────┬┬───╯
+         │                                                      ││
+         │                                                      │╰────────────────────────────────────────────╮
+         │                                                      │                                             │
+         │                                              ╭───────┴────────╮  ╭─────────────────────────────────┴─────────────────────────────────╮
+         │                                              │ expression:    │  │ DF ["Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"] │
+       2 │                                              │ col("Species") │  │ PROJECT */5 COLUMNS                                               │
+         │                                              ╰────────────────╯  ╰───────────────────────────────────────────────────────────────────╯
+
+---
+
+    Code
+      cat(lazy_query$explain(format = "tree", ))
+    Output
+                    0                                             1
+         ┌───────────────────────────────────────────────────────────────────────────────────────────
+         │
+         │     ╭─────────╮
+       0 │     │ SORT BY │
+         │     ╰────┬┬───╯
+         │          ││
+         │          │╰────────────────────────────────────────────╮
+         │          │                                             │
+         │  ╭───────┴────────╮  ╭─────────────────────────────────┴─────────────────────────────────╮
+         │  │ expression:    │  │ DF ["Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"] │
+       1 │  │ col("Species") │  │ PROJECT */5 COLUMNS                                               │
+         │  ╰────────────────╯  ╰─────────────────────────────────┬─────────────────────────────────╯
+         │                                                        │
+         │                                                        │
+         │                                                        │
+         │                                    ╭───────────────────┴────────────────────╮
+         │                                    │ SELECTION:                             │
+       2 │                                    │ [(col("Species")) != (String(setosa))] │
+         │                                    ╰────────────────────────────────────────╯
+
+# join_asof
+
+    Code
+      l_gdp$lazy()$join_asof(l_pop$lazy(), on = "date", strategy = "fruitcake")
     Condition
-      Error in `current$collect()`:
-      ! Evaluation failed in `$collect()`.
+      Error:
+      ! Evaluation failed in `$join_asof()`.
       Caused by error:
-      ! A polars sub-thread panicked. See panic msg, which is likely more informative than this error: Any { .. }
+      ! `strategy` must be one of "backward", "forward", or "nearest", not "fruitcake".
 
