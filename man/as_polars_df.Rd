@@ -56,28 +56,33 @@ If \code{NULL}, the column name is taken from the \link{Series} name.}
 the \code{\link[=series_struct_unnest]{<Series>$struct$unnest()}} method is used to create a \link{DataFrame}
 from the struct \link{Series}. In this case, the \code{column_name} argument is ignored.}
 
-\item{type_coercion}{A logical, indicats type coercion optimization.}
+\item{type_coercion}{Logical. Coerce types such that operations succeed and
+run on minimal required memory.}
 
-\item{predicate_pushdown}{A logical, indicats predicate pushdown optimization.}
+\item{predicate_pushdown}{Logical. Applies filters as early as possible at
+scan level.}
 
-\item{projection_pushdown}{A logical, indicats projection pushdown optimization.}
+\item{projection_pushdown}{Logical. Select only the columns that are needed
+at the scan level.}
 
-\item{simplify_expression}{A logical, indicats simplify expression optimization.}
+\item{simplify_expression}{Logical. Various optimizations, such as constant
+folding and replacing expensive operations with faster alternatives.}
 
-\item{slice_pushdown}{A logical, indicats slice pushdown optimization.}
+\item{slice_pushdown}{Logical. Only load the required slice from the scan
+level. Don't materialize sliced outputs (e.g. \code{join$head(10)}).}
 
-\item{comm_subplan_elim}{A logical, indicats tring to cache branching subplans that occur on self-joins or unions.}
+\item{comm_subplan_elim}{Logical. Will try to cache branching subplans that
+occur on self-joins or unions.}
 
-\item{comm_subexpr_elim}{A logical, indicats tring to cache common subexpressions.}
+\item{comm_subexpr_elim}{Logical. Common subexpressions will be cached and
+reused.}
 
-\item{cluster_with_columns}{A logical, indicats to combine sequential independent calls to with_columns.}
+\item{cluster_with_columns}{Combine sequential independent calls to
+\code{\link[=lazyframe__with_columns]{with_columns()}}.}
 
-\item{no_optimization}{A logical. If \code{TRUE}, turn off (certain) optimizations.}
-
-\item{streaming}{A logical. If \code{TRUE}, process the query in batches to handle larger-than-memory data.
-If \code{FALSE} (default), the entire query is processed in a single batch.
-Note that streaming mode is considered unstable.
-It may be changed at any point without it being considered a breaking change.}
+\item{streaming}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Logical. Process the
+query in batches to handle larger-than-memory data. If \code{FALSE} (default),
+the entire query is processed in a single batch.}
 }
 \value{
 A polars \link{DataFrame}

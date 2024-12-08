@@ -160,4 +160,14 @@ impl PlRDataFrame {
         df.as_single_chunk_par();
         Ok(df.into())
     }
+
+    pub fn unnest(&self, columns: StringSexp) -> Result<PlRDataFrame> {
+        let columns = columns.to_vec();
+        Ok(self
+            .df
+            .clone()
+            .unnest(columns)
+            .map_err(RPolarsErr::from)?
+            .into())
+    }
 }
