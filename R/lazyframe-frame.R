@@ -285,7 +285,7 @@ lazyframe__collect <- function(
 #' ## Use $profile() to compare two queries
 #'
 #' # -1-  map each Species-group with native polars
-#' pl$LazyFrame(iris)$
+#' as_polars_lf(iris)$
 #'   sort("Sepal.Length")$
 #'   group_by("Species", maintain_order = TRUE)$
 #'   agg(pl$col(pl$Float64)$first() + 5)$
@@ -299,7 +299,7 @@ lazyframe__collect <- function(
 #'   s$to_r()[1] + 5
 #' }
 #'
-#' pl$LazyFrame(iris)$
+#' as_polars_lf(iris)$
 #'   sort("Sepal.Length")$
 #'   group_by("Species", maintain_order = TRUE)$
 #'   agg(pl$col(pl$Float64)$map_elements(r_func))$
@@ -348,13 +348,11 @@ lazyframe__profile <- function(
       eager = FALSE
     )
 
-    out <- lf |>
-      .pr$LazyFrame$profile()
+    out <- self$`_ldf`$profile()
 
     if (isTRUE(show_plot)) {
       out[["plot"]] <- make_profile_plot(out, truncate_nodes) |>
-        result() |>
-        unwrap("in $profile()")
+        wrap()
     }
     out
   })
