@@ -33,9 +33,9 @@ lazyframe__to_dot(
 
 \item{slice_pushdown}{A logical, indicats slice pushdown optimization.}
 
-\item{comm_subplan_elim}{A logical, indicats trying to cache branching subplans that occur on self-joins or unions.}
+\item{comm_subplan_elim}{A logical, indicats tring to cache branching subplans that occur on self-joins or unions.}
 
-\item{comm_subexpr_elim}{A logical, indicats trying to cache common subexpressions.}
+\item{comm_subexpr_elim}{A logical, indicats tring to cache common subexpressions.}
 
 \item{cluster_with_columns}{A logical, indicats to combine sequential independent calls to with_columns.}
 

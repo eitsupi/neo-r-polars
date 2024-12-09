@@ -176,8 +176,8 @@ lazyframe__group_by <- function(..., .maintain_order = FALSE) {
 #' @param projection_pushdown A logical, indicats projection pushdown optimization.
 #' @param simplify_expression A logical, indicats simplify expression optimization.
 #' @param slice_pushdown A logical, indicats slice pushdown optimization.
-#' @param comm_subplan_elim A logical, indicats trying to cache branching subplans that occur on self-joins or unions.
-#' @param comm_subexpr_elim A logical, indicats trying to cache common subexpressions.
+#' @param comm_subplan_elim A logical, indicats tring to cache branching subplans that occur on self-joins or unions.
+#' @param comm_subexpr_elim A logical, indicats tring to cache common subexpressions.
 #' @param cluster_with_columns A logical, indicats to combine sequential independent calls to with_columns.
 #' @param no_optimization A logical. If `TRUE`, turn off (certain) optimizations.
 #' @param streaming A logical. If `TRUE`, process the query in batches to handle larger-than-memory data.
