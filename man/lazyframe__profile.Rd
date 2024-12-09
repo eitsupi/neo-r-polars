@@ -148,7 +148,6 @@ as_polars_lf(iris)$
 \seealso{
 \itemize{
 \item \code{\link[=LazyFrame_collect]{$collect()}} - regular collect.
-\item \code{\link[=LazyFrame_fetch]{$fetch()}} - fast limited query check
 \item \code{\link[=LazyFrame_collect_in_background]{$collect_in_background()}} - non-blocking
 collect returns a future handle. Can also just be used via
 \verb{$collect(collect_in_background = TRUE)}.
@@ -158,7 +157,6 @@ collect returns a future handle. Can also just be used via
 
 \itemize{
 \item \code{\link[=lazyframe__collect]{$collect()}} - regular collect.
-\item \code{\link[=lazyframe__fetch]{$fetch()}} - fast limited query check
 \item \code{\link[=lazyframe__collect_in_background]{$collect_in_background()}} - non-blocking
 collect returns a future handle. Can also just be used via
 \verb{$collect(collect_in_background = TRUE)}.

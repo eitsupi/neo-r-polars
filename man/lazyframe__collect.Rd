@@ -74,7 +74,6 @@ lf$group_by("a")$agg(pl$all()$sum())$collect(
 }
 \seealso{
 \itemize{
-\item \code{\link[=lazyframe__fetch]{$fetch()}} - fast limited query check
 \item \code{\link[=lazyframe__profile]{$profile()}} - same as \verb{$collect()} but also returns
 a table with each operation profiled.
 \item \code{\link[=lazyframe__collect_in_background]{$collect_in_background()}} - non-blocking

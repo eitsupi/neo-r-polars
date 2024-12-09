@@ -193,7 +193,6 @@ lazyframe__group_by <- function(..., .maintain_order = FALSE) {
 #' @inherit as_polars_lf return
 #'
 #' @seealso
-#'  - [`$fetch()`][lazyframe__fetch] - fast limited query check
 #'  - [`$profile()`][lazyframe__profile] - same as `$collect()` but also returns
 #'    a table with each operation profiled.
 #'  - [`$collect_in_background()`][lazyframe__collect_in_background] - non-blocking
@@ -305,7 +304,6 @@ lazyframe__collect_schema <- function() {
 #' also stored in the list.
 #' @seealso
 #'  - [`$collect()`][LazyFrame_collect] - regular collect.
-#'  - [`$fetch()`][LazyFrame_fetch] - fast limited query check
 #'  - [`$collect_in_background()`][LazyFrame_collect_in_background] - non-blocking
 #'    collect returns a future handle. Can also just be used via
 #'    `$collect(collect_in_background = TRUE)`.
@@ -1385,83 +1383,6 @@ lazyframe__rename <- function(mapping, ..., strict = TRUE) {
   })
 }
 
-#' Fetch `n` rows of a LazyFrame
-#'
-#' This is similar to `$collect()` but limit the number of rows to collect. It
-#' is mostly useful to check that a query works as expected.
-#'
-#'
-#' @details
-#' `$fetch()` does not guarantee the final number of rows in the DataFrame output.
-#' It only guarantees that `n` rows are used at the beginning of the query.
-#' Filters, join operations and a lower number of rows available in the scanned
-#' file influence the final number of rows.
-#'
-#' @param n_rows Integer. Maximum number of rows to fetch.
-#' @inheritParams lazyframe__collect
-#' @return A DataFrame of maximum n_rows
-#' @seealso
-#'  - [`$collect()`][lazyframe__collect] - regular collect.
-#'  - [`$profile()`][lazyframe__profile] - same as `$collect()` but also returns
-#'    a table with each operation profiled.
-#'  - [`$collect_in_background()`][lazyframe__collect_in_background] - non-blocking
-#'    collect returns a future handle. Can also just be used via
-#'    `$collect(collect_in_background = TRUE)`.
-#'  - [`$sink_parquet()`][lazyframe__sink_parquet()] streams query to a parquet file.
-#'  - [`$sink_ipc()`][lazyframe__sink_ipc()] streams query to a arrow file.
-#'
-#' @examples
-#' # fetch 3 rows
-#' as_polars_lf(iris)$fetch(3)
-#'
-#' # this fetch-query returns 4 rows, because we started with 3 and appended one
-#' # row in the query (see section 'Details')
-#' as_polars_lf(iris)$
-#'   select(pl$col("Species")$append("flora gigantica, alien"))$
-#'   fetch(3)
-lazyframe__fetch <- function(
-    n_rows = 500,
-    ...,
-    type_coercion = TRUE,
-    predicate_pushdown = TRUE,
-    projection_pushdown = TRUE,
-    simplify_expression = TRUE,
-    slice_pushdown = TRUE,
-    comm_subplan_elim = TRUE,
-    comm_subexpr_elim = TRUE,
-    cluster_with_columns = TRUE,
-    streaming = FALSE,
-    no_optimization = FALSE) {
-  if (isTRUE(no_optimization)) {
-    predicate_pushdown <- FALSE
-    projection_pushdown <- FALSE
-    slice_pushdown <- FALSE
-    comm_subplan_elim <- FALSE
-    comm_subexpr_elim <- FALSE
-    cluster_with_columns <- FALSE
-  }
-
-  if (isTRUE(streaming)) {
-    comm_subplan_elim <- FALSE
-  }
-
-  lf <- self |>
-    self$`_ldf`$optimization_toggle(
-      pe_coercion = type_coercion,
-      predicate_pushdown = predicate_pushdown,
-      projection_pushdown = projection_pushdown,
-      simplify_expression = simplify_expression,
-      slice_pushdown = slice_pushdown,
-      comm_subplan_elim = comm_subplan_elim,
-      comm_subexpr_elim = comm_subexpr_elim,
-      cluster_with_columns = cluster_with_columns,
-      streaming = streaming,
-      eager = FALSE
-    )
-
-  self$`_ldf`$fetch(n_rows)
-}
-
 #' Collect and profile a lazy query
 #'
 #' @description
@@ -1481,7 +1402,6 @@ lazyframe__fetch <- function(
 #' also stored in the list.
 #' @seealso
 #'  - [`$collect()`][lazyframe__collect] - regular collect.
-#'  - [`$fetch()`][lazyframe__fetch] - fast limited query check
 #'  - [`$collect_in_background()`][lazyframe__collect_in_background] - non-blocking
 #'    collect returns a future handle. Can also just be used via
 #'    `$collect(collect_in_background = TRUE)`.
