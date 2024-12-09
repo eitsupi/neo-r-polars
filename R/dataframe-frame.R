@@ -556,15 +556,6 @@ dataframe__rechunk <- function() {
 #'
 #' df$unnest("a_and_c")
 dataframe__unnest <- function(...) {
-  wrap({
-    check_dots_unnamed()
-    dots <- list2(...)
-
-    if (is_list_of_string(dots)) {
-      dots <- unlist(dots)
-    } else {
-      abort("All elements of `...` must be strings.")
-    }
-    self$`_df`$unnest(dots)
-  })
+  self$lazy()$unnest(...)$collect(`_eager` = TRUE) |>
+    wrap()
 }
