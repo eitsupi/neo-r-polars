@@ -90,5 +90,6 @@ expect_eager_equal_lazy_error <- function(object, input, expected, regexp = NULL
     class = class,
     ...
   )
+
   invisible(NULL)
 }

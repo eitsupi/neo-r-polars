@@ -111,7 +111,7 @@ test_that("slice/head/tail", {
     .input$head(-4),
     .data,
     pl$DataFrame(foo = 1L, bar = 6L),
-    r"(-4.0 is out of range that can be safely converted to u32)"
+    r"(-4\.0 is out of range that can be safely converted to u32)"
   )
 
   # tail
@@ -129,7 +129,7 @@ test_that("slice/head/tail", {
     .input$tail(-4),
     .data,
     pl$DataFrame(foo = 5L, bar = 10L),
-    r"(-4.0 is out of range that can be safely converted to u32)"
+    r"(-4\.0 is out of range that can be safely converted to u32)"
   )
 })
 

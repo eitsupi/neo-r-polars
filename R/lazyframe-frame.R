@@ -57,12 +57,12 @@ wrap.PlRLazyFrame <- function(x, ...) {
 #' `$select()` call. For instance, if you create a variable `x`, you will only
 #' be able to use it in another `$select()` or `$with_columns()` call.
 #'
-#' @inherit as_polars_lf return
-#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Name-value pairs of objects
-#' to be converted to polars [expressions][Expr] by the [as_polars_expr()]
-#' function. Characters are parsed as column names, other non-expression inputs
-#' are parsed as [literals][pl__lit]. Each name will be used as the expression
-#' name.
+#' @inherit pl__LazyFrame return
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]>
+#' Name-value pairs of objects to be converted to polars [expressions][Expr]
+#' by the [as_polars_expr()] function.
+#' Characters are parsed as column names, other non-expression inputs are parsed as [literals][pl__lit].
+#' Each name will be used as the expression name.
 #' @examples
 #' # Pass the name of a column to select that column.
 #' lf <- pl$LazyFrame(
@@ -96,6 +96,7 @@ wrap.PlRLazyFrame <- function(x, ...) {
 lazyframe__select <- function(...) {
   wrap({
     structify <- parse_env_auto_structify()
+
     parse_into_list_of_expressions(..., `__structify` = structify) |>
       self$`_ldf`$select()
   })
@@ -163,32 +164,28 @@ lazyframe__group_by <- function(..., .maintain_order = FALSE) {
   })
 }
 
+# TODO: see also section
 #' Materialize this LazyFrame into a DataFrame
 #'
 #' By default, all query optimizations are enabled.
-#'
-#' @inheritParams rlang::check_dots_empty0
-#' @param type_coercion Logical. Coerce types such that operations succeed and
-#' run on minimal required memory.
-#' @param predicate_pushdown Logical. Applies filters as early as possible at
-#' scan level.
-#' @param projection_pushdown Logical. Select only the columns that are needed
-#' at the scan level.
-#' @param simplify_expression Logical. Various optimizations, such as constant
-#' folding and replacing expensive operations with faster alternatives.
-#' @param slice_pushdown Logical. Only load the required slice from the scan
-#' level. Don't materialize sliced outputs (e.g. `join$head(10)`).
-#' @param comm_subplan_elim Logical. Will try to cache branching subplans that
-#'  occur on self-joins or unions.
-#' @param comm_subexpr_elim Logical. Common subexpressions will be cached and
-#' reused.
-#' @param cluster_with_columns Combine sequential independent calls to
-#' [`with_columns()`][lazyframe__with_columns].
-#' @param streaming `r lifecycle::badge("experimental")` Logical. Process the
-#' query in batches to handle larger-than-memory data. If `FALSE` (default),
-#' the entire query is processed in a single batch.
-#' @param _eager A logical, indicates to turn off multi-node optimizations and
-#' the other optimizations. This option is intended for internal use only.
+#' Individual optimizations may be disabled by setting the corresponding parameter to `FALSE`.
+#' @inherit pl__DataFrame return
+#' @inheritParams rlang::args_dots_empty
+#' @param type_coercion A logical, indicates type coercion optimization.
+#' @param predicate_pushdown A logical, indicates predicate pushdown optimization.
+#' @param projection_pushdown A logical, indicates projection pushdown optimization.
+#' @param simplify_expression A logical, indicates simplify expression optimization.
+#' @param slice_pushdown A logical, indicates slice pushdown optimization.
+#' @param comm_subplan_elim A logical, indicates trying to cache branching subplans that occur on self-joins or unions.
+#' @param comm_subexpr_elim A logical, indicates trying to cache common subexpressions.
+#' @param cluster_with_columns A logical, indicates to combine sequential independent calls to with_columns.
+#' @param no_optimization A logical. If `TRUE`, turn off (certain) optimizations.
+#' @param streaming A logical. If `TRUE`, process the query in batches to handle larger-than-memory data.
+#' If `FALSE` (default), the entire query is processed in a single batch.
+#' Note that streaming mode is considered unstable.
+#' It may be changed at any point without it being considered a breaking change.
+#' @param _eager A logical, indicates to turn off multi-node optimizations and the other optimizations.
+#' This option is intended for internal use only.
 #'
 #' @inherit as_polars_lf return
 #'
@@ -439,6 +436,7 @@ lazyframe__explain <- function(
     streaming = FALSE) {
   wrap({
     check_dots_empty0(...)
+
     format <- arg_match0(format, c("plain", "tree"))
 
     if (isTRUE(optimized)) {
@@ -587,6 +585,7 @@ lazyframe__sort <- function(
     maintain_order = FALSE) {
   wrap({
     check_dots_unnamed()
+
     by <- parse_into_list_of_expressions(...)
     if (length(by) == 0) {
       abort("`...` must contain at least one element.")
@@ -615,7 +614,7 @@ lazyframe__sort <- function(
 #' variable `x`, you will only be able to use it in another `$with_columns()`
 #' or `$select()` call.
 #'
-#' @inherit as_polars_lf return
+#' @inherit pl__LazyFrame return
 #' @inheritParams lazyframe__select
 #' @examples
 #' # Pass an expression to add it as a new column.
@@ -743,6 +742,7 @@ lazyframe__with_columns_seq <- function(...) {
 lazyframe__drop <- function(..., strict = TRUE) {
   wrap({
     check_dots_unnamed()
+
     parse_into_list_of_expressions(...) |>
       self$`_ldf`$drop(strict)
   })
