@@ -201,6 +201,7 @@ pl__scan_csv <- function(
 }
 
 #' New DataFrame from CSV
+#' @rdname IO_read_csv
 #' @inheritParams pl__scan_csv
 #' @inherit as_polars_df return
 #' @examples
