@@ -171,14 +171,14 @@ lazyframe__group_by <- function(..., .maintain_order = FALSE) {
 #' Individual optimizations may be disabled by setting the corresponding parameter to `FALSE`.
 #' @inherit pl__DataFrame return
 #' @inheritParams rlang::args_dots_empty
-#' @param type_coercion A logical, indicates type coercion optimization.
-#' @param predicate_pushdown A logical, indicates predicate pushdown optimization.
-#' @param projection_pushdown A logical, indicates projection pushdown optimization.
-#' @param simplify_expression A logical, indicates simplify expression optimization.
-#' @param slice_pushdown A logical, indicates slice pushdown optimization.
-#' @param comm_subplan_elim A logical, indicates trying to cache branching subplans that occur on self-joins or unions.
-#' @param comm_subexpr_elim A logical, indicates trying to cache common subexpressions.
-#' @param cluster_with_columns A logical, indicates to combine sequential independent calls to with_columns.
+#' @param type_coercion A logical, indicats type coercion optimization.
+#' @param predicate_pushdown A logical, indicats predicate pushdown optimization.
+#' @param projection_pushdown A logical, indicats projection pushdown optimization.
+#' @param simplify_expression A logical, indicats simplify expression optimization.
+#' @param slice_pushdown A logical, indicats slice pushdown optimization.
+#' @param comm_subplan_elim A logical, indicats trying to cache branching subplans that occur on self-joins or unions.
+#' @param comm_subexpr_elim A logical, indicats trying to cache common subexpressions.
+#' @param cluster_with_columns A logical, indicats to combine sequential independent calls to with_columns.
 #' @param no_optimization A logical. If `TRUE`, turn off (certain) optimizations.
 #' @param streaming A logical. If `TRUE`, process the query in batches to handle larger-than-memory data.
 #' If `FALSE` (default), the entire query is processed in a single batch.
@@ -250,35 +250,6 @@ lazyframe__collect <- function(
 
     ldf$collect()
   })
-}
-
-#' Resolve the schema of this LazyFrame
-#'
-#' This resolves the query plan but does not trigger computations.
-#'
-#' @return A named list with names indicating column names and values indicating
-#' column data types.
-#'
-#' @examples
-#' lf <- pl$LazyFrame(
-#'   foo = 1:3,
-#'   bar = 6:8,
-#'   ham = c("a", "b", "c")
-#' )
-#'
-#' lf$collect_schema()
-#'
-#' lf$with_columns(
-#'   baz = (pl$col("foo") + pl$col("bar"))$cast(pl$String),
-#'   pl$col("bar")$cast(pl$Int64)
-#' )$collect_schema()
-lazyframe__collect_schema <- function() {
-  self$`_ldf`$collect_schema() |>
-    lapply(function(x) {
-      .savvy_wrap_PlRDataType(x) |>
-        wrap()
-    }) |>
-    wrap()
 }
 
 #' Collect and profile a lazy query.
@@ -466,6 +437,35 @@ lazyframe__explain <- function(
       }
     }
   })
+}
+
+#' Resolve the schema of this LazyFrame
+#'
+#' This resolves the query plan but does not trigger computations.
+#'
+#' @return A named list with names indicating column names and values indicating
+#' column data types.
+#'
+#' @examples
+#' lf <- pl$LazyFrame(
+#'   foo = 1:3,
+#'   bar = 6:8,
+#'   ham = c("a", "b", "c")
+#' )
+#'
+#' lf$collect_schema()
+#'
+#' lf$with_columns(
+#'   baz = (pl$col("foo") + pl$col("bar"))$cast(pl$String),
+#'   pl$col("bar")$cast(pl$Int64)
+#' )$collect_schema()
+lazyframe__collect_schema <- function() {
+  self$`_ldf`$collect_schema() |>
+    lapply(function(x) {
+      .savvy_wrap_PlRDataType(x) |>
+        wrap()
+    }) |>
+    wrap()
 }
 
 #' Cast LazyFrame column(s) to the specified dtype(s)

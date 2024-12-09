@@ -26,15 +26,15 @@ lazyframe__sink_ndjson(
 \item{maintain_order}{Maintain the order in which data is processed. Setting
 this to \code{FALSE} will be slightly faster.}
 
-\item{type_coercion}{A logical, indicates type coercion optimization.}
+\item{type_coercion}{A logical, indicats type coercion optimization.}
 
-\item{predicate_pushdown}{A logical, indicates predicate pushdown optimization.}
+\item{predicate_pushdown}{A logical, indicats predicate pushdown optimization.}
 
-\item{projection_pushdown}{A logical, indicates projection pushdown optimization.}
+\item{projection_pushdown}{A logical, indicats projection pushdown optimization.}
 
-\item{simplify_expression}{A logical, indicates simplify expression optimization.}
+\item{simplify_expression}{A logical, indicats simplify expression optimization.}
 
-\item{slice_pushdown}{A logical, indicates slice pushdown optimization.}
+\item{slice_pushdown}{A logical, indicats slice pushdown optimization.}
 
 \item{no_optimization}{A logical. If \code{TRUE}, turn off (certain) optimizations.}
 

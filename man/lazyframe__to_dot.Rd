@@ -23,21 +23,21 @@ lazyframe__to_dot(
 
 \item{optimized}{Optimize the query plan.}
 
-\item{type_coercion}{A logical, indicates type coercion optimization.}
+\item{type_coercion}{A logical, indicats type coercion optimization.}
 
-\item{predicate_pushdown}{A logical, indicates predicate pushdown optimization.}
+\item{predicate_pushdown}{A logical, indicats predicate pushdown optimization.}
 
-\item{projection_pushdown}{A logical, indicates projection pushdown optimization.}
+\item{projection_pushdown}{A logical, indicats projection pushdown optimization.}
 
-\item{simplify_expression}{A logical, indicates simplify expression optimization.}
+\item{simplify_expression}{A logical, indicats simplify expression optimization.}
 
-\item{slice_pushdown}{A logical, indicates slice pushdown optimization.}
+\item{slice_pushdown}{A logical, indicats slice pushdown optimization.}
 
-\item{comm_subplan_elim}{A logical, indicates trying to cache branching subplans that occur on self-joins or unions.}
+\item{comm_subplan_elim}{A logical, indicats trying to cache branching subplans that occur on self-joins or unions.}
 
-\item{comm_subexpr_elim}{A logical, indicates trying to cache common subexpressions.}
+\item{comm_subexpr_elim}{A logical, indicats trying to cache common subexpressions.}
 
-\item{cluster_with_columns}{A logical, indicates to combine sequential independent calls to with_columns.}
+\item{cluster_with_columns}{A logical, indicats to combine sequential independent calls to with_columns.}
 
 \item{streaming}{A logical. If \code{TRUE}, process the query in batches to handle larger-than-memory data.
 If \code{FALSE} (default), the entire query is processed in a single batch.
