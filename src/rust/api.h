@@ -470,10 +470,10 @@ SEXP savvy_PlRLazyFrame_top_k__ffi(SEXP self__, SEXP c_arg__k, SEXP c_arg__by, S
 SEXP savvy_PlRLazyFrame_bottom_k__ffi(SEXP self__, SEXP c_arg__k, SEXP c_arg__by, SEXP c_arg__reverse);
 SEXP savvy_PlRLazyFrame_cache__ffi(SEXP self__);
 SEXP savvy_PlRLazyFrame_profile__ffi(SEXP self__);
-SEXP savvy_PlRLazyFrame_sink_parquet__ffi(SEXP self__, SEXP c_arg__path, SEXP c_arg__compression, SEXP c_arg__maintain_order, SEXP c_arg__statistics, SEXP c_arg__compression_level, SEXP c_arg__row_group_size, SEXP c_arg__data_page_size);
-SEXP savvy_PlRLazyFrame_sink_ipc__ffi(SEXP self__, SEXP c_arg__path, SEXP c_arg__maintain_order, SEXP c_arg__compression);
-SEXP savvy_PlRLazyFrame_sink_csv__ffi(SEXP self__, SEXP c_arg__path, SEXP c_arg__include_bom, SEXP c_arg__include_header, SEXP c_arg__separator, SEXP c_arg__line_terminator, SEXP c_arg__quote_char, SEXP c_arg__maintain_order, SEXP c_arg__batch_size, SEXP c_arg__datetime_format, SEXP c_arg__date_format, SEXP c_arg__time_format, SEXP c_arg__float_scientific, SEXP c_arg__float_precision, SEXP c_arg__null_value, SEXP c_arg__quote_style);
-SEXP savvy_PlRLazyFrame_sink_json__ffi(SEXP self__, SEXP c_arg__path, SEXP c_arg__maintain_order);
+SEXP savvy_PlRLazyFrame_sink_parquet__ffi(SEXP self__, SEXP c_arg__path, SEXP c_arg__compression, SEXP c_arg__maintain_order, SEXP c_arg__statistics, SEXP c_arg__retries, SEXP c_arg__compression_level, SEXP c_arg__row_group_size, SEXP c_arg__data_page_size, SEXP c_arg__storage_options);
+SEXP savvy_PlRLazyFrame_sink_ipc__ffi(SEXP self__, SEXP c_arg__path, SEXP c_arg__maintain_order, SEXP c_arg__retries, SEXP c_arg__compression, SEXP c_arg__storage_options);
+SEXP savvy_PlRLazyFrame_sink_csv__ffi(SEXP self__, SEXP c_arg__path, SEXP c_arg__include_bom, SEXP c_arg__include_header, SEXP c_arg__separator, SEXP c_arg__line_terminator, SEXP c_arg__quote_char, SEXP c_arg__maintain_order, SEXP c_arg__batch_size, SEXP c_arg__retries, SEXP c_arg__datetime_format, SEXP c_arg__date_format, SEXP c_arg__time_format, SEXP c_arg__float_scientific, SEXP c_arg__float_precision, SEXP c_arg__null_value, SEXP c_arg__quote_style, SEXP c_arg__storage_options);
+SEXP savvy_PlRLazyFrame_sink_json__ffi(SEXP self__, SEXP c_arg__path, SEXP c_arg__maintain_order, SEXP c_arg__retries, SEXP c_arg__storage_options);
 SEXP savvy_PlRLazyFrame_serialize__ffi(SEXP self__);
 SEXP savvy_PlRLazyFrame_select_seq__ffi(SEXP self__, SEXP c_arg__exprs);
 SEXP savvy_PlRLazyFrame_rolling__ffi(SEXP self__, SEXP c_arg__index_column, SEXP c_arg__period, SEXP c_arg__offset, SEXP c_arg__closed, SEXP c_arg__by);

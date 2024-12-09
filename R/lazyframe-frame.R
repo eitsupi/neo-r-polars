@@ -2271,6 +2271,7 @@ lazyframe__with_row_index <- function(name = "index", offset = 0) {
 #' @param maintain_order Maintain the order in which data is processed. Setting
 #' this to `FALSE` will be slightly faster.
 #' @inheritParams lazyframe__collect
+#' @inheritParams pl__scan_parquet
 #'
 #' @return Invisibly returns the input LazyFrame
 #'
@@ -2299,7 +2300,9 @@ lazyframe__sink_parquet <- function(
     projection_pushdown = TRUE,
     simplify_expression = TRUE,
     slice_pushdown = TRUE,
-    no_optimization = FALSE) {
+    no_optimization = FALSE,
+    storage_options = NULL,
+    retries = 2) {
   wrap({
     check_dots_empty0(...)
     compression <- arg_match0(
@@ -2335,7 +2338,9 @@ lazyframe__sink_parquet <- function(
       statistics = statistics,
       row_group_size = row_group_size,
       data_page_size = data_page_size,
-      maintain_order = maintain_order
+      maintain_order = maintain_order,
+      storage_options = storage_options,
+      retries = retries
     )
 
     invisible(self)
@@ -2372,7 +2377,9 @@ lazyframe__sink_ipc <- function(
     projection_pushdown = TRUE,
     simplify_expression = TRUE,
     slice_pushdown = TRUE,
-    no_optimization = FALSE) {
+    no_optimization = FALSE,
+    storage_options = NULL,
+    retries = 2) {
   wrap({
     check_dots_empty0(...)
     compression <- compression %||% "uncompressed"
@@ -2403,7 +2410,9 @@ lazyframe__sink_ipc <- function(
     lf$sink_ipc(
       path = path,
       compression = compression,
-      maintain_order = maintain_order
+      maintain_order = maintain_order,
+      storage_options = storage_options,
+      retries = retries
     )
 
     invisible(self)
@@ -2480,7 +2489,9 @@ lazyframe__sink_csv <- function(
     projection_pushdown = TRUE,
     simplify_expression = TRUE,
     slice_pushdown = TRUE,
-    no_optimization = FALSE) {
+    no_optimization = FALSE,
+    storage_options = NULL,
+    retries = 2) {
   wrap({
     check_dots_empty0(...)
     quote_style <- arg_match0(
@@ -2521,7 +2532,9 @@ lazyframe__sink_csv <- function(
       float_precision = float_precision,
       null_value = null_value,
       quote_style = quote_style,
-      maintain_order = maintain_order
+      maintain_order = maintain_order,
+      storage_options = storage_options,
+      retries = retries
     )
 
     invisible(self)
@@ -2549,7 +2562,9 @@ lazyframe__sink_ndjson <- function(
     projection_pushdown = TRUE,
     simplify_expression = TRUE,
     slice_pushdown = TRUE,
-    no_optimization = FALSE) {
+    no_optimization = FALSE,
+    storage_options = NULL,
+    retries = 2) {
   wrap({
     check_dots_empty0(...)
     if (isTRUE(no_optimization)) {
@@ -2573,7 +2588,9 @@ lazyframe__sink_ndjson <- function(
 
     lf$sink_json(
       path = path,
-      maintain_order = maintain_order
+      maintain_order = maintain_order,
+      storage_options = storage_options,
+      retries = retries
     )
 
     invisible(self)

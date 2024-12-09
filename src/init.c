@@ -2334,23 +2334,23 @@ SEXP savvy_PlRLazyFrame_profile__impl(SEXP self__) {
     return handle_result(res);
 }
 
-SEXP savvy_PlRLazyFrame_sink_parquet__impl(SEXP self__, SEXP c_arg__path, SEXP c_arg__compression, SEXP c_arg__maintain_order, SEXP c_arg__statistics, SEXP c_arg__compression_level, SEXP c_arg__row_group_size, SEXP c_arg__data_page_size) {
-    SEXP res = savvy_PlRLazyFrame_sink_parquet__ffi(self__, c_arg__path, c_arg__compression, c_arg__maintain_order, c_arg__statistics, c_arg__compression_level, c_arg__row_group_size, c_arg__data_page_size);
+SEXP savvy_PlRLazyFrame_sink_parquet__impl(SEXP self__, SEXP c_arg__path, SEXP c_arg__compression, SEXP c_arg__maintain_order, SEXP c_arg__statistics, SEXP c_arg__retries, SEXP c_arg__compression_level, SEXP c_arg__row_group_size, SEXP c_arg__data_page_size, SEXP c_arg__storage_options) {
+    SEXP res = savvy_PlRLazyFrame_sink_parquet__ffi(self__, c_arg__path, c_arg__compression, c_arg__maintain_order, c_arg__statistics, c_arg__retries, c_arg__compression_level, c_arg__row_group_size, c_arg__data_page_size, c_arg__storage_options);
     return handle_result(res);
 }
 
-SEXP savvy_PlRLazyFrame_sink_ipc__impl(SEXP self__, SEXP c_arg__path, SEXP c_arg__maintain_order, SEXP c_arg__compression) {
-    SEXP res = savvy_PlRLazyFrame_sink_ipc__ffi(self__, c_arg__path, c_arg__maintain_order, c_arg__compression);
+SEXP savvy_PlRLazyFrame_sink_ipc__impl(SEXP self__, SEXP c_arg__path, SEXP c_arg__maintain_order, SEXP c_arg__retries, SEXP c_arg__compression, SEXP c_arg__storage_options) {
+    SEXP res = savvy_PlRLazyFrame_sink_ipc__ffi(self__, c_arg__path, c_arg__maintain_order, c_arg__retries, c_arg__compression, c_arg__storage_options);
     return handle_result(res);
 }
 
-SEXP savvy_PlRLazyFrame_sink_csv__impl(SEXP self__, SEXP c_arg__path, SEXP c_arg__include_bom, SEXP c_arg__include_header, SEXP c_arg__separator, SEXP c_arg__line_terminator, SEXP c_arg__quote_char, SEXP c_arg__maintain_order, SEXP c_arg__batch_size, SEXP c_arg__datetime_format, SEXP c_arg__date_format, SEXP c_arg__time_format, SEXP c_arg__float_scientific, SEXP c_arg__float_precision, SEXP c_arg__null_value, SEXP c_arg__quote_style) {
-    SEXP res = savvy_PlRLazyFrame_sink_csv__ffi(self__, c_arg__path, c_arg__include_bom, c_arg__include_header, c_arg__separator, c_arg__line_terminator, c_arg__quote_char, c_arg__maintain_order, c_arg__batch_size, c_arg__datetime_format, c_arg__date_format, c_arg__time_format, c_arg__float_scientific, c_arg__float_precision, c_arg__null_value, c_arg__quote_style);
+SEXP savvy_PlRLazyFrame_sink_csv__impl(SEXP self__, SEXP c_arg__path, SEXP c_arg__include_bom, SEXP c_arg__include_header, SEXP c_arg__separator, SEXP c_arg__line_terminator, SEXP c_arg__quote_char, SEXP c_arg__maintain_order, SEXP c_arg__batch_size, SEXP c_arg__retries, SEXP c_arg__datetime_format, SEXP c_arg__date_format, SEXP c_arg__time_format, SEXP c_arg__float_scientific, SEXP c_arg__float_precision, SEXP c_arg__null_value, SEXP c_arg__quote_style, SEXP c_arg__storage_options) {
+    SEXP res = savvy_PlRLazyFrame_sink_csv__ffi(self__, c_arg__path, c_arg__include_bom, c_arg__include_header, c_arg__separator, c_arg__line_terminator, c_arg__quote_char, c_arg__maintain_order, c_arg__batch_size, c_arg__retries, c_arg__datetime_format, c_arg__date_format, c_arg__time_format, c_arg__float_scientific, c_arg__float_precision, c_arg__null_value, c_arg__quote_style, c_arg__storage_options);
     return handle_result(res);
 }
 
-SEXP savvy_PlRLazyFrame_sink_json__impl(SEXP self__, SEXP c_arg__path, SEXP c_arg__maintain_order) {
-    SEXP res = savvy_PlRLazyFrame_sink_json__ffi(self__, c_arg__path, c_arg__maintain_order);
+SEXP savvy_PlRLazyFrame_sink_json__impl(SEXP self__, SEXP c_arg__path, SEXP c_arg__maintain_order, SEXP c_arg__retries, SEXP c_arg__storage_options) {
+    SEXP res = savvy_PlRLazyFrame_sink_json__ffi(self__, c_arg__path, c_arg__maintain_order, c_arg__retries, c_arg__storage_options);
     return handle_result(res);
 }
 
@@ -3196,10 +3196,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRLazyFrame_bottom_k__impl", (DL_FUNC) &savvy_PlRLazyFrame_bottom_k__impl, 4},
     {"savvy_PlRLazyFrame_cache__impl", (DL_FUNC) &savvy_PlRLazyFrame_cache__impl, 1},
     {"savvy_PlRLazyFrame_profile__impl", (DL_FUNC) &savvy_PlRLazyFrame_profile__impl, 1},
-    {"savvy_PlRLazyFrame_sink_parquet__impl", (DL_FUNC) &savvy_PlRLazyFrame_sink_parquet__impl, 8},
-    {"savvy_PlRLazyFrame_sink_ipc__impl", (DL_FUNC) &savvy_PlRLazyFrame_sink_ipc__impl, 4},
-    {"savvy_PlRLazyFrame_sink_csv__impl", (DL_FUNC) &savvy_PlRLazyFrame_sink_csv__impl, 16},
-    {"savvy_PlRLazyFrame_sink_json__impl", (DL_FUNC) &savvy_PlRLazyFrame_sink_json__impl, 3},
+    {"savvy_PlRLazyFrame_sink_parquet__impl", (DL_FUNC) &savvy_PlRLazyFrame_sink_parquet__impl, 10},
+    {"savvy_PlRLazyFrame_sink_ipc__impl", (DL_FUNC) &savvy_PlRLazyFrame_sink_ipc__impl, 6},
+    {"savvy_PlRLazyFrame_sink_csv__impl", (DL_FUNC) &savvy_PlRLazyFrame_sink_csv__impl, 18},
+    {"savvy_PlRLazyFrame_sink_json__impl", (DL_FUNC) &savvy_PlRLazyFrame_sink_json__impl, 5},
     {"savvy_PlRLazyFrame_serialize__impl", (DL_FUNC) &savvy_PlRLazyFrame_serialize__impl, 1},
     {"savvy_PlRLazyFrame_select_seq__impl", (DL_FUNC) &savvy_PlRLazyFrame_select_seq__impl, 2},
     {"savvy_PlRLazyFrame_rolling__impl", (DL_FUNC) &savvy_PlRLazyFrame_rolling__impl, 6},

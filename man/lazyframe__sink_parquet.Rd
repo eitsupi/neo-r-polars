@@ -18,7 +18,9 @@ lazyframe__sink_parquet(
   projection_pushdown = TRUE,
   simplify_expression = TRUE,
   slice_pushdown = TRUE,
-  no_optimization = FALSE
+  no_optimization = FALSE,
+  storage_options = NULL,
+  retries = 2
 )
 }
 \arguments{
@@ -82,6 +84,24 @@ folding and replacing expensive operations with faster alternatives.}
 
 \item{slice_pushdown}{Logical. Only load the required slice from the scan
 level. Don't materialize sliced outputs (e.g. \code{join$head(10)}).}
+
+\item{storage_options}{Named vector containing options that indicate how to
+connect to a cloud provider. The cloud providers currently supported are
+AWS, GCP, and Azure.
+See supported keys here:
+\itemize{
+\item \href{https://docs.rs/object_store/latest/object_store/aws/enum.AmazonS3ConfigKey.html}{aws}
+\item \href{https://docs.rs/object_store/latest/object_store/gcp/enum.GoogleConfigKey.html}{gcp}
+\item \href{https://docs.rs/object_store/latest/object_store/azure/enum.AzureConfigKey.html}{azure}
+\item Hugging Face (\verb{hf://}): Accepts an API key under the token parameter
+\code{c(token = YOUR_TOKEN)} or by setting the \code{HF_TOKEN} environment
+variable.
+}
+
+If \code{storage_options} is not provided, Polars will try to infer the
+information from environment variables.}
+
+\item{retries}{Number of retries if accessing a cloud instance fails.}
 }
 \value{
 Invisibly returns the input LazyFrame
