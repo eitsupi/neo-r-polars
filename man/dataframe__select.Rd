@@ -7,11 +7,11 @@
 dataframe__select(...)
 }
 \arguments{
-\item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> Name-value pairs of objects
-to be converted to polars \link[=Expr]{expressions} by the \code{\link[=as_polars_expr]{as_polars_expr()}}
-function. Characters are parsed as column names, other non-expression inputs
-are parsed as \link[=pl__lit]{literals}. Each name will be used as the expression
-name.}
+\item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}>
+Name-value pairs of objects to be converted to polars \link[=Expr]{expressions}
+by the \code{\link[=as_polars_expr]{as_polars_expr()}} function.
+Characters are parsed as column names, other non-expression inputs are parsed as \link[=pl__lit]{literals}.
+Each name will be used as the expression name.}
 }
 \value{
 A polars \link{DataFrame}

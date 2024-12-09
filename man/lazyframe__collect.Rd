@@ -20,44 +20,40 @@ lazyframe__collect(
 )
 }
 \arguments{
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
-\item{type_coercion}{Logical. Coerce types such that operations succeed and
-run on minimal required memory.}
+\item{type_coercion}{A logical, indicates type coercion optimization.}
 
-\item{predicate_pushdown}{Logical. Applies filters as early as possible at
-scan level.}
+\item{predicate_pushdown}{A logical, indicates predicate pushdown optimization.}
 
-\item{projection_pushdown}{Logical. Select only the columns that are needed
-at the scan level.}
+\item{projection_pushdown}{A logical, indicates projection pushdown optimization.}
 
-\item{simplify_expression}{Logical. Various optimizations, such as constant
-folding and replacing expensive operations with faster alternatives.}
+\item{simplify_expression}{A logical, indicates simplify expression optimization.}
 
-\item{slice_pushdown}{Logical. Only load the required slice from the scan
-level. Don't materialize sliced outputs (e.g. \code{join$head(10)}).}
+\item{slice_pushdown}{A logical, indicates slice pushdown optimization.}
 
-\item{comm_subplan_elim}{Logical. Will try to cache branching subplans that
-occur on self-joins or unions.}
+\item{comm_subplan_elim}{A logical, indicates trying to cache branching subplans that occur on self-joins or unions.}
 
-\item{comm_subexpr_elim}{Logical. Common subexpressions will be cached and
-reused.}
+\item{comm_subexpr_elim}{A logical, indicates trying to cache common subexpressions.}
 
-\item{cluster_with_columns}{Combine sequential independent calls to
-\code{\link[=lazyframe__with_columns]{with_columns()}}.}
+\item{cluster_with_columns}{A logical, indicates to combine sequential independent calls to with_columns.}
 
-\item{streaming}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Logical. Process the
-query in batches to handle larger-than-memory data. If \code{FALSE} (default),
-the entire query is processed in a single batch.}
+\item{no_optimization}{A logical. If \code{TRUE}, turn off (certain) optimizations.}
 
-\item{_eager}{A logical, indicates to turn off multi-node optimizations and
-the other optimizations. This option is intended for internal use only.}
+\item{streaming}{A logical. If \code{TRUE}, process the query in batches to handle larger-than-memory data.
+If \code{FALSE} (default), the entire query is processed in a single batch.
+Note that streaming mode is considered unstable.
+It may be changed at any point without it being considered a breaking change.}
+
+\item{_eager}{A logical, indicates to turn off multi-node optimizations and the other optimizations.
+This option is intended for internal use only.}
 }
 \value{
-A polars \link{LazyFrame}
+A polars \link{DataFrame}
 }
 \description{
 By default, all query optimizations are enabled.
+Individual optimizations may be disabled by setting the corresponding parameter to \code{FALSE}.
 }
 \examples{
 lf <- pl$LazyFrame(

@@ -34,20 +34,17 @@ lazyframe__sink_ipc(
 \item{maintain_order}{Maintain the order in which data is processed. Setting
 this to \code{FALSE} will be slightly faster.}
 
-\item{type_coercion}{Logical. Coerce types such that operations succeed and
-run on minimal required memory.}
+\item{type_coercion}{A logical, indicates type coercion optimization.}
 
-\item{predicate_pushdown}{Logical. Applies filters as early as possible at
-scan level.}
+\item{predicate_pushdown}{A logical, indicates predicate pushdown optimization.}
 
-\item{projection_pushdown}{Logical. Select only the columns that are needed
-at the scan level.}
+\item{projection_pushdown}{A logical, indicates projection pushdown optimization.}
 
-\item{simplify_expression}{Logical. Various optimizations, such as constant
-folding and replacing expensive operations with faster alternatives.}
+\item{simplify_expression}{A logical, indicates simplify expression optimization.}
 
-\item{slice_pushdown}{Logical. Only load the required slice from the scan
-level. Don't materialize sliced outputs (e.g. \code{join$head(10)}).}
+\item{slice_pushdown}{A logical, indicates slice pushdown optimization.}
+
+\item{no_optimization}{A logical. If \code{TRUE}, turn off (certain) optimizations.}
 
 \item{storage_options}{Named vector containing options that indicate how to
 connect to a cloud provider. The cloud providers currently supported are
