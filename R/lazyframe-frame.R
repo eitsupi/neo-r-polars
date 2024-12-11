@@ -587,7 +587,7 @@ lazyframe__sort <- function(
     if (missing(...)) {
       abort("`...` must contain at least one element.")
     }
-    by <- parse_into_list_of_expressions(...)    
+    by <- parse_into_list_of_expressions(...)
     descending <- extend_bool(descending, length(by), "descending", "...")
     nulls_last <- extend_bool(nulls_last, length(by), "nulls_last", "...")
 
@@ -1369,6 +1369,7 @@ lazyframe__rename <- function(mapping, ..., strict = TRUE) {
   wrap({
     if (!missing(mapping) && is_function(mapping)) {
       check_dots_empty0(...)
+      # TODO: this requires $name$map()
       self$select(pl$all()$name$map(mapping))
     } else {
       if (missing(mapping) || !is.list(mapping)) {
