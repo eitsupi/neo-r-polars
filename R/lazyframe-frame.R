@@ -584,10 +584,10 @@ lazyframe__sort <- function(
   wrap({
     check_dots_unnamed()
 
-    by <- parse_into_list_of_expressions(...)
-    if (length(by) == 0) {
+    if (missing(...)) {
       abort("`...` must contain at least one element.")
     }
+    by <- parse_into_list_of_expressions(...)    
     descending <- extend_bool(descending, length(by), "descending", "...")
     nulls_last <- extend_bool(nulls_last, length(by), "nulls_last", "...")
 
