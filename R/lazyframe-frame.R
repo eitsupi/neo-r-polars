@@ -1370,6 +1370,9 @@ lazyframe__rename <- function(..., .strict = TRUE) {
       # TODO: this requires $name$map()
       return(self$select(pl$all()$name$map(mapping[[1]])))
     }
+    if (!is_list_of_string(mapping)) {
+      abort("`...` only accepts a function or named characters.")
+    }
     existing <- names(mapping)
     new <- unlist(mapping)
     self$`_ldf`$rename(existing, new, .strict)
