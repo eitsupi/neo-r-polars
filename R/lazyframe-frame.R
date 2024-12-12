@@ -1339,14 +1339,12 @@ lazyframe__unpivot <- function(
 
 #' Rename column names
 #'
-#' @param mapping Either a function that takes a character vector as input and
-#' returns one as input, or a named list where names are old column names and
-#' values are the new ones.
-#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> If `mapping` is missing,
-#' those values are used.
-#' @param strict Validate that all column names exist in the current schema,
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Either a function that takes
+#' a character vector as input and returns a character vector as output, or
+#' named values where names are old column names and values are the new ones.
+#' @param .strict Validate that all column names exist in the current schema,
 #' and throw an error if any do not. (Note that this parameter is a no-op when
-#' passing a function to `mapping`).
+#' passing a function to `...`).
 #'
 #' @details
 #' If existing names are swapped (e.g. 'A' points to 'B' and 'B' points to
@@ -1365,20 +1363,16 @@ lazyframe__unpivot <- function(
 #' lf$rename(
 #'   \(column_name) paste0("c", substr(column_name, 2, 100))
 #' )$collect()
-lazyframe__rename <- function(mapping, ..., strict = TRUE) {
+lazyframe__rename <- function(..., .strict = TRUE) {
   wrap({
-    if (!missing(mapping) && is_function(mapping)) {
-      check_dots_empty0(...)
+    mapping <- list2(...)
+    if (length(mapping) == 1 && is_function(mapping[[1]])) {
       # TODO: this requires $name$map()
-      self$select(pl$all()$name$map(mapping))
-    } else {
-      if (missing(mapping) || !is.list(mapping)) {
-        mapping <- list2(...)
-      }
-      existing <- names(mapping)
-      new <- unlist(mapping)
-      self$`_ldf`$rename(existing, new, strict)
+      return(self$select(pl$all()$name$map(mapping[[1]])))
     }
+    existing <- names(mapping)
+    new <- unlist(mapping)
+    self$`_ldf`$rename(existing, new, .strict)
   })
 }
 

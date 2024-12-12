@@ -4,19 +4,16 @@
 \alias{lazyframe__rename}
 \title{Rename column names}
 \usage{
-lazyframe__rename(mapping, ..., strict = TRUE)
+lazyframe__rename(..., .strict = TRUE)
 }
 \arguments{
-\item{mapping}{Either a function that takes a character vector as input and
-returns one as input, or a named list where names are old column names and
-values are the new ones.}
+\item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> Either a function that takes
+a character vector as input and returns a character vector as output, or
+named values where names are old column names and values are the new ones.}
 
-\item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> If \code{mapping} is missing,
-those values are used.}
-
-\item{strict}{Validate that all column names exist in the current schema,
+\item{.strict}{Validate that all column names exist in the current schema,
 and throw an error if any do not. (Note that this parameter is a no-op when
-passing a function to \code{mapping}).}
+passing a function to \code{...}).}
 }
 \value{
 A polars \link{LazyFrame}
