@@ -1366,12 +1366,13 @@ lazyframe__unpivot <- function(
 lazyframe__rename <- function(..., .strict = TRUE) {
   wrap({
     mapping <- list2(...)
-    if (length(mapping) == 1 && is_function(mapping[[1]])) {
+    if (length(mapping) == 1 && is_function(mapping[[1]]) && !is_named(mapping)) {
       # TODO: this requires $name$map()
+      abort("Not implemented yet")
       return(self$select(pl$all()$name$map(mapping[[1]])))
     }
     if (!is_list_of_string(mapping)) {
-      abort("`...` only accepts a function or named characters.")
+      abort("`...` only accepts an unnamed function or named single strings.")
     }
     existing <- names(mapping)
     new <- unlist(mapping)
