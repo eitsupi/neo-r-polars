@@ -1921,7 +1921,12 @@ lazyframe__to_dot <- function(
 #'
 #' df$clear(n = 5)
 lazyframe__clear <- function(n = 0) {
-  pl$DataFrame(schema = self$schema)$clear(n)$lazy()
+  cols <- names(self)
+  dat <- vector("list", length(cols))
+  names(dat) <- cols
+  pl$DataFrame(!!!dat, .schema_overrides = self$collect_schema())$
+    clear(n)$
+    lazy()
 }
 
 #' Take every nth row in the LazyFrame
