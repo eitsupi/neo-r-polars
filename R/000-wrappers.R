@@ -3452,12 +3452,6 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
   }
 }
 
-`PlRLazyFrame_with_context` <- function(self) {
-  function(`contexts`) {
-    .savvy_wrap_PlRLazyFrame(.Call(savvy_PlRLazyFrame_with_context__impl, `self`, `contexts`))
-  }
-}
-
 `PlRLazyFrame_join_asof` <- function(self) {
   function(`other`, `left_on`, `right_on`, `allow_parallel`, `force_parallel`, `suffix`, `coalesce`, `strategy`, `left_by` = NULL, `right_by` = NULL, `tolerance` = NULL, `tolerance_str` = NULL) {
     `other` <- .savvy_extract_ptr(`other`, "PlRLazyFrame")
@@ -3665,7 +3659,6 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
   e$`select_seq` <- `PlRLazyFrame_select_seq`(ptr)
   e$`rolling` <- `PlRLazyFrame_rolling`(ptr)
   e$`group_by_dynamic` <- `PlRLazyFrame_group_by_dynamic`(ptr)
-  e$`with_context` <- `PlRLazyFrame_with_context`(ptr)
   e$`join_asof` <- `PlRLazyFrame_join_asof`(ptr)
   e$`join` <- `PlRLazyFrame_join`(ptr)
   e$`join_where` <- `PlRLazyFrame_join_where`(ptr)

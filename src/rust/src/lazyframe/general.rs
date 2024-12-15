@@ -618,11 +618,6 @@ impl PlRLazyFrame {
         Ok(PlRLazyGroupBy { lgb: Some(lazy_gb) })
     }
 
-    fn with_context(&self, contexts: ListSexp) -> Result<Self> {
-        let contexts = <Wrap<Vec<LazyFrame>>>::try_from(contexts)?.0;
-        Ok(self.ldf.clone().with_context(contexts).into())
-    }
-
     fn join_asof(
         &self,
         other: &PlRLazyFrame,

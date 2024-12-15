@@ -1601,39 +1601,6 @@ lazyframe__unnest <- function(...) {
   })
 }
 
-#' Add an external context to the computation graph
-#'
-#' This allows expressions to also access columns from DataFrames or LazyFrames
-#' that are not part of this one.
-#'
-#' @param other Data/LazyFrame to have access to. This can be a list of DataFrames
-#' and LazyFrames.
-#' @inherit as_polars_lf return
-#'
-#' @examples
-#' lf <- pl$LazyFrame(a = c(1, 2, 3), b = c("a", "c", NA))
-#' lf_other <- pl$LazyFrame(c = c("foo", "ham"))
-#'
-#' lf$with_context(lf_other)$select(
-#'   pl$col("b") + pl$col("c")$first()
-#' )$collect()
-#'
-#' # Fill nulls with the median from another lazyframe:
-#' train_lf <- pl$LazyFrame(
-#'   feature_0 = c(-1.0, 0, 1), feature_1 = c(-1.0, 0, 1)
-#' )
-#' test_lf <- pl$LazyFrame(
-#'   feature_0 = c(-1.0, NA, 1), feature_1 = c(-1.0, 0, 1)
-#' )
-#'
-#' test_lf$with_context(train_lf$select(pl$all()$name$suffix("_train")))$select(
-#'   pl$col("feature_0")$fill_null(pl$col("feature_0_train")$median())
-#' )$collect()
-lazyframe__with_context <- function(other) {
-  self$`_ldf`$with_context(other)
-}
-
-
 #' Create rolling groups based on a date/time or integer column
 #'
 #' @description
