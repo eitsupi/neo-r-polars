@@ -2,9 +2,12 @@
 % Please edit documentation in R/lazyframe-frame.R
 \name{lazyframe__head}
 \alias{lazyframe__head}
+\alias{lazyframe__limit}
 \title{Get the first \code{n} rows}
 \usage{
 lazyframe__head(n = 5)
+
+lazyframe__limit(n = 5)
 }
 \arguments{
 \item{n}{Number of rows to return.}
@@ -13,7 +16,7 @@ lazyframe__head(n = 5)
 A polars \link{LazyFrame}
 }
 \description{
-Get the first \code{n} rows
+\verb{$limit()} is an alias for \verb{$head()}.
 }
 \examples{
 lf <- pl$LazyFrame(a = 1:6, b = 7:12)

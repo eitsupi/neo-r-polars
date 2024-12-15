@@ -757,6 +757,8 @@ lazyframe__slice <- function(offset, length = NULL) {
 
 #' Get the first `n` rows
 #'
+#' `$limit()` is an alias for `$head()`.
+#'
 #' @param n Number of rows to return.
 #' @inherit as_polars_lf return
 #' @examples
@@ -768,16 +770,7 @@ lazyframe__head <- function(n = 5) {
     wrap()
 }
 
-#' Get the first `n` rows
-#'
-#' Alias for [`<LazyFrame>$head()`][lazyframe__head].
-#'
-#' @inheritParams lazyframe__head
-#' @inherit as_polars_lf return
-#' @examples
-#' lf <- pl$LazyFrame(a = 1:6, b = 7:12)
-#' lf$limit()$collect()
-#' lf$limit(2)$collect()
+#' @rdname lazyframe__head
 lazyframe__limit <- function(n = 5) {
   wrap({
     self$head(n)
