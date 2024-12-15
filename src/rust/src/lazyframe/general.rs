@@ -1029,7 +1029,7 @@ impl PlRLazyFrame {
         storage_options: Option<StringSexp>,
         file_cache_ttl: Option<NumericScalar>,
         include_file_paths: Option<&str>,
-    ) -> Result<Self> {
+    ) -> Result<PlRLazyFrame> {
         let source = source
             .to_vec()
             .iter()
