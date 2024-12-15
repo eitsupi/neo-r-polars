@@ -1380,6 +1380,7 @@ lazyframe__rename <- function(..., .strict = TRUE) {
 #' materialized DataFrame and a DataFrame that contains profiling information
 #' of each node that is executed.
 #'
+#' @inheritParams rlang::check_dots_empty0
 #' @inheritParams lazyframe__collect
 #' @param show_plot Show a Gantt chart of the profiling result
 #' @param truncate_nodes Truncate the label lengths in the Gantt chart to this
@@ -1425,6 +1426,7 @@ lazyframe__rename <- function(..., .strict = TRUE) {
 #'   agg(pl$col(pl$Float64)$map_elements(r_func))$
 #'   profile()
 lazyframe__profile <- function(
+    ...,
     type_coercion = TRUE,
     predicate_pushdown = TRUE,
     projection_pushdown = TRUE,
@@ -1438,43 +1440,46 @@ lazyframe__profile <- function(
     collect_in_background = FALSE,
     show_plot = FALSE,
     truncate_nodes = 0) {
-  if (isTRUE(no_optimization)) {
-    predicate_pushdown <- FALSE
-    projection_pushdown <- FALSE
-    slice_pushdown <- FALSE
-    comm_subplan_elim <- FALSE
-    comm_subexpr_elim <- FALSE
-    cluster_with_columns <- FALSE
-  }
+  wrap({
+    check_dots_empty0(...)
+    if (isTRUE(no_optimization)) {
+      predicate_pushdown <- FALSE
+      projection_pushdown <- FALSE
+      slice_pushdown <- FALSE
+      comm_subplan_elim <- FALSE
+      comm_subexpr_elim <- FALSE
+      cluster_with_columns <- FALSE
+    }
 
-  if (isTRUE(streaming)) {
-    comm_subplan_elim <- FALSE
-  }
+    if (isTRUE(streaming)) {
+      comm_subplan_elim <- FALSE
+    }
 
-  lf <- self$`_ldf`$optimization_toggle(
-    type_coercion = type_coercion,
-    predicate_pushdown = predicate_pushdown,
-    projection_pushdown = projection_pushdown,
-    simplify_expression = simplify_expression,
-    slice_pushdown = slice_pushdown,
-    comm_subplan_elim = comm_subplan_elim,
-    comm_subexpr_elim = comm_subexpr_elim,
-    cluster_with_columns = cluster_with_columns,
-    streaming = streaming,
-    `_eager` = FALSE
-  )
+    lf <- self$`_ldf`$optimization_toggle(
+      type_coercion = type_coercion,
+      predicate_pushdown = predicate_pushdown,
+      projection_pushdown = projection_pushdown,
+      simplify_expression = simplify_expression,
+      slice_pushdown = slice_pushdown,
+      comm_subplan_elim = comm_subplan_elim,
+      comm_subexpr_elim = comm_subexpr_elim,
+      cluster_with_columns = cluster_with_columns,
+      streaming = streaming,
+      `_eager` = FALSE
+    )
 
-  out <- lapply(self$`_ldf`$profile(), \(x) {
-    x |>
-      .savvy_wrap_PlRDataFrame() |>
-      wrap()
+    out <- lapply(self$`_ldf`$profile(), \(x) {
+      x |>
+        .savvy_wrap_PlRDataFrame() |>
+        wrap()
+    })
+
+    if (isTRUE(show_plot)) {
+      out[["plot"]] <- make_profile_plot(out, truncate_nodes)
+    }
+
+    out
   })
-
-  if (isTRUE(show_plot)) {
-    out[["plot"]] <- make_profile_plot(out, truncate_nodes)
-  }
-
-  out
 }
 
 #' Serialize the logical plan of this LazyFrame to a string in JSON format

@@ -5,6 +5,7 @@
 \title{Collect and profile a lazy query.}
 \usage{
 lazyframe__profile(
+  ...,
   type_coercion = TRUE,
   predicate_pushdown = TRUE,
   projection_pushdown = TRUE,
@@ -21,6 +22,7 @@ lazyframe__profile(
 )
 
 lazyframe__profile(
+  ...,
   type_coercion = TRUE,
   predicate_pushdown = TRUE,
   projection_pushdown = TRUE,
@@ -37,6 +39,8 @@ lazyframe__profile(
 )
 }
 \arguments{
+\item{...}{Dots which should be empty.}
+
 \item{type_coercion}{A logical, indicats type coercion optimization.}
 
 \item{predicate_pushdown}{A logical, indicats predicate pushdown optimization.}
