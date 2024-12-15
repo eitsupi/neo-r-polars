@@ -7,7 +7,7 @@ use polars::series::ops::NullBehavior;
 use savvy::{ListSexp, NumericScalar, NumericSexp, NumericTypedSexp, Sexp, StringSexp, TypedSexp};
 use search_sorted::SearchSortedSide;
 pub mod base_date;
-pub mod chunked_array;
+mod chunked_array;
 pub mod clock;
 pub mod data_table;
 
