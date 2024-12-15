@@ -1565,7 +1565,8 @@ lazyframe__explode <- function(...) {
 #' # now, the original LazyFrame doesn't get this attribute
 #' attributes(df1)
 lazyframe__clone <- function() {
-  self$`_ldf`$clone()
+  self$`_ldf`$clone() |>
+    wrap()
 }
 
 
