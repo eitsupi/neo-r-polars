@@ -26,7 +26,7 @@ lazyframe__sink_parquet(
 \arguments{
 \item{path}{A character. File path to which the file should be written.}
 
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{compression}{The compression method. Must be one of:
 \itemize{

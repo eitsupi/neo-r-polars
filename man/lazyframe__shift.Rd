@@ -10,7 +10,7 @@ lazyframe__shift(n = 1, ..., fill_value = NULL)
 \item{n}{Number of indices to shift forward. If a negative value is passed,
 values are shifted in the opposite direction instead.}
 
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{fill_value}{Fill the resulting null values with this value. Accepts
 expression input. Non-expression inputs are parsed as literals.}

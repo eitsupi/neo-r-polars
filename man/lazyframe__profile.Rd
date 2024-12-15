@@ -39,7 +39,7 @@ lazyframe__profile(
 )
 }
 \arguments{
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{type_coercion}{A logical, indicats type coercion optimization.}
 

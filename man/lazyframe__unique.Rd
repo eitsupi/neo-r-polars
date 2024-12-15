@@ -15,7 +15,7 @@ lazyframe__unique(
 \item{subset}{Column name(s) or selector(s), to consider when identifying
 duplicate rows. If \code{NULL} (default), use all columns.}
 
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{keep}{Which of the duplicate rows to keep. Must be one of:
 \itemize{

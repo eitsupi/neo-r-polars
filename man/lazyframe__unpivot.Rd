@@ -16,7 +16,7 @@ lazyframe__unpivot(
 \item{on}{Values to use as identifier variables. If \code{value_vars} is
 empty all columns that are not in \code{id_vars} will be used.}
 
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{index}{Columns to use as identifier variables.}
 

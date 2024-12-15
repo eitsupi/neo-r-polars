@@ -9,7 +9,7 @@ lazyframe__set_sorted(column, ..., descending = FALSE)
 \arguments{
 \item{column}{Columns that are sorted.}
 
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{descending}{Whether the columns are sorted in descending order.}
 }

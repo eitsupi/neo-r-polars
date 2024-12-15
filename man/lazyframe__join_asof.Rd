@@ -24,7 +24,7 @@ lazyframe__join_asof(
 \arguments{
 \item{other}{LazyFrame to join with.}
 
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{by_left, by_right}{Same as \code{by} but only for the left or the right
 table. They must have the same length.}

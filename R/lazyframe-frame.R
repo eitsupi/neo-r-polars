@@ -258,7 +258,7 @@ lazyframe__collect <- function(
 #' DataFrame and a DataFrame that contains profiling information of each node
 #' that is executed.
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @inheritParams lazyframe__collect
 #' @param show_plot Show a Gantt chart of the profiling result
 #' @param truncate_nodes Truncate the label lengths in the Gantt chart to this
@@ -366,7 +366,7 @@ lazyframe__profile <- function(
 #' One classic example is the predicate pushdown, which applies the filter as
 #' early as possible (i.e. at the bottom of the plan).
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @inheritParams lazyframe__collect
 #' @param format The format to use for displaying the logical plan. Must be
 #' either `"plain"` (default) or `"tree"`.
@@ -954,7 +954,7 @@ lazyframe__fill_null <- function(fill_value) {
 
 #' Shift values by the given number of indices
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param n Number of indices to shift forward. If a negative value is passed,
 #' values are shifted in the opposite direction instead.
 #' @param fill_value Fill the resulting null values with this value. Accepts
@@ -1058,7 +1058,7 @@ lazyframe__drop_nulls <- function(subset = NULL) {
 
 #' Drop duplicate rows from this DataFrame
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param subset Column name(s) or selector(s), to consider when identifying
 #' duplicate rows. If `NULL` (default), use all columns.
 #' @param keep Which of the duplicate rows to keep. Must be one of:
@@ -1105,7 +1105,7 @@ lazyframe__unique <- function(
 #' observations based on matching observations, for example with `how =
 #' "inner"`).
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param other LazyFrame to join with.
 #' @param on Either a vector of column names or a list of expressions and/or
 #'   strings. Use `left_on` and `right_on` if the column names to match on are
@@ -1294,7 +1294,7 @@ lazyframe__join_where <- function(
 #' considered measured variables (`on`), are “unpivoted” to the row axis
 #' leaving just two non-identifier columns, "variable" and "value".
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param on Values to use as identifier variables. If `value_vars` is
 #' empty all columns that are not in `id_vars` will be used.
 #' @param index Columns to use as identifier variables.
@@ -1380,7 +1380,7 @@ lazyframe__rename <- function(..., .strict = TRUE) {
 #' materialized DataFrame and a DataFrame that contains profiling information
 #' of each node that is executed.
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @inheritParams lazyframe__collect
 #' @param show_plot Show a Gantt chart of the profiling result
 #' @param truncate_nodes Truncate the label lengths in the Gantt chart to this
@@ -1621,7 +1621,7 @@ lazyframe__unnest <- function(...) {
 #' * …
 #' * `(t_n + offset, t_n + offset + period]`
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @inheritParams lazyframe__group_by_dynamic
 #' @param period Length of the window - must be non-negative.
 #' @param offset Offset of the window. Default is `-period`.
@@ -1689,7 +1689,7 @@ lazyframe__rolling <- function(
 #' where `start` is determined by `start_by`, `offset`, `every`, and the
 #' earliest datapoint. See the `start_by` argument description for details.
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param index_column Column used to group based on the time window. Often of
 #' type Date/Datetime. This column must be sorted in ascending order (or, if
 #' `group_by` is specified, then it must be sorted in ascending order within
@@ -1978,7 +1978,7 @@ lazyframe__null_count <- function() {
 #' value of `reverse`. The output is not guaranteed to be in any particular
 #' order, call `sort()` after this function if you wish the output to be sorted.
 #'
-#' @inheritParams rlang::check_dots_empty
+#' @inheritParams rlang::arg_dots_empty
 #' @param k Number of rows to return.
 #' @param by Column(s) used to determine the bottom rows. Accepts expression
 #' input. Strings are parsed as column names.
@@ -2012,7 +2012,7 @@ lazyframe__bottom_k <- function(k, ..., by, reverse = FALSE) {
 #' Return the `k` largest rows
 #'
 #' @inherit lazyframe__bottom_k description params
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param reverse Consider the `k` smallest elements of the `by` column(s)
 #' (instead of the `k` largest). This can be specified per column by passing a
 #' sequence of booleans.
@@ -2093,7 +2093,7 @@ lazyframe__merge_sorted <- function(other, key) {
 #' This can speed up future operations, but it can lead to incorrect results if
 #' the data is **not** sorted! Use with care!
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param column Columns that are sorted.
 #' @param descending Whether the columns are sorted in descending order.
 #'
@@ -2111,7 +2111,7 @@ lazyframe__set_sorted <- function(column, ..., descending = FALSE) {
 #' Using this function can have a negative effect on query performance. This
 #' may, for instance, block predicate pushdown optimization.
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param name Name of the index column.
 #' @param offset Start the index at this offset. Cannot be negative.
 #'
@@ -2140,7 +2140,7 @@ lazyframe__with_row_index <- function(name = "index", offset = 0) {
 #'
 #' This allows streaming results that are larger than RAM to be written to disk.
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param path A character. File path to which the file should be written.
 #' @param compression The compression method. Must be one of:
 #' * `"lz4"`: fast compression/decompression.
@@ -2252,7 +2252,7 @@ lazyframe__sink_parquet <- function(
 #' Evaluate the query in streaming mode and write to an IPC file
 #'
 #' @inherit lazyframe__sink_parquet description params return
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param compression `NULL` or one of:
 #' * `"uncompressed"`: same as `NULL`.
 #' * `"lz4"`: fast compression/decompression.
@@ -2324,7 +2324,7 @@ lazyframe__sink_ipc <- function(
 #' Evaluate the query in streaming mode and write to a CSV file
 #'
 #' @inherit lazyframe__sink_parquet description params return
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param include_bom Logical, whether to include UTF-8 BOM in the CSV output.
 #' @param include_header Logical, hether to include header in the CSV output.
 #' @param separator Separate CSV fields with this symbol.
@@ -2446,7 +2446,7 @@ lazyframe__sink_csv <- function(
 #' Evaluate the query in streaming mode and write to an NDJSON file
 #'
 #' @inherit lazyframe__sink_parquet description params return
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #'
 #' @examples
 #' # sink table 'mtcars' from mem to NDJSON
@@ -2505,7 +2505,7 @@ lazyframe__sink_ndjson <- function(
 #' This is similar to a left-join except that we match on nearest key rather
 #' than equal keys. Both frames must be sorted by the `asof_join` key.
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param other LazyFrame to join with.
 #' @inheritParams dataframe__join
 #' @param by Join on these columns before performing asof join. Either a vector

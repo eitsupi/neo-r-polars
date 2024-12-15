@@ -42,7 +42,7 @@ table.
 table.
 }}
 
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{left_on, right_on}{Same as \code{on} but only for the left or the right
 DataFrame. They must have the same length.}

@@ -20,7 +20,7 @@ lazyframe__explain(
 )
 }
 \arguments{
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{format}{The format to use for displaying the logical plan. Must be
 either \code{"plain"} (default) or \code{"tree"}.}

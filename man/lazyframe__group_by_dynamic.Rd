@@ -26,7 +26,7 @@ In case of a dynamic group by on indices, the data type needs to be either
 Int32 or In64. Note that Int32 gets temporarily cast to Int64, so if
 performance matters, use an Int64 column.}
 
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{every}{Interval of the window.}
 
