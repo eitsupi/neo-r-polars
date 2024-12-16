@@ -1,5 +1,6 @@
 use crate::{
-    prelude::*, PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame, PlRLazyGroupBy, RPolarsErr,
+    prelude::*, PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame, PlRLazyGroupBy, PlRSeries,
+    RPolarsErr,
 };
 use polars::io::{HiveOptions, RowIndex};
 use savvy::{
@@ -631,7 +632,7 @@ impl PlRLazyFrame {
         strategy: &str,
         left_by: Option<StringSexp>,
         right_by: Option<StringSexp>,
-        tolerance: Option<Sexp>,
+        tolerance: Option<&PlRSeries>,
         tolerance_str: Option<&str>,
     ) -> Result<Self> {
         let coalesce = if coalesce {
@@ -647,7 +648,13 @@ impl PlRLazyFrame {
         let left_by = left_by.map(|x| x.to_vec().into_iter().map(|y| y.into()).collect());
         let right_by = right_by.map(|x| x.to_vec().into_iter().map(|y| y.into()).collect());
         let tolerance = match tolerance {
-            Some(x) => Some(<Wrap<AnyValue<'_>>>::try_from(x)?.0),
+            Some(x) => Some(
+                x.series
+                    .clone()
+                    .get(0)
+                    .map_err(RPolarsErr::from)?
+                    .into_static(),
+            ),
             None => None,
         };
         Ok(ldf
@@ -662,7 +669,7 @@ impl PlRLazyFrame {
                 strategy,
                 left_by,
                 right_by,
-                tolerance: tolerance.map(|t| t.into_static()),
+                tolerance,
                 tolerance_str: tolerance_str.map(|s| s.into()),
             }))
             .suffix(suffix)

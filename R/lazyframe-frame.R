@@ -2628,8 +2628,20 @@ lazyframe__join_asof <- function(
     strategy <- arg_match0(strategy, values = c("backward", "forward", "nearest"))
     if (!is.null(by)) by_left <- by_right <- by
     if (!is.null(on)) left_on <- right_on <- on
-    tolerance_str <- if (is.character(tolerance)) tolerance else NULL
-    tolerance_num <- if (!is.character(tolerance)) tolerance else NULL
+
+    tolerance_str <- NULL
+    tolerance_num <- NULL
+    if (is_string(tolerance)) {
+      tolerance_str <- tolerance
+    } else if (!is.null(tolerance)) {
+      # TODO: duration string conversion support
+      series <- as_polars_series(tolerance)
+      if (series$len() == 1L) {
+        tolerance_num <- series$`_s`
+      } else {
+        abort("`tolerance` must be one of NULL, a single string, or an R object that can be converted to a Polars Series of length 1.")
+      }
+    }
 
     self$`_ldf`$join_asof(
       other = other$`_ldf`,

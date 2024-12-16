@@ -4,7 +4,7 @@ use crate::prelude::*;
 use crate::{PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame, PlRSeries, RPolarsErr};
 use polars::prelude::cloud::CloudOptions;
 use polars::series::ops::NullBehavior;
-use savvy::{ListSexp, NumericScalar, NumericSexp, NumericTypedSexp, Sexp, StringSexp, TypedSexp};
+use savvy::{ListSexp, NumericScalar, NumericSexp, NumericTypedSexp, StringSexp, TypedSexp};
 use search_sorted::SearchSortedSide;
 pub mod base_date;
 mod chunked_array;
@@ -30,25 +30,6 @@ where
 impl<T> From<T> for Wrap<T> {
     fn from(t: T) -> Self {
         Wrap(t)
-    }
-}
-
-impl TryFrom<Sexp> for Wrap<AnyValue<'_>> {
-    type Error = String;
-    fn try_from(obj: Sexp) -> Result<Self, String> {
-        let typed = obj.into_typed();
-        let out = match typed {
-            TypedSexp::Integer(x) => AnyValue::Int64(*(x.to_vec().first().unwrap()) as i64),
-            TypedSexp::Real(x) => AnyValue::Float64(*(x.to_vec().first().unwrap())),
-            TypedSexp::Logical(x) => AnyValue::Boolean(*(x.to_vec().first().unwrap())),
-            TypedSexp::String(x) => {
-                let val = x.to_vec();
-                AnyValue::StringOwned((*val.first().unwrap()).into())
-            }
-            TypedSexp::Null(_) => AnyValue::Null,
-            _ => return Err("Cannot cast to AnyValue".to_string()),
-        };
-        Ok(Wrap(out))
     }
 }
 
