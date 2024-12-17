@@ -285,11 +285,6 @@ NULL
   .savvy_wrap_PlRWhen(.Call(savvy_when__impl, `condition`))
 }
 
-
-`deserialize_lf` <- function(`json`) {
-  .savvy_wrap_PlRLazyFrame(.Call(savvy_deserialize_lf__impl, `json`))
-}
-
 ### wrapper functions for PlRChainedThen
 
 `PlRChainedThen_when` <- function(self) {

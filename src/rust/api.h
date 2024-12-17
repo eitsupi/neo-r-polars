@@ -40,7 +40,6 @@ SEXP savvy_datetime_ranges__ffi(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__
 SEXP savvy_time_range__ffi(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__every, SEXP c_arg__closed);
 SEXP savvy_time_ranges__ffi(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__every, SEXP c_arg__closed);
 SEXP savvy_when__ffi(SEXP c_arg__condition);
-SEXP savvy_deserialize_lf__ffi(SEXP c_arg__json);
 
 // methods and associated functions for PlRChainedThen
 SEXP savvy_PlRChainedThen_when__ffi(SEXP self__, SEXP c_arg__condition);

@@ -1494,21 +1494,6 @@ lazyframe__serialize <- function() {
   })
 }
 
-#' Read a logical plan from a file to construct a LazyFrame
-#'
-#' @param source String containing the LazyFrame logical plan in JSON format.
-#'
-#' @return A character value
-#' @examples
-#' lf <- pl$LazyFrame(a = 1:3)$sum()
-#' ser <- lf$serialize()
-#' pl$deserialize_lf(ser)
-pl__deserialize_lf <- function(source) {
-  wrap({
-    deserialize_lf(source)
-  })
-}
-
 #' Explode the DataFrame to long format by exploding the given columns
 #'
 #' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Column names, expressions, or
@@ -2659,3 +2644,5 @@ lazyframe__join_asof <- function(
     )
   })
 }
+
+# TODO-REWRITE: implement $deserialize() for LazyFrame

@@ -1,5 +1,4 @@
 mod general;
-mod serde;
 
 use crate::prelude::*;
 use savvy::{savvy, EnvironmentSexp};

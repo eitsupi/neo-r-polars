@@ -244,11 +244,6 @@ SEXP savvy_when__impl(SEXP c_arg__condition) {
     return handle_result(res);
 }
 
-SEXP savvy_deserialize_lf__impl(SEXP c_arg__json) {
-    SEXP res = savvy_deserialize_lf__ffi(c_arg__json);
-    return handle_result(res);
-}
-
 SEXP savvy_PlRChainedThen_when__impl(SEXP self__, SEXP c_arg__condition) {
     SEXP res = savvy_PlRChainedThen_when__ffi(self__, c_arg__condition);
     return handle_result(res);
@@ -2768,7 +2763,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_time_range__impl", (DL_FUNC) &savvy_time_range__impl, 4},
     {"savvy_time_ranges__impl", (DL_FUNC) &savvy_time_ranges__impl, 4},
     {"savvy_when__impl", (DL_FUNC) &savvy_when__impl, 1},
-    {"savvy_deserialize_lf__impl", (DL_FUNC) &savvy_deserialize_lf__impl, 1},
     {"savvy_PlRChainedThen_when__impl", (DL_FUNC) &savvy_PlRChainedThen_when__impl, 2},
     {"savvy_PlRChainedThen_otherwise__impl", (DL_FUNC) &savvy_PlRChainedThen_otherwise__impl, 2},
     {"savvy_PlRChainedWhen_then__impl", (DL_FUNC) &savvy_PlRChainedWhen_then__impl, 2},
