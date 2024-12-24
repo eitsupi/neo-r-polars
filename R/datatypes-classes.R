@@ -132,6 +132,7 @@ on_load({
     "Int16",
     "Int32",
     "Int64",
+    "Int128",
     "UInt8",
     "UInt16",
     "UInt32",

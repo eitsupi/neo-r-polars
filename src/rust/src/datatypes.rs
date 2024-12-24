@@ -219,6 +219,7 @@ impl PlRDataType {
             DataType::Int16 => vec!["int16", "signed_integer", "integer", "numeric"],
             DataType::Int32 => vec!["int32", "signed_integer", "integer", "numeric"],
             DataType::Int64 => vec!["int64", "signed_integer", "integer", "numeric"],
+            DataType::Int128 => vec!["int128", "signed_integer", "integer", "numeric"],
             DataType::UInt8 => vec!["uint8", "unsigned_integer", "integer", "numeric"],
             DataType::UInt16 => vec!["uint16", "unsigned_integer", "integer", "numeric"],
             DataType::UInt32 => vec!["uint32", "unsigned_integer", "integer", "numeric"],
