@@ -1,0 +1,14 @@
+name: Build WASM
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build wasm package
+        uses: r-wasm/actions/build-rwasm@main
+        with:
+          packages: |
+            local::.
