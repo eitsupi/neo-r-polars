@@ -27,7 +27,6 @@ $(STATLIB):
 	    cargo build $(CARGO_BUILD_ARGS); \
 	  else \
 		sed -E -i \
-			-e 's/^\s*"json",$$/"serde_json",/' \
 			-e "/^\s*\"($(WASM_INCOMPATIBLE_FEATURES))\",$$/d" \
 			./rust/Cargo.toml && \
 	    export CC="$(CC)" && \

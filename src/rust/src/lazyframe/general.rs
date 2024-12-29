@@ -460,6 +460,8 @@ impl PlRLazyFrame {
         Ok(r.finish().map_err(RPolarsErr::from)?.into())
     }
 
+    // TODO: Refactor with adding `parquet` feature as like Python Polars
+    #[cfg(not(target_arch = "wasm32"))]
     fn new_from_parquet(
         source: StringSexp,
         cache: bool,
@@ -565,6 +567,8 @@ impl PlRLazyFrame {
         Ok(lf.into())
     }
 
+    // TODO: Refactor with adding `json` feature as like Python Polars
+    #[cfg(not(target_arch = "wasm32"))]
     fn new_from_ndjson(
         source: StringSexp,
         low_memory: bool,
