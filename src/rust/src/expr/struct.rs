@@ -26,12 +26,6 @@ impl PlRExpr {
             .into())
     }
 
-    // TODO: Refactor with adding `json` feature as like Python Polars
-    #[cfg(not(target_arch = "wasm32"))]
-    fn struct_json_encode(&self) -> Result<Self> {
-        Ok(self.inner.clone().struct_().json_encode().into())
-    }
-
     fn struct_with_fields(&self, fields: ListSexp) -> Result<Self> {
         let fields = <Wrap<Vec<Expr>>>::from(fields).0;
         let e = self
@@ -41,5 +35,24 @@ impl PlRExpr {
             .with_fields(fields)
             .map_err(RPolarsErr::from)?;
         Ok(e.into())
+    }
+}
+
+// TODO: Refactor with adding `json` feature as like Python Polars
+// FIXME: Work around for <https://github.com/yutannihilation/savvy/issues/333>
+#[cfg(not(target_arch = "wasm32"))]
+#[savvy]
+impl PlRExpr {
+    fn struct_json_encode(&self) -> Result<Self> {
+        Ok(self.inner.clone().struct_().json_encode().into())
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+#[savvy]
+impl PlRExpr {
+    #[allow(unused_variables)]
+    fn struct_json_encode(&self) -> Result<Self> {
+        Err(RPolarsErr::Other(format!("`Not supported in WASM")).into())
     }
 }
