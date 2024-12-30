@@ -53,6 +53,6 @@ impl PlRExpr {
 impl PlRExpr {
     #[allow(unused_variables)]
     fn struct_json_encode(&self) -> Result<Self> {
-        Err(RPolarsErr::Other(format!("`Not supported in WASM")).into())
+        Err(RPolarsErr::Other(format!("Not supported in WASM")).into())
     }
 }

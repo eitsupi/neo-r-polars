@@ -415,6 +415,6 @@ impl PlRExpr {
 impl PlRExpr {
     #[allow(unused_variables)]
     fn str_json_path_match(&self, pat: &PlRExpr) -> Result<Self> {
-        Err(RPolarsErr::Other(format!("`Not supported in WASM")).into())
+        Err(RPolarsErr::Other(format!("Not supported in WASM")).into())
     }
 }
