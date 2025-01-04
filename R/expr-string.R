@@ -328,7 +328,7 @@ expr_str_to_lowercase <- function() {
 #'
 #' @description  Remove leading and trailing characters.
 #'
-#' @param matches The set of characters to be removed. All combinations of this
+#' @param characters The set of characters to be removed. All combinations of this
 #' set of characters will be stripped. If `NULL` (default), all whitespace is
 #' removed instead. This can be an Expr.
 #'
@@ -342,8 +342,8 @@ expr_str_to_lowercase <- function() {
 #' df <- pl$DataFrame(foo = c(" hello", "\tworld"))
 #' df$select(pl$col("foo")$str$strip_chars())
 #' df$select(pl$col("foo")$str$strip_chars(" hel rld"))
-expr_str_strip_chars <- function(matches = NULL) {
-  self$`_rexpr`$str_strip_chars(as_polars_expr(matches, as_lit = TRUE)$`_rexpr`) |>
+expr_str_strip_chars <- function(characters = NULL) {
+  self$`_rexpr`$str_strip_chars(as_polars_expr(characters, as_lit = TRUE)$`_rexpr`) |>
     wrap()
 }
 
@@ -352,7 +352,7 @@ expr_str_strip_chars <- function(matches = NULL) {
 #'
 #' @description  Remove leading characters.
 #'
-#' @param matches The set of characters to be removed. All combinations of this
+#' @param characters The set of characters to be removed. All combinations of this
 #' set of characters will be stripped. If `NULL` (default), all whitespace is
 #' removed instead. This can be an Expr.
 #'
@@ -365,8 +365,8 @@ expr_str_strip_chars <- function(matches = NULL) {
 #' @examples
 #' df <- pl$DataFrame(foo = c(" hello", "\tworld"))
 #' df$select(pl$col("foo")$str$strip_chars_start(" hel rld"))
-expr_str_strip_chars_start <- function(matches = NULL) {
-  self$`_rexpr`$str_strip_chars_start(as_polars_expr(matches, as_lit = TRUE)$`_rexpr`) |>
+expr_str_strip_chars_start <- function(characters = NULL) {
+  self$`_rexpr`$str_strip_chars_start(as_polars_expr(characters, as_lit = TRUE)$`_rexpr`) |>
     wrap()
 }
 
@@ -375,7 +375,7 @@ expr_str_strip_chars_start <- function(matches = NULL) {
 #'
 #' @description  Remove trailing characters.
 #'
-#' @param matches The set of characters to be removed. All combinations of this
+#' @param characters The set of characters to be removed. All combinations of this
 #' set of characters will be stripped. If `NULL` (default), all whitespace is
 #' removed instead. This can be an Expr.
 #'
@@ -389,8 +389,8 @@ expr_str_strip_chars_start <- function(matches = NULL) {
 #' df <- pl$DataFrame(foo = c(" hello", "\tworld"))
 #' df$select(pl$col("foo")$str$strip_chars_end(" hel\trld"))
 #' df$select(pl$col("foo")$str$strip_chars_end("rldhel\t "))
-expr_str_strip_chars_end <- function(matches = NULL) {
-  self$`_rexpr`$str_strip_chars_end(as_polars_expr(matches, as_lit = TRUE)$`_rexpr`) |>
+expr_str_strip_chars_end <- function(characters = NULL) {
+  self$`_rexpr`$str_strip_chars_end(as_polars_expr(characters, as_lit = TRUE)$`_rexpr`) |>
     wrap()
 }
 

@@ -4,22 +4,22 @@
 \alias{expr_str_pad_end}
 \title{Left justify strings}
 \usage{
-expr_str_pad_end(width, fillchar = " ")
+expr_str_pad_end(length, fill_char = " ")
 }
 \arguments{
-\item{width}{Justify left to this length.}
+\item{length}{Justify left to this length.}
 
-\item{fillchar}{Fill with this ASCII character.}
+\item{fill_char}{Fill with this ASCII character.}
 }
 \value{
 A polars \link{expression}
 }
 \description{
-Return the string left justified in a string of length \code{width}.
+Return the string left justified in a string of length \code{length}.
 }
 \details{
-Padding is done using the specified \code{fillchar}. The original string
-is returned if \code{width} is less than or equal to \code{len(s)}.
+Padding is done using the specified \code{fill_char}. The original string
+is returned if \code{length} is less than or equal to \code{len(s)}.
 }
 \examples{
 df <- pl$DataFrame(a = c("cow", "monkey", NA, "hippopotamus"))
