@@ -106,6 +106,8 @@ impl PlRLazyFrame {
         }
 
         let ldf = self.ldf.clone();
+
+        #[cfg(not(target_arch = "wasm32"))]
         let df = if ThreadCom::try_from_global(&CONFIG).is_ok() {
             ldf.collect().map_err(RPolarsErr::from)?
         } else {
@@ -130,6 +132,9 @@ impl PlRLazyFrame {
             .map_err(|e| e.to_string())?
             .map_err(RPolarsErr::from)?
         };
+
+        #[cfg(target_arch = "wasm32")]
+        let df = ldf.collect().map_err(RPolarsErr::from)?;
 
         Ok(df.into())
     }
@@ -253,6 +258,8 @@ impl PlRLazyFrame {
             try_parse_dates: try_parse_hive_dates,
         };
         // TODO: better error message
+        // TODO: Refactor with adding `cloud` feature as like Python Polars
+        #[cfg(not(target_arch = "wasm32"))]
         let cloud_options = match storage_options {
             Some(x) => {
                 let out = <Wrap<Vec<(String, String)>>>::try_from(x).map_err(|_| {
@@ -264,6 +271,10 @@ impl PlRLazyFrame {
             }
             None => None,
         };
+
+        #[cfg(target_arch = "wasm32")]
+        let cloud_options: Option<Vec<(String, String)>> = None;
+
         let mut args = ScanArgsIpc {
             n_rows,
             cache,
@@ -275,6 +286,9 @@ impl PlRLazyFrame {
         };
 
         let first_path: Option<PathBuf> = source.first().unwrap().clone().into();
+
+        // TODO: Refactor with adding `cloud` feature as like Python Polars
+        #[cfg(not(target_arch = "wasm32"))]
         if let Some(first_path) = first_path {
             let first_path_url = first_path.to_string_lossy();
             let mut cloud_options =
@@ -387,6 +401,8 @@ impl PlRLazyFrame {
             None => None,
         };
 
+        // TODO: Refactor with adding `cloud` feature as like Python Polars
+        #[cfg(not(target_arch = "wasm32"))]
         let cloud_options = match storage_options {
             Some(x) => {
                 let out = <Wrap<Vec<(String, String)>>>::try_from(x).map_err(|_| {
@@ -399,8 +415,14 @@ impl PlRLazyFrame {
             None => None,
         };
 
+        #[cfg(target_arch = "wasm32")]
+        let cloud_options: Option<Vec<(String, String)>> = None;
+
         let mut r = LazyCsvReader::new_paths(source.clone().into());
         let first_path: Option<PathBuf> = source.first().unwrap().clone().into();
+
+        // TODO: Refactor with adding `cloud` feature as like Python Polars
+        #[cfg(not(target_arch = "wasm32"))]
         if let Some(first_path) = first_path {
             let first_path_url = first_path.to_string_lossy();
 
@@ -442,7 +464,12 @@ impl PlRLazyFrame {
 
         Ok(r.finish().map_err(RPolarsErr::from)?.into())
     }
+}
 
+// FIXME: Work around for <https://github.com/yutannihilation/savvy/issues/333>
+#[cfg(not(target_arch = "wasm32"))]
+#[savvy]
+impl PlRLazyFrame {
     fn new_from_parquet(
         source: StringSexp,
         cache: bool,
@@ -517,6 +544,8 @@ impl PlRLazyFrame {
 
         let first_path = source.first().unwrap().clone().into();
 
+        // TODO: Refactor with adding `cloud` feature as like Python Polars
+        #[cfg(not(target_arch = "wasm32"))]
         let cloud_options = match storage_options {
             Some(x) => {
                 let out = <Wrap<Vec<(String, String)>>>::try_from(x).map_err(|_| {
@@ -529,6 +558,11 @@ impl PlRLazyFrame {
             None => None,
         };
 
+        #[cfg(target_arch = "wasm32")]
+        let cloud_options: Option<Vec<(String, String)>> = None;
+
+        // TODO: Refactor with adding `cloud` feature as like Python Polars
+        #[cfg(not(target_arch = "wasm32"))]
         if let Some(first_path) = first_path {
             let first_path_url = first_path.to_string_lossy();
             let cloud_options =
@@ -602,6 +636,8 @@ impl PlRLazyFrame {
 
         let mut r = LazyJsonLineReader::new_paths(source.into());
 
+        // TODO: Refactor with adding `cloud` feature as like Python Polars
+        #[cfg(not(target_arch = "wasm32"))]
         let cloud_options = match storage_options {
             Some(x) => {
                 let out = <Wrap<Vec<(String, String)>>>::try_from(x).map_err(|_| {
@@ -614,6 +650,11 @@ impl PlRLazyFrame {
             None => None,
         };
 
+        #[cfg(target_arch = "wasm32")]
+        let cloud_options: Option<Vec<(String, String)>> = None;
+
+        // TODO: Refactor with adding `cloud` feature as like Python Polars
+        #[cfg(not(target_arch = "wasm32"))]
         if let Some(first_path) = first_path {
             let first_path_url = first_path.to_string_lossy();
 
@@ -643,5 +684,54 @@ impl PlRLazyFrame {
             .map_err(RPolarsErr::from)?;
 
         Ok(lf.into())
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+#[savvy]
+impl PlRLazyFrame {
+    #[allow(unused_variables)]
+    fn new_from_parquet(
+        source: StringSexp,
+        cache: bool,
+        parallel: &str,
+        rechunk: bool,
+        low_memory: bool,
+        use_statistics: bool,
+        try_parse_hive_dates: bool,
+        retries: NumericScalar,
+        glob: bool,
+        allow_missing_columns: bool,
+        row_index_offset: NumericScalar,
+        storage_options: Option<StringSexp>,
+        n_rows: Option<NumericScalar>,
+        row_index_name: Option<&str>,
+        hive_partitioning: Option<bool>,
+        schema: Option<ListSexp>,
+        hive_schema: Option<ListSexp>,
+        include_file_paths: Option<&str>,
+    ) -> Result<Self> {
+        Err(RPolarsErr::Other(format!("Not supported in WASM")).into())
+    }
+
+    #[allow(unused_variables)]
+    fn new_from_ndjson(
+        source: StringSexp,
+        low_memory: bool,
+        rechunk: bool,
+        ignore_errors: bool,
+        retries: NumericScalar,
+        row_index_offset: NumericScalar,
+        row_index_name: Option<&str>,
+        infer_schema_length: Option<NumericScalar>,
+        schema: Option<ListSexp>,
+        schema_overrides: Option<ListSexp>,
+        batch_size: Option<NumericScalar>,
+        n_rows: Option<NumericScalar>,
+        include_file_paths: Option<&str>,
+        storage_options: Option<StringSexp>,
+        file_cache_ttl: Option<NumericScalar>,
+    ) -> Result<Self> {
+        Err(RPolarsErr::Other(format!("Not supported in WASM")).into())
     }
 }
