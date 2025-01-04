@@ -97,13 +97,14 @@ namespace_expr_str <- function(x) {
 #'   strict = FALSE
 #' ))
 expr_str_strptime <- function(
-    dtype,
-    format = NULL,
-    ...,
-    strict = TRUE,
-    exact = TRUE,
-    cache = TRUE,
-    ambiguous = c("raise", "earliest", "latest", "null")) {
+  dtype,
+  format = NULL,
+  ...,
+  strict = TRUE,
+  exact = TRUE,
+  cache = TRUE,
+  ambiguous = c("raise", "earliest", "latest", "null")
+) {
   wrap({
     check_dots_empty0(...)
     check_polars_dtype(dtype)
@@ -191,14 +192,15 @@ expr_str_to_time <- function(format = NULL, ..., strict = TRUE, cache = TRUE) {
 #' df$select(pl$col("x")$str$to_datetime("%Y-%m-%d %H:%M%#z"))
 #' df$select(pl$col("x")$str$to_datetime(time_unit = "ms"))
 expr_str_to_datetime <- function(
-    format = NULL,
-    ...,
-    time_unit = NULL,
-    time_zone = NULL,
-    strict = TRUE,
-    exact = TRUE,
-    cache = TRUE,
-    ambiguous = c("raise", "earliest", "latest", "null")) {
+  format = NULL,
+  ...,
+  time_unit = NULL,
+  time_zone = NULL,
+  strict = TRUE,
+  exact = TRUE,
+  cache = TRUE,
+  ambiguous = c("raise", "earliest", "latest", "null")
+) {
   wrap({
     check_dots_empty0(...)
     if (!is_polars_expr(ambiguous)) {
@@ -261,9 +263,10 @@ expr_str_len_chars <- function() {
 #'
 #' df$select(pl$col("foo")$str$join("-", ignore_nulls = FALSE))
 expr_str_join <- function(
-    delimiter = "",
-    ...,
-    ignore_nulls = TRUE) {
+  delimiter = "",
+  ...,
+  ignore_nulls = TRUE
+) {
   wrap({
     check_dots_empty0(...)
     self$`_rexpr`$str_join(delimiter, ignore_nulls)
@@ -271,9 +274,10 @@ expr_str_join <- function(
 }
 
 expr_str_concat <- function(
-    delimiter = "",
-    ...,
-    ignore_nulls = TRUE) {
+  delimiter = "",
+  ...,
+  ignore_nulls = TRUE
+) {
   deprecate_warn("$str$concat() is deprecated as of 0.18.0. Use $str$join() instead.")
   self$`_rexpr`$str_join(delimiter, ignore_nulls) |>
     wrap()
@@ -423,32 +427,32 @@ expr_str_zfill <- function(alignment) {
 
 #' Left justify strings
 #'
-#' @description Return the string left justified in a string of length `width`.
-#' @param width Justify left to this length.
-#' @param fillchar Fill with this ASCII character.
-#' @details Padding is done using the specified `fillchar`. The original string
-#' is returned if `width` is less than or equal to `len(s)`.
+#' @description Return the string left justified in a string of length `length`.
+#' @param length Justify left to this length.
+#' @param fill_char Fill with this ASCII character.
+#' @details Padding is done using the specified `fill_char`. The original string
+#' is returned if `length` is less than or equal to `len(s)`.
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(a = c("cow", "monkey", NA, "hippopotamus"))
 #' df$select(pl$col("a")$str$pad_end(8, "*"))
-expr_str_pad_end <- function(width, fillchar = " ") {
-  self$`_rexpr`$str_pad_end(width, fillchar) |>
+expr_str_pad_end <- function(length, fill_char = " ") {
+  self$`_rexpr`$str_pad_end(length, fill_char) |>
     wrap()
 }
 
 
 #' Right justify strings
 #'
-#' @description Return the string right justified in a string of length `width`.
-#' @param width Justify right to this length.
-#' @param fillchar Fill with this ASCII character.
+#' @description Return the string right justified in a string of length `length`.
+#' @param length Justify right to this length.
+#' @param fill_char Fill with this ASCII character.
 #' @inherit expr_str_pad_end details return
 #' @examples
 #' df <- pl$DataFrame(a = c("cow", "monkey", NA, "hippopotamus"))
 #' df$select(pl$col("a")$str$pad_start(8, "*"))
-expr_str_pad_start <- function(width, fillchar = " ") {
-  self$`_rexpr`$str_pad_start(width, fillchar) |>
+expr_str_pad_start <- function(length, fill_char = " ") {
+  self$`_rexpr`$str_pad_start(length, fill_char) |>
     wrap()
 }
 
@@ -824,7 +828,6 @@ expr_str_replace <- function(pattern, value, ..., literal = FALSE, n = 1L) {
     self$`_rexpr`$str_replace(as_polars_expr(pattern, as_lit = TRUE)$`_rexpr`, as_polars_expr(value, as_lit = TRUE)$`_rexpr`, literal, n)
   })
 }
-
 
 
 #' Replace all matching regex/literal substrings with a new string value

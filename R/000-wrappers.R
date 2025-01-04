@@ -2633,14 +2633,14 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
 }
 
 `PlRExpr_str_pad_end` <- function(self) {
-  function(`width`, `fillchar`) {
-    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_str_pad_end__impl, `self`, `width`, `fillchar`))
+  function(`length`, `fill_char`) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_str_pad_end__impl, `self`, `length`, `fill_char`))
   }
 }
 
 `PlRExpr_str_pad_start` <- function(self) {
-  function(`width`, `fillchar`) {
-    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_str_pad_start__impl, `self`, `width`, `fillchar`))
+  function(`length`, `fill_char`) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_str_pad_start__impl, `self`, `length`, `fill_char`))
   }
 }
 

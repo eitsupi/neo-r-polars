@@ -68,16 +68,16 @@ impl PlRExpr {
             .into())
     }
 
-    fn str_pad_end(&self, width: NumericScalar, fillchar: &str) -> Result<Self> {
-        let width = <Wrap<usize>>::try_from(width)?.0;
-        let fillchar = <Wrap<char>>::try_from(fillchar)?.0;
-        Ok(self.inner.clone().str().pad_end(width, fillchar).into())
+    fn str_pad_end(&self, length: NumericScalar, fill_char: &str) -> Result<Self> {
+        let length = <Wrap<usize>>::try_from(length)?.0;
+        let fill_char = <Wrap<char>>::try_from(fill_char)?.0;
+        Ok(self.inner.clone().str().pad_end(length, fill_char).into())
     }
 
-    fn str_pad_start(&self, width: NumericScalar, fillchar: &str) -> Result<Self> {
-        let width = <Wrap<usize>>::try_from(width)?.0;
-        let fillchar = <Wrap<char>>::try_from(fillchar)?.0;
-        Ok(self.inner.clone().str().pad_start(width, fillchar).into())
+    fn str_pad_start(&self, length: NumericScalar, fill_char: &str) -> Result<Self> {
+        let length = <Wrap<usize>>::try_from(length)?.0;
+        let fill_char = <Wrap<char>>::try_from(fill_char)?.0;
+        Ok(self.inner.clone().str().pad_start(length, fill_char).into())
     }
 
     fn str_contains(&self, pat: &PlRExpr, literal: bool, strict: bool) -> Result<Self> {

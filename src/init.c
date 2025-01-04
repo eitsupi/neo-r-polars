@@ -2029,13 +2029,13 @@ SEXP savvy_PlRExpr_str_zfill__impl(SEXP self__, SEXP c_arg__alignment) {
     return handle_result(res);
 }
 
-SEXP savvy_PlRExpr_str_pad_end__impl(SEXP self__, SEXP c_arg__width, SEXP c_arg__fillchar) {
-    SEXP res = savvy_PlRExpr_str_pad_end__ffi(self__, c_arg__width, c_arg__fillchar);
+SEXP savvy_PlRExpr_str_pad_end__impl(SEXP self__, SEXP c_arg__length, SEXP c_arg__fill_char) {
+    SEXP res = savvy_PlRExpr_str_pad_end__ffi(self__, c_arg__length, c_arg__fill_char);
     return handle_result(res);
 }
 
-SEXP savvy_PlRExpr_str_pad_start__impl(SEXP self__, SEXP c_arg__width, SEXP c_arg__fillchar) {
-    SEXP res = savvy_PlRExpr_str_pad_start__ffi(self__, c_arg__width, c_arg__fillchar);
+SEXP savvy_PlRExpr_str_pad_start__impl(SEXP self__, SEXP c_arg__length, SEXP c_arg__fill_char) {
+    SEXP res = savvy_PlRExpr_str_pad_start__ffi(self__, c_arg__length, c_arg__fill_char);
     return handle_result(res);
 }
 
