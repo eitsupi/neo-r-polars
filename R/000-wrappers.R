@@ -2626,9 +2626,9 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
 }
 
 `PlRExpr_str_zfill` <- function(self) {
-  function(`alignment`) {
-    `alignment` <- .savvy_extract_ptr(`alignment`, "PlRExpr")
-    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_str_zfill__impl, `self`, `alignment`))
+  function(`length`) {
+    `length` <- .savvy_extract_ptr(`length`, "PlRExpr")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_str_zfill__impl, `self`, `length`))
   }
 }
 

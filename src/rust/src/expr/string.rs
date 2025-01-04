@@ -59,13 +59,8 @@ impl PlRExpr {
             .into())
     }
 
-    fn str_zfill(&self, alignment: &PlRExpr) -> Result<Self> {
-        Ok(self
-            .inner
-            .clone()
-            .str()
-            .zfill(alignment.inner.clone())
-            .into())
+    fn str_zfill(&self, length: &PlRExpr) -> Result<Self> {
+        Ok(self.inner.clone().str().zfill(length.inner.clone()).into())
     }
 
     fn str_pad_end(&self, width: NumericScalar, fillchar: &str) -> Result<Self> {

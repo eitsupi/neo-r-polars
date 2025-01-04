@@ -2024,8 +2024,8 @@ SEXP savvy_PlRExpr_str_strip_chars_start__impl(SEXP self__, SEXP c_arg__matches)
     return handle_result(res);
 }
 
-SEXP savvy_PlRExpr_str_zfill__impl(SEXP self__, SEXP c_arg__alignment) {
-    SEXP res = savvy_PlRExpr_str_zfill__ffi(self__, c_arg__alignment);
+SEXP savvy_PlRExpr_str_zfill__impl(SEXP self__, SEXP c_arg__length) {
+    SEXP res = savvy_PlRExpr_str_zfill__ffi(self__, c_arg__length);
     return handle_result(res);
 }
 
