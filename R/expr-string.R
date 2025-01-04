@@ -501,7 +501,7 @@ expr_str_contains <- function(pattern, ..., literal = FALSE, strict = TRUE) {
 #' Check if string ends with a regex
 #'
 #' @description Check if string values end with a substring.
-#' @param sub Suffix substring or Expr.
+#' @param suffix Suffix substring or Expr.
 #' @details
 #' See also `$str$starts_with()` and `$str$contains()`.
 #' @inherit expr_str_contains return
@@ -511,10 +511,10 @@ expr_str_contains <- function(pattern, ..., literal = FALSE, strict = TRUE) {
 #'   pl$col("fruits"),
 #'   pl$col("fruits")$str$ends_with("go")$alias("has_suffix")
 #' )
-expr_str_ends_with <- function(sub) {
+expr_str_ends_with <- function(suffix) {
   wrap({
-    sub <- as_polars_expr(sub, as_lit = TRUE)
-    self$`_rexpr`$str_ends_with(sub$`_rexpr`)
+    suffix <- as_polars_expr(suffix, as_lit = TRUE)
+    self$`_rexpr`$str_ends_with(suffix$`_rexpr`)
   })
 }
 
@@ -522,7 +522,7 @@ expr_str_ends_with <- function(sub) {
 #' Check if string starts with a regex
 #'
 #' @description Check if string values starts with a substring.
-#' @param sub Prefix substring or Expr.
+#' @param prefix Prefix substring or Expr.
 #' @details
 #' See also `$str$contains()` and `$str$ends_with()`.
 #' @inherit expr_str_contains return
@@ -532,10 +532,10 @@ expr_str_ends_with <- function(sub) {
 #'   pl$col("fruits"),
 #'   pl$col("fruits")$str$starts_with("app")$alias("has_suffix")
 #' )
-expr_str_starts_with <- function(sub) {
+expr_str_starts_with <- function(prefix) {
   wrap({
-    sub <- as_polars_expr(sub, as_lit = TRUE)
-    self$`_rexpr`$str_starts_with(sub$`_rexpr`)
+    prefix <- as_polars_expr(prefix, as_lit = TRUE)
+    self$`_rexpr`$str_starts_with(prefix$`_rexpr`)
   })
 }
 
