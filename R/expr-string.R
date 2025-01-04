@@ -97,14 +97,13 @@ namespace_expr_str <- function(x) {
 #'   strict = FALSE
 #' ))
 expr_str_strptime <- function(
-  dtype,
-  format = NULL,
-  ...,
-  strict = TRUE,
-  exact = TRUE,
-  cache = TRUE,
-  ambiguous = c("raise", "earliest", "latest", "null")
-) {
+    dtype,
+    format = NULL,
+    ...,
+    strict = TRUE,
+    exact = TRUE,
+    cache = TRUE,
+    ambiguous = c("raise", "earliest", "latest", "null")) {
   wrap({
     check_dots_empty0(...)
     check_polars_dtype(dtype)
@@ -192,15 +191,14 @@ expr_str_to_time <- function(format = NULL, ..., strict = TRUE, cache = TRUE) {
 #' df$select(pl$col("x")$str$to_datetime("%Y-%m-%d %H:%M%#z"))
 #' df$select(pl$col("x")$str$to_datetime(time_unit = "ms"))
 expr_str_to_datetime <- function(
-  format = NULL,
-  ...,
-  time_unit = NULL,
-  time_zone = NULL,
-  strict = TRUE,
-  exact = TRUE,
-  cache = TRUE,
-  ambiguous = c("raise", "earliest", "latest", "null")
-) {
+    format = NULL,
+    ...,
+    time_unit = NULL,
+    time_zone = NULL,
+    strict = TRUE,
+    exact = TRUE,
+    cache = TRUE,
+    ambiguous = c("raise", "earliest", "latest", "null")) {
   wrap({
     check_dots_empty0(...)
     if (!is_polars_expr(ambiguous)) {
@@ -263,10 +261,9 @@ expr_str_len_chars <- function() {
 #'
 #' df$select(pl$col("foo")$str$join("-", ignore_nulls = FALSE))
 expr_str_join <- function(
-  delimiter = "",
-  ...,
-  ignore_nulls = TRUE
-) {
+    delimiter = "",
+    ...,
+    ignore_nulls = TRUE) {
   wrap({
     check_dots_empty0(...)
     self$`_rexpr`$str_join(delimiter, ignore_nulls)
@@ -274,10 +271,9 @@ expr_str_join <- function(
 }
 
 expr_str_concat <- function(
-  delimiter = "",
-  ...,
-  ignore_nulls = TRUE
-) {
+    delimiter = "",
+    ...,
+    ignore_nulls = TRUE) {
   deprecate_warn("$str$concat() is deprecated as of 0.18.0. Use $str$join() instead.")
   self$`_rexpr`$str_join(delimiter, ignore_nulls) |>
     wrap()
