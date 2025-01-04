@@ -826,6 +826,7 @@ expr_str_replace <- function(pattern, value, ..., literal = FALSE, n = 1L) {
 }
 
 
+
 #' Replace all matching regex/literal substrings with a new string value
 #'
 #' @inherit expr_str_replace details sections params return
