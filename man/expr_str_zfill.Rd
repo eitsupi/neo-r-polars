@@ -28,6 +28,6 @@ sign character rather than before. The original string is returned if width is
 less than or equal to \code{len(s)}.
 }
 \examples{
-sdf <- pl$DataFrame(a = c(-1, 123, 999999, NA))
+df <- pl$DataFrame(a = c(-1L, 123L, 999999L, NA))
 df$with_columns(zfill = pl$col("a")$cast(pl$String)$str$zfill(4))
 }

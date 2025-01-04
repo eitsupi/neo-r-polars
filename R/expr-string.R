@@ -410,7 +410,7 @@ expr_str_strip_chars_end <- function(matches = NULL) {
 #'
 #' @inherit as_polars_expr return
 #' @examples
-#' sdf <- pl$DataFrame(a = c(-1, 123, 999999, NA))
+#' df <- pl$DataFrame(a = c(-1L, 123L, 999999L, NA))
 #' df$with_columns(zfill = pl$col("a")$cast(pl$String)$str$zfill(4))
 expr_str_zfill <- function(length) {
   self$`_rexpr`$str_zfill(as_polars_expr(length)$`_rexpr`) |>
