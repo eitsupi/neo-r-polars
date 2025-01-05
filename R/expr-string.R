@@ -390,13 +390,61 @@ expr_str_strip_chars_end <- function(matches = NULL) {
     wrap()
 }
 
+#' Strip prefix
+#'
+#' @description
+#' The prefix will be removed from the string exactly once, if found.
+#'
+#' @param prefix The prefix to be removed.
+#'
+#' @details
+#' This method strips the exact character sequence provided in `prefix` from
+#' the start of the input. To strip a set of characters in any order, use
+#' [`$strip_chars_start()`][expr_str_chars_start] instead.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c("foobar", "foofoobar", "foo", "bar"))
+#' df$with_columns(
+#'   stripped = pl$col("a")$str$strip_prefix("foo")
+#' )
+expr_str_strip_prefix <- function(prefix = NULL) {
+  self$`_rexpr`$str_strip_prefix(as_polars_expr(prefix, as_lit = TRUE)$`_rexpr`) |>
+    wrap()
+}
+
+#' Strip suffix
+#'
+#' @description
+#' The suffix will be removed from the string exactly once, if found.
+#'
+#' @param suffix The suffix to be removed.
+#'
+#' @details
+#' This method strips the exact character sequence provided in `suffix` from
+#' the end of the input. To strip a set of characters in any order, use
+#' [`$strip_chars_end()`][expr_str_chars_end] instead.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c("foobar", "foobarbar", "foo", "bar"))
+#' df$with_columns(
+#'   stripped = pl$col("a")$str$strip_suffix("bar")
+#' )
+expr_str_strip_suffix <- function(suffix = NULL) {
+  self$`_rexpr`$str_strip_suffix(as_polars_expr(suffix, as_lit = TRUE)$`_rexpr`) |>
+    wrap()
+}
 
 #' Fills the string with zeroes.
 #'
 #' @description Add zeroes to a string until it reaches `n` characters. If the
 #' number of characters is already greater than `n`, the string is not modified.
-#' @param alignment Fill the value up to this length. This can be an Expr or
-#' something coercible to an Expr. Strings are parsed as column names.
+#'
+#' @param length Pad the string until it reaches this length. Strings with
+#' length equal to or greater than this value are returned as-is. This can be
+#' an Expr or something coercible to an Expr. Strings are parsed as column
+#' names.
 #' @details
 #' Return a copy of the string left filled with ASCII '0' digits to make a string
 #' of length width.
@@ -407,19 +455,34 @@ expr_str_strip_chars_end <- function(matches = NULL) {
 #'
 #' @inherit as_polars_expr return
 #' @examples
-#' some_floats_expr <- pl$lit(c(0, 10, -5, 5))
-#'
-#' # cast to String and ljust alignment = 5, and view as R char vector
-#' some_floats_expr$cast(pl$String)$str$zfill(5)$to_r()
-#'
-#' # cast to int and the to utf8 and then ljust alignment = 5, and view as R
-#' # char vector
-#' some_floats_expr$cast(pl$Int64)$cast(pl$String)$str$zfill(5)$to_r()
-expr_str_zfill <- function(alignment) {
-  self$`_rexpr`$str_zfill(as_polars_expr(alignment)$`_rexpr`) |>
+#' df <- pl$DataFrame(a = c(-1L, 123L, 999999L, NA))
+#' df$with_columns(zfill = pl$col("a")$cast(pl$String)$str$zfill(4))
+expr_str_zfill <- function(length) {
+  self$`_rexpr`$str_zfill(as_polars_expr(length)$`_rexpr`) |>
     wrap()
 }
 
+#' Convert a String column into a Decimal column
+#'
+#' @description
+#' This method infers the needed parameters `precision` and `scale`.
+#'
+#' @param inference_length Number of elements to parse to determine the
+#' `precision` and `scale`.
+#' @inherit as_polars_expr return
+#'
+#' @examples
+#' df <- pl$DataFrame(
+#'   numbers = c(
+#'     "40.12", "3420.13", "120134.19", "3212.98",
+#'     "12.90", "143.09", "143.9"
+#'   )
+#' )
+#' df$with_columns(numbers_decimal = pl$col("numbers")$str$to_decimal())
+expr_str_to_decimal <- function(inference_length = 100) {
+  self$`_rexpr`$str_to_decimal(inference_length) |>
+    wrap()
+}
 
 #' Left justify strings
 #'
@@ -501,7 +564,7 @@ expr_str_contains <- function(pattern, ..., literal = FALSE, strict = TRUE) {
 #' Check if string ends with a regex
 #'
 #' @description Check if string values end with a substring.
-#' @param sub Suffix substring or Expr.
+#' @param suffix Suffix substring or Expr.
 #' @details
 #' See also `$str$starts_with()` and `$str$contains()`.
 #' @inherit expr_str_contains return
@@ -511,10 +574,10 @@ expr_str_contains <- function(pattern, ..., literal = FALSE, strict = TRUE) {
 #'   pl$col("fruits"),
 #'   pl$col("fruits")$str$ends_with("go")$alias("has_suffix")
 #' )
-expr_str_ends_with <- function(sub) {
+expr_str_ends_with <- function(suffix) {
   wrap({
-    sub <- as_polars_expr(sub, as_lit = TRUE)
-    self$`_rexpr`$str_ends_with(sub$`_rexpr`)
+    suffix <- as_polars_expr(suffix, as_lit = TRUE)
+    self$`_rexpr`$str_ends_with(suffix$`_rexpr`)
   })
 }
 
@@ -522,7 +585,7 @@ expr_str_ends_with <- function(sub) {
 #' Check if string starts with a regex
 #'
 #' @description Check if string values starts with a substring.
-#' @param sub Prefix substring or Expr.
+#' @param prefix Prefix substring or Expr.
 #' @details
 #' See also `$str$contains()` and `$str$ends_with()`.
 #' @inherit expr_str_contains return
@@ -532,10 +595,10 @@ expr_str_ends_with <- function(sub) {
 #'   pl$col("fruits"),
 #'   pl$col("fruits")$str$starts_with("app")$alias("has_suffix")
 #' )
-expr_str_starts_with <- function(sub) {
+expr_str_starts_with <- function(prefix) {
   wrap({
-    sub <- as_polars_expr(sub, as_lit = TRUE)
-    self$`_rexpr`$str_starts_with(sub$`_rexpr`)
+    prefix <- as_polars_expr(prefix, as_lit = TRUE)
+    self$`_rexpr`$str_starts_with(prefix$`_rexpr`)
   })
 }
 
