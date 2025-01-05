@@ -59,13 +59,26 @@ impl PlRExpr {
             .into())
     }
 
-    fn str_zfill(&self, alignment: &PlRExpr) -> Result<Self> {
+    fn str_strip_prefix(&self, prefix: &PlRExpr) -> Result<Self> {
         Ok(self
             .inner
             .clone()
             .str()
-            .zfill(alignment.inner.clone())
+            .strip_prefix(prefix.inner.clone())
             .into())
+    }
+
+    fn str_strip_suffix(&self, suffix: &PlRExpr) -> Result<Self> {
+        Ok(self
+            .inner
+            .clone()
+            .str()
+            .strip_suffix(suffix.inner.clone())
+            .into())
+    }
+
+    fn str_zfill(&self, length: &PlRExpr) -> Result<Self> {
+        Ok(self.inner.clone().str().zfill(length.inner.clone()).into())
     }
 
     fn str_pad_end(&self, length: NumericScalar, fill_char: &str) -> Result<Self> {
@@ -78,6 +91,11 @@ impl PlRExpr {
         let length = <Wrap<usize>>::try_from(length)?.0;
         let fill_char = <Wrap<char>>::try_from(fill_char)?.0;
         Ok(self.inner.clone().str().pad_start(length, fill_char).into())
+    }
+
+    fn str_to_decimal(&self, infer_len: NumericScalar) -> Result<Self> {
+        let infer_len = <Wrap<usize>>::try_from(infer_len)?.0;
+        Ok(self.inner.clone().str().to_decimal(infer_len).into())
     }
 
     fn str_contains(&self, pat: &PlRExpr, literal: bool, strict: bool) -> Result<Self> {
@@ -98,16 +116,21 @@ impl PlRExpr {
         }
     }
 
-    fn str_ends_with(&self, sub: &PlRExpr) -> Result<Self> {
-        Ok(self.inner.clone().str().ends_with(sub.inner.clone()).into())
-    }
-
-    fn str_starts_with(&self, sub: &PlRExpr) -> Result<Self> {
+    fn str_ends_with(&self, suffix: &PlRExpr) -> Result<Self> {
         Ok(self
             .inner
             .clone()
             .str()
-            .starts_with(sub.inner.clone())
+            .ends_with(suffix.inner.clone())
+            .into())
+    }
+
+    fn str_starts_with(&self, prefix: &PlRExpr) -> Result<Self> {
+        Ok(self
+            .inner
+            .clone()
+            .str()
+            .starts_with(prefix.inner.clone())
             .into())
     }
 
