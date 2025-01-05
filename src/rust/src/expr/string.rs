@@ -32,30 +32,30 @@ impl PlRExpr {
     //     f_str_to_titlecase(self)
     // }
 
-    fn str_strip_chars(&self, matches: &PlRExpr) -> Result<Self> {
+    fn str_strip_chars(&self, characters: &PlRExpr) -> Result<Self> {
         Ok(self
             .inner
             .clone()
             .str()
-            .strip_chars(matches.inner.clone())
+            .strip_chars(characters.inner.clone())
             .into())
     }
 
-    fn str_strip_chars_end(&self, matches: &PlRExpr) -> Result<Self> {
+    fn str_strip_chars_end(&self, characters: &PlRExpr) -> Result<Self> {
         Ok(self
             .inner
             .clone()
             .str()
-            .strip_chars_end(matches.inner.clone())
+            .strip_chars_end(characters.inner.clone())
             .into())
     }
 
-    fn str_strip_chars_start(&self, matches: &PlRExpr) -> Result<Self> {
+    fn str_strip_chars_start(&self, characters: &PlRExpr) -> Result<Self> {
         Ok(self
             .inner
             .clone()
             .str()
-            .strip_chars_start(matches.inner.clone())
+            .strip_chars_start(characters.inner.clone())
             .into())
     }
 

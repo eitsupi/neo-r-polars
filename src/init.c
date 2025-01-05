@@ -2009,18 +2009,18 @@ SEXP savvy_PlRExpr_str_to_lowercase__impl(SEXP self__) {
     return handle_result(res);
 }
 
-SEXP savvy_PlRExpr_str_strip_chars__impl(SEXP self__, SEXP c_arg__matches) {
-    SEXP res = savvy_PlRExpr_str_strip_chars__ffi(self__, c_arg__matches);
+SEXP savvy_PlRExpr_str_strip_chars__impl(SEXP self__, SEXP c_arg__characters) {
+    SEXP res = savvy_PlRExpr_str_strip_chars__ffi(self__, c_arg__characters);
     return handle_result(res);
 }
 
-SEXP savvy_PlRExpr_str_strip_chars_end__impl(SEXP self__, SEXP c_arg__matches) {
-    SEXP res = savvy_PlRExpr_str_strip_chars_end__ffi(self__, c_arg__matches);
+SEXP savvy_PlRExpr_str_strip_chars_end__impl(SEXP self__, SEXP c_arg__characters) {
+    SEXP res = savvy_PlRExpr_str_strip_chars_end__ffi(self__, c_arg__characters);
     return handle_result(res);
 }
 
-SEXP savvy_PlRExpr_str_strip_chars_start__impl(SEXP self__, SEXP c_arg__matches) {
-    SEXP res = savvy_PlRExpr_str_strip_chars_start__ffi(self__, c_arg__matches);
+SEXP savvy_PlRExpr_str_strip_chars_start__impl(SEXP self__, SEXP c_arg__characters) {
+    SEXP res = savvy_PlRExpr_str_strip_chars_start__ffi(self__, c_arg__characters);
     return handle_result(res);
 }
 
