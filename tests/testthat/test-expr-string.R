@@ -284,6 +284,17 @@ test_that("strip_chars_*()", {
   )
 })
 
+test_that("strip_prefix, strip_suffix", {
+  df <- pl$DataFrame(a = c("foobar", "foofoobarbar", "foo", "bar"))
+  expect_equal(
+    df$select(pl$col("a")$str$strip_prefix("foo")),
+    pl$DataFrame(a = c("bar", "foobarbar", "", "bar"))
+  )
+  expect_equal(
+    df$select(pl$col("a")$str$strip_suffix("bar")),
+    pl$DataFrame(a = c("foo", "foofoobar", "foo", ""))
+  )
+})
 
 test_that("zfill", {
   dat <- pl$DataFrame(x = " 123abc ")
@@ -1008,3 +1019,19 @@ test_that("$str$extract_many works", {
     pl$DataFrame(values = list("disco", c("rhap", "ody")))
   )
 })
+
+# TODO: uncomment when https://github.com/pola-rs/polars/issues/20556 is solved
+# test_that("to_decimal", {
+#   df <- pl$DataFrame(
+#     x = c(
+#       "40.12", "3420.13", "120134.19", "3212.98",
+#       "12.90", "143.09", "143.9"
+#     )
+#   )
+#   expect_equal(
+#     df$select(pl$col("x")$str$to_decimal()),
+#     pl$DataFrame(x = c(
+#       40.12, 3420.13, 120134.19, 3212.98, 12.90, 143.09, 143.9
+#     ), .schema_overrides = list(x = pl$Decimal(scale = 2)))
+#   )
+# })

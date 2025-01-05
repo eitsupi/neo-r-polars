@@ -390,6 +390,51 @@ expr_str_strip_chars_end <- function(matches = NULL) {
     wrap()
 }
 
+#' Strip prefix
+#'
+#' @description
+#' The prefix will be removed from the string exactly once, if found.
+#'
+#' @param prefix The prefix to be removed.
+#'
+#' @details
+#' This method strips the exact character sequence provided in `prefix` from
+#' the start of the input. To strip a set of characters in any order, use
+#' [`$strip_chars_start()`][expr_str_chars_start] instead.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c("foobar", "foofoobar", "foo", "bar"))
+#' df$with_columns(
+#'   stripped = pl$col("a")$str$strip_prefix("foo")
+#' )
+expr_str_strip_prefix <- function(prefix = NULL) {
+  self$`_rexpr`$str_strip_prefix(as_polars_expr(prefix, as_lit = TRUE)$`_rexpr`) |>
+    wrap()
+}
+
+#' Strip suffix
+#'
+#' @description
+#' The suffix will be removed from the string exactly once, if found.
+#'
+#' @param suffix The suffix to be removed.
+#'
+#' @details
+#' This method strips the exact character sequence provided in `suffix` from
+#' the end of the input. To strip a set of characters in any order, use
+#' [`$strip_chars_end()`][expr_str_chars_end] instead.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(a = c("foobar", "foobarbar", "foo", "bar"))
+#' df$with_columns(
+#'   stripped = pl$col("a")$str$strip_suffix("bar")
+#' )
+expr_str_strip_suffix <- function(suffix = NULL) {
+  self$`_rexpr`$str_strip_suffix(as_polars_expr(suffix, as_lit = TRUE)$`_rexpr`) |>
+    wrap()
+}
 
 #' Fills the string with zeroes.
 #'
@@ -417,6 +462,27 @@ expr_str_zfill <- function(length) {
     wrap()
 }
 
+#' Convert a String column into a Decimal column
+#'
+#' @description
+#' This method infers the needed parameters `precision` and `scale`.
+#'
+#' @param inference_length Number of elements to parse to determine the
+#' `precision` and `scale`.
+#' @inherit as_polars_expr return
+#'
+#' @examples
+#' df <- pl$DataFrame(
+#'   numbers = c(
+#'     "40.12", "3420.13", "120134.19", "3212.98",
+#'     "12.90", "143.09", "143.9"
+#'   )
+#' )
+#' df$with_columns(numbers_decimal = pl$col("numbers")$str$to_decimal())
+expr_str_to_decimal <- function(inference_length = 100) {
+  self$`_rexpr`$str_to_decimal(inference_length) |>
+    wrap()
+}
 
 #' Left justify strings
 #'

@@ -2024,6 +2024,16 @@ SEXP savvy_PlRExpr_str_strip_chars_start__impl(SEXP self__, SEXP c_arg__matches)
     return handle_result(res);
 }
 
+SEXP savvy_PlRExpr_str_strip_prefix__impl(SEXP self__, SEXP c_arg__prefix) {
+    SEXP res = savvy_PlRExpr_str_strip_prefix__ffi(self__, c_arg__prefix);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_str_strip_suffix__impl(SEXP self__, SEXP c_arg__suffix) {
+    SEXP res = savvy_PlRExpr_str_strip_suffix__ffi(self__, c_arg__suffix);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRExpr_str_zfill__impl(SEXP self__, SEXP c_arg__length) {
     SEXP res = savvy_PlRExpr_str_zfill__ffi(self__, c_arg__length);
     return handle_result(res);
@@ -2036,6 +2046,11 @@ SEXP savvy_PlRExpr_str_pad_end__impl(SEXP self__, SEXP c_arg__width, SEXP c_arg_
 
 SEXP savvy_PlRExpr_str_pad_start__impl(SEXP self__, SEXP c_arg__width, SEXP c_arg__fillchar) {
     SEXP res = savvy_PlRExpr_str_pad_start__ffi(self__, c_arg__width, c_arg__fillchar);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_str_to_decimal__impl(SEXP self__, SEXP c_arg__infer_len) {
+    SEXP res = savvy_PlRExpr_str_to_decimal__ffi(self__, c_arg__infer_len);
     return handle_result(res);
 }
 
@@ -2914,9 +2929,12 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_str_strip_chars__impl", (DL_FUNC) &savvy_PlRExpr_str_strip_chars__impl, 2},
     {"savvy_PlRExpr_str_strip_chars_end__impl", (DL_FUNC) &savvy_PlRExpr_str_strip_chars_end__impl, 2},
     {"savvy_PlRExpr_str_strip_chars_start__impl", (DL_FUNC) &savvy_PlRExpr_str_strip_chars_start__impl, 2},
+    {"savvy_PlRExpr_str_strip_prefix__impl", (DL_FUNC) &savvy_PlRExpr_str_strip_prefix__impl, 2},
+    {"savvy_PlRExpr_str_strip_suffix__impl", (DL_FUNC) &savvy_PlRExpr_str_strip_suffix__impl, 2},
     {"savvy_PlRExpr_str_zfill__impl", (DL_FUNC) &savvy_PlRExpr_str_zfill__impl, 2},
     {"savvy_PlRExpr_str_pad_end__impl", (DL_FUNC) &savvy_PlRExpr_str_pad_end__impl, 3},
     {"savvy_PlRExpr_str_pad_start__impl", (DL_FUNC) &savvy_PlRExpr_str_pad_start__impl, 3},
+    {"savvy_PlRExpr_str_to_decimal__impl", (DL_FUNC) &savvy_PlRExpr_str_to_decimal__impl, 2},
     {"savvy_PlRExpr_str_contains__impl", (DL_FUNC) &savvy_PlRExpr_str_contains__impl, 4},
     {"savvy_PlRExpr_str_ends_with__impl", (DL_FUNC) &savvy_PlRExpr_str_ends_with__impl, 2},
     {"savvy_PlRExpr_str_starts_with__impl", (DL_FUNC) &savvy_PlRExpr_str_starts_with__impl, 2},
