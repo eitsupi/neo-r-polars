@@ -93,16 +93,21 @@ impl PlRExpr {
         }
     }
 
-    fn str_ends_with(&self, sub: &PlRExpr) -> Result<Self> {
-        Ok(self.inner.clone().str().ends_with(sub.inner.clone()).into())
-    }
-
-    fn str_starts_with(&self, sub: &PlRExpr) -> Result<Self> {
+    fn str_ends_with(&self, suffix: &PlRExpr) -> Result<Self> {
         Ok(self
             .inner
             .clone()
             .str()
-            .starts_with(sub.inner.clone())
+            .ends_with(suffix.inner.clone())
+            .into())
+    }
+
+    fn str_starts_with(&self, prefix: &PlRExpr) -> Result<Self> {
+        Ok(self
+            .inner
+            .clone()
+            .str()
+            .starts_with(prefix.inner.clone())
             .into())
     }
 

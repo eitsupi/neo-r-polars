@@ -2652,16 +2652,16 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
 }
 
 `PlRExpr_str_ends_with` <- function(self) {
-  function(`sub`) {
-    `sub` <- .savvy_extract_ptr(`sub`, "PlRExpr")
-    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_str_ends_with__impl, `self`, `sub`))
+  function(`suffix`) {
+    `suffix` <- .savvy_extract_ptr(`suffix`, "PlRExpr")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_str_ends_with__impl, `self`, `suffix`))
   }
 }
 
 `PlRExpr_str_starts_with` <- function(self) {
-  function(`sub`) {
-    `sub` <- .savvy_extract_ptr(`sub`, "PlRExpr")
-    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_str_starts_with__impl, `self`, `sub`))
+  function(`prefix`) {
+    `prefix` <- .savvy_extract_ptr(`prefix`, "PlRExpr")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_str_starts_with__impl, `self`, `prefix`))
   }
 }
 

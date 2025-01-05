@@ -2044,13 +2044,13 @@ SEXP savvy_PlRExpr_str_contains__impl(SEXP self__, SEXP c_arg__pat, SEXP c_arg__
     return handle_result(res);
 }
 
-SEXP savvy_PlRExpr_str_ends_with__impl(SEXP self__, SEXP c_arg__sub) {
-    SEXP res = savvy_PlRExpr_str_ends_with__ffi(self__, c_arg__sub);
+SEXP savvy_PlRExpr_str_ends_with__impl(SEXP self__, SEXP c_arg__suffix) {
+    SEXP res = savvy_PlRExpr_str_ends_with__ffi(self__, c_arg__suffix);
     return handle_result(res);
 }
 
-SEXP savvy_PlRExpr_str_starts_with__impl(SEXP self__, SEXP c_arg__sub) {
-    SEXP res = savvy_PlRExpr_str_starts_with__ffi(self__, c_arg__sub);
+SEXP savvy_PlRExpr_str_starts_with__impl(SEXP self__, SEXP c_arg__prefix) {
+    SEXP res = savvy_PlRExpr_str_starts_with__ffi(self__, c_arg__prefix);
     return handle_result(res);
 }
 
