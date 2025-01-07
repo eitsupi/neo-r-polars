@@ -125,6 +125,16 @@ wrap.PlRDataType <- function(x, ...) {
   self
 }
 
+#' @export
+wrap.PlRField <- function(x, name, ...) {
+  self <- new.env(parent = emptyenv())
+  self$`_dt` <- x
+  self$`_nm` <- name
+
+  class(self) <- c("polars_dtype_field", "polars_dtype", "polars_object")
+  self
+}
+
 # Register data types without arguments as active bindings
 on_load({
   c(
@@ -238,6 +248,14 @@ pl__Struct <- function(...) {
     PlRDataType$new_struct() |>
     wrap()
 }
+
+pl__Field <- function(name, dtype) {
+  wrap(name = name, {
+    check_polars_dtype(dtype)
+    PlRDataType$new_field(name, dtype$`_dt`)
+  })
+}
+
 
 datatype__eq <- function(other) {
   wrap({

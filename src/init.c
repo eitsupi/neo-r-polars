@@ -404,6 +404,11 @@ SEXP savvy_PlRDataType_new_struct__impl(SEXP c_arg__fields) {
     return handle_result(res);
 }
 
+SEXP savvy_PlRDataType_new_field__impl(SEXP c_arg__name, SEXP c_arg__dtype) {
+    SEXP res = savvy_PlRDataType_new_field__ffi(c_arg__name, c_arg__dtype);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRDataType_print__impl(SEXP self__) {
     SEXP res = savvy_PlRDataType_print__ffi(self__);
     return handle_result(res);
@@ -2074,6 +2079,11 @@ SEXP savvy_PlRExpr_str_json_path_match__impl(SEXP self__, SEXP c_arg__pat) {
     return handle_result(res);
 }
 
+SEXP savvy_PlRExpr_str_json_decode__impl(SEXP self__, SEXP c_arg__dtype, SEXP c_arg__infer_schema_len) {
+    SEXP res = savvy_PlRExpr_str_json_decode__ffi(self__, c_arg__dtype, c_arg__infer_schema_len);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRExpr_str_hex_encode__impl(SEXP self__) {
     SEXP res = savvy_PlRExpr_str_hex_encode__ffi(self__);
     return handle_result(res);
@@ -2223,6 +2233,7 @@ SEXP savvy_PlRExpr_struct_with_fields__impl(SEXP self__, SEXP c_arg__fields) {
     SEXP res = savvy_PlRExpr_struct_with_fields__ffi(self__, c_arg__fields);
     return handle_result(res);
 }
+
 
 SEXP savvy_PlRLazyFrame_describe_plan__impl(SEXP self__) {
     SEXP res = savvy_PlRLazyFrame_describe_plan__ffi(self__);
@@ -2605,6 +2616,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRDataType_new_list__impl", (DL_FUNC) &savvy_PlRDataType_new_list__impl, 1},
     {"savvy_PlRDataType_new_array__impl", (DL_FUNC) &savvy_PlRDataType_new_array__impl, 2},
     {"savvy_PlRDataType_new_struct__impl", (DL_FUNC) &savvy_PlRDataType_new_struct__impl, 1},
+    {"savvy_PlRDataType_new_field__impl", (DL_FUNC) &savvy_PlRDataType_new_field__impl, 2},
     {"savvy_PlRDataType_print__impl", (DL_FUNC) &savvy_PlRDataType_print__impl, 1},
     {"savvy_PlRDataType__get_dtype_names__impl", (DL_FUNC) &savvy_PlRDataType__get_dtype_names__impl, 1},
     {"savvy_PlRDataType__get_datatype_fields__impl", (DL_FUNC) &savvy_PlRDataType__get_datatype_fields__impl, 1},
@@ -2939,6 +2951,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_str_ends_with__impl", (DL_FUNC) &savvy_PlRExpr_str_ends_with__impl, 2},
     {"savvy_PlRExpr_str_starts_with__impl", (DL_FUNC) &savvy_PlRExpr_str_starts_with__impl, 2},
     {"savvy_PlRExpr_str_json_path_match__impl", (DL_FUNC) &savvy_PlRExpr_str_json_path_match__impl, 2},
+    {"savvy_PlRExpr_str_json_decode__impl", (DL_FUNC) &savvy_PlRExpr_str_json_decode__impl, 3},
     {"savvy_PlRExpr_str_hex_encode__impl", (DL_FUNC) &savvy_PlRExpr_str_hex_encode__impl, 1},
     {"savvy_PlRExpr_str_hex_decode__impl", (DL_FUNC) &savvy_PlRExpr_str_hex_decode__impl, 2},
     {"savvy_PlRExpr_str_base64_encode__impl", (DL_FUNC) &savvy_PlRExpr_str_base64_encode__impl, 1},
@@ -2969,6 +2982,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_struct_rename_fields__impl", (DL_FUNC) &savvy_PlRExpr_struct_rename_fields__impl, 2},
     {"savvy_PlRExpr_struct_json_encode__impl", (DL_FUNC) &savvy_PlRExpr_struct_json_encode__impl, 1},
     {"savvy_PlRExpr_struct_with_fields__impl", (DL_FUNC) &savvy_PlRExpr_struct_with_fields__impl, 2},
+
     {"savvy_PlRLazyFrame_describe_plan__impl", (DL_FUNC) &savvy_PlRLazyFrame_describe_plan__impl, 1},
     {"savvy_PlRLazyFrame_describe_optimized_plan__impl", (DL_FUNC) &savvy_PlRLazyFrame_describe_optimized_plan__impl, 1},
     {"savvy_PlRLazyFrame_describe_plan_tree__impl", (DL_FUNC) &savvy_PlRLazyFrame_describe_plan_tree__impl, 1},

@@ -623,6 +623,11 @@ class(`PlRDataFrame`) <- c("PlRDataFrame__bundle", "savvy_neopolars__sealed")
   .savvy_wrap_PlRDataType(.Call(savvy_PlRDataType_new_struct__impl, `fields`))
 }
 
+`PlRDataType`$`new_field` <- function(`name`, `dtype`) {
+  `dtype` <- .savvy_extract_ptr(`dtype`, "PlRDataType")
+  .savvy_wrap_PlRField(.Call(savvy_PlRDataType_new_field__impl, `name`, `dtype`))
+}
+
 
 class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
 
@@ -2692,6 +2697,13 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
   }
 }
 
+`PlRExpr_str_json_decode` <- function(self) {
+  function(`dtype`, `infer_schema_len`) {
+    `dtype` <- .savvy_extract_ptr(`dtype`, "PlRDataType")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_str_json_decode__impl, `self`, `dtype`, `infer_schema_len`))
+  }
+}
+
 `PlRExpr_str_hex_encode` <- function(self) {
   function() {
     .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_str_hex_encode__impl, `self`))
@@ -3221,6 +3233,7 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
   e$`str_ends_with` <- `PlRExpr_str_ends_with`(ptr)
   e$`str_starts_with` <- `PlRExpr_str_starts_with`(ptr)
   e$`str_json_path_match` <- `PlRExpr_str_json_path_match`(ptr)
+  e$`str_json_decode` <- `PlRExpr_str_json_decode`(ptr)
   e$`str_hex_encode` <- `PlRExpr_str_hex_encode`(ptr)
   e$`str_hex_decode` <- `PlRExpr_str_hex_decode`(ptr)
   e$`str_base64_encode` <- `PlRExpr_str_base64_encode`(ptr)
@@ -3276,6 +3289,33 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
 #' @export
 `print.PlRExpr__bundle` <- function(x, ...) {
   cat('PlRExpr')
+}
+
+### wrapper functions for PlRField
+
+
+`.savvy_wrap_PlRField` <- function(ptr) {
+  e <- new.env(parent = emptyenv())
+  e$.ptr <- ptr
+
+
+  class(e) <- c("PlRField", "savvy_neopolars__sealed")
+  e
+}
+
+
+
+`PlRField` <- new.env(parent = emptyenv())
+
+### associated functions for PlRField
+
+
+
+class(`PlRField`) <- c("PlRField__bundle", "savvy_neopolars__sealed")
+
+#' @export
+`print.PlRField__bundle` <- function(x, ...) {
+  cat('PlRField')
 }
 
 ### wrapper functions for PlRLazyFrame

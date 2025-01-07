@@ -80,6 +80,7 @@ SEXP savvy_PlRDataType_new_enum__ffi(SEXP c_arg__categories);
 SEXP savvy_PlRDataType_new_list__ffi(SEXP c_arg__inner);
 SEXP savvy_PlRDataType_new_array__ffi(SEXP c_arg__inner, SEXP c_arg__shape);
 SEXP savvy_PlRDataType_new_struct__ffi(SEXP c_arg__fields);
+SEXP savvy_PlRDataType_new_field__ffi(SEXP c_arg__name, SEXP c_arg__dtype);
 SEXP savvy_PlRDataType_print__ffi(SEXP self__);
 SEXP savvy_PlRDataType__get_dtype_names__ffi(SEXP self__);
 SEXP savvy_PlRDataType__get_datatype_fields__ffi(SEXP self__);
@@ -416,6 +417,7 @@ SEXP savvy_PlRExpr_str_contains__ffi(SEXP self__, SEXP c_arg__pat, SEXP c_arg__l
 SEXP savvy_PlRExpr_str_ends_with__ffi(SEXP self__, SEXP c_arg__suffix);
 SEXP savvy_PlRExpr_str_starts_with__ffi(SEXP self__, SEXP c_arg__prefix);
 SEXP savvy_PlRExpr_str_json_path_match__ffi(SEXP self__, SEXP c_arg__pat);
+SEXP savvy_PlRExpr_str_json_decode__ffi(SEXP self__, SEXP c_arg__dtype, SEXP c_arg__infer_schema_len);
 SEXP savvy_PlRExpr_str_hex_encode__ffi(SEXP self__);
 SEXP savvy_PlRExpr_str_hex_decode__ffi(SEXP self__, SEXP c_arg__strict);
 SEXP savvy_PlRExpr_str_base64_encode__ffi(SEXP self__);
@@ -446,6 +448,9 @@ SEXP savvy_PlRExpr_struct_multiple_fields__ffi(SEXP self__, SEXP c_arg__names);
 SEXP savvy_PlRExpr_struct_rename_fields__ffi(SEXP self__, SEXP c_arg__names);
 SEXP savvy_PlRExpr_struct_json_encode__ffi(SEXP self__);
 SEXP savvy_PlRExpr_struct_with_fields__ffi(SEXP self__, SEXP c_arg__fields);
+
+// methods and associated functions for PlRField
+
 
 // methods and associated functions for PlRLazyFrame
 SEXP savvy_PlRLazyFrame_describe_plan__ffi(SEXP self__);

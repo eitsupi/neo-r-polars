@@ -1,4 +1,5 @@
 use crate::{prelude::*, PlRExpr, RPolarsErr};
+use polars::datatypes::Field;
 use polars::lazy::dsl;
 use polars_core::utils::arrow::array::Utf8ViewArray;
 use savvy::{
@@ -9,6 +10,17 @@ use savvy::{
 // As not like in Python, define the data type class in
 // the Rust side, because defining class in R and converting
 // it to Rust is not easy.
+
+#[savvy]
+pub(crate) struct PlRField {
+    pub(crate) fld: Field,
+}
+
+impl From<Field> for PlRField {
+    fn from(fld: Field) -> Self {
+        Self { fld }
+    }
+}
 
 #[savvy]
 pub(crate) struct PlRDataType {
@@ -145,15 +157,15 @@ impl PlRDataType {
         name.try_into().map_err(savvy::Error::from)
     }
 
-    pub fn new_decimal(scale: Option<NumericScalar>, precision: Option<NumericScalar>) -> Result<Self> {
+    pub fn new_decimal(
+        scale: Option<NumericScalar>,
+        precision: Option<NumericScalar>,
+    ) -> Result<Self> {
         let precision = precision
             .map(<Wrap<usize>>::try_from)
             .transpose()?
             .map(|p| p.0);
-        let scale = scale
-            .map(<Wrap<usize>>::try_from)
-            .transpose()?
-            .map(|s| s.0);
+        let scale = scale.map(<Wrap<usize>>::try_from).transpose()?.map(|s| s.0);
         Ok(DataType::Decimal(precision, scale).into())
     }
 
@@ -209,6 +221,10 @@ impl PlRDataType {
 
     pub fn new_struct(fields: ListSexp) -> Result<Self> {
         Ok(DataType::Struct(<Wrap<Vec<Field>>>::try_from(fields)?.0).into())
+    }
+
+    pub fn new_field(name: &str, dtype: &PlRDataType) -> Result<PlRField> {
+        Ok(Field::new(name.into(), dtype.dt.clone()).into())
     }
 
     fn print(&self) -> Result<()> {
