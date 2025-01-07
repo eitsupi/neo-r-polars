@@ -65,6 +65,6 @@ test_that("pl$sum()", {
 #   )
 #   expect_equal(
 #     df$select(pl$cum_sum("a", "b")),
-#     pl$DataFrame(a = c(1, 9, 12), b = c(4, 9, 11))
+#     pl$DataFrame(a = 12, b = 11)
 #   )
 # })
