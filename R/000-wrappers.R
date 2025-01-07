@@ -221,6 +221,12 @@ NULL
 }
 
 
+`arg_where` <- function(`condition`) {
+  `condition` <- .savvy_extract_ptr(`condition`, "PlRExpr")
+  .savvy_wrap_PlRExpr(.Call(savvy_arg_where__impl, `condition`))
+}
+
+
 `int_range` <- function(`start`, `end`, `step`, `dtype`) {
   `start` <- .savvy_extract_ptr(`start`, "PlRExpr")
   `end` <- .savvy_extract_ptr(`end`, "PlRExpr")
