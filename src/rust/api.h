@@ -450,7 +450,7 @@ SEXP savvy_PlRExpr_struct_json_encode__ffi(SEXP self__);
 SEXP savvy_PlRExpr_struct_with_fields__ffi(SEXP self__, SEXP c_arg__fields);
 
 // methods and associated functions for PlRField
-
+SEXP savvy_PlRField_print__ffi(SEXP self__);
 
 // methods and associated functions for PlRLazyFrame
 SEXP savvy_PlRLazyFrame_describe_plan__ffi(SEXP self__);

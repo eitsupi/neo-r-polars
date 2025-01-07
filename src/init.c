@@ -2234,6 +2234,10 @@ SEXP savvy_PlRExpr_struct_with_fields__impl(SEXP self__, SEXP c_arg__fields) {
     return handle_result(res);
 }
 
+SEXP savvy_PlRField_print__impl(SEXP self__) {
+    SEXP res = savvy_PlRField_print__ffi(self__);
+    return handle_result(res);
+}
 
 SEXP savvy_PlRLazyFrame_describe_plan__impl(SEXP self__) {
     SEXP res = savvy_PlRLazyFrame_describe_plan__ffi(self__);
@@ -2982,7 +2986,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_struct_rename_fields__impl", (DL_FUNC) &savvy_PlRExpr_struct_rename_fields__impl, 2},
     {"savvy_PlRExpr_struct_json_encode__impl", (DL_FUNC) &savvy_PlRExpr_struct_json_encode__impl, 1},
     {"savvy_PlRExpr_struct_with_fields__impl", (DL_FUNC) &savvy_PlRExpr_struct_with_fields__impl, 2},
-
+    {"savvy_PlRField_print__impl", (DL_FUNC) &savvy_PlRField_print__impl, 1},
     {"savvy_PlRLazyFrame_describe_plan__impl", (DL_FUNC) &savvy_PlRLazyFrame_describe_plan__impl, 1},
     {"savvy_PlRLazyFrame_describe_optimized_plan__impl", (DL_FUNC) &savvy_PlRLazyFrame_describe_optimized_plan__impl, 1},
     {"savvy_PlRLazyFrame_describe_plan_tree__impl", (DL_FUNC) &savvy_PlRLazyFrame_describe_plan_tree__impl, 1},

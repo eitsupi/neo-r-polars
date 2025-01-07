@@ -79,3 +79,8 @@ test_that("Enum union error", {
   expect_error(pl$Enum("a")$union(1), "`other` must be a polars data type, not the number 1")
   expect_error(pl$Enum("a")$union(pl$Int32), "`other` must be a Enum data type")
 })
+
+test_that("Field", {
+  expect_snapshot(pl$Field("a", pl$Int64))
+  expect_snapshot(pl$Struct(pl$Field("a", pl$Int64), pl$Field("b", pl$String)))
+})

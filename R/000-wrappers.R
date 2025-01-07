@@ -3293,11 +3293,16 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
 
 ### wrapper functions for PlRField
 
+`PlRField_print` <- function(self) {
+  function() {
+    invisible(.Call(savvy_PlRField_print__impl, `self`))
+  }
+}
 
 `.savvy_wrap_PlRField` <- function(ptr) {
   e <- new.env(parent = emptyenv())
   e$.ptr <- ptr
-
+  e$`print` <- `PlRField_print`(ptr)
 
   class(e) <- c("PlRField", "savvy_neopolars__sealed")
   e

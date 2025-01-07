@@ -496,3 +496,17 @@
     Output
       Enum(categories=c('a', 'b', 'c'))
 
+# Field
+
+    Code
+      pl$Field("a", pl$Int64)
+    Output
+      Field(a, i64)
+
+---
+
+    Code
+      pl$Struct(pl$Field("a", pl$Int64), pl$Field("b", pl$String))
+    Output
+      Struct(`a`=Int64, `b`=String)
+

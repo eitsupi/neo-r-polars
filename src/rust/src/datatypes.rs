@@ -23,6 +23,19 @@ impl From<Field> for PlRField {
 }
 
 #[savvy]
+impl PlRField {
+    fn print(&self) -> Result<()> {
+        r_println!("{}", self);
+        Ok(())
+    }
+}
+
+impl std::fmt::Display for PlRField {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "Field({}, {})", self.fld.name, self.fld.dtype)
+    }
+}
+#[savvy]
 pub(crate) struct PlRDataType {
     pub(crate) dt: DataType,
 }
