@@ -199,6 +199,11 @@ SEXP savvy_concat_lf_diagonal__impl(SEXP c_arg__lfs, SEXP c_arg__rechunk, SEXP c
     return handle_result(res);
 }
 
+SEXP savvy_concat_str__impl(SEXP c_arg__s, SEXP c_arg__separator, SEXP c_arg__ignore_nulls) {
+    SEXP res = savvy_concat_str__ffi(c_arg__s, c_arg__separator, c_arg__ignore_nulls);
+    return handle_result(res);
+}
+
 SEXP savvy_int_range__impl(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__step, SEXP c_arg__dtype) {
     SEXP res = savvy_int_range__ffi(c_arg__start, c_arg__end, c_arg__step, c_arg__dtype);
     return handle_result(res);
@@ -2564,6 +2569,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_concat_lf__impl", (DL_FUNC) &savvy_concat_lf__impl, 4},
     {"savvy_concat_lf_horizontal__impl", (DL_FUNC) &savvy_concat_lf_horizontal__impl, 2},
     {"savvy_concat_lf_diagonal__impl", (DL_FUNC) &savvy_concat_lf_diagonal__impl, 4},
+    {"savvy_concat_str__impl", (DL_FUNC) &savvy_concat_str__impl, 3},
     {"savvy_int_range__impl", (DL_FUNC) &savvy_int_range__impl, 4},
     {"savvy_int_ranges__impl", (DL_FUNC) &savvy_int_ranges__impl, 4},
     {"savvy_date_range__impl", (DL_FUNC) &savvy_date_range__impl, 4},

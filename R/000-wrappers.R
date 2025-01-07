@@ -221,6 +221,11 @@ NULL
 }
 
 
+`concat_str` <- function(`s`, `separator`, `ignore_nulls`) {
+  .savvy_wrap_PlRExpr(.Call(savvy_concat_str__impl, `s`, `separator`, `ignore_nulls`))
+}
+
+
 `int_range` <- function(`start`, `end`, `step`, `dtype`) {
   `start` <- .savvy_extract_ptr(`start`, "PlRExpr")
   `end` <- .savvy_extract_ptr(`end`, "PlRExpr")
