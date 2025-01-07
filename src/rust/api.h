@@ -31,6 +31,7 @@ SEXP savvy_concat_df_horizontal__ffi(SEXP c_arg__dfs);
 SEXP savvy_concat_lf__ffi(SEXP c_arg__lfs, SEXP c_arg__rechunk, SEXP c_arg__parallel, SEXP c_arg__to_supertypes);
 SEXP savvy_concat_lf_horizontal__ffi(SEXP c_arg__lfs, SEXP c_arg__parallel);
 SEXP savvy_concat_lf_diagonal__ffi(SEXP c_arg__lfs, SEXP c_arg__rechunk, SEXP c_arg__parallel, SEXP c_arg__to_supertypes);
+SEXP savvy_concat_str__ffi(SEXP c_arg__s, SEXP c_arg__separator, SEXP c_arg__ignore_nulls);
 SEXP savvy_int_range__ffi(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__step, SEXP c_arg__dtype);
 SEXP savvy_int_ranges__ffi(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__step, SEXP c_arg__dtype);
 SEXP savvy_date_range__ffi(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__interval, SEXP c_arg__closed);
