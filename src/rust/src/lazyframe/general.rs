@@ -253,6 +253,8 @@ impl PlRLazyFrame {
             try_parse_dates: try_parse_hive_dates,
         };
         // TODO: better error message
+        // TODO: Refactor with adding `cloud` feature as like Python Polars
+        #[cfg(not(target_arch = "wasm32"))]
         let cloud_options = match storage_options {
             Some(x) => {
                 let out = <Wrap<Vec<(String, String)>>>::try_from(x).map_err(|_| {
@@ -264,6 +266,10 @@ impl PlRLazyFrame {
             }
             None => None,
         };
+
+        #[cfg(target_arch = "wasm32")]
+        let cloud_options = None;
+
         let mut args = ScanArgsIpc {
             n_rows,
             cache,
@@ -275,6 +281,9 @@ impl PlRLazyFrame {
         };
 
         let first_path: Option<PathBuf> = source.first().unwrap().clone().into();
+
+        // TODO: Refactor with adding `cloud` feature as like Python Polars
+        #[cfg(not(target_arch = "wasm32"))]
         if let Some(first_path) = first_path {
             let first_path_url = first_path.to_string_lossy();
             let mut cloud_options =
@@ -387,6 +396,8 @@ impl PlRLazyFrame {
             None => None,
         };
 
+        // TODO: Refactor with adding `cloud` feature as like Python Polars
+        #[cfg(not(target_arch = "wasm32"))]
         let cloud_options = match storage_options {
             Some(x) => {
                 let out = <Wrap<Vec<(String, String)>>>::try_from(x).map_err(|_| {
@@ -399,8 +410,14 @@ impl PlRLazyFrame {
             None => None,
         };
 
+        #[cfg(target_arch = "wasm32")]
+        let cloud_options = None;
+
         let mut r = LazyCsvReader::new_paths(source.clone().into());
         let first_path: Option<PathBuf> = source.first().unwrap().clone().into();
+
+        // TODO: Refactor with adding `cloud` feature as like Python Polars
+        #[cfg(not(target_arch = "wasm32"))]
         if let Some(first_path) = first_path {
             let first_path_url = first_path.to_string_lossy();
 
@@ -517,6 +534,8 @@ impl PlRLazyFrame {
 
         let first_path = source.first().unwrap().clone().into();
 
+        // TODO: Refactor with adding `cloud` feature as like Python Polars
+        #[cfg(not(target_arch = "wasm32"))]
         let cloud_options = match storage_options {
             Some(x) => {
                 let out = <Wrap<Vec<(String, String)>>>::try_from(x).map_err(|_| {
@@ -529,6 +548,11 @@ impl PlRLazyFrame {
             None => None,
         };
 
+        #[cfg(target_arch = "wasm32")]
+        let cloud_options = None;
+
+        // TODO: Refactor with adding `cloud` feature as like Python Polars
+        #[cfg(not(target_arch = "wasm32"))]
         if let Some(first_path) = first_path {
             let first_path_url = first_path.to_string_lossy();
             let cloud_options =
@@ -602,6 +626,8 @@ impl PlRLazyFrame {
 
         let mut r = LazyJsonLineReader::new_paths(source.into());
 
+        // TODO: Refactor with adding `cloud` feature as like Python Polars
+        #[cfg(not(target_arch = "wasm32"))]
         let cloud_options = match storage_options {
             Some(x) => {
                 let out = <Wrap<Vec<(String, String)>>>::try_from(x).map_err(|_| {
@@ -614,6 +640,11 @@ impl PlRLazyFrame {
             None => None,
         };
 
+        #[cfg(target_arch = "wasm32")]
+        let cloud_options = None;
+
+        // TODO: Refactor with adding `cloud` feature as like Python Polars
+        #[cfg(not(target_arch = "wasm32"))]
         if let Some(first_path) = first_path {
             let first_path_url = first_path.to_string_lossy();
 
