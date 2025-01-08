@@ -1829,6 +1829,11 @@ SEXP savvy_PlRExpr__meta_selector_sub__impl(SEXP self__, SEXP c_arg__other) {
     return handle_result(res);
 }
 
+SEXP savvy_PlRExpr__meta_selector_xor__impl(SEXP self__, SEXP c_arg__other) {
+    SEXP res = savvy_PlRExpr__meta_selector_xor__ffi(self__, c_arg__other);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRExpr__meta_as_selector__impl(SEXP self__) {
     SEXP res = savvy_PlRExpr__meta_as_selector__ffi(self__);
     return handle_result(res);
@@ -2890,6 +2895,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr__meta_selector_add__impl", (DL_FUNC) &savvy_PlRExpr__meta_selector_add__impl, 2},
     {"savvy_PlRExpr__meta_selector_and__impl", (DL_FUNC) &savvy_PlRExpr__meta_selector_and__impl, 2},
     {"savvy_PlRExpr__meta_selector_sub__impl", (DL_FUNC) &savvy_PlRExpr__meta_selector_sub__impl, 2},
+    {"savvy_PlRExpr__meta_selector_xor__impl", (DL_FUNC) &savvy_PlRExpr__meta_selector_xor__impl, 2},
     {"savvy_PlRExpr__meta_as_selector__impl", (DL_FUNC) &savvy_PlRExpr__meta_as_selector__impl, 1},
     {"savvy_PlRExpr_compute_tree_format__impl", (DL_FUNC) &savvy_PlRExpr_compute_tree_format__impl, 2},
     {"savvy_PlRExpr_meta_is_column__impl", (DL_FUNC) &savvy_PlRExpr_meta_is_column__impl, 1},

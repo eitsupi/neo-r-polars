@@ -367,6 +367,7 @@ SEXP savvy_PlRExpr_meta_is_column_selection__ffi(SEXP self__, SEXP c_arg__allow_
 SEXP savvy_PlRExpr__meta_selector_add__ffi(SEXP self__, SEXP c_arg__other);
 SEXP savvy_PlRExpr__meta_selector_and__ffi(SEXP self__, SEXP c_arg__other);
 SEXP savvy_PlRExpr__meta_selector_sub__ffi(SEXP self__, SEXP c_arg__other);
+SEXP savvy_PlRExpr__meta_selector_xor__ffi(SEXP self__, SEXP c_arg__other);
 SEXP savvy_PlRExpr__meta_as_selector__ffi(SEXP self__);
 SEXP savvy_PlRExpr_compute_tree_format__ffi(SEXP self__, SEXP c_arg__display_as_dot);
 SEXP savvy_PlRExpr_meta_is_column__ffi(SEXP self__);
