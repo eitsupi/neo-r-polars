@@ -2697,6 +2697,13 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
   }
 }
 
+`PlRExpr_str_json_decode` <- function(self) {
+  function(`dtype`, `infer_schema_len`) {
+    `dtype` <- .savvy_extract_ptr(`dtype`, "PlRDataType")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_str_json_decode__impl, `self`, `dtype`, `infer_schema_len`))
+  }
+}
+
 `PlRExpr_str_hex_encode` <- function(self) {
   function() {
     .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_str_hex_encode__impl, `self`))
@@ -3226,6 +3233,7 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
   e$`str_ends_with` <- `PlRExpr_str_ends_with`(ptr)
   e$`str_starts_with` <- `PlRExpr_str_starts_with`(ptr)
   e$`str_json_path_match` <- `PlRExpr_str_json_path_match`(ptr)
+  e$`str_json_decode` <- `PlRExpr_str_json_decode`(ptr)
   e$`str_hex_encode` <- `PlRExpr_str_hex_encode`(ptr)
   e$`str_hex_decode` <- `PlRExpr_str_hex_decode`(ptr)
   e$`str_base64_encode` <- `PlRExpr_str_base64_encode`(ptr)
