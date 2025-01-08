@@ -706,7 +706,7 @@ impl PlRLazyFrame {
         hive_schema: Option<ListSexp>,
         include_file_paths: Option<&str>,
     ) -> Result<Self> {
-        Err(RPolarsErr::Other(format!("`Not supported in WASM")).into())
+        Err(RPolarsErr::Other(format!("Not supported in WASM")).into())
     }
 
     #[allow(unused_variables)]
@@ -727,6 +727,6 @@ impl PlRLazyFrame {
         storage_options: Option<StringSexp>,
         file_cache_ttl: Option<NumericScalar>,
     ) -> Result<Self> {
-        Err(RPolarsErr::Other(format!("`Not supported in WASM")).into())
+        Err(RPolarsErr::Other(format!("Not supported in WASM")).into())
     }
 }
