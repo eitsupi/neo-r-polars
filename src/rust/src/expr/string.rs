@@ -1,4 +1,4 @@
-use crate::{prelude::*, PlRExpr, RPolarsErr};
+use crate::{datatypes::PlRDataType, prelude::*, PlRExpr, RPolarsErr};
 use savvy::{savvy, NumericScalar, Result};
 
 #[savvy]
@@ -143,16 +143,19 @@ impl PlRExpr {
             .into())
     }
 
-    // fn str_json_decode(&self, dtype: &PlRExpr, infer_schema_len: &PlRExpr) -> Result<Self> {
-    //     let dtype = robj_to!(Option, RPolarsDataType, dtype)?.map(|dty| dty.0);
-    //     let infer_schema_len = robj_to!(Option, usize, infer_schema_len)?;
-    //     Ok(self
-    //         .inner
-    //         .clone()
-    //         .str()
-    //         .json_decode(dtype, infer_schema_len)
-    //         .into())
-    // }
+    fn str_json_decode(
+        &self,
+        dtype: &PlRDataType,
+        infer_schema_len: NumericScalar,
+    ) -> Result<Self> {
+        let infer_schema_len = <Wrap<usize>>::try_from(infer_schema_len)?.0;
+        Ok(self
+            .inner
+            .clone()
+            .str()
+            .json_decode(Some(dtype.dt.clone()), Some(infer_schema_len))
+            .into())
+    }
 
     fn str_hex_encode(&self) -> Result<Self> {
         Ok(self.inner.clone().str().hex_encode().into())
