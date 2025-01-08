@@ -26,6 +26,8 @@ impl PlRExpr {
             .into())
     }
 
+    // TODO: Refactor with adding `json` feature as like Python Polars
+    #[cfg(not(target_arch = "wasm32"))]
     fn struct_json_encode(&self) -> Result<Self> {
         Ok(self.inner.clone().struct_().json_encode().into())
     }

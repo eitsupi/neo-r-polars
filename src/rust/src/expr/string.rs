@@ -134,6 +134,8 @@ impl PlRExpr {
             .into())
     }
 
+    // TODO: Refactor with adding `extract_jsonpath` feature as like Python Polars
+    #[cfg(not(target_arch = "wasm32"))]
     fn str_json_path_match(&self, pat: &PlRExpr) -> Result<Self> {
         Ok(self
             .inner
