@@ -417,6 +417,7 @@ SEXP savvy_PlRExpr_str_contains__ffi(SEXP self__, SEXP c_arg__pat, SEXP c_arg__l
 SEXP savvy_PlRExpr_str_ends_with__ffi(SEXP self__, SEXP c_arg__suffix);
 SEXP savvy_PlRExpr_str_starts_with__ffi(SEXP self__, SEXP c_arg__prefix);
 SEXP savvy_PlRExpr_str_json_path_match__ffi(SEXP self__, SEXP c_arg__pat);
+SEXP savvy_PlRExpr_str_json_decode__ffi(SEXP self__, SEXP c_arg__dtype, SEXP c_arg__infer_schema_len);
 SEXP savvy_PlRExpr_str_hex_encode__ffi(SEXP self__);
 SEXP savvy_PlRExpr_str_hex_decode__ffi(SEXP self__, SEXP c_arg__strict);
 SEXP savvy_PlRExpr_str_base64_encode__ffi(SEXP self__);
