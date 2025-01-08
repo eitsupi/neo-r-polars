@@ -215,8 +215,8 @@ expr_meta_tree_format <- function() {
 #' If `raw_output = TRUE`, a string containing the GraphViz code for the graph.
 #' 
 #' @examplesIf requireNamespace("DiagrammeR", quietly = TRUE)
-  #' my_expr <- (pl$col("foo") * pl$col("bar"))$sum()$over(pl$col("ham")) / 2
-  #' my_expr$meta$show_graph()
+#' my_expr <- (pl$col("foo") * pl$col("bar"))$sum()$over(pl$col("ham")) / 2
+#' my_expr$meta$show_graph()
 expr_meta_show_graph <- function(
   ...,
   show = TRUE,
