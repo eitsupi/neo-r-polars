@@ -134,17 +134,6 @@ impl PlRExpr {
             .into())
     }
 
-    // TODO: Refactor with adding `extract_jsonpath` feature as like Python Polars
-    #[cfg(not(target_arch = "wasm32"))]
-    fn str_json_path_match(&self, pat: &PlRExpr) -> Result<Self> {
-        Ok(self
-            .inner
-            .clone()
-            .str()
-            .json_path_match(pat.inner.clone())
-            .into())
-    }
-
     // fn str_json_decode(&self, dtype: &PlRExpr, infer_schema_len: &PlRExpr) -> Result<Self> {
     //     let dtype = robj_to!(Option, RPolarsDataType, dtype)?.map(|dty| dty.0);
     //     let infer_schema_len = robj_to!(Option, usize, infer_schema_len)?;
@@ -426,5 +415,29 @@ impl PlRExpr {
 
     fn str_tail(&self, n: &PlRExpr) -> Result<Self> {
         Ok(self.inner.clone().str().tail(n.inner.clone()).into())
+    }
+}
+
+// TODO: Refactor with adding `extract_jsonpath` feature as like Python Polars
+// FIXME: Work around for <https://github.com/yutannihilation/savvy/issues/333>
+#[cfg(not(target_arch = "wasm32"))]
+#[savvy]
+impl PlRExpr {
+    fn str_json_path_match(&self, pat: &PlRExpr) -> Result<Self> {
+        Ok(self
+            .inner
+            .clone()
+            .str()
+            .json_path_match(pat.inner.clone())
+            .into())
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+#[savvy]
+impl PlRExpr {
+    #[allow(unused_variables)]
+    fn str_json_path_match(&self, pat: &PlRExpr) -> Result<Self> {
+        Err(RPolarsErr::Other(format!("`Not supported in WASM")).into())
     }
 }

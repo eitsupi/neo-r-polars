@@ -268,7 +268,7 @@ impl PlRLazyFrame {
         };
 
         #[cfg(target_arch = "wasm32")]
-        let cloud_options = None;
+        let cloud_options: Option<Vec<(String, String)>> = None;
 
         let mut args = ScanArgsIpc {
             n_rows,
@@ -411,7 +411,7 @@ impl PlRLazyFrame {
         };
 
         #[cfg(target_arch = "wasm32")]
-        let cloud_options = None;
+        let cloud_options: Option<Vec<(String, String)>> = None;
 
         let mut r = LazyCsvReader::new_paths(source.clone().into());
         let first_path: Option<PathBuf> = source.first().unwrap().clone().into();
@@ -459,9 +459,12 @@ impl PlRLazyFrame {
 
         Ok(r.finish().map_err(RPolarsErr::from)?.into())
     }
+}
 
-    // TODO: Refactor with adding `parquet` feature as like Python Polars
-    #[cfg(not(target_arch = "wasm32"))]
+// FIXME: Work around for <https://github.com/yutannihilation/savvy/issues/333>
+#[cfg(not(target_arch = "wasm32"))]
+#[savvy]
+impl PlRLazyFrame {
     fn new_from_parquet(
         source: StringSexp,
         cache: bool,
@@ -551,7 +554,7 @@ impl PlRLazyFrame {
         };
 
         #[cfg(target_arch = "wasm32")]
-        let cloud_options = None;
+        let cloud_options: Option<Vec<(String, String)>> = None;
 
         // TODO: Refactor with adding `cloud` feature as like Python Polars
         #[cfg(not(target_arch = "wasm32"))]
@@ -567,8 +570,6 @@ impl PlRLazyFrame {
         Ok(lf.into())
     }
 
-    // TODO: Refactor with adding `json` feature as like Python Polars
-    #[cfg(not(target_arch = "wasm32"))]
     fn new_from_ndjson(
         source: StringSexp,
         low_memory: bool,
@@ -645,7 +646,7 @@ impl PlRLazyFrame {
         };
 
         #[cfg(target_arch = "wasm32")]
-        let cloud_options = None;
+        let cloud_options: Option<Vec<(String, String)>> = None;
 
         // TODO: Refactor with adding `cloud` feature as like Python Polars
         #[cfg(not(target_arch = "wasm32"))]
@@ -678,5 +679,54 @@ impl PlRLazyFrame {
             .map_err(RPolarsErr::from)?;
 
         Ok(lf.into())
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+#[savvy]
+impl PlRLazyFrame {
+    #[allow(unused_variables)]
+    fn new_from_parquet(
+        source: StringSexp,
+        cache: bool,
+        parallel: &str,
+        rechunk: bool,
+        low_memory: bool,
+        use_statistics: bool,
+        try_parse_hive_dates: bool,
+        retries: NumericScalar,
+        glob: bool,
+        allow_missing_columns: bool,
+        row_index_offset: NumericScalar,
+        storage_options: Option<StringSexp>,
+        n_rows: Option<NumericScalar>,
+        row_index_name: Option<&str>,
+        hive_partitioning: Option<bool>,
+        schema: Option<ListSexp>,
+        hive_schema: Option<ListSexp>,
+        include_file_paths: Option<&str>,
+    ) -> Result<Self> {
+        Err(RPolarsErr::Other(format!("`Not supported in WASM")).into())
+    }
+
+    #[allow(unused_variables)]
+    fn new_from_ndjson(
+        source: StringSexp,
+        low_memory: bool,
+        rechunk: bool,
+        ignore_errors: bool,
+        retries: NumericScalar,
+        row_index_offset: NumericScalar,
+        row_index_name: Option<&str>,
+        infer_schema_length: Option<NumericScalar>,
+        schema: Option<ListSexp>,
+        schema_overrides: Option<ListSexp>,
+        batch_size: Option<NumericScalar>,
+        n_rows: Option<NumericScalar>,
+        include_file_paths: Option<&str>,
+        storage_options: Option<StringSexp>,
+        file_cache_ttl: Option<NumericScalar>,
+    ) -> Result<Self> {
+        Err(RPolarsErr::Other(format!("`Not supported in WASM")).into())
     }
 }
