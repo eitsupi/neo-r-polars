@@ -136,4 +136,9 @@ test_that("meta$show_graph", {
   temp <- withr::local_tempfile(fileext = ".svg")
   expect_silent(my_expr$meta$show_graph(output_path = temp))
   expect_true(file.exists(temp))
+
+  expect_error(
+    my_expr$meta$show_graph(TRUE),
+    "Did you forget to"
+  )
 })
