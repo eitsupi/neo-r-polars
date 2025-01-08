@@ -119,4 +119,12 @@ impl PlRExpr {
     fn meta_is_column(&self) -> Result<Sexp> {
         self.inner.clone().meta().is_column().try_into()
     }
+
+    fn meta_tree_format(&self) -> Result<Sexp> {
+        self.compute_tree_format(false)
+    }
+
+    fn meta_show_graph(&self) -> Result<Sexp> {
+        self.compute_tree_format(true)
+    }
 }

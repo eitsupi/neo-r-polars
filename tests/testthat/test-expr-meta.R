@@ -118,3 +118,22 @@ test_that("meta$serialize", {
       jsonlite::prettify()
   )
 })
+
+test_that("meta$show_graph", {
+  skip_if_not_installed("DiagrammeR")
+  skip_if_not_installed("DiagrammeRsvg")
+  skip_if_not_installed("rsvg")
+
+  my_expr <- (pl$col("foo") * pl$col("bar"))$sum()$over(pl$col("ham")) / 2
+
+  # default
+  expect_equal(class(my_expr$meta$show_graph()), c("grViz", "htmlwidget"))
+
+  # raw_output
+  expect_snapshot(cat(my_expr$meta$show_graph(raw_output = TRUE)))
+
+  # output_path
+  temp <- withr::local_tempfile(fileext = ".svg")
+  expect_silent(my_expr$meta$show_graph(output_path = temp))
+  expect_true(file.exists(temp))
+})
