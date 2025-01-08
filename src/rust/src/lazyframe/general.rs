@@ -106,6 +106,8 @@ impl PlRLazyFrame {
         }
 
         let ldf = self.ldf.clone();
+
+        #[cfg(not(target_arch = "wasm32"))]
         let df = if ThreadCom::try_from_global(&CONFIG).is_ok() {
             ldf.collect().map_err(RPolarsErr::from)?
         } else {
@@ -130,6 +132,9 @@ impl PlRLazyFrame {
             .map_err(|e| e.to_string())?
             .map_err(RPolarsErr::from)?
         };
+
+        #[cfg(target_arch = "wasm32")]
+        let df = ldf.collect().map_err(RPolarsErr::from)?;
 
         Ok(df.into())
     }
