@@ -1681,7 +1681,8 @@ patrick::with_parameters_test_that(
     )
   },
   dt = c(
-    pl$datetime_range(as.Date("2001-1-1"), as.Date("2001-1-6"), "1d"), pl$date_range(as.Date("2001-1-1"), as.Date("2001-1-6"), "1d")
+    pl$datetime_range(as.Date("2001-1-1"), as.Date("2001-1-6"), "1d"),
+    pl$date_range(as.Date("2001-1-1"), as.Date("2001-1-6"), "1d")
   )
 )
 
