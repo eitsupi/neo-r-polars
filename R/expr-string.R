@@ -621,7 +621,7 @@ expr_str_starts_with <- function(prefix) {
 #' dtype <- pl$Struct(pl$Field("a", pl$Int64), pl$Field("b", pl$Boolean))
 #' df$select(pl$col("json_val")$str$json_decode(dtype))
 expr_str_json_decode <- function(dtype, infer_schema_length = 100) {
-  self$`_rexpr`$str_json_decode(dtype$`_dt`, infer_schema_length) |>
+  self$`_rexpr`$str_json_decode(dtype, infer_schema_length) |>
     wrap()
 }
 

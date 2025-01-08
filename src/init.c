@@ -2079,11 +2079,6 @@ SEXP savvy_PlRExpr_str_json_path_match__impl(SEXP self__, SEXP c_arg__pat) {
     return handle_result(res);
 }
 
-SEXP savvy_PlRExpr_str_json_decode__impl(SEXP self__, SEXP c_arg__dtype, SEXP c_arg__infer_schema_len) {
-    SEXP res = savvy_PlRExpr_str_json_decode__ffi(self__, c_arg__dtype, c_arg__infer_schema_len);
-    return handle_result(res);
-}
-
 SEXP savvy_PlRExpr_str_hex_encode__impl(SEXP self__) {
     SEXP res = savvy_PlRExpr_str_hex_encode__ffi(self__);
     return handle_result(res);
@@ -2955,7 +2950,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_str_ends_with__impl", (DL_FUNC) &savvy_PlRExpr_str_ends_with__impl, 2},
     {"savvy_PlRExpr_str_starts_with__impl", (DL_FUNC) &savvy_PlRExpr_str_starts_with__impl, 2},
     {"savvy_PlRExpr_str_json_path_match__impl", (DL_FUNC) &savvy_PlRExpr_str_json_path_match__impl, 2},
-    {"savvy_PlRExpr_str_json_decode__impl", (DL_FUNC) &savvy_PlRExpr_str_json_decode__impl, 3},
     {"savvy_PlRExpr_str_hex_encode__impl", (DL_FUNC) &savvy_PlRExpr_str_hex_encode__impl, 1},
     {"savvy_PlRExpr_str_hex_decode__impl", (DL_FUNC) &savvy_PlRExpr_str_hex_decode__impl, 2},
     {"savvy_PlRExpr_str_base64_encode__impl", (DL_FUNC) &savvy_PlRExpr_str_base64_encode__impl, 1},
