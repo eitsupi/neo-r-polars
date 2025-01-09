@@ -115,13 +115,7 @@ wrap.PlRDataFrame <- function(x, ...) {
   makeActiveBinding(
     "flags",
     function() {
-      out <- lapply(
-        # Polars is 0-indexed
-        seq_along(self$columns) - 1,
-        function(x) {
-          self$to_series(x)$flags
-        }
-      )
+      out <- lapply(self$get_columns(), \(x) x$flags)
       names(out) <- self$columns
       out
     },
