@@ -46,6 +46,21 @@ wrap.PlRSeries <- function(x, ...) {
   makeActiveBinding("dtype", function() self$`_s`$dtype() |> wrap(), self)
   makeActiveBinding("name", function() self$`_s`$name(), self)
   makeActiveBinding("shape", function() c(wrap(self$`_s`$len()), 1L), self)
+  makeActiveBinding(
+    "flags",
+    function() {
+      out <- list(
+        SORTED_ASC = self$`_s`$is_sorted_ascending_flag(),
+        SORTED_DESC = self$`_s`$is_sorted_descending_flag()
+      )
+      # TODO: how can we have self$dtype == pl$List() ?
+      # if (self$dtype$eq(pl$List())) {
+      #   out[["FAST_EXPLODE"]] <- self$`_s`$can_fast_explode_flag()
+      # }
+      out
+    },
+    self
+  )
 
   lapply(names(polars_series__methods), function(name) {
     fn <- polars_series__methods[[name]]

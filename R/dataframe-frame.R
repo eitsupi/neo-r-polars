@@ -88,7 +88,6 @@ wrap.PlRDataFrame <- function(x, ...) {
   self <- new.env(parent = emptyenv())
   self$`_df` <- x
 
-  # TODO: flags
   makeActiveBinding("columns", function() self$`_df`$columns(), self)
   makeActiveBinding("dtypes", function() {
     self$`_df`$dtypes() |>
@@ -98,6 +97,21 @@ wrap.PlRDataFrame <- function(x, ...) {
   makeActiveBinding("shape", function() self$`_df`$shape(), self)
   makeActiveBinding("height", function() self$`_df`$height(), self)
   makeActiveBinding("width", function() self$`_df`$width(), self)
+  makeActiveBinding(
+    "flags",
+    function() {
+      out <- lapply(
+        # Polars is 0-indexed
+        seq_along(self$columns) - 1,
+        function(x) {
+          self$to_series(x)$flags
+        }
+      )
+      names(out) <- self$columns
+      out
+    },
+    self
+  )
 
   lapply(names(polars_dataframe__methods), function(name) {
     fn <- polars_dataframe__methods[[name]]
