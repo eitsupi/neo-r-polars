@@ -58,7 +58,6 @@ test_that("to_series()", {
   )
 })
 
-# TODO: flag FAST_EXPLODE should work
 test_that("flags work", {
   df <- pl$DataFrame(a = c(2, 1), b = c(3, 4), c = list(c(1, 2), 4))
   expect_identical(
@@ -66,18 +65,15 @@ test_that("flags work", {
     list(
       a = list(SORTED_ASC = TRUE, SORTED_DESC = FALSE),
       b = list(SORTED_ASC = FALSE, SORTED_DESC = FALSE),
-      c = list(SORTED_ASC = FALSE, SORTED_DESC = FALSE)
-      # c = list(SORTED_ASC = FALSE, SORTED_DESC = FALSE, FAST_EXPLODE = FALSE)
+      c = list(SORTED_ASC = FALSE, SORTED_DESC = FALSE, FAST_EXPLODE = FALSE)
     )
   )
   expect_identical(
     df$with_columns(pl$col("b")$implode())$flags,
     list(
       a = list(SORTED_ASC = FALSE, SORTED_DESC = FALSE),
-      b = list(SORTED_ASC = FALSE, SORTED_DESC = FALSE),
-      c = list(SORTED_ASC = FALSE, SORTED_DESC = FALSE)
-      # b = list(SORTED_ASC = FALSE, SORTED_DESC = FALSE, FAST_EXPLODE = TRUE),
-      # c = list(SORTED_ASC = FALSE, SORTED_DESC = FALSE, FAST_EXPLODE = TRUE)
+      b = list(SORTED_ASC = FALSE, SORTED_DESC = FALSE, FAST_EXPLODE = TRUE),
+      c = list(SORTED_ASC = FALSE, SORTED_DESC = FALSE, FAST_EXPLODE = TRUE)
     )
   )
 
@@ -88,8 +84,7 @@ test_that("flags work", {
   expect_identical(
     df$flags,
     list(
-      a = list(SORTED_ASC = FALSE, SORTED_DESC = FALSE)
-      # a = list(SORTED_ASC = FALSE, SORTED_DESC = FALSE, FAST_EXPLODE = FALSE)
+      a = list(SORTED_ASC = FALSE, SORTED_DESC = FALSE, FAST_EXPLODE = FALSE)
     )
   )
 })

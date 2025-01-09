@@ -53,10 +53,9 @@ wrap.PlRSeries <- function(x, ...) {
         SORTED_ASC = self$`_s`$is_sorted_ascending_flag(),
         SORTED_DESC = self$`_s`$is_sorted_descending_flag()
       )
-      # TODO: how can we have self$dtype == pl$List() ?
-      # if (self$dtype$eq(pl$List())) {
-      #   out[["FAST_EXPLODE"]] <- self$`_s`$can_fast_explode_flag()
-      # }
+      if (self$dtype$is_nested()) {
+        out[["FAST_EXPLODE"]] <- self$`_s`$can_fast_explode_flag()
+      }
       out
     },
     self
