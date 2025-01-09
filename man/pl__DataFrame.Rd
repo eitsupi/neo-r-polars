@@ -51,7 +51,10 @@ converted to a Polars Series by \code{\link[=as_polars_series]{as_polars_series(
 \item \code{flags}: \verb{$flags} returns a nested list with column names at the top level
 and column flags in each sublist.
 }
-\subsection{Flags}{
+}
+
+\section{Flags}{
+
 
 Flags are used internally to avoid doing unnecessary computations, such as
 sorting a variable that we know is already sorted. The number of flags
@@ -62,7 +65,6 @@ column types only have the former two.
 \item \code{SORTED_ASC} is set to \code{TRUE} when we sort a column in increasing order, so
 that we can use this information later on to avoid re-sorting it.
 \item \code{SORTED_DESC} is similar but applies to sort in decreasing order.
-}
 }
 }
 

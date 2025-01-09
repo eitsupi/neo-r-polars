@@ -23,7 +23,7 @@
 #' - `flags`: `$flags` returns a nested list with column names at the top level
 #'   and column flags in each sublist.
 #'
-#' ## Flags
+#' @section Flags:
 #'
 #' Flags are used internally to avoid doing unnecessary computations, such as
 #' sorting a variable that we know is already sorted. The number of flags
