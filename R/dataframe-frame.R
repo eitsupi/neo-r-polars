@@ -20,8 +20,8 @@
 #' - `shape`: `$shape` returns a integer vector of length two with the number of rows and columns of the DataFrame.
 #' - `height`: `$height` returns a integer with the number of rows of the DataFrame.
 #' - `width`: `$width` returns a integer with the number of columns of the DataFrame.
-#' - `flags`: `$flags` returns a nested list with column names at the top level
-#'   and column flags in each sublist.
+#' - `flags`: `$flags` returns a list with column names as names and a named
+#'   logical vector with the flags as values.
 #'
 #' @section Flags:
 #'
@@ -114,11 +114,7 @@ wrap.PlRDataFrame <- function(x, ...) {
   makeActiveBinding("width", function() self$`_df`$width(), self)
   makeActiveBinding(
     "flags",
-    function() {
-      out <- lapply(self$get_columns(), \(x) x$flags)
-      names(out) <- self$columns
-      out
-    },
+    function() lapply(self$get_columns(), \(x) x$flags),
     self
   )
 

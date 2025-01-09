@@ -63,17 +63,17 @@ test_that("flags work", {
   expect_identical(
     df$sort("a")$flags,
     list(
-      a = list(SORTED_ASC = TRUE, SORTED_DESC = FALSE),
-      b = list(SORTED_ASC = FALSE, SORTED_DESC = FALSE),
-      c = list(SORTED_ASC = FALSE, SORTED_DESC = FALSE, FAST_EXPLODE = FALSE)
+      a = c(SORTED_ASC = TRUE, SORTED_DESC = FALSE),
+      b = c(SORTED_ASC = FALSE, SORTED_DESC = FALSE),
+      c = c(SORTED_ASC = FALSE, SORTED_DESC = FALSE, FAST_EXPLODE = FALSE)
     )
   )
   expect_identical(
     df$with_columns(pl$col("b")$implode())$flags,
     list(
-      a = list(SORTED_ASC = FALSE, SORTED_DESC = FALSE),
-      b = list(SORTED_ASC = FALSE, SORTED_DESC = FALSE, FAST_EXPLODE = TRUE),
-      c = list(SORTED_ASC = FALSE, SORTED_DESC = FALSE, FAST_EXPLODE = TRUE)
+      a = c(SORTED_ASC = FALSE, SORTED_DESC = FALSE),
+      b = c(SORTED_ASC = FALSE, SORTED_DESC = FALSE, FAST_EXPLODE = TRUE),
+      c = c(SORTED_ASC = FALSE, SORTED_DESC = FALSE, FAST_EXPLODE = TRUE)
     )
   )
 
@@ -84,6 +84,6 @@ test_that("flags work", {
   )
   expect_identical(
     df$flags,
-    list(a = list(SORTED_ASC = FALSE, SORTED_DESC = FALSE))
+    list(a = c(SORTED_ASC = FALSE, SORTED_DESC = FALSE))
   )
 })

@@ -48,8 +48,8 @@ converted to a Polars Series by \code{\link[=as_polars_series]{as_polars_series(
 \item \code{shape}: \verb{$shape} returns a integer vector of length two with the number of rows and columns of the DataFrame.
 \item \code{height}: \verb{$height} returns a integer with the number of rows of the DataFrame.
 \item \code{width}: \verb{$width} returns a integer with the number of columns of the DataFrame.
-\item \code{flags}: \verb{$flags} returns a nested list with column names at the top level
-and column flags in each sublist.
+\item \code{flags}: \verb{$flags} returns a list with column names as names and a named
+logical vector with the flags as values.
 }
 }
 
