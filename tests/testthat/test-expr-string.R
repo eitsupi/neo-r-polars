@@ -448,6 +448,10 @@ test_that("str$json_path, str$json_decode", {
     actual$select(pl$col("json_val")$struct$unnest()),
     pl$DataFrame(a = c(1, NA, 2), b = c(TRUE, NA, FALSE))
   )
+  expect_error(
+    df$select(pl$col("json_val")$str$json_decode(dtype, 1)),
+    "Did you forget"
+  )
 })
 
 
