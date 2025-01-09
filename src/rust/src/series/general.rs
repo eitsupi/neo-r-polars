@@ -25,11 +25,11 @@ impl PlRSeries {
     }
 
     fn is_sorted_ascending_flag(&self) -> Result<Sexp> {
-        Ok(matches!(self.series.is_sorted_flag(), IsSorted::Ascending).try_into()?)
+        matches!(self.series.is_sorted_flag(), IsSorted::Ascending).try_into()
     }
 
     fn is_sorted_descending_flag(&self) -> Result<Sexp> {
-        Ok(matches!(self.series.is_sorted_flag(), IsSorted::Descending).try_into()?)
+        matches!(self.series.is_sorted_flag(), IsSorted::Descending).try_into()
     }
 
     fn can_fast_explode_flag(&self) -> Result<Sexp> {
@@ -37,7 +37,7 @@ impl PlRSeries {
             Err(_) => false,
             Ok(list) => list._can_fast_explode(),
         };
-        Ok(out.try_into()?)
+        out.try_into()
     }
 
     pub fn cat_uses_lexical_ordering(&self) -> Result<Sexp> {
