@@ -77,14 +77,13 @@ test_that("flags work", {
     )
   )
 
+  # no FAST_EXPLODE for array
   df <- pl$DataFrame(
     a = list(c(1, 2), c(4, 5)),
     .schema_overrides = list(a = pl$Array(pl$Float64, 2))
   )
   expect_identical(
     df$flags,
-    list(
-      a = list(SORTED_ASC = FALSE, SORTED_DESC = FALSE, FAST_EXPLODE = FALSE)
-    )
+    list(a = list(SORTED_ASC = FALSE, SORTED_DESC = FALSE))
   )
 })

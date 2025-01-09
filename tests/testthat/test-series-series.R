@@ -1,4 +1,3 @@
-# TODO: add a test with $sort() when it is implemented
 test_that("flags work", {
   s <- as_polars_series(c(2, 1, 3))
   expect_identical(
