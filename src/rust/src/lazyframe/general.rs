@@ -464,12 +464,8 @@ impl PlRLazyFrame {
 
         Ok(r.finish().map_err(RPolarsErr::from)?.into())
     }
-}
 
-// FIXME: Work around for <https://github.com/yutannihilation/savvy/issues/333>
-#[cfg(not(target_arch = "wasm32"))]
-#[savvy]
-impl PlRLazyFrame {
+    #[cfg(not(target_arch = "wasm32"))]
     fn new_from_parquet(
         source: StringSexp,
         cache: bool,
@@ -575,6 +571,32 @@ impl PlRLazyFrame {
         Ok(lf.into())
     }
 
+    #[cfg(target_arch = "wasm32")]
+    #[allow(unused_variables)]
+    fn new_from_parquet(
+        source: StringSexp,
+        cache: bool,
+        parallel: &str,
+        rechunk: bool,
+        low_memory: bool,
+        use_statistics: bool,
+        try_parse_hive_dates: bool,
+        retries: NumericScalar,
+        glob: bool,
+        allow_missing_columns: bool,
+        row_index_offset: NumericScalar,
+        storage_options: Option<StringSexp>,
+        n_rows: Option<NumericScalar>,
+        row_index_name: Option<&str>,
+        hive_partitioning: Option<bool>,
+        schema: Option<ListSexp>,
+        hive_schema: Option<ListSexp>,
+        include_file_paths: Option<&str>,
+    ) -> Result<Self> {
+        Err(RPolarsErr::Other(format!("Not supported in WASM")).into())
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
     fn new_from_ndjson(
         source: StringSexp,
         low_memory: bool,
@@ -685,35 +707,8 @@ impl PlRLazyFrame {
 
         Ok(lf.into())
     }
-}
 
-#[cfg(target_arch = "wasm32")]
-#[savvy]
-impl PlRLazyFrame {
-    #[allow(unused_variables)]
-    fn new_from_parquet(
-        source: StringSexp,
-        cache: bool,
-        parallel: &str,
-        rechunk: bool,
-        low_memory: bool,
-        use_statistics: bool,
-        try_parse_hive_dates: bool,
-        retries: NumericScalar,
-        glob: bool,
-        allow_missing_columns: bool,
-        row_index_offset: NumericScalar,
-        storage_options: Option<StringSexp>,
-        n_rows: Option<NumericScalar>,
-        row_index_name: Option<&str>,
-        hive_partitioning: Option<bool>,
-        schema: Option<ListSexp>,
-        hive_schema: Option<ListSexp>,
-        include_file_paths: Option<&str>,
-    ) -> Result<Self> {
-        Err(RPolarsErr::Other(format!("Not supported in WASM")).into())
-    }
-
+    #[cfg(target_arch = "wasm32")]
     #[allow(unused_variables)]
     fn new_from_ndjson(
         source: StringSexp,
