@@ -134,20 +134,20 @@ impl PlRExpr {
             .into())
     }
 
-    #[cfg(not(target_arch = "wasm32"))]
     fn str_json_path_match(&self, pat: &PlRExpr) -> Result<Self> {
-        Ok(self
-            .inner
-            .clone()
-            .str()
-            .json_path_match(pat.inner.clone())
-            .into())
-    }
-
-    #[cfg(target_arch = "wasm32")]
-    #[allow(unused_variables)]
-    fn str_json_path_match(&self, pat: &PlRExpr) -> Result<Self> {
-        Err(RPolarsErr::Other(format!("Not supported in WASM")).into())
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            Ok(self
+                .inner
+                .clone()
+                .str()
+                .json_path_match(pat.inner.clone())
+                .into())
+        }
+        #[cfg(target_arch = "wasm32")]
+        {
+            Err(RPolarsErr::Other(format!("Not supported in WASM")).into())
+        }
     }
 
     // fn str_json_decode(&self, dtype: &PlRExpr, infer_schema_len: &PlRExpr) -> Result<Self> {

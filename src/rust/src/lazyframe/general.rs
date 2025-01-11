@@ -465,7 +465,6 @@ impl PlRLazyFrame {
         Ok(r.finish().map_err(RPolarsErr::from)?.into())
     }
 
-    #[cfg(not(target_arch = "wasm32"))]
     fn new_from_parquet(
         source: StringSexp,
         cache: bool,
@@ -486,230 +485,99 @@ impl PlRLazyFrame {
         hive_schema: Option<ListSexp>,
         include_file_paths: Option<&str>,
     ) -> Result<Self> {
-        let source = source
-            .to_vec()
-            .iter()
-            .map(PathBuf::from)
-            .collect::<Vec<PathBuf>>();
-        let row_index_offset = <Wrap<u32>>::try_from(row_index_offset)?.0;
-        let n_rows = match n_rows {
-            Some(x) => Some(<Wrap<usize>>::try_from(x)?.0),
-            None => None,
-        };
-        let parallel = <Wrap<ParallelStrategy>>::try_from(parallel)?.0;
-        let retries = <Wrap<usize>>::try_from(retries)?.0;
-        let hive_schema = match hive_schema {
-            Some(x) => Some(Arc::new(<Wrap<Schema>>::try_from(x)?.0)),
-            None => None,
-        };
-        let schema = match schema {
-            Some(x) => Some(<Wrap<Schema>>::try_from(x)?.0),
-            None => None,
-        };
-
-        let row_index = match row_index_name {
-            Some(x) => Some(RowIndex {
-                name: x.into(),
-                offset: row_index_offset,
-            }),
-            None => None,
-        };
-
-        let hive_options = HiveOptions {
-            enabled: hive_partitioning,
-            hive_start_idx: 0,
-            schema: hive_schema,
-            try_parse_dates: try_parse_hive_dates,
-        };
-
-        let mut args = ScanArgsParquet {
-            n_rows,
-            cache,
-            parallel,
-            rechunk,
-            row_index,
-            low_memory,
-            cloud_options: None,
-            use_statistics,
-            schema: schema.map(|x| Arc::new(x)),
-            hive_options,
-            glob,
-            include_file_paths: include_file_paths.map(|x| x.into()),
-            allow_missing_columns,
-        };
-
-        let first_path = source.first().unwrap().clone().into();
-
-        // TODO: Refactor with adding `cloud` feature as like Python Polars
         #[cfg(not(target_arch = "wasm32"))]
-        let cloud_options = match storage_options {
-            Some(x) => {
-                let out = <Wrap<Vec<(String, String)>>>::try_from(x).map_err(|_| {
-                    RPolarsErr::Other(format!(
-                        "`storage_options` must be a named character vector"
-                    ))
-                })?;
-                Some(out.0)
+        {
+            let source = source
+                .to_vec()
+                .iter()
+                .map(PathBuf::from)
+                .collect::<Vec<PathBuf>>();
+            let row_index_offset = <Wrap<u32>>::try_from(row_index_offset)?.0;
+            let n_rows = match n_rows {
+                Some(x) => Some(<Wrap<usize>>::try_from(x)?.0),
+                None => None,
+            };
+            let parallel = <Wrap<ParallelStrategy>>::try_from(parallel)?.0;
+            let retries = <Wrap<usize>>::try_from(retries)?.0;
+            let hive_schema = match hive_schema {
+                Some(x) => Some(Arc::new(<Wrap<Schema>>::try_from(x)?.0)),
+                None => None,
+            };
+            let schema = match schema {
+                Some(x) => Some(<Wrap<Schema>>::try_from(x)?.0),
+                None => None,
+            };
+
+            let row_index = match row_index_name {
+                Some(x) => Some(RowIndex {
+                    name: x.into(),
+                    offset: row_index_offset,
+                }),
+                None => None,
+            };
+
+            let hive_options = HiveOptions {
+                enabled: hive_partitioning,
+                hive_start_idx: 0,
+                schema: hive_schema,
+                try_parse_dates: try_parse_hive_dates,
+            };
+
+            let mut args = ScanArgsParquet {
+                n_rows,
+                cache,
+                parallel,
+                rechunk,
+                row_index,
+                low_memory,
+                cloud_options: None,
+                use_statistics,
+                schema: schema.map(|x| Arc::new(x)),
+                hive_options,
+                glob,
+                include_file_paths: include_file_paths.map(|x| x.into()),
+                allow_missing_columns,
+            };
+
+            let first_path = source.first().unwrap().clone().into();
+
+            // TODO: Refactor with adding `cloud` feature as like Python Polars
+            #[cfg(not(target_arch = "wasm32"))]
+            let cloud_options = match storage_options {
+                Some(x) => {
+                    let out = <Wrap<Vec<(String, String)>>>::try_from(x).map_err(|_| {
+                        RPolarsErr::Other(format!(
+                            "`storage_options` must be a named character vector"
+                        ))
+                    })?;
+                    Some(out.0)
+                }
+                None => None,
+            };
+
+            #[cfg(target_arch = "wasm32")]
+            let cloud_options: Option<Vec<(String, String)>> = None;
+
+            // TODO: Refactor with adding `cloud` feature as like Python Polars
+            #[cfg(not(target_arch = "wasm32"))]
+            if let Some(first_path) = first_path {
+                let first_path_url = first_path.to_string_lossy();
+                let cloud_options =
+                    parse_cloud_options(&first_path_url, cloud_options.unwrap_or_default())?;
+                args.cloud_options = Some(cloud_options.with_max_retries(retries));
             }
-            None => None,
-        };
 
-        #[cfg(target_arch = "wasm32")]
-        let cloud_options: Option<Vec<(String, String)>> = None;
+            let lf =
+                LazyFrame::scan_parquet_files(source.into(), args).map_err(RPolarsErr::from)?;
 
-        // TODO: Refactor with adding `cloud` feature as like Python Polars
-        #[cfg(not(target_arch = "wasm32"))]
-        if let Some(first_path) = first_path {
-            let first_path_url = first_path.to_string_lossy();
-            let cloud_options =
-                parse_cloud_options(&first_path_url, cloud_options.unwrap_or_default())?;
-            args.cloud_options = Some(cloud_options.with_max_retries(retries));
+            Ok(lf.into())
         }
-
-        let lf = LazyFrame::scan_parquet_files(source.into(), args).map_err(RPolarsErr::from)?;
-
-        Ok(lf.into())
-    }
-
-    #[cfg(target_arch = "wasm32")]
-    #[allow(unused_variables)]
-    fn new_from_parquet(
-        source: StringSexp,
-        cache: bool,
-        parallel: &str,
-        rechunk: bool,
-        low_memory: bool,
-        use_statistics: bool,
-        try_parse_hive_dates: bool,
-        retries: NumericScalar,
-        glob: bool,
-        allow_missing_columns: bool,
-        row_index_offset: NumericScalar,
-        storage_options: Option<StringSexp>,
-        n_rows: Option<NumericScalar>,
-        row_index_name: Option<&str>,
-        hive_partitioning: Option<bool>,
-        schema: Option<ListSexp>,
-        hive_schema: Option<ListSexp>,
-        include_file_paths: Option<&str>,
-    ) -> Result<Self> {
-        Err(RPolarsErr::Other(format!("Not supported in WASM")).into())
-    }
-
-    #[cfg(not(target_arch = "wasm32"))]
-    fn new_from_ndjson(
-        source: StringSexp,
-        low_memory: bool,
-        rechunk: bool,
-        ignore_errors: bool,
-        retries: NumericScalar,
-        row_index_offset: NumericScalar,
-        row_index_name: Option<&str>,
-        infer_schema_length: Option<NumericScalar>,
-        schema: Option<ListSexp>,
-        schema_overrides: Option<ListSexp>,
-        batch_size: Option<NumericScalar>,
-        n_rows: Option<NumericScalar>,
-        include_file_paths: Option<&str>,
-        storage_options: Option<StringSexp>,
-        file_cache_ttl: Option<NumericScalar>,
-    ) -> Result<Self> {
-        let source = source
-            .to_vec()
-            .iter()
-            .map(PathBuf::from)
-            .collect::<Vec<PathBuf>>();
-        let row_index_offset = <Wrap<u32>>::try_from(row_index_offset)?.0;
-        let infer_schema_length = match infer_schema_length {
-            Some(x) => Some(<Wrap<usize>>::try_from(x)?.0),
-            None => None,
-        };
-        let batch_size = match batch_size {
-            Some(x) => Some(<Wrap<NonZeroUsize>>::try_from(x)?.0),
-            None => None,
-        };
-        let n_rows = match n_rows {
-            Some(x) => Some(<Wrap<usize>>::try_from(x)?.0),
-            None => None,
-        };
-        let file_cache_ttl = match file_cache_ttl {
-            Some(x) => Some(<Wrap<u64>>::try_from(x)?.0),
-            None => None,
-        };
-        let retries = <Wrap<usize>>::try_from(retries)?.0;
-        let schema = match schema {
-            Some(x) => Some(<Wrap<Schema>>::try_from(x)?.0),
-            None => None,
-        };
-        let schema_overrides = match schema_overrides {
-            Some(x) => Some(<Wrap<Schema>>::try_from(x)?.0),
-            None => None,
-        };
-
-        let row_index = match row_index_name {
-            Some(x) => Some(RowIndex {
-                name: x.into(),
-                offset: row_index_offset,
-            }),
-            None => None,
-        };
-
-        let first_path = source.first().unwrap().clone().into();
-
-        let mut r = LazyJsonLineReader::new_paths(source.into());
-
-        // TODO: Refactor with adding `cloud` feature as like Python Polars
-        #[cfg(not(target_arch = "wasm32"))]
-        let cloud_options = match storage_options {
-            Some(x) => {
-                let out = <Wrap<Vec<(String, String)>>>::try_from(x).map_err(|_| {
-                    RPolarsErr::Other(format!(
-                        "`storage_options` must be a named character vector"
-                    ))
-                })?;
-                Some(out.0)
-            }
-            None => None,
-        };
-
         #[cfg(target_arch = "wasm32")]
-        let cloud_options: Option<Vec<(String, String)>> = None;
-
-        // TODO: Refactor with adding `cloud` feature as like Python Polars
-        #[cfg(not(target_arch = "wasm32"))]
-        if let Some(first_path) = first_path {
-            let first_path_url = first_path.to_string_lossy();
-
-            let mut cloud_options =
-                parse_cloud_options(&first_path_url, cloud_options.unwrap_or_default())?;
-            cloud_options = cloud_options.with_max_retries(retries);
-
-            if let Some(file_cache_ttl) = file_cache_ttl {
-                cloud_options.file_cache_ttl = file_cache_ttl;
-            }
-
-            r = r.with_cloud_options(Some(cloud_options));
-        };
-
-        let lf = r
-            .with_infer_schema_length(infer_schema_length.and_then(NonZeroUsize::new))
-            .with_batch_size(batch_size)
-            .with_n_rows(n_rows)
-            .low_memory(low_memory)
-            .with_rechunk(rechunk)
-            .with_schema(schema.map(|schema| Arc::new(schema)))
-            .with_schema_overwrite(schema_overrides.map(|x| Arc::new(x)))
-            .with_row_index(row_index)
-            .with_ignore_errors(ignore_errors)
-            .with_include_file_paths(include_file_paths.map(|x| x.into()))
-            .finish()
-            .map_err(RPolarsErr::from)?;
-
-        Ok(lf.into())
+        {
+            Err(RPolarsErr::Other(format!("Not supported in WASM")).into())
+        }
     }
 
-    #[cfg(target_arch = "wasm32")]
-    #[allow(unused_variables)]
     fn new_from_ndjson(
         source: StringSexp,
         low_memory: bool,
@@ -727,6 +595,104 @@ impl PlRLazyFrame {
         storage_options: Option<StringSexp>,
         file_cache_ttl: Option<NumericScalar>,
     ) -> Result<Self> {
-        Err(RPolarsErr::Other(format!("Not supported in WASM")).into())
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let source = source
+                .to_vec()
+                .iter()
+                .map(PathBuf::from)
+                .collect::<Vec<PathBuf>>();
+            let row_index_offset = <Wrap<u32>>::try_from(row_index_offset)?.0;
+            let infer_schema_length = match infer_schema_length {
+                Some(x) => Some(<Wrap<usize>>::try_from(x)?.0),
+                None => None,
+            };
+            let batch_size = match batch_size {
+                Some(x) => Some(<Wrap<NonZeroUsize>>::try_from(x)?.0),
+                None => None,
+            };
+            let n_rows = match n_rows {
+                Some(x) => Some(<Wrap<usize>>::try_from(x)?.0),
+                None => None,
+            };
+            let file_cache_ttl = match file_cache_ttl {
+                Some(x) => Some(<Wrap<u64>>::try_from(x)?.0),
+                None => None,
+            };
+            let retries = <Wrap<usize>>::try_from(retries)?.0;
+            let schema = match schema {
+                Some(x) => Some(<Wrap<Schema>>::try_from(x)?.0),
+                None => None,
+            };
+            let schema_overrides = match schema_overrides {
+                Some(x) => Some(<Wrap<Schema>>::try_from(x)?.0),
+                None => None,
+            };
+
+            let row_index = match row_index_name {
+                Some(x) => Some(RowIndex {
+                    name: x.into(),
+                    offset: row_index_offset,
+                }),
+                None => None,
+            };
+
+            let first_path = source.first().unwrap().clone().into();
+
+            let mut r = LazyJsonLineReader::new_paths(source.into());
+
+            // TODO: Refactor with adding `cloud` feature as like Python Polars
+            #[cfg(not(target_arch = "wasm32"))]
+            let cloud_options = match storage_options {
+                Some(x) => {
+                    let out = <Wrap<Vec<(String, String)>>>::try_from(x).map_err(|_| {
+                        RPolarsErr::Other(format!(
+                            "`storage_options` must be a named character vector"
+                        ))
+                    })?;
+                    Some(out.0)
+                }
+                None => None,
+            };
+
+            #[cfg(target_arch = "wasm32")]
+            let cloud_options: Option<Vec<(String, String)>> = None;
+
+            // TODO: Refactor with adding `cloud` feature as like Python Polars
+            #[cfg(not(target_arch = "wasm32"))]
+            if let Some(first_path) = first_path {
+                let first_path_url = first_path.to_string_lossy();
+
+                let mut cloud_options =
+                    parse_cloud_options(&first_path_url, cloud_options.unwrap_or_default())?;
+                cloud_options = cloud_options.with_max_retries(retries);
+
+                if let Some(file_cache_ttl) = file_cache_ttl {
+                    cloud_options.file_cache_ttl = file_cache_ttl;
+                }
+
+                r = r.with_cloud_options(Some(cloud_options));
+            };
+
+            let lf = r
+                .with_infer_schema_length(infer_schema_length.and_then(NonZeroUsize::new))
+                .with_batch_size(batch_size)
+                .with_n_rows(n_rows)
+                .low_memory(low_memory)
+                .with_rechunk(rechunk)
+                .with_schema(schema.map(|schema| Arc::new(schema)))
+                .with_schema_overwrite(schema_overrides.map(|x| Arc::new(x)))
+                .with_row_index(row_index)
+                .with_ignore_errors(ignore_errors)
+                .with_include_file_paths(include_file_paths.map(|x| x.into()))
+                .finish()
+                .map_err(RPolarsErr::from)?;
+
+            Ok(lf.into())
+        }
+        #[cfg(target_arch = "wasm32")]
+        {
+            Err(RPolarsErr::Other(format!("Not supported in WASM")).into())
+        }
     }
 }
