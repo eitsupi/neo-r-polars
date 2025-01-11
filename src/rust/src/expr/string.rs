@@ -134,6 +134,7 @@ impl PlRExpr {
             .into())
     }
 
+    #[allow(unused_variables)]
     fn str_json_path_match(&self, pat: &PlRExpr) -> Result<Self> {
         #[cfg(not(target_arch = "wasm32"))]
         {

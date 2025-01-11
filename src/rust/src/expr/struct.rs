@@ -26,6 +26,7 @@ impl PlRExpr {
             .into())
     }
 
+    #[allow(unused_variables)]
     fn struct_json_encode(&self) -> Result<Self> {
         #[cfg(not(target_arch = "wasm32"))]
         {

@@ -465,6 +465,7 @@ impl PlRLazyFrame {
         Ok(r.finish().map_err(RPolarsErr::from)?.into())
     }
 
+    #[allow(unused_variables)]
     fn new_from_parquet(
         source: StringSexp,
         cache: bool,
@@ -578,6 +579,7 @@ impl PlRLazyFrame {
         }
     }
 
+    #[allow(unused_variables)]
     fn new_from_ndjson(
         source: StringSexp,
         low_memory: bool,
