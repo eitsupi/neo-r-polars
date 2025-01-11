@@ -151,6 +151,7 @@ impl PlRExpr {
         }
     }
 
+    #[allow(unused_variables)]
     fn str_json_decode(
         &self,
         dtype: &PlRDataType,
