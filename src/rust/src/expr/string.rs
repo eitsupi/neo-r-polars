@@ -156,9 +156,9 @@ impl PlRExpr {
         dtype: &PlRDataType,
         infer_schema_len: NumericScalar,
     ) -> Result<Self> {
-        let infer_schema_len = <Wrap<usize>>::try_from(infer_schema_len)?.0;
         #[cfg(not(target_arch = "wasm32"))]
         {
+            let infer_schema_len = <Wrap<usize>>::try_from(infer_schema_len)?.0;
             Ok(self
                 .inner
                 .clone()
