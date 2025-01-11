@@ -3494,6 +3494,12 @@ class(`PlRLazyGroupBy`) <- c("PlRLazyGroupBy__bundle", "savvy_neopolars__sealed"
   }
 }
 
+`PlRSeries_can_fast_explode_flag` <- function(self) {
+  function() {
+    .Call(savvy_PlRSeries_can_fast_explode_flag__impl, `self`)
+  }
+}
+
 `PlRSeries_cast` <- function(self) {
   function(`dtype`, `strict`) {
     `dtype` <- .savvy_extract_ptr(`dtype`, "PlRDataType")
@@ -3542,6 +3548,18 @@ class(`PlRLazyGroupBy`) <- c("PlRLazyGroupBy__bundle", "savvy_neopolars__sealed"
   function(`other`, `check_dtypes`, `check_names`, `null_equal`) {
     `other` <- .savvy_extract_ptr(`other`, "PlRSeries")
     .Call(savvy_PlRSeries_equals__impl, `self`, `other`, `check_dtypes`, `check_names`, `null_equal`)
+  }
+}
+
+`PlRSeries_is_sorted_ascending_flag` <- function(self) {
+  function() {
+    .Call(savvy_PlRSeries_is_sorted_ascending_flag__impl, `self`)
+  }
+}
+
+`PlRSeries_is_sorted_descending_flag` <- function(self) {
+  function() {
+    .Call(savvy_PlRSeries_is_sorted_descending_flag__impl, `self`)
   }
 }
 
@@ -3631,6 +3649,7 @@ class(`PlRLazyGroupBy`) <- c("PlRLazyGroupBy__bundle", "savvy_neopolars__sealed"
   e <- new.env(parent = emptyenv())
   e$.ptr <- ptr
   e$`add` <- `PlRSeries_add`(ptr)
+  e$`can_fast_explode_flag` <- `PlRSeries_can_fast_explode_flag`(ptr)
   e$`cast` <- `PlRSeries_cast`(ptr)
   e$`cat_is_local` <- `PlRSeries_cat_is_local`(ptr)
   e$`cat_to_local` <- `PlRSeries_cat_to_local`(ptr)
@@ -3639,6 +3658,8 @@ class(`PlRLazyGroupBy`) <- c("PlRLazyGroupBy__bundle", "savvy_neopolars__sealed"
   e$`div` <- `PlRSeries_div`(ptr)
   e$`dtype` <- `PlRSeries_dtype`(ptr)
   e$`equals` <- `PlRSeries_equals`(ptr)
+  e$`is_sorted_ascending_flag` <- `PlRSeries_is_sorted_ascending_flag`(ptr)
+  e$`is_sorted_descending_flag` <- `PlRSeries_is_sorted_descending_flag`(ptr)
   e$`len` <- `PlRSeries_len`(ptr)
   e$`mul` <- `PlRSeries_mul`(ptr)
   e$`n_chunks` <- `PlRSeries_n_chunks`(ptr)

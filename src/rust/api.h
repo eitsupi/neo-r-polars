@@ -477,6 +477,7 @@ SEXP savvy_PlRLazyGroupBy_tail__ffi(SEXP self__, SEXP c_arg__n);
 
 // methods and associated functions for PlRSeries
 SEXP savvy_PlRSeries_add__ffi(SEXP self__, SEXP c_arg__other);
+SEXP savvy_PlRSeries_can_fast_explode_flag__ffi(SEXP self__);
 SEXP savvy_PlRSeries_cast__ffi(SEXP self__, SEXP c_arg__dtype, SEXP c_arg__strict);
 SEXP savvy_PlRSeries_cat_is_local__ffi(SEXP self__);
 SEXP savvy_PlRSeries_cat_to_local__ffi(SEXP self__);
@@ -485,6 +486,8 @@ SEXP savvy_PlRSeries_clone__ffi(SEXP self__);
 SEXP savvy_PlRSeries_div__ffi(SEXP self__, SEXP c_arg__other);
 SEXP savvy_PlRSeries_dtype__ffi(SEXP self__);
 SEXP savvy_PlRSeries_equals__ffi(SEXP self__, SEXP c_arg__other, SEXP c_arg__check_dtypes, SEXP c_arg__check_names, SEXP c_arg__null_equal);
+SEXP savvy_PlRSeries_is_sorted_ascending_flag__ffi(SEXP self__);
+SEXP savvy_PlRSeries_is_sorted_descending_flag__ffi(SEXP self__);
 SEXP savvy_PlRSeries_len__ffi(SEXP self__);
 SEXP savvy_PlRSeries_mul__ffi(SEXP self__, SEXP c_arg__other);
 SEXP savvy_PlRSeries_n_chunks__ffi(SEXP self__);

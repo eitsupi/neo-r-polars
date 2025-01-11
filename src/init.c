@@ -2349,6 +2349,11 @@ SEXP savvy_PlRSeries_add__impl(SEXP self__, SEXP c_arg__other) {
     return handle_result(res);
 }
 
+SEXP savvy_PlRSeries_can_fast_explode_flag__impl(SEXP self__) {
+    SEXP res = savvy_PlRSeries_can_fast_explode_flag__ffi(self__);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRSeries_cast__impl(SEXP self__, SEXP c_arg__dtype, SEXP c_arg__strict) {
     SEXP res = savvy_PlRSeries_cast__ffi(self__, c_arg__dtype, c_arg__strict);
     return handle_result(res);
@@ -2386,6 +2391,16 @@ SEXP savvy_PlRSeries_dtype__impl(SEXP self__) {
 
 SEXP savvy_PlRSeries_equals__impl(SEXP self__, SEXP c_arg__other, SEXP c_arg__check_dtypes, SEXP c_arg__check_names, SEXP c_arg__null_equal) {
     SEXP res = savvy_PlRSeries_equals__ffi(self__, c_arg__other, c_arg__check_dtypes, c_arg__check_names, c_arg__null_equal);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRSeries_is_sorted_ascending_flag__impl(SEXP self__) {
+    SEXP res = savvy_PlRSeries_is_sorted_ascending_flag__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRSeries_is_sorted_descending_flag__impl(SEXP self__) {
+    SEXP res = savvy_PlRSeries_is_sorted_descending_flag__ffi(self__);
     return handle_result(res);
 }
 
@@ -2994,6 +3009,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRLazyGroupBy_head__impl", (DL_FUNC) &savvy_PlRLazyGroupBy_head__impl, 2},
     {"savvy_PlRLazyGroupBy_tail__impl", (DL_FUNC) &savvy_PlRLazyGroupBy_tail__impl, 2},
     {"savvy_PlRSeries_add__impl", (DL_FUNC) &savvy_PlRSeries_add__impl, 2},
+    {"savvy_PlRSeries_can_fast_explode_flag__impl", (DL_FUNC) &savvy_PlRSeries_can_fast_explode_flag__impl, 1},
     {"savvy_PlRSeries_cast__impl", (DL_FUNC) &savvy_PlRSeries_cast__impl, 3},
     {"savvy_PlRSeries_cat_is_local__impl", (DL_FUNC) &savvy_PlRSeries_cat_is_local__impl, 1},
     {"savvy_PlRSeries_cat_to_local__impl", (DL_FUNC) &savvy_PlRSeries_cat_to_local__impl, 1},
@@ -3002,6 +3018,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRSeries_div__impl", (DL_FUNC) &savvy_PlRSeries_div__impl, 2},
     {"savvy_PlRSeries_dtype__impl", (DL_FUNC) &savvy_PlRSeries_dtype__impl, 1},
     {"savvy_PlRSeries_equals__impl", (DL_FUNC) &savvy_PlRSeries_equals__impl, 5},
+    {"savvy_PlRSeries_is_sorted_ascending_flag__impl", (DL_FUNC) &savvy_PlRSeries_is_sorted_ascending_flag__impl, 1},
+    {"savvy_PlRSeries_is_sorted_descending_flag__impl", (DL_FUNC) &savvy_PlRSeries_is_sorted_descending_flag__impl, 1},
     {"savvy_PlRSeries_len__impl", (DL_FUNC) &savvy_PlRSeries_len__impl, 1},
     {"savvy_PlRSeries_mul__impl", (DL_FUNC) &savvy_PlRSeries_mul__impl, 2},
     {"savvy_PlRSeries_n_chunks__impl", (DL_FUNC) &savvy_PlRSeries_n_chunks__impl, 1},
