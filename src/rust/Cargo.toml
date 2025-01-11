@@ -15,7 +15,7 @@ ciborium = "0.2"
 flume = "0.11"
 polars-core = { git = "https://github.com/pola-rs/polars.git", rev = "841c387d99d7024037556c4ef79d96bf2caac397", default-features = false }
 polars-error = { git = "https://github.com/pola-rs/polars.git", rev = "841c387d99d7024037556c4ef79d96bf2caac397", default-features = false }
-savvy = "0.7"
+savvy = { version = "0.8", features = ["use-custom-error"] }
 serde_json = "1"
 state = "0.6"
 strum = "0.26"
@@ -110,10 +110,10 @@ features = [
     "unique_counts"
 ]
 
-[target.'cfg(all(any(not(target_family = "unix"), allocator = "mimalloc")))'.dependencies]
+[target.'cfg(all(any(not(target_family = "unix"), target_os = "emscripten", allocator = "mimalloc")))'.dependencies]
 mimalloc = { version = "0.1", default-features = false }
 
-[target.'cfg(all(target_family = "unix", not(target_os = "macos"), not(allocator = "mimalloc")))'.dependencies]
+[target.'cfg(all(target_family = "unix", not(target_os = "macos"), not(target_os = "emscripten"), not(allocator = "mimalloc")))'.dependencies]
 jemallocator = { version = "0.5", features = [
     "disable_initial_exec_tls",
     "background_threads",
