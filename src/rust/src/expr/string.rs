@@ -1,4 +1,4 @@
-use crate::{datatypes::PlRDataType, prelude::*, PlRExpr, RPolarsErr};
+use crate::{prelude::*, PlRDataType, PlRExpr, RPolarsErr};
 use savvy::{savvy, NumericScalar, Result};
 
 #[savvy]
