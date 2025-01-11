@@ -11,11 +11,11 @@ NULL
 
 # Check class and extract the external pointer embedded in the environment
 .savvy_extract_ptr <- function(e, class) {
-  if (is.null(e)) {
+  if(is.null(e)) {
     return(NULL)
   }
 
-  if (inherits(e, class)) {
+  if(inherits(e, class)) {
     e$.ptr
   } else {
     msg <- paste0("Expected ", class, ", got ", class(e)[1])
@@ -323,7 +323,7 @@ class(`PlRChainedThen`) <- c("PlRChainedThen__bundle", "savvy_neopolars__sealed"
 
 #' @export
 `print.PlRChainedThen__bundle` <- function(x, ...) {
-  cat("PlRChainedThen")
+  cat('PlRChainedThen')
 }
 
 ### wrapper functions for PlRChainedWhen
@@ -356,7 +356,7 @@ class(`PlRChainedWhen`) <- c("PlRChainedWhen__bundle", "savvy_neopolars__sealed"
 
 #' @export
 `print.PlRChainedWhen__bundle` <- function(x, ...) {
-  cat("PlRChainedWhen")
+  cat('PlRChainedWhen')
 }
 
 ### wrapper functions for PlRDataFrame
@@ -515,7 +515,7 @@ class(`PlRDataFrame`) <- c("PlRDataFrame__bundle", "savvy_neopolars__sealed")
 
 #' @export
 `print.PlRDataFrame__bundle` <- function(x, ...) {
-  cat("PlRDataFrame")
+  cat('PlRDataFrame')
 }
 
 ### wrapper functions for PlRDataType
@@ -628,7 +628,7 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
 
 #' @export
 `print.PlRDataType__bundle` <- function(x, ...) {
-  cat("PlRDataType")
+  cat('PlRDataType')
 }
 
 ### wrapper functions for PlRExpr
@@ -2585,6 +2585,13 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
   }
 }
 
+`PlRExpr_str_json_decode` <- function(self) {
+  function(`dtype`, `infer_schema_len`) {
+    `dtype` <- .savvy_extract_ptr(`dtype`, "PlRDataType")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_str_json_decode__impl, `self`, `dtype`, `infer_schema_len`))
+  }
+}
+
 `PlRExpr_str_json_path_match` <- function(self) {
   function(`pat`) {
     `pat` <- .savvy_extract_ptr(`pat`, "PlRExpr")
@@ -2714,6 +2721,13 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
   function(`suffix`) {
     `suffix` <- .savvy_extract_ptr(`suffix`, "PlRExpr")
     .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_str_strip_suffix__impl, `self`, `suffix`))
+  }
+}
+
+`PlRExpr_str_tail` <- function(self) {
+  function(`n`) {
+    `n` <- .savvy_extract_ptr(`n`, "PlRExpr")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_str_tail__impl, `self`, `n`))
   }
 }
 
@@ -3197,6 +3211,7 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
   e$`str_hex_decode` <- `PlRExpr_str_hex_decode`(ptr)
   e$`str_hex_encode` <- `PlRExpr_str_hex_encode`(ptr)
   e$`str_join` <- `PlRExpr_str_join`(ptr)
+  e$`str_json_decode` <- `PlRExpr_str_json_decode`(ptr)
   e$`str_json_path_match` <- `PlRExpr_str_json_path_match`(ptr)
   e$`str_len_bytes` <- `PlRExpr_str_len_bytes`(ptr)
   e$`str_len_chars` <- `PlRExpr_str_len_chars`(ptr)
@@ -3216,6 +3231,7 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
   e$`str_strip_chars_start` <- `PlRExpr_str_strip_chars_start`(ptr)
   e$`str_strip_prefix` <- `PlRExpr_str_strip_prefix`(ptr)
   e$`str_strip_suffix` <- `PlRExpr_str_strip_suffix`(ptr)
+  e$`str_tail` <- `PlRExpr_str_tail`(ptr)
   e$`str_to_date` <- `PlRExpr_str_to_date`(ptr)
   e$`str_to_datetime` <- `PlRExpr_str_to_datetime`(ptr)
   e$`str_to_decimal` <- `PlRExpr_str_to_decimal`(ptr)
@@ -3267,7 +3283,7 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
 
 #' @export
 `print.PlRExpr__bundle` <- function(x, ...) {
-  cat("PlRExpr")
+  cat('PlRExpr')
 }
 
 ### wrapper functions for PlRLazyFrame
@@ -3428,7 +3444,7 @@ class(`PlRLazyFrame`) <- c("PlRLazyFrame__bundle", "savvy_neopolars__sealed")
 
 #' @export
 `print.PlRLazyFrame__bundle` <- function(x, ...) {
-  cat("PlRLazyFrame")
+  cat('PlRLazyFrame')
 }
 
 ### wrapper functions for PlRLazyGroupBy
@@ -3474,7 +3490,7 @@ class(`PlRLazyGroupBy`) <- c("PlRLazyGroupBy__bundle", "savvy_neopolars__sealed"
 
 #' @export
 `print.PlRLazyGroupBy__bundle` <- function(x, ...) {
-  cat("PlRLazyGroupBy")
+  cat('PlRLazyGroupBy')
 }
 
 ### wrapper functions for PlRSeries
@@ -3729,7 +3745,7 @@ class(`PlRSeries`) <- c("PlRSeries__bundle", "savvy_neopolars__sealed")
 
 #' @export
 `print.PlRSeries__bundle` <- function(x, ...) {
-  cat("PlRSeries")
+  cat('PlRSeries')
 }
 
 ### wrapper functions for PlRThen
@@ -3770,7 +3786,7 @@ class(`PlRThen`) <- c("PlRThen__bundle", "savvy_neopolars__sealed")
 
 #' @export
 `print.PlRThen__bundle` <- function(x, ...) {
-  cat("PlRThen")
+  cat('PlRThen')
 }
 
 ### wrapper functions for PlRWhen
@@ -3803,5 +3819,6 @@ class(`PlRWhen`) <- c("PlRWhen__bundle", "savvy_neopolars__sealed")
 
 #' @export
 `print.PlRWhen__bundle` <- function(x, ...) {
-  cat("PlRWhen")
+  cat('PlRWhen')
 }
+
