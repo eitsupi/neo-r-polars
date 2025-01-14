@@ -264,3 +264,9 @@ pub fn concat_lf_diagonal(
     .map_err(RPolarsErr::from)?;
     Ok(lf.into())
 }
+
+#[savvy]
+pub fn concat_str(s: ListSexp, separator: &str, ignore_nulls: bool) -> Result<PlRExpr> {
+    let s = <Wrap<Vec<Expr>>>::from(s).0;
+    Ok(dsl::concat_str(s, separator, ignore_nulls).into())
+}
