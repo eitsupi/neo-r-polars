@@ -122,8 +122,7 @@ selector__and <- function(other) {
 
 selector__xor <- function(other) {
   if (is_column(other)) {
-    colname <- other$meta$output_name()
-    other <- cs$by_name(colname)
+    other <- cs$by_name(other$meta$output_name())
   }
   if (is_polars_selector(other)) {
     wrap_to_selector(
