@@ -698,6 +698,7 @@ impl TryFrom<&str> for Wrap<StartBy> {
     }
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 pub(crate) fn parse_parquet_compression(
     compression: &str,
     compression_level: Option<i32>,
@@ -736,6 +737,7 @@ pub(crate) fn parse_parquet_compression(
     Ok(parsed)
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 impl TryFrom<ListSexp> for Wrap<StatisticsOptions> {
     type Error = String;
 
