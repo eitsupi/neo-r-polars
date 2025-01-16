@@ -1517,7 +1517,7 @@ expr__arg_unique <- function() {
 #' df <- pl$DataFrame(a = c(1, 1, 2, 1))
 #' df$select((pl$col("a") == 1)$arg_true())
 expr__arg_true <- function() {
-  pl$arg_where(self) |> 
+  arg_where(self) |> 
     wrap()
 }
 
