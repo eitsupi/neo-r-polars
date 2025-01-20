@@ -158,6 +158,16 @@ test_that("as_polars_series(<POSIXlt>) works for ambiguous time as like clock::a
   )
 })
 
+test_that("as_polars_series(<POSIXlt>) works for leap second as like str_to_datetime()", {
+  chr_vec <- c("2005-12-31 23:59:59", "2005-12-31 23:59:60", "2005-12-31 23:59:60.123456789", "2006-01-01 00:00:00")
+  lt_vec <- as.POSIXlt(chr_vec, tz = "UTC")
+
+  expect_equal(
+    as_polars_series(lt_vec),
+    as_polars_series(chr_vec)$str$to_datetime(time_unit = "ns", time_zone = "UTC")
+  )
+})
+
 # TODO: more tests for system time
 
 test_that("as_polars_series works for vctrs_rcrd", {
