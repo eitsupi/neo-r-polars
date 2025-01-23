@@ -2540,6 +2540,10 @@ lazyframe__sink_ndjson <- function(
 #' * `FALSE`: Never coalesce join columns.
 #' Note that joining on any other expressions than `col` will turn off
 #' coalescing.
+#' @param allow_exact_matches Whether exact matches are valid join predicates.
+#' If `TRUE` (default), allow matching with the same on value (i.e.
+#' less-than-or-equal-to / greater-than-or-equal-to). Otherwise, don’t match
+#' the same on value (i.e., strictly less-than / strictly greater-than).
 #'
 #' @inheritSection polars_duration_string Polars duration string language
 #' @examples
@@ -2629,7 +2633,8 @@ lazyframe__join_asof <- function(
     tolerance = NULL,
     allow_parallel = TRUE,
     force_parallel = FALSE,
-    coalesce = TRUE) {
+    coalesce = TRUE,
+    allow_exact_matches = TRUE) {
   wrap({
     check_dots_empty0(...)
     strategy <- arg_match0(strategy, values = c("backward", "forward", "nearest"))
@@ -2662,7 +2667,8 @@ lazyframe__join_asof <- function(
       strategy = strategy,
       tolerance = tolerance_num,
       tolerance_str = tolerance_str,
-      coalesce = coalesce
+      coalesce = coalesce,
+      allow_eq = allow_exact_matches
     )
   })
 }

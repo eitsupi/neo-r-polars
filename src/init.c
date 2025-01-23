@@ -2349,8 +2349,8 @@ SEXP savvy_PlRLazyFrame_join__impl(SEXP self__, SEXP c_arg__other, SEXP c_arg__l
     return handle_result(res);
 }
 
-SEXP savvy_PlRLazyFrame_join_asof__impl(SEXP self__, SEXP c_arg__other, SEXP c_arg__left_on, SEXP c_arg__right_on, SEXP c_arg__allow_parallel, SEXP c_arg__force_parallel, SEXP c_arg__suffix, SEXP c_arg__coalesce, SEXP c_arg__strategy, SEXP c_arg__left_by, SEXP c_arg__right_by, SEXP c_arg__tolerance, SEXP c_arg__tolerance_str) {
-    SEXP res = savvy_PlRLazyFrame_join_asof__ffi(self__, c_arg__other, c_arg__left_on, c_arg__right_on, c_arg__allow_parallel, c_arg__force_parallel, c_arg__suffix, c_arg__coalesce, c_arg__strategy, c_arg__left_by, c_arg__right_by, c_arg__tolerance, c_arg__tolerance_str);
+SEXP savvy_PlRLazyFrame_join_asof__impl(SEXP self__, SEXP c_arg__other, SEXP c_arg__left_on, SEXP c_arg__right_on, SEXP c_arg__allow_parallel, SEXP c_arg__force_parallel, SEXP c_arg__suffix, SEXP c_arg__coalesce, SEXP c_arg__strategy, SEXP c_arg__allow_eq, SEXP c_arg__left_by, SEXP c_arg__right_by, SEXP c_arg__tolerance, SEXP c_arg__tolerance_str) {
+    SEXP res = savvy_PlRLazyFrame_join_asof__ffi(self__, c_arg__other, c_arg__left_on, c_arg__right_on, c_arg__allow_parallel, c_arg__force_parallel, c_arg__suffix, c_arg__coalesce, c_arg__strategy, c_arg__allow_eq, c_arg__left_by, c_arg__right_by, c_arg__tolerance, c_arg__tolerance_str);
     return handle_result(res);
 }
 
@@ -2474,8 +2474,8 @@ SEXP savvy_PlRLazyFrame_sink_json__impl(SEXP self__, SEXP c_arg__path, SEXP c_ar
     return handle_result(res);
 }
 
-SEXP savvy_PlRLazyFrame_sink_parquet__impl(SEXP self__, SEXP c_arg__path, SEXP c_arg__compression, SEXP c_arg__maintain_order, SEXP c_arg__statistics, SEXP c_arg__retries, SEXP c_arg__compression_level, SEXP c_arg__row_group_size, SEXP c_arg__data_page_size, SEXP c_arg__storage_options) {
-    SEXP res = savvy_PlRLazyFrame_sink_parquet__ffi(self__, c_arg__path, c_arg__compression, c_arg__maintain_order, c_arg__statistics, c_arg__retries, c_arg__compression_level, c_arg__row_group_size, c_arg__data_page_size, c_arg__storage_options);
+SEXP savvy_PlRLazyFrame_sink_parquet__impl(SEXP self__, SEXP c_arg__path, SEXP c_arg__compression, SEXP c_arg__maintain_order, SEXP c_arg__stat_min, SEXP c_arg__stat_max, SEXP c_arg__stat_distinct_count, SEXP c_arg__stat_null_count, SEXP c_arg__retries, SEXP c_arg__compression_level, SEXP c_arg__row_group_size, SEXP c_arg__data_page_size, SEXP c_arg__storage_options) {
+    SEXP res = savvy_PlRLazyFrame_sink_parquet__ffi(self__, c_arg__path, c_arg__compression, c_arg__maintain_order, c_arg__stat_min, c_arg__stat_max, c_arg__stat_distinct_count, c_arg__stat_null_count, c_arg__retries, c_arg__compression_level, c_arg__row_group_size, c_arg__data_page_size, c_arg__storage_options);
     return handle_result(res);
 }
 
@@ -3234,7 +3234,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRLazyFrame_group_by__impl", (DL_FUNC) &savvy_PlRLazyFrame_group_by__impl, 3},
     {"savvy_PlRLazyFrame_group_by_dynamic__impl", (DL_FUNC) &savvy_PlRLazyFrame_group_by_dynamic__impl, 10},
     {"savvy_PlRLazyFrame_join__impl", (DL_FUNC) &savvy_PlRLazyFrame_join__impl, 11},
-    {"savvy_PlRLazyFrame_join_asof__impl", (DL_FUNC) &savvy_PlRLazyFrame_join_asof__impl, 13},
+    {"savvy_PlRLazyFrame_join_asof__impl", (DL_FUNC) &savvy_PlRLazyFrame_join_asof__impl, 14},
     {"savvy_PlRLazyFrame_join_where__impl", (DL_FUNC) &savvy_PlRLazyFrame_join_where__impl, 4},
     {"savvy_PlRLazyFrame_max__impl", (DL_FUNC) &savvy_PlRLazyFrame_max__impl, 1},
     {"savvy_PlRLazyFrame_mean__impl", (DL_FUNC) &savvy_PlRLazyFrame_mean__impl, 1},
@@ -3259,7 +3259,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRLazyFrame_sink_csv__impl", (DL_FUNC) &savvy_PlRLazyFrame_sink_csv__impl, 18},
     {"savvy_PlRLazyFrame_sink_ipc__impl", (DL_FUNC) &savvy_PlRLazyFrame_sink_ipc__impl, 6},
     {"savvy_PlRLazyFrame_sink_json__impl", (DL_FUNC) &savvy_PlRLazyFrame_sink_json__impl, 5},
-    {"savvy_PlRLazyFrame_sink_parquet__impl", (DL_FUNC) &savvy_PlRLazyFrame_sink_parquet__impl, 10},
+    {"savvy_PlRLazyFrame_sink_parquet__impl", (DL_FUNC) &savvy_PlRLazyFrame_sink_parquet__impl, 13},
     {"savvy_PlRLazyFrame_slice__impl", (DL_FUNC) &savvy_PlRLazyFrame_slice__impl, 3},
     {"savvy_PlRLazyFrame_sort__impl", (DL_FUNC) &savvy_PlRLazyFrame_sort__impl, 6},
     {"savvy_PlRLazyFrame_sort_by_exprs__impl", (DL_FUNC) &savvy_PlRLazyFrame_sort_by_exprs__impl, 6},

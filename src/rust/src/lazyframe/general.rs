@@ -644,6 +644,7 @@ impl PlRLazyFrame {
         suffix: &str,
         coalesce: bool,
         strategy: &str,
+        allow_eq: bool,
         left_by: Option<StringSexp>,
         right_by: Option<StringSexp>,
         tolerance: Option<&PlRSeries>,
@@ -685,6 +686,7 @@ impl PlRLazyFrame {
                 right_by,
                 tolerance,
                 tolerance_str: tolerance_str.map(|s| s.into()),
+                allow_eq,
             }))
             .suffix(suffix)
             .finish()

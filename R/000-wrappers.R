@@ -3440,12 +3440,12 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
 }
 
 `PlRLazyFrame_join_asof` <- function(self) {
-  function(`other`, `left_on`, `right_on`, `allow_parallel`, `force_parallel`, `suffix`, `coalesce`, `strategy`, `left_by` = NULL, `right_by` = NULL, `tolerance` = NULL, `tolerance_str` = NULL) {
+  function(`other`, `left_on`, `right_on`, `allow_parallel`, `force_parallel`, `suffix`, `coalesce`, `strategy`, `allow_eq`, `left_by` = NULL, `right_by` = NULL, `tolerance` = NULL, `tolerance_str` = NULL) {
     `other` <- .savvy_extract_ptr(`other`, "PlRLazyFrame")
     `left_on` <- .savvy_extract_ptr(`left_on`, "PlRExpr")
     `right_on` <- .savvy_extract_ptr(`right_on`, "PlRExpr")
     `tolerance` <- .savvy_extract_ptr(`tolerance`, "PlRSeries")
-    .savvy_wrap_PlRLazyFrame(.Call(savvy_PlRLazyFrame_join_asof__impl, `self`, `other`, `left_on`, `right_on`, `allow_parallel`, `force_parallel`, `suffix`, `coalesce`, `strategy`, `left_by`, `right_by`, `tolerance`, `tolerance_str`))
+    .savvy_wrap_PlRLazyFrame(.Call(savvy_PlRLazyFrame_join_asof__impl, `self`, `other`, `left_on`, `right_on`, `allow_parallel`, `force_parallel`, `suffix`, `coalesce`, `strategy`, `allow_eq`, `left_by`, `right_by`, `tolerance`, `tolerance_str`))
   }
 }
 
@@ -3576,8 +3576,8 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
 }
 
 `PlRLazyFrame_sink_parquet` <- function(self) {
-  function(`path`, `compression`, `maintain_order`, `statistics`, `retries`, `compression_level` = NULL, `row_group_size` = NULL, `data_page_size` = NULL, `storage_options` = NULL) {
-    invisible(.Call(savvy_PlRLazyFrame_sink_parquet__impl, `self`, `path`, `compression`, `maintain_order`, `statistics`, `retries`, `compression_level`, `row_group_size`, `data_page_size`, `storage_options`))
+  function(`path`, `compression`, `maintain_order`, `stat_min`, `stat_max`, `stat_distinct_count`, `stat_null_count`, `retries`, `compression_level` = NULL, `row_group_size` = NULL, `data_page_size` = NULL, `storage_options` = NULL) {
+    invisible(.Call(savvy_PlRLazyFrame_sink_parquet__impl, `self`, `path`, `compression`, `maintain_order`, `stat_min`, `stat_max`, `stat_distinct_count`, `stat_null_count`, `retries`, `compression_level`, `row_group_size`, `data_page_size`, `storage_options`))
   }
 }
 
