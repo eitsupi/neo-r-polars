@@ -18,7 +18,8 @@ lazyframe__join_asof(
   tolerance = NULL,
   allow_parallel = TRUE,
   force_parallel = FALSE,
-  coalesce = TRUE
+  coalesce = TRUE,
+  allow_exact_matches = TRUE
 )
 }
 \arguments{
@@ -58,6 +59,11 @@ duration string language (see details).}
 Note that joining on any other expressions than \code{col} will turn off
 coalescing.
 }}
+
+\item{allow_exact_matches}{Whether exact matches are valid join predicates.
+If \code{TRUE} (default), allow matching with the same on value (i.e.
+less-than-or-equal-to / greater-than-or-equal-to). Otherwise, don’t match
+the same on value (i.e., strictly less-than / strictly greater-than).}
 }
 \description{
 This is similar to a left-join except that we match on nearest key rather

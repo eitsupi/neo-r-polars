@@ -54,10 +54,8 @@ headers. Possible values:
 \itemize{
 \item \code{TRUE}: enable default set of statistics (default)
 \item \code{FALSE}: disable all statistics
-\item \code{"full"}: calculate and write all available statistics.
-\item A named list where all values must be \code{TRUE} or \code{FALSE}, e.g.
-\code{list(min = TRUE, max = FALSE)}. Statistics available are \code{"min"}, \code{"max"},
-\code{"distinct_count"}, \code{"null_count"}.
+\item A list created via \code{\link[=parquet_statistics]{parquet_statistics()}} to specify which statistics to
+include.
 }}
 
 \item{row_group_size}{Size of the row groups in number of rows. If \code{NULL}
