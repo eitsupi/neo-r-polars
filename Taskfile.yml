@@ -173,5 +173,5 @@ tasks:
     deps:
       - install-air
     cmds:
-      - air format . --check
-      - cargo fmt --all --check --manifest-path src/rust/Cargo.toml
+      - air format .
+      - cargo fmt --all --manifest-path src/rust/Cargo.toml
