@@ -324,12 +324,16 @@ impl PlRLazyFrame {
         Ok(out.into())
     }
 
+    #[cfg(not(target_arch = "wasm32"))]
     fn sink_parquet(
         &self,
         path: &str,
         compression: &str,
         maintain_order: bool,
-        statistics: ListSexp,
+        stat_min: bool,
+        stat_max: bool,
+        stat_distinct_count: bool,
+        stat_null_count: bool,
         retries: NumericScalar,
         compression_level: Option<NumericScalar>,
         row_group_size: Option<NumericScalar>,
@@ -337,7 +341,12 @@ impl PlRLazyFrame {
         storage_options: Option<StringSexp>,
     ) -> Result<()> {
         let path: PathBuf = path.into();
-        let statistics = <Wrap<StatisticsOptions>>::try_from(statistics)?.0;
+        let statistics = StatisticsOptions {
+            min_value: stat_min,
+            max_value: stat_max,
+            null_count: stat_null_count,
+            distinct_count: stat_distinct_count,
+        };
         let compression_level: Option<i32> = match compression_level {
             Some(x) => Some(x.as_i32()?),
             None => None,

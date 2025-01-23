@@ -737,35 +737,6 @@ pub(crate) fn parse_parquet_compression(
     Ok(parsed)
 }
 
-#[cfg(not(target_arch = "wasm32"))]
-impl TryFrom<ListSexp> for Wrap<StatisticsOptions> {
-    type Error = String;
-
-    fn try_from(statistics: ListSexp) -> Result<Self, String> {
-        let hm = statistics
-            .iter()
-            .map(|xi| {
-                let name = xi.0;
-                let value = xi.1.into_typed();
-                let value = match value {
-                    TypedSexp::Logical(val) => {
-                        let tmp = val.to_vec();
-                        *tmp.first().unwrap()
-                    }
-                    _ => unreachable!(),
-                };
-                (name, value)
-            })
-            .collect::<std::collections::HashMap<&str, bool>>();
-        let mut out = StatisticsOptions::default();
-        out.min_value = *hm.get(&"min").unwrap();
-        out.max_value = *hm.get(&"max").unwrap();
-        out.distinct_count = *hm.get(&"distinct_count").unwrap();
-        out.null_count = *hm.get(&"null_count").unwrap();
-        Ok(Wrap(out))
-    }
-}
-
 impl TryFrom<&str> for Wrap<IpcCompression> {
     type Error = String;
 

@@ -2146,10 +2146,8 @@ lazyframe__with_row_index <- function(name = "index", offset = 0) {
 #' headers. Possible values:
 #' * `TRUE`: enable default set of statistics (default)
 #' * `FALSE`: disable all statistics
-#' * `"full"`: calculate and write all available statistics.
-#' * A named list where all values must be `TRUE` or `FALSE`, e.g.
-#'   `list(min = TRUE, max = FALSE)`. Statistics available are `"min"`, `"max"`,
-#'   `"distinct_count"`, `"null_count"`.
+#' * A list created via [parquet_statistics()] to specify which statistics to
+#'   include.
 #' @param row_group_size Size of the row groups in number of rows. If `NULL`
 #' (default), the chunks of the DataFrame are used. Writing in smaller chunks
 #' may reduce memory pressure and improve writing speeds.
@@ -2216,13 +2214,37 @@ lazyframe__sink_parquet <- function(
       `_eager` = FALSE
     )
 
-    statistics <- translate_statistics(statistics)
+    if (isTRUE(statistics)) {
+      statistics <- parquet_statistics(
+        min = TRUE,
+        max = TRUE,
+        distinct_count = TRUE,
+        null_count = TRUE
+      )
+    } else if (isFALSE(statistics)) {
+      statistics <- parquet_statistics(
+        min = FALSE,
+        max = FALSE,
+        distinct_count = FALSE,
+        null_count = FALSE
+      )
+    }
+    statistics <- if (!inherits(statistics, "polars_parquet_statistics")) {
+      abort("`statistics` must be TRUE, FALSE, or a call to `parquet_statistics()`.")
+    }
+    stat_min <- statistics[["min"]]
+    stat_max <- statistics[["max"]]
+    stat_distinct_count <- statistics[["distinct_count"]]
+    stat_null_count <- statistics[["null_count"]]
 
     lf$sink_parquet(
       path = path,
       compression = compression,
       compression_level = compression_level,
-      statistics = statistics,
+      stat_min = stat_min,
+      stat_max = stat_max,
+      stat_null_count = stat_null_count,
+      stat_distinct_count = stat_distinct_count,
       row_group_size = row_group_size,
       data_page_size = data_page_size,
       maintain_order = maintain_order,
