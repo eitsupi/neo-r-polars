@@ -158,3 +158,20 @@ tasks:
     desc: Accept all test snapshots. (Shortcut to accept snapshots after running tests)
     cmds:
       - Rscript -e 'testthat::snapshot_accept()'
+
+  install-air:
+    desc: Install Air to format R code.
+    cmds:
+      - curl -LsSf https://github.com/posit-dev/air/releases/latest/download/air-installer.sh | sh
+
+  fmt:
+    desc: Format all R and Rust code.
+    sources:
+      - "{{.R_SOURCE}}"
+      - "{{.RUST_SOURCE}}"
+      - tests/**/*
+    deps:
+      - install-air
+    cmds:
+      - air format . --check
+      - cargo fmt --all --check --manifest-path src/rust/Cargo.toml
