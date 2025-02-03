@@ -875,13 +875,10 @@ impl PlRLazyFrame {
             .copied()
             .map_err(RPolarsErr::from)?;
 
-        let row_index = match row_index_name {
-            Some(x) => Some(RowIndex {
+        let row_index = row_index_name.map(|x| RowIndex {
                 name: x.into(),
                 offset: row_index_offset,
-            }),
-            None => None,
-        };
+            });
 
         let overwrite_dtype = match overwrite_dtype {
             Some(x) => Some(<Wrap<Schema>>::try_from(x)?.0),
@@ -898,9 +895,7 @@ impl PlRLazyFrame {
         let cloud_options = match storage_options {
             Some(x) => {
                 let out = <Wrap<Vec<(String, String)>>>::try_from(x).map_err(|_| {
-                    RPolarsErr::Other(format!(
-                        "`storage_options` must be a named character vector"
-                    ))
+                    RPolarsErr::Other("`storage_options` must be a named character vector".to_string())
                 })?;
                 Some(out.0)
             }
@@ -1001,13 +996,10 @@ impl PlRLazyFrame {
                 None => None,
             };
 
-            let row_index = match row_index_name {
-                Some(x) => Some(RowIndex {
+            let row_index = row_index_name.map(|x| RowIndex {
                     name: x.into(),
                     offset: row_index_offset,
-                }),
-                None => None,
-            };
+                });
 
             let hive_options = HiveOptions {
                 enabled: hive_partitioning,
@@ -1025,7 +1017,7 @@ impl PlRLazyFrame {
                 low_memory,
                 cloud_options: None,
                 use_statistics,
-                schema: schema.map(|x| Arc::new(x)),
+                schema: schema.map(Arc::new),
                 hive_options,
                 glob,
                 include_file_paths: include_file_paths.map(|x| x.into()),
@@ -1039,9 +1031,7 @@ impl PlRLazyFrame {
             let cloud_options = match storage_options {
                 Some(x) => {
                     let out = <Wrap<Vec<(String, String)>>>::try_from(x).map_err(|_| {
-                        RPolarsErr::Other(format!(
-                            "`storage_options` must be a named character vector"
-                        ))
+                        RPolarsErr::Other("`storage_options` must be a named character vector".to_string())
                     })?;
                     Some(out.0)
                 }
@@ -1123,13 +1113,10 @@ impl PlRLazyFrame {
                 None => None,
             };
 
-            let row_index = match row_index_name {
-                Some(x) => Some(RowIndex {
+            let row_index = row_index_name.map(|x| RowIndex {
                     name: x.into(),
                     offset: row_index_offset,
-                }),
-                None => None,
-            };
+                });
 
             let first_path = source.first().unwrap().clone().into();
 
@@ -1140,9 +1127,7 @@ impl PlRLazyFrame {
             let cloud_options = match storage_options {
                 Some(x) => {
                     let out = <Wrap<Vec<(String, String)>>>::try_from(x).map_err(|_| {
-                        RPolarsErr::Other(format!(
-                            "`storage_options` must be a named character vector"
-                        ))
+                        RPolarsErr::Other("`storage_options` must be a named character vector".to_string())
                     })?;
                     Some(out.0)
                 }
@@ -1174,8 +1159,8 @@ impl PlRLazyFrame {
                 .with_n_rows(n_rows)
                 .low_memory(low_memory)
                 .with_rechunk(rechunk)
-                .with_schema(schema.map(|schema| Arc::new(schema)))
-                .with_schema_overwrite(schema_overrides.map(|x| Arc::new(x)))
+                .with_schema(schema.map(Arc::new))
+                .with_schema_overwrite(schema_overrides.map(Arc::new))
                 .with_row_index(row_index)
                 .with_ignore_errors(ignore_errors)
                 .with_include_file_paths(include_file_paths.map(|x| x.into()))

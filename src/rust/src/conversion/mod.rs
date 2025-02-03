@@ -750,13 +750,13 @@ impl TryFrom<StringSexp> for Wrap<NullValues> {
             let names = null_values.get_names().unwrap();
             let res = names
                 .into_iter()
-                .zip(values.into_iter())
+                .zip(values)
                 .map(|(xi, yi)| (xi.into(), yi.into()))
                 .collect::<Vec<(PlSmallStr, PlSmallStr)>>();
-            return Ok(Wrap(NullValues::Named(res)));
+            Ok(Wrap(NullValues::Named(res)))
         } else if null_values.len() == 1 {
             let vals = null_values.to_vec();
-            let val = *(vals.get(0).unwrap());
+            let val = *(vals.first().unwrap());
             return Ok(Wrap(NullValues::AllColumnsSingle(val.into())));
         } else {
             let vals = null_values
@@ -764,7 +764,7 @@ impl TryFrom<StringSexp> for Wrap<NullValues> {
                 .into_iter()
                 .map(|x| x.into())
                 .collect::<Vec<PlSmallStr>>();
-            return Ok(Wrap(NullValues::AllColumns(vals.into())));
+            return Ok(Wrap(NullValues::AllColumns(vals)));
         }
     }
 }
