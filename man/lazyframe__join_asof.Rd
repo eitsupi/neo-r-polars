@@ -19,7 +19,8 @@ lazyframe__join_asof(
   allow_parallel = TRUE,
   force_parallel = FALSE,
   coalesce = TRUE,
-  allow_exact_matches = TRUE
+  allow_exact_matches = TRUE,
+  check_sortedness = TRUE
 )
 }
 \arguments{
@@ -64,6 +65,10 @@ coalescing.
 If \code{TRUE} (default), allow matching with the same on value (i.e.
 less-than-or-equal-to / greater-than-or-equal-to). Otherwise, don’t match
 the same on value (i.e., strictly less-than / strictly greater-than).}
+
+\item{check_sortedness}{Check the sortedness of the asof keys. If the keys
+are not sorted, polars will error, or raise a warning if the \code{by} argument
+is provided. This might become a hard error in the future.}
 }
 \description{
 This is similar to a left-join except that we match on nearest key rather
