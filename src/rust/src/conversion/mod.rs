@@ -698,19 +698,6 @@ impl TryFrom<&str> for Wrap<StartBy> {
     }
 }
 
-impl TryFrom<&str> for Wrap<IpcCompression> {
-    type Error = String;
-
-    fn try_from(compression: &str) -> Result<Self, String> {
-        let parsed = match compression {
-            "lz4" => IpcCompression::LZ4,
-            "zstd" => IpcCompression::ZSTD,
-            _ => return Err("unreachable".to_string()),
-        };
-        Ok(Wrap(parsed))
-    }
-}
-
 impl TryFrom<&str> for Wrap<QuoteStyle> {
     type Error = String;
 
