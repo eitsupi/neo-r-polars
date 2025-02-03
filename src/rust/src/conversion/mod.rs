@@ -701,8 +701,8 @@ impl TryFrom<&str> for Wrap<StartBy> {
 impl TryFrom<&str> for Wrap<QuoteStyle> {
     type Error = String;
 
-    fn try_from(compression: &str) -> Result<Self, String> {
-        let parsed = match compression {
+    fn try_from(quote_style: &str) -> Result<Self, String> {
+        let parsed = match quote_style {
             "always" => QuoteStyle::Always,
             "necessary" => QuoteStyle::Necessary,
             "non_numeric" => QuoteStyle::NonNumeric,
