@@ -407,6 +407,7 @@ impl PlRLazyFrame {
         coalesce: bool,
         strategy: &str,
         allow_eq: bool,
+        check_sortedness: bool,
         left_by: Option<StringSexp>,
         right_by: Option<StringSexp>,
         tolerance: Option<&PlRSeries>,
@@ -449,6 +450,7 @@ impl PlRLazyFrame {
                 tolerance,
                 tolerance_str: tolerance_str.map(|s| s.into()),
                 allow_eq,
+                check_sortedness,
             }))
             .suffix(suffix)
             .finish()

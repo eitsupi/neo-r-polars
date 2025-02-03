@@ -2156,6 +2156,9 @@ lazyframe__with_row_index <- function(name = "index", offset = 0) {
 #' If `TRUE` (default), allow matching with the same on value (i.e.
 #' less-than-or-equal-to / greater-than-or-equal-to). Otherwise, don’t match
 #' the same on value (i.e., strictly less-than / strictly greater-than).
+#' @param check_sortedness Check the sortedness of the asof keys. If the keys
+#' are not sorted, polars will error, or raise a warning if the `by` argument
+#' is provided. This might become a hard error in the future.
 #'
 #' @inheritSection polars_duration_string Polars duration string language
 #' @examples
@@ -2246,7 +2249,8 @@ lazyframe__join_asof <- function(
     allow_parallel = TRUE,
     force_parallel = FALSE,
     coalesce = TRUE,
-    allow_exact_matches = TRUE) {
+    allow_exact_matches = TRUE,
+    check_sortedness = TRUE) {
   wrap({
     check_dots_empty0(...)
     strategy <- arg_match0(strategy, values = c("backward", "forward", "nearest"))

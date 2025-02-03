@@ -2349,8 +2349,8 @@ SEXP savvy_PlRLazyFrame_join__impl(SEXP self__, SEXP c_arg__other, SEXP c_arg__l
     return handle_result(res);
 }
 
-SEXP savvy_PlRLazyFrame_join_asof__impl(SEXP self__, SEXP c_arg__other, SEXP c_arg__left_on, SEXP c_arg__right_on, SEXP c_arg__allow_parallel, SEXP c_arg__force_parallel, SEXP c_arg__suffix, SEXP c_arg__coalesce, SEXP c_arg__strategy, SEXP c_arg__allow_eq, SEXP c_arg__left_by, SEXP c_arg__right_by, SEXP c_arg__tolerance, SEXP c_arg__tolerance_str) {
-    SEXP res = savvy_PlRLazyFrame_join_asof__ffi(self__, c_arg__other, c_arg__left_on, c_arg__right_on, c_arg__allow_parallel, c_arg__force_parallel, c_arg__suffix, c_arg__coalesce, c_arg__strategy, c_arg__allow_eq, c_arg__left_by, c_arg__right_by, c_arg__tolerance, c_arg__tolerance_str);
+SEXP savvy_PlRLazyFrame_join_asof__impl(SEXP self__, SEXP c_arg__other, SEXP c_arg__left_on, SEXP c_arg__right_on, SEXP c_arg__allow_parallel, SEXP c_arg__force_parallel, SEXP c_arg__suffix, SEXP c_arg__coalesce, SEXP c_arg__strategy, SEXP c_arg__allow_eq, SEXP c_arg__check_sortedness, SEXP c_arg__left_by, SEXP c_arg__right_by, SEXP c_arg__tolerance, SEXP c_arg__tolerance_str) {
+    SEXP res = savvy_PlRLazyFrame_join_asof__ffi(self__, c_arg__other, c_arg__left_on, c_arg__right_on, c_arg__allow_parallel, c_arg__force_parallel, c_arg__suffix, c_arg__coalesce, c_arg__strategy, c_arg__allow_eq, c_arg__check_sortedness, c_arg__left_by, c_arg__right_by, c_arg__tolerance, c_arg__tolerance_str);
     return handle_result(res);
 }
 
@@ -3214,7 +3214,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRLazyFrame_group_by__impl", (DL_FUNC) &savvy_PlRLazyFrame_group_by__impl, 3},
     {"savvy_PlRLazyFrame_group_by_dynamic__impl", (DL_FUNC) &savvy_PlRLazyFrame_group_by_dynamic__impl, 10},
     {"savvy_PlRLazyFrame_join__impl", (DL_FUNC) &savvy_PlRLazyFrame_join__impl, 11},
-    {"savvy_PlRLazyFrame_join_asof__impl", (DL_FUNC) &savvy_PlRLazyFrame_join_asof__impl, 14},
+    {"savvy_PlRLazyFrame_join_asof__impl", (DL_FUNC) &savvy_PlRLazyFrame_join_asof__impl, 15},
     {"savvy_PlRLazyFrame_join_where__impl", (DL_FUNC) &savvy_PlRLazyFrame_join_where__impl, 4},
     {"savvy_PlRLazyFrame_max__impl", (DL_FUNC) &savvy_PlRLazyFrame_max__impl, 1},
     {"savvy_PlRLazyFrame_mean__impl", (DL_FUNC) &savvy_PlRLazyFrame_mean__impl, 1},
