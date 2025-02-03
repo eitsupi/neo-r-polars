@@ -76,27 +76,3 @@ make_profile_plot <- function(data, truncate_nodes) {
   }
   plot
 }
-
-#' Prepare statistics for writing to Parquet file
-#'
-#' @param min Include stats on the minimum values in the column.
-#' @param max Include stats on the maximum values in the column.
-#' @param distinct_count Include stats on the number of distinct values in the
-#' column.
-#' @param null_count Include stats on the number of null values in the column.
-#'
-#' @export
-parquet_statistics <- function(
-    min = TRUE,
-    max = TRUE,
-    distinct_count = TRUE,
-    null_count = TRUE) {
-  out <- list(
-    min = min,
-    max = max,
-    distinct_count = distinct_count,
-    null_count = null_count
-  )
-  class(out) <- "polars_parquet_statistics"
-  out
-}
