@@ -746,11 +746,18 @@ lazyframe__drop <- function(..., strict = TRUE) {
   })
 }
 
+#' Get a slice of the LazyFrame.
+#'
+#' @param offset Start index. Negative indexing is supported.
+#' @param length Length of the slice. If `NULL` (default), all rows starting at
+#' the offset will be selected.
+#'
+#' @return A [LazyFrame][lazyframe__class]
+#' @examples
+#' lf <- pl$LazyFrame(x = c("a", "b", "c"), y = 1:3, z = 4:6)
+#' lf$slice(1, 2)$collect()
 lazyframe__slice <- function(offset, length = NULL) {
   wrap({
-    if (isTRUE(length < 0)) {
-      abort(sprintf("negative slice length (%s) are invalid for LazyFrame", length))
-    }
     self$`_ldf`$slice(offset, length)
   })
 }
@@ -988,22 +995,6 @@ lazyframe__shift <- function(n = 1, ..., fill_value = NULL) {
 lazyframe__reverse <- function() {
   wrap({
     self$`_ldf`$reverse()
-  })
-}
-
-#' Get a slice of the LazyFrame.
-#'
-#' @param offset Start index. Negative indexing is supported.
-#' @param length Length of the slice. If `NULL` (default), all rows starting at
-#' the offset will be selected.
-#'
-#' @return A [LazyFrame][lazyframe__class]
-#' @examples
-#' lf <- pl$LazyFrame(x = c("a", "b", "c"), y = 1:3, z = 4:6)
-#' lf$slice(1, 2)$collect()
-lazyframe__slice <- function(offset, length = NULL) {
-  wrap({
-    self$`_ldf`$slice(offset, length)
   })
 }
 
