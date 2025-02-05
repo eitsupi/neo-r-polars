@@ -787,19 +787,20 @@ lazyframe__limit <- function(n = 5) {
   })
 }
 
-#' Get the last `n` rows
+#' Get the last `n` rows.
 #'
+#' @inherit lazyframe__head return params
 #' @inheritParams lazyframe__head
-#' @inherit as_polars_lf return
+#' @seealso [`<LazyFrame>$head()`][lazyframe__head]
 #' @examples
 #' lf <- pl$LazyFrame(a = 1:6, b = 7:12)
 #' lf$tail()$collect()
 #' lf$tail(2)$collect()
-lazyframe__tail <- function(n = 5) {
-  self$`_ldf`$tail(n) |>
-    wrap()
+lazyframe__tail <- function(n = 5L) {
+  wrap({
+    self$`_ldf`$tail(n)
+  })
 }
-
 
 #' Get the first row of the LazyFrame
 #'
@@ -998,23 +999,6 @@ lazyframe__shift <- function(n = 1, ..., fill_value = NULL) {
 lazyframe__reverse <- function() {
   wrap({
     self$`_ldf`$reverse()
-  })
-}
-
-#' Get the last `n` rows.
-#'
-#' @inherit lazyframe__head return params
-#' @inheritParams lazyframe__head
-#' @seealso [`<LazyFrame>$head()`][lazyframe__head]
-#' @examples
-#' lf <- pl$LazyFrame(a = 1:6, b = 7:12)
-#'
-#' lf$tail()$collect()
-#'
-#' lf$tail(2)$collect()
-lazyframe__tail <- function(n = 5L) {
-  wrap({
-    self$`_ldf`$tail(n)
   })
 }
 
