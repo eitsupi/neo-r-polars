@@ -252,11 +252,12 @@ lazyframe__collect <- function(
   })
 }
 
-#' Collect and profile a lazy query.
+#' Collect and profile a lazy query
 #'
-#' This will run the query and return a list containing the materialized
-#' DataFrame and a DataFrame that contains profiling information of each node
-#' that is executed.
+#' @description
+#' This will run the query and return a list containing the
+#' materialized DataFrame and a DataFrame that contains profiling information
+#' of each node that is executed.
 #'
 #' @inheritParams rlang::args_dots_empty
 #' @inheritParams lazyframe__collect
@@ -264,19 +265,18 @@ lazyframe__collect <- function(
 #' @param truncate_nodes Truncate the label lengths in the Gantt chart to this
 #' number of characters. If `0` (default), do not truncate.
 #'
-#' @details
-#' The units of the timings are microseconds.
+#' @details The units of the timings are microseconds.
 #'
 #' @return List of two `DataFrame`s: one with the collected result, the other
 #' with the timings of each step. If `show_graph = TRUE`, then the plot is
 #' also stored in the list.
 #' @seealso
-#'  - [`$collect()`][LazyFrame_collect] - regular collect.
-#'  - [`$collect_in_background()`][LazyFrame_collect_in_background] - non-blocking
+#'  - [`$collect()`][lazyframe__collect] - regular collect.
+#'  - [`$collect_in_background()`][lazyframe__collect_in_background] - non-blocking
 #'    collect returns a future handle. Can also just be used via
 #'    `$collect(collect_in_background = TRUE)`.
-#'  - [`$sink_parquet()`][LazyFrame_sink_parquet()] streams query to a parquet file.
-#'  - [`$sink_ipc()`][LazyFrame_sink_ipc()] streams query to a arrow file.
+#'  - [`$sink_parquet()`][lazyframe__sink_parquet()] streams query to a parquet file.
+#'  - [`$sink_ipc()`][lazyframe__sink_ipc()] streams query to a arrow file.
 #'
 #' @examples
 #' ## Simplest use case
@@ -335,7 +335,7 @@ lazyframe__profile <- function(
       comm_subplan_elim <- FALSE
     }
 
-    lf <- self$`_rexpr`$optimization_toggle(
+    lf <- self$`_ldf`$optimization_toggle(
       type_coercion = type_coercion,
       predicate_pushdown = predicate_pushdown,
       projection_pushdown = projection_pushdown,
@@ -345,15 +345,19 @@ lazyframe__profile <- function(
       comm_subexpr_elim = comm_subexpr_elim,
       cluster_with_columns = cluster_with_columns,
       streaming = streaming,
-      eager = FALSE
+      `_eager` = FALSE
     )
 
-    out <- self$`_ldf`$profile()
+    out <- lapply(self$`_ldf`$profile(), \(x) {
+      x |>
+        .savvy_wrap_PlRDataFrame() |>
+        wrap()
+    })
 
     if (isTRUE(show_plot)) {
-      out[["plot"]] <- make_profile_plot(out, truncate_nodes) |>
-        wrap()
+      out[["plot"]] <- make_profile_plot(out, truncate_nodes)
     }
+
     out
   })
 }
@@ -1348,115 +1352,6 @@ lazyframe__rename <- function(..., .strict = TRUE) {
     existing <- names(mapping)
     new <- unlist(mapping)
     self$`_ldf`$rename(existing, new, .strict)
-  })
-}
-
-#' Collect and profile a lazy query
-#'
-#' @description
-#' This will run the query and return a list containing the
-#' materialized DataFrame and a DataFrame that contains profiling information
-#' of each node that is executed.
-#'
-#' @inheritParams rlang::args_dots_empty
-#' @inheritParams lazyframe__collect
-#' @param show_plot Show a Gantt chart of the profiling result
-#' @param truncate_nodes Truncate the label lengths in the Gantt chart to this
-#' number of characters. If `0` (default), do not truncate.
-#'
-#' @details The units of the timings are microseconds.
-#'
-#' @return List of two `DataFrame`s: one with the collected result, the other
-#' with the timings of each step. If `show_graph = TRUE`, then the plot is
-#' also stored in the list.
-#' @seealso
-#'  - [`$collect()`][lazyframe__collect] - regular collect.
-#'  - [`$collect_in_background()`][lazyframe__collect_in_background] - non-blocking
-#'    collect returns a future handle. Can also just be used via
-#'    `$collect(collect_in_background = TRUE)`.
-#'  - [`$sink_parquet()`][lazyframe__sink_parquet()] streams query to a parquet file.
-#'  - [`$sink_ipc()`][lazyframe__sink_ipc()] streams query to a arrow file.
-#'
-#' @examples
-#' ## Simplest use case
-#' pl$LazyFrame()$select(pl$lit(2) + 2)$profile()
-#'
-#' ## Use $profile() to compare two queries
-#'
-#' # -1-  map each Species-group with native polars, takes ~120us only
-#' as_polars_lf(iris)$
-#'   sort("Sepal.Length")$
-#'   group_by("Species", maintain_order = TRUE)$
-#'   agg(pl$col(pl$Float64)$first() + 5)$
-#'   profile()
-#'
-#' # -2-  map each Species-group of each numeric column with an R function, takes ~7000us (slow!)
-#'
-#' # some R function, prints `.` for each time called by polars
-#' r_func <- \(s) {
-#'   cat(".")
-#'   s$to_r()[1] + 5
-#' }
-#'
-#' as_polars_lf(iris)$
-#'   sort("Sepal.Length")$
-#'   group_by("Species", maintain_order = TRUE)$
-#'   agg(pl$col(pl$Float64)$map_elements(r_func))$
-#'   profile()
-lazyframe__profile <- function(
-    ...,
-    type_coercion = TRUE,
-    predicate_pushdown = TRUE,
-    projection_pushdown = TRUE,
-    simplify_expression = TRUE,
-    slice_pushdown = TRUE,
-    comm_subplan_elim = TRUE,
-    comm_subexpr_elim = TRUE,
-    cluster_with_columns = TRUE,
-    streaming = FALSE,
-    no_optimization = FALSE,
-    collect_in_background = FALSE,
-    show_plot = FALSE,
-    truncate_nodes = 0) {
-  wrap({
-    check_dots_empty0(...)
-    if (isTRUE(no_optimization)) {
-      predicate_pushdown <- FALSE
-      projection_pushdown <- FALSE
-      slice_pushdown <- FALSE
-      comm_subplan_elim <- FALSE
-      comm_subexpr_elim <- FALSE
-      cluster_with_columns <- FALSE
-    }
-
-    if (isTRUE(streaming)) {
-      comm_subplan_elim <- FALSE
-    }
-
-    lf <- self$`_ldf`$optimization_toggle(
-      type_coercion = type_coercion,
-      predicate_pushdown = predicate_pushdown,
-      projection_pushdown = projection_pushdown,
-      simplify_expression = simplify_expression,
-      slice_pushdown = slice_pushdown,
-      comm_subplan_elim = comm_subplan_elim,
-      comm_subexpr_elim = comm_subexpr_elim,
-      cluster_with_columns = cluster_with_columns,
-      streaming = streaming,
-      `_eager` = FALSE
-    )
-
-    out <- lapply(self$`_ldf`$profile(), \(x) {
-      x |>
-        .savvy_wrap_PlRDataFrame() |>
-        wrap()
-    })
-
-    if (isTRUE(show_plot)) {
-      out[["plot"]] <- make_profile_plot(out, truncate_nodes)
-    }
-
-    out
   })
 }
 
