@@ -558,3 +558,93 @@ dataframe__rechunk <- function() {
     self$`_df`$rechunk()
   })
 }
+
+#' Modify/append column(s) of a DataFrame
+#'
+#' @inherit lazyframe__with_columns description
+#' @inherit pl__DataFrame return
+#' @inheritParams lazyframe__select
+#' @examples
+#' # Pass an expression to add it as a new column.
+#' df <- pl$DataFrame(
+#'   a = 1:4,
+#'   b = c(0.5, 4, 10, 13),
+#'   c = c(TRUE, TRUE, FALSE, TRUE),
+#' )
+#' df$with_columns((pl$col("a")^2)$alias("a^2"))$collect()
+#'
+#' # Added columns will replace existing columns with the same name.
+#' df$with_columns(a = pl$col("a")$cast(pl$Float64))$collect()
+#'
+#' # Multiple columns can be added
+#' df$with_columns(
+#'   (pl$col("a")^2)$alias("a^2"),
+#'   (pl$col("b") / 2)$alias("b/2"),
+#'   (pl$col("c")$not())$alias("not c"),
+#' )
+#'
+#' # Name expression instead of `$alias()`
+#' df$with_columns(
+#'   `a^2` = pl$col("a")^2,
+#'   `b/2` = pl$col("b") / 2,
+#'   `not c` = pl$col("c")$not(),
+#' )
+#'
+#' # Expressions with multiple outputs can automatically be instantiated
+#' # as Structs by enabling the experimental setting `POLARS_AUTO_STRUCTIFY`:
+#' if (requireNamespace("withr", quietly = TRUE)) {
+#'   withr::with_envvar(c(POLARS_AUTO_STRUCTIFY = "1"), {
+#'     df$drop("c")$with_columns(
+#'       diffs = pl$col("a", "b")$diff()$name$suffix("_diff"),
+#'     )
+#'   })
+#' }
+dataframe__with_columns <- function(...) {
+  self$lazy()$with_columns(...)$collect(`_eager` = TRUE) |>
+    wrap()
+}
+
+#' Modify/append column(s) of a DataFrame
+#'
+#' @inherit lazyframe__with_columns_seq description
+#' @inherit pl__DataFrame return
+#' @inheritParams lazyframe__select
+#' @examples
+#' # Pass an expression to add it as a new column.
+#' df <- pl$DataFrame(
+#'   a = 1:4,
+#'   b = c(0.5, 4, 10, 13),
+#'   c = c(TRUE, TRUE, FALSE, TRUE),
+#' )
+#' df$with_columns_seq((pl$col("a")^2)$alias("a^2"))
+#'
+#' # Added columns will replace existing columns with the same name.
+#' df$with_columns_seq(a = pl$col("a")$cast(pl$Float64))
+#'
+#' # Multiple columns can be added
+#' df$with_columns_seq(
+#'   (pl$col("a")^2)$alias("a^2"),
+#'   (pl$col("b") / 2)$alias("b/2"),
+#'   (pl$col("c")$not())$alias("not c"),
+#' )
+#'
+#' # Name expression instead of `$alias()`
+#' df$with_columns_seq(
+#'   `a^2` = pl$col("a")^2,
+#'   `b/2` = pl$col("b") / 2,
+#'   `not c` = pl$col("c")$not(),
+#' )
+#'
+#' # Expressions with multiple outputs can automatically be instantiated
+#' # as Structs by enabling the experimental setting `POLARS_AUTO_STRUCTIFY`:
+#' if (requireNamespace("withr", quietly = TRUE)) {
+#'   withr::with_envvar(c(POLARS_AUTO_STRUCTIFY = "1"), {
+#'     df$drop("c")$with_columns_seq(
+#'       diffs = pl$col("a", "b")$diff()$name$suffix("_diff"),
+#'     )
+#'   })
+#' }
+dataframe__with_columns_seq <- function(...) {
+  self$lazy()$with_columns_seq(...)$collect(`_eager` = TRUE) |>
+    wrap()
+}
