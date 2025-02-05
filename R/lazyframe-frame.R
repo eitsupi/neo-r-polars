@@ -758,6 +758,9 @@ lazyframe__drop <- function(..., strict = TRUE) {
 #' lf$slice(1, 2)$collect()
 lazyframe__slice <- function(offset, length = NULL) {
   wrap({
+    if (isTRUE(length < 0)) {
+      abort(sprintf("negative slice length (%s) are invalid for LazyFrame", length))
+    }
     self$`_ldf`$slice(offset, length)
   })
 }
