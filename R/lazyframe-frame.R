@@ -1153,7 +1153,7 @@ lazyframe__unique <- function(
 lazyframe__join <- function(
     other,
     on = NULL,
-    how = "inner",
+    how = c("inner", "full", "left", "right", "semi", "anti", "cross"),
     ...,
     left_on = NULL,
     right_on = NULL,
@@ -1512,7 +1512,7 @@ lazyframe__rolling <- function(
     ...,
     period,
     offset = NULL,
-    closed = "right",
+    closed = c("right", "left", "both", "none"),
     group_by = NULL) {
   wrap({
     check_dots_empty0(...)
@@ -1675,7 +1675,7 @@ lazyframe__group_by_dynamic <- function(
     period = NULL,
     offset = NULL,
     include_boundaries = FALSE,
-    closed = "left",
+    closed = c("left", "right", "both", "none"),
     label = "left",
     group_by = NULL,
     start_by = "window") {

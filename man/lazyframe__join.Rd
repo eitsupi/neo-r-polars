@@ -7,7 +7,7 @@
 lazyframe__join(
   other,
   on = NULL,
-  how = "inner",
+  how = c("inner", "full", "left", "right", "semi", "anti", "cross"),
   ...,
   left_on = NULL,
   right_on = NULL,

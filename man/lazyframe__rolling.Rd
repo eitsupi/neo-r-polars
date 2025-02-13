@@ -9,7 +9,7 @@ lazyframe__rolling(
   ...,
   period,
   offset = NULL,
-  closed = "right",
+  closed = c("right", "left", "both", "none"),
   group_by = NULL
 )
 }
