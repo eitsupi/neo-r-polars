@@ -1952,13 +1952,16 @@ lazyframe__merge_sorted <- function(other, key) {
 #' the data is **not** sorted! Use with care!
 #'
 #' @inheritParams rlang::args_dots_empty
-#' @param column Columns that are sorted.
+#' @param column Column that is sorted.
 #' @param descending Whether the columns are sorted in descending order.
 #'
 #' @inherit as_polars_lf return
 lazyframe__set_sorted <- function(column, ..., descending = FALSE) {
   wrap({
     check_dots_empty0(...)
+    if (length(column) != 1 || !is.character(column)) {
+      abort("`column` must be a single column name.")
+    }
     self$with_columns(pl$col(column)$set_sorted(descending = descending))
   })
 }
