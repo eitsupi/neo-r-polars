@@ -12,7 +12,7 @@ lazyframe__join(
   left_on = NULL,
   right_on = NULL,
   suffix = "_right",
-  validate = "m:m",
+  validate = c("m:m", "1:m", "m:1", "1:1"),
   join_nulls = FALSE,
   allow_parallel = TRUE,
   force_parallel = FALSE,
