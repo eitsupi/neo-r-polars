@@ -786,9 +786,8 @@ lazyframe__head <- function(n = 5) {
 
 #' @rdname lazyframe__head
 lazyframe__limit <- function(n = 5) {
-  wrap({
-    self$head(n)
-  })
+  self$head(n) |>
+    wrap()
 }
 
 #' Get the last `n` rows.
@@ -801,9 +800,8 @@ lazyframe__limit <- function(n = 5) {
 #' lf$tail()$collect()
 #' lf$tail(2)$collect()
 lazyframe__tail <- function(n = 5L) {
-  wrap({
-    self$`_ldf`$tail(n)
-  })
+  self$`_ldf`$tail(n) |>
+    wrap()
 }
 
 #' Get the first row of the LazyFrame
@@ -813,9 +811,8 @@ lazyframe__tail <- function(n = 5L) {
 #' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, 1))
 #' lf$first()$collect()
 lazyframe__first <- function() {
-  wrap({
-    self$slice(0, 1)
-  })
+  self$slice(0, 1) |>
+    wrap()
 }
 
 #' Get the last row of the LazyFrame
@@ -825,9 +822,8 @@ lazyframe__first <- function() {
 #' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, 1))
 #' lf$last()$collect()
 lazyframe__last <- function() {
-  wrap({
-    self$tail(1)
-  })
+  self$tail(1) |>
+    wrap()
 }
 
 #' Aggregate the columns in the LazyFrame to their maximum value
@@ -837,9 +833,8 @@ lazyframe__last <- function() {
 #' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, 1))
 #' lf$max()$collect()
 lazyframe__max <- function() {
-  wrap({
-    self$`_ldf`$max()
-  })
+  self$`_ldf`$max() |>
+    wrap()
 }
 
 #' Aggregate the columns in the LazyFrame to their mean value
@@ -849,9 +844,8 @@ lazyframe__max <- function() {
 #' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, 1))
 #' lf$mean()$collect()
 lazyframe__mean <- function() {
-  wrap({
-    self$`_ldf`$mean()
-  })
+  self$`_ldf`$mean() |>
+    wrap()
 }
 
 #' Aggregate the columns in the LazyFrame to their median value
@@ -861,9 +855,8 @@ lazyframe__mean <- function() {
 #' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, 1))
 #' lf$median()$collect()
 lazyframe__median <- function() {
-  wrap({
-    self$`_ldf`$median()
-  })
+  self$`_ldf`$median() |>
+    wrap()
 }
 
 #' Aggregate the columns in the LazyFrame to their minimum value
@@ -873,9 +866,8 @@ lazyframe__median <- function() {
 #' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, 1))
 #' lf$min()$collect()
 lazyframe__min <- function() {
-  wrap({
-    self$`_ldf`$min()
-  })
+  self$`_ldf`$min() |>
+    wrap()
 }
 
 #' Aggregate the columns of this LazyFrame to their sum values
@@ -885,9 +877,8 @@ lazyframe__min <- function() {
 #' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, 1))
 #' lf$sum()$collect()
 lazyframe__sum <- function() {
-  wrap({
-    self$`_ldf`$sum()
-  })
+  self$`_ldf`$sum() |>
+    wrap()
 }
 
 #' Aggregate the columns in the LazyFrame to their variance value
@@ -899,9 +890,8 @@ lazyframe__sum <- function() {
 #' lf$var()$collect()
 #' lf$var(ddof = 0)$collect()
 lazyframe__var <- function(ddof = 1) {
-  wrap({
-    self$`_ldf`$var(ddof)
-  })
+  self$`_ldf`$var(ddof) |>
+    wrap()
 }
 
 #' Aggregate the columns of this LazyFrame to their standard deviation values
@@ -913,9 +903,8 @@ lazyframe__var <- function(ddof = 1) {
 #' lf$std()$collect()
 #' lf$std(ddof = 0)$collect()
 lazyframe__std <- function(ddof = 1) {
-  wrap({
-    self$`_ldf`$std(ddof)
-  })
+  self$`_ldf`$std(ddof) |>
+    wrap()
 }
 
 #' Aggregate the columns in the DataFrame to a unique quantile value
@@ -947,9 +936,8 @@ lazyframe__quantile <- function(
 #' )
 #' lf$fill_nan(99)$collect()
 lazyframe__fill_nan <- function(value) {
-  wrap({
-    self$`_ldf`$fill_nan(as_polars_expr(value)$`_rexpr`)
-  })
+  self$`_ldf`$fill_nan(as_polars_expr(value)$`_rexpr`) |>
+    wrap()
 }
 
 #' @inherit DataFrame_fill_null title description params
@@ -962,9 +950,8 @@ lazyframe__fill_nan <- function(value) {
 #' )
 #' lf$fill_null(99)$collect()
 lazyframe__fill_null <- function(fill_value) {
-  wrap({
-    self$`_ldf`$fill_null(as_polars_expr(fill_value)$`_rexpr`)
-  })
+  self$`_ldf`$fill_null(as_polars_expr(fill_value)$`_rexpr`) |>
+    wrap()
 }
 
 #' Shift values by the given number of indices
@@ -1001,9 +988,8 @@ lazyframe__shift <- function(n = 1, ..., fill_value = NULL) {
 #' lf <- pl$LazyFrame(key = c("a", "b", "c"), val = 1:3)
 #' lf$reverse()$collect()
 lazyframe__reverse <- function() {
-  wrap({
-    self$`_ldf`$reverse()
-  })
+  self$`_ldf`$reverse() |>
+    wrap()
 }
 
 #' Drop all rows that contain null values
@@ -1362,9 +1348,8 @@ lazyframe__rename <- function(..., .strict = TRUE) {
 #' lf <- pl$LazyFrame(a = 1:3)$sum()
 #' lf$serialize()
 lazyframe__serialize <- function() {
-  wrap({
-    self$`_ldf`$serialize()
-  })
+  self$`_ldf`$serialize() |>
+    wrap()
 }
 
 #' Explode the DataFrame to long format by exploding the given columns
@@ -1811,9 +1796,8 @@ lazyframe__gather_every <- function(n, offset = 0) {
 #' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, NA), c = rep(NA, 4))
 #' lf$count()$collect()
 lazyframe__count <- function() {
-  wrap({
-    self$`_ldf`$count()
-  })
+  self$`_ldf`$count() |>
+    wrap()
 }
 
 #' Return the number of null elements for each column
@@ -1824,9 +1808,8 @@ lazyframe__count <- function() {
 #' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, NA), c = rep(NA, 4))
 #' lf$null_count()$collect()
 lazyframe__null_count <- function() {
-  wrap({
-    self$`_ldf`$null_count()
-  })
+  self$`_ldf`$null_count() |>
+    wrap()
 }
 
 #' Return the `k` smallest rows
@@ -1912,9 +1895,8 @@ lazyframe__top_k <- function(k, ..., by, reverse = FALSE) {
 #'
 #' lf$interpolate()$collect()
 lazyframe__interpolate <- function() {
-  wrap({
-    self$select(pl$col("*")$interpolate())
-  })
+  self$select(pl$col("*")$interpolate()) |>
+    wrap()
 }
 
 #' Take two sorted DataFrames and merge them by the sorted key
@@ -1941,9 +1923,8 @@ lazyframe__interpolate <- function() {
 #'
 #' lf1$merge_sorted(lf2, key = "age")$collect()
 lazyframe__merge_sorted <- function(other, key) {
-  wrap({
-    self$`_ldf`$merge_sorted(other$`_ldf`, key)
-  })
+  self$`_ldf`$merge_sorted(other$`_ldf`, key) |>
+    wrap()
 }
 
 #' Indicate that one or multiple columns are sorted
@@ -1989,9 +1970,8 @@ lazyframe__set_sorted <- function(column, ..., descending = FALSE) {
 #'   index = pl$int_range(pl$len(), dtype = pl$UInt32)
 #' )$collect()
 lazyframe__with_row_index <- function(name = "index", offset = 0) {
-  wrap({
-    self$`_ldf`$with_row_index(name, offset)
-  })
+  self$`_ldf`$with_row_index(name, offset) |>
+    wrap()
 }
 
 #' Perform joins on nearest keys
