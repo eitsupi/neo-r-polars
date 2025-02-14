@@ -766,9 +766,10 @@ test_that("join_asof", {
       group_right = c("b", "b", "a", "a")
     )
   )
-  expect_snapshot(
-    l_gdp$lazy()$join_asof(l_pop$lazy(), on = "date", strategy = "fruitcake"),
-    error = TRUE
+  expect_query_error(
+    .input$join_asof(.input2, on = "date", strategy = "foobar"),
+    .input = l_gdp, .input2 = l_pop,
+    "must be one of"
   )
 
   # left_on / right_on
