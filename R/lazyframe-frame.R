@@ -785,10 +785,7 @@ lazyframe__head <- function(n = 5) {
 }
 
 #' @rdname lazyframe__head
-lazyframe__limit <- function(n = 5) {
-  self$head(n) |>
-    wrap()
-}
+lazyframe__limit <- lazyframe__head
 
 #' Get the last `n` rows.
 #'
