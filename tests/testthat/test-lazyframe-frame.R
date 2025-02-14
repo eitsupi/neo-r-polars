@@ -767,13 +767,9 @@ test_that("unnest", {
       pl$struct(c("d", "e", "f"))$alias("second_struct")
     )
   )
-  expect_error(
-    df$unnest(a = "first_struct"),
-    "must be passed by position"
-  )
-  expect_error(
-    df$lazy()$unnest(a = "first_struct"),
+  expect_query_error(
+    .input$unnest(a = "first_struct"),
+    .input = df,
     "must be passed by position"
   )
 })
-Footer
