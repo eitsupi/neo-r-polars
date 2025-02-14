@@ -816,7 +816,7 @@ dataframe__join <- function(
 #' # This behaviour can be constrained to consider only a subset of columns, as
 #' # defined by name or with a selector. For example, dropping rows if there is
 #' # a null in the "bar" column:
-#' df$drop_nans(subset = "bar")
+#' df$drop_nans("bar")
 #'
 #' # Dropping a row only if *all* values are NaN requires a different
 #' # formulation:
@@ -826,8 +826,8 @@ dataframe__join <- function(
 #'   c = c(65.75, NaN, NaN, 10.5)
 #' )
 #' df$filter(!pl$all_horizontal(pl$all()$is_nan()))
-dataframe__drop_nans <- function(subset = NULL) {
-  self$lazy()$drop_nans(subset)$collect(`_eager` = TRUE) |>
+dataframe__drop_nans <- function(...) {
+  self$lazy()$drop_nans(...)$collect(`_eager` = TRUE) |>
     wrap()
 }
 
@@ -847,8 +847,8 @@ dataframe__drop_nans <- function(subset = NULL) {
 #' # This behaviour can be constrained to consider only a subset of columns, as
 #' # defined by name or with a selector. For example, dropping rows if there is
 #' # a null in any of the integer columns:
-#' df$drop_nulls(subset = cs$integer())
-dataframe__drop_nulls <- function(subset = NULL) {
-  self$lazy()$drop_nulls(subset)$collect(`_eager` = TRUE) |>
+#' df$drop_nulls(cs$integer())
+dataframe__drop_nulls <- function(...) {
+  self$lazy()$drop_nulls(...)$collect(`_eager` = TRUE) |>
     wrap()
 }

@@ -4,11 +4,11 @@
 \alias{lazyframe__drop_nulls}
 \title{Drop all rows that contain null values}
 \usage{
-lazyframe__drop_nulls(subset = NULL)
+lazyframe__drop_nulls(...)
 }
 \arguments{
-\item{subset}{Column name(s) for which null values are considered. If \code{NULL}
-(default), use all columns.}
+\item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> Column name(s) for which null
+values are considered. If empty (default), use all columns.}
 }
 \value{
 A polars \link{LazyFrame}
@@ -30,5 +30,5 @@ lf$drop_nulls()$collect()
 # This behaviour can be constrained to consider only a subset of columns, as
 # defined by name or with a selector. For example, dropping rows if there is
 # a null in any of the integer columns:
-lf$drop_nulls(subset = cs$integer())$collect()
+lf$drop_nulls(cs$integer())$collect()
 }
