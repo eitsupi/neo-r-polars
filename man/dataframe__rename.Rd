@@ -16,7 +16,7 @@ and throw an error if any do not. (Note that this parameter is a no-op when
 passing a function to \code{...}).}
 }
 \value{
-A polars \link{LazyFrame}
+A polars \link{DataFrame}
 }
 \description{
 Rename column names
