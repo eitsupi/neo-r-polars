@@ -867,3 +867,34 @@ dataframe__gather_every <- function(n, offset = 0) {
   self$select(pl$col("*")$gather_every(n, offset)) |>
     wrap()
 }
+
+#' @inherit lazyframe__clear title description params
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = c(NA, 2, 3, 4),
+#'   b = c(0.5, NA, 2.5, 13),
+#'   c = c(TRUE, TRUE, FALSE, NA)
+#' )
+#' df$clear()
+#'
+#' df$clear(n = 2)
+dataframe__clear <- function(n = 0) {
+  wrap({
+    if (n < 0) {
+      abort("`n` must be greater than or equal to 0.")
+    }
+    if (n == 0) {
+      return(
+        self$`_df`$clear() |>
+          wrap()
+      )
+    }
+    sch <- self$schema
+    lst <- lapply(seq_along(sch), \(x) {
+      pl$lit(NA, dtype = sch[[x]])$extend_constant(NA, n - 1)$alias(names(sch)[x])
+    })
+    pl$select(!!!lst)
+  })
+}
