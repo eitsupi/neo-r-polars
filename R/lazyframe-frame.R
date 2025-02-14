@@ -179,13 +179,15 @@ lazyframe__group_by <- function(..., .maintain_order = FALSE) {
 #' @param comm_subplan_elim A logical, indicats tring to cache branching subplans that occur on self-joins or unions.
 #' @param comm_subexpr_elim A logical, indicats tring to cache common subexpressions.
 #' @param cluster_with_columns A logical, indicats to combine sequential independent calls to with_columns.
+#' @param collapse_joins Collapse a join and filters into a faster join.
 #' @param no_optimization A logical. If `TRUE`, turn off (certain) optimizations.
 #' @param streaming A logical. If `TRUE`, process the query in batches to handle larger-than-memory data.
 #' If `FALSE` (default), the entire query is processed in a single batch.
 #' Note that streaming mode is considered unstable.
 #' It may be changed at any point without it being considered a breaking change.
-#' @param _eager A logical, indicates to turn off multi-node optimizations and the other optimizations.
-#' This option is intended for internal use only.
+#' @param _eager A logical, indicates to turn off multi-node optimizations and
+#' the other optimizations. This option is intended for internal use only.
+#' @param _check_order,_type_check For internal use only.
 #'
 #' @inherit as_polars_lf return
 #'
@@ -213,6 +215,7 @@ lazyframe__group_by <- function(..., .maintain_order = FALSE) {
 lazyframe__collect <- function(
     ...,
     type_coercion = TRUE,
+    `_type_check` = TRUE,
     predicate_pushdown = TRUE,
     projection_pushdown = TRUE,
     simplify_expression = TRUE,
@@ -220,8 +223,10 @@ lazyframe__collect <- function(
     comm_subplan_elim = TRUE,
     comm_subexpr_elim = TRUE,
     cluster_with_columns = TRUE,
+    collapse_joins = TRUE,
     no_optimization = FALSE,
     streaming = FALSE,
+    `_check_order` = TRUE,
     `_eager` = FALSE) {
   wrap({
     check_dots_empty0(...)
@@ -233,10 +238,13 @@ lazyframe__collect <- function(
       comm_subplan_elim <- FALSE
       comm_subexpr_elim <- FALSE
       cluster_with_columns <- FALSE
+      collapse_joins <- FALSE
+      `_check_order` <- FALSE
     }
 
     ldf <- self$`_ldf`$optimization_toggle(
       type_coercion = type_coercion,
+      `_type_check` = `_type_check`,
       predicate_pushdown = predicate_pushdown,
       projection_pushdown = projection_pushdown,
       simplify_expression = simplify_expression,
@@ -244,7 +252,9 @@ lazyframe__collect <- function(
       comm_subplan_elim = comm_subplan_elim,
       comm_subexpr_elim = comm_subexpr_elim,
       cluster_with_columns = cluster_with_columns,
+      collapse_joins = collapse_joins,
       streaming = streaming,
+      `_check_order` = `_check_order`,
       `_eager` = `_eager`
     )
 
@@ -307,6 +317,7 @@ lazyframe__collect <- function(
 lazyframe__profile <- function(
     ...,
     type_coercion = TRUE,
+    `_type_check` = TRUE,
     predicate_pushdown = TRUE,
     projection_pushdown = TRUE,
     simplify_expression = TRUE,
@@ -314,9 +325,10 @@ lazyframe__profile <- function(
     comm_subplan_elim = TRUE,
     comm_subexpr_elim = TRUE,
     cluster_with_columns = TRUE,
+    collapse_joins = TRUE,
     streaming = FALSE,
     no_optimization = FALSE,
-    collect_in_background = FALSE,
+    `_check_order` = TRUE,
     show_plot = FALSE,
     truncate_nodes = 0) {
   wrap({
@@ -329,6 +341,8 @@ lazyframe__profile <- function(
       comm_subplan_elim <- FALSE
       comm_subexpr_elim <- FALSE
       cluster_with_columns <- FALSE
+      collapse_joins <- FALSE
+      `_check_order` <- FALSE
     }
 
     if (isTRUE(streaming)) {
@@ -337,6 +351,7 @@ lazyframe__profile <- function(
 
     lf <- self$`_ldf`$optimization_toggle(
       type_coercion = type_coercion,
+      `_type_check` = `_type_check`,
       predicate_pushdown = predicate_pushdown,
       projection_pushdown = projection_pushdown,
       simplify_expression = simplify_expression,
@@ -344,8 +359,10 @@ lazyframe__profile <- function(
       comm_subplan_elim = comm_subplan_elim,
       comm_subexpr_elim = comm_subexpr_elim,
       cluster_with_columns = cluster_with_columns,
+      collapse_joins = collapse_joins,
       streaming = streaming,
-      `_eager` = FALSE
+      `_check_order` = `_check_order`,
+      `_eager` = `_eager`
     )
 
     out <- lapply(self$`_ldf`$profile(), \(x) {
@@ -399,6 +416,7 @@ lazyframe__explain <- function(
     format = c("plain", "tree"),
     optimized = TRUE,
     type_coercion = TRUE,
+    `_type_check` = TRUE,
     predicate_pushdown = TRUE,
     projection_pushdown = TRUE,
     simplify_expression = TRUE,
@@ -406,7 +424,9 @@ lazyframe__explain <- function(
     comm_subplan_elim = TRUE,
     comm_subexpr_elim = TRUE,
     cluster_with_columns = TRUE,
-    streaming = FALSE) {
+    collapse_joins = TRUE,
+    streaming = FALSE,
+    `_check_order` = TRUE) {
   wrap({
     check_dots_empty0(...)
 
@@ -415,6 +435,7 @@ lazyframe__explain <- function(
     if (isTRUE(optimized)) {
       ldf <- self$`_ldf`$optimization_toggle(
         type_coercion = type_coercion,
+        `_type_check` = `_type_check`,
         predicate_pushdown = predicate_pushdown,
         projection_pushdown = projection_pushdown,
         simplify_expression = simplify_expression,
@@ -422,8 +443,10 @@ lazyframe__explain <- function(
         comm_subplan_elim = comm_subplan_elim,
         comm_subexpr_elim = comm_subexpr_elim,
         cluster_with_columns = cluster_with_columns,
+        collapse_joins = collapse_joins,
         streaming = streaming,
-        `_eager` = FALSE
+        `_check_order` = `_check_order`,
+        `_eager` = `_eager`
       )
 
       if (format == "tree") {
@@ -1025,7 +1048,53 @@ lazyframe__drop_nulls <- function(subset = NULL) {
   })
 }
 
-#' Drop duplicate rows from this DataFrame
+#' Drop all rows that contain NaN values
+#'
+#' The original order of the remaining rows is preserved.
+#'
+#' @param subset Column name(s) for which `NaN` values are considered. If `NULL`
+#' (default), use all columns (note that only floating-point columns can
+#' contain `NaN`s).
+#'
+#' @inherit as_polars_lf return
+#' @examples
+#' lf <- pl$LazyFrame(
+#'   foo = c(1, NaN, 2.5),
+#'   bar = c(NaN, 110, 25.5),
+#'   ham = c("a", "b", NA)
+#' )
+#'
+#' # The default behavior of this method is to drop rows where any single value
+#' # of the row is null.
+#' lf$drop_nans()$collect()
+#'
+#' # This behaviour can be constrained to consider only a subset of columns, as
+#' # defined by name or with a selector. For example, dropping rows if there is
+#' # a null in the "bar" column:
+#' lf$drop_nans(subset = "bar")$collect()
+#'
+#' # Dropping a row only if *all* values are NaN requires a different
+#' # formulation:
+#' df <- pl$LazyFrame(
+#'   a = c(NaN, NaN, NaN, NaN),
+#'   b = c(10.0, 2.5, NaN, 5.25),
+#'   c = c(65.75, NaN, NaN, 10.5)
+#' )
+#' df$filter(!pl$all_horizontal(pl$all()$is_nan()))$collect()
+lazyframe__drop_nans <- function(subset = NULL) {
+  wrap({
+    if (!is.null(subset)) {
+      if (is_polars_selector(subset)) {
+        subset <- parse_into_list_of_expressions(!!!list(subset))
+      } else {
+        subset <- parse_into_list_of_expressions(!!!subset)
+      }
+    }
+    self$`_ldf`$drop_nans(subset)
+  })
+}
+
+#' Drop duplicate rows
 #'
 #' @inheritParams rlang::args_dots_empty
 #' @param subset Column name(s) or selector(s), to consider when identifying
@@ -1036,7 +1105,7 @@ lazyframe__drop_nulls <- function(subset = NULL) {
 #' * `"none"`: don’t keep duplicate rows.
 #' * `"first"`: keep first unique row.
 #' * `"last"`: keep last unique row.
-#' @param maintain_order Keep the same order as the original LazyFrame. This is
+#' @param maintain_order Keep the same order as the original data. This is
 #' more expensive to compute. Setting this to `TRUE` blocks the possibility to
 #' run on the streaming engine.
 #'
@@ -1078,7 +1147,7 @@ lazyframe__unique <- function(
 #' @param other LazyFrame to join with.
 #' @param on Either a vector of column names or a list of expressions and/or
 #'   strings. Use `left_on` and `right_on` if the column names to match on are
-#'   different between the two DataFrames.
+#'   different between the two LazyFrames.
 #' @param how One of the following methods:
 #' * "inner": returns rows that have matching values in both tables
 #' * "left": returns all rows from the left table, and the matched rows from
@@ -1107,15 +1176,28 @@ lazyframe__unique <- function(
 #' @param join_nulls Join on null values. By default null values will never
 #'   produce matches.
 #' @param allow_parallel Allow the physical plan to optionally evaluate the
-#'   computation of both DataFrames up to the join in parallel.
+#'   computation of both LazyFrames up to the join in parallel.
 #' @param force_parallel Force the physical plan to evaluate the computation of
-#'   both DataFrames up to the join in parallel.
+#'   both LazyFrames up to the join in parallel.
 #' @param coalesce Coalescing behavior (merging of join columns).
 #' - `NULL`: join specific.
 #' - `TRUE`: Always coalesce join columns.
 #' - `FALSE`: Never coalesce join columns.
 #' Note that joining on any other expressions than `col` will turn off
 #' coalescing.
+#' @param maintain_order Which frame row order to preserve, if any. Do not rely
+#' on any observed ordering without explicitly setting this parameter, as your
+#' code may break in a future release. Not specifying any ordering can improve
+#' performance. Supported for inner, left, right and full joins.
+#'
+#' * `"none"`: No specific ordering is desired. The ordering might differ
+#'   across Polars versions or even between different runs.
+#' * `"left"`: Preserves the order of the left frame.
+#' * `"right"`: Preserves the order of the right frame.
+#' * `"left_right"`: First preserves the order of the left frame, then the
+#'   right.
+#' * `"right_left"`: First preserves the order of the right frame, then the
+#'   left.
 #'
 #' @inherit as_polars_lf return
 #' @examples
@@ -1147,6 +1229,7 @@ lazyframe__join <- function(
     suffix = "_right",
     validate = c("m:m", "1:m", "m:1", "1:1"),
     join_nulls = FALSE,
+    maintain_order = c("none", "left", "right", "left_right", "right_left"),
     allow_parallel = TRUE,
     force_parallel = FALSE,
     coalesce = NULL) {
@@ -1156,6 +1239,10 @@ lazyframe__join <- function(
     how <- arg_match0(
       how,
       values = c("inner", "full", "left", "right", "semi", "anti", "cross")
+    )
+    maintain_order <- arg_match0(
+      maintain_order,
+      values = c("none", "left", "right", "left_right", "right_left")
     )
     validate <- arg_match0(validate, values = c("m:m", "1:m", "m:1", "1:1"))
     uses_on <- !is.null(on)
@@ -1177,12 +1264,14 @@ lazyframe__join <- function(
       }
       return(
         self$`_ldf`$join(
-          other$`_ldf`, list(), list(),
+          other$`_ldf`,
+          left_on = list(), right_on = list(),
           how = how, validate = validate,
           join_nulls = join_nulls, suffix = suffix,
           allow_parallel = allow_parallel, force_parallel = force_parallel,
-          coalesce = coalesce
-        )
+          coalesce = coalesce, maintain_order = maintain_order
+        ) |>
+          wrap()
       )
     }
 
@@ -1195,11 +1284,12 @@ lazyframe__join <- function(
       abort("must specify either `on`, or `left_on` and `right_on`.")
     }
     self$`_ldf`$join(
-      other$`_ldf`, rexprs_left, rexprs_right,
+      other$`_ldf`,
+      left_on = rexprs_left, right_on = rexprs_right,
       how = how, validate = validate,
       join_nulls = join_nulls, suffix = suffix,
       allow_parallel = allow_parallel, force_parallel = force_parallel,
-      coalesce = coalesce
+      coalesce = coalesce, maintain_order = maintain_order
     )
   })
 }
@@ -1728,19 +1818,21 @@ lazyframe__to_dot <- function(
     comm_subexpr_elim = TRUE,
     cluster_with_columns = TRUE,
     streaming = FALSE) {
-  lf <- self |>
-    self$`_ldf`$optimization_toggle(
-      pe_coercion = type_coercion,
-      predicate_pushdown = predicate_pushdown,
-      projection_pushdown = projection_pushdown,
-      simplify_expression = simplify_expression,
-      slice_pushdown = slice_pushdown,
-      comm_subplan_elim = comm_subplan_elim,
-      comm_subexpr_elim = comm_subexpr_elim,
-      cluster_with_columns = cluster_with_columns,
-      streaming = streaming,
-      eager = FALSE
-    )
+  ldf <- self$`_ldf`$optimization_toggle(
+    type_coercion = type_coercion,
+    `_type_check` = `_type_check`,
+    predicate_pushdown = predicate_pushdown,
+    projection_pushdown = projection_pushdown,
+    simplify_expression = simplify_expression,
+    slice_pushdown = slice_pushdown,
+    comm_subplan_elim = comm_subplan_elim,
+    comm_subexpr_elim = comm_subexpr_elim,
+    cluster_with_columns = cluster_with_columns,
+    collapse_joins = collapse_joins,
+    streaming = streaming,
+    `_check_order` = `_check_order`,
+    `_eager` = FALSE
+  )
 
   self$`_ldf`$to_dot(optimized)
 }
@@ -1900,13 +1992,13 @@ lazyframe__interpolate <- function() {
     wrap()
 }
 
-#' Take two sorted DataFrames and merge them by the sorted key
+#' Take two sorted LazyFrames and merge them by the sorted key
 #'
 #' The output of this operation will also be sorted. It is the callers
 #' responsibility that the frames are sorted by that key, otherwise the output
 #' will not make sense. The schemas of both LazyFrames must be equal.
 #'
-#' @param other Other DataFrame that must be merged.
+#' @param other Other LazyFrame that must be merged.
 #' @param key Key that is sorted.
 #'
 #' @inherit as_polars_lf return

@@ -45,6 +45,7 @@ impl PlRLazyFrame {
     fn optimization_toggle(
         &self,
         type_coercion: bool,
+        _type_check: bool,
         predicate_pushdown: bool,
         projection_pushdown: bool,
         simplify_expression: bool,
@@ -52,16 +53,21 @@ impl PlRLazyFrame {
         comm_subplan_elim: bool,
         comm_subexpr_elim: bool,
         cluster_with_columns: bool,
+        collapse_joins: bool,
         streaming: bool,
         _eager: bool,
+        _check_order: bool,
     ) -> Result<Self> {
         let ldf = self
             .ldf
             .clone()
             .with_type_coercion(type_coercion)
+            .with_type_check(_type_check)
             .with_predicate_pushdown(predicate_pushdown)
             .with_simplify_expr(simplify_expression)
             .with_slice_pushdown(slice_pushdown)
+            .with_collapse_joins(collapse_joins)
+            .with_check_order(_check_order)
             .with_comm_subplan_elim(comm_subplan_elim)
             .with_comm_subexpr_elim(comm_subexpr_elim)
             .with_cluster_with_columns(cluster_with_columns)
@@ -468,6 +474,7 @@ impl PlRLazyFrame {
         how: &str,
         suffix: &str,
         validate: &str,
+        maintain_order: &str,
         coalesce: Option<bool>,
     ) -> Result<Self> {
         let coalesce = match coalesce {
@@ -481,6 +488,7 @@ impl PlRLazyFrame {
         let right_on = <Wrap<Vec<Expr>>>::from(right_on).0;
 
         let how = <Wrap<JoinType>>::try_from(how)?.0;
+        let maintain_order = <Wrap<MaintainOrderJoin>>::try_from(maintain_order)?.0;
         let validate = <Wrap<JoinValidation>>::try_from(validate)?.0;
         Ok(ldf
             .join_builder()
@@ -494,6 +502,7 @@ impl PlRLazyFrame {
             .coalesce(coalesce)
             .validate(validate)
             .suffix(suffix)
+            .maintain_order(maintain_order)
             .finish()
             .into())
     }
@@ -624,6 +633,12 @@ impl PlRLazyFrame {
         let ldf = self.ldf.clone();
         let subset = subset.map(|e| <Wrap<Vec<Expr>>>::from(e).0);
         Ok(ldf.drop_nulls(subset).into())
+    }
+
+    fn drop_nans(&self, subset: Option<ListSexp>) -> Result<Self> {
+        let ldf = self.ldf.clone();
+        let subset = subset.map(|e| <Wrap<Vec<Expr>>>::from(e).0);
+        Ok(ldf.drop_nans(subset).into())
     }
 
     fn unpivot(
@@ -876,9 +891,9 @@ impl PlRLazyFrame {
             .map_err(RPolarsErr::from)?;
 
         let row_index = row_index_name.map(|x| RowIndex {
-                name: x.into(),
-                offset: row_index_offset,
-            });
+            name: x.into(),
+            offset: row_index_offset,
+        });
 
         let overwrite_dtype = match overwrite_dtype {
             Some(x) => Some(<Wrap<Schema>>::try_from(x)?.0),
@@ -895,7 +910,9 @@ impl PlRLazyFrame {
         let cloud_options = match storage_options {
             Some(x) => {
                 let out = <Wrap<Vec<(String, String)>>>::try_from(x).map_err(|_| {
-                    RPolarsErr::Other("`storage_options` must be a named character vector".to_string())
+                    RPolarsErr::Other(
+                        "`storage_options` must be a named character vector".to_string(),
+                    )
                 })?;
                 Some(out.0)
             }
@@ -997,9 +1014,9 @@ impl PlRLazyFrame {
             };
 
             let row_index = row_index_name.map(|x| RowIndex {
-                    name: x.into(),
-                    offset: row_index_offset,
-                });
+                name: x.into(),
+                offset: row_index_offset,
+            });
 
             let hive_options = HiveOptions {
                 enabled: hive_partitioning,
@@ -1031,7 +1048,9 @@ impl PlRLazyFrame {
             let cloud_options = match storage_options {
                 Some(x) => {
                     let out = <Wrap<Vec<(String, String)>>>::try_from(x).map_err(|_| {
-                        RPolarsErr::Other("`storage_options` must be a named character vector".to_string())
+                        RPolarsErr::Other(
+                            "`storage_options` must be a named character vector".to_string(),
+                        )
                     })?;
                     Some(out.0)
                 }
@@ -1114,9 +1133,9 @@ impl PlRLazyFrame {
             };
 
             let row_index = row_index_name.map(|x| RowIndex {
-                    name: x.into(),
-                    offset: row_index_offset,
-                });
+                name: x.into(),
+                offset: row_index_offset,
+            });
 
             let first_path = source.first().unwrap().clone().into();
 
@@ -1127,7 +1146,9 @@ impl PlRLazyFrame {
             let cloud_options = match storage_options {
                 Some(x) => {
                     let out = <Wrap<Vec<(String, String)>>>::try_from(x).map_err(|_| {
-                        RPolarsErr::Other("`storage_options` must be a named character vector".to_string())
+                        RPolarsErr::Other(
+                            "`storage_options` must be a named character vector".to_string(),
+                        )
                     })?;
                     Some(out.0)
                 }

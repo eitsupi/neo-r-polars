@@ -554,7 +554,7 @@ dataframe__filter <- function(...) {
 
 #' Sort a DataFrame
 #' @inherit LazyFrame_sort details description params
-#' @inheritParams DataFrame_unique
+#' @inheritParams dataframe__unique
 #' @inherit as_polars_df return
 #' @examples
 #' df <- mtcars
@@ -667,6 +667,168 @@ dataframe__top_k <- function(k, ..., by, reverse = FALSE) {
     comm_subplan_elim = FALSE,
     slice_pushdown = TRUE
   ) |> wrap()
+}
+
+#' Take two sorted DataFrames and merge them by the sorted key
+#'
+#' The output of this operation will also be sorted. It is the callers
+#' responsibility that the frames are sorted by that key, otherwise the output
+#' will not make sense. The schemas of both DataFrames must be equal.
+#'
+#' @param other Other DataFrame that must be merged.
+#' @inheritParams lazyframe__merge_sorted
+#'
+#' @inherit as_polars_df return
+#'
+#' @examples
+#' df1 <- pl$DataFrame(
+#'   name = c("steve", "elise", "bob"),
+#'   age = c(42, 44, 18)
+#' )$sort("age")
+#'
+#' df2 <- pl$DataFrame(
+#'   name = c("anna", "megan", "steve", "thomas"),
+#'   age = c(21, 33, 42, 20)
+#' )$sort("age")
+#'
+#' df1$merge_sorted(df2, key = "age")
+dataframe__merge_sorted <- function(other, key) {
+  self$lazy()$merge_sorted(other$lazy(), key)$collect(`_eager` = TRUE) |>
+    wrap()
+}
+
+#' @inherit lazyframe__set_sorted title description params
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' # We mark the data as sorted by "age" but this is not the case!
+#' # It is up to the user to ensure that the column is actually sorted.
+#' df1 <- pl$DataFrame(
+#'   name = c("steve", "elise", "bob"),
+#'   age = c(42, 44, 18)
+#' )$set_sorted("age")
+#'
+#' df1$flags
+dataframe__set_sorted <- function(column, ..., descending = FALSE) {
+  self$lazy()$set_sorted(column, descending = descending)$collect(`_eager` = TRUE) |>
+    wrap()
+}
+
+#' @inherit lazyframe__unique title params
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = c(1, 2, 3, 1),
+#'   bar = c("a", "a", "a", "a"),
+#'   ham = c("b", "b", "b", "b"),
+#' )
+#' df$unique(maintain_order = TRUE)
+#'
+#' df$unique(subset = c("bar", "ham"), maintain_order = TRUE)
+#'
+#' df$unique(keep = "last", maintain_order = TRUE)
+dataframe__unique <- function(
+    subset = NULL,
+    ...,
+    keep = c("any", "none", "first", "last"),
+    maintain_order = FALSE) {
+  self$lazy()$unique(subset = subset, keep = keep, maintain_order = maintain_order)$collect(`_eager` = TRUE) |>
+    wrap()
+}
+
+#' Join DataFrames
+#'
+#' @inherit lazyframe__join description params
+#'
+#' @param other DataFrame to join with.
+#' @param on Either a vector of column names or a list of expressions and/or
+#'   strings. Use `left_on` and `right_on` if the column names to match on are
+#'   different between the two DataFrames.
+#' @param allow_parallel Allow the physical plan to optionally evaluate the
+#'   computation of both DataFrames up to the join in parallel.
+#' @param force_parallel Force the physical plan to evaluate the computation of
+#'   both DataFrames up to the join in parallel.
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = 1:3,
+#'   bar = c(6, 7, 8),
+#'   ham = c("a", "b", "c")
+#' )
+#' other_df <- pl$DataFrame(
+#'   apple = c("x", "y", "z"),
+#'   ham = c("a", "b", "d")
+#' )
+#' df$join(other_df, on = "ham")
+#'
+#' df$join(other_df, on = "ham", how = "full")
+#'
+#' df$join(other_df, on = "ham", how = "left", coalesce = TRUE)
+#'
+#' df$join(other_df, on = "ham", how = "semi")
+#'
+#' df$join(other_df, on = "ham", how = "anti")
+dataframe__join <- function(
+    other,
+    on = NULL,
+    how = c("inner", "full", "left", "right", "semi", "anti", "cross"),
+    ...,
+    left_on = NULL,
+    right_on = NULL,
+    suffix = "_right",
+    validate = c("m:m", "1:m", "m:1", "1:1"),
+    join_nulls = FALSE,
+    maintain_order = c("none", "left", "right", "left_right", "right_left"),
+    allow_parallel = TRUE,
+    force_parallel = FALSE,
+    coalesce = NULL) {
+  wrap({
+    check_polars_df(other)
+    self$lazy()$join(
+      other = other$lazy(),
+      left_on = left_on,
+      right_on = right_on,
+      on = on,
+      how = how,
+      suffix = suffix,
+      validate = validate,
+      join_nulls = join_nulls,
+      coalesce = coalesce,
+      maintain_order = maintain_order
+    )$collect(`_eager` = TRUE)
+  })
+}
+
+#' @inherit lazyframe__drop_nans title description params
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = c(1, NaN, 2.5),
+#'   bar = c(NaN, 110, 25.5),
+#'   ham = c("a", "b", NA)
+#' )
+#'
+#' # The default behavior of this method is to drop rows where any single value
+#' # of the row is null.
+#' df$drop_nans()
+#'
+#' # This behaviour can be constrained to consider only a subset of columns, as
+#' # defined by name or with a selector. For example, dropping rows if there is
+#' # a null in the "bar" column:
+#' df$drop_nans(subset = "bar")
+#'
+#' # Dropping a row only if *all* values are NaN requires a different
+#' # formulation:
+#' df <- pl$DataFrame(
+#'   a = c(NaN, NaN, NaN, NaN),
+#'   b = c(10.0, 2.5, NaN, 5.25),
+#'   c = c(65.75, NaN, NaN, 10.5)
+#' )
+#' df$filter(!pl$all_horizontal(pl$all()$is_nan()))
+dataframe__drop_nans <- function(subset = NULL) {
+  self$lazy()$drop_nans(subset)$collect(`_eager` = TRUE) |>
+    wrap()
 }
 
 #' @inherit lazyframe__drop_nulls title description params
