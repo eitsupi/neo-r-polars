@@ -554,7 +554,7 @@ dataframe__filter <- function(...) {
 
 #' Sort a DataFrame
 #' @inherit LazyFrame_sort details description params
-#' @inheritParams DataFrame_unique
+#' @inheritParams dataframe__unique
 #' @inherit as_polars_df return
 #' @examples
 #' df <- mtcars
