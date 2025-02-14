@@ -1021,7 +1021,7 @@ lazyframe__drop_nulls <- function(subset = NULL) {
   })
 }
 
-#' Drop duplicate rows from this DataFrame
+#' Drop duplicate rows
 #'
 #' @inheritParams rlang::args_dots_empty
 #' @param subset Column name(s) or selector(s), to consider when identifying
@@ -1032,7 +1032,7 @@ lazyframe__drop_nulls <- function(subset = NULL) {
 #' * `"none"`: don’t keep duplicate rows.
 #' * `"first"`: keep first unique row.
 #' * `"last"`: keep last unique row.
-#' @param maintain_order Keep the same order as the original LazyFrame. This is
+#' @param maintain_order Keep the same order as the original data. This is
 #' more expensive to compute. Setting this to `TRUE` blocks the possibility to
 #' run on the streaming engine.
 #'
@@ -1916,13 +1916,13 @@ lazyframe__interpolate <- function() {
     wrap()
 }
 
-#' Take two sorted DataFrames and merge them by the sorted key
+#' Take two sorted LazyFrames and merge them by the sorted key
 #'
 #' The output of this operation will also be sorted. It is the callers
 #' responsibility that the frames are sorted by that key, otherwise the output
 #' will not make sense. The schemas of both LazyFrames must be equal.
 #'
-#' @param other Other DataFrame that must be merged.
+#' @param other Other LazyFrame that must be merged.
 #' @param key Key that is sorted.
 #'
 #' @inherit as_polars_lf return
