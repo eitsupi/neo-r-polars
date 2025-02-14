@@ -148,6 +148,11 @@ test_that("bottom_k works", {
     df,
     pl$DataFrame(a = c("a", "a", "b", "b"), b = c(1, 2, 1, 2))
   )
+  expect_query_error(
+    .input$bottom_k(4, by = 1),
+    df,
+    "lengths don't match"
+  )
 })
 
 test_that("top_k works", {
@@ -164,5 +169,10 @@ test_that("top_k works", {
     .input$top_k(4, by = c("a", "b")),
     df,
     pl$DataFrame(a = c("c", "b", "b", "b"), b = c(1, 3, 2, 1))
+  )
+  expect_query_error(
+    .input$top_k(4, by = 1),
+    df,
+    "lengths don't match"
   )
 })
