@@ -621,6 +621,54 @@ dataframe__rechunk <- function() {
   })
 }
 
+#' @inherit lazyframe__bottom_k title description params
+#' @inherit as_polars_df return
+#'
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = c("a", "b", "a", "b", "b", "c"),
+#'   b = c(2, 1, 1, 3, 2, 1)
+#' )
+#'
+#' # Get the rows which contain the 4 smallest values in column b.
+#' df$bottom_k(4, by = "b")
+#'
+#' # Get the rows which contain the 4 smallest values when sorting on column a
+#' # and b$
+#' df$bottom_k(4, by = c("a", "b"))
+dataframe__bottom_k <- function(k, ..., by, reverse = FALSE) {
+  self$lazy()$bottom_k(k, by = by, reverse = reverse)$collect(
+    projection_pushdown = FALSE,
+    predicate_pushdown = FALSE,
+    comm_subplan_elim = FALSE,
+    slice_pushdown = TRUE
+  ) |> wrap()
+}
+
+#' @inherit lazyframe__top_k title description params
+#' @inherit as_polars_df return
+#'
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = c("a", "b", "a", "b", "b", "c"),
+#'   b = c(2, 1, 1, 3, 2, 1)
+#' )
+#'
+#' # Get the rows which contain the 4 largest values in column b.
+#' df$top_k(4, by = "b")
+#'
+#' # Get the rows which contain the 4 largest values when sorting on column a
+#' # and b
+#' df$top_k(4, by = c("a", "b"))
+dataframe__top_k <- function(k, ..., by, reverse = FALSE) {
+  self$lazy()$top_k(k, by = by, reverse = reverse)$collect(
+    projection_pushdown = FALSE,
+    predicate_pushdown = FALSE,
+    comm_subplan_elim = FALSE,
+    slice_pushdown = TRUE
+  ) |> wrap()
+}
+
 #' Take two sorted DataFrames and merge them by the sorted key
 #'
 #' The output of this operation will also be sorted. It is the callers
@@ -652,6 +700,15 @@ dataframe__merge_sorted <- function(other, key) {
 #' @inherit lazyframe__set_sorted title description params
 #'
 #' @inherit as_polars_df return
+#' @examples
+#' # We mark the data as sorted by "age" but this is not the case!
+#' # It is up to the user to ensure that the column is actually sorted.
+#' df1 <- pl$DataFrame(
+#'   name = c("steve", "elise", "bob"),
+#'   age = c(42, 44, 18)
+#' )$set_sorted("age")
+#'
+#' df1$flags
 dataframe__set_sorted <- function(column, ..., descending = FALSE) {
   self$lazy()$set_sorted(column, descending = descending)$collect(`_eager` = TRUE) |>
     wrap()
