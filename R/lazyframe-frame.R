@@ -1191,7 +1191,8 @@ lazyframe__join <- function(
       }
       return(
         self$`_ldf`$join(
-          other$`_ldf`, list(), list(),
+          other$`_ldf`,
+          left_on = list(), right_on = list(),
           how = how, validate = validate,
           join_nulls = join_nulls, suffix = suffix,
           allow_parallel = allow_parallel, force_parallel = force_parallel,
@@ -1209,7 +1210,8 @@ lazyframe__join <- function(
       abort("must specify either `on`, or `left_on` and `right_on`.")
     }
     self$`_ldf`$join(
-      other$`_ldf`, rexprs_left, rexprs_right,
+      other$`_ldf`,
+      left_on = rexprs_left, right_on = rexprs_right,
       how = how, validate = validate,
       join_nulls = join_nulls, suffix = suffix,
       allow_parallel = allow_parallel, force_parallel = force_parallel,

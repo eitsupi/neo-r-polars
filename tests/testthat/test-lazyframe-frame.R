@@ -325,10 +325,15 @@ test_that("right join works", {
     )
   )
   expect_query_equal(
-    .input$join(.input2, on = "a", how = "right", coalesce = TRUE) |>
-      names(),
+    .input$join(.input2, on = "a", how = "right", coalesce = FALSE),
     .input = a, .input2 = b,
-    c("a", "b", "a_right", "b_right", "c")
+    pl$DataFrame(
+      a = c(1, 3),
+      b = c(1, 4),
+      a_right = c(1, 3),
+      b_right = c(1, 3),
+      c = c(1, 3)
+    )
   )
 })
 
