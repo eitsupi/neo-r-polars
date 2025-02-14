@@ -867,3 +867,16 @@ dataframe__gather_every <- function(n, offset = 0) {
   self$select(pl$col("*")$gather_every(n, offset)) |>
     wrap()
 }
+
+#' @inherit lazyframe__quantile title params
+#'
+#' @inherit as_polars_lf return
+#' @examples
+#' df <- pl$DataFrame(a = 1:4, b = c(1, 2, 1, 1))
+#' df$quantile(0.7)
+dataframe__quantile <- function(
+    quantile,
+    interpolation = c("nearest", "higher", "lower", "midpoint", "linear")) {
+  self$lazy()$quantile(quantile, interpolation)$collect(`_eager` = TRUE) |>
+    wrap()
+}
