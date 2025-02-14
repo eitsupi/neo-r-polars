@@ -864,5 +864,6 @@ dataframe__drop_nulls <- function(...) {
 #'
 #' df$gather_every(2, offset = 1)
 dataframe__gather_every <- function(n, offset = 0) {
-  self$select(pl$col("*")$gather_every(n, offset))
+  self$select(pl$col("*")$gather_every(n, offset)) |>
+    wrap()
 }
