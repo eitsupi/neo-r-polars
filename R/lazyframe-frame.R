@@ -2106,6 +2106,7 @@ lazyframe__with_row_index <- function(name = "index", offset = 0) {
 #' is provided. This might become a hard error in the future.
 #'
 #' @inheritSection polars_duration_string Polars duration string language
+#' @inherit as_polars_lf return
 #' @examples
 #' gdp <- pl$LazyFrame(
 #'   date = as.Date(c("2016-1-1", "2017-5-1", "2018-1-1", "2019-1-1", "2020-1-1")),

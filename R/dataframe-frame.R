@@ -873,6 +873,7 @@ dataframe__gather_every <- function(n, offset = 0) {
 #' @param other DataFrame to join with.
 #'
 #' @inheritSection polars_duration_string Polars duration string language
+#' @inherit as_polars_df return
 #' @examples
 #' gdp <- pl$DataFrame(
 #'   date = as.Date(c("2016-1-1", "2017-5-1", "2018-1-1", "2019-1-1", "2020-1-1")),

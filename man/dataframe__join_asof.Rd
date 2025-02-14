@@ -85,6 +85,9 @@ the same on value (i.e., strictly less-than / strictly greater-than).}
 are not sorted, polars will error, or raise a warning if the \code{by} argument
 is provided. This might become a hard error in the future.}
 }
+\value{
+A polars \link{DataFrame}
+}
 \description{
 This is similar to a left-join except that we match on nearest key rather
 than equal keys. Both frames must be sorted by the \code{asof_join} key.
