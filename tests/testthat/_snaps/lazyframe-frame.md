@@ -69,3 +69,13 @@
          │                      ╰────────────────────────────────────────╯  │ PROJECT */5 COLUMNS                                               │
          │                                                                  ╰───────────────────────────────────────────────────────────────────╯
 
+# join_asof
+
+    Code
+      l_gdp$lazy()$join_asof(l_pop$lazy(), on = "date", strategy = "fruitcake")
+    Condition
+      Error:
+      ! Evaluation failed in `$join_asof()`.
+      Caused by error:
+      ! `strategy` must be one of "backward", "forward", or "nearest", not "fruitcake".
+

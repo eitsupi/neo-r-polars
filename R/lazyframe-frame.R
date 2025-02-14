@@ -2071,7 +2071,7 @@ lazyframe__with_row_index <- function(name = "index", offset = 0) {
 #'
 #' @inheritParams rlang::args_dots_empty
 #' @param other LazyFrame to join with.
-#' @inheritParams dataframe__join
+#' @inheritParams lazyframe__join
 #' @param by Join on these columns before performing asof join. Either a vector
 #' of column names or a list of expressions and/or strings. Use `left_by` and
 #' `right_by` if the column names to match on are different between the two
@@ -2229,7 +2229,8 @@ lazyframe__join_asof <- function(
       tolerance = tolerance_num,
       tolerance_str = tolerance_str,
       coalesce = coalesce,
-      allow_eq = allow_exact_matches
+      allow_eq = allow_exact_matches,
+      check_sortedness = check_sortedness
     )
   })
 }
