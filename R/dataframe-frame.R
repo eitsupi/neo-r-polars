@@ -867,3 +867,23 @@ dataframe__gather_every <- function(n, offset = 0) {
   self$select(pl$col("*")$gather_every(n, offset)) |>
     wrap()
 }
+
+#' @inherit lazyframe__rename
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = 1:3,
+#'   bar = 6:8,
+#'   ham = letters[1:3]
+#' )
+#'
+#' df$rename(foo = "apple")
+#'
+#' df$rename(
+#'   \(column_name) paste0("c", substr(column_name, 2, 100))
+#' )
+dataframe__rename <- function(..., .strict = TRUE) {
+  self$lazy()$rename(..., .strict = .strict)$collect(`_eager` = TRUE) |>
+    wrap()
+}
