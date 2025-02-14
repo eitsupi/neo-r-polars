@@ -20,3 +20,13 @@ A polars \link{DataFrame}
 This can speed up future operations, but it can lead to incorrect results if
 the data is \strong{not} sorted! Use with care!
 }
+\examples{
+# We mark the data as sorted by "age" but this is not the case!
+# It is up to the user to ensure that the column is actually sorted.
+df1 <- pl$DataFrame(
+  name = c("steve", "elise", "bob"),
+  age = c(42, 44, 18)
+)$set_sorted("age")
+
+df1$flags
+}
