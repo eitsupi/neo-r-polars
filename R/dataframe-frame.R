@@ -840,8 +840,18 @@ dataframe__drop_nans <- function(subset = NULL) {
 #'   b = c(1.5, NA, NA, 4)
 #' )
 #' df$fill_null(99)
-dataframe__fill_null <- function(fill_value) {
-  self$lazy()$fill_null(value, strategy, limit, matches_supertype=matches_supertype)
-  $collect(_eager=True) |>
+#'
+#' df$fill_null(strategy = "forward")
+#'
+#' df$fill_null(strategy = "max")
+#'
+#' df$fill_null(strategy = "zero")
+dataframe__fill_null <- function(
+    value,
+    strategy = NULL,
+    limit = NULL,
+    ...,
+    matches_supertype = TRUE) {
+  self$lazy()$fill_null(value, strategy, limit, matches_supertype = matches_supertype)$collect(`_eager` = TRUE) |>
     wrap()
 }

@@ -979,75 +979,77 @@ lazyframe__fill_nan <- function(value) {
 #' )
 #' lf$fill_null(99)$collect()
 #'
-#' lf$fill_null(99, strategy = "forward")$collect()
+#' lf$fill_null(strategy = "forward")$collect()
 #'
-#' lf$fill_null(99, strategy = "max")$collect()
+#' lf$fill_null(strategy = "max")$collect()
 #'
-#' lf$fill_null(99, strategy = "zero")$collect()
-lazyframe__fill_null <- function(value = NULL, strategy = NULL, limit = NULL, ..., matches_supertype = TRUE) {
+#' lf$fill_null(strategy = "zero")$collect()
+lazyframe__fill_null <- function(
+    value,
+    strategy = NULL,
+    limit = NULL,
+    ...,
+    matches_supertype = TRUE) {
+  wrap({
+    # Can't use check_exclusive() because it errors when we call this from the
+    # eager method.
+    if (!missing(value) && !missing(strategy) && !is.null(value) && !is.null(strategy)) {
+      abort("Exactly one of `value` or `strategy` must be supplied.")
+    }
+    check_dots_empty0(...)
+    if (!missing(value) && !is.null(value)) {
+      if (is_polars_expr(value)) {
+        dtypes <- NULL
+      } else if (is.logical(value)) {
+        dtypes <- pl$Boolean
+      } else if (isTRUE(matches_supertype) && is.numeric(value)) {
+        dtypes <- c(
+          pl$Int8,
+          pl$Int16,
+          pl$Int32,
+          pl$Int64,
+          pl$Int128,
+          pl$UInt8,
+          pl$UInt16,
+          pl$UInt32,
+          pl$UInt64,
+          pl$Float32,
+          pl$Float64,
+          pl$Decimal()
+        )
+      } else if (is.integer(value)) {
+        dtypes <- pl$Int64
+      } else if (is.double(value)) {
+        dtypes <- pl$Float64
+      } else if (inherits(value, "POSIXct")) {
+        abort("TODO")
+      } else if (is(x, "Duration")) {
+        abort("TODO")
+      } else if (is.Date(value)) {
+        dtypes <- pl$Date
+      } else if (is.character(value)) {
+        dtypes <- c(pl$String, pl$Categorical("physical"), pl$Categorical("lexical"))
+      } else {
+        dtypes <- NULL
+      }
+      # TODO: time datatype
 
-wrap({
-  check_dots_empty0(...)
-  if (!is.null(value)) {
-    if (is_polars_expr(value)) {
-      dtypes <- NULL
-    } else if (is.logical(value)) {
-      dtypes <- pl$Boolean
-    } else if (isTRUE(matches_supertype) && is.numeric(value)) {
-      dtypes <- c(
-        pl$Int8,
-        pl$Int16,
-        pl$Int32,
-        pl$Int64,
-        pl$Int128,
-        pl$UInt8,
-        pl$UInt16,
-        pl$UInt32,
-        pl$UInt64,
-        pl$Float32,
-        pl$Float64,
-        pl$Decimal
-      )
-    } else if (is.integer(value)) {
-      dtypes <- pl$Int64
-    } else if (is.double(value)) {
-      dtypes <- pl$Float64
-    } else if (inherits(value, "POSIXct")) {
-      abort("TODO")
-    } else if (is(x, "Duration"))
-  }
-})
+      if (!is_list_of_polars_dtype(dtypes)) {
+        dtypes <- list(dtypes)
+      }
 
-      elif isinstance(value, int):
-          dtypes = [Int64]
-      elif isinstance(value, float):
-          dtypes = [Float64]
-      elif isinstance(value, datetime):
-          dtypes = [Datetime] + [Datetime(u) for u in DTYPE_TEMPORAL_UNITS]
-      elif isinstance(value, timedelta):
-          dtypes = [Duration] + [Duration(u) for u in DTYPE_TEMPORAL_UNITS]
-      elif isinstance(value, date):
-          dtypes = [Date]
-      elif isinstance(value, time):
-          dtypes = [Time]
-      elif isinstance(value, str):
-          dtypes = [String, Categorical]
-      else:
-          # fallback; anything not explicitly handled above
-          dtypes = None
-
-      if dtypes:
-          return self.with_columns(
-              F.col(dtypes).fill_null(value, strategy, limit)
-          )
-
-  return self.select(F.all().fill_null(value, strategy, limit))
-
-
-
-
-  self$`_ldf`$fill_null(as_polars_expr(fill_value)$`_rexpr`) |>
-    wrap()
+      if (!is.null(dtypes)) {
+        return(
+          self$with_columns(
+            # do not specify strategy otherwise check_exclusive() errors
+            pl$col(!!!dtypes)$fill_null(value = value, limit = limit)
+          ) |>
+            wrap()
+        )
+      }
+    }
+    self$select(pl$all()$fill_null(value, strategy, limit))
+  })
 }
 
 #' Shift values by the given number of indices
