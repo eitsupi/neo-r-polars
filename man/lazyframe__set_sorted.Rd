@@ -7,7 +7,7 @@
 lazyframe__set_sorted(column, ..., descending = FALSE)
 }
 \arguments{
-\item{column}{Columns that are sorted.}
+\item{column}{Column that is sorted.}
 
 \item{...}{These dots are for future extensions and must be empty.}
 

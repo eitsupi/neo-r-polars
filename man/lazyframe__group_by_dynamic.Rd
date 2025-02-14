@@ -11,7 +11,7 @@ lazyframe__group_by_dynamic(
   period = NULL,
   offset = NULL,
   include_boundaries = FALSE,
-  closed = "left",
+  closed = c("left", "right", "both", "none"),
   label = "left",
   group_by = NULL,
   start_by = "window"

@@ -252,11 +252,12 @@ lazyframe__collect <- function(
   })
 }
 
-#' Collect and profile a lazy query.
+#' Collect and profile a lazy query
 #'
-#' This will run the query and return a list containing the materialized
-#' DataFrame and a DataFrame that contains profiling information of each node
-#' that is executed.
+#' @description
+#' This will run the query and return a list containing the
+#' materialized DataFrame and a DataFrame that contains profiling information
+#' of each node that is executed.
 #'
 #' @inheritParams rlang::args_dots_empty
 #' @inheritParams lazyframe__collect
@@ -264,19 +265,18 @@ lazyframe__collect <- function(
 #' @param truncate_nodes Truncate the label lengths in the Gantt chart to this
 #' number of characters. If `0` (default), do not truncate.
 #'
-#' @details
-#' The units of the timings are microseconds.
+#' @details The units of the timings are microseconds.
 #'
 #' @return List of two `DataFrame`s: one with the collected result, the other
 #' with the timings of each step. If `show_graph = TRUE`, then the plot is
 #' also stored in the list.
 #' @seealso
-#'  - [`$collect()`][LazyFrame_collect] - regular collect.
-#'  - [`$collect_in_background()`][LazyFrame_collect_in_background] - non-blocking
+#'  - [`$collect()`][lazyframe__collect] - regular collect.
+#'  - [`$collect_in_background()`][lazyframe__collect_in_background] - non-blocking
 #'    collect returns a future handle. Can also just be used via
 #'    `$collect(collect_in_background = TRUE)`.
-#'  - [`$sink_parquet()`][LazyFrame_sink_parquet()] streams query to a parquet file.
-#'  - [`$sink_ipc()`][LazyFrame_sink_ipc()] streams query to a arrow file.
+#'  - [`$sink_parquet()`][lazyframe__sink_parquet()] streams query to a parquet file.
+#'  - [`$sink_ipc()`][lazyframe__sink_ipc()] streams query to a arrow file.
 #'
 #' @examples
 #' ## Simplest use case
@@ -335,7 +335,7 @@ lazyframe__profile <- function(
       comm_subplan_elim <- FALSE
     }
 
-    lf <- self$`_rexpr`$optimization_toggle(
+    lf <- self$`_ldf`$optimization_toggle(
       type_coercion = type_coercion,
       predicate_pushdown = predicate_pushdown,
       projection_pushdown = projection_pushdown,
@@ -345,15 +345,19 @@ lazyframe__profile <- function(
       comm_subexpr_elim = comm_subexpr_elim,
       cluster_with_columns = cluster_with_columns,
       streaming = streaming,
-      eager = FALSE
+      `_eager` = FALSE
     )
 
-    out <- self$`_ldf`$profile()
+    out <- lapply(self$`_ldf`$profile(), \(x) {
+      x |>
+        .savvy_wrap_PlRDataFrame() |>
+        wrap()
+    })
 
     if (isTRUE(show_plot)) {
-      out[["plot"]] <- make_profile_plot(out, truncate_nodes) |>
-        wrap()
+      out[["plot"]] <- make_profile_plot(out, truncate_nodes)
     }
+
     out
   })
 }
@@ -781,25 +785,21 @@ lazyframe__head <- function(n = 5) {
 }
 
 #' @rdname lazyframe__head
-lazyframe__limit <- function(n = 5) {
-  wrap({
-    self$head(n)
-  })
-}
+lazyframe__limit <- lazyframe__head
 
-#' Get the last `n` rows
+#' Get the last `n` rows.
 #'
+#' @inherit lazyframe__head return params
 #' @inheritParams lazyframe__head
-#' @inherit as_polars_lf return
+#' @seealso [`<LazyFrame>$head()`][lazyframe__head]
 #' @examples
 #' lf <- pl$LazyFrame(a = 1:6, b = 7:12)
 #' lf$tail()$collect()
 #' lf$tail(2)$collect()
-lazyframe__tail <- function(n = 5) {
+lazyframe__tail <- function(n = 5L) {
   self$`_ldf`$tail(n) |>
     wrap()
 }
-
 
 #' Get the first row of the LazyFrame
 #'
@@ -808,9 +808,8 @@ lazyframe__tail <- function(n = 5) {
 #' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, 1))
 #' lf$first()$collect()
 lazyframe__first <- function() {
-  wrap({
-    self$slice(0, 1)
-  })
+  self$slice(0, 1) |>
+    wrap()
 }
 
 #' Get the last row of the LazyFrame
@@ -820,9 +819,8 @@ lazyframe__first <- function() {
 #' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, 1))
 #' lf$last()$collect()
 lazyframe__last <- function() {
-  wrap({
-    self$tail(1)
-  })
+  self$tail(1) |>
+    wrap()
 }
 
 #' Aggregate the columns in the LazyFrame to their maximum value
@@ -832,9 +830,8 @@ lazyframe__last <- function() {
 #' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, 1))
 #' lf$max()$collect()
 lazyframe__max <- function() {
-  wrap({
-    self$`_ldf`$max()
-  })
+  self$`_ldf`$max() |>
+    wrap()
 }
 
 #' Aggregate the columns in the LazyFrame to their mean value
@@ -844,9 +841,8 @@ lazyframe__max <- function() {
 #' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, 1))
 #' lf$mean()$collect()
 lazyframe__mean <- function() {
-  wrap({
-    self$`_ldf`$mean()
-  })
+  self$`_ldf`$mean() |>
+    wrap()
 }
 
 #' Aggregate the columns in the LazyFrame to their median value
@@ -856,9 +852,8 @@ lazyframe__mean <- function() {
 #' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, 1))
 #' lf$median()$collect()
 lazyframe__median <- function() {
-  wrap({
-    self$`_ldf`$median()
-  })
+  self$`_ldf`$median() |>
+    wrap()
 }
 
 #' Aggregate the columns in the LazyFrame to their minimum value
@@ -868,9 +863,8 @@ lazyframe__median <- function() {
 #' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, 1))
 #' lf$min()$collect()
 lazyframe__min <- function() {
-  wrap({
-    self$`_ldf`$min()
-  })
+  self$`_ldf`$min() |>
+    wrap()
 }
 
 #' Aggregate the columns of this LazyFrame to their sum values
@@ -880,9 +874,8 @@ lazyframe__min <- function() {
 #' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, 1))
 #' lf$sum()$collect()
 lazyframe__sum <- function() {
-  wrap({
-    self$`_ldf`$sum()
-  })
+  self$`_ldf`$sum() |>
+    wrap()
 }
 
 #' Aggregate the columns in the LazyFrame to their variance value
@@ -894,9 +887,8 @@ lazyframe__sum <- function() {
 #' lf$var()$collect()
 #' lf$var(ddof = 0)$collect()
 lazyframe__var <- function(ddof = 1) {
-  wrap({
-    self$`_ldf`$var(ddof)
-  })
+  self$`_ldf`$var(ddof) |>
+    wrap()
 }
 
 #' Aggregate the columns of this LazyFrame to their standard deviation values
@@ -908,9 +900,8 @@ lazyframe__var <- function(ddof = 1) {
 #' lf$std()$collect()
 #' lf$std(ddof = 0)$collect()
 lazyframe__std <- function(ddof = 1) {
-  wrap({
-    self$`_ldf`$std(ddof)
-  })
+  self$`_ldf`$std(ddof) |>
+    wrap()
 }
 
 #' Aggregate the columns in the DataFrame to a unique quantile value
@@ -942,9 +933,8 @@ lazyframe__quantile <- function(
 #' )
 #' lf$fill_nan(99)$collect()
 lazyframe__fill_nan <- function(value) {
-  wrap({
-    self$`_ldf`$fill_nan(as_polars_expr(value)$`_rexpr`)
-  })
+  self$`_ldf`$fill_nan(as_polars_expr(value)$`_rexpr`) |>
+    wrap()
 }
 
 #' @inherit DataFrame_fill_null title description params
@@ -957,9 +947,8 @@ lazyframe__fill_nan <- function(value) {
 #' )
 #' lf$fill_null(99)$collect()
 lazyframe__fill_null <- function(fill_value) {
-  wrap({
-    self$`_ldf`$fill_null(as_polars_expr(fill_value)$`_rexpr`)
-  })
+  self$`_ldf`$fill_null(as_polars_expr(fill_value)$`_rexpr`) |>
+    wrap()
 }
 
 #' Shift values by the given number of indices
@@ -996,26 +985,8 @@ lazyframe__shift <- function(n = 1, ..., fill_value = NULL) {
 #' lf <- pl$LazyFrame(key = c("a", "b", "c"), val = 1:3)
 #' lf$reverse()$collect()
 lazyframe__reverse <- function() {
-  wrap({
-    self$`_ldf`$reverse()
-  })
-}
-
-#' Get the last `n` rows.
-#'
-#' @inherit lazyframe__head return params
-#' @inheritParams lazyframe__head
-#' @seealso [`<LazyFrame>$head()`][lazyframe__head]
-#' @examples
-#' lf <- pl$LazyFrame(a = 1:6, b = 7:12)
-#'
-#' lf$tail()$collect()
-#'
-#' lf$tail(2)$collect()
-lazyframe__tail <- function(n = 5L) {
-  wrap({
-    self$`_ldf`$tail(n)
-  })
+  self$`_ldf`$reverse() |>
+    wrap()
 }
 
 #' Drop all rows that contain null values
@@ -1165,12 +1136,12 @@ lazyframe__unique <- function(
 lazyframe__join <- function(
     other,
     on = NULL,
-    how = "inner",
+    how = c("inner", "full", "left", "right", "semi", "anti", "cross"),
     ...,
     left_on = NULL,
     right_on = NULL,
     suffix = "_right",
-    validate = "m:m",
+    validate = c("m:m", "1:m", "m:1", "1:1"),
     join_nulls = FALSE,
     allow_parallel = TRUE,
     force_parallel = FALSE,
@@ -1367,115 +1338,6 @@ lazyframe__rename <- function(..., .strict = TRUE) {
   })
 }
 
-#' Collect and profile a lazy query
-#'
-#' @description
-#' This will run the query and return a list containing the
-#' materialized DataFrame and a DataFrame that contains profiling information
-#' of each node that is executed.
-#'
-#' @inheritParams rlang::args_dots_empty
-#' @inheritParams lazyframe__collect
-#' @param show_plot Show a Gantt chart of the profiling result
-#' @param truncate_nodes Truncate the label lengths in the Gantt chart to this
-#' number of characters. If `0` (default), do not truncate.
-#'
-#' @details The units of the timings are microseconds.
-#'
-#' @return List of two `DataFrame`s: one with the collected result, the other
-#' with the timings of each step. If `show_graph = TRUE`, then the plot is
-#' also stored in the list.
-#' @seealso
-#'  - [`$collect()`][lazyframe__collect] - regular collect.
-#'  - [`$collect_in_background()`][lazyframe__collect_in_background] - non-blocking
-#'    collect returns a future handle. Can also just be used via
-#'    `$collect(collect_in_background = TRUE)`.
-#'  - [`$sink_parquet()`][lazyframe__sink_parquet()] streams query to a parquet file.
-#'  - [`$sink_ipc()`][lazyframe__sink_ipc()] streams query to a arrow file.
-#'
-#' @examples
-#' ## Simplest use case
-#' pl$LazyFrame()$select(pl$lit(2) + 2)$profile()
-#'
-#' ## Use $profile() to compare two queries
-#'
-#' # -1-  map each Species-group with native polars, takes ~120us only
-#' as_polars_lf(iris)$
-#'   sort("Sepal.Length")$
-#'   group_by("Species", maintain_order = TRUE)$
-#'   agg(pl$col(pl$Float64)$first() + 5)$
-#'   profile()
-#'
-#' # -2-  map each Species-group of each numeric column with an R function, takes ~7000us (slow!)
-#'
-#' # some R function, prints `.` for each time called by polars
-#' r_func <- \(s) {
-#'   cat(".")
-#'   s$to_r()[1] + 5
-#' }
-#'
-#' as_polars_lf(iris)$
-#'   sort("Sepal.Length")$
-#'   group_by("Species", maintain_order = TRUE)$
-#'   agg(pl$col(pl$Float64)$map_elements(r_func))$
-#'   profile()
-lazyframe__profile <- function(
-    ...,
-    type_coercion = TRUE,
-    predicate_pushdown = TRUE,
-    projection_pushdown = TRUE,
-    simplify_expression = TRUE,
-    slice_pushdown = TRUE,
-    comm_subplan_elim = TRUE,
-    comm_subexpr_elim = TRUE,
-    cluster_with_columns = TRUE,
-    streaming = FALSE,
-    no_optimization = FALSE,
-    collect_in_background = FALSE,
-    show_plot = FALSE,
-    truncate_nodes = 0) {
-  wrap({
-    check_dots_empty0(...)
-    if (isTRUE(no_optimization)) {
-      predicate_pushdown <- FALSE
-      projection_pushdown <- FALSE
-      slice_pushdown <- FALSE
-      comm_subplan_elim <- FALSE
-      comm_subexpr_elim <- FALSE
-      cluster_with_columns <- FALSE
-    }
-
-    if (isTRUE(streaming)) {
-      comm_subplan_elim <- FALSE
-    }
-
-    lf <- self$`_ldf`$optimization_toggle(
-      type_coercion = type_coercion,
-      predicate_pushdown = predicate_pushdown,
-      projection_pushdown = projection_pushdown,
-      simplify_expression = simplify_expression,
-      slice_pushdown = slice_pushdown,
-      comm_subplan_elim = comm_subplan_elim,
-      comm_subexpr_elim = comm_subexpr_elim,
-      cluster_with_columns = cluster_with_columns,
-      streaming = streaming,
-      `_eager` = FALSE
-    )
-
-    out <- lapply(self$`_ldf`$profile(), \(x) {
-      x |>
-        .savvy_wrap_PlRDataFrame() |>
-        wrap()
-    })
-
-    if (isTRUE(show_plot)) {
-      out[["plot"]] <- make_profile_plot(out, truncate_nodes)
-    }
-
-    out
-  })
-}
-
 #' Serialize the logical plan of this LazyFrame to a string in JSON format
 #'
 #' @return A character value
@@ -1483,9 +1345,8 @@ lazyframe__profile <- function(
 #' lf <- pl$LazyFrame(a = 1:3)$sum()
 #' lf$serialize()
 lazyframe__serialize <- function() {
-  wrap({
-    self$`_ldf`$serialize()
-  })
+  self$`_ldf`$serialize() |>
+    wrap()
 }
 
 #' Explode the DataFrame to long format by exploding the given columns
@@ -1633,7 +1494,7 @@ lazyframe__rolling <- function(
     ...,
     period,
     offset = NULL,
-    closed = "right",
+    closed = c("right", "left", "both", "none"),
     group_by = NULL) {
   wrap({
     check_dots_empty0(...)
@@ -1796,7 +1657,7 @@ lazyframe__group_by_dynamic <- function(
     period = NULL,
     offset = NULL,
     include_boundaries = FALSE,
-    closed = "left",
+    closed = c("left", "right", "both", "none"),
     label = "left",
     group_by = NULL,
     start_by = "window") {
@@ -1932,9 +1793,8 @@ lazyframe__gather_every <- function(n, offset = 0) {
 #' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, NA), c = rep(NA, 4))
 #' lf$count()$collect()
 lazyframe__count <- function() {
-  wrap({
-    self$`_ldf`$count()
-  })
+  self$`_ldf`$count() |>
+    wrap()
 }
 
 #' Return the number of null elements for each column
@@ -1945,9 +1805,8 @@ lazyframe__count <- function() {
 #' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, NA), c = rep(NA, 4))
 #' lf$null_count()$collect()
 lazyframe__null_count <- function() {
-  wrap({
-    self$`_ldf`$null_count()
-  })
+  self$`_ldf`$null_count() |>
+    wrap()
 }
 
 #' Return the `k` smallest rows
@@ -2033,9 +1892,8 @@ lazyframe__top_k <- function(k, ..., by, reverse = FALSE) {
 #'
 #' lf$interpolate()$collect()
 lazyframe__interpolate <- function() {
-  wrap({
-    self$select(pl$col("*")$interpolate())
-  })
+  self$select(pl$col("*")$interpolate()) |>
+    wrap()
 }
 
 #' Take two sorted DataFrames and merge them by the sorted key
@@ -2062,9 +1920,8 @@ lazyframe__interpolate <- function() {
 #'
 #' lf1$merge_sorted(lf2, key = "age")$collect()
 lazyframe__merge_sorted <- function(other, key) {
-  wrap({
-    self$`_ldf`$merge_sorted(other$`_ldf`, key)
-  })
+  self$`_ldf`$merge_sorted(other$`_ldf`, key) |>
+    wrap()
 }
 
 #' Indicate that one or multiple columns are sorted
@@ -2073,13 +1930,16 @@ lazyframe__merge_sorted <- function(other, key) {
 #' the data is **not** sorted! Use with care!
 #'
 #' @inheritParams rlang::args_dots_empty
-#' @param column Columns that are sorted.
+#' @param column Column that is sorted.
 #' @param descending Whether the columns are sorted in descending order.
 #'
 #' @inherit as_polars_lf return
 lazyframe__set_sorted <- function(column, ..., descending = FALSE) {
   wrap({
     check_dots_empty0(...)
+    if (length(column) != 1 || !is.character(column)) {
+      abort("`column` must be a single column name.")
+    }
     self$with_columns(pl$col(column)$set_sorted(descending = descending))
   })
 }
@@ -2107,9 +1967,8 @@ lazyframe__set_sorted <- function(column, ..., descending = FALSE) {
 #'   index = pl$int_range(pl$len(), dtype = pl$UInt32)
 #' )$collect()
 lazyframe__with_row_index <- function(name = "index", offset = 0) {
-  wrap({
-    self$`_ldf`$with_row_index(name, offset)
-  })
+  self$`_ldf`$with_row_index(name, offset) |>
+    wrap()
 }
 
 #' Perform joins on nearest keys

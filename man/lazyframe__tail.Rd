@@ -2,10 +2,8 @@
 % Please edit documentation in R/lazyframe-frame.R
 \name{lazyframe__tail}
 \alias{lazyframe__tail}
-\title{Get the last \code{n} rows}
+\title{Get the last \code{n} rows.}
 \usage{
-lazyframe__tail(n = 5L)
-
 lazyframe__tail(n = 5L)
 }
 \arguments{
@@ -15,18 +13,11 @@ lazyframe__tail(n = 5L)
 A polars \link{LazyFrame}
 }
 \description{
-Get the last \code{n} rows
-
 Get the last \code{n} rows.
 }
 \examples{
 lf <- pl$LazyFrame(a = 1:6, b = 7:12)
 lf$tail()$collect()
-lf$tail(2)$collect()
-lf <- pl$LazyFrame(a = 1:6, b = 7:12)
-
-lf$tail()$collect()
-
 lf$tail(2)$collect()
 }
 \seealso{
