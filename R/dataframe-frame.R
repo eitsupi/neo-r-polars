@@ -830,3 +830,18 @@ dataframe__drop_nans <- function(subset = NULL) {
   self$lazy()$drop_nans(subset)$collect(`_eager` = TRUE) |>
     wrap()
 }
+
+#' @inherit lazyframe__fill_null title description params
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = c(1.5, 2, NA, 4),
+#'   b = c(1.5, NA, NA, 4)
+#' )
+#' df$fill_null(99)
+dataframe__fill_null <- function(fill_value) {
+  self$lazy()$fill_null(value, strategy, limit, matches_supertype=matches_supertype)
+  $collect(_eager=True) |>
+    wrap()
+}

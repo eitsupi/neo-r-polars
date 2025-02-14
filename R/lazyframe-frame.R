@@ -960,8 +960,17 @@ lazyframe__fill_nan <- function(value) {
     wrap()
 }
 
-#' @inherit DataFrame_fill_null title description params
+#' Fill null values using the specified value or strategy
 #'
+#' @inheritParams rlang::args_dots_empty
+#' @param value Value used to fill null values.
+#' @param strategy Strategy used to fill null values. Must be one of:
+#' `"forward"`, `"backward"`, `"min"`, `"max"`, `"mean"`, `"zero"`, `"one"`,
+#' or `NULL` (default).
+#' @param limit Number of consecutive null values to fill when using the
+#' `"forward"` or `"backward"` strategy.
+#' @param matches_supertype Fill all matching supertypes of the fill `value`
+#' literal.
 #' @inherit as_polars_lf return
 #' @examples
 #' lf <- pl$LazyFrame(
@@ -969,7 +978,74 @@ lazyframe__fill_nan <- function(value) {
 #'   b = c(1.5, NA, NA, 4)
 #' )
 #' lf$fill_null(99)$collect()
-lazyframe__fill_null <- function(fill_value) {
+#'
+#' lf$fill_null(99, strategy = "forward")$collect()
+#'
+#' lf$fill_null(99, strategy = "max")$collect()
+#'
+#' lf$fill_null(99, strategy = "zero")$collect()
+lazyframe__fill_null <- function(value = NULL, strategy = NULL, limit = NULL, ..., matches_supertype = TRUE) {
+
+wrap({
+  check_dots_empty0(...)
+  if (!is.null(value)) {
+    if (is_polars_expr(value)) {
+      dtypes <- NULL
+    } else if (is.logical(value)) {
+      dtypes <- pl$Boolean
+    } else if (isTRUE(matches_supertype) && is.numeric(value)) {
+      dtypes <- c(
+        pl$Int8,
+        pl$Int16,
+        pl$Int32,
+        pl$Int64,
+        pl$Int128,
+        pl$UInt8,
+        pl$UInt16,
+        pl$UInt32,
+        pl$UInt64,
+        pl$Float32,
+        pl$Float64,
+        pl$Decimal
+      )
+    } else if (is.integer(value)) {
+      dtypes <- pl$Int64
+    } else if (is.double(value)) {
+      dtypes <- pl$Float64
+    } else if (inherits(value, "POSIXct")) {
+      abort("TODO")
+    } else if (is(x, "Duration"))
+  }
+})
+
+      elif isinstance(value, int):
+          dtypes = [Int64]
+      elif isinstance(value, float):
+          dtypes = [Float64]
+      elif isinstance(value, datetime):
+          dtypes = [Datetime] + [Datetime(u) for u in DTYPE_TEMPORAL_UNITS]
+      elif isinstance(value, timedelta):
+          dtypes = [Duration] + [Duration(u) for u in DTYPE_TEMPORAL_UNITS]
+      elif isinstance(value, date):
+          dtypes = [Date]
+      elif isinstance(value, time):
+          dtypes = [Time]
+      elif isinstance(value, str):
+          dtypes = [String, Categorical]
+      else:
+          # fallback; anything not explicitly handled above
+          dtypes = None
+
+      if dtypes:
+          return self.with_columns(
+              F.col(dtypes).fill_null(value, strategy, limit)
+          )
+
+  return self.select(F.all().fill_null(value, strategy, limit))
+
+
+
+
   self$`_ldf`$fill_null(as_polars_expr(fill_value)$`_rexpr`) |>
     wrap()
 }
