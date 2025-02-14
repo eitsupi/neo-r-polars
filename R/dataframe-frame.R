@@ -294,9 +294,8 @@ dataframe__select <- function(...) {
 
 #' Modify/append column(s) of a DataFrame
 #'
-#' @inherit lazyframe__with_columns description
+#' @inherit lazyframe__with_columns description params
 #' @inherit as_polars_df return
-#' @inheritParams lazyframe__select
 #' @examples
 #' # Pass an expression to add it as a new column.
 #' df <- pl$DataFrame(
