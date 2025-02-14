@@ -304,10 +304,10 @@ dataframe__select <- function(...) {
 #'   b = c(0.5, 4, 10, 13),
 #'   c = c(TRUE, TRUE, FALSE, TRUE),
 #' )
-#' df$with_columns((pl$col("a")^2)$alias("a^2"))$collect()
+#' df$with_columns((pl$col("a")^2)$alias("a^2"))
 #'
 #' # Added columns will replace existing columns with the same name.
-#' df$with_columns(a = pl$col("a")$cast(pl$Float64))$collect()
+#' df$with_columns(a = pl$col("a")$cast(pl$Float64))
 #'
 #' # Multiple columns can be added
 #' df$with_columns(

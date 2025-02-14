@@ -5,8 +5,6 @@
 \title{Modify/append column(s) of a DataFrame}
 \usage{
 dataframe__with_columns(...)
-
-dataframe__with_columns(...)
 }
 \arguments{
 \item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}>
@@ -28,33 +26,16 @@ variable \code{x}, you will only be able to use it in another \verb{$with_column
 or \verb{$select()} call.
 }
 \examples{
-as_polars_df(iris)$with_columns(
-  abs_SL = pl$col("Sepal.Length")$abs(),
-  add_2_SL = pl$col("Sepal.Length") + 2
-)
-
-# same query
-l_expr <- list(
-  pl$col("Sepal.Length")$abs()$alias("abs_SL"),
-  (pl$col("Sepal.Length") + 2)$alias("add_2_SL")
-)
-as_polars_df(iris)$with_columns(l_expr)
-
-as_polars_df(iris)$with_columns(
-  SW_add_2 = (pl$col("Sepal.Width") + 2),
-  # unnamed expr will keep name "Sepal.Length"
-  pl$col("Sepal.Length")$abs()
-)
 # Pass an expression to add it as a new column.
 df <- pl$DataFrame(
   a = 1:4,
   b = c(0.5, 4, 10, 13),
   c = c(TRUE, TRUE, FALSE, TRUE),
 )
-df$with_columns((pl$col("a")^2)$alias("a^2"))$collect()
+df$with_columns((pl$col("a")^2)$alias("a^2"))
 
 # Added columns will replace existing columns with the same name.
-df$with_columns(a = pl$col("a")$cast(pl$Float64))$collect()
+df$with_columns(a = pl$col("a")$cast(pl$Float64))
 
 # Multiple columns can be added
 df$with_columns(
