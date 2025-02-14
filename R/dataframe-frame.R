@@ -668,3 +668,25 @@ dataframe__top_k <- function(k, ..., by, reverse = FALSE) {
     slice_pushdown = TRUE
   ) |> wrap()
 }
+
+#' @inherit lazyframe__drop_nulls title description params
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = 1:3,
+#'   bar = c(6L, NA, 8L),
+#'   ham = c("a", "b", NA)
+#' )
+#'
+#' # The default behavior of this method is to drop rows where any single value
+#' # of the row is null.
+#' df$drop_nulls()
+#'
+#' # This behaviour can be constrained to consider only a subset of columns, as
+#' # defined by name or with a selector. For example, dropping rows if there is
+#' # a null in any of the integer columns:
+#' df$drop_nulls(subset = cs$integer())
+dataframe__drop_nulls <- function(subset = NULL) {
+  self$lazy()$drop_nulls(subset)$collect(`_eager` = TRUE) |>
+    wrap()
+}

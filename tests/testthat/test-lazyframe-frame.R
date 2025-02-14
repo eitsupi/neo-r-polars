@@ -258,3 +258,22 @@ test_that("top_k works", {
     "lengths don't match"
   )
 })
+
+test_that("drop_nulls works", {
+  df <- pl$DataFrame(
+    foo = 1:3,
+    bar = c(6L, NA, 8L),
+    ham = c("a", "b", NA)
+  )
+
+  expect_query_equal(
+    .input$drop_nulls(),
+    .input = df,
+    pl$DataFrame(foo = 1L, bar = 6L, ham = "a")
+  )
+  expect_query_equal(
+    .input$drop_nulls(subset = cs$integer()),
+    .input = df,
+    pl$DataFrame(foo = c(1L, 3L), bar = c(6L, 8L), ham = c("a", NA))
+  )
+})

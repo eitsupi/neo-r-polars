@@ -1000,7 +1000,7 @@ lazyframe__reverse <- function() {
 #' @examples
 #' lf <- pl$LazyFrame(
 #'   foo = 1:3,
-#'   bar = c(6, NA, 8),
+#'   bar = c(6L, NA, 8L),
 #'   ham = c("a", "b", NA)
 #' )
 #'
@@ -1015,7 +1015,11 @@ lazyframe__reverse <- function() {
 lazyframe__drop_nulls <- function(subset = NULL) {
   wrap({
     if (!is.null(subset)) {
-      subset <- parse_into_list_of_expressions(!!!subset)
+      if (is_polars_selector(subset)) {
+        subset <- parse_into_list_of_expressions(!!!list(subset))
+      } else {
+        subset <- parse_into_list_of_expressions(!!!subset)
+      }
     }
     self$`_ldf`$drop_nulls(subset)
   })
