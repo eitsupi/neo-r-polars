@@ -868,7 +868,7 @@ dataframe__gather_every <- function(n, offset = 0) {
     wrap()
 }
 
-#' @inherit lazyframe__rename
+#' @inherit lazyframe__rename title params details 
 #'
 #' @inherit as_polars_df return
 #' @examples
@@ -885,5 +885,30 @@ dataframe__gather_every <- function(n, offset = 0) {
 #' )
 dataframe__rename <- function(..., .strict = TRUE) {
   self$lazy()$rename(..., .strict = .strict)$collect(`_eager` = TRUE) |>
+    wrap()
+}
+
+#' @inherit lazyframe__fill_null title description params
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = c(1.5, 2, NA, 4),
+#'   b = c(1.5, NA, NA, 4)
+#' )
+#' df$fill_null(99)
+#'
+#' df$fill_null(strategy = "forward")
+#'
+#' df$fill_null(strategy = "max")
+#'
+#' df$fill_null(strategy = "zero")
+dataframe__fill_null <- function(
+    value,
+    strategy = NULL,
+    limit = NULL,
+    ...,
+    matches_supertype = TRUE) {
+  self$lazy()$fill_null(value, strategy, limit, matches_supertype = matches_supertype)$collect(`_eager` = TRUE) |>
     wrap()
 }
