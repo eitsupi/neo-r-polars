@@ -468,6 +468,7 @@ impl PlRLazyFrame {
         how: &str,
         suffix: &str,
         validate: &str,
+        maintain_order: &str,
         coalesce: Option<bool>,
     ) -> Result<Self> {
         let coalesce = match coalesce {
@@ -481,6 +482,7 @@ impl PlRLazyFrame {
         let right_on = <Wrap<Vec<Expr>>>::from(right_on).0;
 
         let how = <Wrap<JoinType>>::try_from(how)?.0;
+        let maintain_order = <Wrap<MaintainOrderJoin>>::try_from(maintain_order)?.0;
         let validate = <Wrap<JoinValidation>>::try_from(validate)?.0;
         Ok(ldf
             .join_builder()
@@ -494,6 +496,7 @@ impl PlRLazyFrame {
             .coalesce(coalesce)
             .validate(validate)
             .suffix(suffix)
+            .maintain_order(maintain_order)
             .finish()
             .into())
     }
