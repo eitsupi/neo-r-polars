@@ -658,3 +658,18 @@ test_that("$cast() works", {
     pl$DataFrame(x = NA_integer_, .schema_overrides = list(x = pl$Int8))
   )
 })
+
+test_that("fill_nan() works", {
+  df <- pl$DataFrame(
+    a = c(1.5, 2, NaN, NA),
+    b = c(1.5, NaN, NaN, 4)
+  )
+  expect_query_equal(
+    .input$fill_nan(99),
+    df,
+    pl$DataFrame(
+      a = c(1.5, 2, 99, NA),
+      b = c(1.5, 99, 99, 4)
+    )
+  )
+})
