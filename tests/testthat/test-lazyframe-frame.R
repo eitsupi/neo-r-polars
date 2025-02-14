@@ -132,3 +132,37 @@ test_that("slice/head/tail works lazy/eager", {
     r"(-4\.0 is out of range that can be safely converted to u32)"
   )
 })
+
+test_that("bottom_k works", {
+  df <- pl$DataFrame(
+    a = c("a", "b", "a", "b", "b", "c"),
+    b = c(2, 1, 1, 3, 2, 1)
+  )
+  expect_query_equal(
+    .input$bottom_k(4, by = "b"),
+    df,
+    pl$DataFrame(a = c("b", "a", "c", "a"), b = c(1, 1, 1, 2))
+  )
+  expect_query_equal(
+    .input$bottom_k(4, by = c("a", "b")),
+    df,
+    pl$DataFrame(a = c("a", "a", "b", "b"), b = c(1, 2, 1, 2))
+  )
+})
+
+test_that("top_k works", {
+  df <- pl$DataFrame(
+    a = c("a", "b", "a", "b", "b", "c"),
+    b = c(2, 1, 1, 3, 2, 1)
+  )
+  expect_query_equal(
+    .input$top_k(4, by = "b"),
+    df,
+    pl$DataFrame(a = c("b", "a", "b", "b"), b = c(3, 2, 2, 1))
+  )
+  expect_query_equal(
+    .input$top_k(4, by = c("a", "b")),
+    df,
+    pl$DataFrame(a = c("c", "b", "b", "b"), b = c(1, 3, 2, 1))
+  )
+})
