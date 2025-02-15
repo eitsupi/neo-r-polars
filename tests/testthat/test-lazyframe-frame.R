@@ -730,6 +730,200 @@ test_that("$gather_every() works", {
   )
 })
 
+test_that("fill_null(): basic usage", {
+  df <- pl$DataFrame(
+    a = c(1.5, 2, NA, NaN),
+    b = c(1, NA, NA, 4)
+  )
+  expect_query_equal(
+    .input$fill_null(99),
+    df,
+    pl$DataFrame(
+      a = c(1.5, 2, 99, NaN),
+      b = c(1, 99, 99, 4)
+    )
+  )
+
+  # can't pass "value" and "strategy"
+  expect_query_error(
+    .input$fill_null(99, strategy = "one"),
+    .input = df,
+    "Exactly one of `value` or `strategy`"
+  )
+
+  # arg "limit" works
+  expect_query_equal(
+    .input$fill_null(strategy = "forward", limit = 1),
+    df,
+    pl$DataFrame(
+      a = c(1.5, 2, 2, NaN),
+      b = c(1, 1, NA, 4)
+    )
+  )
+
+  # arg "matches_supertype" works
+  df <- df$cast(a = pl$Float32, b = pl$Int32)
+  expect_query_equal(
+    .input$fill_null(99),
+    df,
+    pl$DataFrame(
+      a = c(1.5, 2, 99, NaN),
+      b = c(1, 99, 99, 4)
+    )$cast(a = pl$Float32, b = pl$Float64)
+  )
+  expect_query_equal(
+    .input$fill_null(99, matches_supertype = FALSE),
+    df,
+    df
+  )
+})
+
+patrick::with_parameters_test_that("fill_null(): arg 'strategy' works",
+  .cases = {
+    tibble::tribble(
+      ~.strategy, ~.a, ~.b,
+      "forward", c(1.5, 2, 2, NaN), c(1.5, 1.5, 1.5, 4),
+      "backward", c(1.5, 2, NaN, NaN), c(1.5, 4, 4, 4),
+      "min", c(1.5, 2, 1.5, NaN), c(1.5, 1.5, 1.5, 4),
+      "max", c(1.5, 2, 2, NaN), c(1.5, 4, 4, 4),
+      "zero", c(1.5, 2, 0, NaN), c(1.5, 0, 0, 4),
+      "one", c(1.5, 2, 1, NaN), c(1.5, 1, 1, 4),
+    )
+  },
+  code = {
+    df <- pl$DataFrame(
+      a = c(1.5, 2, NA, NaN),
+      b = c(1.5, NA, NA, 4)
+    )
+    expect_query_equal(
+      .input$fill_null(strategy = .strategy),
+      df,
+      pl$DataFrame(a = .a, b = .b)
+    )
+  }
+)
+
+patrick::with_parameters_test_that(
+  "rename() works",
+  {
+    dat <- do.call(fun, list(mtcars))
+    dat2 <- dat$rename(mpg = "miles_per_gallon", hp = "horsepower")
+    if (is_polars_lf(dat2)) {
+      dat2 <- dat2$collect()
+    }
+    nms <- names(dat2)
+    expect_false("hp" %in% nms)
+    expect_false("mpg" %in% nms)
+    expect_true("miles_per_gallon" %in% nms)
+    expect_true("horsepower" %in% nms)
+
+    expect_error(
+      dat$rename(),
+      "must be character, not NULL"
+    )
+  },
+  fun = c("as_polars_df", "as_polars_lf")
+)
+
+test_that("explode() works", {
+  df <- pl$DataFrame(
+    letters = c("a", "a", "b", "c"),
+    numbers = list(1, c(2, 3), c(4, 5), c(6, 7, 8)),
+    jumpers = list(1, c(2, 3), c(4, 5), c(6, 7, 8))
+  )
+
+  expected_df <- pl$DataFrame(
+    letters = c(rep("a", 3), "b", "b", rep("c", 3)),
+    numbers = c(1, 2, 3, 4, 5, 6, 7, 8),
+    jumpers = c(1, 2, 3, 4, 5, 6, 7, 8)
+  )
+
+  expect_query_equal(
+    .input$explode(c("numbers", "jumpers")),
+    df,
+    expected_df
+  )
+  expect_query_equal(
+    .input$explode("numbers", pl$col("jumpers")),
+    df,
+    expected_df
+  )
+
+  # empty values -> NA
+  df <- pl$DataFrame(
+    letters = c("a", "a", "b", "c"),
+    numbers = list(1, NULL, c(4, 5), c(6, 7, 8))
+  )
+  expect_query_equal(
+    .input$explode("numbers"),
+    df,
+    pl$DataFrame(
+      letters = c(rep("a", 2), "b", "b", rep("c", 3)),
+      numbers = c(1, NA, 4:8)
+    )
+  )
+
+  # several cols to explode test2
+  df <- pl$DataFrame(
+    letters = c("a", "a", "b", "c"),
+    numbers = list(1, NULL, c(4, 5), c(6, 7, 8)),
+    numbers2 = list(1, NULL, c(4, 5), c(6, 7, 8))
+  )
+  expect_query_equal(
+    .input$explode("numbers", pl$col("numbers2")),
+    df,
+    pl$DataFrame(
+      letters = c(rep("a", 2), "b", "b", rep("c", 3)),
+      numbers = c(1, NA, 4:8),
+      numbers2 = c(1, NA, 4:8)
+    )
+  )
+})
+
+test_that("unnest", {
+  df <- pl$DataFrame(
+    a = 1:5,
+    b = c("one", "two", "three", "four", "five"),
+    c = rep(TRUE, 5),
+    d = rep(42.0, 5),
+    e = rep(NaN, 5),
+    f = rep(NA_real_, 5)
+  )
+
+  df2 <- df$
+    select(
+    pl$struct(c("a", "b", "c"))$alias("first_struct"),
+    pl$struct(c("d", "e", "f"))$alias("second_struct")
+  )
+
+  expect_query_equal(
+    .input$unnest("first_struct", "second_struct"),
+    .input = df2,
+    df
+  )
+
+  expect_query_equal(
+    .input$unnest(pl$col("first_struct", "second_struct")),
+    .input = df2,
+    df
+  )
+
+  expect_query_equal(
+    .input$unnest("first_struct"),
+    .input = df2,
+    df$
+      select(
+      pl$col("a", "b", "c"),
+      pl$struct(c("d", "e", "f"))$alias("second_struct")
+    )
+  )
+  expect_query_error(
+    .input$unnest(a = "first_struct"),
+    .input = df,
+    "must be passed by position"
+  )
+})
+
 test_that("join_asof", {
   l_gdp <- pl$DataFrame(
     date = as.Date(c("2016-1-1", "2017-1-1", "2018-1-1", "2019-1-1")),
@@ -839,3 +1033,4 @@ test_that("join_asof", {
     )
   )
 })
+
