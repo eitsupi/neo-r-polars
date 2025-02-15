@@ -585,11 +585,12 @@ test_that("inequality joins work", {
   )
 
   expect_query_error(
-    east$join_where(
+    .input$join_where(
       mtcars,
       pl$col("dur") < pl$col("time"),
       pl$col("rev") < pl$col("cost")
     ),
+    .input = east,
     "`other` must be a LazyFrame"
   )
 })
