@@ -764,4 +764,9 @@ test_that("$clear() works", {
     df,
     "greater than or equal to 0"
   )
+  expect_query_error(
+    .input$clear(1.5),
+    df,
+    "must be an integer"
+  )
 })

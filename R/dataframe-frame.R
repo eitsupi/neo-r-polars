@@ -882,6 +882,9 @@ dataframe__gather_every <- function(n, offset = 0) {
 #' df$clear(n = 2)
 dataframe__clear <- function(n = 0) {
   wrap({
+    if (!is_integerish(n)) {
+      abort("`n` must be an integer.")
+    }
     if (n < 0) {
       abort("`n` must be greater than or equal to 0.")
     }
