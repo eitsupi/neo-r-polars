@@ -1065,10 +1065,10 @@ dataframe__join_asof <- function(
   )$collect(`_eager` = TRUE) |>
     wrap()
 }
-              
+
 #' @inherit lazyframe__quantile title params
 #'
-#' @inherit as_polars_lf return
+#' @inherit as_polars_df return
 #' @examples
 #' df <- pl$DataFrame(a = 1:4, b = c(1, 2, 1, 1))
 #' df$quantile(0.7)

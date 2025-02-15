@@ -15,7 +15,7 @@ dataframe__quantile(
 \item{interpolation}{Interpolation method.}
 }
 \value{
-A polars \link{LazyFrame}
+A polars \link{DataFrame}
 }
 \description{
 Aggregate the columns to a unique quantile value
