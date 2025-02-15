@@ -1136,3 +1136,24 @@ dataframe__clear <- function(n = 0) {
     pl$select(!!!lst)
   })
 }
+
+#' @inherit lazyframe__shift title params
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(a = 1:4, b = 5:8)
+#'
+#' # By default, values are shifted forward by one index.
+#' df$shift()
+#'
+#' # Pass a negative value to shift in the opposite direction instead.
+#' df$shift(-2)
+#'
+#' # Specify fill_value to fill the resulting null values.
+#' df$shift(-2, fill_value = 100)
+dataframe__shift <- function(n = 1, ..., fill_value = NULL) {
+  wrap({
+    check_dots_empty0(...)
+    self$lazy()$shift(n, fill_value = fill_value)$collect(`_eager` = TRUE)
+  })
+}
