@@ -473,7 +473,6 @@ expr__exclude <- function(...) {
       self$`_rexpr`$exclude_dtype(exclude_dtypes)
     }
   })
-
 }
 
 
@@ -815,11 +814,12 @@ expr__arg_sort <- function(..., descending = FALSE, nulls_last = FALSE) {
 #'   pl$col("value1")$sort_by("value2")
 #' )
 expr__sort_by <- function(
-    ...,
-    descending = FALSE,
-    nulls_last = FALSE,
-    multithreaded = TRUE,
-    maintain_order = FALSE) {
+  ...,
+  descending = FALSE,
+  nulls_last = FALSE,
+  multithreaded = TRUE,
+  maintain_order = FALSE
+) {
   wrap({
     check_dots_unnamed()
 
@@ -1008,9 +1008,10 @@ expr__last <- function() {
 #'   x_lag = pl$col("x")$shift(1)$over("g", order_by = "t")
 #' )
 expr__over <- function(
-    ...,
-    order_by = NULL,
-    mapping_strategy = c("group_to_rows", "join", "explode")) {
+  ...,
+  order_by = NULL,
+  mapping_strategy = c("group_to_rows", "join", "explode")
+) {
   wrap({
     check_dots_unnamed()
 
@@ -1140,10 +1141,11 @@ expr__filter <- function(...) {
 # TODO: remove the noRd tag
 #' @noRd
 expr__map_batches <- function(
-    lambda,
-    return_dtype = NULL,
-    ...,
-    agg_list = FALSE) {
+  lambda,
+  return_dtype = NULL,
+  ...,
+  agg_list = FALSE
+) {
   wrap({
     check_dots_empty0(...)
     check_function(lambda)
@@ -1517,7 +1519,7 @@ expr__arg_unique <- function() {
 #' df <- pl$DataFrame(a = c(1, 1, 2, 1))
 #' df$select((pl$col("a") == 1)$arg_true())
 expr__arg_true <- function() {
-  arg_where(self$`_rexpr`) |> 
+  arg_where(self$`_rexpr`) |>
     wrap()
 }
 
@@ -1582,8 +1584,9 @@ expr__product <- function() {
 #' df$select(pl$col("a")$quantile(0.3, interpolation = "midpoint"))
 #' df$select(pl$col("a")$quantile(0.3, interpolation = "linear"))
 expr__quantile <- function(
-    quantile,
-    interpolation = c("nearest", "higher", "lower", "midpoint", "linear")) {
+  quantile,
+  interpolation = c("nearest", "higher", "lower", "midpoint", "linear")
+) {
   wrap({
     interpolation <- arg_match0(
       interpolation,
@@ -1671,9 +1674,10 @@ expr__has_nulls <- function() {
 #'   between_ab = pl$lit(3)$is_between(pl$col("a"), pl$col("b"))
 #' )
 expr__is_between <- function(
-    lower_bound,
-    upper_bound,
-    closed = c("both", "left", "right", "none")) {
+  lower_bound,
+  upper_bound,
+  closed = c("both", "left", "right", "none")
+) {
   wrap({
     closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
     self$`_rexpr`$is_between(
@@ -2186,10 +2190,11 @@ expr__peak_min <- function() {
 #'   rank = pl$col("b")$rank()$over("a")
 #' )
 expr__rank <- function(
-    method = c("average", "min", "max", "dense", "ordinal", "random"),
-    ...,
-    descending = FALSE,
-    seed = NULL) {
+  method = c("average", "min", "max", "dense", "ordinal", "random"),
+  ...,
+  descending = FALSE,
+  seed = NULL
+) {
   wrap({
     check_dots_empty0(...)
     method <- arg_match0(
@@ -2280,11 +2285,12 @@ expr__skew <- function(..., bias = TRUE) {
 #'   )
 #' )
 expr__hist <- function(
-    bins = NULL,
-    ...,
-    bin_count = NULL,
-    include_category = FALSE,
-    include_breakpoint = FALSE) {
+  bins = NULL,
+  ...,
+  bin_count = NULL,
+  include_category = FALSE,
+  include_breakpoint = FALSE
+) {
   wrap({
     check_dots_empty0(...)
     self$`_rexpr`$hist(
@@ -2319,11 +2325,12 @@ expr__hist <- function(
 #'
 #' df$unnest()
 expr__value_counts <- function(
-    ...,
-    sort = FALSE,
-    parallel = FALSE,
-    name = "count",
-    normalize = FALSE) {
+  ...,
+  sort = FALSE,
+  parallel = FALSE,
+  name = "count",
+  normalize = FALSE
+) {
   wrap({
     check_dots_empty0(...)
     self$`_rexpr`$value_counts(sort, parallel, name, normalize)
@@ -2452,11 +2459,12 @@ expr__search_sorted <- function(element, side = c("any", "left", "right")) {
 #'   rolling_max = pl$col("a")$rolling_max(window_size = 3, center = TRUE)
 #' )
 expr__rolling_max <- function(
-    window_size,
-    weights = NULL,
-    ...,
-    min_periods = NULL,
-    center = FALSE) {
+  window_size,
+  weights = NULL,
+  ...,
+  min_periods = NULL,
+  center = FALSE
+) {
   wrap({
     check_dots_empty0(...)
     self$`_rexpr`$rolling_max(
@@ -2491,11 +2499,12 @@ expr__rolling_max <- function(
 #'   rolling_min = pl$col("a")$rolling_min(window_size = 3, center = TRUE)
 #' )
 expr__rolling_min <- function(
-    window_size,
-    weights = NULL,
-    ...,
-    min_periods = NULL,
-    center = FALSE) {
+  window_size,
+  weights = NULL,
+  ...,
+  min_periods = NULL,
+  center = FALSE
+) {
   wrap({
     check_dots_empty0(...)
     self$`_rexpr`$rolling_min(
@@ -2530,11 +2539,12 @@ expr__rolling_min <- function(
 #'   rolling_mean = pl$col("a")$rolling_mean(window_size = 3, center = TRUE)
 #' )
 expr__rolling_mean <- function(
-    window_size,
-    weights = NULL,
-    ...,
-    min_periods = NULL,
-    center = FALSE) {
+  window_size,
+  weights = NULL,
+  ...,
+  min_periods = NULL,
+  center = FALSE
+) {
   wrap({
     check_dots_empty0(...)
     self$`_rexpr`$rolling_mean(
@@ -2569,11 +2579,12 @@ expr__rolling_mean <- function(
 #'   rolling_median = pl$col("a")$rolling_median(window_size = 3, center = TRUE)
 #' )
 expr__rolling_median <- function(
-    window_size,
-    weights = NULL,
-    ...,
-    min_periods = NULL,
-    center = FALSE) {
+  window_size,
+  weights = NULL,
+  ...,
+  min_periods = NULL,
+  center = FALSE
+) {
   wrap({
     check_dots_empty0(...)
     self$`_rexpr`$rolling_median(
@@ -2608,11 +2619,12 @@ expr__rolling_median <- function(
 #'   rolling_sum = pl$col("a")$rolling_sum(window_size = 3, center = TRUE)
 #' )
 expr__rolling_sum <- function(
-    window_size,
-    weights = NULL,
-    ...,
-    min_periods = NULL,
-    center = FALSE) {
+  window_size,
+  weights = NULL,
+  ...,
+  min_periods = NULL,
+  center = FALSE
+) {
   wrap({
     check_dots_empty0(...)
     self$`_rexpr`$rolling_sum(
@@ -2660,13 +2672,14 @@ expr__rolling_sum <- function(
 #'   )
 #' )
 expr__rolling_quantile <- function(
-    quantile,
-    interpolation = c("nearest", "higher", "lower", "midpoint", "linear"),
-    window_size,
-    weights = NULL,
-    ...,
-    min_periods = NULL,
-    center = FALSE) {
+  quantile,
+  interpolation = c("nearest", "higher", "lower", "midpoint", "linear"),
+  window_size,
+  weights = NULL,
+  ...,
+  min_periods = NULL,
+  center = FALSE
+) {
   wrap({
     check_dots_empty0(...)
     interpolation <- arg_match0(
@@ -2729,12 +2742,13 @@ expr__rolling_skew <- function(window_size, ..., bias = TRUE) {
 #'   rolling_std = pl$col("a")$rolling_std(window_size = 3, center = TRUE)
 #' )
 expr__rolling_std <- function(
-    window_size,
-    weights = NULL,
-    ...,
-    min_periods = NULL,
-    center = FALSE,
-    ddof = 1) {
+  window_size,
+  weights = NULL,
+  ...,
+  min_periods = NULL,
+  center = FALSE,
+  ddof = 1
+) {
   wrap({
     check_dots_empty0(...)
     self$`_rexpr`$rolling_std(
@@ -2771,12 +2785,13 @@ expr__rolling_std <- function(
 #'   rolling_var = pl$col("a")$rolling_var(window_size = 3, center = TRUE)
 #' )
 expr__rolling_var <- function(
-    window_size,
-    weights = NULL,
-    ...,
-    min_periods = NULL,
-    center = FALSE,
-    ddof = 1) {
+  window_size,
+  weights = NULL,
+  ...,
+  min_periods = NULL,
+  center = FALSE,
+  ddof = 1
+) {
   wrap({
     check_dots_empty0(...)
     self$`_rexpr`$rolling_var(
@@ -2822,7 +2837,7 @@ expr__rolling_var <- function(
 #' dates <- as.POSIXct(
 #'   c(
 #'     "2020-01-01 13:45:48", "2020-01-01 16:42:13", "2020-01-01 16:45:09",
-#'     "2020-01-02 18:12:48", "2020-01-03 19:45:32","2020-01-08 23:16:43"
+#'     "2020-01-02 18:12:48", "2020-01-03 19:45:32", "2020-01-08 23:16:43"
 #'   )
 #' )
 #' df <- pl$DataFrame(dt = dates, a = c(3, 7, 5, 9, 2, 1))
@@ -2837,7 +2852,8 @@ expr__rolling <- function(
   ...,
   period,
   offset = NULL,
-  closed = "right") {
+  closed = "right"
+) {
   wrap({
     check_dots_empty0(...)
     closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
@@ -2862,9 +2878,9 @@ expr__rolling <- function(
 #' * …
 #' * `(t_n - window_size, t_n]`
 #'
-#' @param by Should be DateTime, Date, UInt64, UInt32, Int64, or Int32 data 
+#' @param by Should be DateTime, Date, UInt64, UInt32, Int64, or Int32 data
 #' type after conversion by [as_polars_expr()]. Note that the
-#' integer ones require using `"i"` in `window_size`. Accepts expression input. 
+#' integer ones require using `"i"` in `window_size`. Accepts expression input.
 #' Strings are parsed as column names.
 #' @param window_size The length of the window. Can be a dynamic temporal size
 #' indicated by a timedelta or the following string language:
@@ -2925,11 +2941,12 @@ expr__rolling <- function(
 #'   )
 #' )
 expr__rolling_max_by <- function(
-    by,
-    window_size,
-    ...,
-    min_periods = 1,
-    closed = c("right", "both", "left", "none")) {
+  by,
+  window_size,
+  ...,
+  min_periods = 1,
+  closed = c("right", "both", "left", "none")
+) {
   wrap({
     check_dots_empty0(...)
     closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
@@ -2975,11 +2992,12 @@ expr__rolling_max_by <- function(
 #'   )
 #' )
 expr__rolling_min_by <- function(
-    by,
-    window_size,
-    ...,
-    min_periods = 1,
-    closed = c("right", "both", "left", "none")) {
+  by,
+  window_size,
+  ...,
+  min_periods = 1,
+  closed = c("right", "both", "left", "none")
+) {
   wrap({
     check_dots_empty0(...)
     closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
@@ -3025,11 +3043,12 @@ expr__rolling_min_by <- function(
 #'   )
 #' )
 expr__rolling_mean_by <- function(
-    by,
-    window_size,
-    ...,
-    min_periods = 1,
-    closed = c("right", "both", "left", "none")) {
+  by,
+  window_size,
+  ...,
+  min_periods = 1,
+  closed = c("right", "both", "left", "none")
+) {
   wrap({
     check_dots_empty0(...)
     closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
@@ -3075,11 +3094,12 @@ expr__rolling_mean_by <- function(
 #'   )
 #' )
 expr__rolling_median_by <- function(
-    by,
-    window_size,
-    ...,
-    min_periods = 1,
-    closed = c("right", "both", "left", "none")) {
+  by,
+  window_size,
+  ...,
+  min_periods = 1,
+  closed = c("right", "both", "left", "none")
+) {
   wrap({
     check_dots_empty0(...)
     closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
@@ -3125,11 +3145,12 @@ expr__rolling_median_by <- function(
 #'   )
 #' )
 expr__rolling_sum_by <- function(
-    by,
-    window_size,
-    ...,
-    min_periods = 1,
-    closed = c("right", "both", "left", "none")) {
+  by,
+  window_size,
+  ...,
+  min_periods = 1,
+  closed = c("right", "both", "left", "none")
+) {
   wrap({
     check_dots_empty0(...)
     closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
@@ -3176,13 +3197,14 @@ expr__rolling_sum_by <- function(
 #'   )
 #' )
 expr__rolling_quantile_by <- function(
-    by,
-    window_size,
-    ...,
-    quantile,
-    interpolation = c("nearest", "higher", "lower", "midpoint", "linear"),
-    min_periods = 1,
-    closed = c("right", "both", "left", "none")) {
+  by,
+  window_size,
+  ...,
+  quantile,
+  interpolation = c("nearest", "higher", "lower", "midpoint", "linear"),
+  min_periods = 1,
+  closed = c("right", "both", "left", "none")
+) {
   wrap({
     check_dots_empty0(...)
     closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
@@ -3235,12 +3257,13 @@ expr__rolling_quantile_by <- function(
 #'   )
 #' )
 expr__rolling_std_by <- function(
-    by,
-    window_size,
-    ...,
-    min_periods = 1,
-    closed = c("right", "both", "left", "none"),
-    ddof = 1) {
+  by,
+  window_size,
+  ...,
+  min_periods = 1,
+  closed = c("right", "both", "left", "none"),
+  ddof = 1
+) {
   wrap({
     check_dots_empty0(...)
     closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
@@ -3288,12 +3311,13 @@ expr__rolling_std_by <- function(
 #'   )
 #' )
 expr__rolling_var_by <- function(
-    by,
-    window_size,
-    ...,
-    min_periods = 1,
-    closed = c("right", "both", "left", "none"),
-    ddof = 1) {
+  by,
+  window_size,
+  ...,
+  min_periods = 1,
+  closed = c("right", "both", "left", "none"),
+  ddof = 1
+) {
   wrap({
     check_dots_empty0(...)
     closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
@@ -3344,15 +3368,16 @@ expr__rolling_var_by <- function(
 #' df <- pl$DataFrame(a = 1:3)
 #' df$select(pl$col("a")$ewm_var(com = 1, ignore_nulls = FALSE))
 expr__ewm_var <- function(
-    ...,
-    com,
-    span,
-    half_life,
-    alpha,
-    adjust = TRUE,
-    bias = FALSE,
-    min_periods = 1,
-    ignore_nulls = FALSE) {
+  ...,
+  com,
+  span,
+  half_life,
+  alpha,
+  adjust = TRUE,
+  bias = FALSE,
+  min_periods = 1,
+  ignore_nulls = FALSE
+) {
   wrap({
     check_dots_empty0(...)
     alpha <- prepare_alpha(com, span, half_life, alpha)
@@ -3376,15 +3401,16 @@ expr__ewm_var <- function(
 #' df <- pl$DataFrame(a = 1:3)
 #' df$select(pl$col("a")$ewm_std(com = 1, ignore_nulls = FALSE))
 expr__ewm_std <- function(
-    ...,
-    com,
-    span,
-    half_life,
-    alpha,
-    adjust = TRUE,
-    bias = FALSE,
-    min_periods = 1,
-    ignore_nulls = FALSE) {
+  ...,
+  com,
+  span,
+  half_life,
+  alpha,
+  adjust = TRUE,
+  bias = FALSE,
+  min_periods = 1,
+  ignore_nulls = FALSE
+) {
   wrap({
     check_dots_empty0(...)
     alpha <- prepare_alpha(com, span, half_life, alpha)
@@ -3408,14 +3434,15 @@ expr__ewm_std <- function(
 #' df <- pl$DataFrame(a = 1:3)
 #' df$select(pl$col("a")$ewm_mean(com = 1, ignore_nulls = FALSE))
 expr__ewm_mean <- function(
-    ...,
-    com,
-    span,
-    half_life,
-    alpha,
-    adjust = TRUE,
-    min_periods = 1,
-    ignore_nulls = FALSE) {
+  ...,
+  com,
+  span,
+  half_life,
+  alpha,
+  adjust = TRUE,
+  min_periods = 1,
+  ignore_nulls = FALSE
+) {
   wrap({
     check_dots_empty0(...)
     alpha <- prepare_alpha(com, span, half_life, alpha)
@@ -4044,11 +4071,12 @@ expr__upper_bound <- function() {
 #'   cut = pl$col("foo")$cut(c(-1, 1), include_breaks = TRUE)
 #' )$unnest()
 expr__cut <- function(
-    breaks,
-    ...,
-    labels = NULL,
-    left_closed = FALSE,
-    include_breaks = FALSE) {
+  breaks,
+  ...,
+  labels = NULL,
+  left_closed = FALSE,
+  include_breaks = FALSE
+) {
   wrap({
     check_dots_empty0(...)
     self$`_rexpr`$cut(
@@ -4095,12 +4123,13 @@ expr__cut <- function(
 #'   qcut = pl$col("foo")$qcut(c(0.25, 0.75), include_breaks = TRUE)
 #' )$unnest()
 expr__qcut <- function(
-    quantiles,
-    ...,
-    labels = NULL,
-    left_closed = FALSE,
-    allow_duplicates = FALSE,
-    include_breaks = FALSE) {
+  quantiles,
+  ...,
+  labels = NULL,
+  left_closed = FALSE,
+  allow_duplicates = FALSE,
+  include_breaks = FALSE
+) {
   wrap({
     check_dots_empty0(...)
     if (is_scalar_integerish(quantiles)) {
@@ -4130,7 +4159,7 @@ expr__qcut <- function(
 #' df <- pl$DataFrame(a = c(1, 1, 2))
 #'
 #' # Create a Series with 3 nulls, append column a then rechunk
-#' df$select(pl$repeat(NA, 3)$append(pl$col("a"))$rechunk())
+#' df$select(pl$repeat_(NA, 3)$append(pl$col("a"))$rechunk())
 expr__rechunk <- function() {
   wrap({
     self$`_rexpr`$rechunk()
@@ -4227,7 +4256,7 @@ expr__repeat_by <- function(by) {
 #'     new = pl$col("b")$sum()
 #'   )
 #' )
-expr__replace = function(old, new) {
+expr__replace <- function(old, new) {
   wrap({
     if (missing(new)) {
       if (!is.list(old)) {
@@ -4284,7 +4313,8 @@ expr__replace = function(old, new) {
 #' # inferring it
 #' df$with_columns(
 #'   replaced = pl$col("a")$replace_strict(
-#'     mapping, default = 1, return_dtype = pl$Int32
+#'     mapping,
+#'     default = 1, return_dtype = pl$Int32
 #'   )
 #' )
 #'
@@ -4297,31 +4327,32 @@ expr__replace = function(old, new) {
 #'     default = pl$col("b"),
 #'   )
 #' )
-expr__replace_strict = function(
+expr__replace_strict <- function(
   old,
   new,
   ...,
   default = NULL,
-  return_dtype = NULL) {
-    wrap({
-      check_dots_empty0(...)
-      if (missing(new)) {
-        if (!is.list(old)) {
-          abort("`new` argument is required if `old` argument is not a list.")
-        }
-        new <- unlist(old, use.names = FALSE)
-        old <- names(old)
+  return_dtype = NULL
+) {
+  wrap({
+    check_dots_empty0(...)
+    if (missing(new)) {
+      if (!is.list(old)) {
+        abort("`new` argument is required if `old` argument is not a list.")
       }
-      if (!is.null(default)) {
-        default <- as_polars_expr(default, as_lit = TRUE)$`_rexpr`
-      }
-      self$`_rexpr`$replace_strict(
-        as_polars_expr(old, as_lit = TRUE)$`_rexpr`,
-        as_polars_expr(new, as_lit = TRUE)$`_rexpr`,
-        default = default,
-        return_dtype = return_dtype$`_dt`
-      )
-    })
+      new <- unlist(old, use.names = FALSE)
+      old <- names(old)
+    }
+    if (!is.null(default)) {
+      default <- as_polars_expr(default, as_lit = TRUE)$`_rexpr`
+    }
+    self$`_rexpr`$replace_strict(
+      as_polars_expr(old, as_lit = TRUE)$`_rexpr`,
+      as_polars_expr(new, as_lit = TRUE)$`_rexpr`,
+      default = default,
+      return_dtype = return_dtype$`_dt`
+    )
+  })
 }
 
 #' Compress the column data using run-length encoding
