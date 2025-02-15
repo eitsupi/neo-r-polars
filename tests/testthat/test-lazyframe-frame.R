@@ -1488,7 +1488,7 @@ test_that("inequality joins work", {
       pl$col("rev") < pl$col("cost")
     ),
     .input = east,
-    "`other` must be a LazyFrame"
+    "`other` must be a polars"
   )
 })
 
