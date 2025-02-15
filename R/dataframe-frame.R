@@ -1157,3 +1157,36 @@ dataframe__shift <- function(n = 1, ..., fill_value = NULL) {
     self$lazy()$shift(n, fill_value = fill_value)$collect(`_eager` = TRUE)
   })
 }
+
+#' Unpivot a DataFrame from wide to long format
+#'
+#' This function is useful to massage a DataFrame into a format where one or
+#' more columns are identifier variables (`index`) while all other columns,
+#' considered measured variables (`on`), are “unpivoted” to the row axis
+#' leaving just two non-identifier columns, "variable" and "value".
+#'
+#' @inherit lazyframe__unpivot
+#'
+#' @inherit as_polars_lf return
+#'
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = c("x", "y", "z"),
+#'   b = c(1, 3, 5),
+#'   c = c(2, 4, 6)
+#' )
+#' df$unpivot(index = "a", on = c("b", "c"))
+dataframe__unpivot <- function(
+    on = NULL,
+    ...,
+    index = NULL,
+    variable_name = NULL,
+    value_name = NULL) {
+  wrap({
+    check_dots_empty0(...)
+    # on = [] if on is None else _expand_selectors(self, on)
+    # index = [] if index is None else _expand_selectors(self, index)
+    self$`_df`$unpivot(on, index, value_name, variable_name) |>
+      unwrap()
+  })
+}
