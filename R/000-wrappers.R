@@ -372,6 +372,12 @@ class(`PlRChainedWhen`) <- c("PlRChainedWhen__bundle", "savvy_neopolars__sealed"
 
 ### wrapper functions for PlRDataFrame
 
+`PlRDataFrame_clear` <- function(self) {
+  function() {
+    .savvy_wrap_PlRDataFrame(.Call(savvy_PlRDataFrame_clear__impl, `self`))
+  }
+}
+
 `PlRDataFrame_clone` <- function(self) {
   function() {
     .savvy_wrap_PlRDataFrame(.Call(savvy_PlRDataFrame_clone__impl, `self`))
@@ -484,6 +490,7 @@ class(`PlRChainedWhen`) <- c("PlRChainedWhen__bundle", "savvy_neopolars__sealed"
 `.savvy_wrap_PlRDataFrame` <- function(ptr) {
   e <- new.env(parent = emptyenv())
   e$.ptr <- ptr
+  e$`clear` <- `PlRDataFrame_clear`(ptr)
   e$`clone` <- `PlRDataFrame_clone`(ptr)
   e$`columns` <- `PlRDataFrame_columns`(ptr)
   e$`dtypes` <- `PlRDataFrame_dtypes`(ptr)
@@ -3386,6 +3393,12 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
   }
 }
 
+`PlRLazyFrame_drop_nans` <- function(self) {
+  function(`subset` = NULL) {
+    .savvy_wrap_PlRLazyFrame(.Call(savvy_PlRLazyFrame_drop_nans__impl, `self`, `subset`))
+  }
+}
+
 `PlRLazyFrame_drop_nulls` <- function(self) {
   function(`subset` = NULL) {
     .savvy_wrap_PlRLazyFrame(.Call(savvy_PlRLazyFrame_drop_nulls__impl, `self`, `subset`))
@@ -3402,13 +3415,6 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
   function(`fill_value`) {
     `fill_value` <- .savvy_extract_ptr(`fill_value`, "PlRExpr")
     .savvy_wrap_PlRLazyFrame(.Call(savvy_PlRLazyFrame_fill_nan__impl, `self`, `fill_value`))
-  }
-}
-
-`PlRLazyFrame_fill_null` <- function(self) {
-  function(`fill_value`) {
-    `fill_value` <- .savvy_extract_ptr(`fill_value`, "PlRExpr")
-    .savvy_wrap_PlRLazyFrame(.Call(savvy_PlRLazyFrame_fill_null__impl, `self`, `fill_value`))
   }
 }
 
@@ -3494,8 +3500,8 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
 }
 
 `PlRLazyFrame_optimization_toggle` <- function(self) {
-  function(`type_coercion`, `predicate_pushdown`, `projection_pushdown`, `simplify_expression`, `slice_pushdown`, `comm_subplan_elim`, `comm_subexpr_elim`, `cluster_with_columns`, `streaming`, `_eager`) {
-    .savvy_wrap_PlRLazyFrame(.Call(savvy_PlRLazyFrame_optimization_toggle__impl, `self`, `type_coercion`, `predicate_pushdown`, `projection_pushdown`, `simplify_expression`, `slice_pushdown`, `comm_subplan_elim`, `comm_subexpr_elim`, `cluster_with_columns`, `streaming`, `_eager`))
+  function(`type_coercion`, `_type_check`, `predicate_pushdown`, `projection_pushdown`, `simplify_expression`, `slice_pushdown`, `comm_subplan_elim`, `comm_subexpr_elim`, `cluster_with_columns`, `collapse_joins`, `streaming`, `_eager`, `_check_order`) {
+    .savvy_wrap_PlRLazyFrame(.Call(savvy_PlRLazyFrame_optimization_toggle__impl, `self`, `type_coercion`, `_type_check`, `predicate_pushdown`, `projection_pushdown`, `simplify_expression`, `slice_pushdown`, `comm_subplan_elim`, `comm_subexpr_elim`, `cluster_with_columns`, `collapse_joins`, `streaming`, `_eager`, `_check_order`))
   }
 }
 
@@ -3663,10 +3669,10 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
   e$`describe_plan` <- `PlRLazyFrame_describe_plan`(ptr)
   e$`describe_plan_tree` <- `PlRLazyFrame_describe_plan_tree`(ptr)
   e$`drop` <- `PlRLazyFrame_drop`(ptr)
+  e$`drop_nans` <- `PlRLazyFrame_drop_nans`(ptr)
   e$`drop_nulls` <- `PlRLazyFrame_drop_nulls`(ptr)
   e$`explode` <- `PlRLazyFrame_explode`(ptr)
   e$`fill_nan` <- `PlRLazyFrame_fill_nan`(ptr)
-  e$`fill_null` <- `PlRLazyFrame_fill_null`(ptr)
   e$`filter` <- `PlRLazyFrame_filter`(ptr)
   e$`group_by` <- `PlRLazyFrame_group_by`(ptr)
   e$`group_by_dynamic` <- `PlRLazyFrame_group_by_dynamic`(ptr)

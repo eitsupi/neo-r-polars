@@ -551,6 +551,903 @@ test_that("argument 'join_nulls' works", {
   )
 })
 
+test_that("drop_nans works", {
+  df <- pl$DataFrame(
+    foo = c(1, NaN, 2.5),
+    bar = c(NaN, 110, 25.5),
+    ham = c("a", "b", NA)
+  )
+  expect_query_equal(
+    .input$drop_nans(),
+    .input = df,
+    pl$DataFrame(foo = 2.5, bar = 25.5, ham = NA_character_)
+  )
+  expect_query_equal(
+    .input$drop_nans("foo", "bar"),
+    .input = df,
+    pl$DataFrame(foo = 2.5, bar = 25.5, ham = NA_character_)
+  )
+  expect_query_equal(
+    .input$drop_nans("bar"),
+    .input = df,
+    pl$DataFrame(foo = c(NaN, 2.5), bar = c(110, 25.5), ham = c("b", NA))
+  )
+
+  df <- pl$DataFrame(
+    a = c(NaN, NaN, NaN, NaN),
+    b = c(10.0, 2.5, NaN, 5.25),
+    c = c(65.75, NaN, NaN, 10.5)
+  )
+  expect_query_equal(
+    .input$filter(!pl$all_horizontal(pl$all()$is_nan())),
+    .input = df,
+    pl$DataFrame(
+      a = c(NaN, NaN, NaN),
+      b = c(10.0, 2.5, 5.25),
+      c = c(65.75, NaN, 10.5)
+    )
+  )
+  expect_query_error(
+    .input$drop_nans(subset = cs$integer()),
+    .input = df,
+    "must be passed by position"
+  )
+})
+
+test_that("drop_nulls works", {
+  df <- pl$DataFrame(
+    foo = 1:3,
+    bar = c(6L, NA, 8L),
+    ham = c("a", "b", NA)
+  )
+  expect_query_equal(
+    .input$drop_nulls(),
+    .input = df,
+    pl$DataFrame(foo = 1L, bar = 6L, ham = "a")
+  )
+  expect_query_equal(
+    .input$drop_nulls("ham", "bar"),
+    .input = df,
+    pl$DataFrame(foo = 1L, bar = 6L, ham = "a")
+  )
+  expect_query_equal(
+    .input$drop_nulls(cs$integer()),
+    .input = df,
+    pl$DataFrame(foo = c(1L, 3L), bar = c(6L, 8L), ham = c("a", NA))
+  )
+  expect_query_error(
+    .input$drop_nulls(subset = cs$integer()),
+    .input = df,
+    "must be passed by position"
+  )
+})
+
+test_that("explain() works", {
+  lazy_query <- as_polars_lf(iris)$sort("Species")$filter(pl$col("Species") != "setosa")
+
+  expect_error(
+    lazy_query$explain(format = "foobar"),
+    "`format` must be one of"
+  )
+  expect_error(
+    lazy_query$explain(format = 1),
+    "`format` must be a string or character vector"
+  )
+
+  expect_snapshot(cat(lazy_query$explain(optimized = FALSE)))
+  expect_snapshot(cat(lazy_query$explain()))
+
+  expect_snapshot(cat(lazy_query$explain(format = "tree", optimized = FALSE)))
+  expect_snapshot(cat(lazy_query$explain(format = "tree", )))
+})
+
+test_that("$cast() works", {
+  df <- pl$DataFrame(
+    foo = 1:3,
+    bar = c(6, 7, 8),
+    ham = as.Date(c("2020-01-02", "2020-03-04", "2020-05-06"))
+  )
+
+  expect_query_equal(
+    .input$cast(foo = pl$Float32, bar = pl$UInt8),
+    df,
+    pl$DataFrame(
+      foo = 1:3,
+      bar = c(6, 7, 8),
+      ham = as.Date(c("2020-01-02", "2020-03-04", "2020-05-06")),
+      .schema_overrides = list(foo = pl$Float32, bar = pl$UInt8, ham = pl$Date)
+    )
+  )
+
+  expect_query_equal(
+    .input$cast(pl$String),
+    df,
+    pl$DataFrame(
+      foo = 1:3,
+      bar = c(6, 7, 8),
+      ham = as.Date(c("2020-01-02", "2020-03-04", "2020-05-06")),
+      .schema_overrides = list(foo = pl$String, bar = pl$String, ham = pl$String)
+    )
+  )
+
+  expect_query_equal(
+    .input$cast(),
+    df,
+    df
+  )
+
+  expect_query_error(.input$cast(1), df)
+  expect_query_error(.input$cast("a"), df)
+  expect_query_error(.input$cast(list(foo = "a")), df)
+  expect_query_error(.input$cast(list(), strict = 1), df)
+
+  # Test overflow error
+  df <- pl$DataFrame(x = 1024)
+
+  expect_query_error(
+    .input$cast(pl$Int8),
+    df,
+    "conversion from `f64` to `i8` failed"
+  )
+  expect_query_equal(
+    .input$cast(pl$Int8, .strict = FALSE),
+    df,
+    pl$DataFrame(x = NA_integer_, .schema_overrides = list(x = pl$Int8))
+  )
+})
+
+test_that("$gather_every() works", {
+  df <- pl$DataFrame(a = 1:4, b = 5:8)
+
+  expect_query_equal(
+    .input$gather_every(2),
+    df,
+    pl$DataFrame(a = c(1L, 3L), b = c(5L, 7L))
+  )
+  expect_query_equal(
+    .input$gather_every(2, offset = 1),
+    df,
+    pl$DataFrame(a = c(2L, 4L), b = c(6L, 8L))
+  )
+
+  # must specify n
+  expect_query_error(
+    .input$gather_every(),
+    df,
+    r"(argument "n" is missing)"
+  )
+
+  # offset must be positive
+  expect_query_error(
+    .input$gather_every(2, offset = -1),
+    df,
+    r"(-1.0 is out of range)"
+  )
+  expect_query_error(
+    .input$gather_every(2, offset = "a"),
+    df,
+    "must be numeric, not character"
+  )
+})
+
+test_that("fill_null(): basic usage", {
+  df <- pl$DataFrame(
+    a = c(1.5, 2, NA, NaN),
+    b = c(1, NA, NA, 4)
+  )
+  expect_query_equal(
+    .input$fill_null(99),
+    df,
+    pl$DataFrame(
+      a = c(1.5, 2, 99, NaN),
+      b = c(1, 99, 99, 4)
+    )
+  )
+
+  # can't pass "value" and "strategy"
+  expect_query_error(
+    .input$fill_null(99, strategy = "one"),
+    .input = df,
+    "Exactly one of `value` or `strategy`"
+  )
+
+  # arg "limit" works
+  expect_query_equal(
+    .input$fill_null(strategy = "forward", limit = 1),
+    df,
+    pl$DataFrame(
+      a = c(1.5, 2, 2, NaN),
+      b = c(1, 1, NA, 4)
+    )
+  )
+
+  # arg "matches_supertype" works
+  df <- df$cast(a = pl$Float32, b = pl$Int32)
+  expect_query_equal(
+    .input$fill_null(99),
+    df,
+    pl$DataFrame(
+      a = c(1.5, 2, 99, NaN),
+      b = c(1, 99, 99, 4)
+    )$cast(a = pl$Float32, b = pl$Float64)
+  )
+  expect_query_equal(
+    .input$fill_null(99, matches_supertype = FALSE),
+    df,
+    df
+  )
+})
+
+patrick::with_parameters_test_that("fill_null(): arg 'strategy' works",
+  .cases = {
+    tibble::tribble(
+      ~.strategy, ~.a, ~.b,
+      "forward", c(1.5, 2, 2, NaN), c(1.5, 1.5, 1.5, 4),
+      "backward", c(1.5, 2, NaN, NaN), c(1.5, 4, 4, 4),
+      "min", c(1.5, 2, 1.5, NaN), c(1.5, 1.5, 1.5, 4),
+      "max", c(1.5, 2, 2, NaN), c(1.5, 4, 4, 4),
+      "zero", c(1.5, 2, 0, NaN), c(1.5, 0, 0, 4),
+      "one", c(1.5, 2, 1, NaN), c(1.5, 1, 1, 4),
+    )
+  },
+  code = {
+    df <- pl$DataFrame(
+      a = c(1.5, 2, NA, NaN),
+      b = c(1.5, NA, NA, 4)
+    )
+    expect_query_equal(
+      .input$fill_null(strategy = .strategy),
+      df,
+      pl$DataFrame(a = .a, b = .b)
+    )
+  }
+)
+
+patrick::with_parameters_test_that(
+  "rename() works",
+  {
+    dat <- do.call(fun, list(mtcars))
+    dat2 <- dat$rename(mpg = "miles_per_gallon", hp = "horsepower")
+    if (is_polars_lf(dat2)) {
+      dat2 <- dat2$collect()
+    }
+    nms <- names(dat2)
+    expect_false("hp" %in% nms)
+    expect_false("mpg" %in% nms)
+    expect_true("miles_per_gallon" %in% nms)
+    expect_true("horsepower" %in% nms)
+
+    expect_error(
+      dat$rename(),
+      "must be character, not NULL"
+    )
+  },
+  fun = c("as_polars_df", "as_polars_lf")
+)
+
+test_that("explode() works", {
+  df <- pl$DataFrame(
+    letters = c("a", "a", "b", "c"),
+    numbers = list(1, c(2, 3), c(4, 5), c(6, 7, 8)),
+    jumpers = list(1, c(2, 3), c(4, 5), c(6, 7, 8))
+  )
+
+  expected_df <- pl$DataFrame(
+    letters = c(rep("a", 3), "b", "b", rep("c", 3)),
+    numbers = c(1, 2, 3, 4, 5, 6, 7, 8),
+    jumpers = c(1, 2, 3, 4, 5, 6, 7, 8)
+  )
+
+  expect_query_equal(
+    .input$explode(c("numbers", "jumpers")),
+    df,
+    expected_df
+  )
+  expect_query_equal(
+    .input$explode("numbers", pl$col("jumpers")),
+    df,
+    expected_df
+  )
+
+  # empty values -> NA
+  df <- pl$DataFrame(
+    letters = c("a", "a", "b", "c"),
+    numbers = list(1, NULL, c(4, 5), c(6, 7, 8))
+  )
+  expect_query_equal(
+    .input$explode("numbers"),
+    df,
+    pl$DataFrame(
+      letters = c(rep("a", 2), "b", "b", rep("c", 3)),
+      numbers = c(1, NA, 4:8)
+    )
+  )
+
+  # several cols to explode test2
+  df <- pl$DataFrame(
+    letters = c("a", "a", "b", "c"),
+    numbers = list(1, NULL, c(4, 5), c(6, 7, 8)),
+    numbers2 = list(1, NULL, c(4, 5), c(6, 7, 8))
+  )
+  expect_query_equal(
+    .input$explode("numbers", pl$col("numbers2")),
+    df,
+    pl$DataFrame(
+      letters = c(rep("a", 2), "b", "b", rep("c", 3)),
+      numbers = c(1, NA, 4:8),
+      numbers2 = c(1, NA, 4:8)
+    )
+  )
+})
+
+test_that("unnest", {
+  df <- pl$DataFrame(
+    a = 1:5,
+    b = c("one", "two", "three", "four", "five"),
+    c = rep(TRUE, 5),
+    d = rep(42.0, 5),
+    e = rep(NaN, 5),
+    f = rep(NA_real_, 5)
+  )
+
+  df2 <- df$
+    select(
+    pl$struct(c("a", "b", "c"))$alias("first_struct"),
+    pl$struct(c("d", "e", "f"))$alias("second_struct")
+  )
+
+  expect_query_equal(
+    .input$unnest("first_struct", "second_struct"),
+    .input = df2,
+    df
+  )
+
+  expect_query_equal(
+    .input$unnest(pl$col("first_struct", "second_struct")),
+    .input = df2,
+    df
+  )
+
+  expect_query_equal(
+    .input$unnest("first_struct"),
+    .input = df2,
+    df$
+      select(
+      pl$col("a", "b", "c"),
+      pl$struct(c("d", "e", "f"))$alias("second_struct")
+    )
+  )
+  expect_query_error(
+    .input$unnest(a = "first_struct"),
+    .input = df,
+    "must be passed by position"
+  )
+})
+
+test_that("join_asof", {
+  l_gdp <- pl$DataFrame(
+    date = as.Date(c("2016-1-1", "2017-1-1", "2018-1-1", "2019-1-1")),
+    gdp = c(4164, 4411, 4566, 4696),
+    group = c("a", "a", "b", "b")
+  )$sort("date")
+
+  l_pop <- pl$DataFrame(
+    date = as.Date(c("2016-5-12", "2017-5-12", "2018-5-12", "2019-5-12")),
+    population = c(82.19, 82.66, 83.12, 83.52),
+    group_right = c("b", "b", "a", "a")
+  )$sort("date")
+
+  # argument "strategy"
+  expect_query_equal(
+    .input$join_asof(.input2, on = "date", strategy = "backward"),
+    .input = l_gdp, .input2 = l_pop,
+    pl$DataFrame(
+      date = as.Date(c("2016-1-1", "2017-1-1", "2018-1-1", "2019-1-1")),
+      gdp = c(4164, 4411, 4566, 4696),
+      group = c("a", "a", "b", "b"),
+      population = c(NA, 82.19, 82.66, 83.12),
+      group_right = c(NA, "b", "b", "a")
+    )
+  )
+  expect_query_equal(
+    .input$join_asof(.input2, on = "date", strategy = "forward"),
+    .input = l_gdp, .input2 = l_pop,
+    pl$DataFrame(
+      date = as.Date(c("2016-1-1", "2017-1-1", "2018-1-1", "2019-1-1")),
+      gdp = c(4164, 4411, 4566, 4696),
+      group = c("a", "a", "b", "b"),
+      population = c(82.19, 82.66, 83.12, 83.52),
+      group_right = c("b", "b", "a", "a")
+    )
+  )
+  expect_query_error(
+    .input$join_asof(.input2, on = "date", strategy = "foobar"),
+    .input = l_gdp, .input2 = l_pop,
+    "must be one of"
+  )
+
+  # left_on / right_on
+  expect_query_equal(
+    .input$join_asof(.input2, left_on = "date", right_on = "date", strategy = "forward"),
+    .input = l_gdp, .input2 = l_pop,
+    pl$DataFrame(
+      date = as.Date(c("2016-1-1", "2017-1-1", "2018-1-1", "2019-1-1")),
+      gdp = c(4164, 4411, 4566, 4696),
+      group = c("a", "a", "b", "b"),
+      population = c(82.19, 82.66, 83.12, 83.52),
+      group_right = c("b", "b", "a", "a")
+    )
+  )
+
+  # test by
+  expect_query_equal(
+    .input$join_asof(
+      .input2,
+      on = "date", by_left = "group",
+      by_right = "group_right", strategy = "backward"
+    ),
+    .input = l_gdp, .input2 = l_pop,
+    pl$DataFrame(
+      date = as.Date(c("2016-01-01", "2017-01-01", "2018-01-01", "2019-01-01")),
+      gdp = c(4164, 4411, 4566, 4696),
+      group = c("a", "a", "b", "b"),
+      population = c(NA, NA, 82.66, 82.66),
+    )
+  )
+  expect_query_equal(
+    .input$join_asof(
+      .input2,
+      on = "date", by_left = "group",
+      by_right = "group_right", strategy = "forward"
+    ),
+    .input = l_gdp, .input2 = l_pop,
+    pl$DataFrame(
+      date = as.Date(c("2016-01-01", "2017-01-01", "2018-01-01", "2019-01-01")),
+      gdp = c(4164, 4411, 4566, 4696),
+      group = c("a", "a", "b", "b"),
+      population = c(83.12, 83.12, NA, NA),
+    )
+  )
+
+  # tolerance exceeding 18w
+  expect_query_equal(
+    .input$join_asof(.input2, on = "date", strategy = "backward", tolerance = "18w"),
+    .input = l_gdp, .input2 = l_pop,
+    pl$DataFrame(
+      date = as.Date(c("2016-1-1", "2017-1-1", "2018-1-1", "2019-1-1")),
+      gdp = c(4164, 4411, 4566, 4696),
+      group = c("a", "a", "b", "b"),
+      population = rep(NA_real_, 4),
+      group_right = rep(NA_character_, 4)
+    )
+  )
+  expect_query_equal(
+    .input$join_asof(.input2, on = "date", strategy = "backward", tolerance = 18 * 7),
+    .input = l_gdp, .input2 = l_pop,
+    pl$DataFrame(
+      date = as.Date(c("2016-1-1", "2017-1-1", "2018-1-1", "2019-1-1")),
+      gdp = c(4164, 4411, 4566, 4696),
+      group = c("a", "a", "b", "b"),
+      population = rep(NA_real_, 4),
+      group_right = rep(NA_character_, 4)
+    )
+  )
+})
+
+test_that("filter() works", {
+  df <- pl$DataFrame(
+    x = c(1, 2, 3, 4, 5),
+    y = letters[1:5],
+    z = c(TRUE, TRUE, FALSE, TRUE, FALSE)
+  )
+
+  # using ==
+  expect_query_equal(
+    .input$filter(pl$col("x") == 1),
+    df,
+    pl$DataFrame(x = 1, y = "a", z = TRUE)
+  )
+  expect_query_equal(
+    .input$filter(pl$col("z")),
+    df,
+    pl$DataFrame(x = c(1, 2, 4), y = c("a", "b", "d"), z = c(TRUE, TRUE, TRUE))
+  )
+  expect_query_equal(
+    .input$filter(!pl$col("z")),
+    df,
+    pl$DataFrame(x = c(3, 5), y = c("c", "e"), z = c(FALSE, FALSE))
+  )
+
+  # using inequality operators
+  expect_query_equal(
+    .input$filter(pl$col("x") > 4),
+    df,
+    pl$DataFrame(x = 5, y = "e", z = FALSE)
+  )
+  expect_query_equal(
+    .input$filter(pl$col("x") >= 4),
+    df,
+    pl$DataFrame(x = c(4, 5), y = c("d", "e"), z = c(TRUE, FALSE))
+  )
+  expect_query_equal(
+    .input$filter(pl$col("x") < 2),
+    df,
+    pl$DataFrame(x = 1, y = "a", z = TRUE)
+  )
+  expect_query_equal(
+    .input$filter(pl$col("x") <= 2),
+    df,
+    pl$DataFrame(x = c(1, 2), y = c("a", "b"), z = c(TRUE, TRUE))
+  )
+  expect_query_equal(
+    .input$filter(pl$col("x") != 3),
+    df,
+    pl$DataFrame(
+      x = c(1, 2, 4, 5),
+      y = c("a", "b", "d", "e"),
+      z = c(TRUE, TRUE, TRUE, FALSE)
+    )
+  )
+
+  # using &
+  expect_query_equal(
+    .input$filter(pl$col("x") <= 3 & pl$col("z")),
+    df,
+    pl$DataFrame(x = c(1, 2), y = c("a", "b"), z = c(TRUE, TRUE))
+  )
+  expect_query_equal(
+    .input$filter(pl$col("x") <= 3, pl$col("z")),
+    df,
+    pl$DataFrame(x = c(1, 2), y = c("a", "b"), z = c(TRUE, TRUE))
+  )
+
+  # using |
+  expect_query_equal(
+    .input$filter(pl$col("x") <= 3 | pl$col("z")),
+    df,
+    pl$DataFrame(
+      x = c(1, 2, 3, 4),
+      y = c("a", "b", "c", "d"),
+      z = c(TRUE, TRUE, FALSE, TRUE)
+    )
+  )
+})
+
+test_that("filter with nulls", {
+  df <- pl$DataFrame(x = c(1, 2, NA))
+  expect_query_equal(
+    .input$filter(pl$col("x") == 1),
+    df,
+    pl$DataFrame(x = 1)
+  )
+  expect_query_equal(
+    .input$filter(pl$col("x")$is_null()),
+    df,
+    pl$DataFrame(x = NA_real_)
+  )
+})
+
+test_that("quantile", {
+  df <- pl$DataFrame(x = c(1, 2, 3, 1, 5, 6), y = 1:6)
+  expect_query_equal(
+    .input$quantile(1),
+    df,
+    pl$DataFrame(x = 6, y = 6)
+  )
+  expect_query_equal(
+    .input$quantile(0.5),
+    df,
+    pl$DataFrame(x = 3, y = 4)
+  )
+  expect_query_equal(
+    .input$quantile(0.5, "higher"),
+    df,
+    pl$DataFrame(x = 3, y = 4)
+  )
+  expect_query_equal(
+    .input$quantile(0.5, "lower"),
+    df,
+    pl$DataFrame(x = 2, y = 3)
+  )
+  expect_query_equal(
+    .input$quantile(0.5, "midpoint"),
+    df,
+    pl$DataFrame(x = 2.5, y = 3.5)
+  )
+  expect_query_equal(
+    .input$quantile(0.5, "linear"),
+    df,
+    pl$DataFrame(x = 2.5, y = 3.5)
+  )
+  expect_query_error(
+    .input$quantile(0.5, "foobar"),
+    df,
+    "must be one of"
+  )
+  expect_query_error(
+    .input$quantile(1.5, "linear"),
+    df,
+    "should be between"
+  )
+})
+
+test_that("drop() works", {
+  df <- pl$DataFrame(x = c(1, NA, 2), y = c(NA, 1, 2))
+  expect_query_equal(
+    .input$drop("x"),
+    df,
+    pl$DataFrame(y = c(NA, 1, 2))
+  )
+  expect_query_equal(
+    .input$drop("x", "y"),
+    df,
+    pl$DataFrame()
+  )
+  expect_query_equal(
+    .input$drop(cs$numeric()),
+    df,
+    pl$DataFrame()
+  )
+
+  # arg 'strict' works
+  expect_query_error(
+    .input$drop("foo"),
+    df,
+    r"("foo" not found)"
+  )
+  expect_query_equal(
+    .input$drop("foo", strict = FALSE),
+    df,
+    df
+  )
+})
+
+test_that("fill_nan() works", {
+  df <- pl$DataFrame(
+    a = c(1.5, 2, NaN, NA),
+    b = c(1.5, NaN, NaN, 4)
+  )
+  expect_query_equal(
+    .input$fill_nan(99),
+    df,
+    pl$DataFrame(
+      a = c(1.5, 2, 99, NA),
+      b = c(1.5, 99, 99, 4)
+    )
+  )
+  # string parsed as column names
+  expect_query_equal(
+    .input$fill_nan("a"),
+    df,
+    pl$DataFrame(
+      a = c(1.5, 2, NaN, NA),
+      b = c(1.5, 2, NaN, 4)
+    )
+  )
+  expect_query_error(
+    .input$fill_nan("foo"),
+    df,
+    "not found: foo"
+  )
+  # accepts expressions
+  expect_query_equal(
+    .input$fill_nan(pl$col("a") + 1),
+    df,
+    pl$DataFrame(
+      a = c(1.5, 2, NaN, NA),
+      b = c(1.5, 3, NaN, 4)
+    )
+  )
+  # casts to replacement type
+  expect_query_equal(
+    .input$fill_nan(pl$lit("a")),
+    df,
+    pl$DataFrame(
+      a = c("1.5", "2.0", "a", NA),
+      b = c("1.5", "a", "a", "4.0")
+    )
+  )
+})
+
+test_that("$clear() works", {
+  df <- pl$DataFrame(
+    a = c(NA, 2),
+    b = c("a", NA),
+    c = c(TRUE, TRUE)
+  )
+
+  expect_query_equal(
+    .input$clear(),
+    df,
+    pl$DataFrame(a = numeric(0), b = character(0), c = logical(0))
+  )
+
+  # n > number of rows
+  expect_query_equal(
+    .input$clear(3),
+    df,
+    pl$DataFrame(a = rep(NA_real_, 3), b = rep(NA_character_, 3), c = rep(NA, 3))
+  )
+
+  # error
+  expect_query_error(
+    .input$clear(-1),
+    df,
+    "greater than or equal to 0"
+  )
+  expect_query_error(
+    .input$clear(1.5),
+    df,
+    "must be an integer"
+  )
+})
+
+test_that("shift() works", {
+  df <- as_polars_df(mtcars[1:3, 1:2])
+  expect_query_equal(
+    .input$shift(2),
+    df,
+    pl$DataFrame(mpg = c(NA, NA, 21), cyl = c(NA, NA, 6))
+  )
+  expect_query_equal(
+    .input$shift(-2),
+    df,
+    pl$DataFrame(mpg = c(22.8, NA, NA), cyl = c(4, NA, NA))
+  )
+  expect_query_equal(
+    .input$shift(2, fill_value = 999),
+    df,
+    pl$DataFrame(mpg = c(999, 999, 21), cyl = c(999, 999, 6))
+  )
+  expect_query_equal(
+    .input$shift(2, fill_value = "a"),
+    df,
+    pl$DataFrame(mpg = c("a", "a", "21.0"), cyl = c("a", "a", "6.0"))
+  )
+  # TODO: add a check with expression in fill_value when this is resolved:
+  # https://github.com/pola-rs/polars/issues/21280
+  expect_query_error(
+    .input$shift(2, 999),
+    df,
+    "Did you forget to name an argument"
+  )
+})
+
+test_that("sort(): various errors", {
+  expect_query_error(
+    .input$sort(complex(1)),
+    pl$DataFrame(x = 1),
+    "Unsupported class"
+  )
+  expect_query_error(
+    .input$sort(by = complex(1)),
+    pl$DataFrame(x = 1),
+    "must be passed by position"
+  )
+  expect_query_error(
+    .input$sort(),
+    pl$DataFrame(x = 1),
+    "at least one element"
+  )
+  # `descending` and `nulls_last` need either 1 or as many booleans as items
+  expect_query_error(
+    .input$sort("cyl", "mpg", "drat", descending = c(TRUE, FALSE)),
+    pl$DataFrame(x = 1),
+    "does not match"
+  )
+  expect_query_error(
+    .input$sort("cyl", "mpg", "drat", nulls_last = c(TRUE, FALSE)),
+    pl$DataFrame(x = 1),
+    "does not match"
+  )
+
+  # `descending` and `nulls_last` can only take booleans
+  expect_query_error(
+    .input$sort("cyl", "mpg", "drat", descending = 42),
+    pl$DataFrame(x = 1),
+    "must be a logical vector"
+  )
+  expect_query_error(
+    .input$sort("cyl", "mpg", "drat", descending = NULL),
+    pl$DataFrame(x = 1),
+    "must be a logical vector"
+  )
+  expect_query_error(
+    .input$sort("cyl", "mpg", "drat", nulls_last = 42),
+    pl$DataFrame(x = 1),
+    "must be a logical vector"
+  )
+  expect_query_error(
+    .input$sort("cyl", "mpg", "drat", nulls_last = NULL),
+    pl$DataFrame(x = 1),
+    "must be a logical vector"
+  )
+})
+
+test_that("sort(): basic behavior", {
+  df <- pl$DataFrame(
+    x = c(3, 3, 4, 1, 2),
+    y = c(2, 1, 5, 4, 3)
+  )
+  expect_query_equal(
+    .input$sort("x", maintain_order = TRUE),
+    df,
+    pl$DataFrame(x = c(1, 2, 3, 3, 4), y = c(4, 3, 2, 1, 5))
+  )
+  expect_query_equal(
+    .input$sort(pl$col("x"), maintain_order = TRUE),
+    df,
+    pl$DataFrame(x = c(1, 2, 3, 3, 4), y = c(4, 3, 2, 1, 5))
+  )
+  # several columns
+  expect_query_equal(
+    .input$sort("x", "y", maintain_order = TRUE),
+    df,
+    pl$DataFrame(x = c(1, 2, 3, 3, 4), y = c(4, 3, 1, 2, 5))
+  )
+  expect_query_equal(
+    .input$sort(pl$col("x"), pl$col("y"), maintain_order = TRUE),
+    df,
+    pl$DataFrame(x = c(1, 2, 3, 3, 4), y = c(4, 3, 1, 2, 5))
+  )
+  expect_query_equal(
+    .input$sort(c("x", "y"), maintain_order = TRUE),
+    df,
+    pl$DataFrame(x = c(1, 2, 3, 3, 4), y = c(4, 3, 1, 2, 5))
+  )
+})
+
+test_that("sort(): arg 'descending'", {
+  df <- pl$DataFrame(
+    x = c(3, 3, 4, 1, 2),
+    y = c(2, 1, 5, 4, 3)
+  )
+
+  # descending arg
+  expect_query_equal(
+    .input$sort("x", "y", maintain_order = TRUE, descending = TRUE),
+    df,
+    pl$DataFrame(x = c(4, 3, 3, 2, 1), y = c(5, 2, 1, 3, 4))
+  )
+
+  # descending arg: vector of boolean
+  expect_query_equal(
+    .input$sort("x", "y", maintain_order = TRUE, descending = c(TRUE, FALSE)),
+    df,
+    pl$DataFrame(x = c(4, 3, 3, 2, 1), y = c(5, 1, 2, 3, 4))
+  )
+
+  # expr: one increasing and one decreasing
+  expect_query_equal(
+    .input$sort(-pl$col("x"), pl$col("y"), maintain_order = TRUE),
+    df,
+    pl$DataFrame(x = c(4, 3, 3, 2, 1), y = c(5, 1, 2, 3, 4))
+  )
+})
+
+test_that("sort(): arg 'nulls_last'", {
+  df <- pl$DataFrame(
+    x = c(3, 3, 4, 1, 2),
+    y = c(2, 1, 5, 4, 3)
+  )
+
+  # nulls_last
+  df <- pl$DataFrame(
+    x = c(NA, 3, 4, 1, 2),
+    y = c(2, 1, 5, 4, 3)
+  )
+  expect_query_equal(
+    .input$sort("x", "y", maintain_order = TRUE, nulls_last = TRUE),
+    df,
+    pl$DataFrame(x = c(1, 2, 3, 4, NA), y = c(4, 3, 1, 5, 2))
+  )
+  expect_query_equal(
+    .input$sort("x", "y", maintain_order = TRUE, nulls_last = FALSE),
+    df,
+    pl$DataFrame(x = c(NA, 1, 2, 3, 4), y = c(2, 4, 3, 1, 5))
+  )
+})
+
 test_that("inequality joins work", {
   east <- pl$DataFrame(
     id = c(100, 101, 102),

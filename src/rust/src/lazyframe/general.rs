@@ -45,6 +45,7 @@ impl PlRLazyFrame {
     fn optimization_toggle(
         &self,
         type_coercion: bool,
+        _type_check: bool,
         predicate_pushdown: bool,
         projection_pushdown: bool,
         simplify_expression: bool,
@@ -52,16 +53,21 @@ impl PlRLazyFrame {
         comm_subplan_elim: bool,
         comm_subexpr_elim: bool,
         cluster_with_columns: bool,
+        collapse_joins: bool,
         streaming: bool,
         _eager: bool,
+        _check_order: bool,
     ) -> Result<Self> {
         let ldf = self
             .ldf
             .clone()
             .with_type_coercion(type_coercion)
+            .with_type_check(_type_check)
             .with_predicate_pushdown(predicate_pushdown)
             .with_simplify_expr(simplify_expression)
             .with_slice_pushdown(slice_pushdown)
+            .with_collapse_joins(collapse_joins)
+            .with_check_order(_check_order)
             .with_comm_subplan_elim(comm_subplan_elim)
             .with_comm_subexpr_elim(comm_subexpr_elim)
             .with_cluster_with_columns(cluster_with_columns)
@@ -545,11 +551,6 @@ impl PlRLazyFrame {
         Ok(ldf.fill_nan(fill_value.inner.clone()).into())
     }
 
-    fn fill_null(&self, fill_value: &PlRExpr) -> Result<Self> {
-        let ldf = self.ldf.clone();
-        Ok(ldf.fill_null(fill_value.inner.clone()).into())
-    }
-
     fn min(&self) -> Result<Self> {
         let ldf = self.ldf.clone();
         let out = ldf.min();
@@ -627,6 +628,12 @@ impl PlRLazyFrame {
         let ldf = self.ldf.clone();
         let subset = subset.map(|e| <Wrap<Vec<Expr>>>::from(e).0);
         Ok(ldf.drop_nulls(subset).into())
+    }
+
+    fn drop_nans(&self, subset: Option<ListSexp>) -> Result<Self> {
+        let ldf = self.ldf.clone();
+        let subset = subset.map(|e| <Wrap<Vec<Expr>>>::from(e).0);
+        Ok(ldf.drop_nans(subset).into())
     }
 
     fn unpivot(

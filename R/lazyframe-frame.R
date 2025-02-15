@@ -179,13 +179,15 @@ lazyframe__group_by <- function(..., .maintain_order = FALSE) {
 #' @param comm_subplan_elim A logical, indicats tring to cache branching subplans that occur on self-joins or unions.
 #' @param comm_subexpr_elim A logical, indicats tring to cache common subexpressions.
 #' @param cluster_with_columns A logical, indicats to combine sequential independent calls to with_columns.
+#' @param collapse_joins Collapse a join and filters into a faster join.
 #' @param no_optimization A logical. If `TRUE`, turn off (certain) optimizations.
 #' @param streaming A logical. If `TRUE`, process the query in batches to handle larger-than-memory data.
 #' If `FALSE` (default), the entire query is processed in a single batch.
 #' Note that streaming mode is considered unstable.
 #' It may be changed at any point without it being considered a breaking change.
-#' @param _eager A logical, indicates to turn off multi-node optimizations and the other optimizations.
-#' This option is intended for internal use only.
+#' @param _eager A logical, indicates to turn off multi-node optimizations and
+#' the other optimizations. This option is intended for internal use only.
+#' @param _check_order,_type_check For internal use only.
 #'
 #' @inherit as_polars_lf return
 #'
@@ -213,6 +215,7 @@ lazyframe__group_by <- function(..., .maintain_order = FALSE) {
 lazyframe__collect <- function(
     ...,
     type_coercion = TRUE,
+    `_type_check` = TRUE,
     predicate_pushdown = TRUE,
     projection_pushdown = TRUE,
     simplify_expression = TRUE,
@@ -220,8 +223,10 @@ lazyframe__collect <- function(
     comm_subplan_elim = TRUE,
     comm_subexpr_elim = TRUE,
     cluster_with_columns = TRUE,
+    collapse_joins = TRUE,
     no_optimization = FALSE,
     streaming = FALSE,
+    `_check_order` = TRUE,
     `_eager` = FALSE) {
   wrap({
     check_dots_empty0(...)
@@ -233,10 +238,13 @@ lazyframe__collect <- function(
       comm_subplan_elim <- FALSE
       comm_subexpr_elim <- FALSE
       cluster_with_columns <- FALSE
+      collapse_joins <- FALSE
+      `_check_order` <- FALSE
     }
 
     ldf <- self$`_ldf`$optimization_toggle(
       type_coercion = type_coercion,
+      `_type_check` = `_type_check`,
       predicate_pushdown = predicate_pushdown,
       projection_pushdown = projection_pushdown,
       simplify_expression = simplify_expression,
@@ -244,7 +252,9 @@ lazyframe__collect <- function(
       comm_subplan_elim = comm_subplan_elim,
       comm_subexpr_elim = comm_subexpr_elim,
       cluster_with_columns = cluster_with_columns,
+      collapse_joins = collapse_joins,
       streaming = streaming,
+      `_check_order` = `_check_order`,
       `_eager` = `_eager`
     )
 
@@ -307,6 +317,7 @@ lazyframe__collect <- function(
 lazyframe__profile <- function(
     ...,
     type_coercion = TRUE,
+    `_type_check` = TRUE,
     predicate_pushdown = TRUE,
     projection_pushdown = TRUE,
     simplify_expression = TRUE,
@@ -314,9 +325,10 @@ lazyframe__profile <- function(
     comm_subplan_elim = TRUE,
     comm_subexpr_elim = TRUE,
     cluster_with_columns = TRUE,
+    collapse_joins = TRUE,
     streaming = FALSE,
     no_optimization = FALSE,
-    collect_in_background = FALSE,
+    `_check_order` = TRUE,
     show_plot = FALSE,
     truncate_nodes = 0) {
   wrap({
@@ -329,6 +341,8 @@ lazyframe__profile <- function(
       comm_subplan_elim <- FALSE
       comm_subexpr_elim <- FALSE
       cluster_with_columns <- FALSE
+      collapse_joins <- FALSE
+      `_check_order` <- FALSE
     }
 
     if (isTRUE(streaming)) {
@@ -337,6 +351,7 @@ lazyframe__profile <- function(
 
     lf <- self$`_ldf`$optimization_toggle(
       type_coercion = type_coercion,
+      `_type_check` = `_type_check`,
       predicate_pushdown = predicate_pushdown,
       projection_pushdown = projection_pushdown,
       simplify_expression = simplify_expression,
@@ -344,8 +359,10 @@ lazyframe__profile <- function(
       comm_subplan_elim = comm_subplan_elim,
       comm_subexpr_elim = comm_subexpr_elim,
       cluster_with_columns = cluster_with_columns,
+      collapse_joins = collapse_joins,
       streaming = streaming,
-      `_eager` = FALSE
+      `_check_order` = `_check_order`,
+      `_eager` = `_eager`
     )
 
     out <- lapply(self$`_ldf`$profile(), \(x) {
@@ -399,6 +416,7 @@ lazyframe__explain <- function(
     format = c("plain", "tree"),
     optimized = TRUE,
     type_coercion = TRUE,
+    `_type_check` = TRUE,
     predicate_pushdown = TRUE,
     projection_pushdown = TRUE,
     simplify_expression = TRUE,
@@ -406,7 +424,9 @@ lazyframe__explain <- function(
     comm_subplan_elim = TRUE,
     comm_subexpr_elim = TRUE,
     cluster_with_columns = TRUE,
-    streaming = FALSE) {
+    collapse_joins = TRUE,
+    streaming = FALSE,
+    `_check_order` = TRUE) {
   wrap({
     check_dots_empty0(...)
 
@@ -415,6 +435,7 @@ lazyframe__explain <- function(
     if (isTRUE(optimized)) {
       ldf <- self$`_ldf`$optimization_toggle(
         type_coercion = type_coercion,
+        `_type_check` = `_type_check`,
         predicate_pushdown = predicate_pushdown,
         projection_pushdown = projection_pushdown,
         simplify_expression = simplify_expression,
@@ -422,7 +443,9 @@ lazyframe__explain <- function(
         comm_subplan_elim = comm_subplan_elim,
         comm_subexpr_elim = comm_subexpr_elim,
         cluster_with_columns = cluster_with_columns,
+        collapse_joins = collapse_joins,
         streaming = streaming,
+        `_check_order` = `_check_order`,
         `_eager` = FALSE
       )
 
@@ -721,10 +744,10 @@ lazyframe__with_columns_seq <- function(...) {
   })
 }
 
-#' Remove columns from the DataFrame
+#' Remove columns
 #'
 #' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Names of the columns that
-#' should be removed from the dataframe. Accepts column selector input.
+#' should be removed. Accepts column selector input.
 #' @param strict Validate that all column names exist in the current schema,
 #' and throw an exception if any do not.
 #'
@@ -904,9 +927,11 @@ lazyframe__std <- function(ddof = 1) {
     wrap()
 }
 
-#' Aggregate the columns in the DataFrame to a unique quantile value
+#' Aggregate the columns to a unique quantile value
 #'
-#' @inheritParams DataFrame_quantile
+#' @param quantile Quantile between 0.0 and 1.0.
+#' @param interpolation Interpolation method.
+#'
 #' @inherit as_polars_lf return
 #' @examples
 #' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, 1))
@@ -937,8 +962,17 @@ lazyframe__fill_nan <- function(value) {
     wrap()
 }
 
-#' @inherit DataFrame_fill_null title description params
+#' Fill null values using the specified value or strategy
 #'
+#' @inheritParams rlang::args_dots_empty
+#' @param value Value used to fill null values.
+#' @param strategy Strategy used to fill null values. Must be one of:
+#' `"forward"`, `"backward"`, `"min"`, `"max"`, `"mean"`, `"zero"`, `"one"`,
+#' or `NULL` (default).
+#' @param limit Number of consecutive null values to fill when using the
+#' `"forward"` or `"backward"` strategy.
+#' @param matches_supertype Fill all matching supertypes of the fill `value`
+#' literal.
 #' @inherit as_polars_lf return
 #' @examples
 #' lf <- pl$LazyFrame(
@@ -946,9 +980,78 @@ lazyframe__fill_nan <- function(value) {
 #'   b = c(1.5, NA, NA, 4)
 #' )
 #' lf$fill_null(99)$collect()
-lazyframe__fill_null <- function(fill_value) {
-  self$`_ldf`$fill_null(as_polars_expr(fill_value)$`_rexpr`) |>
-    wrap()
+#'
+#' lf$fill_null(strategy = "forward")$collect()
+#'
+#' lf$fill_null(strategy = "max")$collect()
+#'
+#' lf$fill_null(strategy = "zero")$collect()
+lazyframe__fill_null <- function(
+    value,
+    strategy = NULL,
+    limit = NULL,
+    ...,
+    matches_supertype = TRUE) {
+  wrap({
+    # Can't use check_exclusive() because it errors when we call this from the
+    # eager method.
+    if (!missing(value) && !missing(strategy) && !is.null(value) && !is.null(strategy)) {
+      abort("Exactly one of `value` or `strategy` must be supplied.")
+    }
+    check_dots_empty0(...)
+    if (!missing(value) && !is.null(value)) {
+      if (is_polars_expr(value)) {
+        dtypes <- NULL
+      } else if (is.logical(value)) {
+        dtypes <- pl$Boolean
+      } else if (isTRUE(matches_supertype) && is.numeric(value)) {
+        dtypes <- c(
+          pl$Int8,
+          pl$Int16,
+          pl$Int32,
+          pl$Int64,
+          pl$Int128,
+          pl$UInt8,
+          pl$UInt16,
+          pl$UInt32,
+          pl$UInt64,
+          pl$Float32,
+          pl$Float64,
+          pl$Decimal()
+        )
+      } else if (is.integer(value)) {
+        dtypes <- pl$Int64
+      } else if (is.double(value)) {
+        dtypes <- pl$Float64
+      } else if (inherits(value, "POSIXct")) {
+        abort("TODO")
+      } else if (is(x, "Duration")) {
+        abort("TODO")
+      } else if (is.Date(value)) {
+        dtypes <- pl$Date
+      } else if (is.character(value)) {
+        dtypes <- c(pl$String, pl$Categorical("physical"), pl$Categorical("lexical"))
+      } else {
+        dtypes <- NULL
+      }
+      # TODO: time datatype
+
+      if (!is_list_of_polars_dtype(dtypes)) {
+        dtypes <- list(dtypes)
+      }
+
+      if (!is.null(dtypes)) {
+        return(
+          self$with_columns(
+            # do not specify strategy otherwise check_exclusive() errors
+            pl$col(!!!dtypes)$fill_null(value = value, limit = limit)
+          ) |>
+            wrap()
+        )
+      }
+    }
+    self$select(pl$all()$fill_null(value, strategy, limit))
+  })
 }
 
 #' Shift values by the given number of indices
@@ -974,7 +1077,7 @@ lazyframe__fill_null <- function(fill_value) {
 lazyframe__shift <- function(n = 1, ..., fill_value = NULL) {
   wrap({
     check_dots_empty0(...)
-    self$`_ldf`$shift(as_polars_expr(n)$`_rexpr`, as_polars_expr(fill_value)$`_rexpr`)
+    self$`_ldf`$shift(as_polars_expr(n)$`_rexpr`, as_polars_expr(fill_value, as_lit = TRUE)$`_rexpr`)
   })
 }
 
@@ -993,14 +1096,14 @@ lazyframe__reverse <- function() {
 #'
 #' The original order of the remaining rows is preserved.
 #'
-#' @param subset Column name(s) for which null values are considered. If `NULL`
-#' (default), use all columns.
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Column name(s) for which null
+#' values are considered. If empty (default), use all columns.
 #'
 #' @inherit as_polars_lf return
 #' @examples
 #' lf <- pl$LazyFrame(
 #'   foo = 1:3,
-#'   bar = c(6, NA, 8),
+#'   bar = c(6L, NA, 8L),
 #'   ham = c("a", "b", NA)
 #' )
 #'
@@ -1011,13 +1114,59 @@ lazyframe__reverse <- function() {
 #' # This behaviour can be constrained to consider only a subset of columns, as
 #' # defined by name or with a selector. For example, dropping rows if there is
 #' # a null in any of the integer columns:
-#' lf$drop_nulls(subset = cs$integer())$collect()
-lazyframe__drop_nulls <- function(subset = NULL) {
+#' lf$drop_nulls(cs$integer())$collect()
+lazyframe__drop_nulls <- function(...) {
   wrap({
-    if (!is.null(subset)) {
-      subset <- parse_into_list_of_expressions(!!!subset)
+    check_dots_unnamed()
+    subset <- parse_into_list_of_expressions(...)
+    if (length(subset) == 0) {
+      subset <- NULL
     }
     self$`_ldf`$drop_nulls(subset)
+  })
+}
+
+#' Drop all rows that contain NaN values
+#'
+#' The original order of the remaining rows is preserved.
+#'
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Column name(s) for which null
+#' values are considered. If empty (default), use all columns (note that only
+#' floating-point columns can contain `NaN`s).
+#'
+#' @inherit as_polars_lf return
+#' @examples
+#' lf <- pl$LazyFrame(
+#'   foo = c(1, NaN, 2.5),
+#'   bar = c(NaN, 110, 25.5),
+#'   ham = c("a", "b", NA)
+#' )
+#'
+#' # The default behavior of this method is to drop rows where any single value
+#' # of the row is null.
+#' lf$drop_nans()$collect()
+#'
+#' # This behaviour can be constrained to consider only a subset of columns, as
+#' # defined by name or with a selector. For example, dropping rows if there is
+#' # a null in the "bar" column:
+#' lf$drop_nans("bar")$collect()
+#'
+#' # Dropping a row only if *all* values are NaN requires a different
+#' # formulation:
+#' df <- pl$LazyFrame(
+#'   a = c(NaN, NaN, NaN, NaN),
+#'   b = c(10.0, 2.5, NaN, 5.25),
+#'   c = c(65.75, NaN, NaN, 10.5)
+#' )
+#' df$filter(!pl$all_horizontal(pl$all()$is_nan()))$collect()
+lazyframe__drop_nans <- function(...) {
+  wrap({
+    check_dots_unnamed()
+    subset <- parse_into_list_of_expressions(...)
+    if (length(subset) == 0) {
+      subset <- NULL
+    }
+    self$`_ldf`$drop_nans(subset)
   })
 }
 
@@ -1197,7 +1346,8 @@ lazyframe__join <- function(
           join_nulls = join_nulls, suffix = suffix,
           allow_parallel = allow_parallel, force_parallel = force_parallel,
           coalesce = coalesce, maintain_order = maintain_order
-        )
+        ) |>
+          wrap()
       )
     }
 
@@ -1369,7 +1519,7 @@ lazyframe__serialize <- function() {
     wrap()
 }
 
-#' Explode the DataFrame to long format by exploding the given columns
+#' Explode the frame to long format by exploding the given columns
 #'
 #' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Column names, expressions, or
 #' a selector defining them. The underlying columns being exploded must be of
@@ -1432,8 +1582,7 @@ lazyframe__clone <- function() {
 
 #' Decompose struct columns into separate columns for each of their fields
 #'
-#' The new columns will be inserted into the LazyFrame at the location of the
-#' struct column.
+#' The new columns will be inserted at the location of the struct column.
 #'
 #' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Name of the struct column(s)
 #' that should be unnested.
@@ -1744,49 +1893,51 @@ lazyframe__to_dot <- function(
     comm_subexpr_elim = TRUE,
     cluster_with_columns = TRUE,
     streaming = FALSE) {
-  lf <- self |>
-    self$`_ldf`$optimization_toggle(
-      pe_coercion = type_coercion,
-      predicate_pushdown = predicate_pushdown,
-      projection_pushdown = projection_pushdown,
-      simplify_expression = simplify_expression,
-      slice_pushdown = slice_pushdown,
-      comm_subplan_elim = comm_subplan_elim,
-      comm_subexpr_elim = comm_subexpr_elim,
-      cluster_with_columns = cluster_with_columns,
-      streaming = streaming,
-      eager = FALSE
-    )
+  ldf <- self$`_ldf`$optimization_toggle(
+    type_coercion = type_coercion,
+    `_type_check` = `_type_check`,
+    predicate_pushdown = predicate_pushdown,
+    projection_pushdown = projection_pushdown,
+    simplify_expression = simplify_expression,
+    slice_pushdown = slice_pushdown,
+    comm_subplan_elim = comm_subplan_elim,
+    comm_subexpr_elim = comm_subexpr_elim,
+    cluster_with_columns = cluster_with_columns,
+    collapse_joins = collapse_joins,
+    streaming = streaming,
+    `_check_order` = `_check_order`,
+    `_eager` = FALSE
+  )
 
   self$`_ldf`$to_dot(optimized)
 }
 
-#' Create an empty or n-row null-filled copy of the LazyFrame
+#' Create an empty or `n`-row null-filled copy of the frame
 #'
-#' Returns a n-row null-filled LazyFrame with an identical schema. `n` can be
-#' greater than the current number of rows in the LazyFrame.
+#' Returns a `n`-row null-filled frame with an identical schema. `n` can be
+#' greater than the current number of rows in the frame.
 #'
-#' @param n Number of (empty) rows to return in the cleared frame.
+#' @param n Number of (null-filled) rows to return in the cleared frame.
 #'
-#' @return A n-row null-filled LazyFrame with an identical schema
-#'
+#' @inherit as_polars_lf return
 #' @examples
 #' df <- pl$LazyFrame(
 #'   a = c(NA, 2, 3, 4),
 #'   b = c(0.5, NA, 2.5, 13),
 #'   c = c(TRUE, TRUE, FALSE, NA)
 #' )
+#' df$clear()$collect()
 #'
-#' df$clear()
-#'
-#' df$clear(n = 5)
+#' df$clear(n = 2)$collect()
 lazyframe__clear <- function(n = 0) {
-  cols <- names(self)
-  dat <- vector("list", length(cols))
-  names(dat) <- cols
-  pl$DataFrame(!!!dat, .schema_overrides = self$collect_schema())$
-    clear(n)$
-    lazy()
+  wrap({
+    cols <- names(self)
+    dat <- vector("list", length(cols))
+    names(dat) <- cols
+    pl$DataFrame(!!!dat, .schema_overrides = self$collect_schema())$
+      clear(n)$
+      lazy()
+  })
 }
 
 #' Take every nth row in the LazyFrame
@@ -1999,7 +2150,7 @@ lazyframe__with_row_index <- function(name = "index", offset = 0) {
 #'
 #' @inheritParams rlang::args_dots_empty
 #' @param other LazyFrame to join with.
-#' @inheritParams dataframe__join
+#' @inheritParams lazyframe__join
 #' @param by Join on these columns before performing asof join. Either a vector
 #' of column names or a list of expressions and/or strings. Use `left_by` and
 #' `right_by` if the column names to match on are different between the two
@@ -2034,6 +2185,7 @@ lazyframe__with_row_index <- function(name = "index", offset = 0) {
 #' is provided. This might become a hard error in the future.
 #'
 #' @inheritSection polars_duration_string Polars duration string language
+#' @inherit as_polars_lf return
 #' @examples
 #' gdp <- pl$LazyFrame(
 #'   date = as.Date(c("2016-1-1", "2017-5-1", "2018-1-1", "2019-1-1", "2020-1-1")),
@@ -2157,7 +2309,8 @@ lazyframe__join_asof <- function(
       tolerance = tolerance_num,
       tolerance_str = tolerance_str,
       coalesce = coalesce,
-      allow_eq = allow_exact_matches
+      allow_eq = allow_exact_matches,
+      check_sortedness = check_sortedness
     )
   })
 }

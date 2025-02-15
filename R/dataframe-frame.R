@@ -487,19 +487,21 @@ dataframe__tail <- function(n = 5) {
   })
 }
 
-#' Drop columns of a DataFrame
-#'
-#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Characters of column names to
-#' drop. Passed to [`pl$col()`][pl__col].
-#' @param strict Validate that all column names exist in the schema and throw an
-#' exception if a column name does not exist in the schema.
+#' @inherit lazyframe__drop title params
 #'
 #' @inherit as_polars_df return
 #' @examples
-#' as_polars_df(mtcars)$drop(c("mpg", "hp"))
+#' # Drop columns by passing the name of those columns
+#' df <- pl$DataFrame(
+#'   foo = 1:3,
+#'   bar = c(6, 7, 8),
+#'   ham = c("a", "b", "c")
+#' )
+#' df$drop("ham")
+#' df$drop("ham", "bar")
 #'
-#' # equivalent
-#' as_polars_df(mtcars)$drop("mpg", "hp")
+#' # Drop multiple columns by passing a selector
+#' df$drop(cs$all())
 dataframe__drop <- function(..., strict = TRUE) {
   self$lazy()$drop(..., strict = strict)$collect(`_eager` = TRUE) |>
     wrap()
@@ -552,21 +554,29 @@ dataframe__filter <- function(...) {
     wrap()
 }
 
-#' Sort a DataFrame
-#' @inherit LazyFrame_sort details description params
-#' @inheritParams dataframe__unique
+#' Sort a DataFrame by the given columns
+#'
+#' @inherit lazyframe__sort description params details
+#'
 #' @inherit as_polars_df return
 #' @examples
-#' df <- mtcars
-#' df$mpg[1] <- NA
-#' df <- as_polars_df(df)
-#' df$sort("mpg")
-#' df$sort("mpg", nulls_last = TRUE)
-#' df$sort("cyl", "mpg")
-#' df$sort(c("cyl", "mpg"))
-#' df$sort(c("cyl", "mpg"), descending = TRUE)
-#' df$sort(c("cyl", "mpg"), descending = c(TRUE, FALSE))
-#' df$sort(pl$col("cyl"), pl$col("mpg"))
+#' df <- pl$DataFrame(
+#'   a = c(1, 2, NA, 4),
+#'   b = c(6, 5, 4, 3),
+#'   c = c("a", "c", "b", "a")
+#' )
+#'
+#' # Pass a single column name to sort by that column.
+#' df$sort("a")
+#'
+#' # Sorting by expressions is also supported
+#' df$sort(pl$col("a") + pl$col("b") * 2, nulls_last = TRUE)
+#'
+#' # Sort by multiple columns by passing a vector of columns
+#' df$sort(c("c", "a"), descending = TRUE)
+#'
+#' # Or use positional arguments to sort by multiple columns in the same way
+#' df$sort("c", "a", descending = c(FALSE, TRUE))
 dataframe__sort <- function(
     ...,
     descending = FALSE,
@@ -797,6 +807,354 @@ dataframe__join <- function(
       coalesce = coalesce,
       maintain_order = maintain_order
     )$collect(`_eager` = TRUE)
+  })
+}
+
+#' @inherit lazyframe__drop_nans title description params
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = c(1, NaN, 2.5),
+#'   bar = c(NaN, 110, 25.5),
+#'   ham = c("a", "b", NA)
+#' )
+#'
+#' # The default behavior of this method is to drop rows where any single value
+#' # of the row is null.
+#' df$drop_nans()
+#'
+#' # This behaviour can be constrained to consider only a subset of columns, as
+#' # defined by name or with a selector. For example, dropping rows if there is
+#' # a null in the "bar" column:
+#' df$drop_nans("bar")
+#'
+#' # Dropping a row only if *all* values are NaN requires a different
+#' # formulation:
+#' df <- pl$DataFrame(
+#'   a = c(NaN, NaN, NaN, NaN),
+#'   b = c(10.0, 2.5, NaN, 5.25),
+#'   c = c(65.75, NaN, NaN, 10.5)
+#' )
+#' df$filter(!pl$all_horizontal(pl$all()$is_nan()))
+dataframe__drop_nans <- function(...) {
+  self$lazy()$drop_nans(...)$collect(`_eager` = TRUE) |>
+    wrap()
+}
+
+#' @inherit lazyframe__drop_nulls title description params
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = 1:3,
+#'   bar = c(6L, NA, 8L),
+#'   ham = c("a", "b", NA)
+#' )
+#'
+#' # The default behavior of this method is to drop rows where any single value
+#' # of the row is null.
+#' df$drop_nulls()
+#'
+#' # This behaviour can be constrained to consider only a subset of columns, as
+#' # defined by name or with a selector. For example, dropping rows if there is
+#' # a null in any of the integer columns:
+#' df$drop_nulls(cs$integer())
+dataframe__drop_nulls <- function(...) {
+  self$lazy()$drop_nulls(...)$collect(`_eager` = TRUE) |>
+    wrap()
+}
+
+#' Take every nth row in the DataFrame
+#'
+#' @inheritParams lazyframe__gather_every
+#' @inherit as_polars_df return
+#'
+#' @examples
+#' df <- pl$DataFrame(a = 1:4, b = 5:8)
+#' df$gather_every(2)
+#'
+#' df$gather_every(2, offset = 1)
+dataframe__gather_every <- function(n, offset = 0) {
+  self$select(pl$col("*")$gather_every(n, offset)) |>
+    wrap()
+}
+
+#' @inherit lazyframe__rename title params details
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = 1:3,
+#'   bar = 6:8,
+#'   ham = letters[1:3]
+#' )
+#'
+#' df$rename(foo = "apple")
+#'
+#' df$rename(
+#'   \(column_name) paste0("c", substr(column_name, 2, 100))
+#' )
+dataframe__rename <- function(..., .strict = TRUE) {
+  self$lazy()$rename(..., .strict = .strict)$collect(`_eager` = TRUE) |>
+    wrap()
+}
+
+#' @inherit lazyframe__fill_null title description params
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = c(1.5, 2, NA, 4),
+#'   b = c(1.5, NA, NA, 4)
+#' )
+#' df$fill_null(99)
+#'
+#' df$fill_null(strategy = "forward")
+#'
+#' df$fill_null(strategy = "max")
+#'
+#' df$fill_null(strategy = "zero")
+dataframe__fill_null <- function(
+    value,
+    strategy = NULL,
+    limit = NULL,
+    ...,
+    matches_supertype = TRUE) {
+  self$lazy()$fill_null(value, strategy, limit, matches_supertype = matches_supertype)$collect(`_eager` = TRUE) |>
+    wrap()
+}
+
+#' @inherit lazyframe__explode title params
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(
+#'   letters = c("a", "a", "b", "c"),
+#'   numbers = list(1, c(2, 3), c(4, 5), c(6, 7, 8))
+#' )
+#'
+#' df$explode("numbers")
+dataframe__explode <- function(...) {
+  self$lazy()$explode(...)$collect(`_eager` = TRUE) |>
+    wrap()
+}
+
+#' @inherit lazyframe__unnest title description params
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = 1:5,
+#'   b = c("one", "two", "three", "four", "five"),
+#'   c = 6:10
+#' )$
+#'   select(
+#'   pl$struct("b"),
+#'   pl$struct(c("a", "c"))$alias("a_and_c")
+#' )
+#' df
+#'
+#' df$unnest("a_and_c")
+#' df$unnest(pl$col("a_and_c"))
+dataframe__unnest <- function(...) {
+  self$lazy()$unnest(...)$collect(`_eager` = TRUE) |>
+    wrap()
+}
+
+#' @inherit lazyframe__join_asof title description params
+#'
+#' @param other DataFrame to join with.
+#'
+#' @inheritSection polars_duration_string Polars duration string language
+#' @inherit as_polars_df return
+#' @examples
+#' gdp <- pl$DataFrame(
+#'   date = as.Date(c("2016-1-1", "2017-5-1", "2018-1-1", "2019-1-1", "2020-1-1")),
+#'   gdp = c(4164, 4411, 4566, 4696, 4827)
+#' )
+#'
+#' pop <- pl$DataFrame(
+#'   date = as.Date(c("2016-3-1", "2018-8-1", "2019-1-1")),
+#'   population = c(82.19, 82.66, 83.12)
+#' )
+#'
+#' # optional make sure tables are already sorted with "on" join-key
+#' gdp <- gdp$sort("date")
+#' pop <- pop$sort("date")
+#'
+#'
+#' # Note how the dates don’t quite match. If we join them using join_asof and
+#' # strategy = 'backward', then each date from population which doesn’t have
+#' # an exact match is matched with the closest earlier date from gdp:
+#' pop$join_asof(gdp, on = "date", strategy = "backward")
+#'
+#' # Note how:
+#' # - date 2016-03-01 from population is matched with 2016-01-01 from gdp;
+#' # - date 2018-08-01 from population is matched with 2018-01-01 from gdp.
+#' # You can verify this by passing coalesce = FALSE:
+#' pop$join_asof(
+#'   gdp,
+#'   on = "date", strategy = "backward", coalesce = FALSE
+#' )
+#'
+#' # If we instead use strategy = 'forward', then each date from population
+#' # which doesn’t have an exact match is matched with the closest later date
+#' # from gdp:
+#' pop$join_asof(gdp, on = "date", strategy = "forward")
+#'
+#' # Note how:
+#' # - date 2016-03-01 from population is matched with 2017-01-01 from gdp;
+#' # - date 2018-08-01 from population is matched with 2019-01-01 from gdp.
+#'
+#' # Finally, strategy = 'nearest' gives us a mix of the two results above, as
+#' # each date from population which doesn’t have an exact match is matched
+#' # with the closest date from gdp, regardless of whether it’s earlier or
+#' # later:
+#' pop$join_asof(gdp, on = "date", strategy = "nearest")
+#'
+#' # Note how:
+#' # - date 2016-03-01 from population is matched with 2016-01-01 from gdp;
+#' # - date 2018-08-01 from population is matched with 2019-01-01 from gdp.
+#'
+#' # The `by` argument allows joining on another column first, before the asof
+#' # join. In this example we join by country first, then asof join by date, as
+#' # above.
+#' gdp2 <- pl$DataFrame(
+#'   country = rep(c("Germany", "Netherlands"), each = 5),
+#'   date = rep(
+#'     as.Date(c("2016-1-1", "2017-1-1", "2018-1-1", "2019-1-1", "2020-1-1")),
+#'     2
+#'   ),
+#'   gdp = c(4164, 4411, 4566, 4696, 4827, 784, 833, 914, 910, 909)
+#' )$sort("country", "date")
+#' gdp2
+#'
+#' pop2 <- pl$DataFrame(
+#'   country = rep(c("Germany", "Netherlands"), each = 3),
+#'   date = rep(as.Date(c("2016-3-1", "2018-8-1", "2019-1-1")), 2),
+#'   population = c(82.19, 82.66, 83.12, 17.11, 17.32, 17.40)
+#' )$sort("country", "date")
+#' pop2
+#'
+#' pop2$join_asof(
+#'   gdp2,
+#'   by = "country", on = "date", strategy = "nearest"
+#' )
+dataframe__join_asof <- function(
+    other,
+    ...,
+    left_on = NULL,
+    right_on = NULL,
+    on = NULL,
+    by_left = NULL,
+    by_right = NULL,
+    by = NULL,
+    strategy = c("backward", "forward", "nearest"),
+    suffix = "_right",
+    tolerance = NULL,
+    allow_parallel = TRUE,
+    force_parallel = FALSE,
+    coalesce = TRUE,
+    allow_exact_matches = TRUE,
+    check_sortedness = TRUE) {
+  self$lazy()$join_asof(
+    other$lazy(),
+    left_on = left_on,
+    right_on = right_on,
+    on = on,
+    by_left = by_left,
+    by_right = by_right,
+    by = by,
+    strategy = strategy,
+    suffix = suffix,
+    tolerance = tolerance,
+    allow_parallel = allow_parallel,
+    force_parallel = force_parallel,
+    coalesce = coalesce,
+    allow_exact_matches = allow_exact_matches,
+    check_sortedness = check_sortedness,
+  )$collect(`_eager` = TRUE) |>
+    wrap()
+}
+
+#' @inherit lazyframe__quantile title params
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(a = 1:4, b = c(1, 2, 1, 1))
+#' df$quantile(0.7)
+dataframe__quantile <- function(
+    quantile,
+    interpolation = c("nearest", "higher", "lower", "midpoint", "linear")) {
+  self$lazy()$quantile(quantile, interpolation)$collect(`_eager` = TRUE) |>
+    wrap()
+}
+
+#' @inherit lazyframe__fill_nan title params
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = c(1.5, 2, NaN, 4),
+#'   b = c(1.5, NaN, NaN, 4)
+#' )
+#' df$fill_nan(99)$collect()
+dataframe__fill_nan <- function(value) {
+  self$lazy()$fill_nan(value)$collect(`_eager` = TRUE) |>
+    wrap()
+}
+
+#' @inherit lazyframe__clear title description params
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = c(NA, 2, 3, 4),
+#'   b = c(0.5, NA, 2.5, 13),
+#'   c = c(TRUE, TRUE, FALSE, NA)
+#' )
+#' df$clear()
+#'
+#' df$clear(n = 2)
+dataframe__clear <- function(n = 0) {
+  wrap({
+    if (!is_integerish(n)) {
+      abort("`n` must be an integer.")
+    }
+    if (n < 0) {
+      abort("`n` must be greater than or equal to 0.")
+    }
+    if (n == 0) {
+      return(
+        self$`_df`$clear() |>
+          wrap()
+      )
+    }
+    sch <- self$schema
+    lst <- lapply(seq_along(sch), \(x) {
+      pl$lit(NA, dtype = sch[[x]])$extend_constant(NA, n - 1)$alias(names(sch)[x])
+    })
+    pl$select(!!!lst)
+  })
+}
+
+#' @inherit lazyframe__shift title params
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(a = 1:4, b = 5:8)
+#'
+#' # By default, values are shifted forward by one index.
+#' df$shift()
+#'
+#' # Pass a negative value to shift in the opposite direction instead.
+#' df$shift(-2)
+#'
+#' # Specify fill_value to fill the resulting null values.
+#' df$shift(-2, fill_value = 100)
+dataframe__shift <- function(n = 1, ..., fill_value = NULL) {
+  wrap({
+    check_dots_empty0(...)
+    self$lazy()$shift(n, fill_value = fill_value)$collect(`_eager` = TRUE)
   })
 }
 
