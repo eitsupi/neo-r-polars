@@ -1186,6 +1186,11 @@ dataframe__unpivot <- function(
     check_dots_empty0(...)
     # TODO: add selectors handling when py-polars' _expand_selectors() has moved
     # to Rust
-    self$`_df`$unpivot(on = on, index = index, value_name = value_name, variable_name = variable_name)
+    self$`_df`$unpivot(
+      on = on %||% character(),
+      index = index,
+      value_name = value_name,
+      variable_name = variable_name
+    )
   })
 }

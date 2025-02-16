@@ -1467,6 +1467,8 @@ lazyframe__unpivot <- function(
     check_dots_empty0(...)
     if (!is.null(on)) {
       on <- parse_into_list_of_expressions(!!!on)
+    } else {
+      on <- list()
     }
     if (!is.null(index)) {
       index <- parse_into_list_of_expressions(!!!index)
