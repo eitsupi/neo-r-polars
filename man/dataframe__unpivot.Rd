@@ -2,7 +2,7 @@
 % Please edit documentation in R/dataframe-frame.R
 \name{dataframe__unpivot}
 \alias{dataframe__unpivot}
-\title{Unpivot a DataFrame from wide to long format}
+\title{Unpivot a frame from wide to long format}
 \usage{
 dataframe__unpivot(
   on = NULL,
@@ -30,9 +30,9 @@ the melted columns. Defaults to \code{"value"}.}
 A polars \link{LazyFrame}
 }
 \description{
-This function is useful to massage a DataFrame into a format where one or
+This function is useful to massage a frame into a format where one or
 more columns are identifier variables (\code{index}) while all other columns,
-considered measured variables (\code{on}), are “unpivoted” to the row axis
+considered measured variables (\code{on}), are "unpivoted" to the row axis
 leaving just two non-identifier columns, "variable" and "value".
 }
 \examples{
