@@ -1335,7 +1335,7 @@ dataframe__pivot <- function(
   wrap({
     check_dots_empty0(...)
     aggregate_expr <- NULL
-    if (!is.null(aggregate_function) && is_character(aggregate_function)) {
+    if (is_character(aggregate_function)) {
       aggregate_function <- arg_match0(
         aggregate_function,
         values = c("min", "max", "first", "last", "sum", "mean", "median", "len")
