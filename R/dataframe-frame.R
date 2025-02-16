@@ -578,12 +578,11 @@ dataframe__filter <- function(...) {
 #' # Or use positional arguments to sort by multiple columns in the same way
 #' df$sort("c", "a", descending = c(FALSE, TRUE))
 dataframe__sort <- function(
-  ...,
-  descending = FALSE,
-  nulls_last = FALSE,
-  multithreaded = TRUE,
-  maintain_order = FALSE
-) {
+    ...,
+    descending = FALSE,
+    nulls_last = FALSE,
+    multithreaded = TRUE,
+    maintain_order = FALSE) {
   self$lazy()$sort(
     ...,
     descending = descending,
@@ -739,11 +738,10 @@ dataframe__set_sorted <- function(column, ..., descending = FALSE) {
 #'
 #' df$unique(keep = "last", maintain_order = TRUE)
 dataframe__unique <- function(
-  subset = NULL,
-  ...,
-  keep = c("any", "none", "first", "last"),
-  maintain_order = FALSE
-) {
+    subset = NULL,
+    ...,
+    keep = c("any", "none", "first", "last"),
+    maintain_order = FALSE) {
   self$lazy()$unique(subset = subset, keep = keep, maintain_order = maintain_order)$collect(`_eager` = TRUE) |>
     wrap()
 }
@@ -782,20 +780,19 @@ dataframe__unique <- function(
 #'
 #' df$join(other_df, on = "ham", how = "anti")
 dataframe__join <- function(
-  other,
-  on = NULL,
-  how = c("inner", "full", "left", "right", "semi", "anti", "cross"),
-  ...,
-  left_on = NULL,
-  right_on = NULL,
-  suffix = "_right",
-  validate = c("m:m", "1:m", "m:1", "1:1"),
-  join_nulls = FALSE,
-  maintain_order = c("none", "left", "right", "left_right", "right_left"),
-  allow_parallel = TRUE,
-  force_parallel = FALSE,
-  coalesce = NULL
-) {
+    other,
+    on = NULL,
+    how = c("inner", "full", "left", "right", "semi", "anti", "cross"),
+    ...,
+    left_on = NULL,
+    right_on = NULL,
+    suffix = "_right",
+    validate = c("m:m", "1:m", "m:1", "1:1"),
+    join_nulls = FALSE,
+    maintain_order = c("none", "left", "right", "left_right", "right_left"),
+    allow_parallel = TRUE,
+    force_parallel = FALSE,
+    coalesce = NULL) {
   wrap({
     check_polars_df(other)
     self$lazy()$join(
@@ -917,12 +914,11 @@ dataframe__rename <- function(..., .strict = TRUE) {
 #'
 #' df$fill_null(strategy = "zero")
 dataframe__fill_null <- function(
-  value,
-  strategy = NULL,
-  limit = NULL,
-  ...,
-  matches_supertype = TRUE
-) {
+    value,
+    strategy = NULL,
+    limit = NULL,
+    ...,
+    matches_supertype = TRUE) {
   self$lazy()$fill_null(value, strategy, limit, matches_supertype = matches_supertype)$collect(`_eager` = TRUE) |>
     wrap()
 }
@@ -1044,23 +1040,22 @@ dataframe__unnest <- function(...) {
 #'   by = "country", on = "date", strategy = "nearest"
 #' )
 dataframe__join_asof <- function(
-  other,
-  ...,
-  left_on = NULL,
-  right_on = NULL,
-  on = NULL,
-  by_left = NULL,
-  by_right = NULL,
-  by = NULL,
-  strategy = c("backward", "forward", "nearest"),
-  suffix = "_right",
-  tolerance = NULL,
-  allow_parallel = TRUE,
-  force_parallel = FALSE,
-  coalesce = TRUE,
-  allow_exact_matches = TRUE,
-  check_sortedness = TRUE
-) {
+    other,
+    ...,
+    left_on = NULL,
+    right_on = NULL,
+    on = NULL,
+    by_left = NULL,
+    by_right = NULL,
+    by = NULL,
+    strategy = c("backward", "forward", "nearest"),
+    suffix = "_right",
+    tolerance = NULL,
+    allow_parallel = TRUE,
+    force_parallel = FALSE,
+    coalesce = TRUE,
+    allow_exact_matches = TRUE,
+    check_sortedness = TRUE) {
   self$lazy()$join_asof(
     other$lazy(),
     left_on = left_on,
@@ -1088,9 +1083,8 @@ dataframe__join_asof <- function(
 #' df <- pl$DataFrame(a = 1:4, b = c(1, 2, 1, 1))
 #' df$quantile(0.7)
 dataframe__quantile <- function(
-  quantile,
-  interpolation = c("nearest", "higher", "lower", "midpoint", "linear")
-) {
+    quantile,
+    interpolation = c("nearest", "higher", "lower", "midpoint", "linear")) {
   self$lazy()$quantile(quantile, interpolation)$collect(`_eager` = TRUE) |>
     wrap()
 }
@@ -1176,12 +1170,11 @@ dataframe__shift <- function(n = 1, ..., fill_value = NULL) {
 #' )
 #' df$unpivot(index = "a", on = c("b", "c"))
 dataframe__unpivot <- function(
-  on = NULL,
-  ...,
-  index = NULL,
-  variable_name = NULL,
-  value_name = NULL
-) {
+    on = NULL,
+    ...,
+    index = NULL,
+    variable_name = NULL,
+    value_name = NULL) {
   wrap({
     check_dots_empty0(...)
     # TODO: add selectors handling when py-polars' _expand_selectors() has moved
