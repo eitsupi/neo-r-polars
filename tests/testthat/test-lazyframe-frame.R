@@ -456,51 +456,52 @@ test_that("semi and anti join", {
   )
 })
 
-# TODO-REWRITE: panics
-# test_that("cross join", {
-#   dat <- pl$DataFrame(x = letters[1:3])
-#   dat2 <- pl$DataFrame(y = 1:4)
+test_that("cross join", {
+  dat <- pl$DataFrame(x = letters[1:3])
+  dat2 <- pl$DataFrame(y = 1:4)
 
-#   expect_query_equal(
-#     .input$join(.input2, how = "cross"),
-#     .input = dat, .input2 = dat2,
-#     pl$DataFrame(
-#       x = rep(letters[1:3], each = 4),
-#       y = rep(1:4, 3)
-#     )
-#   )
+  expect_query_equal(
+    .input$join(.input2, how = "cross"),
+    .input = dat, .input2 = dat2,
+    pl$DataFrame(
+      x = rep(letters[1:3], each = 4),
+      y = rep(1:4, 3)
+    )
+  )
+  expect_query_error(
+    dat$join(.input2, how = "cross", on = "foo"),
+    "cross join should not pass join keys"
+  )
+  expect_query_error(
+    dat$join(.input2, how = "cross", left_on = "foo", right_on = "foo2"),
+    "cross join should not pass join keys"
+  )
 
-#   expect_query_error(
-#     dat$lazy()$join(.input2$lazy(), how = "cross", on = "foo"),
-#     "cross join should not pass join keys"
-#   )
-#   expect_query_error(
-#     dat$lazy()$join(.input2$lazy(), how = "cross", left_on = "foo", right_on = "foo2"),
-#     "cross join should not pass join keys"
-#   )
+  # one empty dataframe
+  dat_empty <- pl$DataFrame(y = character())
+  expect_query_equal(
+    .input$join(.input2, how = "cross"),
+    .input = dat,
+    .input2 = dat_empty,
+    pl$DataFrame(x = character(), y = character())
+  )
+  expect_query_equal(
+    .input$join(.input2, how = "cross"),
+    .input = dat_empty,
+    .input2 = dat,
+    pl$DataFrame(y = character(), x = character())
+  )
 
-#   # one empty dataframe
-#   dat_empty <- pl$DataFrame(y = character())
-#   expect_query_equal(
-#     .input$join(dat_empty, how = "cross"),
-#     .input = dat, .input2 = dat2,
-#     pl$DataFrame(x = character(), y = character())
-#   )
-#   expect_query_equal(
-#     dat_empty$join(dat, how = "cross"),
-#     pl$DataFrame(y = character(), x = character())
-#   )
-
-#   # suffix works
-#   expect_query_equal(
-#     .input$join(.input, how = "cross"),
-#     .input = dat,
-#     pl$DataFrame(
-#       x = rep(letters[1:3], each = 3),
-#       x_right = rep(letters[1:3], 3)
-#     )
-#   )
-# })
+  # suffix works
+  expect_query_equal(
+    .input$join(.input, how = "cross"),
+    .input = dat,
+    pl$DataFrame(
+      x = rep(letters[1:3], each = 3),
+      x_right = rep(letters[1:3], 3)
+    )
+  )
+})
 
 test_that("argument 'validate' works", {
   df1 <- pl$DataFrame(x = letters[1:5], y = 1:5)
@@ -1445,6 +1446,84 @@ test_that("sort(): arg 'nulls_last'", {
     .input$sort("x", "y", maintain_order = TRUE, nulls_last = FALSE),
     df,
     pl$DataFrame(x = c(NA, 1, 2, 3, 4), y = c(2, 4, 3, 1, 5))
+  )
+})
+
+test_that("inequality joins work", {
+  east <- pl$DataFrame(
+    id = c(100, 101, 102),
+    dur = c(120, 140, 160),
+    rev = c(12, 14, 16),
+    cores = c(2, 8, 4)
+  )
+  west <- pl$DataFrame(
+    t_id = c(404, 498, 676, 742),
+    time = c(90, 130, 150, 170),
+    cost = c(9, 13, 15, 16),
+    cores = c(4, 2, 1, 4)
+  )
+
+  expect_query_equal(
+    .input$join_where(
+      .input2,
+      pl$col("dur") < pl$col("time"),
+      pl$col("rev") < pl$col("cost")
+    ),
+    .input = east, .input2 = west,
+    pl$DataFrame(
+      id = rep(c(100, 101), 3:2),
+      dur = rep(c(120, 140), 3:2),
+      rev = rep(c(12, 14), 3:2),
+      cores = rep(c(2, 8), 3:2),
+      t_id = c(498, 676, 742, 676, 742),
+      time = c(130, 150, 170, 150, 170),
+      cost = c(13, 15, 16, 15, 16),
+      cores_right = c(2, 1, 4, 1, 4)
+    )
+  )
+
+  expect_query_error(
+    .input$join_where(
+      mtcars,
+      pl$col("dur") < pl$col("time"),
+      pl$col("rev") < pl$col("cost")
+    ),
+    .input = east,
+    "`other` must be a polars"
+  )
+})
+
+test_that("inequality joins require suffix when identical column names", {
+  east <- pl$DataFrame(
+    id = c(100, 101, 102),
+    dur = c(120, 140, 160),
+    rev = c(12, 14, 16),
+    cores = c(2, 8, 4)
+  )
+  west <- pl$DataFrame(
+    t_id = c(404, 498, 676, 742),
+    dur = c(90, 130, 150, 170),
+    rev = c(9, 13, 15, 16),
+    cores = c(4, 2, 1, 4)
+  )
+
+  expect_query_equal(
+    .input$join_where(
+      .input2,
+      pl$col("dur") < pl$col("dur_right"),
+      pl$col("rev") < pl$col("rev_right")
+    ),
+    .input = east, .input2 = west,
+    pl$DataFrame(
+      id = rep(c(100, 101), 3:2),
+      dur = rep(c(120, 140), 3:2),
+      rev = rep(c(12, 14), 3:2),
+      cores = rep(c(2, 8), 3:2),
+      t_id = c(498, 676, 742, 676, 742),
+      dur_right = c(130, 150, 170, 150, 170),
+      rev_right = c(13, 15, 16, 15, 16),
+      cores_right = c(2, 1, 4, 1, 4)
+    )
   )
 })
 
