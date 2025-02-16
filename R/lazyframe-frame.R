@@ -1989,7 +1989,7 @@ lazyframe__null_count <- function() {
 #' value of `reverse`. The output is not guaranteed to be in any particular
 #' order, call `sort()` after this function if you wish the output to be sorted.
 #'
-#' @inheritParams rlang::arg_dots_empty
+#' @inheritParams rlang::args_dots_empty
 #' @param k Number of rows to return.
 #' @param by Column(s) used to determine the bottom rows. Accepts expression
 #' input. Strings are parsed as column names.
