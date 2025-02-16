@@ -213,22 +213,21 @@ lazyframe__group_by <- function(..., .maintain_order = FALSE) {
 #'   streaming = TRUE
 #' )
 lazyframe__collect <- function(
-  ...,
-  type_coercion = TRUE,
-  `_type_check` = TRUE,
-  predicate_pushdown = TRUE,
-  projection_pushdown = TRUE,
-  simplify_expression = TRUE,
-  slice_pushdown = TRUE,
-  comm_subplan_elim = TRUE,
-  comm_subexpr_elim = TRUE,
-  cluster_with_columns = TRUE,
-  collapse_joins = TRUE,
-  no_optimization = FALSE,
-  streaming = FALSE,
-  `_check_order` = TRUE,
-  `_eager` = FALSE
-) {
+    ...,
+    type_coercion = TRUE,
+    `_type_check` = TRUE,
+    predicate_pushdown = TRUE,
+    projection_pushdown = TRUE,
+    simplify_expression = TRUE,
+    slice_pushdown = TRUE,
+    comm_subplan_elim = TRUE,
+    comm_subexpr_elim = TRUE,
+    cluster_with_columns = TRUE,
+    collapse_joins = TRUE,
+    no_optimization = FALSE,
+    streaming = FALSE,
+    `_check_order` = TRUE,
+    `_eager` = FALSE) {
   wrap({
     check_dots_empty0(...)
 
@@ -316,23 +315,22 @@ lazyframe__collect <- function(
 #'   agg(pl$col(pl$Float64)$map_elements(r_func))$
 #'   profile()
 lazyframe__profile <- function(
-  ...,
-  type_coercion = TRUE,
-  `_type_check` = TRUE,
-  predicate_pushdown = TRUE,
-  projection_pushdown = TRUE,
-  simplify_expression = TRUE,
-  slice_pushdown = TRUE,
-  comm_subplan_elim = TRUE,
-  comm_subexpr_elim = TRUE,
-  cluster_with_columns = TRUE,
-  collapse_joins = TRUE,
-  streaming = FALSE,
-  no_optimization = FALSE,
-  `_check_order` = TRUE,
-  show_plot = FALSE,
-  truncate_nodes = 0
-) {
+    ...,
+    type_coercion = TRUE,
+    `_type_check` = TRUE,
+    predicate_pushdown = TRUE,
+    projection_pushdown = TRUE,
+    simplify_expression = TRUE,
+    slice_pushdown = TRUE,
+    comm_subplan_elim = TRUE,
+    comm_subexpr_elim = TRUE,
+    cluster_with_columns = TRUE,
+    collapse_joins = TRUE,
+    streaming = FALSE,
+    no_optimization = FALSE,
+    `_check_order` = TRUE,
+    show_plot = FALSE,
+    truncate_nodes = 0) {
   wrap({
     check_dots_empty0(...)
 
@@ -414,22 +412,21 @@ lazyframe__profile <- function(
 #' # Also possible to see this as tree format
 #' lazy_query$explain(format = "tree") |> cat()
 lazyframe__explain <- function(
-  ...,
-  format = c("plain", "tree"),
-  optimized = TRUE,
-  type_coercion = TRUE,
-  `_type_check` = TRUE,
-  predicate_pushdown = TRUE,
-  projection_pushdown = TRUE,
-  simplify_expression = TRUE,
-  slice_pushdown = TRUE,
-  comm_subplan_elim = TRUE,
-  comm_subexpr_elim = TRUE,
-  cluster_with_columns = TRUE,
-  collapse_joins = TRUE,
-  streaming = FALSE,
-  `_check_order` = TRUE
-) {
+    ...,
+    format = c("plain", "tree"),
+    optimized = TRUE,
+    type_coercion = TRUE,
+    `_type_check` = TRUE,
+    predicate_pushdown = TRUE,
+    projection_pushdown = TRUE,
+    simplify_expression = TRUE,
+    slice_pushdown = TRUE,
+    comm_subplan_elim = TRUE,
+    comm_subexpr_elim = TRUE,
+    cluster_with_columns = TRUE,
+    collapse_joins = TRUE,
+    streaming = FALSE,
+    `_check_order` = TRUE) {
   wrap({
     check_dots_empty0(...)
 
@@ -606,12 +603,11 @@ lazyframe__filter <- function(...) {
 #' # Or use positional arguments to sort by multiple columns in the same way
 #' lf$sort("c", "a", descending = c(FALSE, TRUE))$collect()
 lazyframe__sort <- function(
-  ...,
-  descending = FALSE,
-  nulls_last = FALSE,
-  multithreaded = TRUE,
-  maintain_order = FALSE
-) {
+    ...,
+    descending = FALSE,
+    nulls_last = FALSE,
+    multithreaded = TRUE,
+    maintain_order = FALSE) {
   wrap({
     check_dots_unnamed()
 
@@ -941,9 +937,8 @@ lazyframe__std <- function(ddof = 1) {
 #' lf <- pl$LazyFrame(a = 1:4, b = c(1, 2, 1, 1))
 #' lf$quantile(0.7)$collect()
 lazyframe__quantile <- function(
-  quantile,
-  interpolation = c("nearest", "higher", "lower", "midpoint", "linear")
-) {
+    quantile,
+    interpolation = c("nearest", "higher", "lower", "midpoint", "linear")) {
   wrap({
     interpolation <- arg_match0(
       interpolation,
@@ -992,12 +987,11 @@ lazyframe__fill_nan <- function(value) {
 #'
 #' lf$fill_null(strategy = "zero")$collect()
 lazyframe__fill_null <- function(
-  value,
-  strategy = NULL,
-  limit = NULL,
-  ...,
-  matches_supertype = TRUE
-) {
+    value,
+    strategy = NULL,
+    limit = NULL,
+    ...,
+    matches_supertype = TRUE) {
   wrap({
     # Can't use check_exclusive() because it errors when we call this from the
     # eager method.
@@ -1204,11 +1198,10 @@ lazyframe__drop_nans <- function(...) {
 #'
 #' lf$unique(keep = "last", maintain_order = TRUE)$collect()
 lazyframe__unique <- function(
-  subset = NULL,
-  ...,
-  keep = c("any", "none", "first", "last"),
-  maintain_order = FALSE
-) {
+    subset = NULL,
+    ...,
+    keep = c("any", "none", "first", "last"),
+    maintain_order = FALSE) {
   wrap({
     check_dots_empty0(...)
     keep <- arg_match0(keep, values = c("any", "none", "first", "last"))
@@ -1303,20 +1296,19 @@ lazyframe__unique <- function(
 #'
 #' lf$join(other_lf, on = "ham", how = "anti")$collect()
 lazyframe__join <- function(
-  other,
-  on = NULL,
-  how = c("inner", "full", "left", "right", "semi", "anti", "cross"),
-  ...,
-  left_on = NULL,
-  right_on = NULL,
-  suffix = "_right",
-  validate = c("m:m", "1:m", "m:1", "1:1"),
-  join_nulls = FALSE,
-  maintain_order = c("none", "left", "right", "left_right", "right_left"),
-  allow_parallel = TRUE,
-  force_parallel = FALSE,
-  coalesce = NULL
-) {
+    other,
+    on = NULL,
+    how = c("inner", "full", "left", "right", "semi", "anti", "cross"),
+    ...,
+    left_on = NULL,
+    right_on = NULL,
+    suffix = "_right",
+    validate = c("m:m", "1:m", "m:1", "1:1"),
+    join_nulls = FALSE,
+    maintain_order = c("none", "left", "right", "left_right", "right_left"),
+    allow_parallel = TRUE,
+    force_parallel = FALSE,
+    coalesce = NULL) {
   wrap({
     check_dots_empty0(...)
     check_polars_lf(other)
@@ -1420,10 +1412,9 @@ lazyframe__join <- function(
 #'   pl$col("rev") < pl$col("cost")
 #' )$collect()
 lazyframe__join_where <- function(
-  other,
-  ...,
-  suffix = "_right"
-) {
+    other,
+    ...,
+    suffix = "_right") {
   wrap({
     check_polars_lf(other)
     by <- parse_into_list_of_expressions(...)
@@ -1457,12 +1448,11 @@ lazyframe__join_where <- function(
 #' )
 #' lf$unpivot(index = "a", on = c("b", "c"))$collect()
 lazyframe__unpivot <- function(
-  on = NULL,
-  ...,
-  index = NULL,
-  variable_name = NULL,
-  value_name = NULL
-) {
+    on = NULL,
+    ...,
+    index = NULL,
+    variable_name = NULL,
+    value_name = NULL) {
   wrap({
     check_dots_empty0(...)
     if (!is.null(on)) {
@@ -1671,13 +1661,12 @@ lazyframe__unnest <- function(...) {
 #'   max_a = pl$col("a")$max()
 #' )$collect()
 lazyframe__rolling <- function(
-  index_column,
-  ...,
-  period,
-  offset = NULL,
-  closed = c("right", "left", "both", "none"),
-  group_by = NULL
-) {
+    index_column,
+    ...,
+    period,
+    offset = NULL,
+    closed = c("right", "left", "both", "none"),
+    group_by = NULL) {
   wrap({
     check_dots_empty0(...)
     closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
@@ -1833,17 +1822,16 @@ lazyframe__rolling <- function(
 #'   closed = "right"
 #' )$agg(A_agg_list = pl$col("A"))$collect()
 lazyframe__group_by_dynamic <- function(
-  index_column,
-  ...,
-  every,
-  period = NULL,
-  offset = NULL,
-  include_boundaries = FALSE,
-  closed = c("left", "right", "both", "none"),
-  label = "left",
-  group_by = NULL,
-  start_by = "window"
-) {
+    index_column,
+    ...,
+    every,
+    period = NULL,
+    offset = NULL,
+    include_boundaries = FALSE,
+    closed = c("left", "right", "both", "none"),
+    label = "left",
+    group_by = NULL,
+    start_by = "window") {
   wrap({
     check_dots_empty0(...)
     closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
@@ -1896,18 +1884,17 @@ lazyframe__group_by_dynamic <- function(
 #' # You could print the graph by using DiagrammeR for example, with
 #' # query$to_dot() |> DiagrammeR::grViz().
 lazyframe__to_dot <- function(
-  ...,
-  optimized = TRUE,
-  type_coercion = TRUE,
-  predicate_pushdown = TRUE,
-  projection_pushdown = TRUE,
-  simplify_expression = TRUE,
-  slice_pushdown = TRUE,
-  comm_subplan_elim = TRUE,
-  comm_subexpr_elim = TRUE,
-  cluster_with_columns = TRUE,
-  streaming = FALSE
-) {
+    ...,
+    optimized = TRUE,
+    type_coercion = TRUE,
+    predicate_pushdown = TRUE,
+    projection_pushdown = TRUE,
+    simplify_expression = TRUE,
+    slice_pushdown = TRUE,
+    comm_subplan_elim = TRUE,
+    comm_subexpr_elim = TRUE,
+    cluster_with_columns = TRUE,
+    streaming = FALSE) {
   ldf <- self$`_ldf`$optimization_toggle(
     type_coercion = type_coercion,
     `_type_check` = `_type_check`,
@@ -2275,23 +2262,22 @@ lazyframe__with_row_index <- function(name = "index", offset = 0) {
 #'   by = "country", on = "date", strategy = "nearest"
 #' )$collect()
 lazyframe__join_asof <- function(
-  other,
-  ...,
-  left_on = NULL,
-  right_on = NULL,
-  on = NULL,
-  by_left = NULL,
-  by_right = NULL,
-  by = NULL,
-  strategy = c("backward", "forward", "nearest"),
-  suffix = "_right",
-  tolerance = NULL,
-  allow_parallel = TRUE,
-  force_parallel = FALSE,
-  coalesce = TRUE,
-  allow_exact_matches = TRUE,
-  check_sortedness = TRUE
-) {
+    other,
+    ...,
+    left_on = NULL,
+    right_on = NULL,
+    on = NULL,
+    by_left = NULL,
+    by_right = NULL,
+    by = NULL,
+    strategy = c("backward", "forward", "nearest"),
+    suffix = "_right",
+    tolerance = NULL,
+    allow_parallel = TRUE,
+    force_parallel = FALSE,
+    coalesce = TRUE,
+    allow_exact_matches = TRUE,
+    check_sortedness = TRUE) {
   wrap({
     check_dots_empty0(...)
     strategy <- arg_match0(strategy, values = c("backward", "forward", "nearest"))
