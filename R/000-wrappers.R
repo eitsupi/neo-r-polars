@@ -215,6 +215,11 @@ NULL
 }
 
 
+`len` <- function() {
+  .savvy_wrap_PlRExpr(.Call(savvy_len__impl))
+}
+
+
 `lit_from_bool` <- function(`value`) {
   .savvy_wrap_PlRExpr(.Call(savvy_lit_from_bool__impl, `value`))
 }
@@ -3623,7 +3628,7 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
 
 `PlRLazyFrame_to_dot` <- function(self) {
   function(`optimized`) {
-    .savvy_wrap_String(.Call(savvy_PlRLazyFrame_to_dot__impl, `self`, `optimized`))
+    .Call(savvy_PlRLazyFrame_to_dot__impl, `self`, `optimized`)
   }
 }
 
