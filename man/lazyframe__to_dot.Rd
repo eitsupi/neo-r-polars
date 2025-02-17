@@ -8,6 +8,7 @@ lazyframe__to_dot(
   ...,
   optimized = TRUE,
   type_coercion = TRUE,
+  `_type_check` = TRUE,
   predicate_pushdown = TRUE,
   projection_pushdown = TRUE,
   simplify_expression = TRUE,
@@ -15,6 +16,8 @@ lazyframe__to_dot(
   comm_subplan_elim = TRUE,
   comm_subexpr_elim = TRUE,
   cluster_with_columns = TRUE,
+  collapse_joins = TRUE,
+  `_check_order` = TRUE,
   streaming = FALSE
 )
 }
@@ -39,6 +42,10 @@ lazyframe__to_dot(
 
 \item{cluster_with_columns}{A logical, indicats to combine sequential independent calls to with_columns.}
 
+\item{collapse_joins}{Collapse a join and filters into a faster join.}
+
+\item{_check_order, _type_check}{For internal use only.}
+
 \item{streaming}{A logical. If \code{TRUE}, process the query in batches to handle larger-than-memory data.
 If \code{FALSE} (default), the entire query is processed in a single batch.
 Note that streaming mode is considered unstable.
@@ -58,11 +65,9 @@ lf <- pl$LazyFrame(
   c = 6:1
 )
 
-query <- lf$group_by("a", maintain_order = TRUE)$agg(
+query <- lf$group_by("a", .maintain_order = TRUE)$agg(
   pl$all()$sum()
-)$sort(
-  "a"
-)
+)$sort("a")
 
 query$to_dot() |> cat()
 

@@ -47,11 +47,10 @@ expr_meta_has_multiple_outputs <- function() {
 #'
 #' e_sum_over <- pl$col("foo")$sum()$over("groups")
 #' e_sum_over$meta$output_name()
-#'
-#' e_sum_slice <- pl$col("foo")$sum()$slice(pl$len() - 10, pl$col("bar"))
-#' e_sum_slice$meta$output_name()
-#'
-#' pl$len()$meta$output_name()
+# TODO-REWRITE: uncomment
+# e_sum_slice <- pl$col("foo")$sum()$slice(pl$len() - 10, pl$col("bar"))
+# e_sum_slice$meta$output_name()
+# pl$len()$meta$output_name()
 expr_meta_output_name <- function(..., raise_if_undetermined = TRUE) {
   wrap({
     check_dots_empty0(...)
@@ -185,8 +184,9 @@ expr_meta_ne <- function(other) {
 #' e_sum_over <- pl$sum("foo")$over("groups")
 #' e_sum_over$meta$root_names()
 #'
-#' e_sum_slice <- pl$sum("foo")$slice(pl$len() - 10, pl$col("bar"))
-#' e_sum_slice$meta$root_names()
+# TODO-REWRITE: uncomment this
+# e_sum_slice <- pl$sum("foo")$slice(pl$len() - 10, pl$col("bar"))
+# e_sum_slice$meta$root_names()
 expr_meta_root_names <- function() {
   self$`_rexpr`$meta_root_names()
 }
@@ -226,7 +226,7 @@ expr_meta_tree_format <- function() {
 #'
 #' e <- pl$col("foo") * pl$col("bar")
 #' e$meta$is_column_selection()
-#' 
+#'
 #' e <- cs$starts_with("foo")
 #' e$meta$is_column_selection()
 expr_meta_is_column_selection <- function(..., allow_aliasing = FALSE) {
@@ -243,10 +243,10 @@ expr_meta_is_column_selection <- function(..., allow_aliasing = FALSE) {
 #' e <- pl$col("foo")
 #' e$meta$is_column()
 #'
-#' e <- pl.col("foo") * pl.col("bar")
+#' e <- pl$col("foo") * pl$col("bar")
 #' e$meta$is_column()
 #'
-#' e <- pl.col(r"^col.*\d+$")
+#' e <- pl$col("^col\\.*\\d+$")
 #' e$meta$is_column()
 expr_meta_is_column <- function() {
   wrap({

@@ -22,6 +22,4 @@ e_filter$meta$root_names()
 e_sum_over <- pl$sum("foo")$over("groups")
 e_sum_over$meta$root_names()
 
-e_sum_slice <- pl$sum("foo")$slice(pl$len() - 10, pl$col("bar"))
-e_sum_slice$meta$root_names()
 }
