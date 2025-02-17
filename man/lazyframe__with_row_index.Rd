@@ -24,9 +24,4 @@ lf$with_row_index()$collect()
 
 lf$with_row_index("id", offset = 1000)$collect()
 
-# An index column can also be created using the expressions int_range()
-# and len()$
-lf$with_columns(
-  index = pl$int_range(pl$len(), dtype = pl$UInt32)
-)$collect()
 }

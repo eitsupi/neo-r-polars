@@ -64,7 +64,7 @@ pl__max_horizontal <- function(...) {
 #' )
 #'
 #' df$with_columns(
-#'   all = pl$all_horizontal("a", "b", "c")
+#'   all = pl$all_horizontal("a", "b")
 #' )
 pl__all_horizontal <- function(...) {
   wrap({
@@ -88,7 +88,7 @@ pl__all_horizontal <- function(...) {
 #' )
 #'
 #' df$with_columns(
-#'   any = pl$any_horizontal("a", "b", "c")
+#'   any = pl$any_horizontal("a", "b")
 #' )
 pl__any_horizontal <- function(...) {
   wrap({
