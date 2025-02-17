@@ -7,7 +7,7 @@
 dataframe__to_dummies(..., separator = "_", drop_first = FALSE)
 }
 \arguments{
-\item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> Column name(s) or selector(s)
+\item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> Column name(s)
 that should be converted to dummy variables. If empty (default), convert
 all columns.}
 
@@ -23,11 +23,12 @@ Convert categorical variables into dummy/indicator variables
 }
 \examples{
 df <- pl$DataFrame(
-  foo = c(1, 2),
-  bar = c(3, 4),
+  foo = c(1L, 2L),
+  bar = c(3L, 4L),
   ham = c("a", "b")
 )
 df$to_dummies()
 
 df$to_dummies(drop_first = TRUE)
+df$to_dummies("foo", "bar", separator = ":")
 }

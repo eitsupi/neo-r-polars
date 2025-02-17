@@ -1242,13 +1242,14 @@ dataframe__unpivot <- function(
 #' @inherit as_polars_df return
 #' @examples
 #' df <- pl$DataFrame(
-#'   foo = c(1, 2),
-#'   bar = c(3, 4),
+#'   foo = c(1L, 2L),
+#'   bar = c(3L, 4L),
 #'   ham = c("a", "b")
 #' )
 #' df$to_dummies()
 #'
 #' df$to_dummies(drop_first = TRUE)
+#' df$to_dummies("foo", "bar", separator = ":")
 # df$to_dummies(cs$integer(), separator=":")
 # df$to_dummies(cs$integer(), drop_first = TRUE, separator = ":")
 dataframe__to_dummies <- function(
