@@ -8,7 +8,7 @@ dataframe__to_dummies(..., separator = "_", drop_first = FALSE)
 }
 \arguments{
 \item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> Column name(s) or selector(s)
-that should be converted to dummy variables. If \code{NULL} (default), convert
+that should be converted to dummy variables. If empty (default), convert
 all columns.}
 
 \item{separator}{Separator/delimiter used when generating column names.}

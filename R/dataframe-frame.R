@@ -1234,7 +1234,7 @@ dataframe__unpivot <- function(
 #' Convert categorical variables into dummy/indicator variables
 #'
 #' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Column name(s) or selector(s)
-#' that should be converted to dummy variables. If `NULL` (default), convert
+#' that should be converted to dummy variables. If empty (default), convert
 #' all columns.
 #' @param separator Separator/delimiter used when generating column names.
 #' @param drop_first Remove the first category from the variables being encoded.
