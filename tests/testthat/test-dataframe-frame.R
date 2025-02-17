@@ -115,6 +115,6 @@ test_that("to_dummies() works", {
   )
   expect_error(
     df$to_dummies(foobar = TRUE),
-    "must be empty"
+    "only accepts column names"
   )
 })
