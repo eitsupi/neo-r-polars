@@ -87,3 +87,34 @@ test_that("flags work", {
     list(a = c(SORTED_ASC = FALSE, SORTED_DESC = FALSE))
   )
 })
+
+test_that("to_dummies() works", {
+  df <- pl$DataFrame(
+    foo = 1:2,
+    bar = 3:4,
+    ham = c("a", "b")
+  )
+  expect_equal(
+    df$to_dummies(),
+    pl$DataFrame(
+      foo_1 = 1:0,
+      foo_2 = 0:1,
+      bar_3 = 1:0,
+      bar_4 = 0:1,
+      ham_a = 1:0,
+      ham_b = 0:1
+    )$cast(pl$UInt8)
+  )
+  expect_equal(
+    df$to_dummies(drop_first = TRUE),
+    pl$DataFrame(foo_2 = 0:1, bar_4 = 0:1, ham_b = 0:1)$cast(pl$UInt8)
+  )
+  expect_equal(
+    df$to_dummies(drop_first = TRUE, separator = "::"),
+    pl$DataFrame(`foo::2` = 0:1, `bar::4` = 0:1, `ham::b` = 0:1)$cast(pl$UInt8)
+  )
+  expect_error(
+    df$to_dummies(foobar = TRUE),
+    "must be empty"
+  )
+})
