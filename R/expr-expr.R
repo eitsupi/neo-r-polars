@@ -193,10 +193,10 @@ expr__truediv <- expr__true_div
 #'   cube = pl$col("x")$pow(3),
 #'   `x^xlog2` = pl$col("x")$pow(pl$col("x")$log(2))
 #' )
-expr__pow <- function(other) {
+expr__pow <- function(exponent) {
   wrap({
-    other <- as_polars_expr(other, as_lit = TRUE)
-    self$`_rexpr`$pow(other$`_rexpr`)
+    exponent <- as_polars_expr(exponent, as_lit = TRUE)
+    self$`_rexpr`$pow(exponent$`_rexpr`)
   })
 }
 
@@ -473,7 +473,6 @@ expr__exclude <- function(...) {
       self$`_rexpr`$exclude_dtype(exclude_dtypes)
     }
   })
-
 }
 
 
@@ -1231,8 +1230,8 @@ expr__diff <- function(n = 1, null_behavior = c("ignore", "drop")) {
 #' @examples
 #' df <- pl$DataFrame(a = c(1, 3, 5), b = c(2, 4, 6))
 #' df$select(pl$col("a")$dot(pl$col("b")))
-expr__dot <- function(expr) {
-  self$`_rexpr`$dot(as_polars_expr(expr)$`_rexpr`) |>
+expr__dot <- function(other) {
+  self$`_rexpr`$dot(as_polars_expr(other)$`_rexpr`) |>
     wrap()
 }
 
@@ -1241,9 +1240,6 @@ expr__dot <- function(expr) {
 #' @param dimensions A integer vector of length of the dimension size.
 #' If `-1` is used in any of the dimensions, that dimension is inferred.
 #' Currently, more than two dimensions not supported.
-#' @param nested_type The nested data type to create. [List][DataType_List] only
-#' supports 2 dimensions, whereas [Array][DataType_Array] supports an arbitrary
-#' number of dimensions.
 #' @inherit as_polars_expr return
 #'
 #' @details
@@ -1517,7 +1513,7 @@ expr__arg_unique <- function() {
 #' df <- pl$DataFrame(a = c(1, 1, 2, 1))
 #' df$select((pl$col("a") == 1)$arg_true())
 expr__arg_true <- function() {
-  arg_where(self$`_rexpr`) |> 
+  arg_where(self$`_rexpr`) |>
     wrap()
 }
 
@@ -2350,6 +2346,7 @@ expr__unique_counts <- function() {
 #' This method differs from [`$value_counts()`][expr__value_counts] in that it
 #' does not return the values, only the counts and might be faster.
 #'
+#' @inheritParams rlang::args_dots_empty
 #' @param maintain_order Maintain order of data. This requires more work.
 #'
 #' @inherit as_polars_expr return
@@ -2420,6 +2417,7 @@ expr__search_sorted <- function(element, side = c("any", "left", "right")) {
 #' The window at a given row will include the row itself, and the
 #' `window_size - 1` elements before it.
 #'
+#' @inheritParams rlang::args_dots_empty
 #' @param window_size The length of the window in number of elements.
 #' @param weights An optional slice with the same length as the window that
 #' will be multiplied elementwise with the values in the window.
@@ -2822,7 +2820,7 @@ expr__rolling_var <- function(
 #' dates <- as.POSIXct(
 #'   c(
 #'     "2020-01-01 13:45:48", "2020-01-01 16:42:13", "2020-01-01 16:45:09",
-#'     "2020-01-02 18:12:48", "2020-01-03 19:45:32","2020-01-08 23:16:43"
+#'     "2020-01-02 18:12:48", "2020-01-03 19:45:32", "2020-01-08 23:16:43"
 #'   )
 #' )
 #' df <- pl$DataFrame(dt = dates, a = c(3, 7, 5, 9, 2, 1))
@@ -2833,11 +2831,11 @@ expr__rolling_var <- function(
 #'   max_a = pl$col("a")$max()$rolling(index_column = "dt", period = "2d")
 #' )
 expr__rolling <- function(
-  index_column,
-  ...,
-  period,
-  offset = NULL,
-  closed = "right") {
+    index_column,
+    ...,
+    period,
+    offset = NULL,
+    closed = "right") {
   wrap({
     check_dots_empty0(...)
     closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
@@ -2862,9 +2860,9 @@ expr__rolling <- function(
 #' * …
 #' * `(t_n - window_size, t_n]`
 #'
-#' @param by Should be DateTime, Date, UInt64, UInt32, Int64, or Int32 data 
+#' @param by Should be DateTime, Date, UInt64, UInt32, Int64, or Int32 data
 #' type after conversion by [as_polars_expr()]. Note that the
-#' integer ones require using `"i"` in `window_size`. Accepts expression input. 
+#' integer ones require using `"i"` in `window_size`. Accepts expression input.
 #' Strings are parsed as column names.
 #' @param window_size The length of the window. Can be a dynamic temporal size
 #' indicated by a timedelta or the following string language:
@@ -3518,7 +3516,7 @@ expr__backward_fill <- function(limit = NULL) {
 
 #' Fill missing values with the last non-null value
 #'
-#' @param fill The number of consecutive null values to forward fill.
+#' @param limit The number of consecutive null values to forward fill.
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -3576,8 +3574,12 @@ expr__top_k <- function(k = 5) {
 #' column(s)
 #'
 #' @inherit expr__bottom_k description params
+#' @inheritParams rlang::args_dots_empty
 #' @param by Column(s) used to determine the smallest elements. Accepts
 #' expression input. Strings are parsed as column names.
+#' @param reverse Consider the `k` largest elements of the `by` column(s)
+#' (instead of the `k` smallest). This can be specified per column by passing a
+#' sequence of booleans.
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -3615,9 +3617,14 @@ expr__bottom_k_by <- function(by, k = 5, ..., reverse = FALSE) {
   })
 }
 
-#' Return the `k` largest elements
+#' Return the elements corresponding to the `k` largest elements of the `by`
+#' column(s)
 #'
 #' @inherit expr__bottom_k_by description params
+#' @param reverse Consider the `k` smallest elements of the `by` column(s)
+#' (instead of the `k` largest). This can be specified per column by passing a
+#' sequence of booleans.
+#'
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
@@ -4227,7 +4234,7 @@ expr__repeat_by <- function(by) {
 #'     new = pl$col("b")$sum()
 #'   )
 #' )
-expr__replace = function(old, new) {
+expr__replace <- function(old, new) {
   wrap({
     if (missing(new)) {
       if (!is.list(old)) {
@@ -4284,7 +4291,8 @@ expr__replace = function(old, new) {
 #' # inferring it
 #' df$with_columns(
 #'   replaced = pl$col("a")$replace_strict(
-#'     mapping, default = 1, return_dtype = pl$Int32
+#'     mapping,
+#'     default = 1, return_dtype = pl$Int32
 #'   )
 #' )
 #'
@@ -4297,31 +4305,31 @@ expr__replace = function(old, new) {
 #'     default = pl$col("b"),
 #'   )
 #' )
-expr__replace_strict = function(
-  old,
-  new,
-  ...,
-  default = NULL,
-  return_dtype = NULL) {
-    wrap({
-      check_dots_empty0(...)
-      if (missing(new)) {
-        if (!is.list(old)) {
-          abort("`new` argument is required if `old` argument is not a list.")
-        }
-        new <- unlist(old, use.names = FALSE)
-        old <- names(old)
+expr__replace_strict <- function(
+    old,
+    new,
+    ...,
+    default = NULL,
+    return_dtype = NULL) {
+  wrap({
+    check_dots_empty0(...)
+    if (missing(new)) {
+      if (!is.list(old)) {
+        abort("`new` argument is required if `old` argument is not a list.")
       }
-      if (!is.null(default)) {
-        default <- as_polars_expr(default, as_lit = TRUE)$`_rexpr`
-      }
-      self$`_rexpr`$replace_strict(
-        as_polars_expr(old, as_lit = TRUE)$`_rexpr`,
-        as_polars_expr(new, as_lit = TRUE)$`_rexpr`,
-        default = default,
-        return_dtype = return_dtype$`_dt`
-      )
-    })
+      new <- unlist(old, use.names = FALSE)
+      old <- names(old)
+    }
+    if (!is.null(default)) {
+      default <- as_polars_expr(default, as_lit = TRUE)$`_rexpr`
+    }
+    self$`_rexpr`$replace_strict(
+      as_polars_expr(old, as_lit = TRUE)$`_rexpr`,
+      as_polars_expr(new, as_lit = TRUE)$`_rexpr`,
+      default = default,
+      return_dtype = return_dtype$`_dt`
+    )
+  })
 }
 
 #' Compress the column data using run-length encoding
@@ -4385,13 +4393,12 @@ expr__rle_id <- function() {
 #'   fraction = 1, with_replacement = TRUE, seed = 1
 #' ))
 expr__sample <- function(
-  n = NULL,
-  ...,
-  fraction = NULL,
-  with_replacement = FALSE,
-  shuffle = FALSE,
-  seed = NULL
-) {
+    n = NULL,
+    ...,
+    fraction = NULL,
+    with_replacement = FALSE,
+    shuffle = FALSE,
+    seed = NULL) {
   wrap({
     check_dots_empty0(...)
     if (!is.null(fraction)) {
