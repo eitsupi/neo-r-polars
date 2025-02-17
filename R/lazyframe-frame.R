@@ -1489,10 +1489,9 @@ lazyframe__unpivot <- function(
 #' )
 #'
 #' lf$rename(foo = "apple")$collect()
-#'
-#' lf$rename(
-#'   \(column_name) paste0("c", substr(column_name, 2, 100))
-#' )$collect()
+# lf$rename(
+# \(column_name) paste0("c", substr(column_name, 2, 100))
+# )$collect()
 lazyframe__rename <- function(..., .strict = TRUE) {
   wrap({
     mapping <- list2(...)
