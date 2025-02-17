@@ -1233,7 +1233,7 @@ dataframe__unpivot <- function(
 
 #' Convert categorical variables into dummy/indicator variables
 #'
-#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Column name(s) or selector(s)
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Column name(s)
 #' that should be converted to dummy variables. If empty (default), convert
 #' all columns.
 #' @param separator Separator/delimiter used when generating column names.
@@ -1258,12 +1258,19 @@ dataframe__to_dummies <- function(
   # TODO: add selectors handling when py-polars' _expand_selectors() has moved
   # to Rust (and update examples above)
   wrap({
-    cols <- c(...)
-    if (!is.null(cols) && !is_character(cols)) {
-      abort("`...` only accepts column names.")
+    check_dots_unnamed()
+
+    dots <- list2(...)
+    check_list_of_string(dots, arg = "...")
+
+    if (length(dots) == 0L) {
+      columns <- NULL
+    } else {
+      columns <- as.character(dots)
     }
+
     self$`_df`$to_dummies(
-      columns = cols,
+      columns = columns,
       separator = separator,
       drop_first = drop_first
     )
