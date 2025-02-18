@@ -62,6 +62,9 @@ if the S3 method of the \link{as_polars_series} function is defined.
 }
 \examples{
 infer_polars_dtype(1:10)
+
+# The type inference is fast even if the object is huge
+infer_polars_dtype(1:100000000)
 }
 \seealso{
 \itemize{

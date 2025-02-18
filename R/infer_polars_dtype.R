@@ -15,6 +15,9 @@
 #' - [as_polars_series()]
 #' @examples
 #' infer_polars_dtype(1:10)
+#'
+#' # The type inference is fast even if the object is huge
+#' infer_polars_dtype(1:100000000)
 #' @export
 infer_polars_dtype <- function(x, ...) {
   UseMethod("infer_polars_dtype")
