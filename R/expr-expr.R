@@ -193,10 +193,10 @@ expr__truediv <- expr__true_div
 #'   cube = pl$col("x")$pow(3),
 #'   `x^xlog2` = pl$col("x")$pow(pl$col("x")$log(2))
 #' )
-expr__pow <- function(other) {
+expr__pow <- function(exponent) {
   wrap({
-    other <- as_polars_expr(other, as_lit = TRUE)
-    self$`_rexpr`$pow(other$`_rexpr`)
+    exponent <- as_polars_expr(exponent, as_lit = TRUE)
+    self$`_rexpr`$pow(exponent$`_rexpr`)
   })
 }
 
@@ -696,17 +696,21 @@ expr__sum <- function() {
 #' @examples
 #' df <- pl$DataFrame(a = 1:3, b = c(1, 2, 3))
 #' df$with_columns(
-#'   pl$col("a")$cast(pl$dtypes$Float64),
-#'   pl$col("b")$cast(pl$dtypes$Int32)
+#'   pl$col("a")$cast(pl$Float64),
+#'   pl$col("b")$cast(pl$Int32)
 #' )
 #'
 #' # strict FALSE, inserts null for any cast failure
-#' pl$lit(c(100, 200, 300))$cast(pl$dtypes$UInt8, strict = FALSE)$to_series()
+#' pl$select(
+#'   pl$lit(c(100, 200, 300))$cast(pl$UInt8, strict = FALSE)
+#' )$to_series()
 #'
 #' # strict TRUE, raise any failure as an error when query is executed.
 #' tryCatch(
 #'   {
-#'     pl$lit("a")$cast(pl$dtypes$Float64, strict = TRUE)$to_series()
+#'     pl$select(
+#'       pl$lit("a")$cast(pl$Float64, strict = TRUE)
+#'     )$to_series()
 #'   },
 #'   error = function(e) e
 #' )
@@ -1104,7 +1108,7 @@ expr__filter <- function(...) {
 #'   select(
 #'   pl$col("Sepal.Length")$map_batches(\(x) {
 #'     paste("cheese", as.character(x$to_vector()))
-#'   }, pl$dtypes$String)
+#'   }, pl$String)
 #' )
 #'
 #' # R parallel process example, use Sys.sleep() to imitate some CPU expensive
@@ -1231,8 +1235,8 @@ expr__diff <- function(n = 1, null_behavior = c("ignore", "drop")) {
 #' @examples
 #' df <- pl$DataFrame(a = c(1, 3, 5), b = c(2, 4, 6))
 #' df$select(pl$col("a")$dot(pl$col("b")))
-expr__dot <- function(expr) {
-  self$`_rexpr`$dot(as_polars_expr(expr)$`_rexpr`) |>
+expr__dot <- function(other) {
+  self$`_rexpr`$dot(as_polars_expr(other)$`_rexpr`) |>
     wrap()
 }
 
@@ -1241,9 +1245,6 @@ expr__dot <- function(expr) {
 #' @param dimensions A integer vector of length of the dimension size.
 #' If `-1` is used in any of the dimensions, that dimension is inferred.
 #' Currently, more than two dimensions not supported.
-#' @param nested_type The nested data type to create. [List][DataType_List] only
-#' supports 2 dimensions, whereas [Array][DataType_Array] supports an arbitrary
-#' number of dimensions.
 #' @inherit as_polars_expr return
 #'
 #' @details
@@ -1259,12 +1260,6 @@ expr__dot <- function(expr) {
 #' # Use `-1` to infer the other dimension
 #' df$select(pl$col("foo")$reshape(c(-1, 3)))
 #' df$select(pl$col("foo")$reshape(c(3, -1)))
-#'
-#' # One can specify more than 2 dimensions by using the Array type
-#' df <- pl$DataFrame(foo = 1:12)
-#' df$select(
-#'   pl$col("foo")$reshape(c(3, 2, 2), nested_type = pl$Array(pl$Float32, 2))
-#' )
 expr__reshape <- function(dimensions) {
   wrap({
     if (is.numeric(dimensions) && anyNA(dimensions)) {
@@ -2350,6 +2345,7 @@ expr__unique_counts <- function() {
 #' This method differs from [`$value_counts()`][expr__value_counts] in that it
 #' does not return the values, only the counts and might be faster.
 #'
+#' @inheritParams rlang::args_dots_empty
 #' @param maintain_order Maintain order of data. This requires more work.
 #'
 #' @inherit as_polars_expr return
@@ -2420,6 +2416,7 @@ expr__search_sorted <- function(element, side = c("any", "left", "right")) {
 #' The window at a given row will include the row itself, and the
 #' `window_size - 1` elements before it.
 #'
+#' @inheritParams rlang::args_dots_empty
 #' @param window_size The length of the window in number of elements.
 #' @param weights An optional slice with the same length as the window that
 #' will be multiplied elementwise with the values in the window.
@@ -3163,7 +3160,8 @@ expr__rolling_sum_by <- function(
 #' df_temporal$with_columns(
 #'   rolling_row_quantile = pl$col("index")$rolling_quantile_by(
 #'     "date",
-#'     window_size = "2h"
+#'     window_size = "2h",
+#'     quantile = 0.3
 #'   )
 #' )
 #'
@@ -3172,6 +3170,7 @@ expr__rolling_sum_by <- function(
 #'   rolling_row_quantile = pl$col("index")$rolling_quantile_by(
 #'     "date",
 #'     window_size = "2h",
+#'     quantile = 0.3,
 #'     closed = "both"
 #'   )
 #' )
@@ -3518,7 +3517,7 @@ expr__backward_fill <- function(limit = NULL) {
 
 #' Fill missing values with the last non-null value
 #'
-#' @param fill The number of consecutive null values to forward fill.
+#' @param limit The number of consecutive null values to forward fill.
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -3576,8 +3575,12 @@ expr__top_k <- function(k = 5) {
 #' column(s)
 #'
 #' @inherit expr__bottom_k description params
+#' @inheritParams rlang::args_dots_empty
 #' @param by Column(s) used to determine the smallest elements. Accepts
 #' expression input. Strings are parsed as column names.
+#' @param reverse Consider the `k` largest elements of the `by` column(s)
+#' (instead of the `k` smallest). This can be specified per column by passing a
+#' sequence of booleans.
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -3604,7 +3607,7 @@ expr__top_k <- function(k = 5) {
 #' )
 #'
 #' # Get the bottom 2 rows by column a in each group
-#' df$group_by("c", maintain_order = TRUE)$agg(
+#' df$group_by("c", .maintain_order = TRUE)$agg(
 #'   pl$all()$bottom_k_by("a", 2)
 #' )$explode(pl$all()$exclude("c"))
 expr__bottom_k_by <- function(by, k = 5, ..., reverse = FALSE) {
@@ -3615,9 +3618,14 @@ expr__bottom_k_by <- function(by, k = 5, ..., reverse = FALSE) {
   })
 }
 
-#' Return the `k` largest elements
+#' Return the elements corresponding to the `k` largest elements of the `by`
+#' column(s)
 #'
 #' @inherit expr__bottom_k_by description params
+#' @param reverse Consider the `k` smallest elements of the `by` column(s)
+#' (instead of the `k` largest). This can be specified per column by passing a
+#' sequence of booleans.
+#'
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
@@ -3643,7 +3651,7 @@ expr__bottom_k_by <- function(by, k = 5, ..., reverse = FALSE) {
 #' )
 #'
 #' # Get the top 2 rows by column a in each group
-#' df$group_by("c", maintain_order = TRUE)$agg(
+#' df$group_by("c", .maintain_order = TRUE)$agg(
 #'   pl$all()$top_k_by("a", 2)
 #' )$explode(pl$all()$exclude("c"))
 expr__top_k_by <- function(by, k = 5, ..., reverse = FALSE) {
@@ -4227,7 +4235,7 @@ expr__repeat_by <- function(by) {
 #'     new = pl$col("b")$sum()
 #'   )
 #' )
-expr__replace = function(old, new) {
+expr__replace <- function(old, new) {
   wrap({
     if (missing(new)) {
       if (!is.list(old)) {
@@ -4297,7 +4305,7 @@ expr__replace = function(old, new) {
 #'     default = pl$col("b"),
 #'   )
 #' )
-expr__replace_strict = function(
+expr__replace_strict <- function(
   old,
   new,
   ...,
