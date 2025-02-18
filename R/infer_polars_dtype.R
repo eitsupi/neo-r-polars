@@ -49,11 +49,23 @@ infer_polars_dtype.NULL <- function(x, ...) {
   pl$Null
 }
 
-# TODO: should implement a function to get super type on the Rust side
 #' @rdname infer_polars_dtype
 #' @export
 infer_polars_dtype.list <- function(x, ..., strict = FALSE) {
-  abort("TODO")
+  wrap({
+    child_type <- PlRDataType$infer_supertype(
+      lapply(x, \(child) {
+        if (is.null(child)) {
+          NULL
+        } else {
+          infer_polars_dtype(child, ..., strict = strict)$`_dt`
+        }
+      }),
+      strict = strict
+    )
+
+    PlRDataType$new_list(child_type)
+  })
 }
 
 #' @rdname infer_polars_dtype
@@ -66,14 +78,14 @@ infer_polars_dtype.AsIs <- function(x, ...) {
 #' @rdname infer_polars_dtype
 #' @export
 infer_polars_dtype.data.frame <- function(x, ...) {
-  pl$Struct(!!!lapply(x, infer_polars_dtype))
+  pl$Struct(!!!lapply(x, \(col) infer_polars_dtype(col, ...)))
 }
 
 #' @rdname infer_polars_dtype
 #' @export
 infer_polars_dtype.vctrs_vctr <- function(x, ...) {
   as_polars_series(x[0L]) |>
-    infer_polars_dtype(...)
+    infer_polars_dtype()
 }
 
 #' @rdname infer_polars_dtype
