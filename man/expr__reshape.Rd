@@ -10,10 +10,6 @@ expr__reshape(dimensions)
 \item{dimensions}{A integer vector of length of the dimension size.
 If \code{-1} is used in any of the dimensions, that dimension is inferred.
 Currently, more than two dimensions not supported.}
-
-\item{nested_type}{The nested data type to create. \link[=DataType_List]{List} only
-supports 2 dimensions, whereas \link[=DataType_Array]{Array} supports an arbitrary
-number of dimensions.}
 }
 \value{
 A polars \link{expression}
@@ -35,10 +31,4 @@ df$select(pl$col("foo")$reshape(c(3, 3)))
 # Use `-1` to infer the other dimension
 df$select(pl$col("foo")$reshape(c(-1, 3)))
 df$select(pl$col("foo")$reshape(c(3, -1)))
-
-# One can specify more than 2 dimensions by using the Array type
-df <- pl$DataFrame(foo = 1:12)
-df$select(
-  pl$col("foo")$reshape(c(3, 2, 2), nested_type = pl$Array(pl$Float32, 2))
-)
 }
