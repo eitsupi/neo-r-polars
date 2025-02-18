@@ -126,6 +126,10 @@ test_that("partition_by() works", {
     "must contain at least one column name"
   )
   expect_error(
+    df$partition_by("a", NA),
+    "only accepts column names"
+  )
+  expect_error(
     df$partition_by(pl$col("a") + 1),
     "only accepts column names"
   )

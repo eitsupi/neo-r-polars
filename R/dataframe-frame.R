@@ -1256,15 +1256,17 @@ dataframe__partition_by <- function(..., maintain_order = TRUE, include_key = TR
     # TODO: add selectors handling when py-polars' _expand_selectors() has moved
     # to Rust
     check_dots_unnamed()
-    by <- c(...)
-    if (length(by) == 0) {
-      abort("`...` must contain at least one column name.")
-    }
-    if (!is_character(by)) {
+    dots <- list2(...)
+    if (!is_list_of_string(dots)) {
       abort("`...` only accepts column names.")
     }
+    if (length(dots) == 0L) {
+      abort("`...` must contain at least one column name.")
+    } else {
+      dots <- as.character(dots)
+    }
     dfs <- self$`_df`$partition_by(
-      by = by,
+      by = dots,
       maintain_order = maintain_order,
       include_key = include_key
     ) |>
