@@ -1276,7 +1276,7 @@ dataframe__to_dummies <- function(
 
 #' Group by the given columns and return the groups as separate dataframes
 #'
-#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Column name(s) or selector(s) to group by.
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Column name(s) to group by.
 #' @param maintain_order Ensure that the order of the groups is consistent with
 #' the input data. This is slower than a default partition by operation.
 #' @param include_key Include the columns used to partition the DataFrame in
