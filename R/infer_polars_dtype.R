@@ -13,7 +13,7 @@
 #' @return A [polars DataType][DataType]
 #' @seealso
 #' - [as_polars_series()]
-#' @exmaples
+#' @examples
 #' infer_polars_dtype(1:10)
 #' @export
 infer_polars_dtype <- function(x, ...) {

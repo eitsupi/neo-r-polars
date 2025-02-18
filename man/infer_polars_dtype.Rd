@@ -60,6 +60,9 @@ This function is similar to \code{\link[nanoarrow:as_nanoarrow_schema]{nanoarrow
 S3 objects based on atomic vectors or classes built on the vctrs package will work accurately
 if the S3 method of the \link{as_polars_series} function is defined.
 }
+\examples{
+infer_polars_dtype(1:10)
+}
 \seealso{
 \itemize{
 \item \code{\link[=as_polars_series]{as_polars_series()}}

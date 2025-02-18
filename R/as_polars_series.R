@@ -191,6 +191,7 @@ as_polars_series.polars_series <- function(x, name = NULL, ...) {
   }
 }
 
+# TODO: add as_polars_series.polars_lazy_frame
 #' @rdname as_polars_series
 #' @export
 as_polars_series.polars_data_frame <- function(x, name = NULL, ...) {
