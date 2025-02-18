@@ -4315,7 +4315,7 @@ expr__replace_strict <- function(
       check_dots_empty0(...)
       if (missing(new)) {
         if (!is.list(old)) {
-        abort("`new` argument is required if `old` argument is not a list.")
+          abort("`new` argument is required if `old` argument is not a list.")
         }
         new <- unlist(old, use.names = FALSE)
         old <- names(old)
