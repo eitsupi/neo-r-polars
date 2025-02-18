@@ -16,7 +16,7 @@ the input data. This is slower than a default partition by operation.}
 the output.}
 }
 \value{
-A list of DataFrames
+A list of polars \link{DataFrame}s
 }
 \description{
 Group by the given columns and return the groups as separate dataframes

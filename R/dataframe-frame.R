@@ -1286,7 +1286,7 @@ dataframe__to_dummies <- function(
 #' @param include_key Include the columns used to partition the DataFrame in
 #' the output.
 #'
-#' @return A list of DataFrames
+#' @return A list of polars [DataFrame]s
 #' @examples
 #' # Pass a single column name to partition by that column.
 #' df <- pl$DataFrame(
