@@ -13,13 +13,11 @@ A polars \link{expression}
 This only works on Datetime columns, it will error on Date columns.
 }
 \examples{
-df <- pl$select(
-  dates = pl$datetime_range(
-    as.Date("2000-1-1"),
-    as.Date("2000-1-2"),
-    "1h"
-  )
-)
+df <- pl$select(dates = pl$datetime_range(
+  as.Date("2000-1-1"),
+  as.Date("2000-1-2"),
+  "1h"
+))
 
 df$with_columns(times = pl$col("dates")$dt$time())
 }

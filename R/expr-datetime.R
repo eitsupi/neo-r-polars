@@ -939,13 +939,11 @@ expr_dt_offset_by <- function(by) {
 #' @inherit as_polars_expr return
 #'
 #' @examples
-#' df <- pl$select(
-#'   dates = pl$datetime_range(
-#'     as.Date("2000-1-1"),
-#'     as.Date("2000-1-2"),
-#'     "1h"
-#'   )
-#' )
+#' df <- pl$select(dates = pl$datetime_range(
+#'   as.Date("2000-1-1"),
+#'   as.Date("2000-1-2"),
+#'   "1h"
+#' ))
 #'
 #' df$with_columns(times = pl$col("dates")$dt$time())
 expr_dt_time <- function() {

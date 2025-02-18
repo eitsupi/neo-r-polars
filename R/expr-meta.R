@@ -225,7 +225,7 @@ expr_meta_tree_format <- function() {
 #'
 #' e <- pl$col("foo") * pl$col("bar")
 #' e$meta$is_column_selection()
-#'
+#' 
 #' e <- cs$starts_with("foo")
 #' e$meta$is_column_selection()
 expr_meta_is_column_selection <- function(..., allow_aliasing = FALSE) {
