@@ -1300,20 +1300,19 @@ dataframe__partition_by <- function(..., maintain_order = TRUE, include_key = TR
     # to Rust
     check_dots_unnamed()
     dots <- list2(...)
+
     if (!is_list_of_string(dots)) {
       abort("`...` only accepts column names.")
     }
     if (length(dots) == 0L) {
       abort("`...` must contain at least one column name.")
-    } else {
-      dots <- as.character(dots)
     }
-    dfs <- self$`_df`$partition_by(
-      by = dots,
+
+    self$`_df`$partition_by(
+      by = as.character(dots),
       maintain_order = maintain_order,
       include_key = include_key
     ) |>
-      wrap()
-    lapply(dfs, \(ptr) .savvy_wrap_PlRDataFrame(ptr) |> wrap())
+      lapply(\(ptr) .savvy_wrap_PlRDataFrame(ptr) |> wrap())
   })
 }
