@@ -886,7 +886,7 @@ dataframe__gather_every <- function(n, offset = 0) {
 #'
 #' df$rename(foo = "apple")
 # df$rename(
-#   \(column_name) paste0("c", substr(column_name, 2, 100))
+#' #  \(column_name) paste0("c", substr(column_name, 2, 100))
 # )
 dataframe__rename <- function(..., .strict = TRUE) {
   self$lazy()$rename(..., .strict = .strict)$collect(`_eager` = TRUE) |>
@@ -1314,5 +1314,49 @@ dataframe__partition_by <- function(..., maintain_order = TRUE, include_key = TR
       include_key = include_key
     ) |>
       lapply(\(ptr) .savvy_wrap_PlRDataFrame(ptr) |> wrap())
+  })
+}
+
+#' @inherit lazyframe__rolling title description params
+#'
+#' @return [RollingGroupBy][RollingGroupBy_class] (a DataFrame with special
+#' rolling groupby methods like `$agg()`).
+#' @seealso
+#' - [`<DataFrame>$group_by_dynamic()`][dataframe__group_by_dynamic]
+#' @examples
+#' dates <- c(
+#'   "2020-01-01 13:45:48",
+#'   "2020-01-01 16:42:13",
+#'   "2020-01-01 16:45:09",
+#'   "2020-01-02 18:12:48",
+#'   "2020-01-03 19:45:32",
+#'   "2020-01-08 23:16:43"
+#' )
+#'
+#' df <- pl$DataFrame(dt = dates, a = c(3, 7, 5, 9, 2, 1))$with_columns(
+#'   pl$col("dt")$str$strptime(pl$Datetime())
+#' )
+#'
+#' df$rolling(index_column = "dt", period = "2d")$agg(
+#'   sum_a = pl$col("a")$sum(),
+#'   min_a = pl$col("a")$min(),
+#'   max_a = pl$col("a")$max()
+#' )
+dataframe__rolling <- function(
+    index_column,
+    ...,
+    period,
+    offset = NULL,
+    closed = c("right", "left", "both", "none"),
+    group_by = NULL) {
+  wrap({
+    check_dots_empty0(...)
+    wrap_to_rolling_group_by(self,
+      index_column = index_column,
+      period = period,
+      offset = offset,
+      closed = closed,
+      group_by = group_by
+    )
   })
 }

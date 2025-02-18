@@ -1488,7 +1488,7 @@ lazyframe__unpivot <- function(
 #'
 #' lf$rename(foo = "apple")$collect()
 # lf$rename(
-#   \(column_name) paste0("c", substr(column_name, 2, 100))
+#' #  \(column_name) paste0("c", substr(column_name, 2, 100))
 # )$collect()
 lazyframe__rename <- function(..., .strict = TRUE) {
   wrap({
@@ -1612,9 +1612,9 @@ lazyframe__unnest <- function(...) {
 #' Create rolling groups based on a date/time or integer column
 #'
 #' @description
-#' Different from `group_by_dynamic`, the windows are now determined by the
+#' Different from `group_by_dynamic()`, the windows are now determined by the
 #' individual values and are not of constant intervals. For constant intervals
-#' use [`<LazyFrame>$group_by_dynamic()`][lazyframe__group_by_dynamic].
+#' use `group_by_dynamic()`.
 #'
 #' If you have a time series `<t_0, t_1, ..., t_n>`, then by default the
 #' windows created will be:
