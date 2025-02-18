@@ -29,7 +29,9 @@ e_filter$meta$output_name()
 
 e_sum_over <- pl$col("foo")$sum()$over("groups")
 e_sum_over$meta$output_name()
+
 e_sum_slice <- pl$col("foo")$sum()$slice(pl$len() - 10, pl$col("bar"))
 e_sum_slice$meta$output_name()
+
 pl$len()$meta$output_name()
 }
