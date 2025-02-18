@@ -2,11 +2,21 @@ patrick::with_parameters_test_that(
   "use pl$DataFrame() to construct a DataFrame",
   .cases = {
     tibble::tribble(
-      ~.test_name, ~object, ~expected,
-      "simple", pl$DataFrame(a = 1, b = list("b"), ), as_polars_df(list(a = 1, b = list("b"))),
-      "!!! for list", pl$DataFrame(!!!list(a = 1, b = list("b")), c = 1), as_polars_df(list(a = 1, b = list("b"), c = 1)),
-      "!!! for data.frame", pl$DataFrame(!!!data.frame(a = 1, b = "b"), c = 1), as_polars_df(list(a = 1, b = "b", c = 1)),
-      "empty", pl$DataFrame(), as_polars_df(list()),
+      ~.test_name,
+      ~object,
+      ~expected,
+      "simple",
+      pl$DataFrame(a = 1, b = list("b"), ),
+      as_polars_df(list(a = 1, b = list("b"))),
+      "!!! for list",
+      pl$DataFrame(!!!list(a = 1, b = list("b")), c = 1),
+      as_polars_df(list(a = 1, b = list("b"), c = 1)),
+      "!!! for data.frame",
+      pl$DataFrame(!!!data.frame(a = 1, b = "b"), c = 1),
+      as_polars_df(list(a = 1, b = "b", c = 1)),
+      "empty",
+      pl$DataFrame(),
+      as_polars_df(list()),
     )
   },
   code = {
@@ -124,7 +134,12 @@ test_that("to_dummies() works", {
       bar_3 = 1:0,
       bar_4 = 0:1,
       ham = c("a", "b")
-    )$cast(foo_1 = pl$UInt8, foo_2 = pl$UInt8, bar_3 = pl$UInt8, bar_4 = pl$UInt8)
+    )$cast(
+      foo_1 = pl$UInt8,
+      foo_2 = pl$UInt8,
+      bar_3 = pl$UInt8,
+      bar_4 = pl$UInt8
+    )
   )
   expect_equal(
     df$to_dummies(drop_first = TRUE),
@@ -196,5 +211,67 @@ test_that("partition_by() works", {
   expect_error(
     df$partition_by("a", include_key = 42),
     "must be logical, not double"
+  )
+})
+
+test_that("transpose() works", {
+  df <- pl$DataFrame(a = c(1, 2, 3), b = c(4, 5, 6))
+  expect_equal(
+    df$transpose(include_header = TRUE),
+    pl$DataFrame(
+      column = c("a", "b"),
+      column_0 = c(1, 4),
+      column_1 = c(2, 5),
+      column_2 = c(3, 6)
+    )
+  )
+
+  # Replace the auto-generated column names with a list
+  expect_equal(
+    df$transpose(include_header = FALSE, column_names = c("x", "y", "z")),
+    pl$DataFrame(
+      x = c(1, 4),
+      y = c(2, 5),
+      z = c(3, 6)
+    )
+  )
+
+  # Include the header as a separate column
+  expect_equal(
+    df$transpose(
+      include_header = TRUE,
+      header_name = "foo",
+      column_names = c("x", "y", "z")
+    ),
+    pl$DataFrame(
+      foo = c("a", "b"),
+      x = c(1, 4),
+      y = c(2, 5),
+      z = c(3, 6)
+    )
+  )
+
+  # Use an existing column as the new column names
+  df <- pl$DataFrame(id = c("i", "j", "k"), a = c(1, 2, 3), b = c(4, 5, 6))
+  expect_equal(
+    df$transpose(column_names = "id"),
+    pl$DataFrame(
+      i = c(1, 4),
+      j = c(2, 5),
+      k = c(3, 6)
+    )
+  )
+  expect_equal(
+    df$transpose(
+      include_header = TRUE,
+      header_name = "new_id",
+      column_names = "id"
+    ),
+    pl$DataFrame(
+      new_id = c("a", "b"),
+      i = c(1, 4),
+      j = c(2, 5),
+      k = c(3, 6)
+    )
   )
 })
