@@ -1891,8 +1891,8 @@ lazyframe__to_dot <- function(
     comm_subexpr_elim = TRUE,
     cluster_with_columns = TRUE,
     collapse_joins = TRUE,
-    `_check_order` = TRUE,
-    streaming = FALSE) {
+    streaming = FALSE,
+    `_check_order` = TRUE) {
   ldf <- self$`_ldf`$optimization_toggle(
     type_coercion = type_coercion,
     `_type_check` = `_type_check`,
@@ -1987,7 +1987,7 @@ lazyframe__null_count <- function() {
 #' value of `reverse`. The output is not guaranteed to be in any particular
 #' order, call `sort()` after this function if you wish the output to be sorted.
 #'
-#' @inheritParams rlang::arg_dots_empty
+#' @inheritParams rlang::args_dots_empty
 #' @param k Number of rows to return.
 #' @param by Column(s) used to determine the bottom rows. Accepts expression
 #' input. Strings are parsed as column names.
@@ -2117,11 +2117,9 @@ lazyframe__set_sorted <- function(column, ..., descending = FALSE) {
 
 #' Add a row index as the first column in the LazyFrame
 #'
-#' @description
 #' Using this function can have a negative effect on query performance. This
 #' may, for instance, block predicate pushdown optimization.
 #'
-#' @inheritParams rlang::args_dots_empty
 #' @param name Name of the index column.
 #' @param offset Start the index at this offset. Cannot be negative.
 #'

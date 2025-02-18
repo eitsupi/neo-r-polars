@@ -242,7 +242,7 @@ dataframe__get_columns <- function() {
 
 #' Group a DataFrame
 #'
-#' @inherit LazyFrame_group_by description params
+#' @inherit lazyframe__group_by description params
 #' @details Within each group, the order of the rows is always preserved,
 #' regardless of the `maintain_order` argument.
 #' @return [GroupBy][GroupBy_class] (a DataFrame with special groupby methods like `$agg()`)
@@ -444,7 +444,7 @@ dataframe__slice <- function(offset, length = NULL) {
   })
 }
 
-#' @inherit LazyFrame_head title details
+#' @inherit lazyframe__head title details
 #' @param n Number of rows to return. If a negative value is passed,
 #' return all rows except the last [`abs(n)`][abs].
 #' @return A [DataFrame][DataFrame_class]
@@ -464,10 +464,10 @@ dataframe__head <- function(n = 5) {
   })
 }
 
-#' @inherit LazyFrame_tail title
+#' @inherit lazyframe__tail title
 #' @param n Number of rows to return. If a negative value is passed,
 #' return all rows except the first [`abs(n)`][abs].
-#' @inherit DataFrame_head return
+#' @inherit dataframe__head return
 #' @examples
 #' df <- pl$DataFrame(foo = 1:5, bar = 6:10, ham = letters[1:5])
 #'
@@ -528,8 +528,7 @@ dataframe__cast <- function(..., .strict = TRUE) {
 
 #' Filter rows of a DataFrame
 #'
-#' @inherit LazyFrame_filter description params details
-#'
+#' @inherit lazyframe__filter description params details
 #' @inherit as_polars_df return
 #' @examples
 #' df <- as_polars_df(iris)
@@ -1224,6 +1223,53 @@ dataframe__unpivot <- function(
       index = index,
       value_name = value_name,
       variable_name = variable_name
+    )
+  })
+}
+
+#' Convert categorical variables into dummy/indicator variables
+#'
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Column name(s)
+#' that should be converted to dummy variables. If empty (default), convert
+#' all columns.
+#' @param separator Separator/delimiter used when generating column names.
+#' @param drop_first Remove the first category from the variables being encoded.
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = c(1L, 2L),
+#'   bar = c(3L, 4L),
+#'   ham = c("a", "b")
+#' )
+#' df$to_dummies()
+#'
+#' df$to_dummies(drop_first = TRUE)
+#' df$to_dummies("foo", "bar", separator = ":")
+# df$to_dummies(cs$integer(), separator=":")
+# df$to_dummies(cs$integer(), drop_first = TRUE, separator = ":")
+dataframe__to_dummies <- function(
+    ...,
+    separator = "_",
+    drop_first = FALSE) {
+  # TODO: add selectors handling when py-polars' _expand_selectors() has moved
+  # to Rust (and update examples above)
+  wrap({
+    check_dots_unnamed()
+
+    dots <- list2(...)
+    check_list_of_string(dots, arg = "...")
+
+    if (length(dots) == 0L) {
+      columns <- NULL
+    } else {
+      columns <- as.character(dots)
+    }
+
+    self$`_df`$to_dummies(
+      columns = columns,
+      separator = separator,
+      drop_first = drop_first
     )
   })
 }

@@ -179,6 +179,11 @@ SEXP savvy_last__impl(void) {
     return handle_result(res);
 }
 
+SEXP savvy_len__impl(void) {
+    SEXP res = savvy_len__ffi();
+    return handle_result(res);
+}
+
 SEXP savvy_lit_from_bool__impl(SEXP c_arg__value) {
     SEXP res = savvy_lit_from_bool__ffi(c_arg__value);
     return handle_result(res);
@@ -361,6 +366,11 @@ SEXP savvy_PlRDataFrame_slice__impl(SEXP self__, SEXP c_arg__offset, SEXP c_arg_
 
 SEXP savvy_PlRDataFrame_tail__impl(SEXP self__, SEXP c_arg__n) {
     SEXP res = savvy_PlRDataFrame_tail__ffi(self__, c_arg__n);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRDataFrame_to_dummies__impl(SEXP self__, SEXP c_arg__drop_first, SEXP c_arg__columns, SEXP c_arg__separator) {
+    SEXP res = savvy_PlRDataFrame_to_dummies__ffi(self__, c_arg__drop_first, c_arg__columns, c_arg__separator);
     return handle_result(res);
 }
 
@@ -2795,6 +2805,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_int_range__impl", (DL_FUNC) &savvy_int_range__impl, 4},
     {"savvy_int_ranges__impl", (DL_FUNC) &savvy_int_ranges__impl, 4},
     {"savvy_last__impl", (DL_FUNC) &savvy_last__impl, 0},
+    {"savvy_len__impl", (DL_FUNC) &savvy_len__impl, 0},
     {"savvy_lit_from_bool__impl", (DL_FUNC) &savvy_lit_from_bool__impl, 1},
     {"savvy_lit_from_f64__impl", (DL_FUNC) &savvy_lit_from_f64__impl, 1},
     {"savvy_lit_from_i32__impl", (DL_FUNC) &savvy_lit_from_i32__impl, 1},
@@ -2832,6 +2843,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRDataFrame_shape__impl", (DL_FUNC) &savvy_PlRDataFrame_shape__impl, 1},
     {"savvy_PlRDataFrame_slice__impl", (DL_FUNC) &savvy_PlRDataFrame_slice__impl, 3},
     {"savvy_PlRDataFrame_tail__impl", (DL_FUNC) &savvy_PlRDataFrame_tail__impl, 2},
+    {"savvy_PlRDataFrame_to_dummies__impl", (DL_FUNC) &savvy_PlRDataFrame_to_dummies__impl, 4},
     {"savvy_PlRDataFrame_to_series__impl", (DL_FUNC) &savvy_PlRDataFrame_to_series__impl, 2},
     {"savvy_PlRDataFrame_to_struct__impl", (DL_FUNC) &savvy_PlRDataFrame_to_struct__impl, 2},
     {"savvy_PlRDataFrame_unpivot__impl", (DL_FUNC) &savvy_PlRDataFrame_unpivot__impl, 5},

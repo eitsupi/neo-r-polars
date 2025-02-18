@@ -221,8 +221,12 @@ impl PlRLazyFrame {
     }
 
     fn to_dot(&self, optimized: bool) -> Result<Sexp> {
-        let result = self.ldf.to_dot(optimized).map_err(RPolarsErr::from)?;
-        result.try_into()
+        let result: OwnedStringSexp = self
+            .ldf
+            .to_dot(optimized)
+            .map_err(RPolarsErr::from)?
+            .try_into()?;
+        Ok(result.into())
     }
 
     fn sort(
