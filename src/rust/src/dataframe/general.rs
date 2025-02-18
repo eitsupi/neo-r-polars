@@ -209,7 +209,7 @@ impl PlRDataFrame {
         .map_err(RPolarsErr::from)?;
         Ok(out.into())
     }
-  
+
     pub fn pivot_expr(
         &self,
         on: StringSexp,
@@ -235,6 +235,27 @@ impl PlRDataFrame {
             separator,
         )
         .map_err(RPolarsErr::from)?;
+        Ok(out.into())
+    }
+
+    pub fn partition_by(
+        &self,
+        by: StringSexp,
+        maintain_order: bool,
+        include_key: bool,
+    ) -> Result<Sexp> {
+        let by = by.to_vec();
+        let res = if maintain_order {
+            self.df.partition_by_stable(by, include_key)
+        } else {
+            self.df.partition_by(by, include_key)
+        }
+        .map_err(RPolarsErr::from)?;
+
+        let mut out = OwnedListSexp::new(res.len(), false)?;
+        for i in 0..res.len() {
+            let _ = out.set_value(i, Sexp::try_from(PlRDataFrame::from(res[i].clone()))?);
+        }
 
         Ok(out.into())
     }
