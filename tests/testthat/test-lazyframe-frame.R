@@ -1585,3 +1585,48 @@ test_that("unpivot() works", {
     "must be empty"
   )
 })
+
+test_that("sink_parquet(): basic usage", {
+  lf <- as_polars_lf(mtcars)
+  df <- as_polars_df(mtcars)
+
+  tmpf <- tempfile()
+  expect_error(
+    lf$sink_parquet(tmpf, compression = "rar"),
+    "must be one of"
+  )
+  lf$sink_parquet(tmpf)
+  expect_equal(pl$scan_parquet(tmpf)$collect(), df)
+
+  # return the input data
+  x <- lf$sink_parquet(tmpf)
+  expect_identical(x$collect(), df)
+})
+
+test_that("sink_parquet: argument 'statistics'", {
+  tmpf <- tempfile()
+  expect_silent(lf$sink_parquet(tmpf, statistics = TRUE))
+  expect_silent(lf$sink_parquet(tmpf, statistics = FALSE))
+  expect_error(
+    lf$sink_parquet(tmpf, statistics = "full"),
+    "must be TRUE, FALSE, or"
+  )
+  # TODO: uncomment when https://github.com/pola-rs/polars/issues/17306 is fixed
+  # expect_silent(lf$sink_parquet(
+  #   tmpf,
+  #   statistics = list(
+  #     min = TRUE,
+  #     max = FALSE,
+  #     distinct_count = TRUE,
+  #     null_count = FALSE
+  #   )
+  # ))
+  expect_error(
+    lf$sink_parquet(tmpf, statistics = list(foo = TRUE, foo2 = FALSE)),
+    "must be TRUE, FALSE, or"
+  )
+  expect_error(
+    lf$sink_parquet(tmpf, statistics = c(max = TRUE, min = FALSE)),
+    "must be TRUE, FALSE, or"
+  )
+})
