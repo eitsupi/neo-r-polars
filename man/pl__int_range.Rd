@@ -30,4 +30,10 @@ pl$select(int = pl$int_range(0, 3))
 # end can be omitted for a shorter syntax.
 pl$select(int = pl$int_range(3))
 
+# Generate an index column by using int_range in conjunction with len().
+df <- pl$DataFrame(a = c(1, 3, 5), b = c(2, 4, 6))
+df$select(
+  index = pl$int_range(pl$len(), dtype = pl$UInt32),
+  pl$all()
+)
 }

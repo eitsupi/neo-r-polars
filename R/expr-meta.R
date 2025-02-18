@@ -47,10 +47,9 @@ expr_meta_has_multiple_outputs <- function() {
 #'
 #' e_sum_over <- pl$col("foo")$sum()$over("groups")
 #' e_sum_over$meta$output_name()
-# TODO-REWRITE: uncomment
-# e_sum_slice <- pl$col("foo")$sum()$slice(pl$len() - 10, pl$col("bar"))
-# e_sum_slice$meta$output_name()
-# pl$len()$meta$output_name()
+#' e_sum_slice <- pl$col("foo")$sum()$slice(pl$len() - 10, pl$col("bar"))
+#' e_sum_slice$meta$output_name()
+#' pl$len()$meta$output_name()
 expr_meta_output_name <- function(..., raise_if_undetermined = TRUE) {
   wrap({
     check_dots_empty0(...)

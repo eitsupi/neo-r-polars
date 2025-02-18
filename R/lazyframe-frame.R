@@ -2130,12 +2130,11 @@ lazyframe__set_sorted <- function(column, ..., descending = FALSE) {
 #'
 #' lf$with_row_index("id", offset = 1000)$collect()
 #'
-# TODO: uncomment this
-# # An index column can also be created using the expressions int_range()
-# # and len()$
-# lf$with_columns(
-#   index = pl$int_range(pl$len(), dtype = pl$UInt32)
-# )$collect()
+#' # An index column can also be created using the expressions int_range()
+#' # and len()$
+#' lf$with_columns(
+#'   index = pl$int_range(pl$len(), dtype = pl$UInt32)
+#' )$collect()
 lazyframe__with_row_index <- function(name = "index", offset = 0) {
   self$`_ldf`$with_row_index(name, offset) |>
     wrap()

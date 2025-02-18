@@ -225,10 +225,10 @@ series__len <- function() {
 #' s2 <- pl$Series("a", c(4, 5, 6))
 #'
 #' # Concatenate Series with rechunk = TRUE
-#' pl$concat(c(s, s2), rechunk = TRUE)$n_chunks()
+#' pl$concat(s, s2, rechunk = TRUE)$n_chunks()
 #'
 #' # Concatenate Series with rechunk = FALSE
-#' pl$concat(c(s, s2), rechunk = FALSE)$n_chunks()
+#' pl$concat(s, s2, rechunk = FALSE)$n_chunks()
 series__n_chunks <- function() {
   self$`_s`$n_chunks() |>
     wrap()
