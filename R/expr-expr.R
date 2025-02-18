@@ -2861,9 +2861,9 @@ expr__rolling <- function(
 #' * …
 #' * `(t_n - window_size, t_n]`
 #'
-#' @param by Should be DateTime, Date, UInt64, UInt32, Int64, or Int32 data
+#' @param by Should be DateTime, Date, UInt64, UInt32, Int64, or Int32 data 
 #' type after conversion by [as_polars_expr()]. Note that the
-#' integer ones require using `"i"` in `window_size`. Accepts expression input.
+#' integer ones require using `"i"` in `window_size`. Accepts expression input. 
 #' Strings are parsed as column names.
 #' @param window_size The length of the window. Can be a dynamic temporal size
 #' indicated by a timedelta or the following string language:
@@ -4311,25 +4311,25 @@ expr__replace_strict <- function(
   ...,
   default = NULL,
   return_dtype = NULL) {
-  wrap({
-    check_dots_empty0(...)
-    if (missing(new)) {
-      if (!is.list(old)) {
-      abort("`new` argument is required if `old` argument is not a list.")
+    wrap({
+      check_dots_empty0(...)
+      if (missing(new)) {
+        if (!is.list(old)) {
+        abort("`new` argument is required if `old` argument is not a list.")
+        }
+        new <- unlist(old, use.names = FALSE)
+        old <- names(old)
       }
-      new <- unlist(old, use.names = FALSE)
-      old <- names(old)
-    }
-    if (!is.null(default)) {
-      default <- as_polars_expr(default, as_lit = TRUE)$`_rexpr`
-    }
-    self$`_rexpr`$replace_strict(
-      as_polars_expr(old, as_lit = TRUE)$`_rexpr`,
-      as_polars_expr(new, as_lit = TRUE)$`_rexpr`,
-      default = default,
-      return_dtype = return_dtype$`_dt`
-    )
-  })
+      if (!is.null(default)) {
+        default <- as_polars_expr(default, as_lit = TRUE)$`_rexpr`
+      }
+      self$`_rexpr`$replace_strict(
+        as_polars_expr(old, as_lit = TRUE)$`_rexpr`,
+        as_polars_expr(new, as_lit = TRUE)$`_rexpr`,
+        default = default,
+        return_dtype = return_dtype$`_dt`
+      )
+    })
 }
 
 #' Compress the column data using run-length encoding
@@ -4398,7 +4398,8 @@ expr__sample <- function(
   fraction = NULL,
   with_replacement = FALSE,
   shuffle = FALSE,
-  seed = NULL) {
+  seed = NULL
+) {
   wrap({
     check_dots_empty0(...)
     if (!is.null(fraction)) {
