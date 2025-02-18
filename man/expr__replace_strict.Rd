@@ -61,8 +61,7 @@ tryCatch(
 # inferring it
 df$with_columns(
   replaced = pl$col("a")$replace_strict(
-    mapping,
-    default = 1, return_dtype = pl$Int32
+    mapping, default = 1, return_dtype = pl$Int32
   )
 )
 

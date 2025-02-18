@@ -473,6 +473,7 @@ expr__exclude <- function(...) {
       self$`_rexpr`$exclude_dtype(exclude_dtypes)
     }
   })
+
 }
 
 
@@ -1513,7 +1514,7 @@ expr__arg_unique <- function() {
 #' df <- pl$DataFrame(a = c(1, 1, 2, 1))
 #' df$select((pl$col("a") == 1)$arg_true())
 expr__arg_true <- function() {
-  arg_where(self$`_rexpr`) |>
+  arg_where(self$`_rexpr`) |> 
     wrap()
 }
 
@@ -2820,7 +2821,7 @@ expr__rolling_var <- function(
 #' dates <- as.POSIXct(
 #'   c(
 #'     "2020-01-01 13:45:48", "2020-01-01 16:42:13", "2020-01-01 16:45:09",
-#'     "2020-01-02 18:12:48", "2020-01-03 19:45:32", "2020-01-08 23:16:43"
+#'     "2020-01-02 18:12:48", "2020-01-03 19:45:32","2020-01-08 23:16:43"
 #'   )
 #' )
 #' df <- pl$DataFrame(dt = dates, a = c(3, 7, 5, 9, 2, 1))
@@ -2831,11 +2832,11 @@ expr__rolling_var <- function(
 #'   max_a = pl$col("a")$max()$rolling(index_column = "dt", period = "2d")
 #' )
 expr__rolling <- function(
-    index_column,
-    ...,
-    period,
-    offset = NULL,
-    closed = "right") {
+  index_column,
+  ...,
+  period,
+  offset = NULL,
+  closed = "right") {
   wrap({
     check_dots_empty0(...)
     closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
@@ -4291,8 +4292,7 @@ expr__replace <- function(old, new) {
 #' # inferring it
 #' df$with_columns(
 #'   replaced = pl$col("a")$replace_strict(
-#'     mapping,
-#'     default = 1, return_dtype = pl$Int32
+#'     mapping, default = 1, return_dtype = pl$Int32
 #'   )
 #' )
 #'
@@ -4306,16 +4306,16 @@ expr__replace <- function(old, new) {
 #'   )
 #' )
 expr__replace_strict <- function(
-    old,
-    new,
-    ...,
-    default = NULL,
-    return_dtype = NULL) {
+  old,
+  new,
+  ...,
+  default = NULL,
+  return_dtype = NULL) {
   wrap({
     check_dots_empty0(...)
     if (missing(new)) {
       if (!is.list(old)) {
-        abort("`new` argument is required if `old` argument is not a list.")
+      abort("`new` argument is required if `old` argument is not a list.")
       }
       new <- unlist(old, use.names = FALSE)
       old <- names(old)
@@ -4393,12 +4393,12 @@ expr__rle_id <- function() {
 #'   fraction = 1, with_replacement = TRUE, seed = 1
 #' ))
 expr__sample <- function(
-    n = NULL,
-    ...,
-    fraction = NULL,
-    with_replacement = FALSE,
-    shuffle = FALSE,
-    seed = NULL) {
+  n = NULL,
+  ...,
+  fraction = NULL,
+  with_replacement = FALSE,
+  shuffle = FALSE,
+  seed = NULL) {
   wrap({
     check_dots_empty0(...)
     if (!is.null(fraction)) {
