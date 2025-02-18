@@ -2,21 +2,11 @@ patrick::with_parameters_test_that(
   "use pl$DataFrame() to construct a DataFrame",
   .cases = {
     tibble::tribble(
-      ~.test_name,
-      ~object,
-      ~expected,
-      "simple",
-      pl$DataFrame(a = 1, b = list("b"), ),
-      as_polars_df(list(a = 1, b = list("b"))),
-      "!!! for list",
-      pl$DataFrame(!!!list(a = 1, b = list("b")), c = 1),
-      as_polars_df(list(a = 1, b = list("b"), c = 1)),
-      "!!! for data.frame",
-      pl$DataFrame(!!!data.frame(a = 1, b = "b"), c = 1),
-      as_polars_df(list(a = 1, b = "b", c = 1)),
-      "empty",
-      pl$DataFrame(),
-      as_polars_df(list()),
+      ~.test_name, ~object, ~expected,
+      "simple", pl$DataFrame(a = 1, b = list("b"), ), as_polars_df(list(a = 1, b = list("b"))),
+      "!!! for list", pl$DataFrame(!!!list(a = 1, b = list("b")), c = 1), as_polars_df(list(a = 1, b = list("b"), c = 1)),
+      "!!! for data.frame", pl$DataFrame(!!!data.frame(a = 1, b = "b"), c = 1), as_polars_df(list(a = 1, b = "b", c = 1)),
+      "empty", pl$DataFrame(), as_polars_df(list()),
     )
   },
   code = {
@@ -134,12 +124,7 @@ test_that("to_dummies() works", {
       bar_3 = 1:0,
       bar_4 = 0:1,
       ham = c("a", "b")
-    )$cast(
-      foo_1 = pl$UInt8,
-      foo_2 = pl$UInt8,
-      bar_3 = pl$UInt8,
-      bar_4 = pl$UInt8
-    )
+    )$cast(foo_1 = pl$UInt8, foo_2 = pl$UInt8, bar_3 = pl$UInt8, bar_4 = pl$UInt8)
   )
   expect_equal(
     df$to_dummies(drop_first = TRUE),
