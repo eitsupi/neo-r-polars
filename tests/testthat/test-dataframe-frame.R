@@ -198,3 +198,26 @@ test_that("partition_by() works", {
     "must be logical, not double"
   )
 })
+
+test_that("*_horizontal() functions work", {
+  df <- pl$DataFrame(
+    foo = c(1, 2, 3),
+    bar = c(4.0, 5.0, 6.0),
+  )
+  expect_equal(
+    df$sum_horizontal(),
+    pl$Series("sum", c(5, 7, 9))
+  )
+  expect_equal(
+    df$mean_horizontal(),
+    pl$Series("mean", c(2.5, 3.5, 4.5))
+  )
+  expect_equal(
+    df$min_horizontal(),
+    pl$Series("min", c(1, 2, 3))
+  )
+  expect_equal(
+    df$max_horizontal(),
+    pl$Series("max", c(4, 5, 6))
+  )
+})

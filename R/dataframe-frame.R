@@ -886,7 +886,7 @@ dataframe__gather_every <- function(n, offset = 0) {
 #'
 #' df$rename(foo = "apple")
 # df$rename(
-#   \(column_name) paste0("c", substr(column_name, 2, 100))
+#' #  \(column_name) paste0("c", substr(column_name, 2, 100))
 # )
 dataframe__rename <- function(..., .strict = TRUE) {
   self$lazy()$rename(..., .strict = .strict)$collect(`_eager` = TRUE) |>
@@ -1315,4 +1315,60 @@ dataframe__partition_by <- function(..., maintain_order = TRUE, include_key = TR
     ) |>
       lapply(\(ptr) .savvy_wrap_PlRDataFrame(ptr) |> wrap())
   })
+}
+
+#' Get the maximum value horizontally across columns.
+#'
+#' @inherit as_polars_series return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = c(1, 2, 3),
+#'   bar = c(4.0, 5.0, 6.0),
+#' )
+#' df$max_horizontal()
+dataframe__max_horizontal <- function() {
+  self$select(max = pl$max_horizontal(pl$all()))$to_series() |>
+    wrap()
+}
+
+#' Take the mean of all values horizontally across columns.
+#'
+#' @inherit as_polars_series return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = c(1, 2, 3),
+#'   bar = c(4.0, 5.0, 6.0),
+#' )
+#' df$mean_horizontal()
+dataframe__mean_horizontal <- function() {
+  self$select(mean = pl$mean_horizontal(pl$all()))$to_series() |>
+    wrap()
+}
+
+#' Get the minimum value horizontally across columns.
+#'
+#' @inherit as_polars_series return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = c(1, 2, 3),
+#'   bar = c(4.0, 5.0, 6.0),
+#' )
+#' df$min_horizontal()
+dataframe__min_horizontal <- function() {
+  self$select(min = pl$min_horizontal(pl$all()))$to_series() |>
+    wrap()
+}
+
+#' Sum all values horizontally across columns.
+#'
+#' @inherit as_polars_series return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = c(1, 2, 3),
+#'   bar = c(4.0, 5.0, 6.0),
+#' )
+#' df$sum_horizontal()
+dataframe__sum_horizontal <- function() {
+  self$select(sum = pl$sum_horizontal(pl$all()))$to_series() |>
+    wrap()
 }
