@@ -54,18 +54,16 @@ infer_polars_dtype.NULL <- function(x, ...) {
 #' @rdname infer_polars_dtype
 #' @export
 infer_polars_dtype.list <- function(x, ..., strict = FALSE) {
-  wrap({
-    child_type <- lapply(x, \(child) {
-      if (is.null(child)) {
-        NULL
-      } else {
-        infer_polars_dtype(child, ..., strict = strict)$`_dt`
-      }
-    }) |>
-      PlRDataType$infer_supertype(strict = strict)
-
-    PlRDataType$new_list(child_type)
-  })
+  lapply(x, \(child) {
+    if (is.null(child)) {
+      NULL
+    } else {
+      infer_polars_dtype(child, ..., strict = strict)$`_dt`
+    }
+  }) |>
+    PlRDataType$infer_supertype(strict = strict) |>
+    PlRDataType$new_list() |>
+    wrap()
 }
 
 #' @rdname infer_polars_dtype
@@ -88,13 +86,15 @@ infer_polars_dtype.data.frame <- function(x, ...) {
 infer_polars_dtype.vctrs_vctr <- function(x, ...) {
   dtype_from_sliced <- infer_polars_dtype_default_impl(x, ...)
 
-  # Nested type may multiple nested, so we can't infer type from the slice
-  if (inherits(dtype_from_sliced, "polars_dtype_struct")) {
-    # Struct
-    infer_polars_dtype_vctrs_rcrd_impl(x, ...)
-  } else if (inherits(dtype_from_sliced, "polars_dtype_nested")) {
-    # List or Array
-    infer_polars_dtype.list(x, ...)
+  if (dtype_from_sliced$is_nested()) {
+    # Nested type may multiple nested, so we can't infer type from the slice
+    if (inherits(dtype_from_sliced, "polars_dtype_struct")) {
+      # Struct
+      infer_polars_dtype_vctrs_rcrd_impl(x, ...)
+    } else {
+      # List or Array
+      infer_polars_dtype.list(x, ...)
+    }
   } else {
     dtype_from_sliced
   }
