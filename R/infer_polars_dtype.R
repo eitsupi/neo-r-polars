@@ -4,24 +4,22 @@ infer_polars_dtype <- function(x, ...) {
   UseMethod("infer_polars_dtype")
 }
 
+infer_polars_dtype_default_impl <- function(x, ...) {
+  as_polars_series(x[0L]) |>
+    infer_polars_dtype(...)
+}
+
 #' @rdname infer_polars_dtype
 #' @export
 infer_polars_dtype.default <- function(x, ...) {
   if (is.atomic(x)) {
-    as_polars_series(x[0L]) |>
-      infer_polars_dtype()
+    infer_polars_dtype_default_impl(x, ...)
   } else {
     abort(
       sprintf("Unsupported class for `infer_polars_dtype()`: %s", toString(class(x))),
       call = parent.frame()
     )
   }
-}
-
-#' @rdname infer_polars_dtype
-#' @export
-infer_polars_dtype.polars_dtype <- function(x, ...) {
-  x
 }
 
 #' @rdname infer_polars_dtype
@@ -42,6 +40,10 @@ infer_polars_dtype.polars_lazy_frame <- infer_polars_dtype.polars_data_frame
 
 #' @rdname infer_polars_dtype
 #' @export
+infer_polars_dtype.POSIXlt <- infer_polars_dtype_default_impl
+
+#' @rdname infer_polars_dtype
+#' @export
 infer_polars_dtype.NULL <- function(x, ...) {
   if (missing(x)) {
     abort("The `x` argument of `infer_polars_dtype()` can't be missing")
@@ -53,16 +55,14 @@ infer_polars_dtype.NULL <- function(x, ...) {
 #' @export
 infer_polars_dtype.list <- function(x, ..., strict = FALSE) {
   wrap({
-    child_type <- PlRDataType$infer_supertype(
-      lapply(x, \(child) {
-        if (is.null(child)) {
-          NULL
-        } else {
-          infer_polars_dtype(child, ..., strict = strict)$`_dt`
-        }
-      }),
-      strict = strict
-    )
+    child_type <- lapply(x, \(child) {
+      if (is.null(child)) {
+        NULL
+      } else {
+        infer_polars_dtype(child, ..., strict = strict)$`_dt`
+      }
+    }) |>
+      PlRDataType$infer_supertype(strict = strict)
 
     PlRDataType$new_list(child_type)
   })
@@ -83,10 +83,7 @@ infer_polars_dtype.data.frame <- function(x, ...) {
 
 #' @rdname infer_polars_dtype
 #' @export
-infer_polars_dtype.vctrs_vctr <- function(x, ...) {
-  as_polars_series(x[0L]) |>
-    infer_polars_dtype()
-}
+infer_polars_dtype.vctrs_vctr <- infer_polars_dtype_default_impl
 
 #' @rdname infer_polars_dtype
 #' @export

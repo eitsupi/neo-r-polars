@@ -3,10 +3,10 @@
 \name{infer_polars_dtype}
 \alias{infer_polars_dtype}
 \alias{infer_polars_dtype.default}
-\alias{infer_polars_dtype.polars_dtype}
 \alias{infer_polars_dtype.polars_series}
 \alias{infer_polars_dtype.polars_data_frame}
 \alias{infer_polars_dtype.polars_lazy_frame}
+\alias{infer_polars_dtype.POSIXlt}
 \alias{infer_polars_dtype.NULL}
 \alias{infer_polars_dtype.list}
 \alias{infer_polars_dtype.AsIs}
@@ -19,13 +19,13 @@ infer_polars_dtype(x, ...)
 
 \method{infer_polars_dtype}{default}(x, ...)
 
-\method{infer_polars_dtype}{polars_dtype}(x, ...)
-
 \method{infer_polars_dtype}{polars_series}(x, ...)
 
 \method{infer_polars_dtype}{polars_data_frame}(x, ...)
 
 \method{infer_polars_dtype}{polars_lazy_frame}(x, ...)
+
+\method{infer_polars_dtype}{POSIXlt}(x, ...)
 
 \method{infer_polars_dtype}{`NULL`}(x, ...)
 
