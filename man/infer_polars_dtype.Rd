@@ -12,7 +12,6 @@
 \alias{infer_polars_dtype.AsIs}
 \alias{infer_polars_dtype.data.frame}
 \alias{infer_polars_dtype.vctrs_vctr}
-\alias{infer_polars_dtype.vctrs_list_of}
 \title{Infer polars data type corresponding to given R object}
 \usage{
 infer_polars_dtype(x, ...)
@@ -36,8 +35,6 @@ infer_polars_dtype(x, ...)
 \method{infer_polars_dtype}{data.frame}(x, ...)
 
 \method{infer_polars_dtype}{vctrs_vctr}(x, ...)
-
-\method{infer_polars_dtype}{vctrs_list_of}(x, ..., strict = FALSE)
 }
 \description{
 Infer polars data type corresponding to given R object

@@ -81,12 +81,32 @@ infer_polars_dtype.data.frame <- function(x, ...) {
   pl$Struct(!!!lapply(x, \(col) infer_polars_dtype(col, ...)))
 }
 
+# To avoid defining a dedicated method for inferring from classes built on vctrs_vctr,
+# the processing is done in this method by if branching.
 #' @rdname infer_polars_dtype
 #' @export
-infer_polars_dtype.vctrs_vctr <- infer_polars_dtype_default_impl
+infer_polars_dtype.vctrs_vctr <- function(x, ...) {
+  dtype_from_sliced <- infer_polars_dtype_default_impl(x, ...)
 
-#' @rdname infer_polars_dtype
-#' @export
-# Because the `ptype` attribute records `list()` when the elements are lists,
-# so the solution to read `ptype` is incomplete and not used here.
-infer_polars_dtype.vctrs_list_of <- infer_polars_dtype.list
+  # Nested type may multiple nested, so we can't infer type from the slice
+  if (inherits(dtype_from_sliced, "polars_dtype_struct")) {
+    # Struct
+    infer_polars_dtype_vctrs_rcrd_impl(x, ...)
+  } else if (inherits(dtype_from_sliced, "polars_dtype_nested")) {
+    # List or Array
+    infer_polars_dtype.list(x, ...)
+  } else {
+    dtype_from_sliced
+  }
+}
+
+infer_polars_dtype_vctrs_rcrd_impl <- function(x, ...) {
+  field_names <- vctrs::fields(x)
+  inner_dtypes <- field_names |>
+    lapply(\(field_name) {
+      vctrs::field(x, field_name) |>
+        infer_polars_dtype(...)
+    })
+
+  pl$Struct(!!!structure(inner_dtypes, names = field_names))
+}
