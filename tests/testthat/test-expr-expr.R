@@ -2187,14 +2187,16 @@ test_that("reshape", {
     pl$lit(1:12)$reshape("hej"),
     error = TRUE
   )
-
   expect_snapshot(
     pl$lit(1:12)$reshape(NaN),
     error = TRUE
   )
-
   expect_snapshot(
     pl$lit(1:12)$reshape(NA),
+    error = TRUE
+  )
+  expect_snapshot(
+    pl$lit(1:12)$reshape(1:3),
     error = TRUE
   )
 
