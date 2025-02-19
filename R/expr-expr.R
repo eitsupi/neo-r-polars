@@ -2830,11 +2830,11 @@ expr__rolling_var <- function(
 #'   max_a = pl$col("a")$max()$rolling(index_column = "dt", period = "2d")
 #' )
 expr__rolling <- function(
-    index_column,
-    ...,
-    period,
-    offset = NULL,
-    closed = "right") {
+  index_column,
+  ...,
+  period,
+  offset = NULL,
+  closed = "right") {
   wrap({
     check_dots_empty0(...)
     closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
@@ -4304,30 +4304,30 @@ expr__replace <- function(old, new) {
 #'   )
 #' )
 expr__replace_strict <- function(
-    old,
-    new,
-    ...,
-    default = NULL,
-    return_dtype = NULL) {
-  wrap({
-    check_dots_empty0(...)
-    if (missing(new)) {
-      if (!is.list(old)) {
-        abort("`new` argument is required if `old` argument is not a list.")
+  old,
+  new,
+  ...,
+  default = NULL,
+  return_dtype = NULL) {
+    wrap({
+      check_dots_empty0(...)
+      if (missing(new)) {
+        if (!is.list(old)) {
+          abort("`new` argument is required if `old` argument is not a list.")
+        }
+        new <- unlist(old, use.names = FALSE)
+        old <- names(old)
       }
-      new <- unlist(old, use.names = FALSE)
-      old <- names(old)
-    }
-    if (!is.null(default)) {
-      default <- as_polars_expr(default, as_lit = TRUE)$`_rexpr`
-    }
-    self$`_rexpr`$replace_strict(
-      as_polars_expr(old, as_lit = TRUE)$`_rexpr`,
-      as_polars_expr(new, as_lit = TRUE)$`_rexpr`,
-      default = default,
-      return_dtype = return_dtype$`_dt`
-    )
-  })
+      if (!is.null(default)) {
+        default <- as_polars_expr(default, as_lit = TRUE)$`_rexpr`
+      }
+      self$`_rexpr`$replace_strict(
+        as_polars_expr(old, as_lit = TRUE)$`_rexpr`,
+        as_polars_expr(new, as_lit = TRUE)$`_rexpr`,
+        default = default,
+        return_dtype = return_dtype$`_dt`
+      )
+    })
 }
 
 #' Compress the column data using run-length encoding
