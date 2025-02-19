@@ -211,12 +211,22 @@
 ---
 
     Code
+      pl$lit(1:12)$reshape(NaN)
+    Condition
+      Error:
+      ! Evaluation failed in `$reshape()`.
+      Caused by error:
+      ! `dimensions` must not contain any NA values.
+
+---
+
+    Code
       pl$lit(1:12)$reshape(NA)
     Condition
       Error:
       ! Evaluation failed in `$reshape()`.
       Caused by error:
-      ! Should not reach here!
+      ! `dimensions` must not contain any NA values.
 
 # shuffle
 

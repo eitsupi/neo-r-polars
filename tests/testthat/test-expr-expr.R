@@ -2183,19 +2183,19 @@ test_that("reshape", {
     )
   )
 
-  expect_error(
+  expect_snapshot(
     pl$lit(1:12)$reshape("hej"),
-    "must be numeric, not character"
+    error = TRUE
   )
 
-  expect_error(
+  expect_snapshot(
     pl$lit(1:12)$reshape(NaN),
-    "must not contain any NA values"
+    error = TRUE
   )
 
-  expect_error(
+  expect_snapshot(
     pl$lit(1:12)$reshape(NA),
-    "must not contain any NA values"
+    error = TRUE
   )
 
   expect_equal(
