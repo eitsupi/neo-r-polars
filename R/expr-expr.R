@@ -1512,7 +1512,7 @@ expr__arg_unique <- function() {
 #' df <- pl$DataFrame(a = c(1, 1, 2, 1))
 #' df$select((pl$col("a") == 1)$arg_true())
 expr__arg_true <- function() {
-  arg_where(self$`_rexpr`) |>
+  arg_where(self$`_rexpr`) |> 
     wrap()
 }
 
@@ -2859,9 +2859,9 @@ expr__rolling <- function(
 #' * …
 #' * `(t_n - window_size, t_n]`
 #'
-#' @param by Should be DateTime, Date, UInt64, UInt32, Int64, or Int32 data
+#' @param by Should be DateTime, Date, UInt64, UInt32, Int64, or Int32 data 
 #' type after conversion by [as_polars_expr()]. Note that the
-#' integer ones require using `"i"` in `window_size`. Accepts expression input.
+#' integer ones require using `"i"` in `window_size`. Accepts expression input. 
 #' Strings are parsed as column names.
 #' @param window_size The length of the window. Can be a dynamic temporal size
 #' indicated by a timedelta or the following string language:
