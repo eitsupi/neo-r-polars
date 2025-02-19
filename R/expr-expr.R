@@ -4398,7 +4398,8 @@ expr__sample <- function(
   fraction = NULL,
   with_replacement = FALSE,
   shuffle = FALSE,
-  seed = NULL) {
+  seed = NULL
+) {
   wrap({
     check_dots_empty0(...)
     if (!is.null(fraction)) {
