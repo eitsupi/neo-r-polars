@@ -1512,7 +1512,7 @@ expr__arg_unique <- function() {
 #' df <- pl$DataFrame(a = c(1, 1, 2, 1))
 #' df$select((pl$col("a") == 1)$arg_true())
 expr__arg_true <- function() {
-  arg_where(self$`_rexpr`) |> 
+  arg_where(self$`_rexpr`) |>
     wrap()
 }
 
@@ -2830,11 +2830,11 @@ expr__rolling_var <- function(
 #'   max_a = pl$col("a")$max()$rolling(index_column = "dt", period = "2d")
 #' )
 expr__rolling <- function(
-  index_column,
-  ...,
-  period,
-  offset = NULL,
-  closed = "right") {
+    index_column,
+    ...,
+    period,
+    offset = NULL,
+    closed = "right") {
   wrap({
     check_dots_empty0(...)
     closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
@@ -2859,9 +2859,9 @@ expr__rolling <- function(
 #' * …
 #' * `(t_n - window_size, t_n]`
 #'
-#' @param by Should be DateTime, Date, UInt64, UInt32, Int64, or Int32 data 
+#' @param by Should be DateTime, Date, UInt64, UInt32, Int64, or Int32 data
 #' type after conversion by [as_polars_expr()]. Note that the
-#' integer ones require using `"i"` in `window_size`. Accepts expression input. 
+#' integer ones require using `"i"` in `window_size`. Accepts expression input.
 #' Strings are parsed as column names.
 #' @param window_size The length of the window. Can be a dynamic temporal size
 #' indicated by a timedelta or the following string language:
@@ -4024,7 +4024,6 @@ expr__upper_bound <- function() {
   })
 }
 
-# TODO-REWRITE: requires unnest() in second example
 #' Bin continuous values into discrete categories
 #'
 #' `r lifecycle::badge("experimental")`
@@ -4050,7 +4049,7 @@ expr__upper_bound <- function() {
 #' # Add both the category and the breakpoint.
 #' df$with_columns(
 #'   cut = pl$col("foo")$cut(c(-1, 1), include_breaks = TRUE)
-#' )$unnest()
+#' )$unnest("cut")
 expr__cut <- function(
     breaks,
     ...,
@@ -4068,7 +4067,6 @@ expr__cut <- function(
   })
 }
 
-# TODO-REWRITE: requires unnest() in third example
 #' Bin continuous values into discrete categories based on their quantiles
 #'
 #' `r lifecycle::badge("experimental")`
@@ -4101,7 +4099,7 @@ expr__cut <- function(
 #' # Add both the category and the breakpoint.
 #' df$with_columns(
 #'   qcut = pl$col("foo")$qcut(c(0.25, 0.75), include_breaks = TRUE)
-#' )$unnest()
+#' )$unnest("qcut")
 expr__qcut <- function(
     quantiles,
     ...,
@@ -4306,30 +4304,30 @@ expr__replace <- function(old, new) {
 #'   )
 #' )
 expr__replace_strict <- function(
-  old,
-  new,
-  ...,
-  default = NULL,
-  return_dtype = NULL) {
-    wrap({
-      check_dots_empty0(...)
-      if (missing(new)) {
-        if (!is.list(old)) {
-          abort("`new` argument is required if `old` argument is not a list.")
-        }
-        new <- unlist(old, use.names = FALSE)
-        old <- names(old)
+    old,
+    new,
+    ...,
+    default = NULL,
+    return_dtype = NULL) {
+  wrap({
+    check_dots_empty0(...)
+    if (missing(new)) {
+      if (!is.list(old)) {
+        abort("`new` argument is required if `old` argument is not a list.")
       }
-      if (!is.null(default)) {
-        default <- as_polars_expr(default, as_lit = TRUE)$`_rexpr`
-      }
-      self$`_rexpr`$replace_strict(
-        as_polars_expr(old, as_lit = TRUE)$`_rexpr`,
-        as_polars_expr(new, as_lit = TRUE)$`_rexpr`,
-        default = default,
-        return_dtype = return_dtype$`_dt`
-      )
-    })
+      new <- unlist(old, use.names = FALSE)
+      old <- names(old)
+    }
+    if (!is.null(default)) {
+      default <- as_polars_expr(default, as_lit = TRUE)$`_rexpr`
+    }
+    self$`_rexpr`$replace_strict(
+      as_polars_expr(old, as_lit = TRUE)$`_rexpr`,
+      as_polars_expr(new, as_lit = TRUE)$`_rexpr`,
+      default = default,
+      return_dtype = return_dtype$`_dt`
+    )
+  })
 }
 
 #' Compress the column data using run-length encoding
