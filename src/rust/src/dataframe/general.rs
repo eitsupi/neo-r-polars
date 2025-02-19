@@ -1,6 +1,7 @@
 use super::*;
-use crate::{PlRDataType, PlRLazyFrame, PlRSeries, RPolarsErr};
+use crate::{PlRDataType, PlRExpr, PlRLazyFrame, PlRSeries, RPolarsErr};
 use either::Either;
+use polars::prelude::pivot::{pivot, pivot_stable};
 use savvy::{
     r_println, savvy, ListSexp, NumericScalar, OwnedIntegerSexp, OwnedListSexp, Result, Sexp,
     StringSexp, TypedSexp,
@@ -228,6 +229,34 @@ impl PlRDataFrame {
             ),
             None => self.df.to_dummies(separator, drop_first),
         }
+        .map_err(RPolarsErr::from)?;
+        Ok(out.into())
+    }
+
+    pub fn pivot_expr(
+        &self,
+        on: StringSexp,
+        maintain_order: bool,
+        sort_columns: bool,
+        aggregate_expr: Option<PlRExpr>,
+        separator: Option<&str>,
+        index: Option<StringSexp>,
+        values: Option<StringSexp>,
+    ) -> Result<Self> {
+        let fun = if maintain_order { pivot_stable } else { pivot };
+        let agg_expr = aggregate_expr.map(|expr| expr.inner);
+        let on = on.to_vec();
+        let index = index.map(|x| x.to_vec());
+        let values = values.map(|x| x.to_vec());
+        let out = fun(
+            &self.df,
+            on,
+            index,
+            values,
+            sort_columns,
+            agg_expr,
+            separator,
+        )
         .map_err(RPolarsErr::from)?;
         Ok(out.into())
     }
