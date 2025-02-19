@@ -2183,21 +2183,19 @@ test_that("reshape", {
     )
   )
 
-  expect_snapshot(
+  expect_error(
     pl$lit(1:12)$reshape("hej"),
-    error = TRUE
+    "must be numeric, not character"
   )
 
-  # TODO-REWRITE: this should error
-  # https://github.com/eitsupi/neo-r-polars/issues/29
-  # expect_snapshot(
-  #   pl$lit(1:12)$reshape(NaN),
-  #   error = TRUE
-  # )
+  expect_error(
+    pl$lit(1:12)$reshape(NaN),
+    "must not contain any NA values"
+  )
 
-  expect_snapshot(
+  expect_error(
     pl$lit(1:12)$reshape(NA),
-    error = TRUE
+    "must not contain any NA values"
   )
 
   expect_equal(
