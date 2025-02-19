@@ -886,7 +886,7 @@ dataframe__gather_every <- function(n, offset = 0) {
 #'
 #' df$rename(foo = "apple")
 # df$rename(
-#' #  \(column_name) paste0("c", substr(column_name, 2, 100))
+# \(column_name) paste0("c", substr(column_name, 2, 100))
 # )
 dataframe__rename <- function(..., .strict = TRUE) {
   self$lazy()$rename(..., .strict = .strict)$collect(`_eager` = TRUE) |>
