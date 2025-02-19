@@ -886,7 +886,7 @@ dataframe__gather_every <- function(n, offset = 0) {
 #'
 #' df$rename(foo = "apple")
 # df$rename(
-#   \(column_name) paste0("c", substr(column_name, 2, 100))
+# \(column_name) paste0("c", substr(column_name, 2, 100))
 # )
 dataframe__rename <- function(..., .strict = TRUE) {
   self$lazy()$rename(..., .strict = .strict)$collect(`_eager` = TRUE) |>
@@ -1507,5 +1507,54 @@ dataframe__min_horizontal <- function() {
 #' df$sum_horizontal()
 dataframe__sum_horizontal <- function() {
   self$select(sum = pl$sum_horizontal(pl$all()))$to_series() |>
+    wrap()
+}
+
+#' Get a mask of all unique rows in this DataFrame.
+#'
+#' @inherit as_polars_series return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = c(1, 2, 3, 1),
+#'   b = c("x", "y", "z", "x")
+#' )
+#' df$is_unique()
+#'
+#' # This mask can be used to visualize the unique lines like this:
+#' df$filter(df$is_unique())
+dataframe__is_unique <- function() {
+  self$`_df`$is_unique() |>
+    wrap()
+}
+
+#' Get a mask of all duplicated rows in this DataFrame.
+#'
+#' @inherit as_polars_series return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = c(1, 2, 3, 1),
+#'   b = c("x", "y", "z", "x")
+#' )
+#' df$is_duplicated()
+#'
+#' # This mask can be used to visualize the duplicated lines like this:
+#' df$filter(df$is_duplicated())
+dataframe__is_duplicated <- function() {
+  self$`_df`$is_duplicated() |>
+    wrap()
+}
+
+#' Returns `TRUE` if the DataFrame contains no rows.
+#'
+#' @return A logical value
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = c(1, 2, 3, 1),
+#'   b = c("x", "y", "z", "x")
+#' )
+#' df$is_empty()
+#' df$filter(pl$col("a") > 99)$is_empty()
+dataframe__is_empty <- function() {
+  self$`_df`$is_empty() |>
     wrap()
 }
