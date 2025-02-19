@@ -1,4 +1,4 @@
-# The env for storing group_by methods
+# The env for storing rolling_group_by methods
 polars_rolling_groupby__methods <- new.env(parent = emptyenv())
 
 wrap_to_rolling_group_by <- function(x, index_column, period, offset, closed, group_by) {
