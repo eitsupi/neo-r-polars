@@ -1749,7 +1749,7 @@ dataframe__transpose <- function(
     } else {
       NULL
     }
-    if (is.function(column_names)) {
+    if (is_function(column_names)) {
       column_names <- column_names(seq_len(nrow(self)) - 1)
     }
     self$`_df`$transpose(keep_names_as = keep_names_as, column_names = column_names %||% character())
