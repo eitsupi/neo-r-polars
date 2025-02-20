@@ -206,7 +206,7 @@
       Error:
       ! Evaluation failed in `$reshape()`.
       Caused by error:
-      ! `dimensions` only accepts up to 2 integer-ish values.
+      ! `dimensions` only accepts integer-ish values.
 
 ---
 
@@ -216,7 +216,7 @@
       Error:
       ! Evaluation failed in `$reshape()`.
       Caused by error:
-      ! `dimensions` only accepts up to 2 integer-ish values.
+      ! `dimensions` must not contain any NA values.
 
 ---
 
@@ -226,17 +226,7 @@
       Error:
       ! Evaluation failed in `$reshape()`.
       Caused by error:
-      ! `dimensions` only accepts up to 2 integer-ish values.
-
----
-
-    Code
-      pl$lit(1:12)$reshape(1:3)
-    Condition
-      Error:
-      ! Evaluation failed in `$reshape()`.
-      Caused by error:
-      ! `dimensions` only accepts up to 2 integer-ish values.
+      ! `dimensions` only accepts integer-ish values.
 
 # shuffle
 

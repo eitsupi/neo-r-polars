@@ -2195,10 +2195,6 @@ test_that("reshape", {
     pl$lit(1:12)$reshape(NA),
     error = TRUE
   )
-  expect_snapshot(
-    pl$lit(1:12)$reshape(1:3),
-    error = TRUE
-  )
 
   expect_equal(
     pl$DataFrame(a = 1:4)$select(
