@@ -2298,8 +2298,8 @@ expr__hist <- function(
 #' @param parallel Execute the computation in parallel. This option should
 #' likely not be enabled in a group by context, as the computation is already
 #' parallelized per group.
-#' @param name Give the resulting count field a specific name. Default is
-#' `"count"`.
+#' @param name Give the resulting count field a specific name. If `normalize`
+#' is `TRUE` it defaults to `"proportion"`, otherwise it defaults to `"count"`.
 #' @param normalize If `TRUE`, gives relative frequencies of the unique values.
 #'
 #' @inherit as_polars_expr return

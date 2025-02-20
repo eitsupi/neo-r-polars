@@ -22,8 +22,8 @@ expr__value_counts(
 likely not be enabled in a group by context, as the computation is already
 parallelized per group.}
 
-\item{name}{Give the resulting count field a specific name. Default is
-\code{"count"}.}
+\item{name}{Give the resulting count field a specific name. If \code{normalize}
+is \code{TRUE} it defaults to \code{"proportion"}, otherwise it defaults to \code{"count"}.}
 
 \item{normalize}{If \code{TRUE}, gives relative frequencies of the unique values.}
 }
