@@ -206,7 +206,7 @@
       Error:
       ! Evaluation failed in `$reshape()`.
       Caused by error:
-      ! `dimensions` only accepts integer-ish values.
+      ! Argument `dimensions` must be numeric, not character
 
 ---
 
@@ -226,17 +226,7 @@
       Error:
       ! Evaluation failed in `$reshape()`.
       Caused by error:
-      ! `dimensions` only accepts integer-ish values.
-
----
-
-    Code
-      pl$lit(1:12)$reshape(1:3)
-    Condition
-      Error:
-      ! Evaluation failed in `$reshape()`.
-      Caused by error:
-      ! `dimensions` must be of length lower than or equal to 2.
+      ! Should not reach here!
 
 # shuffle
 

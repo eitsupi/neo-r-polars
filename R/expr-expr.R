@@ -1261,11 +1261,8 @@ expr__dot <- function(other) {
 #' df$select(pl$col("foo")$reshape(c(3, -1)))
 expr__reshape <- function(dimensions) {
   wrap({
-    if (!is_integerish(dimensions)) {
-      abort("`dimensions` only accepts integer-ish values.")
-    }
-    if (length(dimensions) > 2) {
-      abort("`dimensions` must be of length lower than or equal to 2.")
+    if (!is_integerish(dimensions, n = 2)) {
+      abort("`dimensions` only accepts up to 2 integer-ish values.")
     }
     if (anyNA(dimensions)) {
       abort("`dimensions` must not contain any NA values.")
