@@ -35,9 +35,9 @@ Default is \code{"left"}.}
 A \link[=LazyGroupBy_class]{LazyGroupBy} object
 }
 \description{
-Different from \code{group_by_dynamic}, the windows are now determined by the
+Different from \code{group_by_dynamic()}, the windows are now determined by the
 individual values and are not of constant intervals. For constant intervals
-use \code{\link[=lazyframe__group_by_dynamic]{<LazyFrame>$group_by_dynamic()}}.
+use \code{group_by_dynamic()}.
 
 If you have a time series \verb{<t_0, t_1, ..., t_n>}, then by default the
 windows created will be:

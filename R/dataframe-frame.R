@@ -885,9 +885,6 @@ dataframe__gather_every <- function(n, offset = 0) {
 #' )
 #'
 #' df$rename(foo = "apple")
-# df$rename(
-#   \(column_name) paste0("c", substr(column_name, 2, 100))
-# )
 dataframe__rename <- function(..., .strict = TRUE) {
   self$lazy()$rename(..., .strict = .strict)$collect(`_eager` = TRUE) |>
     wrap()
@@ -1314,5 +1311,454 @@ dataframe__partition_by <- function(..., maintain_order = TRUE, include_key = TR
       include_key = include_key
     ) |>
       lapply(\(ptr) .savvy_wrap_PlRDataFrame(ptr) |> wrap())
+  })
+}
+
+#' Pivot a frame from long to wide format
+#'
+#' Only available in eager mode. See "Examples" section below for how to do a
+#' "lazy pivot" if you know the unique column values in advance.
+#'
+#' @inheritParams rlang::args_dots_empty
+#' @param on The column(s) whose values will be used as the new columns of the
+#' output DataFrame.
+#' @param index The column(s) that remain from the input to the output. The
+#' output DataFrame will have one row for each unique combination of the
+#' `index`'s values. If `NULL`, all remaining columns not specified in `on` and
+#' `values` will be used. At least one of `index` and `values` must be
+#' specified.
+#' @param values The existing column(s) of values which will be moved under the
+#' new columns from `index`. If an aggregation is specified, these are the
+#' values on which the aggregation will be computed. If `NULL`, all remaining
+#' columns not specified in `on` and `index` will be used. At least one of
+#' `index` and `values` must be specified.
+#' @param aggregate_function Choose from:
+#' * `NULL`: no aggregation takes place, will raise error if multiple values
+#'   are in group;
+#' * A predefined aggregate function string, one of `"min"`, `"max"`,
+#'   `"first"`, `"last"`, `"sum"`, `"mean"`, `"median"`, `"len"`;
+#' * An expression to do the aggregation.
+#' @param maintain_order Ensure the values of `index` are sorted by discovery
+#' order.
+#' @param sort_columns Sort the transposed columns by name. Default is by order
+#' of discovery.
+#' @param separator Used as separator/delimiter in generated column names in
+#' case of multiple values columns.
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' # Suppose we have a dataframe of test scores achieved by some students,
+#' # where each row represents a distinct test.
+#' df <- pl$DataFrame(
+#'   name = c("Cady", "Cady", "Karen", "Karen"),
+#'   subject = c("maths", "physics", "maths", "physics"),
+#'   test_1 = c(98, 99, 61, 58),
+#'   test_2 = c(100, 100, 60, 60)
+#' )
+#' df
+#'
+#' # Using pivot(), we can reshape so we have one row per student, with
+#' # different subjects as columns, and their `test_1` scores as values:
+#' df$pivot("subject", index = "name", values = "test_1")
+#'
+# You can use selectors too - here we include all test scores in the pivoted
+# table:
+# df$pivot("subject", values = cs$starts_with("test"))
+#'
+#' # If you end up with multiple values per cell, you can specify how to
+#' # aggregate them with `aggregate_function`:
+#' df <- pl$DataFrame(
+#'   ix = c(1, 1, 2, 2, 1, 2),
+#'   col = c("a", "a", "a", "a", "b", "b"),
+#'   foo = c(0, 1, 2, 2, 7, 1),
+#'   bar = c(0, 2, 0, 0, 9, 4)
+#' )
+#' df
+#'
+#' df$pivot("col", index = "ix", aggregate_function = "sum")
+#'
+#' # You can also pass a custom aggregation function using `pl$element()`:
+#' df <- pl$DataFrame(
+#'   col1 = c("a", "a", "a", "b", "b", "b"),
+#'   col2 = c("x", "x", "x", "x", "y", "y"),
+#'   col3 = c(6, 7, 3, 2, 5, 7),
+#' )
+#' df$pivot(
+#'   "col2",
+#'   index = "col1",
+#'   values = "col3",
+#'   aggregate_function = pl$element()$tanh()$mean(),
+#' )
+#'
+#' # Note that pivot is only available in eager mode. If you know the unique
+#' # column values in advance, you can use `$group_by()` on a LazyFrame to get
+#' # the same result as above in lazy mode:
+#' index <- pl$col("col1")
+#' on <- pl$col("col2")
+#' values <- pl$col("col3")
+#' unique_column_values <- c("x", "y")
+#' aggregate_function <- \(col) col$tanh()$mean()
+#' funs <- lapply(unique_column_values, \(value) {
+#'   aggregate_function(values$filter(on == value))$alias(value)
+#' })
+#' df$lazy()$group_by(index)$agg(!!!funs)$collect()
+dataframe__pivot <- function(
+    on,
+    ...,
+    index = NULL,
+    values = NULL,
+    aggregate_function = NULL,
+    maintain_order = TRUE,
+    sort_columns = FALSE,
+    separator = "_") {
+  # TODO: add selectors handling when py-polars' _expand_selectors() has moved
+  # to Rust (and uncomment example above)
+
+  wrap({
+    check_dots_empty0(...)
+    aggregate_expr <- NULL
+    if (is_character(aggregate_function)) {
+      aggregate_function <- arg_match0(
+        aggregate_function,
+        values = c("min", "max", "first", "last", "sum", "mean", "median", "len")
+      )
+      aggregate_expr <- switch(aggregate_function,
+        "min" = pl$element()$min()$`_rexpr`,
+        "max" = pl$element()$max()$`_rexpr`,
+        "first" = pl$element()$first()$`_rexpr`,
+        "last" = pl$element()$last()$`_rexpr`,
+        "sum" = pl$element()$sum()$`_rexpr`,
+        "mean" = pl$element()$mean()$`_rexpr`,
+        "median" = pl$element()$median()$`_rexpr`,
+        "len" = pl$len()$`_rexpr`,
+        abort("unreachable")
+      )
+    } else if (is_polars_expr(aggregate_function)) {
+      aggregate_expr <- aggregate_function$`_rexpr`
+    } else if (!is.null(aggregate_function)) {
+      abort("`aggregate_function` must be `NULL`, a character, or a Polars expression.")
+    }
+
+    self$`_df`$pivot_expr(
+      on = on,
+      index = index,
+      values = values,
+      maintain_order = maintain_order,
+      sort_columns = sort_columns,
+      aggregate_expr = aggregate_expr,
+      separator = separator
+    )
+  })
+}
+
+#' Get the maximum value horizontally across columns.
+#'
+#' @inherit as_polars_series return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = c(1, 2, 3),
+#'   bar = c(4.0, 5.0, 6.0),
+#' )
+#' df$max_horizontal()
+dataframe__max_horizontal <- function() {
+  self$select(max = pl$max_horizontal(pl$all()))$to_series() |>
+    wrap()
+}
+
+#' Take the mean of all values horizontally across columns.
+#'
+#' @inherit as_polars_series return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = c(1, 2, 3),
+#'   bar = c(4.0, 5.0, 6.0),
+#' )
+#' df$mean_horizontal()
+dataframe__mean_horizontal <- function() {
+  self$select(mean = pl$mean_horizontal(pl$all()))$to_series() |>
+    wrap()
+}
+
+#' Get the minimum value horizontally across columns.
+#'
+#' @inherit as_polars_series return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = c(1, 2, 3),
+#'   bar = c(4.0, 5.0, 6.0),
+#' )
+#' df$min_horizontal()
+dataframe__min_horizontal <- function() {
+  self$select(min = pl$min_horizontal(pl$all()))$to_series() |>
+    wrap()
+}
+
+#' Sum all values horizontally across columns.
+#'
+#' @inherit as_polars_series return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = c(1, 2, 3),
+#'   bar = c(4.0, 5.0, 6.0),
+#' )
+#' df$sum_horizontal()
+dataframe__sum_horizontal <- function() {
+  self$select(sum = pl$sum_horizontal(pl$all()))$to_series() |>
+    wrap()
+}
+
+#' Aggregate the columns in the DataFrame to their maximum value
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(a = 1:4, b = c(1, 2, 1, 1))
+#' df$max()
+dataframe__max <- function() {
+  self$lazy()$max()$collect(`_eager` = TRUE) |>
+    wrap()
+}
+
+#' Aggregate the columns in the DataFrame to their minimum value
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(a = 1:4, b = c(1, 2, 1, 1))
+#' df$min()
+dataframe__min <- function() {
+  self$lazy()$min()$collect(`_eager` = TRUE) |>
+    wrap()
+}
+
+#' Aggregate the columns in the DataFrame to their mean value
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(a = 1:4, b = c(1, 2, 1, 1))
+#' df$mean()
+dataframe__mean <- function() {
+  self$lazy()$mean()$collect(`_eager` = TRUE) |>
+    wrap()
+}
+
+#' Aggregate the columns in the DataFrame to their median value
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(a = 1:4, b = c(1, 2, 1, 1))
+#' df$median()
+dataframe__median <- function() {
+  self$lazy()$median()$collect(`_eager` = TRUE) |>
+    wrap()
+}
+
+#' Aggregate the columns of this DataFrame to their sum values
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(a = 1:4, b = c(1, 2, 1, 1))
+#' df$sum()
+dataframe__sum <- function() {
+  self$lazy()$sum()$collect(`_eager` = TRUE) |>
+    wrap()
+}
+
+#' Aggregate the columns in the DataFrame to their variance value
+#'
+#' @inheritParams lazyframe__var
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(a = 1:4, b = c(1, 2, 1, 1))
+#' df$var()
+#' df$var(ddof = 0)
+dataframe__var <- function(ddof = 1) {
+  self$lazy()$var(ddof)$collect(`_eager` = TRUE) |>
+    wrap()
+}
+
+#' Aggregate the columns of this DataFrame to their standard deviation values
+#'
+#' @inheritParams lazyframe__std
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(a = 1:4, b = c(1, 2, 1, 1))
+#' df$std()
+#' df$std(ddof = 0)
+dataframe__std <- function(ddof = 1) {
+  self$lazy()$std(ddof)$collect(`_eager` = TRUE) |>
+    wrap()
+}
+
+#' @inherit lazyframe__quantile title params
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(a = 1:4, b = c(1, 2, 1, 1))
+#' df$quantile(0.7)
+dataframe__quantile <- function(
+    quantile,
+    interpolation = c("nearest", "higher", "lower", "midpoint", "linear")) {
+  wrap({
+    interpolation <- arg_match0(
+      interpolation,
+      values = c("nearest", "higher", "lower", "midpoint", "linear")
+    )
+    self$lazy()$quantile(quantile, interpolation)$collect(`_eager` = TRUE)
+  })
+}
+
+#' Get a mask of all unique rows in this DataFrame.
+#'
+#' @inherit as_polars_series return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = c(1, 2, 3, 1),
+#'   b = c("x", "y", "z", "x")
+#' )
+#' df$is_unique()
+#'
+#' # This mask can be used to visualize the unique lines like this:
+#' df$filter(df$is_unique())
+dataframe__is_unique <- function() {
+  self$`_df`$is_unique() |>
+    wrap()
+}
+
+#' Get a mask of all duplicated rows in this DataFrame.
+#'
+#' @inherit as_polars_series return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = c(1, 2, 3, 1),
+#'   b = c("x", "y", "z", "x")
+#' )
+#' df$is_duplicated()
+#'
+#' # This mask can be used to visualize the duplicated lines like this:
+#' df$filter(df$is_duplicated())
+dataframe__is_duplicated <- function() {
+  self$`_df`$is_duplicated() |>
+    wrap()
+}
+
+#' Returns `TRUE` if the DataFrame contains no rows.
+#'
+#' @return A logical value
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = c(1, 2, 3, 1),
+#'   b = c("x", "y", "z", "x")
+#' )
+#' df$is_empty()
+#' df$filter(pl$col("a") > 99)$is_empty()
+dataframe__is_empty <- function() {
+  self$`_df`$is_empty() |>
+    wrap()
+}
+
+#' @inherit lazyframe__rolling title description params
+#'
+#' @return [RollingGroupBy][RollingGroupBy_class] (a DataFrame with special
+#' rolling groupby methods like `$agg()`).
+#' @seealso
+#' - [`<DataFrame>$group_by_dynamic()`][dataframe__group_by_dynamic]
+#' @examples
+#' dates <- c(
+#'   "2020-01-01 13:45:48",
+#'   "2020-01-01 16:42:13",
+#'   "2020-01-01 16:45:09",
+#'   "2020-01-02 18:12:48",
+#'   "2020-01-03 19:45:32",
+#'   "2020-01-08 23:16:43"
+#' )
+#'
+#' df <- pl$DataFrame(dt = dates, a = c(3, 7, 5, 9, 2, 1))$with_columns(
+#'   pl$col("dt")$str$strptime(pl$Datetime())
+#' )
+#'
+#' df$rolling(index_column = "dt", period = "2d")$agg(
+#'   sum_a = pl$col("a")$sum(),
+#'   min_a = pl$col("a")$min(),
+#'   max_a = pl$col("a")$max()
+#' )
+dataframe__rolling <- function(
+    index_column,
+    ...,
+    period,
+    offset = NULL,
+    closed = c("right", "left", "both", "none"),
+    group_by = NULL) {
+  wrap({
+    check_dots_empty0(...)
+    wrap_to_rolling_group_by(self,
+      index_column = index_column,
+      period = period,
+      offset = offset,
+      closed = closed,
+      group_by = group_by
+    )
+  })
+}
+
+#' Transpose a DataFrame over the diagonal
+#'
+#' @inheritParams rlang::args_dots_empty
+#' @param include_header If set, the column names will be added as first column.
+#' @param header_name If `include_header` is set, this determines the name of
+#' the column that will be inserted.
+#' @param column_names Optional string naming an existing column, or a function
+#' that takes an integer vector representing the position of value (non-header)
+#' columns and returns a character vector of same length. Column position is
+#' 0-indexed.
+#'
+#' @inherit as_polars_df return
+#'
+#' @details
+#' This is a very expensive operation. Perhaps you can do it differently.
+#'
+#' @examples
+#' df <- pl$DataFrame(a = c(1, 2, 3), b = c(4, 5, 6))
+#' df$transpose(include_header = TRUE)
+#'
+#' # Replace the auto-generated column names with a list
+#' df$transpose(include_header = FALSE, column_names = c("x", "y", "z"))
+#'
+#' # Include the header as a separate column
+#' df$transpose(
+#'   include_header = TRUE, header_name = "foo", column_names = c("x", "y", "z")
+#' )
+#'
+#' # Use a function to produce the new column names
+#' name_generator <- function(x) {
+#'   paste0("my_column_", x)
+#' }
+#' df$transpose(include_header = FALSE, column_names = name_generator)
+#'
+#' # Use an existing column as the new column names
+#' df <- pl$DataFrame(id = c("i", "j", "k"), a = c(1, 2, 3), b = c(4, 5, 6))
+#' df$transpose(column_names = "id")
+#' df$transpose(include_header = TRUE, header_name = "new_id", column_names = "id")
+dataframe__transpose <- function(
+    ...,
+    include_header = FALSE,
+    header_name = "column",
+    column_names = NULL) {
+  wrap({
+    check_dots_empty0(...)
+    keep_names_as <- if (isTRUE(include_header)) {
+      check_string(header_name, allow_null = TRUE)
+      header_name
+    } else {
+      NULL
+    }
+    if (is_function(column_names)) {
+      n_elems <- nrow(self)
+      column_names <- column_names(seq_len(n_elems) - 1)
+      if (!is_character(column_names, n = n_elems)) {
+        abort(
+          paste("The function in `column_names` must return a character vector with", n_elems, "elements.")
+        )
+      }
+    }
+    self$`_df`$transpose(keep_names_as = keep_names_as, column_names = column_names %||% character())
   })
 }
