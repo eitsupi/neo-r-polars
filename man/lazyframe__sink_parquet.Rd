@@ -14,10 +14,12 @@ lazyframe__sink_parquet(
   data_page_size = NULL,
   maintain_order = TRUE,
   type_coercion = TRUE,
+  `_type_check` = TRUE,
   predicate_pushdown = TRUE,
   projection_pushdown = TRUE,
   simplify_expression = TRUE,
   slice_pushdown = TRUE,
+  collapse_joins = TRUE,
   no_optimization = FALSE,
   storage_options = NULL,
   retries = 2
@@ -77,6 +79,8 @@ this to \code{FALSE} will be slightly faster.}
 \item{simplify_expression}{A logical, indicats simplify expression optimization.}
 
 \item{slice_pushdown}{A logical, indicats slice pushdown optimization.}
+
+\item{collapse_joins}{Collapse a join and filters into a faster join.}
 
 \item{no_optimization}{A logical. If \code{TRUE}, turn off (certain) optimizations.}
 
