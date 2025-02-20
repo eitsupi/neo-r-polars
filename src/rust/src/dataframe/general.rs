@@ -1,5 +1,7 @@
 use super::*;
-use crate::{PlRDataType, PlRLazyFrame, PlRSeries, RPolarsErr};
+use crate::{PlRDataType, PlRExpr, PlRLazyFrame, PlRSeries, RPolarsErr};
+use either::Either;
+use polars::prelude::pivot::{pivot, pivot_stable};
 use savvy::{
     r_println, savvy, ListSexp, NumericScalar, OwnedIntegerSexp, OwnedListSexp, Result, Sexp,
     StringSexp, TypedSexp,
@@ -50,6 +52,28 @@ impl PlRDataFrame {
             );
         }
         Ok(list.into())
+    }
+
+    pub fn transpose(
+        &mut self,
+        column_names: StringSexp,
+        keep_names_as: Option<&str>,
+    ) -> Result<Self> {
+        let column_names = column_names.to_vec();
+        let new_col_names = if column_names.len() == 1 {
+            Some(Either::Left(column_names[0].to_string()))
+        } else if column_names.len() > 1 {
+            Some(Either::Right(
+                column_names.iter().map(|x| x.to_string()).collect(),
+            ))
+        } else {
+            None
+        };
+        let out = self
+            .df
+            .transpose(keep_names_as, new_col_names)
+            .map_err(RPolarsErr::from)?;
+        Ok(out.into())
     }
 
     pub fn slice(&self, offset: NumericScalar, length: Option<NumericScalar>) -> Result<Self> {
@@ -159,5 +183,125 @@ impl PlRDataFrame {
         let mut df = self.df.clone();
         df.as_single_chunk_par();
         Ok(df.into())
+    }
+
+    pub fn clear(&self) -> Result<Self> {
+        Ok(self.df.clear().into())
+    }
+
+    pub fn unpivot(
+        &self,
+        on: StringSexp,
+        index: StringSexp,
+        value_name: Option<&str>,
+        variable_name: Option<&str>,
+    ) -> Result<Self> {
+        let args = UnpivotArgsIR {
+            on: on
+                .to_vec()
+                .iter()
+                .map(|x| PlSmallStr::from_str(*x))
+                .collect(),
+            index: index
+                .to_vec()
+                .iter()
+                .map(|x| PlSmallStr::from_str(*x))
+                .collect(),
+            value_name: value_name.map(|s| s.into()),
+            variable_name: variable_name.map(|s| s.into()),
+        };
+        let out = self.df.unpivot2(args).map_err(RPolarsErr::from)?;
+
+        Ok(out.into())
+    }
+
+    pub fn to_dummies(
+        &self,
+        drop_first: bool,
+        columns: Option<StringSexp>,
+        separator: Option<&str>,
+    ) -> Result<Self> {
+        let out = match columns {
+            Some(cols) => self.df.columns_to_dummies(
+                cols.iter().map(|x| x as &str).collect(),
+                separator,
+                drop_first,
+            ),
+            None => self.df.to_dummies(separator, drop_first),
+        }
+        .map_err(RPolarsErr::from)?;
+        Ok(out.into())
+    }
+
+    pub fn pivot_expr(
+        &self,
+        on: StringSexp,
+        maintain_order: bool,
+        sort_columns: bool,
+        aggregate_expr: Option<PlRExpr>,
+        separator: Option<&str>,
+        index: Option<StringSexp>,
+        values: Option<StringSexp>,
+    ) -> Result<Self> {
+        let fun = if maintain_order { pivot_stable } else { pivot };
+        let agg_expr = aggregate_expr.map(|expr| expr.inner);
+        let on = on.to_vec();
+        let index = index.map(|x| x.to_vec());
+        let values = values.map(|x| x.to_vec());
+        let out = fun(
+            &self.df,
+            on,
+            index,
+            values,
+            sort_columns,
+            agg_expr,
+            separator,
+        )
+        .map_err(RPolarsErr::from)?;
+        Ok(out.into())
+    }
+
+    pub fn partition_by(
+        &self,
+        by: StringSexp,
+        maintain_order: bool,
+        include_key: bool,
+    ) -> Result<Sexp> {
+        let by = by.to_vec();
+        let res = if maintain_order {
+            self.df.partition_by_stable(by, include_key)
+        } else {
+            self.df.partition_by(by, include_key)
+        }
+        .map_err(RPolarsErr::from)?;
+
+        let mut out = OwnedListSexp::new(res.len(), false)?;
+        for i in 0..res.len() {
+            let _ = out.set_value(i, Sexp::try_from(PlRDataFrame::from(res[i].clone()))?);
+        }
+
+        Ok(out.into())
+    }
+
+    pub fn is_unique(&self) -> Result<PlRSeries> {
+        Ok(self
+            .df
+            .is_unique()
+            .map_err(RPolarsErr::from)?
+            .into_series()
+            .into())
+    }
+
+    pub fn is_duplicated(&self) -> Result<PlRSeries> {
+        Ok(self
+            .df
+            .is_duplicated()
+            .map_err(RPolarsErr::from)?
+            .into_series()
+            .into())
+    }
+
+    pub fn is_empty(&self) -> Result<Sexp> {
+        self.df.is_empty().try_into()
     }
 }

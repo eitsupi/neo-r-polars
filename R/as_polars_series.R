@@ -14,6 +14,8 @@
 #' all elements must have the same type.
 #' So the [as_polars_series()] function automatically casts all elements to the same type
 #' or throws an error, depending on the `strict` argument.
+#' We can check the [data type][DataType] of the [Series] that will be created from the [list] by using the
+#' [infer_polars_dtype()] function in advance.
 #' If you want to create a list with all elements of the same type in R,
 #' consider using the [vctrs::list_of()] function.
 #'
@@ -53,9 +55,10 @@
 #' the internal representation of seconds.
 #' Please check the [clock_duration][clock::duration-helper] documentation for more details.
 #'
-#' ## S3 method for [polars_data_frame][DataFrame]
+#' ## S3 methods for [polars_data_frame][DataFrame], [polars_lazy_frame][LazyFrame], and [data.frame]
 #'
-#' This method is a shortcut for [`<DataFrame>$to_struct()`][dataframe__to_struct].
+#' These methods are shortcuts for `as_polars_df(x, ...)$to_struct()`.
+#' See [as_polars_df()] and [`<DataFrame>$to_struct()`][dataframe__to_struct] for more details.
 #' @param x An R object.
 #' @param name A single string or `NULL`. Name of the Series.
 #' Will be used as a column name when used in a [polars DataFrame][DataFrame].
@@ -70,6 +73,7 @@
 #' @seealso
 #' - [`<Series>$to_r_vector()`][series__to_r_vector]: Export the Series as an R vector.
 #' - [as_polars_df()]: Create a Polars DataFrame from an R object.
+#' - [infer_polars_dtype()]: Infer the Polars [DataType] corresponding to an R object.
 #' @examples
 #' # double
 #' as_polars_series(c(NA, 1, 2))
@@ -114,6 +118,9 @@
 #'
 #' as.difftime(c(0.0005, 0.0010, 0.0015, 0.0020), units = "weeks") |>
 #'   as_polars_series()
+#'
+#' # numeric_version
+#' as_polars_series(getRversion())
 #'
 #' # NULL
 #' as_polars_series(NULL)
@@ -194,8 +201,12 @@ as_polars_series.polars_series <- function(x, name = NULL, ...) {
 #' @rdname as_polars_series
 #' @export
 as_polars_series.polars_data_frame <- function(x, name = NULL, ...) {
-  x$to_struct(name = name %||% "")
+  as_polars_df(x, ...)$to_struct(name = name %||% "")
 }
+
+#' @rdname as_polars_series
+#' @export
+as_polars_series.polars_lazy_frame <- as_polars_series.polars_data_frame
 
 # This is only used for showing the special error message.
 # So, this method is not documented.
@@ -348,6 +359,21 @@ as_polars_series.difftime <- function(x, name = NULL, ...) {
 
 #' @rdname as_polars_series
 #' @export
+as_polars_series.numeric_version <- function(x, name = NULL, ...) {
+  wrap({
+    if (length(x) == 0L) {
+      # Because if the length is 0, new_series_list will return a List(Null) type
+      PlRSeries$new_null(name %||% "", 0L)$cast(pl$List(pl$Int32)$`_dt`, TRUE)
+    } else {
+      unclass(x) |>
+        lapply(\(item) PlRSeries$new_i32("", item)) |>
+        PlRSeries$new_series_list(name %||% "", values = _, strict = TRUE)
+    }
+  })
+}
+
+#' @rdname as_polars_series
+#' @export
 as_polars_series.hms <- function(x, name = NULL, ...) {
   wrap({
     if (suppressWarnings(max(x, na.rm = TRUE) >= 86400.0 || min(x, na.rm = TRUE) < 0.0)) {
@@ -390,6 +416,7 @@ as_polars_series.NULL <- function(x, name = NULL, ...) {
   })
 }
 
+# TODO: move the infer supertype logic on the Rust side to `infer_polars_dtype()`
 #' @rdname as_polars_series
 #' @export
 as_polars_series.list <- function(x, name = NULL, ..., strict = FALSE) {
@@ -414,9 +441,7 @@ as_polars_series.AsIs <- function(x, name = NULL, ...) {
 
 #' @rdname as_polars_series
 #' @export
-as_polars_series.data.frame <- function(x, name = NULL, ...) {
-  as_polars_df(x, ...)$to_struct(name = name %||% "")
-}
+as_polars_series.data.frame <- as_polars_series.polars_data_frame
 
 #' @rdname as_polars_series
 #' @export
