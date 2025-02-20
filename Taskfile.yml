@@ -159,19 +159,13 @@ tasks:
     cmds:
       - Rscript -e 'testthat::snapshot_accept()'
 
-  install-air:
-    desc: Install Air to format R code.
-    cmds:
-      - curl -LsSf https://github.com/posit-dev/air/releases/latest/download/air-installer.sh | sh
-
   fmt:
     desc: Format all R and Rust code.
     sources:
       - "{{.R_SOURCE}}"
       - "{{.RUST_SOURCE}}"
       - tests/**/*
-    deps:
-      - install-air
     cmds:
+      - air -V | grep -q "0.3.0" || exit 1
       - air format .
       - cargo fmt --all --manifest-path src/rust/Cargo.toml
