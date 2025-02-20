@@ -1606,6 +1606,55 @@ dataframe__quantile <- function(
   })
 }
 
+#' Get a mask of all unique rows in this DataFrame.
+#'
+#' @inherit as_polars_series return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = c(1, 2, 3, 1),
+#'   b = c("x", "y", "z", "x")
+#' )
+#' df$is_unique()
+#'
+#' # This mask can be used to visualize the unique lines like this:
+#' df$filter(df$is_unique())
+dataframe__is_unique <- function() {
+  self$`_df`$is_unique() |>
+    wrap()
+}
+
+#' Get a mask of all duplicated rows in this DataFrame.
+#'
+#' @inherit as_polars_series return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = c(1, 2, 3, 1),
+#'   b = c("x", "y", "z", "x")
+#' )
+#' df$is_duplicated()
+#'
+#' # This mask can be used to visualize the duplicated lines like this:
+#' df$filter(df$is_duplicated())
+dataframe__is_duplicated <- function() {
+  self$`_df`$is_duplicated() |>
+    wrap()
+}
+
+#' Returns `TRUE` if the DataFrame contains no rows.
+#'
+#' @return A logical value
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = c(1, 2, 3, 1),
+#'   b = c("x", "y", "z", "x")
+#' )
+#' df$is_empty()
+#' df$filter(pl$col("a") > 99)$is_empty()
+dataframe__is_empty <- function() {
+  self$`_df`$is_empty() |>
+    wrap()
+}
+                    
 #' @inherit lazyframe__rolling title description params
 #'
 #' @return [RollingGroupBy][RollingGroupBy_class] (a DataFrame with special
@@ -1648,4 +1697,4 @@ dataframe__rolling <- function(
       group_by = group_by
     )
   })
-}
+})
