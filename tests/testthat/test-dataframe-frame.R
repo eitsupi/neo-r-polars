@@ -393,6 +393,14 @@ test_that("transpose() works", {
       z = c(3, 6)
     )
   )
+  expect_error(
+    df$transpose(include_header = TRUE, header_name = 1),
+    "must be a single string"
+  )
+  expect_error(
+    df$transpose(include_header = TRUE, header_name = c("a", "b")),
+    "must be a single string"
+  )
 
   # Own function for new column names
   name_generator <- function(x) {

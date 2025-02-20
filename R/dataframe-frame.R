@@ -1745,6 +1745,7 @@ dataframe__transpose <- function(
   wrap({
     check_dots_empty0(...)
     keep_names_as <- if (isTRUE(include_header)) {
+      check_string(header_name, allow_null = TRUE)
       header_name
     } else {
       NULL
