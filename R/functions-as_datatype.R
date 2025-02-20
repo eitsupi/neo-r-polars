@@ -245,6 +245,7 @@ pl__struct <- function(..., .schema = NULL) {
   wrap({
     exprs <- parse_into_list_of_expressions(...)
     if (!is.null(.schema)) {
+      check_list_of_polars_dtype(.schema)
       if (length(exprs) == 0) {
         exprs <- parse_into_list_of_expressions(!!!names(.schema))
       }

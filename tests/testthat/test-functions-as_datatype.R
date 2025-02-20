@@ -100,4 +100,8 @@ test_that("pl$struct()", {
     )$unnest("my_struct"),
     df$select("int", "list")$cast(int = pl$UInt32, list = pl$List(pl$Float32))
   )
+  expect_error(
+    df$select(my_struct = pl$struct(.schema = list(a = 1))),
+    "must be a list of polars data types"
+  )
 })
