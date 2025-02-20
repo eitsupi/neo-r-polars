@@ -1697,7 +1697,7 @@ dataframe__rolling <- function(
       group_by = group_by
     )
   })
-})
+}
 
 #' Transpose a DataFrame over the diagonal
 #'
@@ -1705,7 +1705,7 @@ dataframe__rolling <- function(
 #' @param include_header If set, the column names will be added as first column.
 #' @param header_name If `include_header` is set, this determines the name of
 #' the column that will be inserted.
-#' @param column_names Optional string naming an existing column. These will 
+#' @param column_names Optional string naming an existing column. These will
 #' name the value (non-header) columns in the transposed data.
 #'
 #' @inherit as_polars_df return
