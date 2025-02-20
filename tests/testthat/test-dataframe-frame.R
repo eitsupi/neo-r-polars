@@ -394,6 +394,22 @@ test_that("transpose() works", {
     )
   )
 
+  # Own function for new column names
+  name_generator <- function(x) {
+    paste0("my_column_", x)
+  }
+  expect_equal(
+    df$transpose(
+      include_header = FALSE,
+      column_names = name_generator
+    ),
+    pl$DataFrame(
+      my_column_0 = c(1, 4),
+      my_column_1 = c(2, 5),
+      my_column_2 = c(3, 6)
+    )
+  )
+
   # Use an existing column as the new column names
   df <- pl$DataFrame(id = c("i", "j", "k"), a = c(1, 2, 3), b = c(4, 5, 6))
   expect_equal(

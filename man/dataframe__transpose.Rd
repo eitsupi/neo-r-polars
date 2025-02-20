@@ -19,8 +19,10 @@ dataframe__transpose(
 \item{header_name}{If \code{include_header} is set, this determines the name of
 the column that will be inserted.}
 
-\item{column_names}{Optional string naming an existing column. These will
-name the value (non-header) columns in the transposed data.}
+\item{column_names}{Optional string naming an existing column, or a function
+that takes an integer vector representing the position of value (non-header)
+columns and returns a character vector of same length. Column position is
+0-indexed.}
 }
 \value{
 A polars \link{DataFrame}
@@ -42,6 +44,12 @@ df$transpose(include_header = FALSE, column_names = c("x", "y", "z"))
 df$transpose(
   include_header = TRUE, header_name = "foo", column_names = c("x", "y", "z")
 )
+
+# Use a function to produce the new column names
+name_generator <- function(x) {
+  paste0("my_column_", x)
+}
+df$transpose(include_header = FALSE, column_names = name_generator)
 
 # Use an existing column as the new column names
 df <- pl$DataFrame(id = c("i", "j", "k"), a = c(1, 2, 3), b = c(4, 5, 6))
