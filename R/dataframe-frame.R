@@ -1751,7 +1751,13 @@ dataframe__transpose <- function(
       NULL
     }
     if (is_function(column_names)) {
-      column_names <- column_names(seq_len(nrow(self)) - 1)
+      n_elems <- nrow(self)
+      column_names <- column_names(seq_len(n_elems) - 1)
+      if (!is_character(column_names, n = n_elems)) {
+        abort(
+          paste("The function in `column_names` must return a character vector with", n_elems, "elements.")
+        )
+      }
     }
     self$`_df`$transpose(keep_names_as = keep_names_as, column_names = column_names %||% character())
   })

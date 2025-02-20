@@ -417,6 +417,20 @@ test_that("transpose() works", {
       my_column_2 = c(3, 6)
     )
   )
+  wrong_name_generator_1 <- function(x) {
+    x + 1
+  }
+  wrong_name_generator_2 <- function(x) {
+    paste0("my_column_", x[1])
+  }
+  expect_error(
+    df$transpose(column_names = wrong_name_generator_1),
+    "must return a character"
+  )
+  expect_error(
+    df$transpose(column_names = wrong_name_generator_2),
+    "must return a character"
+  )
 
   # Use an existing column as the new column names
   df <- pl$DataFrame(id = c("i", "j", "k"), a = c(1, 2, 3), b = c(4, 5, 6))
