@@ -1741,9 +1741,6 @@ dataframe__transpose <- function(
     } else {
       NULL
     }
-    if (is.null(column_names)) {
-      column_names <- character()
-    }
-    self$`_df`$transpose(keep_names_as = keep_names_as, column_names = column_names)
+    self$`_df`$transpose(keep_names_as = keep_names_as, column_names = column_names %||% character())
   })
 }
