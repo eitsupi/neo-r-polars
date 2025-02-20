@@ -243,18 +243,20 @@ pl__duration <- function(
 #' )$unnest("new_struct")
 pl__struct <- function(..., .schema = NULL) {
   wrap({
-    exprs <- parse_into_list_of_expressions(...)
-    if (!is.null(.schema)) {
-      check_list_of_polars_dtype(.schema)
-      if (length(exprs) == 0) {
-        exprs <- parse_into_list_of_expressions(!!!names(.schema))
-      }
-      expr <- wrap(as_struct(exprs))
-      expr <- expr$cast(pl$Struct(!!!.schema), strict = FALSE)
+    rexprs <- parse_into_list_of_expressions(...)
+    if (is.null(.schema)) {
+      as_struct(rexprs)
     } else {
-      expr <- wrap(as_struct(exprs))
+      check_list_of_polars_dtype(.schema)
+      if (length(rexprs) == 0L) {
+        expr <- parse_into_list_of_expressions(!!!names(.schema)) |>
+          as_struct() |>
+          wrap()
+      } else {
+        expr <- wrap(as_struct(rexprs))
+      }
+      expr$cast(pl$Struct(!!!.schema), strict = FALSE)
     }
-    expr
   })
 }
 
