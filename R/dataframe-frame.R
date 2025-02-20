@@ -885,9 +885,6 @@ dataframe__gather_every <- function(n, offset = 0) {
 #' )
 #'
 #' df$rename(foo = "apple")
-# df$rename(
-#' #  \(column_name) paste0("c", substr(column_name, 2, 100))
-# )
 dataframe__rename <- function(..., .strict = TRUE) {
   self$lazy()$rename(..., .strict = .strict)$collect(`_eager` = TRUE) |>
     wrap()
@@ -1509,6 +1506,198 @@ dataframe__sum_horizontal <- function() {
   self$select(sum = pl$sum_horizontal(pl$all()))$to_series() |>
     wrap()
 }
+
+#' Aggregate the columns in the DataFrame to their maximum value
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(a = 1:4, b = c(1, 2, 1, 1))
+#' df$max()
+dataframe__max <- function() {
+  self$lazy()$max()$collect(`_eager` = TRUE) |>
+    wrap()
+}
+
+#' Aggregate the columns in the DataFrame to their minimum value
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(a = 1:4, b = c(1, 2, 1, 1))
+#' df$min()
+dataframe__min <- function() {
+  self$lazy()$min()$collect(`_eager` = TRUE) |>
+    wrap()
+}
+
+#' Aggregate the columns in the DataFrame to their mean value
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(a = 1:4, b = c(1, 2, 1, 1))
+#' df$mean()
+dataframe__mean <- function() {
+  self$lazy()$mean()$collect(`_eager` = TRUE) |>
+    wrap()
+}
+
+#' Aggregate the columns in the DataFrame to their median value
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(a = 1:4, b = c(1, 2, 1, 1))
+#' df$median()
+dataframe__median <- function() {
+  self$lazy()$median()$collect(`_eager` = TRUE) |>
+    wrap()
+}
+
+#' Aggregate the columns of this DataFrame to their sum values
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(a = 1:4, b = c(1, 2, 1, 1))
+#' df$sum()
+dataframe__sum <- function() {
+  self$lazy()$sum()$collect(`_eager` = TRUE) |>
+    wrap()
+}
+
+#' Aggregate the columns in the DataFrame to their variance value
+#'
+#' @inheritParams lazyframe__var
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(a = 1:4, b = c(1, 2, 1, 1))
+#' df$var()
+#' df$var(ddof = 0)
+dataframe__var <- function(ddof = 1) {
+  self$lazy()$var(ddof)$collect(`_eager` = TRUE) |>
+    wrap()
+}
+
+#' Aggregate the columns of this DataFrame to their standard deviation values
+#'
+#' @inheritParams lazyframe__std
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(a = 1:4, b = c(1, 2, 1, 1))
+#' df$std()
+#' df$std(ddof = 0)
+dataframe__std <- function(ddof = 1) {
+  self$lazy()$std(ddof)$collect(`_eager` = TRUE) |>
+    wrap()
+}
+
+#' @inherit lazyframe__quantile title params
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(a = 1:4, b = c(1, 2, 1, 1))
+#' df$quantile(0.7)
+dataframe__quantile <- function(
+    quantile,
+    interpolation = c("nearest", "higher", "lower", "midpoint", "linear")) {
+  wrap({
+    interpolation <- arg_match0(
+      interpolation,
+      values = c("nearest", "higher", "lower", "midpoint", "linear")
+    )
+    self$lazy()$quantile(quantile, interpolation)$collect(`_eager` = TRUE)
+  })
+}
+
+#' Get a mask of all unique rows in this DataFrame.
+#'
+#' @inherit as_polars_series return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = c(1, 2, 3, 1),
+#'   b = c("x", "y", "z", "x")
+#' )
+#' df$is_unique()
+#'
+#' # This mask can be used to visualize the unique lines like this:
+#' df$filter(df$is_unique())
+dataframe__is_unique <- function() {
+  self$`_df`$is_unique() |>
+    wrap()
+}
+
+#' Get a mask of all duplicated rows in this DataFrame.
+#'
+#' @inherit as_polars_series return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = c(1, 2, 3, 1),
+#'   b = c("x", "y", "z", "x")
+#' )
+#' df$is_duplicated()
+#'
+#' # This mask can be used to visualize the duplicated lines like this:
+#' df$filter(df$is_duplicated())
+dataframe__is_duplicated <- function() {
+  self$`_df`$is_duplicated() |>
+    wrap()
+}
+
+#' Returns `TRUE` if the DataFrame contains no rows.
+#'
+#' @return A logical value
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = c(1, 2, 3, 1),
+#'   b = c("x", "y", "z", "x")
+#' )
+#' df$is_empty()
+#' df$filter(pl$col("a") > 99)$is_empty()
+dataframe__is_empty <- function() {
+  self$`_df`$is_empty() |>
+    wrap()
+}
+                    
+#' @inherit lazyframe__rolling title description params
+#'
+#' @return [RollingGroupBy][RollingGroupBy_class] (a DataFrame with special
+#' rolling groupby methods like `$agg()`).
+#' @seealso
+#' - [`<DataFrame>$group_by_dynamic()`][dataframe__group_by_dynamic]
+#' @examples
+#' dates <- c(
+#'   "2020-01-01 13:45:48",
+#'   "2020-01-01 16:42:13",
+#'   "2020-01-01 16:45:09",
+#'   "2020-01-02 18:12:48",
+#'   "2020-01-03 19:45:32",
+#'   "2020-01-08 23:16:43"
+#' )
+#'
+#' df <- pl$DataFrame(dt = dates, a = c(3, 7, 5, 9, 2, 1))$with_columns(
+#'   pl$col("dt")$str$strptime(pl$Datetime())
+#' )
+#'
+#' df$rolling(index_column = "dt", period = "2d")$agg(
+#'   sum_a = pl$col("a")$sum(),
+#'   min_a = pl$col("a")$min(),
+#'   max_a = pl$col("a")$max()
+#' )
+dataframe__rolling <- function(
+    index_column,
+    ...,
+    period,
+    offset = NULL,
+    closed = c("right", "left", "both", "none"),
+    group_by = NULL) {
+  wrap({
+    check_dots_empty0(...)
+    wrap_to_rolling_group_by(self,
+      index_column = index_column,
+      period = period,
+      offset = offset,
+      closed = closed,
+      group_by = group_by
+    )
+  })
+})
 
 #' Transpose a DataFrame over the diagonal
 #'

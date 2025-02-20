@@ -324,6 +324,21 @@ SEXP savvy_PlRDataFrame_init__impl(SEXP c_arg__columns) {
     return handle_result(res);
 }
 
+SEXP savvy_PlRDataFrame_is_duplicated__impl(SEXP self__) {
+    SEXP res = savvy_PlRDataFrame_is_duplicated__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRDataFrame_is_empty__impl(SEXP self__) {
+    SEXP res = savvy_PlRDataFrame_is_empty__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRDataFrame_is_unique__impl(SEXP self__) {
+    SEXP res = savvy_PlRDataFrame_is_unique__ffi(self__);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRDataFrame_lazy__impl(SEXP self__) {
     SEXP res = savvy_PlRDataFrame_lazy__ffi(self__);
     return handle_result(res);
@@ -761,6 +776,51 @@ SEXP savvy_PlRExpr_bin_size_bytes__impl(SEXP self__) {
 
 SEXP savvy_PlRExpr_bin_starts_with__impl(SEXP self__, SEXP c_arg__prefix) {
     SEXP res = savvy_PlRExpr_bin_starts_with__ffi(self__, c_arg__prefix);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_bitwise_and__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_bitwise_and__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_bitwise_count_ones__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_bitwise_count_ones__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_bitwise_count_zeros__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_bitwise_count_zeros__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_bitwise_leading_ones__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_bitwise_leading_ones__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_bitwise_leading_zeros__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_bitwise_leading_zeros__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_bitwise_or__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_bitwise_or__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_bitwise_trailing_ones__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_bitwise_trailing_ones__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_bitwise_trailing_zeros__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_bitwise_trailing_zeros__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRExpr_bitwise_xor__impl(SEXP self__) {
+    SEXP res = savvy_PlRExpr_bitwise_xor__ffi(self__);
     return handle_result(res);
 }
 
@@ -2854,6 +2914,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRDataFrame_head__impl", (DL_FUNC) &savvy_PlRDataFrame_head__impl, 2},
     {"savvy_PlRDataFrame_height__impl", (DL_FUNC) &savvy_PlRDataFrame_height__impl, 1},
     {"savvy_PlRDataFrame_init__impl", (DL_FUNC) &savvy_PlRDataFrame_init__impl, 1},
+    {"savvy_PlRDataFrame_is_duplicated__impl", (DL_FUNC) &savvy_PlRDataFrame_is_duplicated__impl, 1},
+    {"savvy_PlRDataFrame_is_empty__impl", (DL_FUNC) &savvy_PlRDataFrame_is_empty__impl, 1},
+    {"savvy_PlRDataFrame_is_unique__impl", (DL_FUNC) &savvy_PlRDataFrame_is_unique__impl, 1},
     {"savvy_PlRDataFrame_lazy__impl", (DL_FUNC) &savvy_PlRDataFrame_lazy__impl, 1},
     {"savvy_PlRDataFrame_n_chunks__impl", (DL_FUNC) &savvy_PlRDataFrame_n_chunks__impl, 1},
     {"savvy_PlRDataFrame_partition_by__impl", (DL_FUNC) &savvy_PlRDataFrame_partition_by__impl, 4},
@@ -2942,6 +3005,15 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_bin_hex_encode__impl", (DL_FUNC) &savvy_PlRExpr_bin_hex_encode__impl, 1},
     {"savvy_PlRExpr_bin_size_bytes__impl", (DL_FUNC) &savvy_PlRExpr_bin_size_bytes__impl, 1},
     {"savvy_PlRExpr_bin_starts_with__impl", (DL_FUNC) &savvy_PlRExpr_bin_starts_with__impl, 2},
+    {"savvy_PlRExpr_bitwise_and__impl", (DL_FUNC) &savvy_PlRExpr_bitwise_and__impl, 1},
+    {"savvy_PlRExpr_bitwise_count_ones__impl", (DL_FUNC) &savvy_PlRExpr_bitwise_count_ones__impl, 1},
+    {"savvy_PlRExpr_bitwise_count_zeros__impl", (DL_FUNC) &savvy_PlRExpr_bitwise_count_zeros__impl, 1},
+    {"savvy_PlRExpr_bitwise_leading_ones__impl", (DL_FUNC) &savvy_PlRExpr_bitwise_leading_ones__impl, 1},
+    {"savvy_PlRExpr_bitwise_leading_zeros__impl", (DL_FUNC) &savvy_PlRExpr_bitwise_leading_zeros__impl, 1},
+    {"savvy_PlRExpr_bitwise_or__impl", (DL_FUNC) &savvy_PlRExpr_bitwise_or__impl, 1},
+    {"savvy_PlRExpr_bitwise_trailing_ones__impl", (DL_FUNC) &savvy_PlRExpr_bitwise_trailing_ones__impl, 1},
+    {"savvy_PlRExpr_bitwise_trailing_zeros__impl", (DL_FUNC) &savvy_PlRExpr_bitwise_trailing_zeros__impl, 1},
+    {"savvy_PlRExpr_bitwise_xor__impl", (DL_FUNC) &savvy_PlRExpr_bitwise_xor__impl, 1},
     {"savvy_PlRExpr_bottom_k__impl", (DL_FUNC) &savvy_PlRExpr_bottom_k__impl, 2},
     {"savvy_PlRExpr_bottom_k_by__impl", (DL_FUNC) &savvy_PlRExpr_bottom_k_by__impl, 4},
     {"savvy_PlRExpr_cast__impl", (DL_FUNC) &savvy_PlRExpr_cast__impl, 4},

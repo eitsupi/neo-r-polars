@@ -434,6 +434,24 @@ class(`PlRChainedWhen`) <- c("PlRChainedWhen__bundle", "savvy_neopolars__sealed"
   }
 }
 
+`PlRDataFrame_is_duplicated` <- function(self) {
+  function() {
+    .savvy_wrap_PlRSeries(.Call(savvy_PlRDataFrame_is_duplicated__impl, `self`))
+  }
+}
+
+`PlRDataFrame_is_empty` <- function(self) {
+  function() {
+    .Call(savvy_PlRDataFrame_is_empty__impl, `self`)
+  }
+}
+
+`PlRDataFrame_is_unique` <- function(self) {
+  function() {
+    .savvy_wrap_PlRSeries(.Call(savvy_PlRDataFrame_is_unique__impl, `self`))
+  }
+}
+
 `PlRDataFrame_lazy` <- function(self) {
   function() {
     .savvy_wrap_PlRLazyFrame(.Call(savvy_PlRDataFrame_lazy__impl, `self`))
@@ -542,6 +560,9 @@ class(`PlRChainedWhen`) <- c("PlRChainedWhen__bundle", "savvy_neopolars__sealed"
   e$`get_columns` <- `PlRDataFrame_get_columns`(ptr)
   e$`head` <- `PlRDataFrame_head`(ptr)
   e$`height` <- `PlRDataFrame_height`(ptr)
+  e$`is_duplicated` <- `PlRDataFrame_is_duplicated`(ptr)
+  e$`is_empty` <- `PlRDataFrame_is_empty`(ptr)
+  e$`is_unique` <- `PlRDataFrame_is_unique`(ptr)
   e$`lazy` <- `PlRDataFrame_lazy`(ptr)
   e$`n_chunks` <- `PlRDataFrame_n_chunks`(ptr)
   e$`partition_by` <- `PlRDataFrame_partition_by`(ptr)
@@ -1041,6 +1062,60 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
   function(`prefix`) {
     `prefix` <- .savvy_extract_ptr(`prefix`, "PlRExpr")
     .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_bin_starts_with__impl, `self`, `prefix`))
+  }
+}
+
+`PlRExpr_bitwise_and` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_bitwise_and__impl, `self`))
+  }
+}
+
+`PlRExpr_bitwise_count_ones` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_bitwise_count_ones__impl, `self`))
+  }
+}
+
+`PlRExpr_bitwise_count_zeros` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_bitwise_count_zeros__impl, `self`))
+  }
+}
+
+`PlRExpr_bitwise_leading_ones` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_bitwise_leading_ones__impl, `self`))
+  }
+}
+
+`PlRExpr_bitwise_leading_zeros` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_bitwise_leading_zeros__impl, `self`))
+  }
+}
+
+`PlRExpr_bitwise_or` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_bitwise_or__impl, `self`))
+  }
+}
+
+`PlRExpr_bitwise_trailing_ones` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_bitwise_trailing_ones__impl, `self`))
+  }
+}
+
+`PlRExpr_bitwise_trailing_zeros` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_bitwise_trailing_zeros__impl, `self`))
+  }
+}
+
+`PlRExpr_bitwise_xor` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_bitwise_xor__impl, `self`))
   }
 }
 
@@ -3035,6 +3110,15 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
   e$`bin_hex_encode` <- `PlRExpr_bin_hex_encode`(ptr)
   e$`bin_size_bytes` <- `PlRExpr_bin_size_bytes`(ptr)
   e$`bin_starts_with` <- `PlRExpr_bin_starts_with`(ptr)
+  e$`bitwise_and` <- `PlRExpr_bitwise_and`(ptr)
+  e$`bitwise_count_ones` <- `PlRExpr_bitwise_count_ones`(ptr)
+  e$`bitwise_count_zeros` <- `PlRExpr_bitwise_count_zeros`(ptr)
+  e$`bitwise_leading_ones` <- `PlRExpr_bitwise_leading_ones`(ptr)
+  e$`bitwise_leading_zeros` <- `PlRExpr_bitwise_leading_zeros`(ptr)
+  e$`bitwise_or` <- `PlRExpr_bitwise_or`(ptr)
+  e$`bitwise_trailing_ones` <- `PlRExpr_bitwise_trailing_ones`(ptr)
+  e$`bitwise_trailing_zeros` <- `PlRExpr_bitwise_trailing_zeros`(ptr)
+  e$`bitwise_xor` <- `PlRExpr_bitwise_xor`(ptr)
   e$`bottom_k` <- `PlRExpr_bottom_k`(ptr)
   e$`bottom_k_by` <- `PlRExpr_bottom_k_by`(ptr)
   e$`cast` <- `PlRExpr_cast`(ptr)

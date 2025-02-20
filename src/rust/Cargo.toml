@@ -35,6 +35,7 @@ features = [
     "array_to_struct",
     "asof_join",
     "binary_encoding",
+    "bitwise",
     "business",
     "cloud",
     "concat_str",
