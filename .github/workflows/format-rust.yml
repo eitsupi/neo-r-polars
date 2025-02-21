@@ -20,11 +20,5 @@ jobs:
       - name: Set up Rust
         run: rustup component add rustfmt
 
-      - name: Install `air`
-        run: curl -LsSf https://github.com/posit-dev/air/releases/latest/download/air-installer.sh | sh
-
-      - name: Check formatting in R
-        run: air format . --check
-
       - name: Check formatting in Rust
         run: cargo fmt --all --check --manifest-path src/rust/Cargo.toml
