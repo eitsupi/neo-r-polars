@@ -166,6 +166,6 @@ tasks:
       - "{{.RUST_SOURCE}}"
       - tests/**/*
     cmds:
-      - air -V | grep -q "0.3.0" || exit 1
+      - air -V | grep -q "0.4.0" || exit 1
       - air format .
       - cargo fmt --all --manifest-path src/rust/Cargo.toml
