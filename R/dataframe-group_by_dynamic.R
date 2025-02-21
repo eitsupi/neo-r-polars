@@ -1,0 +1,40 @@
+# The env for storing rolling_group_by methods
+polars_group_by_dynamic__methods <- new.env(parent = emptyenv())
+
+wrap_to_group_by_dynamic <- function(x, index_column, every, period, offset, include_boundaries, closed, label, group_by, start_by) {
+  self <- new.env(parent = emptyenv())
+  self$df <- x
+  self$index_column <- index_column
+  self$every <- every
+  self$period <- period
+  self$offset <- offset
+  self$include_boundaries <- include_boundaries
+  self$closed <- closed
+  self$label <- label
+  self$group_by <- group_by
+  self$start_by <- start_by
+
+  lapply(names(polars_group_by_dynamic__methods), function(name) {
+    fn <- polars_group_by_dynamic__methods[[name]]
+    environment(fn) <- environment()
+    assign(name, fn, envir = self)
+  })
+
+  class(self) <- c("polars_group_by_dynamic", "polars_object")
+  self
+}
+
+group_by_dynamic__agg <- function(...) {
+  self$df$lazy()$group_by_dynamic(
+    index_column = index_column,
+    every = every,
+    period = period,
+    offset = offset,
+    include_boundaries = include_boundaries,
+    closed = closed,
+    label = label,
+    group_by = group_by,
+    start_by = start_by
+  )$agg(...)$collect(no_optimization = TRUE) |>
+    wrap()
+}

@@ -1749,7 +1749,7 @@ lazyframe__rolling <- function(
 #' - 1i # length 1
 #' - 10i # length 10
 #'
-#' @return A [LazyGroupBy][LazyGroupBy_class] object
+#' @return A [LazyGroupByDynamic][LazyGroupByDynamic_class] object
 #' @seealso
 #' - [`<LazyFrame>$rolling()`][lazyframe__rolling]
 #'
@@ -2311,5 +2311,4 @@ lazyframe__join_asof <- function(
     )
   })
 }
-
 # TODO-REWRITE: implement $deserialize() for LazyFrame
