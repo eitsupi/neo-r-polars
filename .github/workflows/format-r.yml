@@ -1,4 +1,4 @@
-name: format
+name: format-R
 
 on:
   push:
@@ -19,6 +19,6 @@ jobs:
 
       - name: Set up Rust
         run: rustup component add rustfmt
-        
+
       - name: Check formatting in Rust
         run: cargo fmt --all --check --manifest-path src/rust/Cargo.toml
