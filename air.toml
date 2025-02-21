@@ -4,4 +4,3 @@ indent-width = 2
 indent-style = "space"
 line-ending = "auto"
 persistent-line-breaks = true
-exclude = ["R/000-wrappers.R"]
