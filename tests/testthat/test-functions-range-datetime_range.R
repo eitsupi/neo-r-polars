@@ -55,7 +55,7 @@ patrick::with_parameters_test_that("clock_duration interval works",
   .cases = {
     skip_if_not_installed("clock")
 
-
+    # fmt: skip
     tibble::tribble(
       ~.test_name, ~construct_fn, ~expected_interval,
       "ns", clock::duration_nanoseconds, "10ns",
