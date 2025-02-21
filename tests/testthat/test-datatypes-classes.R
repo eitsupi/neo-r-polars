@@ -1,6 +1,7 @@
 patrick::with_parameters_test_that(
   "data types print",
   .cases = {
+    # fmt: skip
     tibble::tribble(
       ~.test_name, ~object,
       "Int8", pl$Int8,
@@ -47,6 +48,7 @@ patrick::with_parameters_test_that(
 patrick::with_parameters_test_that(
   "Enum construct error",
   .cases = {
+    # fmt: skip
     tibble::tribble(
       ~.test_name, ~categories, ~error_message,
       "non-character", 1:5, "`categories` must be a character vector, not an integer vector",
@@ -62,6 +64,7 @@ patrick::with_parameters_test_that(
 patrick::with_parameters_test_that(
   "Enum union works",
   .cases = {
+    # fmt: skip
     tibble::tribble(
       ~.test_name, ~input, ~expected_output,
       "a", pl$Enum("a"), pl$Enum(c("b", "d", "a")),

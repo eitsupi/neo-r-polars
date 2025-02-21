@@ -13,6 +13,7 @@ patrick::with_parameters_test_that(
 
     withr::with_timezone(
       "UTC",
+      # fmt: skip
       tibble::tribble(
         ~.test_name, ~x, ~expected_name, ~expected_dtype,
         "polars_series", as_polars_series(1L, "foo"), "foo", pl$Int32,
@@ -84,6 +85,7 @@ test_that("as_polars_series.polars_expr throws an error", {
 
 patrick::with_parameters_test_that("difftime's units (mins, hours, days) support",
   .cases = {
+    # fmt: skip
     tibble::tribble(
       ~.test_name, ~expected_series,
       "mins", as_polars_series(as.difftime(c(NA, 60), units = "secs")),
@@ -252,6 +254,7 @@ patrick::with_parameters_test_that("clock duration class support",
   .cases = {
     skip_if_not_installed("clock")
 
+    # fmt: skip
     tibble::tribble(
       ~.test_name, ~time_unit, ~construct_function,
       "year", "ms", clock::duration_years,
