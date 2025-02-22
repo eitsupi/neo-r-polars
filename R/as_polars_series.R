@@ -283,7 +283,10 @@ as_polars_series.POSIXct <- function(x, name = NULL, ...) {
     name <- name %||% ""
 
     int_series <- PlRSeries$new_i64_from_numeric_and_multiplier(
-      name, x, 1000L, "floor"
+      name,
+      x,
+      1000L,
+      "floor"
     )
 
     if (tzone == "") {
@@ -295,7 +298,8 @@ as_polars_series.POSIXct <- function(x, name = NULL, ...) {
           Sys.timezone()
         )$dt$replace_time_zone(
           NULL,
-          ambiguous = "raise", non_existent = "raise"
+          ambiguous = "raise",
+          non_existent = "raise"
         )
       )$to_series()
     } else {
@@ -332,10 +336,11 @@ as_polars_series.POSIXlt <- function(x, name = NULL, ...) {
       time_zone = time_zone,
       time_unit = "ns",
       ambiguous = pl$when(x$isdst == 0)$then(pl$lit("latest"))$otherwise(pl$lit("earliest"))
-    )$alias(name %||% "") + pl$duration(
-      minutes = minute_diff,
-      nanoseconds = (x$sec - floor(x$sec)) * 1e9
-    )
+    )$alias(name %||% "") +
+      pl$duration(
+        minutes = minute_diff,
+        nanoseconds = (x$sec - floor(x$sec)) * 1e9
+      )
   )$to_series()
 }
 
@@ -388,7 +393,10 @@ as_polars_series.hms <- function(x, name = NULL, ...) {
     }
 
     PlRSeries$new_i64_from_numeric_and_multiplier(
-      name %||% "", x, 1000000000L, "floor"
+      name %||% "",
+      x,
+      1000000000L,
+      "floor"
     )$cast(pl$Time$`_dt`, strict = TRUE) |>
       wrap()
   })
@@ -458,7 +466,10 @@ as_polars_series.integer64 <- function(x, name = NULL, ...) {
 #' @export
 as_polars_series.ITime <- function(x, name = NULL, ...) {
   PlRSeries$new_i64_from_numeric_and_multiplier(
-    name %||% "", x, 1000000000L, "floor"
+    name %||% "",
+    x,
+    1000000000L,
+    "floor"
   )$cast(pl$Time$`_dt`, strict = TRUE) |>
     wrap()
 }
