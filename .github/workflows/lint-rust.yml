@@ -1,28 +1,32 @@
 name: Lint Rust
 
 on:
-  push:
-    branches: [main, master]
-    paths:
-      - src/**
   pull_request:
-    branches: [main, master]
+    paths:
+      - src/rust/**
+      - .github/workflows/lint-rust.yml
+  push:
+    branches:
+      - main
     paths:
       - src/**
+  workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-jobs:
-  ci:
-    runs-on: ubuntu-latest
+permissions:
+  contents: read
 
+jobs:
+  cargo-fmt:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Rust
         run: rustup component add rustfmt
 
-      - name: Check formatting in Rust
+      - name: Run cargo fmt
         run: cargo fmt --all --check --manifest-path src/rust/Cargo.toml

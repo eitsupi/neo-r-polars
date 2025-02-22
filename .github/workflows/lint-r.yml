@@ -1,34 +1,35 @@
 name: Lint R
 
 on:
-  push:
-    branches: [main, master]
-    paths:
-      - altdoc/**
-      - R/**
-      - tests/**
-      - vignettes/**
   pull_request:
-    branches: [main, master]
+    branches:
+      - main
     paths:
-      - altdoc/**
-      - R/**
-      - tests/**
-      - vignettes/**
+      - "**/*.R"
+      - .github/workflows/lint-r.yml
+  push:
+    branches:
+      - main
+    paths:
+      - "**/*.R"
+      - .github/workflows/lint-r.yml
+  workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-jobs:
-  ci:
-    runs-on: ubuntu-latest
+permissions:
+  contents: read
 
+jobs:
+  air-format:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install `air`
+      - name: Set up Air
         run: curl -LsSf https://github.com/posit-dev/air/releases/latest/download/air-installer.sh | sh
 
-      - name: Check formatting in R
-        run: air format . --check
+      - name: Run air format
+        run: air format --check .
