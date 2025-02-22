@@ -11,7 +11,6 @@ vars:
   MANIFEST: src/rust/Cargo.toml
   CARGO_LOCK: src/rust/Cargo.lock
   R_SOURCE: R/*
-  R_TESTS: tests/*
   VIGNETTES: vignettes/**/*.Rmd
   RUST_SOURCE: src/rust/src/**/*.rs
 
@@ -88,7 +87,6 @@ tasks:
     deps:
       - build-rust
       - build-standalone-files
-      - format-r
     cmds:
       - Rscript -e
         '{{.R_FUNC_LOAD_REQUIRED_PKGS}};
@@ -160,22 +158,3 @@ tasks:
     desc: Accept all test snapshots. (Shortcut to accept snapshots after running tests)
     cmds:
       - Rscript -e 'testthat::snapshot_accept()'
-
-  format-r:
-    desc: Format R files.
-    aliases:
-      - fmt-r
-    sources:
-      - "{{.R_SOURCE}}"
-      - "{{.R_TESTS}}"
-      - air.toml
-      # These files are auto-generated and ignored by the formatter
-      - exclude: R/000-wrappers.R
-      - exclude: R/import-standalone-*.R
-    generates:
-      - "{{.R_SOURCE}}"
-      - "{{.R_TESTS}}"
-      - exclude: R/000-wrappers.R
-      - exclude: R/import-standalone-*.R
-    cmds:
-      - air format R/ tests/
