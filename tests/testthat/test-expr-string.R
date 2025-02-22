@@ -501,7 +501,7 @@ test_that("str$extract", {
     )
   )
   expect_equal(
-    df$with_columns(pl$col("x")$str$extract(pl$lit(r"(candidate=(\w+))"), 1)),
+    df$with_columns(pl$col("x")$str$extract(pl$lit("candidate=(\\w+)"), 1)),
     pl$DataFrame(x = c("messi", NA, "ronaldo"))
   )
 
@@ -524,7 +524,7 @@ test_that("str$extract", {
 test_that("str$extract_all", {
   df <- pl$DataFrame(x = c("123 bla 45 asd", "xyz 678 910t"))
   expect_equal(
-    df$select(pl$col("x")$str$extract_all(r"((\d+))")),
+    df$select(pl$col("x")$str$extract_all("(\\d+)")),
     pl$DataFrame(x = list(c("123", "45"), c("678", "910")))
   )
 
@@ -538,7 +538,7 @@ test_that("str$extract_all", {
 test_that("str$count_matches", {
   df <- pl$DataFrame(foo = c("123 bla 45 asd", "xyz 678 910t"))
   expect_equal(
-    df$select(pl$col("foo")$str$count_matches(r"{(\d)}")),
+    df$select(pl$col("foo")$str$count_matches("(\\d)")),
     pl$DataFrame(foo = c(5, 6))$cast(foo = pl$UInt32)
   )
 
@@ -1008,7 +1008,7 @@ test_that("$str$extract_many works", {
       )
     ),
     pl$DataFrame(
-      matches_overlap = list(c("disco", "onte", "discontent", "$")
+      matches_overlap = list(c("disco", "onte", "discontent"), "$")
     )
   )
 

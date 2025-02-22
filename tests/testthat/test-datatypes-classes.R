@@ -34,7 +34,7 @@ patrick::with_parameters_test_that(
       "Array(List(Array(String, 2)), c(2, 2))", pl$Array(pl$List(pl$Array(pl$String, 2)), c(2, 2)),
       "Struct(a = Int32, b = String)", pl$Struct(a = pl$Int32, b = pl$String),
       "Struct(a = Struct(b = Int32), c = String)", pl$Struct(a = pl$Struct(b = pl$Int32), c = pl$String),
-      r"-(Struct(Int8, ` ` = String, r"(`'")" = Int16))-", pl$Struct(pl$Int8, ` ` = pl$String, r"(`'")" = pl$Int16),
+      "Struct(Int8, ` ` = String, \"`'\"\" = Int16))", pl$Struct(pl$Int8, ` ` = pl$String, "`'\"" = pl$Int16),
       "Categorical()", pl$Categorical(),
       "Enum(c('a', 'b', 'c'))", pl$Enum(c("a", "b", "c")),
     )
@@ -53,7 +53,7 @@ patrick::with_parameters_test_that(
       ~.test_name, ~categories, ~error_message,
       "non-character", 1:5, "`categories` must be a character vector, not an integer vector",
       "NA", c("a", NA_character_), "`categories` can't contain NA values",
-      "duplicated", c("c", "b", "a", "b", "a"), r"(Enum categories must be unique; found duplicated\: b, a)",
+      "duplicated", c("c", "b", "a", "b", "a"), "Enum categories must be unique; found duplicated: b, a",
     )
   },
   code = {
