@@ -1825,12 +1825,13 @@ lazyframe__group_by_dynamic <- function(
     offset = NULL,
     include_boundaries = FALSE,
     closed = c("left", "right", "both", "none"),
-    label = "left",
+    label = c("left", "right", "datapoint"),
     group_by = NULL,
     start_by = "window") {
   wrap({
     check_dots_empty0(...)
     closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
+    label <- arg_match0(label, values = c("left", "right", "datapoint"))
     start_by <- arg_match0(
       start_by,
       values = c(
@@ -1841,7 +1842,11 @@ lazyframe__group_by_dynamic <- function(
     every <- parse_as_duration_string(every)
     offset <- parse_as_duration_string(offset) %||% "0ns"
     period <- parse_as_duration_string(period) %||% every
-    group_by <- parse_into_list_of_expressions(!!!group_by)
+    if (!is_polars_expr(group_by)) {
+      group_by <- parse_into_list_of_expressions(!!!group_by)
+    } else {
+      group_by <- list(group_by$`_rexpr`)
+    }
 
     self$`_ldf`$group_by_dynamic(
       as_polars_expr(index_column)$`_rexpr`, every, period, offset, label,
