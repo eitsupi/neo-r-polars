@@ -57,6 +57,8 @@ tasks:
       - "{{.RUST_SOURCE}}"
     generates:
       - R/000-wrappers.R
+    deps:
+      - format-rust
     cmds:
       - savvy-cli update .
       - Rscript -e 'pkgbuild::compile_dll()'
@@ -161,6 +163,15 @@ tasks:
     cmds:
       - Rscript -e 'testthat::snapshot_accept()'
 
+  format-all:
+    desc: Format all files.
+    aliases:
+      - fmt
+      - fmt-all
+    deps:
+      - format-r
+      - format-rust
+
   format-r:
     desc: Format R files.
     aliases:
@@ -179,3 +190,15 @@ tasks:
       - exclude: R/import-standalone-*.R
     cmds:
       - air format R/ tests/
+
+  format-rust:
+    desc: Format Rust files.
+    aliases:
+      - fmt-rust
+    sources:
+      - "{{.RUST_SOURCE}}"
+      - "{{.MANIFEST}}"
+    generates:
+      - "{{.RUST_SOURCE}}"
+    cmds:
+      - cargo fmt --all --manifest-path {{.MANIFEST}}
