@@ -150,6 +150,7 @@ test_that("dt$combine", {
 patrick::with_parameters_test_that(
   "dt$to_string and dt$strftime works",
   .cases = {
+    # fmt: skip
     tibble::tribble(
       ~.test_name, ~temporal_dtype, ~format_to_test,
       "datetime_ns", pl$Datetime("ns"), "%F %T",
@@ -245,10 +246,8 @@ test_that("hour minute", {
     pl$col("date")$dt$minute()$alias("minute")
   )
 
-  # dput(df$to_list()$date |> (\(x) list(
-  #   hour = lubridate::hour(x),
-  #   minute = lubridate::minute(x)
-  # ))() |> lapply(as.numeric))
+  # TODO: Rewrite to make it easier to read
+  # fmt: skip
   l_exp <- list(
     hour = c(
       0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 0, 2,
@@ -260,6 +259,7 @@ test_that("hour minute", {
       17, 19, 21, 23, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 2,
       4, 6
     ),
+    # fmt: skip
     minute = c(
       0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33,
       36, 39, 42, 46, 49, 52, 55, 58, 1, 4, 7, 10, 13, 16, 19, 22,

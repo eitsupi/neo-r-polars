@@ -50,6 +50,7 @@ test_that("expression boolean operators", {
 })
 
 make_cases <- function() {
+  # fmt: skip
   tibble::tribble(
     ~.test_name, ~fn,
     "gt", ">",

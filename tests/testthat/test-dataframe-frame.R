@@ -1,6 +1,7 @@
 patrick::with_parameters_test_that(
   "use pl$DataFrame() to construct a DataFrame",
   .cases = {
+    # fmt: skip
     tibble::tribble(
       ~.test_name, ~object, ~expected,
       "simple", pl$DataFrame(a = 1, b = list("b"), ), as_polars_df(list(a = 1, b = list("b"))),
