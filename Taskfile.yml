@@ -88,6 +88,7 @@ tasks:
     deps:
       - build-rust
       - build-standalone-files
+      - format-r
     cmds:
       - Rscript -e
         '{{.R_FUNC_LOAD_REQUIRED_PKGS}};
@@ -160,12 +161,14 @@ tasks:
     cmds:
       - Rscript -e 'testthat::snapshot_accept()'
 
-  fmt:
-    desc: Format all R and Rust code.
+  format-r:
+    desc: Format R files.
+    aliases:
+      - fmt-r
     sources:
       - "{{.R_SOURCE}}"
       - "{{.R_TESTS}}"
-      - "{{.RUST_SOURCE}}"
+      - air.toml
       # These files are auto-generated and ignored by the formatter
       - exclude: R/000-wrappers.R
       - exclude: R/import-standalone-*.R
@@ -175,5 +178,4 @@ tasks:
       - exclude: R/000-wrappers.R
       - exclude: R/import-standalone-*.R
     cmds:
-      - air format .
-      - cargo fmt --all --manifest-path src/rust/Cargo.toml
+      - air format R/ tests/
