@@ -201,7 +201,8 @@ test_that("as_polars_series works for vctrs_rcrd", {
   )
 })
 
-patrick::with_parameters_test_that("clock datetime classes support",
+patrick::with_parameters_test_that(
+  "clock datetime classes support",
   {
     skip_if_not_installed("clock")
 
@@ -212,6 +213,7 @@ patrick::with_parameters_test_that("clock datetime classes support",
       "2212-01-01T12:34:56.123456789"
     )
 
+    # fmt: skip
     expected_time_unit <- switch(precision,
       nanosecond = "ns",
       microsecond = "us",

@@ -135,6 +135,7 @@ pl__concat <- function(
   }
 
   if (is_polars_df(first)) {
+    # fmt: skip
     out <- switch(how,
       vertical = {
         dots |>
@@ -181,6 +182,7 @@ pl__concat <- function(
       abort("Unreachable")
     )
   } else if (is_polars_lf(first)) {
+    # fmt: skip
     out <- switch(how,
       vertical = ,
       vertical_relaxed = {
@@ -211,6 +213,7 @@ pl__concat <- function(
     ) |>
       wrap()
   } else if (is_polars_series(first)) {
+    # fmt: skip
     out <- switch(how,
       vertical = {
         dots |>

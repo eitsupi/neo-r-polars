@@ -1422,6 +1422,7 @@ dataframe__pivot <- function(
         aggregate_function,
         values = c("min", "max", "first", "last", "sum", "mean", "median", "len")
       )
+      # fmt: skip
       aggregate_expr <- switch(aggregate_function,
         "min" = pl$element()$min()$`_rexpr`,
         "max" = pl$element()$max()$`_rexpr`,

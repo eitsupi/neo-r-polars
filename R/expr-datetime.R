@@ -655,12 +655,17 @@ expr_dt_nanosecond <- function() {
 expr_dt_epoch <- function(time_unit = c("us", "ns", "ms", "s", "d")) {
   wrap({
     time_unit <- arg_match0(time_unit, values = c("us", "ns", "ms", "s", "d"))
+    # fmt: skip
     switch(time_unit,
       "ms" = ,
       "us" = ,
       "ns" = self$`_rexpr`$dt_timestamp(time_unit),
       "s" = self$`_rexpr`$dt_epoch_seconds(),
-      "d" = self$`_rexpr`$cast(pl$Date$`_dt`, strict = TRUE, wrap_numerical = FALSE)$cast(pl$Int32$`_dt`, strict = TRUE, wrap_numerical = FALSE),
+      "d" = self$`_rexpr`$cast(
+        pl$Date$`_dt`, strict = TRUE, wrap_numerical = FALSE
+      )$cast(
+        pl$Int32$`_dt`, strict = TRUE, wrap_numerical = FALSE
+      ),
       abort("Unreachable")
     )
   })

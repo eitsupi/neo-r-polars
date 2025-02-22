@@ -135,6 +135,7 @@ expr_meta_serialize <- function(..., format = c("binary", "json")) {
   wrap({
     check_dots_empty0(...)
     format <- arg_match0(format, c("binary", "json"))
+    # fmt: skip
     switch(format,
       binary = self$`_rexpr`$serialize_binary(),
       json = self$`_rexpr`$serialize_json(),

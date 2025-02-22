@@ -342,6 +342,7 @@ as_polars_series.POSIXlt <- function(x, name = NULL, ...) {
 #' @rdname as_polars_series
 #' @export
 as_polars_series.difftime <- function(x, name = NULL, ...) {
+  # fmt: skip
   mul_value <- switch(attr(x, "units"),
     "secs" = 1000L,
     "mins" = 60000L,
@@ -352,7 +353,10 @@ as_polars_series.difftime <- function(x, name = NULL, ...) {
   )
 
   PlRSeries$new_i64_from_numeric_and_multiplier(
-    name %||% "", x, mul_value, "round"
+    name %||% "",
+    x,
+    mul_value,
+    "round"
   )$cast(pl$Duration("ms")$`_dt`, strict = TRUE) |>
     wrap()
 }
@@ -483,6 +487,7 @@ as_polars_series.vctrs_rcrd <- function(x, name = NULL, ...) {
 as_polars_series.clock_time_point <- function(x, name = NULL, ...) {
   precision <- clock::time_point_precision(x)
 
+  # fmt: skip
   time_unit <- switch(precision,
     nanosecond = "ns",
     microsecond = "us",
@@ -518,6 +523,7 @@ as_polars_series.clock_zoned_time <- function(x, name = NULL, ...) {
     time_zone <- Sys.timezone()
   }
 
+  # fmt: skip
   time_unit <- switch(precision,
     nanosecond = "ns",
     microsecond = "us",
@@ -541,6 +547,7 @@ as_polars_series.clock_zoned_time <- function(x, name = NULL, ...) {
 as_polars_series.clock_duration <- function(x, name = NULL, ...) {
   precision <- clock::duration_precision(x)
 
+  # fmt: skip
   time_unit <- switch(precision,
     nanosecond = "ns",
     microsecond = "us",

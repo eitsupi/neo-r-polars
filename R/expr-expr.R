@@ -62,6 +62,7 @@ pl__deserialize_expr <- function(data, ..., format = c("binary", "json")) {
 
     format <- arg_match0(format, c("binary", "json"))
 
+    # fmt: skip
     switch(format,
       binary = PlRExpr$deserialize_binary(data),
       json = PlRExpr$deserialize_json(data),

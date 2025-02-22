@@ -677,6 +677,7 @@ expr_str_decode <- function(encoding, ..., strict = TRUE) {
   wrap({
     check_dots_empty0(...)
     encoding <- arg_match0(encoding, values = c("hex", "base64"))
+    # fmt: skip
     switch(encoding,
       "hex" = self$`_rexpr`$str_hex_decode(strict),
       "base64" = self$`_rexpr`$str_base64_decode(strict),
@@ -703,6 +704,7 @@ expr_str_decode <- function(encoding, ..., strict = TRUE) {
 expr_str_encode <- function(encoding) {
   wrap({
     encoding <- arg_match0(encoding, values = c("hex", "base64"))
+    # fmt: skip
     switch(encoding,
       "hex" = self$`_rexpr`$str_hex_encode(),
       "base64" = self$`_rexpr`$str_base64_encode(),
