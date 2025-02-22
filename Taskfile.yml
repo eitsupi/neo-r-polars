@@ -11,6 +11,7 @@ vars:
   MANIFEST: src/rust/Cargo.toml
   CARGO_LOCK: src/rust/Cargo.lock
   R_SOURCE: R/*
+  R_TESTS: tests/*
   VIGNETTES: vignettes/**/*.Rmd
   RUST_SOURCE: src/rust/src/**/*.rs
 
@@ -163,8 +164,16 @@ tasks:
     desc: Format all R and Rust code.
     sources:
       - "{{.R_SOURCE}}"
+      - "{{.R_TESTS}}"
       - "{{.RUST_SOURCE}}"
-      - tests/**/*
+      # These files are auto-generated and ignored by the formatter
+      - exclude: R/000-wrappers.R
+      - exclude: R/import-standalone-*.R
+    generates:
+      - "{{.R_SOURCE}}"
+      - "{{.R_TESTS}}"
+      - exclude: R/000-wrappers.R
+      - exclude: R/import-standalone-*.R
     cmds:
       - air format .
       - cargo fmt --all --manifest-path src/rust/Cargo.toml
