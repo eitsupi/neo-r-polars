@@ -1,4 +1,4 @@
-name: format-R
+name: Lint R
 
 on:
   push:

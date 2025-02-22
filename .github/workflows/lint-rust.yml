@@ -1,4 +1,4 @@
-name: format-Rust
+name: Lint Rust
 
 on:
   push:
