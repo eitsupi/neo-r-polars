@@ -2,8 +2,6 @@ name: Lint R
 
 on:
   pull_request:
-    branches:
-      - main
     paths:
       - "**/*.R"
       - .github/workflows/lint-r.yml
