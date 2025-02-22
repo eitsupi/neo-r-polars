@@ -4,11 +4,3 @@ indent-width = 2
 indent-style = "space"
 line-ending = "auto"
 persistent-line-breaks = true
-exclude = [
-    # Syntax error bug of the formatter
-    # https://github.com/posit-dev/air/issues/255
-    # TODO: Remove these
-    "tests/testthat/test-as_polars_series.R",
-    "tests/testthat/test-expr-string.R",
-    "tests/testthat/test-datatypes-classes.R",
-]
