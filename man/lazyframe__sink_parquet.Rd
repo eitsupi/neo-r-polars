@@ -7,7 +7,7 @@
 lazyframe__sink_parquet(
   path,
   ...,
-  compression = "zstd",
+  compression = c("lz4", "uncompressed", "snappy", "gzip", "lzo", "brotli", "zstd"),
   compression_level = 3,
   statistics = TRUE,
   row_group_size = NULL,

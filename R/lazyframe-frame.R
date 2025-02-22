@@ -2368,7 +2368,7 @@ lazyframe__join_asof <- function(
 lazyframe__sink_parquet <- function(
     path,
     ...,
-    compression = "zstd",
+    compression = c("lz4", "uncompressed", "snappy", "gzip", "lzo", "brotli", "zstd"),
     compression_level = 3,
     statistics = TRUE,
     row_group_size = NULL,
