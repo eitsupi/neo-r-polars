@@ -13,6 +13,7 @@ patrick::with_parameters_test_that(
 
     withr::with_timezone(
       "UTC",
+      # fmt: skip
       tibble::tribble(
         ~.test_name, ~x, ~expected_name, ~expected_dtype,
         "polars_series", as_polars_series(1L, "foo"), "foo", pl$Int32,
@@ -53,19 +54,16 @@ patrick::with_parameters_test_that(
     )
   },
   code = {
-    withr::with_timezone(
-      "UTC",
-      {
-        pl_series <- as_polars_series(x, argument_should_be_ignored = "foo")
-        expect_s3_class(pl_series, "polars_series")
-        expect_snapshot(print(pl_series))
+    withr::with_timezone("UTC", {
+      pl_series <- as_polars_series(x, argument_should_be_ignored = "foo")
+      expect_s3_class(pl_series, "polars_series")
+      expect_snapshot(print(pl_series))
 
-        expect_equal(pl_series$name, expected_name)
-        expect_equal(pl_series$dtype, expected_dtype)
+      expect_equal(pl_series$name, expected_name)
+      expect_equal(pl_series$dtype, expected_dtype)
 
-        expect_equal(as_polars_series(x, name = "bar")$name, "bar")
-      }
-    )
+      expect_equal(as_polars_series(x, name = "bar")$name, "bar")
+    })
   }
 )
 
@@ -78,12 +76,14 @@ test_that("as_polars_series.default throws an error", {
 test_that("as_polars_series.polars_expr throws an error", {
   expect_error(
     as_polars_series(pl$lit(1)),
-    r"(You can evaluating the expression with `pl\$select\(\))"
+    r"(You can evaluating the expression with `pl\$select\(\)`)"
   )
 })
 
-patrick::with_parameters_test_that("difftime's units (mins, hours, days) support",
+patrick::with_parameters_test_that(
+  "difftime's units (mins, hours, days) support",
   .cases = {
+    # fmt: skip
     tibble::tribble(
       ~.test_name, ~expected_series,
       "mins", as_polars_series(as.difftime(c(NA, 60), units = "secs")),
@@ -162,7 +162,12 @@ test_that("as_polars_series(<POSIXlt>) works for ambiguous time as like clock::a
 })
 
 test_that("as_polars_series(<POSIXlt>) works for leap second as like str_to_datetime()", {
-  chr_vec <- c("2005-12-31 23:59:59", "2005-12-31 23:59:60", "2005-12-31 23:59:60.123456789", "2006-01-01 00:00:00")
+  chr_vec <- c(
+    "2005-12-31 23:59:59",
+    "2005-12-31 23:59:60",
+    "2005-12-31 23:59:60.123456789",
+    "2006-01-01 00:00:00"
+  )
   lt_vec <- as.POSIXlt(chr_vec, tz = "UTC")
 
   expect_equal(
@@ -199,7 +204,8 @@ test_that("as_polars_series works for vctrs_rcrd", {
   )
 })
 
-patrick::with_parameters_test_that("clock datetime classes support",
+patrick::with_parameters_test_that(
+  "clock datetime classes support",
   {
     skip_if_not_installed("clock")
 
@@ -210,6 +216,7 @@ patrick::with_parameters_test_that("clock datetime classes support",
       "2212-01-01T12:34:56.123456789"
     )
 
+    # fmt: skip
     expected_time_unit <- switch(precision,
       nanosecond = "ns",
       microsecond = "us",
@@ -248,10 +255,12 @@ patrick::with_parameters_test_that("clock datetime classes support",
   .test_name = precision
 )
 
-patrick::with_parameters_test_that("clock duration class support",
+patrick::with_parameters_test_that(
+  "clock duration class support",
   .cases = {
     skip_if_not_installed("clock")
 
+    # fmt: skip
     tibble::tribble(
       ~.test_name, ~time_unit, ~construct_function,
       "year", "ms", clock::duration_years,
