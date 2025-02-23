@@ -2384,6 +2384,7 @@ lazyframe__join_asof <- function(
 #' headers. Possible values:
 #' * `TRUE`: enable default set of statistics (default)
 #' * `FALSE`: disable all statistics
+#' * `"full"`: calculate and write all available statistics
 #' * A list created via [parquet_statistics()] to specify which statistics to
 #'   include.
 #' @param row_group_size Size of the row groups in number of rows. If `NULL`
@@ -2446,37 +2447,33 @@ lazyframe__sink_parquet <- function(
       collapse_joins = collapse_joins,
       no_optimization = no_optimization
     )
-    if (isTRUE(statistics)) {
+    if (is_bool(statistics)) {
+      statistics <- parquet_statistics(
+        min = statistics,
+        max = statistics,
+        distinct_count = FALSE,
+        null_count = statistics
+      )
+    } else if (identical(statistics, "full")) {
       statistics <- parquet_statistics(
         min = TRUE,
         max = TRUE,
         distinct_count = TRUE,
         null_count = TRUE
       )
-    } else if (isFALSE(statistics)) {
-      statistics <- parquet_statistics(
-        min = FALSE,
-        max = FALSE,
-        distinct_count = FALSE,
-        null_count = FALSE
-      )
     }
     if (!inherits(statistics, "polars_parquet_statistics")) {
-      abort("`statistics` must be TRUE, FALSE, or a call to `parquet_statistics()`.")
+      abort("`statistics` must be TRUE, FALSE, 'full', or a call to `parquet_statistics()`.")
     }
-    stat_min <- statistics[["min"]]
-    stat_max <- statistics[["max"]]
-    stat_distinct_count <- statistics[["distinct_count"]]
-    stat_null_count <- statistics[["null_count"]]
 
     lf$sink_parquet(
       path = path,
       compression = compression,
       compression_level = compression_level,
-      stat_min = stat_min,
-      stat_max = stat_max,
-      stat_null_count = stat_null_count,
-      stat_distinct_count = stat_distinct_count,
+      stat_min = statistics[["min"]],
+      stat_max = statistics[["max"]],
+      stat_null_count = statistics[["null_count"]],
+      stat_distinct_count = statistics[["distinct_count"]],
       row_group_size = row_group_size,
       data_page_size = data_page_size,
       maintain_order = maintain_order,

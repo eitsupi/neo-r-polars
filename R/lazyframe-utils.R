@@ -59,8 +59,7 @@ make_profile_plot <- function(data, truncate_nodes) {
   plot
 }
 
-#' Prepare statistics for writing to Parquet file
-#'
+#' @rdname lazyframe__sink_parquet
 #' @param min Include stats on the minimum values in the column.
 #' @param max Include stats on the maximum values in the column.
 #' @param distinct_count Include stats on the number of distinct values in the
@@ -69,19 +68,27 @@ make_profile_plot <- function(data, truncate_nodes) {
 #'
 #' @export
 parquet_statistics <- function(
+  ...,
   min = TRUE,
   max = TRUE,
   distinct_count = TRUE,
   null_count = TRUE
 ) {
-  out <- list(
-    min = min,
-    max = max,
-    distinct_count = distinct_count,
-    null_count = null_count
+  check_dots_empty0(...)
+  check_bool(min)
+  check_bool(max)
+  check_bool(distinct_count)
+  check_bool(null_count)
+
+  structure(
+    list(
+      min = min,
+      max = max,
+      distinct_count = distinct_count,
+      null_count = null_count
+    ),
+    class = c("polars_parquet_statistics", "list")
   )
-  class(out) <- c("polars_parquet_statistics", class(out))
-  out
 }
 
 set_sink_optimizations <- function(

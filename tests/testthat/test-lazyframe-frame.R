@@ -1870,8 +1870,10 @@ test_that("sink_parquet: argument 'statistics'", {
   tmpf <- tempfile()
   expect_silent(lf$sink_parquet(tmpf, statistics = TRUE))
   expect_silent(lf$sink_parquet(tmpf, statistics = FALSE))
+  expect_silent(lf$sink_parquet(tmpf, statistics = "full"))
+
   expect_error(
-    lf$sink_parquet(tmpf, statistics = "full"),
+    lf$sink_parquet(tmpf, statistics = "foo"),
     "must be TRUE, FALSE, or"
   )
   # TODO: uncomment when https://github.com/pola-rs/polars/issues/17306 is fixed
