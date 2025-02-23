@@ -1,7 +1,18 @@
 # The env for storing rolling_group_by methods
 polars_group_by_dynamic__methods <- new.env(parent = emptyenv())
 
-wrap_to_group_by_dynamic <- function(x, index_column, every, period, offset, include_boundaries, closed, label, group_by, start_by) {
+wrap_to_group_by_dynamic <- function(
+  x,
+  index_column,
+  every,
+  period,
+  offset,
+  include_boundaries,
+  closed,
+  label,
+  group_by,
+  start_by
+) {
   self <- new.env(parent = emptyenv())
   self$df <- x
   self$index_column <- index_column

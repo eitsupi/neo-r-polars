@@ -1866,16 +1866,17 @@ dataframe__transpose <- function(
 #'   closed = "right"
 #' )$agg(A_agg_list = pl$col("A"))
 dataframe__group_by_dynamic <- function(
-    index_column,
-    ...,
-    every,
-    period = NULL,
-    offset = NULL,
-    include_boundaries = FALSE,
-    closed = c("left", "right", "both", "none"),
-    label = "left",
-    group_by = NULL,
-    start_by = "window") {
+  index_column,
+  ...,
+  every,
+  period = NULL,
+  offset = NULL,
+  include_boundaries = FALSE,
+  closed = c("left", "right", "both", "none"),
+  label = "left",
+  group_by = NULL,
+  start_by = "window"
+) {
   wrap({
     check_dots_empty0(...)
     wrap_to_group_by_dynamic(

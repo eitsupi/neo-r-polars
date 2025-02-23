@@ -1870,8 +1870,12 @@ test_that("group_by_dynamic: date variable", {
 test_that("group_by_dynamic: datetime variable", {
   df <- pl$DataFrame(
     dt = c(
-      "2021-12-16 00:00:00", "2021-12-16 00:30:00", "2021-12-16 01:00:00",
-      "2021-12-16 01:30:00", "2021-12-16 02:00:00", "2021-12-16 02:30:00",
+      "2021-12-16 00:00:00",
+      "2021-12-16 00:30:00",
+      "2021-12-16 01:00:00",
+      "2021-12-16 01:30:00",
+      "2021-12-16 02:00:00",
+      "2021-12-16 02:30:00",
       "2021-12-16 03:00:00"
     ),
     n = 0:6
@@ -1885,7 +1889,12 @@ test_that("group_by_dynamic: datetime variable", {
     ),
     .input = df,
     pl$DataFrame(
-      dt = c("2021-12-16 00:00:00", "2021-12-16 01:00:00", "2021-12-16 02:00:00", "2021-12-16 03:00:00"),
+      dt = c(
+        "2021-12-16 00:00:00",
+        "2021-12-16 01:00:00",
+        "2021-12-16 02:00:00",
+        "2021-12-16 03:00:00"
+      ),
       n = c(0.5, 2.5, 4.5, 6)
     )$with_columns(
       pl$col("dt")$str$strptime(pl$Datetime("ms"), format = NULL)
@@ -1918,8 +1927,12 @@ test_that("group_by_dynamic: error if every is negative", {
 test_that("group_by_dynamic: arg 'closed' works", {
   df <- pl$DataFrame(
     dt = c(
-      "2021-12-16 00:00:00", "2021-12-16 00:30:00", "2021-12-16 01:00:00",
-      "2021-12-16 01:30:00", "2021-12-16 02:00:00", "2021-12-16 02:30:00",
+      "2021-12-16 00:00:00",
+      "2021-12-16 00:30:00",
+      "2021-12-16 01:00:00",
+      "2021-12-16 01:30:00",
+      "2021-12-16 02:00:00",
+      "2021-12-16 02:30:00",
       "2021-12-16 03:00:00"
     ),
     n = 0:6
@@ -1928,11 +1941,17 @@ test_that("group_by_dynamic: arg 'closed' works", {
   )
 
   expect_query_equal(
-    .input$group_by_dynamic(index_column = "dt", closed = "right", every = "1h")$
-      agg(pl$col("n")$mean()),
+    .input$group_by_dynamic(index_column = "dt", closed = "right", every = "1h")$agg(pl$col(
+      "n"
+    )$mean()),
     .input = df,
     pl$DataFrame(
-      dt = c("2021-12-15 23:00:00", "2021-12-16 00:00:00", "2021-12-16 01:00:00", "2021-12-16 02:00:00"),
+      dt = c(
+        "2021-12-15 23:00:00",
+        "2021-12-16 00:00:00",
+        "2021-12-16 01:00:00",
+        "2021-12-16 02:00:00"
+      ),
       n = c(0, 1.5, 3.5, 5.5)
     )$with_columns(
       pl$col("dt")$str$strptime(pl$Datetime("ms"), format = NULL)
@@ -1940,8 +1959,9 @@ test_that("group_by_dynamic: arg 'closed' works", {
   )
 
   expect_error(
-    df$group_by_dynamic(index_column = "dt", closed = "foobar", every = "1h")$
-      agg(pl$col("n")$mean()),
+    df$group_by_dynamic(index_column = "dt", closed = "foobar", every = "1h")$agg(pl$col(
+      "n"
+    )$mean()),
     "must be one of"
   )
 })
@@ -1949,8 +1969,12 @@ test_that("group_by_dynamic: arg 'closed' works", {
 test_that("group_by_dynamic: arg 'label' works", {
   df <- pl$DataFrame(
     dt = c(
-      "2021-12-16 00:00:00", "2021-12-16 00:30:00", "2021-12-16 01:00:00",
-      "2021-12-16 01:30:00", "2021-12-16 02:00:00", "2021-12-16 02:30:00",
+      "2021-12-16 00:00:00",
+      "2021-12-16 00:30:00",
+      "2021-12-16 01:00:00",
+      "2021-12-16 01:30:00",
+      "2021-12-16 02:00:00",
+      "2021-12-16 02:30:00",
       "2021-12-16 03:00:00"
     ),
     n = 0:6
@@ -1965,7 +1989,12 @@ test_that("group_by_dynamic: arg 'label' works", {
     .input = df,
     pl$DataFrame(
       dt = as.POSIXct(
-        c("2021-12-16 01:00:00", "2021-12-16 02:00:00", "2021-12-16 03:00:00", "2021-12-16 04:00:00"),
+        c(
+          "2021-12-16 01:00:00",
+          "2021-12-16 02:00:00",
+          "2021-12-16 03:00:00",
+          "2021-12-16 04:00:00"
+        ),
         tz = "UTC"
       ),
       n = c(0.5, 2.5, 4.5, 6)
@@ -1989,7 +2018,9 @@ test_that("group_by_dynamic: arg 'start_by' works", {
   # 2021-12-16 is a Thursday so previous Monday is 2021-12-13 and next one is
   # 2021-12-20
   expect_query_equal(
-    .input$group_by_dynamic(index_column = "dt", start_by = "monday", every = "1w")$agg(pl$col("n")),
+    .input$group_by_dynamic(index_column = "dt", start_by = "monday", every = "1w")$agg(pl$col(
+      "n"
+    )),
     .input = df,
     pl$DataFrame(
       dt = as.Date(c("2021-12-13", "2021-12-20")),
@@ -2008,8 +2039,12 @@ test_that("group_by_dynamic: arg 'start_by' works", {
 test_that("group_by_dynamic: argument 'by' works", {
   df <- pl$DataFrame(
     dt = c(
-      "2021-12-16 00:00:00", "2021-12-16 00:30:00", "2021-12-16 01:00:00",
-      "2021-12-16 01:30:00", "2021-12-16 02:00:00", "2021-12-16 02:30:00",
+      "2021-12-16 00:00:00",
+      "2021-12-16 00:30:00",
+      "2021-12-16 01:00:00",
+      "2021-12-16 01:30:00",
+      "2021-12-16 02:00:00",
+      "2021-12-16 02:30:00",
       "2021-12-16 03:00:00"
     ),
     n = 0:6,
@@ -2026,7 +2061,12 @@ test_that("group_by_dynamic: argument 'by' works", {
     pl$DataFrame(
       grp = c("a", "a", "b", "b"),
       dt = as.POSIXct(
-        c("2021-12-16 00:00:00", "2021-12-16 02:00:00", "2021-12-16 00:00:00", "2021-12-16 02:00:00")
+        c(
+          "2021-12-16 00:00:00",
+          "2021-12-16 02:00:00",
+          "2021-12-16 00:00:00",
+          "2021-12-16 02:00:00"
+        )
       ),
       n = c(1, 5.5, 3, 4)
     )
@@ -2041,7 +2081,12 @@ test_that("group_by_dynamic: argument 'by' works", {
     pl$DataFrame(
       grp = c("a", "a", "b", "b"),
       dt = as.POSIXct(
-        c("2021-12-16 00:00:00", "2021-12-16 02:00:00", "2021-12-16 00:00:00", "2021-12-16 02:00:00")
+        c(
+          "2021-12-16 00:00:00",
+          "2021-12-16 02:00:00",
+          "2021-12-16 00:00:00",
+          "2021-12-16 02:00:00"
+        )
       ),
       n = c(1, 5.5, 3, 4)
     )
@@ -2065,8 +2110,12 @@ test_that("group_by_dynamic: error if index not int or date/time", {
 test_that("group_by_dynamic: arg 'offset' works", {
   df <- pl$DataFrame(
     dt = c(
-      "2020-01-01", "2020-01-01", "2020-01-01",
-      "2020-01-02", "2020-01-03", "2020-01-08"
+      "2020-01-01",
+      "2020-01-01",
+      "2020-01-01",
+      "2020-01-02",
+      "2020-01-03",
+      "2020-01-08"
     ),
     n = c(3, 10, 5, 9, 2, 1)
   )$with_columns(
@@ -2088,8 +2137,12 @@ test_that("group_by_dynamic: arg 'offset' works", {
 test_that("group_by_dynamic: arg 'include_boundaries' works", {
   df <- pl$DataFrame(
     dt = c(
-      "2020-01-01", "2020-01-01", "2020-01-01",
-      "2020-01-02", "2020-01-03", "2020-01-08"
+      "2020-01-01",
+      "2020-01-01",
+      "2020-01-01",
+      "2020-01-02",
+      "2020-01-03",
+      "2020-01-08"
     ),
     n = c(3, 7, 5, 9, 2, 1)
   )$with_columns(
@@ -2098,10 +2151,11 @@ test_that("group_by_dynamic: arg 'include_boundaries' works", {
 
   expect_query_equal(
     .input$group_by_dynamic(
-      index_column = "dt", every = "2d", offset = "1d",
+      index_column = "dt",
+      every = "2d",
+      offset = "1d",
       include_boundaries = TRUE
-    )$
-      agg(pl$col("n")),
+    )$agg(pl$col("n")),
     .input = df,
     pl$DataFrame(
       `_lower_boundary` = as.POSIXct(
