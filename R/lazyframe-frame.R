@@ -2356,4 +2356,168 @@ lazyframe__join_asof <- function(
   })
 }
 
+#' Creates a summary of statistics for a LazyFrame, returning a DataFrame.
+#'
+#' @description
+#' This method does not maintain the laziness of the frame, and will collect
+#' the final result. This could potentially be an expensive operation.
+#'
+#' We do not guarantee the output of `describe()` to be stable. It will show
+#' statistics that we deem informative, and may be updated in the future. Using
+#' `describe()` programmatically (versus interactive exploration) is not
+#' recommended for this reason.
+#'
+#' @param percentiles One or more percentiles to include in the summary
+#' statistics. All values must be in the range `[0; 1]`.
+#' @param interpolation Interpolation method for computing quantiles. Must be
+#' one of `"nearest"`, `"higher"`, `"lower"`, `"midpoint"`, or `"linear"`.
+#'
+#' @details
+#' The median is included by default as the 50% percentile.
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' lf <- pl$LazyFrame(
+#'   int = 1:3,
+#'   float = c(0.5, NA, 2.5),
+#'   string = c(letters[1:2], NA),
+#'   date = c(as.Date("2024-01-20"), as.Date("2024-01-21"), NA),
+#'   cat = factor(c(letters[1:2], NA)),
+#'   bool = c(TRUE, FALSE, NA)
+#' )
+#' lf$collect()
+#'
+#' # Show default frame statistics:
+#' lf$describe()
+#'
+#' # Customize which percentiles are displayed, applying linear interpolation:
+#' lf$describe(
+#'   percentiles = c(0.1, 0.3, 0.5, 0.7, 0.9),
+#'   interpolation = "linear"
+#' )
+lazyframe__describe <- function(
+  percentiles = c(0.25, 0.75),
+  interpolation = c("nearest", "higher", "lower", "midpoint", "linear")
+) {
+  wrap({
+    schema <- self$collect_schema()
+    if (length(schema) == 0) {
+      abort("cannot describe a LazyFrame without any columns")
+    }
+
+    # create list of metrics
+    metrics <- c("count", "null_count", "mean", "std", "min")
+    quantiles <- parse_percentiles(percentiles)
+    if (length(quantiles) > 0) {
+      metrics <- c(metrics, paste0(percentiles * 100, "%"))
+    }
+    metrics <- c(metrics, "max")
+
+    skip_minmax <- function(x) {
+      # TODO: need to check if x is object, or unknown
+      x$is_nested() || x$is_categorical() || x$is_enum() || x$is_null()
+    }
+
+    # determine which columns will produce std/mean/percentile/etc
+    # statistics in a single pass over the frame schema
+    has_numeric_result <- c()
+    sort_cols <- c()
+    metric_exprs <- list()
+    null <- pl$lit(NULL)
+
+    # separator used temporarily and used to split the column names later on
+    # It's voluntarily weird so that it doesn't match actual column names
+    custom_sep <- "??-??"
+
+    for (i in seq_along(schema)) {
+      name <- names(schema)[i]
+      dtype <- schema[[i]]
+
+      is_numeric <- dtype$is_numeric()
+      is_temporal <- !is_numeric && dtype$is_temporal()
+
+      # counts
+      count_exprs <- c(
+        pl$col(name)$count()$name$prefix(paste0("count", custom_sep)),
+        pl$col(name)$null_count()$name$prefix(paste0("null_count", custom_sep))
+      )
+
+      # mean
+      mean_expr <- if (is_temporal || is_numeric || dtype$is_boolean()) {
+        pl$col(name)$mean()
+      } else {
+        pl$lit(NA, dtype = dtype)
+      }
+
+      # standard deviation, min, max
+      expr_std <- if (is_numeric) {
+        pl$col(name)$std()
+      } else {
+        pl$lit(NA, dtype = dtype)
+      }
+      min_expr <- if (!skip_minmax(dtype)) {
+        pl$col(name)$min()
+      } else {
+        pl$lit(NA, dtype = dtype)
+      }
+      max_expr <- if (!skip_minmax(dtype)) {
+        pl$col(name)$max()
+      } else {
+        pl$lit(NA, dtype = dtype)
+      }
+
+      # percentiles
+      pct_exprs <- c()
+      for (index_quantile in seq_along(quantiles)) {
+        p <- quantiles[index_quantile]
+        pct_expr <- if (is_temporal) {
+          pl$col(name)$to_physical()$quantile(p, interpolation)$cast(dtype)
+        } else if (is_numeric) {
+          pl$col(name)$quantile(p, interpolation)
+        } else {
+          pl$lit(NA, dtype = dtype)
+        }
+        sort_cols <- c(sort_cols, name)
+        pct_exprs <- c(pct_exprs, pct_expr$alias(paste0(p, custom_sep, name)))
+      }
+
+      if (is_numeric || dtype$is_nested() || dtype$is_null() || dtype$is_boolean()) {
+        has_numeric_result <- c(has_numeric_result, name)
+      }
+
+      # add column expressions (in end-state 'metrics' list order)
+      metric_exprs <- c(
+        metric_exprs,
+        count_exprs,
+        mean_expr$alias(paste0("mean", custom_sep, name)),
+        expr_std$alias(paste0("std", custom_sep, name)),
+        min_expr$alias(paste0("min", custom_sep, name)),
+        pct_exprs,
+        max_expr$alias(paste0("max", custom_sep, name))
+      )
+    }
+
+    # calculate requested metrics in parallel, then collect the result
+    df_metrics <- if (length(sort_cols) > 0) {
+      self$with_columns(pl$col(!!!unique(sort_cols))$sort())
+    } else {
+      self
+    }
+
+    df_metrics <- df_metrics$select(!!!metric_exprs)$collect()
+
+    # reshape wide result
+    df_metrics$transpose(include_header = TRUE)$with_columns(
+      pl$col("column")$str$split_exact(custom_sep, 1)$struct$rename_fields(c(
+        "statistic",
+        "variable"
+      ))$alias("fields")
+    )$unnest("fields")$drop("column")$pivot(
+      index = "statistic",
+      on = "variable",
+      values = "column_0"
+    )$with_columns(statistic = pl$lit(metrics))
+  })
+}
+
 # TODO-REWRITE: implement $deserialize() for LazyFrame

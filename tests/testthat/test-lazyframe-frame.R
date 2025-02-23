@@ -1848,3 +1848,25 @@ test_that("rolling: arg 'offset' works", {
     )
   )
 })
+
+test_that("describe() works", {
+  df = pl$DataFrame(
+    float = c(1.5, 2, NA),
+    string = c(letters[1:2], NA),
+    date = c(as.Date("2024-01-20"), as.Date("2024-01-21"), NA),
+    cat = factor(c("zz", "a", NA)),
+    bool = c(TRUE, FALSE, NA)
+  )
+  expect_snapshot(df$describe())
+  expect_snapshot(df$describe(interpolation = "linear"))
+
+  # min/max different depending on categorical ordering
+  expect_snapshot(df$select(pl$col("cat")$cast(pl$Categorical("lexical")))$describe())
+
+  # names using internal separator ":" in column names, should also just work.
+  df = pl$DataFrame("foo:bar:jazz" = 1, as_polars_series(2, name = ""), "foobar" = 3)
+  expect_identical(
+    df$describe()$columns,
+    c("statistic", df$columns)
+  )
+})

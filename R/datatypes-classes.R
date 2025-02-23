@@ -302,3 +302,19 @@ datatype__min <- function() {
   self$`_dt`$min() |>
     wrap()
 }
+
+datatype__is_boolean <- function() {
+  inherits(self, "polars_dtype_boolean")
+}
+
+datatype__is_categorical <- function() {
+  inherits(self, "polars_dtype_categorical")
+}
+
+datatype__is_enum <- function() {
+  inherits(self, "polars_dtype_enum")
+}
+
+datatype__is_null <- function() {
+  inherits(self, "polars_dtype_null")
+}

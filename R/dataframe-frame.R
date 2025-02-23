@@ -1794,3 +1794,42 @@ dataframe__transpose <- function(
     )
   })
 }
+
+#' Summary statistics for a DataFrame.
+#'
+#' @inheritParams lazyframe__describe
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(
+#'   int = 1:3,
+#'   float = c(0.5, NA, 2.5),
+#'   string = c(letters[1:2], NA),
+#'   date = c(as.Date("2024-01-20"), as.Date("2024-01-21"), NA),
+#'   cat = factor(c(letters[1:2], NA)),
+#'   bool = c(TRUE, FALSE, NA)
+#' )
+#' df
+#'
+#' # Show default frame statistics:
+#' df$describe()
+#'
+#' # Customize which percentiles are displayed, applying linear interpolation:
+#' df$describe(
+#'   percentiles = c(0.1, 0.3, 0.5, 0.7, 0.9),
+#'   interpolation = "linear"
+#' )
+dataframe__describe <- function(
+  percentiles = c(0.25, 0.75),
+  interpolation = c("nearest", "higher", "lower", "midpoint", "linear")
+) {
+  wrap({
+    schema <- self$collect_schema()
+    if (length(schema) == 0) {
+      abort("cannot describe a DataFrame without any columns")
+    }
+    self$lazy()$describe(
+      percentiles = percentiles,
+      interpolation = interpolation
+    )
+  })
+}
