@@ -2410,24 +2410,25 @@ lazyframe__join_asof <- function(
 #' # load parquet directly into a DataFrame / memory
 #' pl$scan_parquet(tmpf2)$collect()
 lazyframe__sink_parquet <- function(
-    path,
-    ...,
-    compression = c("lz4", "uncompressed", "snappy", "gzip", "lzo", "brotli", "zstd"),
-    compression_level = 3,
-    statistics = TRUE,
-    row_group_size = NULL,
-    data_page_size = NULL,
-    maintain_order = TRUE,
-    type_coercion = TRUE,
-    `_type_check` = TRUE,
-    predicate_pushdown = TRUE,
-    projection_pushdown = TRUE,
-    simplify_expression = TRUE,
-    slice_pushdown = TRUE,
-    collapse_joins = TRUE,
-    no_optimization = FALSE,
-    storage_options = NULL,
-    retries = 2) {
+  path,
+  ...,
+  compression = c("lz4", "uncompressed", "snappy", "gzip", "lzo", "brotli", "zstd"),
+  compression_level = 3,
+  statistics = TRUE,
+  row_group_size = NULL,
+  data_page_size = NULL,
+  maintain_order = TRUE,
+  type_coercion = TRUE,
+  `_type_check` = TRUE,
+  predicate_pushdown = TRUE,
+  projection_pushdown = TRUE,
+  simplify_expression = TRUE,
+  slice_pushdown = TRUE,
+  collapse_joins = TRUE,
+  no_optimization = FALSE,
+  storage_options = NULL,
+  retries = 2
+) {
   wrap({
     check_dots_empty0(...)
     compression <- arg_match0(

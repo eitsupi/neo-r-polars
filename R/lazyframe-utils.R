@@ -69,10 +69,11 @@ make_profile_plot <- function(data, truncate_nodes) {
 #'
 #' @export
 parquet_statistics <- function(
-    min = TRUE,
-    max = TRUE,
-    distinct_count = TRUE,
-    null_count = TRUE) {
+  min = TRUE,
+  max = TRUE,
+  distinct_count = TRUE,
+  null_count = TRUE
+) {
   out <- list(
     min = min,
     max = max,
@@ -84,16 +85,17 @@ parquet_statistics <- function(
 }
 
 set_sink_optimizations <- function(
-    self,
-    type_coercion = TRUE,
-    `_type_check` = TRUE,
-    predicate_pushdown = TRUE,
-    projection_pushdown = TRUE,
-    simplify_expression = TRUE,
-    slice_pushdown = TRUE,
-    collapse_joins = TRUE,
-    no_optimization = FALSE,
-    `_check_order` = TRUE) {
+  self,
+  type_coercion = TRUE,
+  `_type_check` = TRUE,
+  predicate_pushdown = TRUE,
+  projection_pushdown = TRUE,
+  simplify_expression = TRUE,
+  slice_pushdown = TRUE,
+  collapse_joins = TRUE,
+  no_optimization = FALSE,
+  `_check_order` = TRUE
+) {
   if (isTRUE(no_optimization)) {
     predicate_pushdown <- FALSE
     projection_pushdown <- FALSE
