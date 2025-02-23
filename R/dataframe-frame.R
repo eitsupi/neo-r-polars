@@ -1873,7 +1873,7 @@ dataframe__group_by_dynamic <- function(
   offset = NULL,
   include_boundaries = FALSE,
   closed = c("left", "right", "both", "none"),
-  label = "left",
+  label = c("left", "right", "datapoint"),
   group_by = NULL,
   start_by = "window"
 ) {
