@@ -2396,7 +2396,7 @@ lazyframe__join_asof <- function(
 #'   interpolation = "linear"
 #' )
 lazyframe__describe <- function(
-  percentiles = c(0.25, 0.75),
+  percentiles = c(0.25, 0.5, 0.75),
   interpolation = c("nearest", "higher", "lower", "midpoint", "linear")
 ) {
   wrap({
@@ -2425,10 +2425,6 @@ lazyframe__describe <- function(
     metric_exprs <- list()
     null <- pl$lit(NULL)
 
-    # separator used temporarily and used to split the column names later on
-    # It's voluntarily weird so that it doesn't match actual column names
-    custom_sep <- "??-??"
-
     for (i in seq_along(schema)) {
       name <- names(schema)[i]
       dtype <- schema[[i]]
@@ -2438,8 +2434,8 @@ lazyframe__describe <- function(
 
       # counts
       count_exprs <- c(
-        pl$col(name)$count()$name$prefix(paste0("count", custom_sep)),
-        pl$col(name)$null_count()$name$prefix(paste0("null_count", custom_sep))
+        pl$col(name)$count()$name$prefix("count:"),
+        pl$col(name)$null_count()$name$prefix("null_count:")
       )
 
       # mean
@@ -2478,7 +2474,7 @@ lazyframe__describe <- function(
           pl$lit(NA, dtype = dtype)
         }
         sort_cols <- c(sort_cols, name)
-        pct_exprs <- c(pct_exprs, pct_expr$alias(paste0(p, custom_sep, name)))
+        pct_exprs <- c(pct_exprs, pct_expr$alias(paste0(p, ":", name)))
       }
 
       if (is_numeric || dtype$is_nested() || dtype$is_null() || dtype$is_boolean()) {
@@ -2489,11 +2485,11 @@ lazyframe__describe <- function(
       metric_exprs <- c(
         metric_exprs,
         count_exprs,
-        mean_expr$alias(paste0("mean", custom_sep, name)),
-        expr_std$alias(paste0("std", custom_sep, name)),
-        min_expr$alias(paste0("min", custom_sep, name)),
+        mean_expr$alias(paste0("mean:", name)),
+        expr_std$alias(paste0("std:", name)),
+        min_expr$alias(paste0("min:", name)),
         pct_exprs,
-        max_expr$alias(paste0("max", custom_sep, name))
+        max_expr$alias(paste0("max:", name))
       )
     }
 
@@ -2506,17 +2502,38 @@ lazyframe__describe <- function(
 
     df_metrics <- df_metrics$select(!!!metric_exprs)$collect()
 
-    # reshape wide result
-    df_metrics$transpose(include_header = TRUE)$with_columns(
-      pl$col("column")$str$split_exact(custom_sep, 1)$struct$rename_fields(c(
-        "statistic",
-        "variable"
-      ))$alias("fields")
-    )$unnest("fields")$drop("column")$pivot(
-      index = "statistic",
-      on = "variable",
-      values = "column_0"
-    )$with_columns(statistic = pl$lit(metrics))
+    # Cast by column type (numeric/bool -> float), (other -> string)
+    # This is done later in py-polars but we need to do it here. When we gather
+    # values in the list, we coerce the types, meaning that stats for date (for
+    # instance) are coerced to numeric. Casting those to string beforehand
+    # fixes this.
+    df_metrics_schema <- df_metrics$schema
+    for (i in seq_along(df_metrics_schema)) {
+      nm <- names(df_metrics_schema)[i]
+      dtype <- df_metrics_schema[[i]]
+      df_metrics_dtype <- if (dtype$is_numeric() || dtype$is_boolean()) {
+        pl$Float64
+      } else {
+        pl$String
+      }
+      df_metrics <- df_metrics$with_columns(pl$col(names(df_metrics_schema)[i])$cast(
+        df_metrics_dtype
+      ))
+    }
+
+    # From the 1 x (metrics * variables) table, we extract the stats for each
+    # variable in a list with length(metrics) elements.
+    # Probably could be optimized.
+    output <- vector("list", length = length(schema))
+    names(output) <- names(schema)
+    for (nm in seq_along(names(output))) {
+      for (i in seq_along(metrics)) {
+        output[[nm]][i] <- as.vector(df_metrics$to_series((nm - 1) * length(metrics) + i - 1))
+      }
+    }
+
+    append(list(statistic = metrics), output) |>
+      as_polars_df()
   })
 }
 

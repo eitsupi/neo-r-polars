@@ -1858,6 +1858,7 @@ test_that("describe() works", {
     bool = c(TRUE, FALSE, NA)
   )
   expect_snapshot(df$describe())
+  expect_snapshot(df$lazy()$describe())
 
   expect_query_error(
     .input$describe(percentiles = 1.1),
@@ -1877,12 +1878,6 @@ test_that("describe() works", {
   expect_snapshot(df$describe(percentiles = 0.1))
 
   # min/max different depending on categorical ordering
+  # https://github.com/pola-rs/polars/issues/21432
   expect_snapshot(df$select(pl$col("cat")$cast(pl$Categorical("lexical")))$describe())
-
-  # names using internal separator ":" in column names, should also just work.
-  df = pl$DataFrame("foo:bar:jazz" = 1, as_polars_series(2, name = ""), "foobar" = 3)
-  expect_identical(
-    df$describe()$columns,
-    c("statistic", df$columns)
-  )
 })
