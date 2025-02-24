@@ -1885,6 +1885,6 @@ dataframe__write_parquet <- function(
       storage_options = storage_options,
       retries = retries
     )
-    self
+    invisible(self)
   })
 }

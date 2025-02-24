@@ -22,6 +22,46 @@ dataframe__write_parquet(
 \item{file}{File path to which the result should be written. This should be
 a path to a directory if writing a partitioned dataset.}
 
+\item{...}{Dots which should be empty.}
+
+\item{compression}{The compression method. Must be one of:
+\itemize{
+\item \code{"lz4"}: fast compression/decompression.
+\item \code{"uncompressed"}
+\item \code{"snappy"}: this guarantees that the parquet file will be compatible with
+older parquet readers.
+\item \code{"gzip"}
+\item \code{"lzo"}
+\item \code{"brotli"}
+\item \code{"zstd"}: good compression performance.
+}}
+
+\item{compression_level}{\code{NULL} or integer. The level of compression to use.
+Only used if method is one of \code{"gzip"}, \code{"brotli"}, or \code{"zstd"}. Higher
+compression means smaller files on disk:
+\itemize{
+\item \code{"gzip"}: min-level: 0, max-level: 10.
+\item \code{"brotli"}: min-level: 0, max-level: 11.
+\item \code{"zstd"}: min-level: 1, max-level: 22.
+}}
+
+\item{statistics}{Whether statistics should be written to the Parquet
+headers. Possible values:
+\itemize{
+\item \code{TRUE}: enable default set of statistics (default)
+\item \code{FALSE}: disable all statistics
+\item \code{"full"}: calculate and write all available statistics
+\item A list created via \code{\link[=parquet_statistics]{parquet_statistics()}} to specify which statistics to
+include.
+}}
+
+\item{row_group_size}{Size of the row groups in number of rows. If \code{NULL}
+(default), the chunks of the DataFrame are used. Writing in smaller chunks
+may reduce memory pressure and improve writing speeds.}
+
+\item{data_page_size}{Size of the data page in bytes. If \code{NULL} (default), it
+is set to 1024^2 bytes.}
+
 \item{partition_by}{A character vector indicating column(s) to partition by.
 A partitioned dataset will be written if this is specified.}
 
@@ -29,9 +69,27 @@ A partitioned dataset will be written if this is specified.}
 a single partition when writing. Note this is calculated using the size of
 the DataFrame in memory (the size of the output file may differ depending
 on the file format / compression).}
+
+\item{storage_options}{Named vector containing options that indicate how to
+connect to a cloud provider. The cloud providers currently supported are
+AWS, GCP, and Azure.
+See supported keys here:
+\itemize{
+\item \href{https://docs.rs/object_store/latest/object_store/aws/enum.AmazonS3ConfigKey.html}{aws}
+\item \href{https://docs.rs/object_store/latest/object_store/gcp/enum.GoogleConfigKey.html}{gcp}
+\item \href{https://docs.rs/object_store/latest/object_store/azure/enum.AzureConfigKey.html}{azure}
+\item Hugging Face (\verb{hf://}): Accepts an API key under the token parameter
+\code{c(token = YOUR_TOKEN)} or by setting the \code{HF_TOKEN} environment
+variable.
+}
+
+If \code{storage_options} is not provided, Polars will try to infer the
+information from environment variables.}
+
+\item{retries}{Number of retries if accessing a cloud instance fails.}
 }
 \value{
-Doesn't return anything
+The input DataFrame is returned.
 }
 \description{
 Write to parquet file
