@@ -1807,7 +1807,7 @@ dataframe__transpose <- function(
   })
 }
 
-#' Write to parquet file
+#' Write to Parquet file
 #'
 #' @inheritParams lazyframe__sink_parquet
 #' @param file File path to which the result should be written. This should be

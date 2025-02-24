@@ -2,7 +2,7 @@
 % Please edit documentation in R/dataframe-frame.R
 \name{dataframe__write_parquet}
 \alias{dataframe__write_parquet}
-\title{Write to parquet file}
+\title{Write to Parquet file}
 \usage{
 dataframe__write_parquet(
   file,
@@ -48,7 +48,8 @@ compression means smaller files on disk:
 \item{statistics}{Whether statistics should be written to the Parquet
 headers. Possible values:
 \itemize{
-\item \code{TRUE}: enable default set of statistics (default)
+\item \code{TRUE}: enable default set of statistics (default). Some statistics may be
+disabled.
 \item \code{FALSE}: disable all statistics
 \item \code{"full"}: calculate and write all available statistics
 \item A list created via \code{\link[=parquet_statistics]{parquet_statistics()}} to specify which statistics to
@@ -92,7 +93,7 @@ information from environment variables.}
 The input DataFrame is returned.
 }
 \description{
-Write to parquet file
+Write to Parquet file
 }
 \examples{
 \dontshow{if (requireNamespace("withr", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
