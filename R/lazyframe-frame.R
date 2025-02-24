@@ -2414,7 +2414,7 @@ lazyframe__sink_parquet <- function(
   path,
   ...,
   compression = c("lz4", "uncompressed", "snappy", "gzip", "lzo", "brotli", "zstd"),
-  compression_level = 3,
+  compression_level = NULL,
   statistics = TRUE,
   row_group_size = NULL,
   data_page_size = NULL,
