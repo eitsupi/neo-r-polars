@@ -1777,7 +1777,7 @@ lazyframe__rolling <- function(
 #' - 1i # length 1
 #' - 10i # length 10
 #'
-#' @return A [LazyGroupByDynamic][LazyGroupByDynamic_class] object
+#' @return A [GroupByDynamic][GroupByDynamic_class] object
 #' @seealso
 #' - [`<LazyFrame>$rolling()`][lazyframe__rolling]
 #'
