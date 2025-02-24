@@ -126,3 +126,18 @@ set_sink_optimizations <- function(
     `_check_order` = `_check_order`
   )
 }
+
+check_arg_is_1byte <- function(arg_name, arg) {
+  if (!is_string(arg)) {
+    abort(paste0("`", arg_name, "` must be a single byte character."))
+  }
+  if (nchar(arg, type = "bytes") != 1) {
+    abort(paste0(
+      "`",
+      arg_name,
+      "` must be a single byte character. Currently it has ",
+      nchar(arg, type = "bytes"),
+      " bytes."
+    ))
+  }
+}
