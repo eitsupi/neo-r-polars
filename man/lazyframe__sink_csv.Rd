@@ -40,7 +40,7 @@ lazyframe__sink_csv(
 
 \item{include_bom}{Logical, whether to include UTF-8 BOM in the CSV output.}
 
-\item{include_header}{Logical, hether to include header in the CSV output.}
+\item{include_header}{Logical, whether to include header in the CSV output.}
 
 \item{separator}{Separate CSV fields with this symbol.}
 

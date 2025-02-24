@@ -2490,7 +2490,7 @@ lazyframe__sink_parquet <- function(
 #' @inherit lazyframe__sink_parquet description params return
 #' @inheritParams rlang::args_dots_empty
 #' @param include_bom Logical, whether to include UTF-8 BOM in the CSV output.
-#' @param include_header Logical, hether to include header in the CSV output.
+#' @param include_header Logical, whether to include header in the CSV output.
 #' @param separator Separate CSV fields with this symbol.
 #' @param line_terminator String used to end each row.
 #' @param quote_char Byte to use as quoting character.
