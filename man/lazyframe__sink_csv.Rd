@@ -64,6 +64,9 @@ Rust crate.}
 \href{https://docs.rs/chrono/latest/chrono/format/strftime/index.html}{chrono}
 Rust crate.}
 
+\item{float_scientific}{Whether to use scientific form always (\code{TRUE}),
+never (\code{FALSE}), or automatically (\code{NULL}) for Float32 and Float64 datatypes.}
+
 \item{float_precision}{Whether to use scientific form always (\code{TRUE}), never
 (\code{FALSE}), or automatically (\code{NULL}) for Float32 and Float64 datatypes.}
 

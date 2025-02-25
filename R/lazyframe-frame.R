@@ -2506,6 +2506,8 @@ lazyframe__sink_parquet <- function(
 #' @param time_format A format string, with the specifiers defined by the
 #' [chrono](https://docs.rs/chrono/latest/chrono/format/strftime/index.html)
 #' Rust crate.
+#' @param float_scientific Whether to use scientific form always (`TRUE`),
+#' never (`FALSE`), or automatically (`NULL`) for Float32 and Float64 datatypes.
 #' @param float_precision Whether to use scientific form always (`TRUE`), never
 #' (`FALSE`), or automatically (`NULL`) for Float32 and Float64 datatypes.
 #' @param null_value A string representing null values (defaulting to the empty
