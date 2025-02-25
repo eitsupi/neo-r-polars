@@ -2508,8 +2508,8 @@ lazyframe__sink_parquet <- function(
 #' Rust crate.
 #' @param float_scientific Whether to use scientific form always (`TRUE`),
 #' never (`FALSE`), or automatically (`NULL`) for Float32 and Float64 datatypes.
-#' @param float_precision Whether to use scientific form always (`TRUE`), never
-#' (`FALSE`), or automatically (`NULL`) for Float32 and Float64 datatypes.
+#' @param float_precision Number of decimal places to write, applied to both
+#' Float32 and Float64 datatypes.
 #' @param null_value A string representing null values (defaulting to the empty
 #' string).
 #' @param quote_style Determines the quoting strategy used. Must be one of:

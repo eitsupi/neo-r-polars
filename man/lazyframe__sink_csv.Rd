@@ -67,8 +67,8 @@ Rust crate.}
 \item{float_scientific}{Whether to use scientific form always (\code{TRUE}),
 never (\code{FALSE}), or automatically (\code{NULL}) for Float32 and Float64 datatypes.}
 
-\item{float_precision}{Whether to use scientific form always (\code{TRUE}), never
-(\code{FALSE}), or automatically (\code{NULL}) for Float32 and Float64 datatypes.}
+\item{float_precision}{Number of decimal places to write, applied to both
+Float32 and Float64 datatypes.}
 
 \item{null_value}{A string representing null values (defaulting to the empty
 string).}
