@@ -1936,7 +1936,7 @@ test_that("sink_csv: separator works", {
   )
   expect_error(
     lf$sink_csv(temp_out, separator = "£"),
-    "`separator` must be a single byte character"
+    "`separator` = '£' should be a single byte character"
   )
 })
 
@@ -1954,15 +1954,15 @@ test_that("sink_csv: quote_style and quote works", {
   )
   expect_error(
     lf$sink_csv(temp_out, quote_char = "£"),
-    "`quote_char` must be a single byte character"
+    "`quote_char` = '£' should be a single byte character"
   )
   expect_error(
     lf$sink_csv(temp_out, quote_char = ""),
-    "`quote_char` must be a single byte character"
+    "`quote_char` = '' should be a single byte character"
   )
   expect_error(
     lf$sink_csv(temp_out, quote_char = c("a", "b")),
-    "`quote_char` must be a single byte character"
+    "`quote_char` should be a single byte character"
   )
 })
 
