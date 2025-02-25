@@ -863,7 +863,6 @@ pub(crate) fn parse_parquet_compression(
     Ok(parsed)
 }
 
-#[cfg(not(target_arch = "wasm32"))]
 impl TryFrom<&str> for Wrap<IpcCompression> {
     type Error = String;
 

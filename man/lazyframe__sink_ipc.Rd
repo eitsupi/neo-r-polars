@@ -7,7 +7,7 @@
 lazyframe__sink_ipc(
   path,
   ...,
-  compression = c("zstd", "lz4", "uncompressed"),
+  compression = c("zstd", "lz4"),
   maintain_order = TRUE,
   type_coercion = TRUE,
   `_type_check` = TRUE,
@@ -26,12 +26,13 @@ lazyframe__sink_ipc(
 
 \item{...}{Dots which should be empty.}
 
-\item{compression}{\code{NULL} or one of:
+\item{compression}{Must be one of:
 \itemize{
-\item \code{"uncompressed"}: same as \code{NULL}.
 \item \code{"lz4"}: fast compression/decompression.
 \item \code{"zstd"}: good compression performance.
-}}
+}
+
+If \code{NULL}, it uses \code{"zstd"}.}
 
 \item{maintain_order}{Maintain the order in which data is processed. Setting
 this to \code{FALSE} will be slightly faster.}

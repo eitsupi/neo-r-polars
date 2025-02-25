@@ -2489,10 +2489,11 @@ lazyframe__sink_parquet <- function(
 #'
 #' @inherit lazyframe__sink_parquet description params return
 #' @inheritParams rlang::args_dots_empty
-#' @param compression `NULL` or one of:
-#' * `"uncompressed"`: same as `NULL`.
+#' @param compression Must be one of:
 #' * `"lz4"`: fast compression/decompression.
 #' * `"zstd"`: good compression performance.
+#'
+#' If `NULL`, it uses `"zstd"`.
 #'
 #' @examples
 #' tmpf <- tempfile()
@@ -2501,7 +2502,7 @@ lazyframe__sink_parquet <- function(
 lazyframe__sink_ipc <- function(
   path,
   ...,
-  compression = c("zstd", "lz4", "uncompressed"),
+  compression = c("zstd", "lz4"),
   maintain_order = TRUE,
   type_coercion = TRUE,
   `_type_check` = TRUE,
@@ -2516,11 +2517,8 @@ lazyframe__sink_ipc <- function(
 ) {
   wrap({
     check_dots_empty0(...)
-    compression <- compression %||% "uncompressed"
-    compression <- arg_match0(
-      compression,
-      values = c("lz4", "uncompressed", "zstd")
-    )
+    compression <- compression %||% "zstd"
+    compression <- arg_match0(compression, values = c("lz4", "zstd"))
 
     lf <- set_sink_optimizations(
       self,

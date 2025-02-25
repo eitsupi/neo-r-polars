@@ -1264,7 +1264,6 @@ impl PlRLazyFrame {
         Ok(())
     }
 
-    #[cfg(not(target_arch = "wasm32"))]
     fn sink_ipc(
         &self,
         path: &str,

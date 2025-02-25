@@ -1909,6 +1909,7 @@ test_that("Test sinking data to IPC file", {
     lf$sink_ipc(tmpf, compression = "rar"),
     "must be one of"
   )
+  expect_silent(lf$sink_ipc(tmpf, compression = NULL))
   expect_equal(pl$scan_ipc(tmpf)$collect(), df)
 
   # update with new data
