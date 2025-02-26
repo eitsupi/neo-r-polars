@@ -15,7 +15,7 @@
   }
 }
 
-#' @export
+#' @exportS3Method utils::.DollarNames
 .DollarNames.polars_dtype <- function(x, pattern = "") {
   member_names <- ls(x, all.names = TRUE)
   method_names <- names(polars_datatype__methods)
@@ -48,7 +48,7 @@
   }
 }
 
-#' @export
+#' @exportS3Method utils::.DollarNames
 .DollarNames.polars_dtype_enum <- function(x, pattern = "") {
   member_names <- ls(x, all.names = TRUE)
   # Enum only method `union`
