@@ -1177,7 +1177,7 @@ expr__map_batches <- function(
       lambda = function(series) {
         as_polars_series(lambda(wrap(.savvy_wrap_PlRSeries(series))))$`_s`
       },
-      return_dtype = return_dtype$`_dt`,
+      output_type = return_dtype$`_dt`,
       agg_list = agg_list
     )
   })
