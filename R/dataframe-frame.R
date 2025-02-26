@@ -1917,8 +1917,7 @@ dataframe__describe <- function(
   interpolation = c("nearest", "higher", "lower", "midpoint", "linear")
 ) {
   wrap({
-    schema <- self$collect_schema()
-    if (length(schema) == 0) {
+    if (length(self$columns) == 0) {
       abort("cannot describe a DataFrame without any columns")
     }
     self$lazy()$describe(
