@@ -2106,6 +2106,5 @@ test_that("describe() works", {
   expect_snapshot(df$describe(percentiles = 0.1))
 
   # min/max different depending on categorical ordering
-  # https://github.com/pola-rs/polars/issues/21432
   expect_snapshot(df$select(pl$col("cat")$cast(pl$Categorical("lexical")))$describe())
 })
