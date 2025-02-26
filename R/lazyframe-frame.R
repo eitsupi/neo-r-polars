@@ -2668,8 +2668,17 @@ lazyframe__describe <- function(
     metrics <- c(metrics, "max")
 
     skip_minmax <- function(x) {
-      # TODO: need to check if x is object, or unknown
-      x$is_nested() || x$is_categorical() || x$is_enum() || x$is_null()
+      dtypes <- class(dtype)
+      dtype$is_nested() ||
+        inherits(
+          dtypes,
+          c(
+            "polars_dtype_categorical",
+            "polars_dtype_enum",
+            "polars_dtype_null",
+            "polars_dtype_unknown"
+          )
+        )
     }
 
     # determine which columns will produce std/mean/percentile/etc
@@ -2693,7 +2702,7 @@ lazyframe__describe <- function(
       )
 
       # mean
-      mean_expr <- if (is_temporal || is_numeric || dtype$is_boolean()) {
+      mean_expr <- if (is_temporal || is_numeric || inherits(dtype, "polars_dtype_boolean")) {
         pl$col(name)$mean()
       } else {
         pl$lit(NA, dtype = dtype)
@@ -2731,7 +2740,12 @@ lazyframe__describe <- function(
         pct_exprs <- c(pct_exprs, pct_expr$alias(paste0(p, ":", name)))
       }
 
-      if (is_numeric || dtype$is_nested() || dtype$is_null() || dtype$is_boolean()) {
+      if (
+        is_numeric ||
+          dtype$is_nested() ||
+          inherits(self, "polars_dtype_null") ||
+          inherits(dtype, "polars_dtype_boolean")
+      ) {
         has_numeric_result <- c(has_numeric_result, name)
       }
 
@@ -2765,7 +2779,7 @@ lazyframe__describe <- function(
     for (i in seq_along(df_metrics_schema)) {
       nm <- names(df_metrics_schema)[i]
       dtype <- df_metrics_schema[[i]]
-      df_metrics_dtype <- if (dtype$is_numeric() || dtype$is_boolean()) {
+      df_metrics_dtype <- if (dtype$is_numeric() || inherits(dtype, "polars_dtype_boolean")) {
         pl$Float64
       } else {
         pl$String
