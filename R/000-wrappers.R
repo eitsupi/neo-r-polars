@@ -2069,9 +2069,9 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
 }
 
 `PlRExpr_map_batches` <- function(self) {
-  function(`lambda`, `agg_list`, `output_type` = NULL) {
-    `output_type` <- .savvy_extract_ptr(`output_type`, "PlRDataType")
-    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_map_batches__impl, `self`, `lambda`, `agg_list`, `output_type`))
+  function(`lambda`, `agg_list`, `is_elementwise`, `returns_scalar`, `return_dtype` = NULL) {
+    `return_dtype` <- .savvy_extract_ptr(`return_dtype`, "PlRDataType")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_map_batches__impl, `self`, `lambda`, `agg_list`, `is_elementwise`, `returns_scalar`, `return_dtype`))
   }
 }
 
