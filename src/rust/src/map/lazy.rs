@@ -9,13 +9,13 @@ use savvy::{FunctionSexp, Result};
 pub fn map_single(
     rexpr: &PlRExpr,
     lambda: FunctionSexp,
-    return_dtype: Option<&PlRDataType>,
+    output_type: Option<&PlRDataType>,
     agg_list: bool,
-    // TODO: use these args
-    _is_elementwise: bool,
-    _returns_scalar: bool,
+    // TODO: support these options
+    // is_elementwise: bool,
+    // returns_scalar: bool,
 ) -> Result<PlRExpr> {
-    let return_dtype = return_dtype.map(|t| t.dt.clone());
+    let output_type = output_type.map(|t| t.dt.clone());
     let lambda = RUdf::new(lambda);
     let func = move |col: Column| {
         let thread_com = ThreadCom::try_from_global(&CONFIG)
@@ -28,7 +28,7 @@ pub fn map_single(
         Ok(Some(s.into_column()))
     };
 
-    let output_map = GetOutput::map_field(move |field| match &return_dtype {
+    let output_map = GetOutput::map_field(move |field| match &output_type {
         Some(dt) => Ok(Field::new(field.name().clone(), dt.clone())),
         None => Ok(field.clone()),
     });

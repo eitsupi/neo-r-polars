@@ -300,18 +300,9 @@ impl PlRExpr {
         &self,
         lambda: FunctionSexp,
         agg_list: bool,
-        is_elementwise: bool,
-        returns_scalar: bool,
-        return_dtype: Option<&PlRDataType>,
+        output_type: Option<&PlRDataType>,
     ) -> Result<Self> {
-        map_single(
-            self,
-            lambda,
-            return_dtype,
-            agg_list,
-            is_elementwise,
-            returns_scalar,
-        )
+        map_single(self, lambda, output_type, agg_list)
     }
 
     fn cum_sum(&self, reverse: bool) -> Result<Self> {

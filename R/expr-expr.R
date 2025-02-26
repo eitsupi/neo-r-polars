@@ -1083,7 +1083,7 @@ expr__filter <- function(...) {
 #' third-party package.
 #'
 #' @inheritParams rlang::args_dots_empty
-#' @param f Function to apply.
+#' @param lambda Function to apply.
 #' @param return_dtype Dtype of the output Series. If `NULL` (default), the
 #' dtype will be inferred based on the first non-null value that is returned by
 #' the function. This can lead to unexpected results, so it is recommended to
@@ -1161,7 +1161,7 @@ expr__filter <- function(...) {
 #'   )
 #' )
 expr__map_batches <- function(
-  f,
+  lambda,
   return_dtype = NULL,
   ...,
   agg_list = FALSE,
@@ -1170,17 +1170,15 @@ expr__map_batches <- function(
 ) {
   wrap({
     check_dots_empty0(...)
-    check_function(f)
+    check_function(lambda)
     check_polars_dtype(return_dtype, allow_null = TRUE)
 
     self$`_rexpr`$map_batches(
-      f = function(series) {
-        as_polars_series(f(wrap(.savvy_wrap_PlRSeries(series))))$`_s`
+      lambda = function(series) {
+        as_polars_series(lambda(wrap(.savvy_wrap_PlRSeries(series))))$`_s`
       },
       return_dtype = return_dtype$`_dt`,
-      agg_list = agg_list,
-      is_elementwise = is_elementwise,
-      returns_scalar = returns_scalar
+      agg_list = agg_list
     )
   })
 }

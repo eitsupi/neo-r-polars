@@ -5,7 +5,7 @@
 \title{Apply a custom R function to a whole Series or sequence of Series.}
 \usage{
 expr__map_batches(
-  f,
+  lambda,
   return_dtype = NULL,
   ...,
   agg_list = FALSE,
@@ -14,7 +14,7 @@ expr__map_batches(
 )
 }
 \arguments{
-\item{f}{Function to apply.}
+\item{lambda}{Function to apply.}
 
 \item{return_dtype}{Dtype of the output Series. If \code{NULL} (default), the
 dtype will be inferred based on the first non-null value that is returned by
