@@ -4,14 +4,7 @@
 \alias{expr__map_batches}
 \title{Apply a custom R function to a whole Series or sequence of Series.}
 \usage{
-expr__map_batches(
-  lambda,
-  return_dtype = NULL,
-  ...,
-  agg_list = FALSE,
-  is_elementwise = FALSE,
-  returns_scalar = FALSE
-)
+expr__map_batches(lambda, return_dtype = NULL, ..., agg_list = FALSE)
 }
 \arguments{
 \item{lambda}{Function to apply.}
@@ -27,14 +20,6 @@ provide the return dtype.}
 applying the function. This parameter only works in a group-by context. The
 function will be invoked only once on a list of groups, rather than once per
 group.}
-
-\item{is_elementwise}{If \code{TRUE}, this can run in the streaming engine, but
-may yield incorrect results in group-by. Ensure you know what you are doing!}
-
-\item{returns_scalar}{If the function returns a scalar, by default it will
-be wrapped in a list in the output, since the assumption is that the
-function always returns something Series-like. If you want to keep the
-result as a scalar, set this argument to \code{TRUE}.}
 }
 \value{
 A polars \link{expression}
@@ -88,15 +73,6 @@ system.time({
   )
 })
 
-# Here’s an example of a function that returns a scalar, where we want it to
-# stay as a scalar:
-df <- pl$DataFrame(
-  a = c(0, 1, 0, 1),
-  b = c(1, 2, 3, 4),
-)
-df$group_by("a")$agg(
-  pl$col("b")$map_batches(\(x) x$max(), returns_scalar = TRUE)
-)
 
 # Call a function that takes multiple arguments by creating a struct and
 # referencing its fields inside the function call.

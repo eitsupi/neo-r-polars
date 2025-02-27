@@ -1092,12 +1092,13 @@ expr__filter <- function(...) {
 #' applying the function. This parameter only works in a group-by context. The
 #' function will be invoked only once on a list of groups, rather than once per
 #' group.
-#' @param is_elementwise If `TRUE`, this can run in the streaming engine, but
-#' may yield incorrect results in group-by. Ensure you know what you are doing!
-#' @param returns_scalar If the function returns a scalar, by default it will
-#' be wrapped in a list in the output, since the assumption is that the
-#' function always returns something Series-like. If you want to keep the
-#' result as a scalar, set this argument to `TRUE`.
+# TODO: uncomment when those arguments are supported
+# @param is_elementwise If `TRUE`, this can run in the streaming engine, but
+# may yield incorrect results in group-by. Ensure you know what you are doing!
+# @param returns_scalar If the function returns a scalar, by default it will
+# be wrapped in a list in the output, since the assumption is that the
+# function always returns something Series-like. If you want to keep the
+# result as a scalar, set this argument to `TRUE`.
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -1139,15 +1140,16 @@ expr__filter <- function(...) {
 #'   )
 #' })
 #'
-#' # Here’s an example of a function that returns a scalar, where we want it to
-#' # stay as a scalar:
-#' df <- pl$DataFrame(
-#'   a = c(0, 1, 0, 1),
-#'   b = c(1, 2, 3, 4),
-#' )
-#' df$group_by("a")$agg(
-#'   pl$col("b")$map_batches(\(x) x$max(), returns_scalar = TRUE)
-#' )
+# TODO: uncomment when returns_scalar is supported
+# # Here’s an example of a function that returns a scalar, where we want it to
+# # stay as a scalar:
+# df <- pl$DataFrame(
+#   a = c(0, 1, 0, 1),
+#   b = c(1, 2, 3, 4),
+# )
+# df$group_by("a")$agg(
+#   pl$col("b")$map_batches(\(x) x$max(), returns_scalar = TRUE)
+# )
 #'
 #' # Call a function that takes multiple arguments by creating a struct and
 #' # referencing its fields inside the function call.
@@ -1164,9 +1166,7 @@ expr__map_batches <- function(
   lambda,
   return_dtype = NULL,
   ...,
-  agg_list = FALSE,
-  is_elementwise = FALSE,
-  returns_scalar = FALSE
+  agg_list = FALSE
 ) {
   wrap({
     check_dots_empty0(...)
