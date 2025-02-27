@@ -301,125 +301,181 @@ test_that("read/scan: arg 'decimal_comma' works", {
 
 # write ------------------------------------------------
 
-dat = head(mtcars, n = 15)
-dat[c(1, 3, 9, 12), c(3, 4, 5)] = NA
-dat_pl = as_polars_df(dat)
-temp_noext = tempfile()
-temp_out = tempfile(fileext = ".csv")
+test_that("write_csv works", {
+  df <- as_polars_df(mtcars)
+  temp_out <- withr::local_tempfile(fileext = ".csv")
+  df$write_csv(temp_out)
 
-test_that("write_csv: path works", {
-  dat_pl$write_csv(temp_out)
-  expect_identical(
-    pl$read_csv(temp_out)$to_data_frame(),
-    dat,
-    ignore_attr = TRUE # rownames are lost when writing / reading from CSV
+  expect_equal(pl$read_csv(temp_out), df)
+
+  # return the input data
+  x <- df$write_csv(temp_out)
+  expect_equal(x, df)
+})
+
+test_that("write_csv: null_value works", {
+  dat <- mtcars
+  dat[c(1, 3, 9, 12), c(3, 4, 5)] <- NA
+  df <- as_polars_df(dat)
+  temp_out <- withr::local_tempfile(fileext = ".csv")
+  expect_error(
+    df$write_csv(temp_out, null_value = 1),
+    "must be character, not double"
+  )
+  df$write_csv(temp_out, null_value = "hello")
+  expect_equal(
+    pl$read_csv(temp_out)$select("disp", "hp")$slice(offset = 0, length = 1),
+    pl$DataFrame(disp = "hello", hp = "hello")
   )
 })
-
-test_that("write_csv returns the input data", {
-  x = dat_pl$write_csv(temp_out)
-  expect_identical(x$to_list(), dat_pl$to_list())
-})
-
-test_that("write_csv: null_values works", {
-  expect_grepl_error(
-    dat_pl$write_csv(temp_out, null_values = NULL)
-  )
-  dat_pl$write_csv(temp_out, null_values = "hello")
-  expect_snapshot_file(temp_out)
-})
-
 
 test_that("write_csv: separator works", {
-  dat_pl$write_csv(temp_out, separator = "|")
-  expect_snapshot_file(temp_out)
+  df <- as_polars_df(mtcars)
+  temp_out <- withr::local_tempfile(fileext = ".csv")
+
+  df$write_csv(temp_out, separator = "|")
+  expect_equal(
+    pl$read_csv(temp_out, separator = "|"),
+    df
+  )
+  expect_error(
+    df$write_csv(temp_out, separator = "£"),
+    "`separator` = '£' should be a single byte character"
+  )
 })
 
 test_that("write_csv: quote_style and quote works", {
-  dat_pl2 = as_polars_df(head(iris))
+  df <- as_polars_df(head(iris))
+  temp_out <- withr::local_tempfile(fileext = ".csv")
 
-  # wrong quote_style
-  ctx = dat_pl2$write_csv(temp_out, quote_style = "foo") |> get_err_ctx()
-  expect_identical(ctx$BadArgument, "quote_style")
-  expect_identical(
-    ctx$Plain,
-    "`quote_style` should be one of 'always', 'necessary', 'non_numeric', or 'never'."
+  expect_error(
+    df$write_csv(temp_out, quote_style = "foo"),
+    "must be one of"
   )
-
-  # wrong quote_style type
-  ctx = dat_pl2$write_csv(temp_out, quote_style = 42) |> get_err_ctx()
-  expect_identical(ctx$TypeMismatch, "&str")
-
-  # zero byte quote
-  ctx = dat_pl2$write_csv(temp_out, quote_char = "") |> get_err_ctx()
-  expect_identical(ctx$Plain, "cannot extract single byte from empty string")
-
-  # multi byte quote not allowed
-  ctx = dat_pl2$write_csv(temp_out, quote_char = "£") |> get_err_ctx()
-  expect_identical(ctx$Plain, "multi byte-string not allowed")
-
-  # multi string not allowed
-  ctx = dat_pl2$write_csv(temp_out, quote_char = c("a", "b")) |> get_err_ctx()
-  expect_identical(ctx$TypeMismatch, "&str")
+  expect_error(
+    df$write_csv(temp_out, quote_style = 42),
+    "must be a string or character vector"
+  )
+  expect_error(
+    df$write_csv(temp_out, quote_char = "£"),
+    "`quote_char` = '£' should be a single byte character"
+  )
+  expect_error(
+    df$write_csv(temp_out, quote_char = ""),
+    "`quote_char` = '' should be a single byte character"
+  )
+  expect_error(
+    df$write_csv(temp_out, quote_char = c("a", "b")),
+    "`quote_char` should be a single byte character"
+  )
 })
 
 patrick::with_parameters_test_that(
   "write_csv: quote_style",
   {
-    df = pl$DataFrame(
-      a = c(r"("foo")", "bar"),
-      b = 1:2,
-      c = letters[1:2]
+    temp_out <- withr::local_tempfile(fileext = ".csv")
+    df <- pl$DataFrame(
+      a = c(r"("foo")"),
+      b = 1,
+      c = letters[1]
     )$write_csv(temp_out, quote_style = quote_style)
-    expect_snapshot_file(temp_out)
+    expect_snapshot(readLines(temp_out))
   },
   quote_style = c("necessary", "always", "non_numeric", "never")
 )
 
 test_that("write_csv: date_format works", {
-  dat = pl$DataFrame(
+  dat <- pl$select(
     date = pl$date_range(
       as.Date("2020-01-01"),
       as.Date("2023-01-02"),
       interval = "1y"
     )
   )
+  temp_out <- withr::local_tempfile(fileext = ".csv")
   dat$write_csv(temp_out, date_format = "%Y")
-  expect_snapshot_file(temp_out)
+
+  expect_equal(
+    pl$read_csv(temp_out)$with_columns(pl$col("date"))$sort("date")$cast(pl$Int32),
+    pl$DataFrame(date = 2020:2023)
+  )
   dat$write_csv(temp_out, date_format = "%d/%m/%Y")
-  expect_snapshot_file(temp_out)
+  expect_equal(
+    pl$read_csv(temp_out)$sort("date"),
+    pl$DataFrame(date = paste0("01/01/", 2020:2023))
+  )
 })
 
 test_that("write_csv: datetime_format works", {
-  dat = pl$DataFrame(
+  dat <- pl$select(
     date = pl$datetime_range(
       as.Date("2020-01-01"),
       as.Date("2020-01-02"),
       interval = "6h"
     )
   )
+  temp_out <- withr::local_tempfile(fileext = ".csv")
   dat$write_csv(temp_out, datetime_format = "%Hh%Mm - %d/%m/%Y")
-  expect_snapshot_file(temp_out)
+
+  expect_equal(
+    pl$read_csv(temp_out)$sort("date"),
+    pl$DataFrame(
+      date = c(
+        "00h00m - 01/01/2020",
+        "00h00m - 02/01/2020",
+        paste0(c("06", "12", "18"), "h00m - 01/01/2020")
+      )
+    )
+  )
 })
 
 test_that("write_csv: time_format works", {
-  dat = pl$DataFrame(
+  dat <- pl$select(
     date = pl$datetime_range(
       as.Date("2020-10-17"),
       as.Date("2020-10-18"),
       "8h"
     )
   )$with_columns(pl$col("date")$dt$time())
+  temp_out <- withr::local_tempfile(fileext = ".csv")
   dat$write_csv(temp_out, time_format = "%Hh%Mm%Ss")
-  expect_snapshot_file(temp_out)
+
+  expect_equal(
+    pl$read_csv(temp_out)$sort("date"),
+    pl$DataFrame(date = paste0(c("00", "00", "08", "16"), "h00m00s"))
+  )
 })
 
-
 test_that("write_csv: float_precision works", {
-  dat = pl$DataFrame(x = c(1.234, 5.6))
+  dat <- pl$DataFrame(x = c(1.234, 5.6))
+  temp_out <- withr::local_tempfile(fileext = ".csv")
   dat$write_csv(temp_out, float_precision = 1)
-  expect_snapshot_file(temp_out)
+
+  expect_equal(
+    pl$read_csv(temp_out)$sort("x"),
+    pl$DataFrame(x = c(1.2, 5.6))
+  )
 
   dat$write_csv(temp_out, float_precision = 3)
-  expect_snapshot_file(temp_out)
+  expect_equal(
+    pl$read_csv(temp_out)$sort("x"),
+    pl$DataFrame(x = c(1.234, 5.600))
+  )
+})
+
+test_that("write_csv: float_scientific works", {
+  dat <- pl$DataFrame(x = c(1e7, 5.6))
+  temp_out <- withr::local_tempfile(fileext = ".csv")
+  dat$write_csv(temp_out, float_scientific = FALSE)
+  # cannot use read.csv() since it already formats as scientific
+  expect_equal(
+    readLines(temp_out),
+    c("x", "10000000", "5.6")
+  )
+
+  dat$write_csv(temp_out, float_scientific = TRUE)
+  expect_equal(
+    readLines(temp_out),
+    c("x", "1e7", "5.6e0")
+  )
 })
