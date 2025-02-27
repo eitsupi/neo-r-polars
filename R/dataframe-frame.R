@@ -1896,7 +1896,12 @@ dataframe__write_parquet <- function(
 #'
 #' @inherit dataframe__write_parquet return
 #' @examples
-
+#' tmpf <- tempfile()
+#' as_polars_df(mtcars)$write_csv(tmpf)
+#' pl$read_csv(tmpf)
+#'
+#' as_polars_df(mtcars)$write_csv(tmpf, separator = "|")
+#' pl$read_csv(tmpf, separator = "|")
 dataframe__write_csv <- function(
   file = NULL,
   ...,
@@ -1939,7 +1944,6 @@ dataframe__write_csv <- function(
       float_precision = float_precision,
       null_value = null_value,
       quote_style = quote_style,
-      maintain_order = maintain_order,
       storage_options = storage_options,
       retries = retries
     )

@@ -1,4 +1,6 @@
-test_that("basic test", {
+# read/scan -----------------------------------------------
+
+test_that("read/scan: basic test", {
   tmpf <- withr::local_tempfile()
   write.csv(iris, tmpf, row.names = FALSE)
   lf <- pl$scan_csv(tmpf)
@@ -17,7 +19,7 @@ test_that("basic test", {
   )
 })
 
-test_that("works with URLs", {
+test_that("read/scan: works with URLs", {
   skip_if_offline()
   # single URL
   out <- pl$read_csv(
@@ -35,7 +37,7 @@ test_that("works with URLs", {
   expect_equal(dim(out), c(62, 6))
 })
 
-test_that("args separator and eol work", {
+test_that("read/scan: args separator and eol work", {
   dat <- iris
   tmpf <- tempfile(fileext = ".csv")
   write.table(dat, tmpf, row.names = FALSE, sep = "|", eol = "#")
@@ -46,7 +48,7 @@ test_that("args separator and eol work", {
   expect_equal(out, as_polars_df(iris))
 })
 
-test_that("args skip_rows and skip_rows_after_header work", {
+test_that("read/scan: args skip_rows and skip_rows_after_header work", {
   dat <- iris
   tmpf <- withr::local_tempfile()
   write.csv(dat, tmpf, row.names = FALSE)
@@ -60,7 +62,7 @@ test_that("args skip_rows and skip_rows_after_header work", {
   expect_named(out, names(iris))
 })
 
-test_that("arg try_parse_date work", {
+test_that("read/scan: arg try_parse_date work", {
   dat <- data.frame(foo = c("2023-10-31", "2023-11-01"))
   tmpf <- withr::local_tempfile()
   write.csv(dat, tmpf, row.names = FALSE)
@@ -72,7 +74,7 @@ test_that("arg try_parse_date work", {
   expect_equal(out$schema, list(foo = pl$Date))
 })
 
-test_that("arg raise_if_empty works", {
+test_that("read/scan: arg raise_if_empty works", {
   tmpf <- withr::local_tempfile()
   writeLines("", tmpf)
 
@@ -81,7 +83,7 @@ test_that("arg raise_if_empty works", {
   expect_equal(dim(out), c(0L, 0L))
 })
 
-test_that("arg glob works", {
+test_that("read/scan: arg glob works", {
   skip_if_not_installed("withr")
   tmpdir <- withr::local_tempdir()
   file1 <- withr::local_tempfile(fileext = ".csv", tmpdir = tmpdir)
@@ -101,7 +103,7 @@ test_that("arg glob works", {
   )
 })
 
-test_that("arg missing_utf8_is_empty_string works", {
+test_that("read/scan: arg missing_utf8_is_empty_string works", {
   tmpf <- withr::local_tempfile()
   writeLines("a,b\n1,a\n2,", tmpf)
 
@@ -118,7 +120,7 @@ test_that("arg missing_utf8_is_empty_string works", {
   )
 })
 
-test_that("arg null_values works", {
+test_that("read/scan: arg null_values works", {
   tmpf <- withr::local_tempfile()
   writeLines("a,b,c\n1.5,a,2\n2,,", tmpf)
 
@@ -154,7 +156,7 @@ test_that("arg null_values works", {
   )
 })
 
-test_that("args row_index_* work", {
+test_that("read/scan: args row_index_* work", {
   dat <- mtcars
   tmpf <- withr::local_tempfile()
   write.csv(dat, tmpf, row.names = FALSE)
@@ -171,7 +173,7 @@ test_that("args row_index_* work", {
   )
 })
 
-test_that("arg encoding works", {
+test_that("read/scan: arg encoding works", {
   dat <- mtcars
   tmpf <- withr::local_tempfile()
   write.csv(dat, tmpf, row.names = FALSE)
@@ -182,7 +184,7 @@ test_that("arg encoding works", {
   )
 })
 
-test_that("multiple files works correctly if same schema", {
+test_that("read/scan: multiple files works correctly if same schema", {
   dat1 <- iris[1:75, ]
   dat2 <- iris[76:150, ]
   tmpf1 <- tempfile()
@@ -194,7 +196,7 @@ test_that("multiple files works correctly if same schema", {
   expect_equal(read, as_polars_df(iris))
 })
 
-test_that("multiple files errors if different schema", {
+test_that("read/scan: multiple files errors if different schema", {
   dat1 <- iris
   dat2 <- mtcars
   tmpf1 <- tempfile()
@@ -208,12 +210,12 @@ test_that("multiple files errors if different schema", {
   )
 })
 
-test_that("bad paths", {
+test_that("read/scan: bad paths", {
   expect_snapshot(pl$read_csv(character()), error = TRUE)
   expect_snapshot(pl$read_csv("some invalid path"), error = TRUE)
 })
 
-test_that("scan_csv can include file path", {
+test_that("read/scan: scan_csv can include file path", {
   skip_if_not_installed("withr")
   temp_file_1 <- withr::local_tempfile()
   temp_file_2 <- withr::local_tempfile()
@@ -228,7 +230,7 @@ test_that("scan_csv can include file path", {
   )
 })
 
-test_that("arg 'schema_overrides' works", {
+test_that("read/scan: arg 'schema_overrides' works", {
   tmpf <- withr::local_tempfile()
   writeLines("a,b,c\n1.5,a,2\n2,,", tmpf)
   expect_equal(
@@ -248,7 +250,7 @@ test_that("arg 'schema_overrides' works", {
   )
 })
 
-test_that("arg 'schema' works", {
+test_that("read/scan: arg 'schema' works", {
   tmpf <- withr::local_tempfile()
   writeLines("a,b,c\n1.5,a,2\n2,,", tmpf)
   expect_equal(
@@ -272,7 +274,7 @@ test_that("arg 'schema' works", {
 })
 
 # TODO: can't check if it actually works
-test_that("arg 'storage_options' throws basic errors", {
+test_that("read/scan: arg 'storage_options' throws basic errors", {
   tmpf <- withr::local_tempfile()
   expect_snapshot(
     pl$read_csv(tmpf, storage_options = 1),
@@ -284,7 +286,7 @@ test_that("arg 'storage_options' throws basic errors", {
   )
 })
 
-test_that("arg 'decimal_comma' works", {
+test_that("read/scan: arg 'decimal_comma' works", {
   tmpf <- withr::local_tempfile()
   writeLines("a|b|c\n1,5|a|2\n2||", tmpf)
   expect_equal(
@@ -295,4 +297,129 @@ test_that("arg 'decimal_comma' works", {
     pl$read_csv(tmpf, separator = "|", decimal_comma = TRUE),
     pl$DataFrame(a = c(1.5, 2), b = c("a", NA), c = c(2L, NA))$cast(c = pl$Int64)
   )
+})
+
+# write ------------------------------------------------
+
+dat = head(mtcars, n = 15)
+dat[c(1, 3, 9, 12), c(3, 4, 5)] = NA
+dat_pl = as_polars_df(dat)
+temp_noext = tempfile()
+temp_out = tempfile(fileext = ".csv")
+
+test_that("write_csv: path works", {
+  dat_pl$write_csv(temp_out)
+  expect_identical(
+    pl$read_csv(temp_out)$to_data_frame(),
+    dat,
+    ignore_attr = TRUE # rownames are lost when writing / reading from CSV
+  )
+})
+
+test_that("write_csv returns the input data", {
+  x = dat_pl$write_csv(temp_out)
+  expect_identical(x$to_list(), dat_pl$to_list())
+})
+
+test_that("write_csv: null_values works", {
+  expect_grepl_error(
+    dat_pl$write_csv(temp_out, null_values = NULL)
+  )
+  dat_pl$write_csv(temp_out, null_values = "hello")
+  expect_snapshot_file(temp_out)
+})
+
+
+test_that("write_csv: separator works", {
+  dat_pl$write_csv(temp_out, separator = "|")
+  expect_snapshot_file(temp_out)
+})
+
+test_that("write_csv: quote_style and quote works", {
+  dat_pl2 = as_polars_df(head(iris))
+
+  # wrong quote_style
+  ctx = dat_pl2$write_csv(temp_out, quote_style = "foo") |> get_err_ctx()
+  expect_identical(ctx$BadArgument, "quote_style")
+  expect_identical(
+    ctx$Plain,
+    "`quote_style` should be one of 'always', 'necessary', 'non_numeric', or 'never'."
+  )
+
+  # wrong quote_style type
+  ctx = dat_pl2$write_csv(temp_out, quote_style = 42) |> get_err_ctx()
+  expect_identical(ctx$TypeMismatch, "&str")
+
+  # zero byte quote
+  ctx = dat_pl2$write_csv(temp_out, quote_char = "") |> get_err_ctx()
+  expect_identical(ctx$Plain, "cannot extract single byte from empty string")
+
+  # multi byte quote not allowed
+  ctx = dat_pl2$write_csv(temp_out, quote_char = "£") |> get_err_ctx()
+  expect_identical(ctx$Plain, "multi byte-string not allowed")
+
+  # multi string not allowed
+  ctx = dat_pl2$write_csv(temp_out, quote_char = c("a", "b")) |> get_err_ctx()
+  expect_identical(ctx$TypeMismatch, "&str")
+})
+
+patrick::with_parameters_test_that(
+  "write_csv: quote_style",
+  {
+    df = pl$DataFrame(
+      a = c(r"("foo")", "bar"),
+      b = 1:2,
+      c = letters[1:2]
+    )$write_csv(temp_out, quote_style = quote_style)
+    expect_snapshot_file(temp_out)
+  },
+  quote_style = c("necessary", "always", "non_numeric", "never")
+)
+
+test_that("write_csv: date_format works", {
+  dat = pl$DataFrame(
+    date = pl$date_range(
+      as.Date("2020-01-01"),
+      as.Date("2023-01-02"),
+      interval = "1y"
+    )
+  )
+  dat$write_csv(temp_out, date_format = "%Y")
+  expect_snapshot_file(temp_out)
+  dat$write_csv(temp_out, date_format = "%d/%m/%Y")
+  expect_snapshot_file(temp_out)
+})
+
+test_that("write_csv: datetime_format works", {
+  dat = pl$DataFrame(
+    date = pl$datetime_range(
+      as.Date("2020-01-01"),
+      as.Date("2020-01-02"),
+      interval = "6h"
+    )
+  )
+  dat$write_csv(temp_out, datetime_format = "%Hh%Mm - %d/%m/%Y")
+  expect_snapshot_file(temp_out)
+})
+
+test_that("write_csv: time_format works", {
+  dat = pl$DataFrame(
+    date = pl$datetime_range(
+      as.Date("2020-10-17"),
+      as.Date("2020-10-18"),
+      "8h"
+    )
+  )$with_columns(pl$col("date")$dt$time())
+  dat$write_csv(temp_out, time_format = "%Hh%Mm%Ss")
+  expect_snapshot_file(temp_out)
+})
+
+
+test_that("write_csv: float_precision works", {
+  dat = pl$DataFrame(x = c(1.234, 5.6))
+  dat$write_csv(temp_out, float_precision = 1)
+  expect_snapshot_file(temp_out)
+
+  dat$write_csv(temp_out, float_precision = 3)
+  expect_snapshot_file(temp_out)
 })
