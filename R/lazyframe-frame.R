@@ -1031,9 +1031,9 @@ lazyframe__fill_null <- function(
         dtypes <- pl$Float64
       } else if (inherits(value, "POSIXct")) {
         abort("TODO")
-      } else if (is(x, "Duration")) {
+      } else if (is(value, "Duration")) {
         abort("TODO")
-      } else if (is.Date(value)) {
+      } else if (is(value, "Date")) {
         dtypes <- pl$Date
       } else if (is.character(value)) {
         dtypes <- c(pl$String, pl$Categorical("physical"), pl$Categorical("lexical"))
