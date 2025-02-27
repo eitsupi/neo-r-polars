@@ -503,8 +503,8 @@ lazyframe__collect_schema <- function() {
 #' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Either a datatype to which
 #' all columns will be cast, or a list where the names are column names and the
 #' values are the datatypes to convert to.
-#' @param strict If `TRUE` (default), throw an error if a cast could not be done
-#' (for instance, due to an overflow). Otherwise, return `null`.
+#' @param .strict If `TRUE` (default), throw an error if a cast could not be
+#' done (for instance, due to an overflow). Otherwise, return `null`.
 #'
 #' @return A LazyFrame
 #'
@@ -2516,11 +2516,11 @@ lazyframe__sink_parquet <- function(
 #'
 #' @examples
 #' # sink table 'mtcars' from mem to CSV
-#' tmpf <- tempfile()
-#' pl$LazyFrame(mtcars)$sink_csv(tmpf)
+#' tmpf <- tempfile(fileext = ".csv")
+#' as_polars_lf(mtcars)$sink_csv(tmpf)
 #'
 #' # stream a query end-to-end
-#' tmpf2 <- tempfile()
+#' tmpf2 <- tempfile(fileext = ".csv")
 #' pl$scan_csv(tmpf)$select(pl$col("cyl") * 2)$sink_csv(tmpf2)
 #'
 #' # load parquet directly into a DataFrame / memory
