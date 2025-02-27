@@ -1903,7 +1903,7 @@ dataframe__write_parquet <- function(
 #' as_polars_df(mtcars)$write_csv(tmpf, separator = "|")
 #' pl$read_csv(tmpf, separator = "|")
 dataframe__write_csv <- function(
-  file = NULL,
+  file,
   ...,
   include_bom = FALSE,
   include_header = TRUE,
