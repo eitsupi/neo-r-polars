@@ -132,14 +132,16 @@ Invisibly returns the input LazyFrame
 This allows streaming results that are larger than RAM to be written to disk.
 }
 \examples{
+\dontshow{if (requireNamespace("withr", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # sink table 'mtcars' from mem to CSV
-tmpf <- tempfile()
-pl$LazyFrame(mtcars)$sink_csv(tmpf)
+temp_out <- withr::local_tempfile(fileext = ".csv")
+as_polars_lf(mtcars)$sink_csv(temp_out)
 
-# stream a query end-to-end
-tmpf2 <- tempfile()
-pl$scan_csv(tmpf)$select(pl$col("cyl") * 2)$sink_csv(tmpf2)
+# stream a query end-to-end: load from a CSV file and sink to another
+temp_out_2 <- withr::local_tempfile(fileext = ".csv")
+pl$scan_csv(temp_out)$select(pl$col("cyl") * 2)$sink_csv(temp_out_2)
 
 # load parquet directly into a DataFrame / memory
-pl$scan_csv(tmpf2)$collect()
+pl$scan_csv(temp_out_2)$collect()
+\dontshow{\}) # examplesIf}
 }
