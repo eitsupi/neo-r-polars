@@ -1888,3 +1888,61 @@ dataframe__write_parquet <- function(
     invisible(self)
   })
 }
+
+#' Write to comma-separated values (CSV) file
+#'
+#' @inheritParams lazyframe__sink_csv
+#' @param file File path to which the result will be written.
+#'
+#' @inherit dataframe__write_parquet return
+#' @examples
+
+dataframe__write_csv <- function(
+  file = NULL,
+  ...,
+  include_bom = FALSE,
+  include_header = TRUE,
+  separator = ",",
+  line_terminator = "\n",
+  quote_char = '"',
+  batch_size = 1024,
+  datetime_format = NULL,
+  date_format = NULL,
+  time_format = NULL,
+  float_scientific = NULL,
+  float_precision = NULL,
+  null_value = "",
+  quote_style = c("necessary", "always", "never", "non_numeric"),
+  storage_options = NULL,
+  retries = 2
+) {
+  wrap({
+    check_dots_empty0(...)
+    check_arg_is_1byte("separator", separator)
+    check_arg_is_1byte("quote_char", quote_char)
+    quote_style <- arg_match0(
+      quote_style,
+      values = c("necessary", "always", "never", "non_numeric")
+    )
+    self$`_df`$write_csv(
+      path = file,
+      include_bom = include_bom,
+      include_header = include_header,
+      separator = separator,
+      line_terminator = line_terminator,
+      quote_char = quote_char,
+      batch_size = batch_size,
+      datetime_format = datetime_format,
+      date_format = date_format,
+      time_format = time_format,
+      float_scientific = float_scientific,
+      float_precision = float_precision,
+      null_value = null_value,
+      quote_style = quote_style,
+      maintain_order = maintain_order,
+      storage_options = storage_options,
+      retries = retries
+    )
+    invisible(self)
+  })
+}
