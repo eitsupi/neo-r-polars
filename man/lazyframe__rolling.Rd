@@ -30,6 +30,8 @@ performance matters, use an Int64 column.}
 
 \item{closed}{Define which sides of the interval are closed (inclusive).
 Default is \code{"left"}.}
+
+\item{group_by}{Also group by this column/these columns.}
 }
 \value{
 A \link[=LazyGroupBy_class]{LazyGroupBy} object
