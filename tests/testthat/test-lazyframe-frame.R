@@ -797,6 +797,26 @@ test_that("fill_null(): basic usage", {
   )
 })
 
+test_that("fill_null() fills categoricals if fill is character", {
+  df <- pl$DataFrame(
+    num = c(1, 2, NA),
+    str = c("a", "b", NA),
+    cat_lex = c("a", "b", NA),
+    cat_phy = c("a", "b", NA)
+  )$cast(cat_lex = pl$Categorical("lexical"), cat_phy = pl$Categorical("physical"))
+
+  expect_query_equal(
+    .input$fill_null("foobar"),
+    df,
+    pl$DataFrame(
+      num = c(1, 2, NA),
+      str = c("a", "b", "foobar"),
+      cat_lex = c("a", "b", "foobar"),
+      cat_phy = c("a", "b", "foobar")
+    )$cast(cat_lex = pl$Categorical("lexical"), cat_phy = pl$Categorical("physical"))
+  )
+})
+
 patrick::with_parameters_test_that(
   "fill_null(): arg 'strategy' works",
   .cases = {
