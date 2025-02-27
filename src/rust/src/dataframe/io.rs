@@ -168,19 +168,6 @@ impl PlRDataFrame {
         let separator = <Wrap<u8>>::try_from(separator)?.0;
         let quote_char = <Wrap<u8>>::try_from(quote_char)?.0;
 
-        let serialize_options = SerializeOptions {
-            date_format: date_format.map(|x| x.to_string()),
-            time_format: time_format.map(|x| x.to_string()),
-            datetime_format: datetime_format.map(|x| x.to_string()),
-            float_scientific,
-            float_precision,
-            separator,
-            quote_char,
-            null: null_value.to_string(),
-            line_terminator: line_terminator.to_string(),
-            quote_style,
-        };
-
         // TODO: Not used anywhere for now?
         let cloud_options = match storage_options {
             Some(x) => {
