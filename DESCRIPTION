@@ -16,7 +16,6 @@ License: MIT + file LICENSE
 Depends:
     R (>= 4.2)
 Imports:
-    methods,
     rlang (>= 1.1.0)
 Suggests:
     arrow,
