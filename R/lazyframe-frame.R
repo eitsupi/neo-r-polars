@@ -1006,11 +1006,10 @@ lazyframe__fill_null <- function(
     }
     check_dots_empty0(...)
     if (!missing(value) && !is.null(value)) {
+      dtype <- infer_polars_dtype(value)
       if (is_polars_expr(value)) {
         dtypes <- NULL
-      } else if (is.logical(value)) {
-        dtypes <- pl$Boolean
-      } else if (isTRUE(matches_supertype) && is.numeric(value)) {
+      } else if (dtype$is_numeric() && isTRUE(matches_supertype)) {
         dtypes <- c(
           pl$Int8,
           pl$Int16,
@@ -1025,22 +1024,11 @@ lazyframe__fill_null <- function(
           pl$Float64,
           pl$Decimal()
         )
-      } else if (is.integer(value)) {
-        dtypes <- pl$Int64
-      } else if (is.double(value)) {
-        dtypes <- pl$Float64
-      } else if (inherits(value, "POSIXct")) {
-        abort("TODO")
-      } else if (is(value, "Duration")) {
-        abort("TODO")
-      } else if (is(value, "Date")) {
-        dtypes <- pl$Date
-      } else if (is.character(value)) {
+      } else if (inherits(dtype, "polars_dtype_string")) {
         dtypes <- c(pl$String, pl$Categorical("physical"), pl$Categorical("lexical"))
       } else {
-        dtypes <- NULL
+        dtypes <- dtype
       }
-      # TODO: time datatype
 
       if (!is_list_of_polars_dtype(dtypes)) {
         dtypes <- list(dtypes)
