@@ -239,3 +239,19 @@ series__n_chunks <- function() {
   self$`_s`$n_chunks() |>
     wrap()
 }
+
+#' Rename the series
+#'
+#' @param name The new name.
+#'
+#' @inherit as_polars_series return
+#' @examples
+#' series <- pl$Series("a", 1:3)
+#' series$alias("b")
+series__alias <- function(name) {
+  wrap({
+    s <- self$clone()
+    s$`_s`$rename(name)
+    s
+  })
+}
