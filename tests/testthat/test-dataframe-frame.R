@@ -533,12 +533,37 @@ test_that("unstack() works", {
       z_1 = list(2:3, 4:5, 6:7, 8:9)
     )$cast(z_0 = pl$List(pl$UInt8), z_1 = pl$List(pl$UInt8))
   )
+  # selector
+  expect_equal(
+    df$unstack(step = 5, columns = cs$numeric()),
+    pl$DataFrame(y_0 = 1:5, y_1 = c(6L, 7L, 8L, NA, NA))
+  )
+  # multiple selectors
+  expect_equal(
+    df$unstack(step = 5, columns = c(cs$numeric(), cs$string())),
+    pl$DataFrame(
+      y_0 = 1:5,
+      y_1 = c(6L, 7L, 8L, NA, NA),
+      x_0 = c("A", "B", "C", "D", "E"),
+      x_1 = c("F", "G", "H", NA, NA)
+    )
+  )
+  # fill_values correctly used
   expect_equal(
     df$unstack(step = 5, columns = cs$numeric(), fill_values = 0),
     pl$DataFrame(y_0 = 1:5, y_1 = c(6L, 7L, 8L, 0L, 0L))
   )
   expect_equal(
-    df$unstack(step = 5, columns = cs$numeric()),
-    pl$DataFrame(y_0 = 1:5, y_1 = c(6L, 7L, 8L, NA, NA))
+    df$unstack(
+      step = 5,
+      columns = c("y", "x"),
+      fill_values = list(y = 999, x = "foo")
+    ),
+    pl$DataFrame(
+      y_0 = 1:5,
+      y_1 = c(6L, 7L, 8L, 999L, 999L),
+      x_0 = c("A", "B", "C", "D", "E"),
+      x_1 = c("F", "G", "H", "foo", "foo")
+    )
   )
 })

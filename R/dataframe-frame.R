@@ -1920,12 +1920,18 @@ dataframe__unstack <- function(
 ) {
   wrap({
     check_dots_empty0(...)
+
     how <- arg_match0(how, values = c("vertical", "horizontal"))
     if (length(columns) > 0) {
-      df <- self$select(columns)
+      if (is_polars_selector(columns)) {
+        df <- self$select(columns)
+      } else {
+        df <- self$select(!!!columns)
+      }
     } else {
       df <- self
     }
+
     height <- self$height
     if (how == "vertical") {
       n_rows <- step
@@ -1934,6 +1940,9 @@ dataframe__unstack <- function(
       n_cols <- step
       n_rows <- ceiling(height / n_cols)
     }
+
+    # We know whether unstacking will create empty cells, so we extend the
+    # data (and potentially fill missing values) before unstacking.
     n_fill <- n_cols * n_rows - height
     if (n_fill > 0) {
       if (is.null(fill_values)) {
@@ -1942,34 +1951,40 @@ dataframe__unstack <- function(
       if (!is.list(fill_values)) {
         fill_values <- as.list(rep(fill_values, df$width))
       }
+      list_series <- list()
       for (i in seq_along(fill_values)) {
         series <- names(df$schema)[i]
-        df <- df$select(pl$col(series)$extend_constant(fill_values[[i]], n_fill))
+        list_series[[i]] <- pl$col(series)$extend_constant(fill_values[[i]], n_fill)
       }
+      df <- df$select(!!!list_series)
     }
 
     if (how == "horizontal") {
       df <- df$with_columns(
         (pl$int_range(0, n_cols * n_rows) %% n_cols)$alias(
           "__sort_order"
-        ),
+        )
       )$sort("__sort_order")$drop("__sort_order")
     }
 
     zfill_val <- floor(log10(n_cols)) + 1
-    slices <- list()
-    series <- df$get_columns()
+    # py-polars can use an iterator like "for s in df", but we don't have that
+    # so we need to change the dataframe to a list of series that we can iterate
+    # on.
+    df_series <- df$get_columns()
+    slices <- vector("list", length = length(df_series) * n_cols)
 
-    for (s in seq_along(series)) {
+    idx <- 1
+    for (s in seq_along(df_series)) {
       for (slice_nbr in seq_len(n_cols) - 1) {
-        serie <- series[[s]]
-        slices[[paste0(slice_nbr, "_", s)]] <- serie$slice(slice_nbr * n_rows, n_rows)$alias(
-          paste0(names(series)[s], "_", slice_nbr)
+        serie <- df_series[[s]]
+        old_serie_name <- names(df_series)[s]
+        slices[[idx]] <- serie$slice(slice_nbr * n_rows, n_rows)$alias(
+          paste0(old_serie_name, "_", slice_nbr)
         )
+        idx <- idx + 1
       }
     }
-    slices <- unname(slices)
-
     pl$DataFrame(!!!slices)
   })
 }
