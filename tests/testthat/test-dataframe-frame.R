@@ -505,3 +505,40 @@ test_that("transpose() works", {
     )
   )
 })
+
+test_that("unstack() works", {
+  df <- pl$DataFrame(x = LETTERS[1:8], y = 1:8)$with_columns(
+    z = pl$int_ranges(pl$col("y"), pl$col("y") + 2, dtype = pl$UInt8)
+  )
+
+  expect_equal(
+    df$unstack(step = 4, how = "vertical"),
+    pl$DataFrame(
+      x_0 = c("A", "B", "C", "D"),
+      x_1 = c("E", "F", "G", "H"),
+      y_0 = 1:4,
+      y_1 = 5:8,
+      z_0 = list(1:2, 2:3, 3:4, 4:5),
+      z_1 = list(5:6, 6:7, 7:8, 8:9)
+    )$cast(z_0 = pl$List(pl$UInt8), z_1 = pl$List(pl$UInt8))
+  )
+  expect_equal(
+    df$unstack(step = 2, how = "horizontal"),
+    pl$DataFrame(
+      x_0 = c("A", "C", "E", "G"),
+      x_1 = c("B", "D", "F", "H"),
+      y_0 = seq(1L, 7L, by = 2L),
+      y_1 = seq(2L, 8L, by = 2L),
+      z_0 = list(1:2, 3:4, 5:6, 7:8),
+      z_1 = list(2:3, 4:5, 6:7, 8:9)
+    )$cast(z_0 = pl$List(pl$UInt8), z_1 = pl$List(pl$UInt8))
+  )
+  expect_equal(
+    df$unstack(step = 5, columns = cs$numeric(), fill_values = 0),
+    pl$DataFrame(y_0 = 1:5, y_1 = c(6L, 7L, 8L, 0L, 0L))
+  )
+  expect_equal(
+    df$unstack(step = 5, columns = cs$numeric()),
+    pl$DataFrame(y_0 = 1:5, y_1 = c(6L, 7L, 8L, NA, NA))
+  )
+})

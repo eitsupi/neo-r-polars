@@ -239,3 +239,11 @@ series__n_chunks <- function() {
   self$`_s`$n_chunks() |>
     wrap()
 }
+
+series__alias <- function(name) {
+  wrap({
+    s <- self$clone()
+    s$`_s`$rename(name)
+    s
+  })
+}

@@ -1888,3 +1888,88 @@ dataframe__write_parquet <- function(
     invisible(self)
   })
 }
+
+#' Unstack a long table to a wide form without doing an aggregation
+#'
+#' This can be much faster than a pivot, because it can skip the grouping phase.
+#'
+#' @inheritParams rlang::args_dots_empty
+#' @param step Number of rows in the unstacked frame.
+#' @param how Direction of the unstack. Must be one of `"vertical"` or
+#' `"horizontal"`.
+#' @param columns Column name(s) or selector(s) to include in the operation. If
+#' set `NULL` (default), use all columns.
+#' @param fill_values Fill values that don’t fit the new size with this value.
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(x = LETTERS[1:8], y = 1:8)$with_columns(
+#'   z = pl$int_ranges(pl$col("y"), pl$col("y") + 2, dtype = pl$UInt8)
+#' )
+#' df
+#'
+#' df$unstack(step = 4, how = "vertical")
+#' df$unstack(step = 2, how = "horizontal")
+#' df$unstack(step = 5, columns = cs$numeric(), fill_values = 0)
+dataframe__unstack <- function(
+  ...,
+  step,
+  how = c("vertical", "horizontal"),
+  columns = NULL,
+  fill_values = NULL
+) {
+  wrap({
+    check_dots_empty0(...)
+    how <- arg_match0(how, values = c("vertical", "horizontal"))
+    if (length(columns) > 0) {
+      df <- self$select(columns)
+    } else {
+      df <- self
+    }
+    height <- self$height
+    if (how == "vertical") {
+      n_rows <- step
+      n_cols <- ceiling(height / n_rows)
+    } else {
+      n_cols <- step
+      n_rows <- ceiling(height / n_cols)
+    }
+    n_fill <- n_cols * n_rows - height
+    if (n_fill > 0) {
+      if (is.null(fill_values)) {
+        fill_values <- NA
+      }
+      if (!is.list(fill_values)) {
+        fill_values <- as.list(rep(fill_values, df$width))
+      }
+      for (i in seq_along(fill_values)) {
+        series <- names(df$schema)[i]
+        df <- df$select(pl$col(series)$extend_constant(fill_values[[i]], n_fill))
+      }
+    }
+
+    if (how == "horizontal") {
+      df <- df$with_columns(
+        (pl$int_range(0, n_cols * n_rows) %% n_cols)$alias(
+          "__sort_order"
+        ),
+      )$sort("__sort_order")$drop("__sort_order")
+    }
+
+    zfill_val <- floor(log10(n_cols)) + 1
+    slices <- list()
+    series <- df$get_columns()
+
+    for (s in seq_along(series)) {
+      for (slice_nbr in seq_len(n_cols) - 1) {
+        serie <- series[[s]]
+        slices[[paste0(slice_nbr, "_", s)]] <- serie$slice(slice_nbr * n_rows, n_rows)$alias(
+          paste0(names(series)[s], "_", slice_nbr)
+        )
+      }
+    }
+    slices <- unname(slices)
+
+    pl$DataFrame(!!!slices)
+  })
+}
