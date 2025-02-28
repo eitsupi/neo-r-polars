@@ -1,4 +1,13 @@
-# infer_polars_dtype() works for various objects complex
+# infer_polars_dtype() raises an error for unsupported objects polars_expr
+
+    Code
+      infer_polars_dtype(x)
+    Condition
+      Error in `infer_polars_dtype()`:
+      ! passing polars expression objects to `infer_polars_dtype()` is not supported.
+      i You may want to eval the expression with `pl$select()` first.
+
+# infer_polars_dtype() raises an error for unsupported objects complex
 
     Code
       infer_polars_dtype(x)
@@ -8,7 +17,7 @@
       Caused by error in `infer_polars_dtype_default_impl()`:
       ! Unsupported class for `as_polars_series()`: complex
 
-# infer_polars_dtype() works for various objects polars_dtype
+# infer_polars_dtype() raises an error for unsupported objects polars_dtype
 
     Code
       infer_polars_dtype(x)
