@@ -149,7 +149,6 @@ series__clone <- function() {
 
 #' Rename the Series
 #'
-#' Rename the Series.
 #' [`<Series>$rename()`][series__rename] is an alias for [`<Series>$alias()`][series__alias].
 #' @param name The new name.
 #'
