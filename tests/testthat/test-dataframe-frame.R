@@ -533,6 +533,10 @@ test_that("unstack() works", {
       z_1 = list(2:3, 4:5, 6:7, 8:9)
     )$cast(z_0 = pl$List(pl$UInt8), z_1 = pl$List(pl$UInt8))
   )
+  expect_error(
+    df$unstack(step = -1, how = "vertical"),
+    "must be a single positive"
+  )
   # selector
   expect_equal(
     df$unstack(step = 5, columns = cs$numeric()),
