@@ -332,7 +332,7 @@ impl PlRDataFrame {
             .map_err(RPolarsErr::from)?
             .into())
     }
-  
+
     pub fn sample_n(
         &self,
         n: &PlRSeries,
