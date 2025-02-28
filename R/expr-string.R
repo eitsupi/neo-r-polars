@@ -24,7 +24,7 @@ namespace_expr_str <- function(x) {
 #' Similar to the [strptime()] function.
 #'
 #' When parsing a Datetime the column precision will be inferred from the format
-#' string, if given, e.g.: `"%F %T%.3f"` => [`pl$Datetime("ms")`][pl__datetime].
+#' string, if given, e.g.: `"%F %T%.3f"` => [`pl$Datetime("ms")`][pl__Datetime].
 #' If no fractional second component is found then the default is `"us"` (microsecond).
 # TODO: link to data type docs
 #' @param dtype The data type to convert into. Can be either `pl$Date`,
