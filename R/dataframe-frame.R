@@ -246,10 +246,7 @@ dataframe__get_columns <- function() {
 
 #' Get a single column by name
 #'
-#' @inheritParams rlang::args_dots_empty
 #' @param name Name of the column to retrieve.
-#' @param default Value to return if the column does not exist. If not
-#' explicitly set and the column is not present, an error is thrown.
 #'
 #' @return Either a Series or a specific value if the column doesn't exist and
 #' `default` is set.
@@ -257,28 +254,13 @@ dataframe__get_columns <- function() {
 #' df <- pl$DataFrame(foo = 1:3, bar = 4:6)
 #' df$get_column("foo")
 #'
-#' # Missing column handling; can optionally provide an arbitrary default value
-#' # to the method (otherwise an error is thrown).
-#' df$get_column("baz", default = pl$Series("baz", c("?", "?", "?")))
-#'
-#' df$get_column("baz", default = NA)
-#'
 #' tryCatch(
 #'   df$get_column("baz"),
 #'   error = function(e) print(e)
 #' )
-dataframe__get_column <- function(name, ..., default = NULL) {
-  wrap({
-    tryCatch(
-      self$`_df`$get_column(name),
-      error = function(e) {
-        if (!is.null(default)) {
-          return(default)
-        }
-        abort(e$message, call = caller_env(3))
-      }
-    )
-  })
+dataframe__get_column <- function(name) {
+  self$`_df`$get_column(name) |>
+    wrap()
 }
 
 #' Find the index of a column by name

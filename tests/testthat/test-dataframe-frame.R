@@ -50,18 +50,9 @@ test_that("get_column()", {
     df$get_column("a"),
     as_polars_series(1:2, "a")
   )
-  expect_equal(
-    df$get_column("foo", default = as_polars_series("?")),
-    as_polars_series("?")
-  )
-  expect_equal(
-    df$get_column("foo", default = NA),
-    NA
-  )
-  # Using a snapshot here to ensure that tryCatch() doesn't mess up the printing
-  expect_snapshot(
+  expect_error(
     df$get_column("foo"),
-    error = TRUE
+    "not found:"
   )
 })
 
