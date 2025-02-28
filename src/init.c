@@ -309,6 +309,16 @@ SEXP savvy_PlRDataFrame_equals__impl(SEXP self__, SEXP c_arg__other, SEXP c_arg_
     return handle_result(res);
 }
 
+SEXP savvy_PlRDataFrame_get_column__impl(SEXP self__, SEXP c_arg__name) {
+    SEXP res = savvy_PlRDataFrame_get_column__ffi(self__, c_arg__name);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRDataFrame_get_column_index__impl(SEXP self__, SEXP c_arg__name) {
+    SEXP res = savvy_PlRDataFrame_get_column_index__ffi(self__, c_arg__name);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRDataFrame_get_columns__impl(SEXP self__) {
     SEXP res = savvy_PlRDataFrame_get_columns__ffi(self__);
     return handle_result(res);
@@ -431,6 +441,11 @@ SEXP savvy_PlRDataFrame_unpivot__impl(SEXP self__, SEXP c_arg__on, SEXP c_arg__i
 
 SEXP savvy_PlRDataFrame_width__impl(SEXP self__) {
     SEXP res = savvy_PlRDataFrame_width__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRDataFrame_with_row_index__impl(SEXP self__, SEXP c_arg__name, SEXP c_arg__offset) {
+    SEXP res = savvy_PlRDataFrame_with_row_index__ffi(self__, c_arg__name, c_arg__offset);
     return handle_result(res);
 }
 
@@ -2936,6 +2951,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRDataFrame_columns__impl", (DL_FUNC) &savvy_PlRDataFrame_columns__impl, 1},
     {"savvy_PlRDataFrame_dtypes__impl", (DL_FUNC) &savvy_PlRDataFrame_dtypes__impl, 1},
     {"savvy_PlRDataFrame_equals__impl", (DL_FUNC) &savvy_PlRDataFrame_equals__impl, 3},
+    {"savvy_PlRDataFrame_get_column__impl", (DL_FUNC) &savvy_PlRDataFrame_get_column__impl, 2},
+    {"savvy_PlRDataFrame_get_column_index__impl", (DL_FUNC) &savvy_PlRDataFrame_get_column_index__impl, 2},
     {"savvy_PlRDataFrame_get_columns__impl", (DL_FUNC) &savvy_PlRDataFrame_get_columns__impl, 1},
     {"savvy_PlRDataFrame_head__impl", (DL_FUNC) &savvy_PlRDataFrame_head__impl, 2},
     {"savvy_PlRDataFrame_height__impl", (DL_FUNC) &savvy_PlRDataFrame_height__impl, 1},
@@ -2961,6 +2978,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRDataFrame_transpose__impl", (DL_FUNC) &savvy_PlRDataFrame_transpose__impl, 3},
     {"savvy_PlRDataFrame_unpivot__impl", (DL_FUNC) &savvy_PlRDataFrame_unpivot__impl, 5},
     {"savvy_PlRDataFrame_width__impl", (DL_FUNC) &savvy_PlRDataFrame_width__impl, 1},
+    {"savvy_PlRDataFrame_with_row_index__impl", (DL_FUNC) &savvy_PlRDataFrame_with_row_index__impl, 3},
     {"savvy_PlRDataFrame_write_parquet__impl", (DL_FUNC) &savvy_PlRDataFrame_write_parquet__impl, 14},
     {"savvy_PlRDataType__get_datatype_fields__impl", (DL_FUNC) &savvy_PlRDataType__get_datatype_fields__impl, 1},
     {"savvy_PlRDataType__get_dtype_names__impl", (DL_FUNC) &savvy_PlRDataType__get_dtype_names__impl, 1},

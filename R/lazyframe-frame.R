@@ -1748,6 +1748,8 @@ lazyframe__rolling <- function(
 #' * `"datapoint"`: the first value of the index column in the given window. If
 #' you don’t need the label to be at one of the boundaries, choose this option
 #' for maximum performance.
+#' @param group_by Also group by this column/these columns. Can be expressions
+#' or objects coercible to expressions.
 #' @param start_by The strategy to determine the start of the first window by:
 #' * `"window"`: start by taking the earliest timestamp, truncating it with
 #'   `every`, and then adding `offset`. Note that weekly windows start on
@@ -2176,8 +2178,25 @@ lazyframe__set_sorted <- function(column, ..., descending = FALSE) {
 #'   index = pl$int_range(pl$len(), dtype = pl$UInt32)
 #' )$collect()
 lazyframe__with_row_index <- function(name = "index", offset = 0) {
-  self$`_ldf`$with_row_index(name, offset) |>
-    wrap()
+  wrap({
+    tryCatch(
+      self$`_ldf`$with_row_index(name, offset),
+      error = function(e) {
+        is_overflow_error <- grepl("out of range", e$message)
+        if (isTRUE(is_overflow_error)) {
+          issue <- if (offset < 0) {
+            "negative"
+          } else {
+            "greater than the maximum index value"
+          }
+          msg <- paste0("`offset` input for `with_row_index` cannot be ", issue, ", got ", offset)
+        } else {
+          msg <- e$message
+        }
+        abort(msg, call = caller_env(4))
+      }
+    )
+  })
 }
 
 #' Perform joins on nearest keys
