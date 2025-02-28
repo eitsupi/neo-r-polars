@@ -16,10 +16,14 @@ test_that("flags work", {
   )
 })
 
-test_that("alias() works", {
+test_that("alias/rename works", {
   series <- pl$Series("a", 1:3)
   expect_equal(
     series$alias("b"),
+    pl$Series("b", 1:3)
+  )
+  expect_equal(
+    series$rename("b"),
     pl$Series("b", 1:3)
   )
 })
