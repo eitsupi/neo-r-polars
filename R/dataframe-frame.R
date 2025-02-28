@@ -248,8 +248,7 @@ dataframe__get_columns <- function() {
 #'
 #' @param name Name of the column to retrieve.
 #'
-#' @return Either a Series or a specific value if the column doesn't exist and
-#' `default` is set.
+#' @inherit as_polars_series return
 #' @examples
 #' df <- pl$DataFrame(foo = 1:3, bar = 4:6)
 #' df$get_column("foo")

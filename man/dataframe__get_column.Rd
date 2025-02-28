@@ -10,8 +10,7 @@ dataframe__get_column(name)
 \item{name}{Name of the column to retrieve.}
 }
 \value{
-Either a Series or a specific value if the column doesn't exist and
-\code{default} is set.
+A \link[=Series]{polars Series}
 }
 \description{
 Get a single column by name
