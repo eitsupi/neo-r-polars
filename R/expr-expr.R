@@ -3904,7 +3904,9 @@ expr__fill_nan <- function(value) {
 #' )
 expr__fill_null <- function(value, strategy = NULL, limit = NULL) {
   wrap({
-    check_exclusive(value, strategy)
+    if (!missing(value) && !missing(strategy) && !is.null(value) && !is.null(strategy)) {
+      abort("Exactly one of `value` or `strategy` must be supplied.")
+    }
     if (!is.null(strategy)) {
       strategy <- arg_match0(
         strategy,

@@ -762,6 +762,14 @@ test_that("fill_null(): basic usage", {
       b = c(1, 99, 99, 4)
     )
   )
+  expect_query_equal(
+    .input$fill_null(pl$lit(99) + 1),
+    df,
+    pl$DataFrame(
+      a = c(1.5, 2, 100, NaN),
+      b = c(1, 100, 100, 4)
+    )
+  )
 
   # can't pass "value" and "strategy"
   expect_query_error(

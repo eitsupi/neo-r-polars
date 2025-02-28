@@ -1006,31 +1006,33 @@ lazyframe__fill_null <- function(
     }
     check_dots_empty0(...)
     if (!missing(value) && !is.null(value)) {
-      dtype <- infer_polars_dtype(value)
       if (is_polars_expr(value)) {
         dtypes <- NULL
-      } else if (dtype$is_numeric() && isTRUE(matches_supertype)) {
-        dtypes <- c(
-          pl$Int8,
-          pl$Int16,
-          pl$Int32,
-          pl$Int64,
-          pl$Int128,
-          pl$UInt8,
-          pl$UInt16,
-          pl$UInt32,
-          pl$UInt64,
-          pl$Float32,
-          pl$Float64,
-          pl$Decimal()
-        )
-      } else if (inherits(dtype, "polars_dtype_string")) {
-        dtypes <- c(pl$String, pl$Categorical("physical"), pl$Categorical("lexical"))
       } else {
-        dtypes <- dtype
+        dtype <- infer_polars_dtype(value)
+        if (dtype$is_numeric() && isTRUE(matches_supertype)) {
+          dtypes <- c(
+            pl$Int8,
+            pl$Int16,
+            pl$Int32,
+            pl$Int64,
+            pl$Int128,
+            pl$UInt8,
+            pl$UInt16,
+            pl$UInt32,
+            pl$UInt64,
+            pl$Float32,
+            pl$Float64,
+            pl$Decimal()
+          )
+        } else if (inherits(dtype, "polars_dtype_string")) {
+          dtypes <- c(pl$String, pl$Categorical("physical"), pl$Categorical("lexical"))
+        } else {
+          dtypes <- dtype
+        }
       }
 
-      if (!is_list_of_polars_dtype(dtypes)) {
+      if (!is.null(dtypes) && !is_list_of_polars_dtype(dtypes)) {
         dtypes <- list(dtypes)
       }
 
