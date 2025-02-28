@@ -537,14 +537,28 @@ test_that("unstack() works", {
     df$unstack(step = -1, how = "vertical"),
     "must be a single positive"
   )
+  expect_error(
+    df$unstack(columns = "a", step = 1),
+    "must be passed by position"
+  )
   # selector
   expect_equal(
-    df$unstack(step = 5, columns = cs$numeric()),
+    df$unstack(cs$numeric(), step = 5),
     pl$DataFrame(y_0 = 1:5, y_1 = c(6L, 7L, 8L, NA, NA))
   )
   # multiple selectors
   expect_equal(
-    df$unstack(step = 5, columns = c(cs$numeric(), cs$string())),
+    df$unstack(cs$numeric(), cs$string(), step = 5),
+    pl$DataFrame(
+      y_0 = 1:5,
+      y_1 = c(6L, 7L, 8L, NA, NA),
+      x_0 = c("A", "B", "C", "D", "E"),
+      x_1 = c("F", "G", "H", NA, NA)
+    )
+  )
+  # mix selector and column name
+  expect_equal(
+    df$unstack(cs$numeric(), "x", step = 5),
     pl$DataFrame(
       y_0 = 1:5,
       y_1 = c(6L, 7L, 8L, NA, NA),
@@ -554,13 +568,14 @@ test_that("unstack() works", {
   )
   # fill_values correctly used
   expect_equal(
-    df$unstack(step = 5, columns = cs$numeric(), fill_values = 0),
+    df$unstack(cs$numeric(), step = 5, fill_values = 0),
     pl$DataFrame(y_0 = 1:5, y_1 = c(6L, 7L, 8L, 0L, 0L))
   )
   expect_equal(
     df$unstack(
+      "y",
+      "x",
       step = 5,
-      columns = c("y", "x"),
       fill_values = list(y = 999, x = "foo")
     ),
     pl$DataFrame(

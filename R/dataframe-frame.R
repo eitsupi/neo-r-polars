@@ -1916,24 +1916,26 @@ dataframe__unstack <- function(
   ...,
   step,
   how = c("vertical", "horizontal"),
-  columns = NULL,
   fill_values = NULL
 ) {
   wrap({
-    check_dots_empty0(...)
+    check_dots_unnamed()
     if (!(is_scalar_integerish(step) && isTRUE(step > 0L))) {
       abort("`step` must be a single positive integer-ish value")
     }
-
     how <- arg_match0(how, values = c("vertical", "horizontal"))
-    if (length(columns) > 0) {
-      if (is_polars_selector(columns)) {
-        df <- self$select(columns)
-      } else {
-        df <- self$select(!!!columns)
-      }
-    } else {
+
+    dots <- list2(...)
+    if (length(dots) == 0) {
       df <- self
+    } else {
+      for (i in seq_along(dots)) {
+        if (!is_string(i) && !is_polars_selector(i)) {
+          abort("`...` only accepts column names or column selectors.")
+        }
+      }
+      columns <- parse_into_list_of_expressions(...)
+      df <- self$select(!!!columns)
     }
 
     height <- self$height
