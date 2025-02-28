@@ -244,6 +244,61 @@ dataframe__get_columns <- function() {
     })
 }
 
+#' Get a single column by name
+#'
+#' @inheritParams rlang::args_dots_empty
+#' @param name Name of the column to retrieve.
+#' @param default Value to return if the column does not exist. If not
+#' explicitly set and the column is not present, an error is thrown.
+#'
+#' @return Either a Series or a specific value if the column doesn't exist and
+#' `default` is set.
+#' @examples
+#' df <- pl$DataFrame(foo = 1:3, bar = 4:6)
+#' df$get_column("foo")
+#'
+#' # Missing column handling; can optionally provide an arbitrary default value
+#' # to the method (otherwise an error is thrown).
+#' df$get_column("baz", default = pl$Series("baz", c("?", "?", "?")))
+#'
+#' df$get_column("baz", default = NA)
+#'
+#' tryCatch(
+#'   df$get_column("baz"),
+#'   error = function(e) print(e)
+#' )
+dataframe__get_column <- function(name, ..., default = NULL) {
+  wrap({
+    tryCatch(
+      self$`_df`$get_column(name),
+      error = function(e) {
+        if (!is.null(default)) {
+          return(default)
+        }
+        abort(e$message, call = caller_env(3))
+      }
+    )
+  })
+}
+
+#' Find the index of a column by name
+#'
+#' @param name Name of the column to find.
+#'
+#' @return Numeric value (0-indexed) indicating the index of the column
+#' @examples
+#' df <- pl$DataFrame(foo = 1:3, bar = 4:6, ham = c("a", "b", "c"))
+#' df$get_column_index("ham")
+#'
+#' tryCatch(
+#'   df$get_column_index("sandwich"),
+#'   error = function(e) print(e)
+#' )
+dataframe__get_column_index <- function(name) {
+  self$`_df`$get_column_index(name) |>
+    wrap()
+}
+
 #' Group a DataFrame
 #'
 #' @inherit lazyframe__group_by description params

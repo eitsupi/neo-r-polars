@@ -43,6 +43,44 @@ test_that("get_columns()", {
   )
 })
 
+test_that("get_column()", {
+  df <- pl$DataFrame(a = 1:2, b = c("foo", "bar"))
+
+  expect_equal(
+    df$get_column("a"),
+    as_polars_series(1:2, "a")
+  )
+  expect_equal(
+    df$get_column("foo", default = as_polars_series("?")),
+    as_polars_series("?")
+  )
+  expect_equal(
+    df$get_column("foo", default = NA),
+    NA
+  )
+  # Using a snapshot here to ensure that tryCatch() doesn't mess up the printing
+  expect_snapshot(
+    df$get_column("foo"),
+    error = TRUE
+  )
+})
+
+test_that("get_column_index()", {
+  df <- pl$DataFrame(a = 1:2, b = c("foo", "bar"))
+  expect_equal(
+    df$get_column_index("a"),
+    0
+  )
+  expect_error(
+    df$get_column_index("foo"),
+    "not found:"
+  )
+  expect_error(
+    df$get_column_index(1),
+    "must be character, not double"
+  )
+})
+
 test_that("to_series()", {
   data <- data.frame(
     a = 1:2,
