@@ -541,6 +541,7 @@ test_that("sample() works", {
     bar = 6:8,
     ham = c("a", "b", "c")
   )
+  expect_silent(df$sample(n = 2))
   expect_equal(
     df$sample(n = 2, seed = 0),
     pl$DataFrame(
