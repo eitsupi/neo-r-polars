@@ -15,7 +15,7 @@
   }
 }
 
-#' @export
+#' @exportS3Method utils::.DollarNames
 .DollarNames.polars_expr <- function(x, pattern = "") {
   member_names <- ls(x, all.names = TRUE)
   method_names <- names(polars_expr__methods)
