@@ -25,6 +25,8 @@ group.}
 A polars \link{expression}
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 The output of this custom function is presumed to be either a Series, or a
 scalar that will be converted into a Series. If the result is a scalar and
 you want it to stay as a scalar, pass in \code{returns_scalar = TRUE}.

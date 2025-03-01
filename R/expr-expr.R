@@ -1073,6 +1073,8 @@ expr__filter <- function(...) {
 #' Apply a custom R function to a whole Series or sequence of Series.
 #'
 #' @description
+#' `r lifecycle::badge("experimental")`
+#'
 #' The output of this custom function is presumed to be either a Series, or a
 #' scalar that will be converted into a Series. If the result is a scalar and
 #' you want it to stay as a scalar, pass in `returns_scalar = TRUE`.
