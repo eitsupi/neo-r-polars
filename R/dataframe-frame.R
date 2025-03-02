@@ -1925,7 +1925,7 @@ dataframe__write_parquet <- function(
     invisible(self)
   })
 }
-                    
+
 #' Write to comma-separated values (CSV) file
 #'
 #' @inheritParams lazyframe__sink_csv
@@ -1987,7 +1987,7 @@ dataframe__write_csv <- function(
     invisible(self)
   })
 }
-                    
+
 #' Add a row index as the first column in the DataFrame
 #'
 #' @inheritParams lazyframe__with_row_index
