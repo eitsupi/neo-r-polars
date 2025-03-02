@@ -503,8 +503,8 @@ lazyframe__collect_schema <- function() {
 #' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Either a datatype to which
 #' all columns will be cast, or a list where the names are column names and the
 #' values are the datatypes to convert to.
-#' @param strict If `TRUE` (default), throw an error if a cast could not be done
-#' (for instance, due to an overflow). Otherwise, return `null`.
+#' @param .strict If `TRUE` (default), throw an error if a cast could not be
+#' done (for instance, due to an overflow). Otherwise, return `null`.
 #'
 #' @return A LazyFrame
 #'
@@ -1748,6 +1748,8 @@ lazyframe__rolling <- function(
 #' * `"datapoint"`: the first value of the index column in the given window. If
 #' you don’t need the label to be at one of the boundaries, choose this option
 #' for maximum performance.
+#' @param group_by Also group by this column/these columns. Can be expressions
+#' or objects coercible to expressions.
 #' @param start_by The strategy to determine the start of the first window by:
 #' * `"window"`: start by taking the earliest timestamp, truncating it with
 #'   `every`, and then adding `offset`. Note that weekly windows start on
@@ -2181,8 +2183,25 @@ lazyframe__set_sorted <- function(column, ..., descending = FALSE) {
 #'   index = pl$int_range(pl$len(), dtype = pl$UInt32)
 #' )$collect()
 lazyframe__with_row_index <- function(name = "index", offset = 0) {
-  self$`_ldf`$with_row_index(name, offset) |>
-    wrap()
+  wrap({
+    tryCatch(
+      self$`_ldf`$with_row_index(name, offset),
+      error = function(e) {
+        is_overflow_error <- grepl("out of range", e$message)
+        if (isTRUE(is_overflow_error)) {
+          issue <- if (offset < 0) {
+            "negative"
+          } else {
+            "greater than the maximum index value"
+          }
+          msg <- paste0("`offset` input for `with_row_index` cannot be ", issue, ", got ", offset)
+        } else {
+          msg <- e$message
+        }
+        abort(msg, call = caller_env(4))
+      }
+    )
+  })
 }
 
 #' Perform joins on nearest keys
@@ -2533,11 +2552,11 @@ lazyframe__sink_parquet <- function(
 #'
 #' @examples
 #' # sink table 'mtcars' from mem to CSV
-#' tmpf <- tempfile()
-#' pl$LazyFrame(mtcars)$sink_csv(tmpf)
+#' tmpf <- tempfile(fileext = ".csv")
+#' as_polars_lf(mtcars)$sink_csv(tmpf)
 #'
 #' # stream a query end-to-end
-#' tmpf2 <- tempfile()
+#' tmpf2 <- tempfile(fileext = ".csv")
 #' pl$scan_csv(tmpf)$select(pl$col("cyl") * 2)$sink_csv(tmpf2)
 #'
 #' # load parquet directly into a DataFrame / memory
