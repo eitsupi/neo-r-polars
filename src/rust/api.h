@@ -59,6 +59,8 @@ SEXP savvy_PlRDataFrame_clone__ffi(SEXP self__);
 SEXP savvy_PlRDataFrame_columns__ffi(SEXP self__);
 SEXP savvy_PlRDataFrame_dtypes__ffi(SEXP self__);
 SEXP savvy_PlRDataFrame_equals__ffi(SEXP self__, SEXP c_arg__other, SEXP c_arg__null_equal);
+SEXP savvy_PlRDataFrame_get_column__ffi(SEXP self__, SEXP c_arg__name);
+SEXP savvy_PlRDataFrame_get_column_index__ffi(SEXP self__, SEXP c_arg__name);
 SEXP savvy_PlRDataFrame_get_columns__ffi(SEXP self__);
 SEXP savvy_PlRDataFrame_head__ffi(SEXP self__, SEXP c_arg__n);
 SEXP savvy_PlRDataFrame_height__ffi(SEXP self__);
@@ -72,6 +74,8 @@ SEXP savvy_PlRDataFrame_partition_by__ffi(SEXP self__, SEXP c_arg__by, SEXP c_ar
 SEXP savvy_PlRDataFrame_pivot_expr__ffi(SEXP self__, SEXP c_arg__on, SEXP c_arg__maintain_order, SEXP c_arg__sort_columns, SEXP c_arg__aggregate_expr, SEXP c_arg__separator, SEXP c_arg__index, SEXP c_arg__values);
 SEXP savvy_PlRDataFrame_read_ipc_stream__ffi(SEXP c_arg__source, SEXP c_arg__row_index_offset, SEXP c_arg__rechunk, SEXP c_arg__columns, SEXP c_arg__projection, SEXP c_arg__n_rows, SEXP c_arg__row_index_name);
 SEXP savvy_PlRDataFrame_rechunk__ffi(SEXP self__);
+SEXP savvy_PlRDataFrame_sample_frac__ffi(SEXP self__, SEXP c_arg__frac, SEXP c_arg__with_replacement, SEXP c_arg__shuffle, SEXP c_arg__seed);
+SEXP savvy_PlRDataFrame_sample_n__ffi(SEXP self__, SEXP c_arg__n, SEXP c_arg__with_replacement, SEXP c_arg__shuffle, SEXP c_arg__seed);
 SEXP savvy_PlRDataFrame_set_column_names__ffi(SEXP self__, SEXP c_arg__names);
 SEXP savvy_PlRDataFrame_shape__ffi(SEXP self__);
 SEXP savvy_PlRDataFrame_slice__ffi(SEXP self__, SEXP c_arg__offset, SEXP c_arg__length);
@@ -82,6 +86,7 @@ SEXP savvy_PlRDataFrame_to_struct__ffi(SEXP self__, SEXP c_arg__name);
 SEXP savvy_PlRDataFrame_transpose__ffi(SEXP self__, SEXP c_arg__column_names, SEXP c_arg__keep_names_as);
 SEXP savvy_PlRDataFrame_unpivot__ffi(SEXP self__, SEXP c_arg__on, SEXP c_arg__index, SEXP c_arg__value_name, SEXP c_arg__variable_name);
 SEXP savvy_PlRDataFrame_width__ffi(SEXP self__);
+SEXP savvy_PlRDataFrame_with_row_index__ffi(SEXP self__, SEXP c_arg__name, SEXP c_arg__offset);
 SEXP savvy_PlRDataFrame_write_csv__ffi(SEXP self__, SEXP c_arg__path, SEXP c_arg__include_bom, SEXP c_arg__include_header, SEXP c_arg__separator, SEXP c_arg__line_terminator, SEXP c_arg__quote_char, SEXP c_arg__batch_size, SEXP c_arg__retries, SEXP c_arg__datetime_format, SEXP c_arg__date_format, SEXP c_arg__time_format, SEXP c_arg__float_scientific, SEXP c_arg__float_precision, SEXP c_arg__null_value, SEXP c_arg__quote_style, SEXP c_arg__storage_options);
 SEXP savvy_PlRDataFrame_write_parquet__ffi(SEXP self__, SEXP c_arg__path, SEXP c_arg__compression, SEXP c_arg__retries, SEXP c_arg__partition_chunk_size_bytes, SEXP c_arg__stat_min, SEXP c_arg__stat_max, SEXP c_arg__stat_distinct_count, SEXP c_arg__stat_null_count, SEXP c_arg__compression_level, SEXP c_arg__row_group_size, SEXP c_arg__data_page_size, SEXP c_arg__partition_by, SEXP c_arg__storage_options);
 
