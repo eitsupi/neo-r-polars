@@ -37,15 +37,15 @@ wrap_to_group_by_dynamic <- function(
 
 group_by_dynamic__agg <- function(...) {
   self$df$lazy()$group_by_dynamic(
-    index_column = index_column,
-    every = every,
-    period = period,
-    offset = offset,
-    include_boundaries = include_boundaries,
-    closed = closed,
-    label = label,
-    group_by = group_by,
-    start_by = start_by
+    index_column = self$index_column,
+    every = self$every,
+    period = self$period,
+    offset = self$offset,
+    include_boundaries = self$include_boundaries,
+    closed = self$closed,
+    label = self$label,
+    group_by = self$group_by,
+    start_by = self$start_by
   )$agg(...)$collect(no_optimization = TRUE) |>
     wrap()
 }
