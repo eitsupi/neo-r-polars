@@ -122,12 +122,6 @@ wrap.PlRDataFrame <- function(x, ...) {
     self
   )
 
-  lapply(names(polars_dataframe__methods), function(name) {
-    fn <- polars_dataframe__methods[[name]]
-    environment(fn) <- environment()
-    assign(name, fn, envir = self)
-  })
-
   class(self) <- c("polars_data_frame", "polars_object")
   self
 }
@@ -242,6 +236,42 @@ dataframe__get_columns <- function() {
       .savvy_wrap_PlRSeries(ptr) |>
         wrap()
     })
+}
+
+#' Get a single column by name
+#'
+#' @param name Name of the column to retrieve.
+#'
+#' @inherit as_polars_series return
+#' @examples
+#' df <- pl$DataFrame(foo = 1:3, bar = 4:6)
+#' df$get_column("foo")
+#'
+#' tryCatch(
+#'   df$get_column("baz"),
+#'   error = function(e) print(e)
+#' )
+dataframe__get_column <- function(name) {
+  self$`_df`$get_column(name) |>
+    wrap()
+}
+
+#' Find the index of a column by name
+#'
+#' @param name Name of the column to find.
+#'
+#' @return Numeric value (0-indexed) indicating the index of the column
+#' @examples
+#' df <- pl$DataFrame(foo = 1:3, bar = 4:6, ham = c("a", "b", "c"))
+#' df$get_column_index("ham")
+#'
+#' tryCatch(
+#'   df$get_column_index("sandwich"),
+#'   error = function(e) print(e)
+#' )
+dataframe__get_column_index <- function(name) {
+  self$`_df`$get_column_index(name) |>
+    wrap()
 }
 
 #' Group a DataFrame
@@ -1887,6 +1917,152 @@ dataframe__write_parquet <- function(
       retries = retries
     )
     invisible(self)
+  })
+}
+
+#' Write to comma-separated values (CSV) file
+#'
+#' @inheritParams lazyframe__sink_csv
+#' @param file File path to which the result will be written.
+#'
+#' @inherit dataframe__write_parquet return
+#' @examples
+#' tmpf <- tempfile()
+#' as_polars_df(mtcars)$write_csv(tmpf)
+#' pl$read_csv(tmpf)
+#'
+#' as_polars_df(mtcars)$write_csv(tmpf, separator = "|")
+#' pl$read_csv(tmpf, separator = "|")
+dataframe__write_csv <- function(
+  file,
+  ...,
+  include_bom = FALSE,
+  include_header = TRUE,
+  separator = ",",
+  line_terminator = "\n",
+  quote_char = '"',
+  batch_size = 1024,
+  datetime_format = NULL,
+  date_format = NULL,
+  time_format = NULL,
+  float_scientific = NULL,
+  float_precision = NULL,
+  null_value = "",
+  quote_style = c("necessary", "always", "never", "non_numeric"),
+  storage_options = NULL,
+  retries = 2
+) {
+  wrap({
+    check_dots_empty0(...)
+    check_arg_is_1byte("separator", separator)
+    check_arg_is_1byte("quote_char", quote_char)
+    quote_style <- arg_match0(
+      quote_style,
+      values = c("necessary", "always", "never", "non_numeric")
+    )
+    self$`_df`$write_csv(
+      path = file,
+      include_bom = include_bom,
+      include_header = include_header,
+      separator = separator,
+      line_terminator = line_terminator,
+      quote_char = quote_char,
+      batch_size = batch_size,
+      datetime_format = datetime_format,
+      date_format = date_format,
+      time_format = time_format,
+      float_scientific = float_scientific,
+      float_precision = float_precision,
+      null_value = null_value,
+      quote_style = quote_style,
+      storage_options = storage_options,
+      retries = retries
+    )
+    invisible(self)
+  })
+}
+
+#' Add a row index as the first column in the DataFrame
+#'
+#' @inheritParams lazyframe__with_row_index
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(x = c(1, 3, 5), y = c(2, 4, 6))
+#' df$with_row_index()
+#'
+#' df$with_row_index("id", offset = 1000)
+#'
+#' # An index column can also be created using the expressions int_range()
+#' # and len()$
+#' df$with_columns(
+#'   index = pl$int_range(pl$len(), dtype = pl$UInt32)
+#' )
+dataframe__with_row_index <- function(name = "index", offset = 0) {
+  wrap({
+    tryCatch(
+      self$`_df`$with_row_index(name, offset),
+      error = function(e) {
+        is_overflow_error <- grepl("out of range", e$message)
+        if (isTRUE(is_overflow_error)) {
+          issue <- if (offset < 0) {
+            "negative"
+          } else {
+            "greater than the maximum index value"
+          }
+          msg <- paste0("`offset` input for `with_row_index` cannot be ", issue, ", got ", offset)
+        } else {
+          msg <- e$message
+        }
+        abort(msg, call = caller_env(4))
+      }
+    )
+  })
+}
+
+#' Sample from this DataFrame
+#'
+#' @inheritParams expr__sample
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = 1:3,
+#'   bar = 6:8,
+#'   ham = c("a", "b", "c")
+#' )
+#' df$sample(n = 2, seed = 0)
+dataframe__sample <- function(
+  n = NULL,
+  ...,
+  fraction = NULL,
+  with_replacement = FALSE,
+  shuffle = FALSE,
+  seed = NULL
+) {
+  wrap({
+    check_dots_empty0(...)
+    if (!is.null(fraction) && !is.null(n)) {
+      abort("cannot specify both `n` and `fraction`")
+    }
+    if (is.null(seed)) {
+      seed <- sample.int(10000, 1)
+    }
+    if (!is.null(fraction)) {
+      if (!is_polars_series(fraction)) {
+        fraction <- as_polars_series(fraction, "frac")
+      }
+      return(
+        self$`_df`$sample_frac(fraction$`_s`, with_replacement, shuffle, seed) |>
+          wrap()
+      )
+    }
+    if (is.null(n)) {
+      n <- 1
+    }
+    if (!is_polars_series(n)) {
+      n <- as_polars_series(n, "")
+    }
+    self$`_df`$sample_n(n$`_s`, with_replacement, shuffle, seed)
   })
 }
 

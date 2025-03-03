@@ -35,12 +35,6 @@ wrap.PlRLazyFrame <- function(x, ...) {
   self <- new.env(parent = emptyenv())
   self$`_ldf` <- x
 
-  lapply(names(polars_lazyframe__methods), function(name) {
-    fn <- polars_lazyframe__methods[[name]]
-    environment(fn) <- environment()
-    assign(name, fn, envir = self)
-  })
-
   class(self) <- c("polars_lazy_frame", "polars_object")
   self
 }
@@ -2178,8 +2172,25 @@ lazyframe__set_sorted <- function(column, ..., descending = FALSE) {
 #'   index = pl$int_range(pl$len(), dtype = pl$UInt32)
 #' )$collect()
 lazyframe__with_row_index <- function(name = "index", offset = 0) {
-  self$`_ldf`$with_row_index(name, offset) |>
-    wrap()
+  wrap({
+    tryCatch(
+      self$`_ldf`$with_row_index(name, offset),
+      error = function(e) {
+        is_overflow_error <- grepl("out of range", e$message)
+        if (isTRUE(is_overflow_error)) {
+          issue <- if (offset < 0) {
+            "negative"
+          } else {
+            "greater than the maximum index value"
+          }
+          msg <- paste0("`offset` input for `with_row_index` cannot be ", issue, ", got ", offset)
+        } else {
+          msg <- e$message
+        }
+        abort(msg, call = caller_env(4))
+      }
+    )
+  })
 }
 
 #' Perform joins on nearest keys
@@ -2554,7 +2565,7 @@ lazyframe__sink_csv <- function(
   float_scientific = NULL,
   float_precision = NULL,
   null_value = "",
-  quote_style = "necessary",
+  quote_style = c("necessary", "always", "never", "non_numeric"),
   maintain_order = TRUE,
   type_coercion = TRUE,
   `_type_check` = TRUE,
