@@ -1,3 +1,5 @@
+# This method is not auto-generated in `generated-*` file,
+# because it has a special case for the `union` method
 #' @export
 `$.polars_dtype_enum` <- function(x, name) {
   # Enum only method `union`
@@ -20,6 +22,8 @@
   }
 }
 
+# This method is not auto-generated in `generated-*` file,
+# because it has a special case for the `union` method
 #' @exportS3Method utils::.DollarNames
 .DollarNames.polars_dtype_enum <- function(x, pattern = "") {
   member_names <- ls(x, all.names = TRUE)
