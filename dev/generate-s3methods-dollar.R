@@ -11,5 +11,5 @@ template <- readr::read_file(TEMPLATE_FILE)
 dest_body <- glue::glue_data(class_names, template, .open = "{{", .close = "}}") |>
   paste0(collapse = "\n\n")
 
-glue::glue("{FILE_HEADER}\n\n{dest_body}") |>
+glue::glue("{FILE_HEADER}\n\n{dest_body}\n\n") |>
   readr::write_file(DEST_FILE)
