@@ -1,10 +1,10 @@
 #' @export
 `$.polars_data_frame` <- function(x, name) {
-  member_names <- ls(x)
+  member_names <- ls(x, all.names = TRUE)
   method_names <- names(polars_dataframe__methods)
 
   if (name %in% member_names) {
-    get(name, envir = x)
+    env_get(x, name)
   } else if (name %in% method_names) {
     fn <- polars_dataframe__methods[[name]]
     self <- x

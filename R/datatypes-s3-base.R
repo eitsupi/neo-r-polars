@@ -1,10 +1,10 @@
 #' @export
 `$.polars_dtype` <- function(x, name) {
-  member_names <- ls(x)
+  member_names <- ls(x, all.names = TRUE)
   method_names <- names(polars_datatype__methods)
 
   if (name %in% member_names) {
-    get(name, envir = x)
+    env_get(x, name)
   } else if (name %in% method_names) {
     fn <- polars_datatype__methods[[name]]
     self <- x
@@ -17,7 +17,7 @@
 
 #' @export
 .DollarNames.polars_dtype <- function(x, pattern = "") {
-  member_names <- ls(x)
+  member_names <- ls(x, all.names = TRUE)
   method_names <- names(polars_datatype__methods)
 
   all_names <- union(member_names, method_names)
@@ -50,7 +50,7 @@
 
 #' @export
 .DollarNames.polars_dtype_enum <- function(x, pattern = "") {
-  member_names <- ls(x)
+  member_names <- ls(x, all.names = TRUE)
   # Enum only method `union`
   method_names <- c("union", names(polars_datatype__methods))
 
