@@ -21,7 +21,7 @@
   method_names <- names(polars_expr__methods)
 
   all_names <- union(member_names, method_names)
-  filtered_names <- all_names[grep(pattern, all_names)]
+  filtered_names <- findMatches(pattern, all_names)
 
   filtered_names[!startsWith(filtered_names, "_")]
 }
