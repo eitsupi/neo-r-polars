@@ -1894,12 +1894,10 @@ dataframe__write_parquet <- function(
 #'
 #' This can be much faster than a pivot, because it can skip the grouping phase.
 #'
-#' @inheritParams rlang::args_dots_empty
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Column name(s) or selector(s) to include in the operation. If `NULL` (default), use all columns.
 #' @param step Number of rows in the unstacked frame.
 #' @param how Direction of the unstack. Must be one of `"vertical"` or
 #' `"horizontal"`.
-#' @param columns Column name(s) or selector(s) to include in the operation. If
-#' set `NULL` (default), use all columns.
 #' @param fill_values Fill values that don’t fit the new size with this value.
 #'
 #' @inherit as_polars_df return
@@ -1911,7 +1909,7 @@ dataframe__write_parquet <- function(
 #'
 #' df$unstack(step = 4, how = "vertical")
 #' df$unstack(step = 2, how = "horizontal")
-#' df$unstack(step = 5, columns = cs$numeric(), fill_values = 0)
+#' df$unstack(cs$numeric(), step = 5, fill_values = 0)
 dataframe__unstack <- function(
   ...,
   step,

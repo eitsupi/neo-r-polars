@@ -512,6 +512,11 @@ test_that("unstack() works", {
   )
 
   expect_equal(
+    df$unstack(step = 1) |> dim(),
+    c(1L, 24L)
+  )
+
+  expect_equal(
     df$unstack(step = 4, how = "vertical"),
     pl$DataFrame(
       x_0 = c("A", "B", "C", "D"),

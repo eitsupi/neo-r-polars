@@ -12,7 +12,7 @@ dataframe__unstack(
 )
 }
 \arguments{
-\item{...}{These dots are for future extensions and must be empty.}
+\item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> Column name(s) or selector(s) to include in the operation. If \code{NULL} (default), use all columns.}
 
 \item{step}{Number of rows in the unstacked frame.}
 
@@ -20,9 +20,6 @@ dataframe__unstack(
 \code{"horizontal"}.}
 
 \item{fill_values}{Fill values that don’t fit the new size with this value.}
-
-\item{columns}{Column name(s) or selector(s) to include in the operation. If
-set \code{NULL} (default), use all columns.}
 }
 \value{
 A polars \link{DataFrame}
@@ -38,5 +35,5 @@ df
 
 df$unstack(step = 4, how = "vertical")
 df$unstack(step = 2, how = "horizontal")
-df$unstack(step = 5, columns = cs$numeric(), fill_values = 0)
+df$unstack(cs$numeric(), step = 5, fill_values = 0)
 }
