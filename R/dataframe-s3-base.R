@@ -1,21 +1,4 @@
 #' @export
-`$.polars_data_frame` <- function(x, name) {
-  member_names <- ls(x, all.names = TRUE)
-  method_names <- names(polars_dataframe__methods)
-
-  if (name %in% member_names) {
-    env_get(x, name)
-  } else if (name %in% method_names) {
-    fn <- polars_dataframe__methods[[name]]
-    self <- x
-    environment(fn) <- environment()
-    fn
-  } else {
-    NextMethod()
-  }
-}
-
-#' @export
 print.polars_data_frame <- function(x, ...) {
   x$`_df`$as_str() |>
     writeLines()
