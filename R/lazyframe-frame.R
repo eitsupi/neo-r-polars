@@ -2570,7 +2570,7 @@ lazyframe__sink_csv <- function(
   float_scientific = NULL,
   float_precision = NULL,
   null_value = "",
-  quote_style = "necessary",
+  quote_style = c("necessary", "always", "never", "non_numeric"),
   maintain_order = TRUE,
   type_coercion = TRUE,
   `_type_check` = TRUE,
