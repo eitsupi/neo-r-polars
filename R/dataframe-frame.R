@@ -2070,7 +2070,9 @@ dataframe__sample <- function(
 #'
 #' This can be much faster than a pivot, because it can skip the grouping phase.
 #'
-#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Column name(s) or selector(s) to include in the operation. If `NULL` (default), use all columns.
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Column name(s), selector(s) or
+#' expressions to include in the operation. If `NULL` (default), use all
+#' columns.
 #' @param step Number of rows in the unstacked frame.
 #' @param how Direction of the unstack. Must be one of `"vertical"` or
 #' `"horizontal"`.
@@ -2104,7 +2106,7 @@ dataframe__unstack <- function(
       df <- self
     } else {
       for (i in seq_along(dots)) {
-        if (!is_string(dots[[i]]) && !is_polars_selector(dots[[i]])) {
+        if (!is_string(dots[[i]]) && !is_polars_selector(dots[[i]]) && !is_polars_expr(dots[[i]])) {
           abort("`...` only accepts column names or column selectors.")
         }
       }

@@ -12,7 +12,8 @@ dataframe__unstack(
 )
 }
 \arguments{
-\item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> Column name(s) or selector(s) to include in the operation. If \code{NULL} (default), use all columns.}
+\item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> Column name(s) or selector(s)
+to include in the operation. If \code{NULL} (default), use all columns.}
 
 \item{step}{Number of rows in the unstacked frame.}
 

@@ -638,6 +638,16 @@ test_that("unstack() works", {
       x_1 = c("F", "G", "H", NA, NA)
     )
   )
+  # mix selector and expression
+  expect_equal(
+    df$unstack(cs$string(), pl$col("y") + 1, step = 5),
+    pl$DataFrame(
+      x_0 = c("A", "B", "C", "D", "E"),
+      x_1 = c("F", "G", "H", NA, NA),
+      y_0 = c(2, 3, 4, 5, 6),
+      y_1 = c(7, 8, 9, NA, NA)
+    )
+  )
   # fill_values correctly used
   expect_equal(
     df$unstack(cs$numeric(), step = 5, fill_values = 0),
