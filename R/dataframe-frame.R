@@ -1930,12 +1930,11 @@ dataframe__unstack <- function(
       df <- self
     } else {
       for (i in seq_along(dots)) {
-        if (!is_string(i) && !is_polars_selector(i)) {
+        if (!is_string(dots[[i]]) && !is_polars_selector(dots[[i]])) {
           abort("`...` only accepts column names or column selectors.")
         }
       }
-      columns <- parse_into_list_of_expressions(...)
-      df <- self$select(!!!columns)
+      df <- self$select(!!!dots)
     }
 
     height <- self$height

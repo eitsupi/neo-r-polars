@@ -8,7 +8,6 @@ dataframe__unstack(
   ...,
   step,
   how = c("vertical", "horizontal"),
-  columns = NULL,
   fill_values = NULL
 )
 }
@@ -20,10 +19,10 @@ dataframe__unstack(
 \item{how}{Direction of the unstack. Must be one of \code{"vertical"} or
 \code{"horizontal"}.}
 
+\item{fill_values}{Fill values that don’t fit the new size with this value.}
+
 \item{columns}{Column name(s) or selector(s) to include in the operation. If
 set \code{NULL} (default), use all columns.}
-
-\item{fill_values}{Fill values that don’t fit the new size with this value.}
 }
 \value{
 A polars \link{DataFrame}
