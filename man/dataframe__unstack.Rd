@@ -12,7 +12,7 @@ dataframe__unstack(
 )
 }
 \arguments{
-\item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> Column name(s) or selector(s)
+\item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> Column name(s) and selector(s)
 to include in the operation. If \code{NULL} (default), use all columns.}
 
 \item{step}{Number of rows in the unstacked frame.}
@@ -20,7 +20,7 @@ to include in the operation. If \code{NULL} (default), use all columns.}
 \item{how}{Direction of the unstack. Must be one of \code{"vertical"} or
 \code{"horizontal"}.}
 
-\item{fill_values}{Fill values that don’t fit the new size with this value.}
+\item{fill_values}{Fill values that don't fit the new size with this value.}
 }
 \value{
 A polars \link{DataFrame}
