@@ -1773,7 +1773,8 @@ lazyframe__rolling <- function(
 #' - 1i # length 1
 #' - 10i # length 10
 #'
-#' @return A [GroupByDynamic][GroupByDynamic_class] object
+# TODO: Add LazyGroupBy docs
+#' @return A [LazyGroupBy] object
 #' @seealso
 #' - [`<LazyFrame>$rolling()`][lazyframe__rolling]
 #'

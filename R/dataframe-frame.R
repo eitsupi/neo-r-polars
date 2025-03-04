@@ -2068,8 +2068,8 @@ dataframe__sample <- function(
 
 #' @inherit lazyframe__group_by_dynamic title description params details
 #'
-# TODO: Define LazyGroupBy
-#' @return A [LazyGroupBy] object
+# TODO: Add GroupBy docs
+#' @return A [GroupByDynamic] object
 #' @seealso
 #' - [`<DataFrame>$rolling()`][dataframe__rolling]
 #'

@@ -66,7 +66,7 @@ starts the window on the Monday before the first data point, etc.
 }}
 }
 \value{
-A \link[=GroupByDynamic_class]{GroupByDynamic} object
+A \link{LazyGroupBy} object
 }
 \description{
 Time windows are calculated and rows are assigned to windows. Different from
