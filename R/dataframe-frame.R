@@ -2065,3 +2065,101 @@ dataframe__sample <- function(
     self$`_df`$sample_n(n$`_s`, with_replacement, shuffle, seed)
   })
 }
+
+#' Unstack a long table to a wide form without doing an aggregation
+#'
+#' This can be much faster than a pivot, because it can skip the grouping phase.
+#'
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Column name(s) and selector(s)
+#' to include in the operation. If `NULL` (default), use all columns.
+#' @param step Number of rows in the unstacked frame.
+#' @param how Direction of the unstack. Must be one of `"vertical"` or
+#' `"horizontal"`.
+#' @param fill_values Fill values that don't fit the new size with this value.
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(x = LETTERS[1:8], y = 1:8)$with_columns(
+#'   z = pl$int_ranges(pl$col("y"), pl$col("y") + 2, dtype = pl$UInt8)
+#' )
+#' df
+#'
+#' df$unstack(step = 4, how = "vertical")
+#' df$unstack(step = 2, how = "horizontal")
+#' df$unstack(cs$numeric(), step = 5, fill_values = 0)
+dataframe__unstack <- function(
+  ...,
+  step,
+  how = c("vertical", "horizontal"),
+  fill_values = NULL
+) {
+  wrap({
+    check_dots_unnamed()
+    if (!(is_scalar_integerish(step) && isTRUE(step > 0L))) {
+      abort("`step` must be a single positive integer-ish value")
+    }
+    how <- arg_match0(how, values = c("vertical", "horizontal"))
+
+    dots <- list2(...)
+    df <- if (length(dots) == 0L) {
+      self
+    } else {
+      self$select(!!!dots)
+    }
+
+    height <- self$height
+    if (how == "vertical") {
+      n_rows <- step
+      n_cols <- ceiling(height / n_rows)
+    } else {
+      n_cols <- step
+      n_rows <- ceiling(height / n_cols)
+    }
+
+    # We know whether unstacking will create empty cells, so we extend the
+    # data (and potentially fill missing values) before unstacking.
+    n_fill <- n_cols * n_rows - height
+    if (n_fill > 0) {
+      if (is.null(fill_values)) {
+        fill_values <- NA
+      }
+      if (!is.list(fill_values)) {
+        fill_values <- as.list(rep(fill_values, df$width))
+      }
+      list_series <- list()
+      for (i in seq_along(fill_values)) {
+        series <- names(df$schema)[i]
+        list_series[[i]] <- pl$col(series)$extend_constant(fill_values[[i]], n_fill)
+      }
+      df <- df$select(!!!list_series)
+    }
+
+    if (how == "horizontal") {
+      df <- df$with_columns(
+        (pl$int_range(0, n_cols * n_rows) %% n_cols)$alias(
+          "__sort_order"
+        )
+      )$sort("__sort_order")$drop("__sort_order")
+    }
+
+    zfill_val <- floor(log10(n_cols)) + 1
+    # py-polars can use an iterator like "for s in df", but we don't have that
+    # so we need to change the dataframe to a list of series that we can iterate
+    # on.
+    df_series <- df$get_columns()
+    slices <- vector("list", length = length(df_series) * n_cols)
+
+    idx <- 1
+    for (s in seq_along(df_series)) {
+      for (slice_nbr in seq_len(n_cols) - 1) {
+        serie <- df_series[[s]]
+        old_serie_name <- names(df_series)[s]
+        slices[[idx]] <- serie$slice(slice_nbr * n_rows, n_rows)$alias(
+          paste0(old_serie_name, "_", slice_nbr)
+        )
+        idx <- idx + 1
+      }
+    }
+    pl$DataFrame(!!!slices)
+  })
+}
