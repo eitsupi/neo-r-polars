@@ -1874,10 +1874,10 @@ lazyframe__group_by_dynamic <- function(
     every <- parse_as_duration_string(every)
     offset <- parse_as_duration_string(offset) %||% "0ns"
     period <- parse_as_duration_string(period) %||% every
-    if (!is_polars_expr(group_by)) {
-      group_by <- parse_into_list_of_expressions(!!!group_by)
+    group_by <- if (is_polars_expr(group_by)) {
+      list(group_by$`_rexpr`)
     } else {
-      group_by <- list(group_by$`_rexpr`)
+      parse_into_list_of_expressions(!!!group_by)
     }
 
     self$`_ldf`$group_by_dynamic(
