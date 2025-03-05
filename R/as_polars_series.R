@@ -470,6 +470,13 @@ as_polars_series.nanoarrow_array_stream <- function(x, name = NULL, ...) {
 
 #' @rdname as_polars_series
 #' @export
+as_polars_series.nanoarrow_array <- function(x, name = NULL, ...) {
+  nanoarrow::as_nanoarrow_array_stream(x) |>
+    as_polars_series(name = name, ...)
+}
+
+#' @rdname as_polars_series
+#' @export
 as_polars_series.integer64 <- function(x, name = NULL, ...) {
   PlRSeries$new_i64(name %||% "", x) |>
     wrap()
