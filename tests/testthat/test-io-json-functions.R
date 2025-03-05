@@ -121,5 +121,7 @@ test_that("write_ndjson returns the input data", {
   dat <- as_polars_df(mtcars[1:5, 1:3])
   tmpf <- withr::local_tempfile()
   x <- dat$write_ndjson(tmpf)
+  expect_snapshot_file(tmpf, name = "write_ndjson_output")
+
   expect_equal(dat, x)
 })
