@@ -208,8 +208,8 @@ impl PlRDataFrame {
 
         Ok(out.into())
     }
-  
-   #[cfg(not(target_arch = "wasm32"))]
+
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn write_json(&mut self, path: &str) -> Result<()> {
         let f = std::fs::File::create(path).map_err(RPolarsErr::from)?;
 
@@ -230,5 +230,5 @@ impl PlRDataFrame {
             .map_err(RPolarsErr::from)?;
 
         Ok(())
-      }
+    }
 }
