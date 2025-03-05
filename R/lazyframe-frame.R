@@ -35,12 +35,6 @@ wrap.PlRLazyFrame <- function(x, ...) {
   self <- new.env(parent = emptyenv())
   self$`_ldf` <- x
 
-  lapply(names(polars_lazyframe__methods), function(name) {
-    fn <- polars_lazyframe__methods[[name]]
-    environment(fn) <- environment()
-    assign(name, fn, envir = self)
-  })
-
   class(self) <- c("polars_lazy_frame", "polars_object")
   self
 }
@@ -1748,6 +1742,8 @@ lazyframe__rolling <- function(
 #' * `"datapoint"`: the first value of the index column in the given window. If
 #' you don’t need the label to be at one of the boundaries, choose this option
 #' for maximum performance.
+#' @param group_by Also group by this column/these columns. Can be expressions
+#' or objects coercible to expressions.
 #' @param start_by The strategy to determine the start of the first window by:
 #' * `"window"`: start by taking the earliest timestamp, truncating it with
 #'   `every`, and then adding `offset`. Note that weekly windows start on
@@ -1777,7 +1773,8 @@ lazyframe__rolling <- function(
 #' - 1i # length 1
 #' - 10i # length 10
 #'
-#' @return A [LazyGroupBy][LazyGroupBy_class] object
+# TODO: Add LazyGroupBy docs
+#' @return A [LazyGroupBy] object
 #' @seealso
 #' - [`<LazyFrame>$rolling()`][lazyframe__rolling]
 #'
@@ -1853,13 +1850,14 @@ lazyframe__group_by_dynamic <- function(
   offset = NULL,
   include_boundaries = FALSE,
   closed = c("left", "right", "both", "none"),
-  label = "left",
+  label = c("left", "right", "datapoint"),
   group_by = NULL,
   start_by = "window"
 ) {
   wrap({
     check_dots_empty0(...)
     closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
+    label <- arg_match0(label, values = c("left", "right", "datapoint"))
     start_by <- arg_match0(
       start_by,
       values = c(
@@ -1877,7 +1875,11 @@ lazyframe__group_by_dynamic <- function(
     every <- parse_as_duration_string(every)
     offset <- parse_as_duration_string(offset) %||% "0ns"
     period <- parse_as_duration_string(period) %||% every
-    group_by <- parse_into_list_of_expressions(!!!group_by)
+    group_by <- if (is_polars_expr(group_by)) {
+      list(group_by$`_rexpr`)
+    } else {
+      parse_into_list_of_expressions(!!!group_by)
+    }
 
     self$`_ldf`$group_by_dynamic(
       as_polars_expr(index_column)$`_rexpr`,
@@ -2176,8 +2178,25 @@ lazyframe__set_sorted <- function(column, ..., descending = FALSE) {
 #'   index = pl$int_range(pl$len(), dtype = pl$UInt32)
 #' )$collect()
 lazyframe__with_row_index <- function(name = "index", offset = 0) {
-  self$`_ldf`$with_row_index(name, offset) |>
-    wrap()
+  wrap({
+    tryCatch(
+      self$`_ldf`$with_row_index(name, offset),
+      error = function(e) {
+        is_overflow_error <- grepl("out of range", e$message)
+        if (isTRUE(is_overflow_error)) {
+          issue <- if (offset < 0) {
+            "negative"
+          } else {
+            "greater than the maximum index value"
+          }
+          msg <- paste0("`offset` input for `with_row_index` cannot be ", issue, ", got ", offset)
+        } else {
+          msg <- e$message
+        }
+        abort(msg, call = caller_env(4))
+      }
+    )
+  })
 }
 
 #' Perform joins on nearest keys
@@ -2552,7 +2571,7 @@ lazyframe__sink_csv <- function(
   float_scientific = NULL,
   float_precision = NULL,
   null_value = "",
-  quote_style = "necessary",
+  quote_style = c("necessary", "always", "never", "non_numeric"),
   maintain_order = TRUE,
   type_coercion = TRUE,
   `_type_check` = TRUE,
