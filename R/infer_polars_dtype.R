@@ -1,18 +1,26 @@
 # TODO: link to the type mapping vignette
 #' Infer Polars DataType corresponding to a given R object
 #'
-#' This function is a helper function used to quickly find the [DataType] corresponding to an R object.
+#' @description
+#' [infer_polars_dtype()] is a helper function used to quickly find the [DataType] corresponding to an R object,
+#' in order words, it infers the type of the Polars [Series] that would be constructed from the object.
 #' In many cases, this function simply performs something like `head(x, 0) |> as_polars_series()`.
 #' It is much faster than actually constructing a [Series] using the entire object.
 #' This function is similar to [nanoarrow::infer_nanoarrow_schema()].
 #'
-#' S3 objects based on atomic vectors or classes built on the vctrs package will work accurately
-#' if the S3 method of the [as_polars_series()] function is defined.
+#' [is_convertible_to_polars_series()] and [is_convertible_to_polars_expr()] are helper functions
+#' that check if the object can be converted to a [Series] or [Expr] respectively.
+#' These functions call [infer_polars_dtype()] internally and return `TRUE` if the type can be inferred without error.
+#' (Or, that object is already a Polars [Expr] for [is_convertible_to_polars_expr()].)
+#' @details
+#' S3 objects based on atomic vectors or classes built on [the vctrs package][vctrs::vctrs-package]
+#' will work accurately if the S3 method of the [as_polars_series()] function is defined.
 #' @inheritParams as_polars_series
 #' @param x An R object.
 #' @return A [polars DataType][DataType]
 #' @seealso
 #' - [as_polars_series()]
+#' - [check_polars]: Functions to check if the object is a polars object.
 #' @examples
 #' infer_polars_dtype(1:10)
 #'
@@ -32,9 +40,39 @@
 #'
 #' # But if the length is too short, an incorrect type may be inferred.
 #' infer_polars_dtype(mixed_list, infer_dtype_length = 1)
+#'
+#' # is_convertible_to_polars_* functions are useful for checking if
+#' # the object can be converted to a Series or Expr quickly.
+#' try(infer_polars_dtype(1i))
+#' is_convertible_to_polars_series(1i)
+#' is_convertible_to_polars_expr(1i)
+#'
+#' # For polars Expr objects, infer_polars_dtype() will raise an error
+#' # because Expr can't be converted to a Series by `as_polars_series()`.
+#' try(infer_polars_dtype(pl$lit(1)))
+#' is_convertible_to_polars_series(pl$lit(1))
+#' is_convertible_to_polars_expr(pl$lit(1))
 #' @export
 infer_polars_dtype <- function(x, ...) {
   UseMethod("infer_polars_dtype")
+}
+
+#' @rdname infer_polars_dtype
+#' @export
+is_convertible_to_polars_series <- function(x, ...) {
+  tryCatch(
+    {
+      infer_polars_dtype(x, ...)
+      TRUE
+    },
+    error = function(e) FALSE
+  )
+}
+
+#' @rdname infer_polars_dtype
+#' @export
+is_convertible_to_polars_expr <- function(x, ...) {
+  is_polars_expr(x) || is_convertible_to_polars_series(x, ...)
 }
 
 infer_polars_dtype_default_impl <- function(x, ...) {
@@ -131,6 +169,23 @@ infer_polars_dtype.AsIs <- function(x, ...) {
 #' @export
 infer_polars_dtype.data.frame <- function(x, ...) {
   pl$Struct(!!!lapply(x, \(col) infer_polars_dtype(col, ...)))
+}
+
+#' @rdname infer_polars_dtype
+#' @export
+infer_polars_dtype.nanoarrow_array_stream <- function(x, ...) {
+  wrap({
+    na_schema <- x$get_schema()
+    empty_stream <- nanoarrow::basic_array_stream(list(), na_schema)
+    as_polars_series(empty_stream)$dtype
+  })
+}
+
+#' @rdname infer_polars_dtype
+#' @export
+infer_polars_dtype.nanoarrow_array <- function(x, ...) {
+  nanoarrow::as_nanoarrow_array_stream(x) |>
+    infer_polars_dtype(...)
 }
 
 # To avoid defining a dedicated method for inferring types from classes built on vctrs_vctr,
