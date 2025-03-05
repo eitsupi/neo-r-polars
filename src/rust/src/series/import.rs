@@ -25,7 +25,7 @@ impl PlRSeries {
             let polars_dt = DataType::from_arrow_field(stream.field());
             Series::new_empty(stream.field().name.clone(), &polars_dt)
         } else {
-            Series::try_from((stream.field(), produced_arrays)).unwrap()
+            Series::try_from((stream.field(), produced_arrays)).map_err(|e| e.to_string())?
         };
         Ok(s.into())
     }
