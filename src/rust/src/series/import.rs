@@ -22,6 +22,7 @@ impl PlRSeries {
         }
 
         let s = if produced_arrays.is_empty() {
+            // TODO: Should not panic for non-supported types like UnionType
             let polars_dt = DataType::from_arrow_field(stream.field());
             Series::new_empty(stream.field().name.clone(), &polars_dt)
         } else {
