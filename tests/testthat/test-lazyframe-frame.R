@@ -825,6 +825,31 @@ test_that("fill_null() fills categoricals if fill is character", {
   )
 })
 
+test_that("fill_null() works on date/datetime", {
+  df <- pl$DataFrame(
+    dt = as.Date(c("2020-01-01", NA)),
+    dtime = as.POSIXct(c("2020-01-01 00:00:00", NA))
+  )
+
+  expect_query_equal(
+    .input$fill_null(as.Date("2020-01-02")),
+    df,
+    pl$DataFrame(
+      dt = as.Date(c("2020-01-01", "2020-01-02")),
+      dtime = as.POSIXct(c("2020-01-01 00:00:00", NA))
+    )
+  )
+
+  expect_query_equal(
+    .input$fill_null(as.POSIXct("2020-01-02 00:00:00")),
+    df,
+    pl$DataFrame(
+      dt = as.Date(c("2020-01-01", NA)),
+      dtime = as.POSIXct(c("2020-01-01 00:00:00", "2020-01-02 00:00:00"))
+    )
+  )
+})
+
 patrick::with_parameters_test_that(
   "fill_null(): arg 'strategy' works",
   .cases = {
