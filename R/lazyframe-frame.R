@@ -1022,7 +1022,7 @@ lazyframe__fill_null <- function(
         }
       }
 
-      if (!is.null(dtypes) && !is_list_of_polars_dtype(dtypes)) {
+      if (is_polars_dtype(dtypes)) {
         dtypes <- list(dtypes)
       }
 
