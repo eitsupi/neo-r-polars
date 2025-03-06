@@ -993,11 +993,7 @@ lazyframe__fill_null <- function(
   matches_supertype = TRUE
 ) {
   wrap({
-    # Can't use check_exclusive() because it errors when we call this from the
-    # eager method.
-    if (!missing(value) && !missing(strategy) && !is.null(value) && !is.null(strategy)) {
-      abort("Exactly one of `value` or `strategy` must be supplied.")
-    }
+    check_exclusive_or_null(value, strategy)
     check_dots_empty0(...)
     if (!missing(value) && !is.null(value)) {
       if (is_polars_expr(value)) {
