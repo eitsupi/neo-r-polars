@@ -2200,3 +2200,38 @@ dataframe__group_by_dynamic <- function(
     )
   })
 }
+
+#' Hash and combine the rows in this DataFrame
+#'
+#' The hash value is of type [UInt64][polars_dtype].
+#'
+#' @param seed Random seed parameter. Defaults to 0.
+#' @param seed_1 Random seed parameter. Defaults to `seed` if not set.
+#' @param seed_2 Random seed parameter. Defaults to `seed` if not set.
+#' @param seed_3 Random seed parameter. Defaults to `seed` if not set.
+#'
+#' @details
+#' This implementation does not guarantee stable results across different
+#' Polars versions. Its stability is only guaranteed within a single version.
+#'
+#' @inherit as_polars_series return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = c(1, NA, 3, 4),
+#'   ham = c("a", "b", NA, "d")
+#' )
+#' df$hash_rows(seed = 42)
+dataframe__hash_rows <- function(seed = 0, seed_1 = NULL, seed_2 = NULL, seed_3 = NULL) {
+  wrap({
+    check_number_whole(seed)
+    check_number_whole(seed_1, allow_null = TRUE)
+    check_number_whole(seed_2, allow_null = TRUE)
+    check_number_whole(seed_3, allow_null = TRUE)
+    k0 <- seed
+    k1 <- seed_1 %||% seed
+    k2 <- seed_2 %||% seed
+    k3 <- seed_3 %||% seed
+    self$`_df`$hash_rows(k0, k1, k2, k3) |>
+      .savvy_wrap_PlRSeries()
+  })
+}
