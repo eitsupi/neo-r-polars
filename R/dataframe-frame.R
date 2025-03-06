@@ -2227,11 +2227,10 @@ dataframe__hash_rows <- function(seed = 0, seed_1 = NULL, seed_2 = NULL, seed_3 
     check_number_whole(seed_1, allow_null = TRUE)
     check_number_whole(seed_2, allow_null = TRUE)
     check_number_whole(seed_3, allow_null = TRUE)
-    seed_0 <- seed
     seed_1 <- seed_1 %||% seed
     seed_2 <- seed_2 %||% seed
     seed_3 <- seed_3 %||% seed
-    self$`_df`$hash_rows(seed_0, seed_1, seed_2, seed_3) |>
+    self$`_df`$hash_rows(seed, seed_1, seed_2, seed_3) |>
       .savvy_wrap_PlRSeries()
   })
 }
