@@ -371,15 +371,15 @@ impl PlRDataFrame {
 
     pub fn hash_rows(
         &mut self,
-        k0: NumericScalar,
-        k1: NumericScalar,
-        k2: NumericScalar,
-        k3: NumericScalar,
+        seed: NumericScalar,
+        seed_1: NumericScalar,
+        seed_2: NumericScalar,
+        seed_3: NumericScalar,
     ) -> Result<Sexp> {
-        let k0 = <Wrap<u64>>::try_from(k0)?.0;
-        let k1 = <Wrap<u64>>::try_from(k1)?.0;
-        let k2 = <Wrap<u64>>::try_from(k2)?.0;
-        let k3 = <Wrap<u64>>::try_from(k3)?.0;
+        let k0 = <Wrap<u64>>::try_from(seed)?.0;
+        let k1 = <Wrap<u64>>::try_from(seed_1)?.0;
+        let k2 = <Wrap<u64>>::try_from(seed_2)?.0;
+        let k3 = <Wrap<u64>>::try_from(seed_3)?.0;
         let hb = PlRandomState::with_seeds(k0, k1, k2, k3);
         let out = self
             .df

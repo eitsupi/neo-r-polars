@@ -324,8 +324,8 @@ SEXP savvy_PlRDataFrame_get_columns__impl(SEXP self__) {
     return handle_result(res);
 }
 
-SEXP savvy_PlRDataFrame_hash_rows__impl(SEXP self__, SEXP c_arg__k0, SEXP c_arg__k1, SEXP c_arg__k2, SEXP c_arg__k3) {
-    SEXP res = savvy_PlRDataFrame_hash_rows__ffi(self__, c_arg__k0, c_arg__k1, c_arg__k2, c_arg__k3);
+SEXP savvy_PlRDataFrame_hash_rows__impl(SEXP self__, SEXP c_arg__seed, SEXP c_arg__seed_1, SEXP c_arg__seed_2, SEXP c_arg__seed_3) {
+    SEXP res = savvy_PlRDataFrame_hash_rows__ffi(self__, c_arg__seed, c_arg__seed_1, c_arg__seed_2, c_arg__seed_3);
     return handle_result(res);
 }
 

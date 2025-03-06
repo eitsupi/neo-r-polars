@@ -441,8 +441,8 @@ class(`PlRChainedWhen`) <- c("PlRChainedWhen__bundle", "savvy_neopolars__sealed"
 }
 
 `PlRDataFrame_hash_rows` <- function(self) {
-  function(`k0`, `k1`, `k2`, `k3`) {
-    .Call(savvy_PlRDataFrame_hash_rows__impl, `self`, `k0`, `k1`, `k2`, `k3`)
+  function(`seed`, `seed_1`, `seed_2`, `seed_3`) {
+    .Call(savvy_PlRDataFrame_hash_rows__impl, `self`, `seed`, `seed_1`, `seed_2`, `seed_3`)
   }
 }
 
