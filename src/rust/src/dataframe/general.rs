@@ -381,11 +381,11 @@ impl PlRDataFrame {
         let k2 = <Wrap<u64>>::try_from(seed_2)?.0;
         let k3 = <Wrap<u64>>::try_from(seed_3)?.0;
         let hb = PlRandomState::with_seeds(k0, k1, k2, k3);
-        let out = self
+        let series = self
             .df
             .hash_rows(Some(hb))
             .map_err(RPolarsErr::from)?
             .into_series();
-        Ok(PlRSeries::from(out))
+        Ok(series.into())
     }
 }
