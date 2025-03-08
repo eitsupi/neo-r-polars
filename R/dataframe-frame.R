@@ -2211,6 +2211,8 @@ dataframe__group_by_dynamic <- function(
 #' @param how Direction of the unstack. Must be one of `"vertical"` or
 #' `"horizontal"`.
 #' @param fill_values Fill values that don't fit the new size with this value.
+#' This can be a scalar value, an Expr, or a named list of the sort
+#' `list(<column_name> = <fill_value>)`. See examples.
 #'
 #' @inherit as_polars_df return
 #' @examples
@@ -2222,6 +2224,7 @@ dataframe__group_by_dynamic <- function(
 #' df$unstack(step = 4, how = "vertical")
 #' df$unstack(step = 2, how = "horizontal")
 #' df$unstack(cs$numeric(), step = 5, fill_values = 0)
+#' df$unstack("x", "y", step = 5, fill_values = list(y = 999, x = "foo"))
 dataframe__unstack <- function(
   ...,
   step,
@@ -2230,6 +2233,15 @@ dataframe__unstack <- function(
 ) {
   wrap({
     check_dots_unnamed()
+
+    is_named_list <- is.list(fill_values) &&
+      !is.null(names(fill_values)) &&
+      any(names(fill_values) != "")
+    is_scalar_or_expr <- length(fill_values) == 1 || is_polars_expr(fill_values)
+    if (!is.null(fill_values) && !is_named_list && !is_scalar_or_expr) {
+      abort("`fill_value` must be a scalar or a named list.")
+    }
+
     if (!(is_scalar_integerish(step) && isTRUE(step > 0L))) {
       abort("`step` must be a single positive integer-ish value")
     }
@@ -2259,12 +2271,13 @@ dataframe__unstack <- function(
         fill_values <- NA
       }
       if (!is.list(fill_values)) {
-        fill_values <- as.list(rep(fill_values, df$width))
+        fill_values <- rep(list(fill_values), df$width)
+        names(fill_values) <- names(df)
       }
       list_series <- list()
       for (i in seq_along(fill_values)) {
         series <- names(df$schema)[i]
-        list_series[[i]] <- pl$col(series)$extend_constant(fill_values[[i]], n_fill)
+        list_series[[i]] <- pl$col(series)$extend_constant(fill_values[[series]], n_fill)
       }
       df <- df$select(!!!list_series)
     }

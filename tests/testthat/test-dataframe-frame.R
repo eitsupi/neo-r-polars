@@ -654,17 +654,29 @@ test_that("unstack() works", {
     pl$DataFrame(y_0 = 1:5, y_1 = c(6L, 7L, 8L, 0L, 0L))
   )
   expect_equal(
+    df$unstack(cs$numeric(), step = 5, fill_values = pl$lit(0)),
+    pl$DataFrame(y_0 = 1:5, y_1 = c(6L, 7L, 8L, 0L, 0L))
+  )
+  expect_error(
+    df$unstack(cs$numeric(), step = 5, fill_values = c(0, 1)),
+    "must be a scalar or a named list"
+  )
+  expect_error(
+    df$unstack(cs$numeric(), step = 5, fill_values = list(0, 1)),
+    "must be a scalar or a named list"
+  )
+  expect_equal(
     df$unstack(
-      "y",
       "x",
+      "y",
       step = 5,
       fill_values = list(y = 999, x = "foo")
     ),
     pl$DataFrame(
-      y_0 = 1:5,
-      y_1 = c(6L, 7L, 8L, 999L, 999L),
       x_0 = c("A", "B", "C", "D", "E"),
-      x_1 = c("F", "G", "H", "foo", "foo")
+      x_1 = c("F", "G", "H", "foo", "foo"),
+      y_0 = 1:5,
+      y_1 = c(6L, 7L, 8L, 999L, 999L)
     )
   )
 })

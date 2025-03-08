@@ -20,7 +20,9 @@ to include in the operation. If \code{NULL} (default), use all columns.}
 \item{how}{Direction of the unstack. Must be one of \code{"vertical"} or
 \code{"horizontal"}.}
 
-\item{fill_values}{Fill values that don't fit the new size with this value.}
+\item{fill_values}{Fill values that don't fit the new size with this value.
+This can be a scalar value, an Expr, or a named list of the sort
+\verb{list(<column_name> = <fill_value>)}. See examples.}
 }
 \value{
 A polars \link{DataFrame}
@@ -37,4 +39,5 @@ df
 df$unstack(step = 4, how = "vertical")
 df$unstack(step = 2, how = "horizontal")
 df$unstack(cs$numeric(), step = 5, fill_values = 0)
+df$unstack("x", "y", step = 5, fill_values = list(y = 999, x = "foo"))
 }
