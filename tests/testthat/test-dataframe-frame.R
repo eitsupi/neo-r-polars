@@ -704,7 +704,7 @@ test_that("unstack() works", {
     "Maybe `fill_values` is not a scalar value"
   )
 
-  # Named list cases
+  ## Named list cases
   expect_equal(
     df$unstack(
       "x",
@@ -722,5 +722,11 @@ test_that("unstack() works", {
   expect_error(
     df$unstack(cs$numeric(), step = 5, fill_values = list(y = 1:2)),
     "Maybe one of `fill_values` is not a scalar value"
+  )
+
+  # column name padding
+  expect_identical(
+    pl$DataFrame(x = 1:10)$unstack(step = 1)$columns,
+    paste0("x_0", 0:9)
   )
 })
