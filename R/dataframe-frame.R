@@ -2159,24 +2159,18 @@ dataframe__unstack <- function(
       )$sort("__sort_order")$drop("__sort_order")
     }
 
-    zfill_val <- floor(log10(n_cols)) + 1
-    # py-polars can use an iterator like "for s in df", but we don't have that
-    # so we need to change the dataframe to a list of series that we can iterate
-    # on.
-    df_series <- df$get_columns()
-    slices <- vector("list", length = length(df_series) * n_cols)
+    # Equivalent to zfill_val in Python Polars
+    sprintf_fmt_val <- sprintf("%%0%dd", floor(log10(n_cols)) + 1)
 
-    idx <- 1
-    for (s in seq_along(df_series)) {
+    columns <- df$get_columns()
+    new_columns <- list()
+    for (column in columns) {
       for (slice_nbr in seq_len(n_cols) - 1) {
-        serie <- df_series[[s]]
-        old_serie_name <- names(df_series)[s]
-        slices[[idx]] <- serie$slice(slice_nbr * n_rows, n_rows)$alias(
-          paste0(old_serie_name, "_", slice_nbr)
-        )
-        idx <- idx + 1
+        old_col_name <- column$name
+        new_col_name <- paste0(old_col_name, "_", sprintf(sprintf_fmt_val, slice_nbr))
+        new_columns[[new_col_name]] <- column$slice(slice_nbr * n_rows, n_rows)$`_s`
       }
     }
-    pl$DataFrame(!!!slices)
+    PlRDataFrame$init(new_columns)
   })
 }
