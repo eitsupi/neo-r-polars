@@ -2133,20 +2133,20 @@ dataframe__unstack <- function(
       for (col_name in df$columns) {
         list_series[[col_name]] <- pl$col(col_name)$extend_constant(fill_values[[col_name]], n_fill)
       }
-        df <- try_fetch(
-          df$select(!!!list_series),
-          error = function(cnd) {
-            msg_part <- if (fill_values_is_named_list) "one of " else ""
-            abort(
-              sprintf(
-                "Expanding the DataFrame failed. Maybe %s`fill_values` is not a scalar value.",
-                msg_part
-              ),
-              call = parent.frame(),
-              parent = cnd
-            )
-          }
-        )
+      df <- try_fetch(
+        df$select(!!!list_series),
+        error = function(cnd) {
+          msg_part <- if (fill_values_is_named_list) "one of " else ""
+          abort(
+            sprintf(
+              "Expanding the DataFrame failed. Maybe %s`fill_values` is not a scalar value.",
+              msg_part
+            ),
+            call = parent.frame(),
+            parent = cnd
+          )
+        }
+      )
     }
 
     if (how == "horizontal") {
