@@ -665,6 +665,10 @@ test_that("unstack() works", {
     df$unstack(cs$numeric(), step = 5, fill_values = list(0, 1)),
     "must be a scalar or a named list"
   )
+  expect_error(
+    df$unstack(cs$numeric(), step = 5, fill_values = list(x = 0, 1)),
+    "must be a scalar or a named list"
+  )
   expect_equal(
     df$unstack(
       "x",

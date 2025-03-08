@@ -2236,7 +2236,7 @@ dataframe__unstack <- function(
 
     is_named_list <- is.list(fill_values) &&
       !is.null(names(fill_values)) &&
-      any(names(fill_values) != "")
+      all(names(fill_values) != "")
     is_scalar_or_expr <- length(fill_values) == 1 || is_polars_expr(fill_values)
     if (!is.null(fill_values) && !is_named_list && !is_scalar_or_expr) {
       abort("`fill_value` must be a scalar or a named list.")
