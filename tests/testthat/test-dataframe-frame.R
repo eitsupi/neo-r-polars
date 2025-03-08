@@ -684,6 +684,13 @@ test_that("unstack() works", {
     df$unstack(cs$numeric(), step = 5, fill_values = pl$lit(0)),
     pl$DataFrame(y_0 = 1:5, y_1 = c(6L, 7L, 8L, 0L, 0L))
   )
+  expect_equal(
+    df$unstack("z", step = 5, fill_values = list(c(0, 0))),
+    pl$DataFrame(
+      z_0 = list(1:2, 2:3, 3:4, 4:5, 5:6),
+      z_1 = list(6:7, 7:8, 8:9, c(0, 0), c(0, 0)),
+    )$cast(pl$List(pl$UInt8))
+  )
   expect_error(
     df$unstack(cs$numeric(), step = 5, fill_values = c(0, 1)),
     "Maybe `fill_values` is not a scalar value"
