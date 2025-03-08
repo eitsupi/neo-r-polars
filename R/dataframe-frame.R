@@ -2126,7 +2126,7 @@ dataframe__unstack <- function(
     n_fill <- n_cols * n_rows - height
     if (n_fill > 0) {
       if (!fill_values_is_named_list) {
-        fill_values <- rep(list(pl$lit(fill_values)), df$width)
+        fill_values <- rep(list(as_polars_expr(fill_values, as_lit = TRUE)), df$width)
         names(fill_values) <- names(df)
       }
       list_series <- list()
