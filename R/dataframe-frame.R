@@ -2133,6 +2133,8 @@ dataframe__unstack <- function(
       for (col_name in df$columns) {
         list_series[[col_name]] <- pl$col(col_name)$extend_constant(fill_values[[col_name]], n_fill)
       }
+      # The error message comes from `<expr>$extend_constant()` is not clear,
+      # so we wrap it in a tryCatch to provide a more informative message.
       df <- try_fetch(
         df$select(!!!list_series),
         error = function(cnd) {
