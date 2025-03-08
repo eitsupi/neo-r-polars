@@ -2044,13 +2044,16 @@ dataframe__group_by_dynamic <- function(
 #' df$hash_rows(seed = 42)
 dataframe__hash_rows <- function(seed = 0, seed_1 = NULL, seed_2 = NULL, seed_3 = NULL) {
   wrap({
-    check_number_whole(seed)
-    check_number_whole(seed_1, allow_null = TRUE)
-    check_number_whole(seed_2, allow_null = TRUE)
-    check_number_whole(seed_3, allow_null = TRUE)
-    seed_1 <- seed_1 %||% seed
-    seed_2 <- seed_2 %||% seed
-    seed_3 <- seed_3 %||% seed
-    self$`_df`$hash_rows(seed, seed_1, seed_2, seed_3)
+    check_number_whole(seed, min = 0)
+    check_number_whole(seed_1, min = 0, allow_null = TRUE)
+    check_number_whole(seed_2, min = 0, allow_null = TRUE)
+    check_number_whole(seed_3, min = 0, allow_null = TRUE)
+
+    self$`_df`$hash_rows(
+      seed,
+      seed_1 %||% seed,
+      seed_2 %||% seed,
+      seed_3 %||% seed
+    )
   })
 }

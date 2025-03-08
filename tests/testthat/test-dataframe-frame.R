@@ -584,18 +584,18 @@ test_that("hash_rows() works", {
   )
   expect_error(
     df$hash_rows(seed = 42, seed_1 = "a"),
-    "`seed_1` must be a whole number"
+    "`seed_1` must be a whole number or `NULL`, not the string"
   )
   expect_error(
     df$hash_rows(seed = 42, seed_1 = 1.5),
-    "`seed_1` must be a whole number"
+    "`seed_1` must be a whole number or `NULL`"
   )
   expect_error(
     df$hash_rows(seed = 42, seed_1 = 1:2),
-    "`seed_1` must be a whole number"
+    "`seed_1` must be a whole number or `NULL`"
   )
   expect_error(
     df$hash_rows(seed = 42, seed_1 = -1),
-    "-1.0 is out of range"
+    "`seed_1` must be a whole number larger than or equal to 0 or `NULL`"
   )
 })
