@@ -2230,7 +2230,6 @@ dataframe__hash_rows <- function(seed = 0, seed_1 = NULL, seed_2 = NULL, seed_3 
     seed_1 <- seed_1 %||% seed
     seed_2 <- seed_2 %||% seed
     seed_3 <- seed_3 %||% seed
-    self$`_df`$hash_rows(seed, seed_1, seed_2, seed_3) |>
-      .savvy_wrap_PlRSeries()
+    self$`_df`$hash_rows(seed, seed_1, seed_2, seed_3)
   })
 }

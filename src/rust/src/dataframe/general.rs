@@ -375,7 +375,7 @@ impl PlRDataFrame {
         seed_1: NumericScalar,
         seed_2: NumericScalar,
         seed_3: NumericScalar,
-    ) -> Result<Sexp> {
+    ) -> Result<PlRSeries> {
         let k0 = <Wrap<u64>>::try_from(seed)?.0;
         let k1 = <Wrap<u64>>::try_from(seed_1)?.0;
         let k2 = <Wrap<u64>>::try_from(seed_2)?.0;
@@ -386,7 +386,6 @@ impl PlRDataFrame {
             .hash_rows(Some(hb))
             .map_err(RPolarsErr::from)?
             .into_series();
-        let out = Sexp::try_from(PlRSeries::from(out.clone()))?;
-        Ok(out)
+        Ok(PlRSeries::from(out))
     }
 }
