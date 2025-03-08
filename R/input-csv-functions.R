@@ -1,3 +1,5 @@
+# Input CSV functions: scan_csv, read_csv
+
 #' Lazily read from a CSV file or multiple files via glob patterns
 #'
 #' This allows the query optimizer to push down predicates and projections to
