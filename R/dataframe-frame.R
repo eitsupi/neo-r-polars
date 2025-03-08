@@ -2068,7 +2068,7 @@ dataframe__hash_rows <- function(seed = 0, seed_1 = NULL, seed_2 = NULL, seed_3 
 #' @param how Direction of the unstack. Must be one of `"vertical"` or
 #' `"horizontal"`.
 #' @param fill_values Fill values that don't fit the new size with this value.
-#' This can be a scalar value, an Expr, or a named list of the sort
+#' This can be a scalar value or a named list of the sort
 #' `list(<column_name> = <fill_value>)`. See examples.
 #'
 #' @inherit as_polars_df return
@@ -2091,18 +2091,19 @@ dataframe__unstack <- function(
   wrap({
     check_dots_unnamed()
 
-    is_named_list <- is.list(fill_values) &&
-      !is.null(names(fill_values)) &&
-      all(names(fill_values) != "")
-    is_scalar_or_expr <- length(fill_values) == 1 || is_polars_expr(fill_values)
-    if (!is.null(fill_values) && !is_named_list && !is_scalar_or_expr) {
-      abort("`fill_value` must be a scalar or a named list.")
-    }
-
     if (!(is_scalar_integerish(step) && isTRUE(step > 0L))) {
       abort("`step` must be a single positive integer-ish value")
     }
     how <- arg_match0(how, values = c("vertical", "horizontal"))
+
+    fill_values_is_named_list <- is_list(fill_values) &&
+      is_named(fill_values) &&
+      all(vapply(fill_values, is_convertible_to_polars_expr, logical(1)))
+    if (!fill_values_is_named_list && !is_convertible_to_polars_expr(fill_values)) {
+      abort(
+        "`fill_value` must be a object convertible to a Polars expression, or a named list of such objects."
+      )
+    }
 
     dots <- list2(...)
     df <- if (length(dots) == 0L) {
@@ -2124,19 +2125,28 @@ dataframe__unstack <- function(
     # data (and potentially fill missing values) before unstacking.
     n_fill <- n_cols * n_rows - height
     if (n_fill > 0) {
-      if (is.null(fill_values)) {
-        fill_values <- NA
-      }
-      if (!is.list(fill_values)) {
-        fill_values <- rep(list(fill_values), df$width)
+      if (!fill_values_is_named_list) {
+        fill_values <- rep(list(pl$lit(fill_values)), df$width)
         names(fill_values) <- names(df)
       }
       list_series <- list()
-      for (i in seq_along(fill_values)) {
-        series <- names(df$schema)[i]
-        list_series[[i]] <- pl$col(series)$extend_constant(fill_values[[series]], n_fill)
+      for (col_name in df$columns) {
+        list_series[[col_name]] <- pl$col(col_name)$extend_constant(fill_values[[col_name]], n_fill)
       }
-      df <- df$select(!!!list_series)
+        df <- try_fetch(
+          df$select(!!!list_series),
+          error = function(cnd) {
+            msg_part <- if (fill_values_is_named_list) "one of " else ""
+            abort(
+              sprintf(
+                "Expanding the DataFrame failed. Maybe %s`fill_values` is not a scalar value.",
+                msg_part
+              ),
+              call = parent.frame(),
+              parent = cnd
+            )
+          }
+        )
     }
 
     if (how == "horizontal") {

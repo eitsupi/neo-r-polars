@@ -686,16 +686,18 @@ test_that("unstack() works", {
   )
   expect_error(
     df$unstack(cs$numeric(), step = 5, fill_values = c(0, 1)),
-    "must be a scalar or a named list"
+    "Maybe `fill_values` is not a scalar value"
   )
   expect_error(
     df$unstack(cs$numeric(), step = 5, fill_values = list(0, 1)),
-    "must be a scalar or a named list"
+    "Maybe `fill_values` is not a scalar value"
   )
   expect_error(
     df$unstack(cs$numeric(), step = 5, fill_values = list(x = 0, 1)),
-    "must be a scalar or a named list"
+    "Maybe `fill_values` is not a scalar value"
   )
+
+  # Named list cases
   expect_equal(
     df$unstack(
       "x",
@@ -709,5 +711,9 @@ test_that("unstack() works", {
       y_0 = 1:5,
       y_1 = c(6L, 7L, 8L, 999L, 999L)
     )
+  )
+  expect_error(
+    df$unstack(cs$numeric(), step = 5, fill_values = list(y = 1:2)),
+    "Maybe one of `fill_values` is not a scalar value"
   )
 })
