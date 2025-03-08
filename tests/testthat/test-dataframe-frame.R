@@ -594,4 +594,8 @@ test_that("hash_rows() works", {
     df$hash_rows(seed = 42, seed_1 = 1:2),
     "`seed_1` must be a whole number"
   )
+  expect_error(
+    df$hash_rows(seed = 42, seed_1 = -1),
+    "-1.0 is out of range"
+  )
 })
