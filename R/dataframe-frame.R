@@ -1982,6 +1982,41 @@ dataframe__write_csv <- function(
   })
 }
 
+#' Serialize to JSON representation
+#'
+#' @param file File path to which the result will be written.
+#'
+#' @inherit dataframe__write_parquet return
+#' @examplesIf requireNamespace("jsonlite", quiet = TRUE)
+#' dat <- as_polars_df(head(mtcars))
+#' destination <- tempfile()
+#'
+#' dat$select(pl$col("drat", "mpg"))$write_json(destination)
+#' jsonlite::fromJSON(destination)
+dataframe__write_json <- function(file) {
+  wrap({
+    self$`_df`$write_json(file)
+    invisible(self)
+  })
+}
+
+#' Serialize to newline delimited JSON representation
+#'
+#' @inheritParams dataframe__write_ndjson
+#' @inherit dataframe__write_parquet return
+#' @examplesIf requireNamespace("jsonlite", quiet = TRUE)
+#' dat <- as_polars_df(head(mtcars))
+#' destination <- tempfile()
+#'
+#' dat$select(pl$col("drat", "mpg"))$write_ndjson(destination)
+#' jsonlite::stream_in(file(destination))
+dataframe__write_ndjson <- function(file) {
+  wrap({
+    self$`_df`$write_ndjson(file)
+    invisible(self)
+  })
+}
+
 #' Add a row index as the first column in the DataFrame
 #'
 #' @inheritParams lazyframe__with_row_index
@@ -2063,6 +2098,106 @@ dataframe__sample <- function(
       n <- as_polars_series(n, "")
     }
     self$`_df`$sample_n(n$`_s`, with_replacement, shuffle, seed)
+  })
+}
+
+#' @inherit lazyframe__group_by_dynamic title description params details
+#'
+# TODO: Add GroupBy docs
+#' @return A [GroupByDynamic] object
+#' @seealso
+#' - [`<DataFrame>$rolling()`][dataframe__rolling]
+#'
+#' @examples
+#' df <- pl$select(
+#'   time = pl$datetime_range(
+#'     start = as.POSIXct(strptime("2021-12-16 00:00:00", format = "%Y-%m-%d %H:%M:%S", tz = "UTC")),
+#'     end = as.POSIXct(strptime("2021-12-16 03:00:00", format = "%Y-%m-%d %H:%M:%S", tz = "UTC")),
+#'     interval = "30m"
+#'   ),
+#'   n = 0:6
+#' )
+#' df
+#'
+#' # Group by windows of 1 hour.
+#' df$group_by_dynamic("time", every = "1h", closed = "right")$agg(
+#'   vals = pl$col("n")
+#' )
+#'
+#' # The window boundaries can also be added to the aggregation result
+#' df$group_by_dynamic(
+#'   "time",
+#'   every = "1h", include_boundaries = TRUE, closed = "right"
+#' )$agg(
+#'   pl$col("n")$mean()
+#' )
+#'
+#' # When closed = "left", the window excludes the right end of interval:
+#' # [lower_bound, upper_bound)
+#' df$group_by_dynamic("time", every = "1h", closed = "left")$agg(
+#'   pl$col("n")
+#' )
+#'
+#' # When closed = "both" the time values at the window boundaries belong to 2
+#' # groups.
+#' df$group_by_dynamic("time", every = "1h", closed = "both")$agg(
+#'   pl$col("n")
+#' )
+#'
+#' # Dynamic group bys can also be combined with grouping on normal keys
+#' df <- df$with_columns(
+#'   groups = as_polars_series(c("a", "a", "a", "b", "b", "a", "a"))
+#' )
+#' df
+#'
+#' df$group_by_dynamic(
+#'   "time",
+#'   every = "1h",
+#'   closed = "both",
+#'   group_by = "groups",
+#'   include_boundaries = TRUE
+#' )$agg(pl$col("n"))
+#'
+#' # We can also create a dynamic group by based on an index column
+#' df <- pl$DataFrame(
+#'   idx = 0:5,
+#'   A = c("A", "A", "B", "B", "B", "C")
+#' )$with_columns(pl$col("idx")$set_sorted())
+#' df
+#'
+#' df$group_by_dynamic(
+#'   "idx",
+#'   every = "2i",
+#'   period = "3i",
+#'   include_boundaries = TRUE,
+#'   closed = "right"
+#' )$agg(A_agg_list = pl$col("A"))
+dataframe__group_by_dynamic <- function(
+  index_column,
+  ...,
+  every,
+  period = NULL,
+  offset = NULL,
+  include_boundaries = FALSE,
+  closed = c("left", "right", "both", "none"),
+  label = c("left", "right", "datapoint"),
+  group_by = NULL,
+  start_by = "window"
+) {
+  wrap({
+    check_dots_empty0(...)
+    wrap_to_group_by_dynamic(
+      self,
+      index_column = index_column,
+      every = every,
+      period = period,
+      offset = offset,
+      include_boundaries = include_boundaries,
+      closed = closed,
+      label = label,
+      group_by = group_by,
+      start_by = start_by
+    )
   })
 }
 
