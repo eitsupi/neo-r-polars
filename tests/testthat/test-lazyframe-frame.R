@@ -828,7 +828,7 @@ test_that("fill_null() fills categoricals if fill is character", {
 test_that("fill_null() works on date/datetime", {
   df <- pl$DataFrame(
     dt = as.Date(c("2020-01-01", NA)),
-    dtime = as.POSIXct(c("2020-01-01 00:00:00", NA))
+    dtime = as.POSIXct(c("2020-01-01 00:00:00", NA), tz = "UTC")
   )
 
   expect_query_equal(
@@ -836,16 +836,16 @@ test_that("fill_null() works on date/datetime", {
     df,
     pl$DataFrame(
       dt = as.Date(c("2020-01-01", "2020-01-02")),
-      dtime = as.POSIXct(c("2020-01-01 00:00:00", NA))
+      dtime = as.POSIXct(c("2020-01-01 00:00:00", NA), tz = "UTC")
     )
   )
 
   expect_query_equal(
-    .input$fill_null(as.POSIXct("2020-01-02 00:00:00")),
+    .input$fill_null(as.POSIXct("2020-01-02 00:00:00", tz = "UTC")),
     df,
     pl$DataFrame(
       dt = as.Date(c("2020-01-01", NA)),
-      dtime = as.POSIXct(c("2020-01-01 00:00:00", "2020-01-02 00:00:00"))
+      dtime = as.POSIXct(c("2020-01-01 00:00:00", "2020-01-02 00:00:00"), tz = "UTC")
     )
   )
 })
