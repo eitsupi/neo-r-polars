@@ -605,7 +605,7 @@ test_that("unstack() works", {
     z = pl$int_ranges(pl$col("y"), pl$col("y") + 2, dtype = pl$UInt8)
   )
 
-  expect_equal(
+  expect_identical(
     df$unstack(step = 1) |> dim(),
     c(1L, 24L)
   )
