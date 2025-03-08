@@ -13,7 +13,7 @@ dataframe__unstack(
 }
 \arguments{
 \item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> Column name(s) and selector(s)
-to include in the operation. If \code{NULL} (default), use all columns.}
+to include in the operation. If empty, use all columns.}
 
 \item{step}{Number of rows in the unstacked frame.}
 
@@ -21,7 +21,7 @@ to include in the operation. If \code{NULL} (default), use all columns.}
 \code{"horizontal"}.}
 
 \item{fill_values}{Fill values that don't fit the new size with this value.
-This can be a scalar value, an Expr, or a named list of the sort
+This can be a scalar value or a named list of the sort
 \verb{list(<column_name> = <fill_value>)}. See examples.}
 }
 \value{

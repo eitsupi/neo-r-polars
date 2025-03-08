@@ -2063,7 +2063,7 @@ dataframe__hash_rows <- function(seed = 0, seed_1 = NULL, seed_2 = NULL, seed_3 
 #' This can be much faster than a pivot, because it can skip the grouping phase.
 #'
 #' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Column name(s) and selector(s)
-#' to include in the operation. If `NULL` (default), use all columns.
+#' to include in the operation. If empty, use all columns.
 #' @param step Number of rows in the unstacked frame.
 #' @param how Direction of the unstack. Must be one of `"vertical"` or
 #' `"horizontal"`.
