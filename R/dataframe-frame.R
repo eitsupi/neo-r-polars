@@ -2091,7 +2091,7 @@ dataframe__unstack <- function(
   wrap({
     check_dots_unnamed()
 
-    if (!(is_scalar_integerish(step) && isTRUE(step > 0L))) {
+    if (!(is_scalar_integerish(step, finite = TRUE) && step > 0L)) {
       abort("`step` must be a single positive integer-ish value")
     }
     how <- arg_match0(how, values = c("vertical", "horizontal"))
