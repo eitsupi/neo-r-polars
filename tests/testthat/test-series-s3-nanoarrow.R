@@ -13,6 +13,9 @@ patrick::with_parameters_test_that(
       "struct", as_polars_series(data.frame(a = 1:3, b = letters[1:3])),
       "list", as_polars_series(list(1:2, 3:4)),
       "array", as_polars_series(1:4)$reshape(c(2, 2)),
+      "categorical", as_polars_series(c("a", "b"))$cast(pl$Categorical()),
+      "enum", as_polars_series(c("a", "b"))$cast(pl$Enum(c("a", "b"))),
+      "decimal", as_polars_series(1:3)$cast(pl$Decimal(precision = 10, scale = 2)),
     )
   },
   code = {
