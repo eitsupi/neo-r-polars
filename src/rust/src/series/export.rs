@@ -368,10 +368,10 @@ impl PlRSeries {
         };
         let field = self.series.field().to_arrow(CompatLevel::newest());
         let iter = Box::new(self.series.chunks().clone().into_iter().map(Ok));
-        let mut stream = export_iterator(iter, field);
+        let stream = export_iterator(iter, field);
 
         unsafe {
-            std::ptr::swap_nonoverlapping(stream_ptr, &mut stream, 1);
+            std::ptr::replace(stream_ptr, stream);
         };
 
         Ok(())
