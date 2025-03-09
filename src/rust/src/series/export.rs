@@ -1,7 +1,8 @@
 use crate::{prelude::*, PlRExpr, PlRSeries, RPolarsErr};
+use polars_core::utils::arrow::ffi::{export_iterator, ArrowArrayStream};
 use savvy::{
-    savvy, FunctionArgs, FunctionSexp, OwnedIntegerSexp, OwnedListSexp, OwnedLogicalSexp, Result,
-    Sexp,
+    savvy, ExternalPointerSexp, FunctionArgs, FunctionSexp, OwnedIntegerSexp, OwnedListSexp,
+    OwnedLogicalSexp, Result, Sexp,
 };
 use strum_macros::EnumString;
 
@@ -358,5 +359,21 @@ impl PlRSeries {
             non_existent,
             local_time_zone,
         )
+    }
+
+    // TODO: add `compat_level` argument
+    pub fn to_arrow_c_stream(&self, stream_ptr: Sexp) -> Result<()> {
+        let stream_ptr = unsafe {
+            ExternalPointerSexp::try_from(stream_ptr)?.cast_mut_unchecked::<ArrowArrayStream>()
+        };
+        let field = self.series.field().to_arrow(CompatLevel::newest());
+        let iter = Box::new(self.series.chunks().clone().into_iter().map(Ok));
+        let mut stream = export_iterator(iter, field);
+
+        unsafe {
+            std::ptr::swap_nonoverlapping(stream_ptr, &mut stream, 1);
+        };
+
+        Ok(())
     }
 }
