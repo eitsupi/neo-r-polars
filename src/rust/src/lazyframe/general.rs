@@ -2,6 +2,7 @@ use crate::{
     prelude::*, PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame, PlRLazyGroupBy, PlRSeries,
     RPolarsErr,
 };
+use polars::io::cloud::CloudOptions;
 use polars::io::{HiveOptions, RowIndex};
 use savvy::{
     savvy, ListSexp, LogicalSexp, NumericScalar, OwnedListSexp, OwnedStringSexp, Result, Sexp,
@@ -1343,6 +1344,23 @@ impl PlRLazyFrame {
             .clone()
             .sink_csv(&path, options, cloud_options)
             .map_err(RPolarsErr::from);
+        Ok(())
+    }
+
+    fn sink_json(
+        &self,
+        path: &str,
+        retries: NumericScalar,
+        maintain_order: bool,
+        _storage_options: Option<StringSexp>,
+    ) -> Result<()> {
+        let options = JsonWriterOptions { maintain_order };
+        let _retries = <Wrap<usize>>::try_from(retries)?.0;
+
+        let cloud_options = Some(CloudOptions::default());
+
+        let ldf = self.ldf.clone();
+        let _ = ldf.sink_json(path, options, cloud_options);
         Ok(())
     }
 }
