@@ -2,7 +2,7 @@
 % Please edit documentation in R/output-json-functions.R
 \name{lazyframe__sink_ndjson}
 \alias{lazyframe__sink_ndjson}
-\title{Evaluate the query in streaming mode and write to a Parquet file}
+\title{Evaluate the query in streaming mode and write to a NDJSON file}
 \usage{
 lazyframe__sink_ndjson(
   path,

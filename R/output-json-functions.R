@@ -2,9 +2,7 @@
 # (there is only sink_ndjson() in py-polars but there is sink_json() in
 # rust-polars).
 
-# Output Parquet functions: sink_parquet, write_parquet
-
-#' Evaluate the query in streaming mode and write to a Parquet file
+#' Evaluate the query in streaming mode and write to a NDJSON file
 #'
 #' @description
 #' `r lifecycle::badge("experimental")`
