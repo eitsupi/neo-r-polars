@@ -1352,7 +1352,7 @@ impl PlRLazyFrame {
         path: &str,
         retries: NumericScalar,
         maintain_order: bool,
-        _storage_options: Option<StringSexp>,
+        storage_options: Option<StringSexp>,
     ) -> Result<()> {
         let options = JsonWriterOptions { maintain_order };
         let _retries = <Wrap<usize>>::try_from(retries)?.0;

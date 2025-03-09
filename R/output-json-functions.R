@@ -16,11 +16,6 @@
 #' @inheritParams lazyframe__sink_parquet
 #' @inheritParams lazyframe__collect
 #' @inheritParams pl__scan_parquet
-#' @param sync_on_close Sync to disk when before closing a file. This must be
-#' one of:
-#' * `"none"` (default): does not sync;
-#' * `"data"`: syncs the file contents;
-#' * `"all"`: syncs the file contents and metadata.
 #'
 #' @return Invisibly returns the input LazyFrame
 #'
@@ -43,12 +38,10 @@ lazyframe__sink_ndjson <- function(
   collapse_joins = TRUE,
   no_optimization = FALSE,
   storage_options = NULL,
-  retries = 2,
-  sync_on_close = c("none", "data", "all")
+  retries = 2
 ) {
   wrap({
     check_dots_empty0(...)
-    sync_on_close <- arg_match0(sync_on_close, values = c("none", "data", "all"))
 
     lf <- set_sink_optimizations(
       self,
@@ -65,7 +58,7 @@ lazyframe__sink_ndjson <- function(
     lf$sink_json(
       path = path,
       maintain_order = maintain_order,
-      `_storage_options` = storage_options,
+      storage_options = storage_options,
       retries = retries
     )
 

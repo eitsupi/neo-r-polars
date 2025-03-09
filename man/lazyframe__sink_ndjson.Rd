@@ -17,8 +17,7 @@ lazyframe__sink_ndjson(
   collapse_joins = TRUE,
   no_optimization = FALSE,
   storage_options = NULL,
-  retries = 2,
-  sync_on_close = c("none", "data", "all")
+  retries = 2
 )
 }
 \arguments{
@@ -60,14 +59,6 @@ If \code{storage_options} is not provided, Polars will try to infer the
 information from environment variables.}
 
 \item{retries}{Number of retries if accessing a cloud instance fails.}
-
-\item{sync_on_close}{Sync to disk when before closing a file. This must be
-one of:
-\itemize{
-\item \code{"none"} (default): does not sync;
-\item \code{"data"}: syncs the file contents;
-\item \code{"all"}: syncs the file contents and metadata.
-}}
 }
 \value{
 Invisibly returns the input LazyFrame

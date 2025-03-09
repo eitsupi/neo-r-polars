@@ -2619,8 +2619,8 @@ SEXP savvy_PlRLazyFrame_sink_csv__impl(SEXP self__, SEXP c_arg__path, SEXP c_arg
     return handle_result(res);
 }
 
-SEXP savvy_PlRLazyFrame_sink_json__impl(SEXP self__, SEXP c_arg__path, SEXP c_arg__retries, SEXP c_arg__maintain_order, SEXP c_arg___storage_options) {
-    SEXP res = savvy_PlRLazyFrame_sink_json__ffi(self__, c_arg__path, c_arg__retries, c_arg__maintain_order, c_arg___storage_options);
+SEXP savvy_PlRLazyFrame_sink_json__impl(SEXP self__, SEXP c_arg__path, SEXP c_arg__retries, SEXP c_arg__maintain_order, SEXP c_arg__storage_options) {
+    SEXP res = savvy_PlRLazyFrame_sink_json__ffi(self__, c_arg__path, c_arg__retries, c_arg__maintain_order, c_arg__storage_options);
     return handle_result(res);
 }
 
