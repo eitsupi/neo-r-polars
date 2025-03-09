@@ -1,4 +1,4 @@
-test_that("basic test", {
+test_that("read/scan: basic test", {
   tmpf <- withr::local_tempfile()
   write.csv(iris, tmpf, row.names = FALSE)
   lf <- pl$scan_csv(tmpf)
@@ -17,7 +17,7 @@ test_that("basic test", {
   )
 })
 
-test_that("works with URLs", {
+test_that("read/scan: works with URLs", {
   skip_if_offline()
   # single URL
   out <- pl$read_csv(
@@ -35,7 +35,7 @@ test_that("works with URLs", {
   expect_equal(dim(out), c(62, 6))
 })
 
-test_that("args separator and eol work", {
+test_that("read/scan: args separator and eol work", {
   dat <- iris
   tmpf <- tempfile(fileext = ".csv")
   write.table(dat, tmpf, row.names = FALSE, sep = "|", eol = "#")
@@ -46,7 +46,7 @@ test_that("args separator and eol work", {
   expect_equal(out, as_polars_df(iris))
 })
 
-test_that("args skip_rows and skip_rows_after_header work", {
+test_that("read/scan: args skip_rows and skip_rows_after_header work", {
   dat <- iris
   tmpf <- withr::local_tempfile()
   write.csv(dat, tmpf, row.names = FALSE)
@@ -60,7 +60,7 @@ test_that("args skip_rows and skip_rows_after_header work", {
   expect_named(out, names(iris))
 })
 
-test_that("arg try_parse_date work", {
+test_that("read/scan: arg try_parse_date work", {
   dat <- data.frame(foo = c("2023-10-31", "2023-11-01"))
   tmpf <- withr::local_tempfile()
   write.csv(dat, tmpf, row.names = FALSE)
@@ -72,7 +72,7 @@ test_that("arg try_parse_date work", {
   expect_equal(out$schema, list(foo = pl$Date))
 })
 
-test_that("arg raise_if_empty works", {
+test_that("read/scan: arg raise_if_empty works", {
   tmpf <- withr::local_tempfile()
   writeLines("", tmpf)
 
@@ -81,7 +81,7 @@ test_that("arg raise_if_empty works", {
   expect_equal(dim(out), c(0L, 0L))
 })
 
-test_that("arg glob works", {
+test_that("read/scan: arg glob works", {
   skip_if_not_installed("withr")
   tmpdir <- withr::local_tempdir()
   file1 <- withr::local_tempfile(fileext = ".csv", tmpdir = tmpdir)
@@ -101,7 +101,7 @@ test_that("arg glob works", {
   )
 })
 
-test_that("arg missing_utf8_is_empty_string works", {
+test_that("read/scan: arg missing_utf8_is_empty_string works", {
   tmpf <- withr::local_tempfile()
   writeLines("a,b\n1,a\n2,", tmpf)
 
@@ -118,7 +118,7 @@ test_that("arg missing_utf8_is_empty_string works", {
   )
 })
 
-test_that("arg null_values works", {
+test_that("read/scan: arg null_values works", {
   tmpf <- withr::local_tempfile()
   writeLines("a,b,c\n1.5,a,2\n2,,", tmpf)
 
@@ -154,7 +154,7 @@ test_that("arg null_values works", {
   )
 })
 
-test_that("args row_index_* work", {
+test_that("read/scan: args row_index_* work", {
   dat <- mtcars
   tmpf <- withr::local_tempfile()
   write.csv(dat, tmpf, row.names = FALSE)
@@ -171,7 +171,7 @@ test_that("args row_index_* work", {
   )
 })
 
-test_that("arg encoding works", {
+test_that("read/scan: arg encoding works", {
   dat <- mtcars
   tmpf <- withr::local_tempfile()
   write.csv(dat, tmpf, row.names = FALSE)
@@ -182,7 +182,7 @@ test_that("arg encoding works", {
   )
 })
 
-test_that("multiple files works correctly if same schema", {
+test_that("read/scan: multiple files works correctly if same schema", {
   dat1 <- iris[1:75, ]
   dat2 <- iris[76:150, ]
   tmpf1 <- tempfile()
@@ -194,7 +194,7 @@ test_that("multiple files works correctly if same schema", {
   expect_equal(read, as_polars_df(iris))
 })
 
-test_that("multiple files errors if different schema", {
+test_that("read/scan: multiple files errors if different schema", {
   dat1 <- iris
   dat2 <- mtcars
   tmpf1 <- tempfile()
@@ -208,12 +208,12 @@ test_that("multiple files errors if different schema", {
   )
 })
 
-test_that("bad paths", {
+test_that("read/scan: bad paths", {
   expect_snapshot(pl$read_csv(character()), error = TRUE)
   expect_snapshot(pl$read_csv("some invalid path"), error = TRUE)
 })
 
-test_that("scan_csv can include file path", {
+test_that("read/scan: scan_csv can include file path", {
   skip_if_not_installed("withr")
   temp_file_1 <- withr::local_tempfile()
   temp_file_2 <- withr::local_tempfile()
@@ -228,7 +228,7 @@ test_that("scan_csv can include file path", {
   )
 })
 
-test_that("arg 'schema_overrides' works", {
+test_that("read/scan: arg 'schema_overrides' works", {
   tmpf <- withr::local_tempfile()
   writeLines("a,b,c\n1.5,a,2\n2,,", tmpf)
   expect_equal(
@@ -248,7 +248,7 @@ test_that("arg 'schema_overrides' works", {
   )
 })
 
-test_that("arg 'schema' works", {
+test_that("read/scan: arg 'schema' works", {
   tmpf <- withr::local_tempfile()
   writeLines("a,b,c\n1.5,a,2\n2,,", tmpf)
   expect_equal(
@@ -272,7 +272,7 @@ test_that("arg 'schema' works", {
 })
 
 # TODO: can't check if it actually works
-test_that("arg 'storage_options' throws basic errors", {
+test_that("read/scan: arg 'storage_options' throws basic errors", {
   tmpf <- withr::local_tempfile()
   expect_snapshot(
     pl$read_csv(tmpf, storage_options = 1),
@@ -284,7 +284,7 @@ test_that("arg 'storage_options' throws basic errors", {
   )
 })
 
-test_that("arg 'decimal_comma' works", {
+test_that("read/scan: arg 'decimal_comma' works", {
   tmpf <- withr::local_tempfile()
   writeLines("a|b|c\n1,5|a|2\n2||", tmpf)
   expect_equal(

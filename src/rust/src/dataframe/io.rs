@@ -1,6 +1,7 @@
 use crate::{prelude::*, PlRDataFrame, RPolarsErr};
 use polars::io::RowIndex;
 use savvy::{savvy, NumericScalar, NumericSexp, Result, StringSexp};
+use std::num::NonZeroUsize;
 use std::path::PathBuf;
 
 #[savvy]
@@ -106,7 +107,7 @@ impl PlRDataFrame {
                 data_page_size,
                 maintain_order: true,
             };
-            let out = write_partitioned_dataset(
+            write_partitioned_dataset(
                 &mut self.df,
                 std::path::Path::new(&path),
                 partition_by.into_iter().map(|x| x.into()).collect(),
@@ -115,11 +116,11 @@ impl PlRDataFrame {
                 partition_chunk_size_bytes,
             )
             .map_err(RPolarsErr::from)?;
-            return Ok(out.into());
+            return Ok(());
         };
         let f = std::fs::File::create(path).map_err(RPolarsErr::from)?;
 
-        let out = ParquetWriter::new(f)
+        ParquetWriter::new(f)
             .with_compression(compression)
             .with_statistics(statistics)
             .with_row_group_size(row_group_size)
@@ -128,6 +129,106 @@ impl PlRDataFrame {
             .map(|_| ())
             .map_err(RPolarsErr::from)?;
 
-        Ok(out.into())
+        Ok(())
+    }
+
+    pub fn write_csv(
+        &mut self,
+        path: &str,
+        include_bom: bool,
+        include_header: bool,
+        separator: &str,
+        line_terminator: &str,
+        quote_char: &str,
+        batch_size: NumericScalar,
+        retries: NumericScalar,
+        datetime_format: Option<&str>,
+        date_format: Option<&str>,
+        time_format: Option<&str>,
+        float_scientific: Option<bool>,
+        float_precision: Option<NumericScalar>,
+        null_value: Option<&str>,
+        quote_style: Option<&str>,
+        storage_options: Option<StringSexp>,
+    ) -> Result<()> {
+        let path: PathBuf = path.into();
+        let quote_style = match quote_style {
+            Some(x) => <Wrap<QuoteStyle>>::try_from(x)?.0,
+            None => QuoteStyle::default(),
+        };
+        let retries = <Wrap<usize>>::try_from(retries)?.0;
+        let null_value = null_value
+            .map(|x| x.to_string())
+            .unwrap_or(SerializeOptions::default().null);
+        let batch_size = <Wrap<NonZeroUsize>>::try_from(batch_size)?.0;
+        let float_precision = match float_precision {
+            Some(x) => Some(<Wrap<usize>>::try_from(x)?.0),
+            None => None,
+        };
+        let separator = <Wrap<u8>>::try_from(separator)?.0;
+        let quote_char = <Wrap<u8>>::try_from(quote_char)?.0;
+
+        // TODO: Not used anywhere for now?
+        let cloud_options = match storage_options {
+            Some(x) => {
+                let out = <Wrap<Vec<(String, String)>>>::try_from(x).map_err(|_| {
+                    RPolarsErr::Other(
+                        "`storage_options` must be a named character vector".to_string(),
+                    )
+                })?;
+                Some(out.0)
+            }
+            None => None,
+        };
+        let cloud_options = {
+            let cloud_options =
+                parse_cloud_options(path.to_str().unwrap(), cloud_options.unwrap_or_default())?;
+            Some(cloud_options.with_max_retries(retries))
+        };
+
+        let f = std::fs::File::create(path).map_err(RPolarsErr::from)?;
+
+        CsvWriter::new(f)
+            .include_bom(include_bom)
+            .include_header(include_header)
+            .with_separator(separator)
+            .with_line_terminator(line_terminator.into())
+            .with_quote_char(quote_char)
+            .with_batch_size(batch_size)
+            .with_datetime_format(datetime_format.map(|x| x.into()))
+            .with_date_format(date_format.map(|x| x.into()))
+            .with_time_format(time_format.map(|x| x.into()))
+            .with_float_scientific(float_scientific)
+            .with_float_precision(float_precision)
+            .with_null_value(null_value)
+            .with_quote_style(quote_style)
+            .finish(&mut self.df)
+            .map(|_| ())
+            .map_err(RPolarsErr::from)?;
+
+        Ok(())
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    pub fn write_json(&mut self, path: &str) -> Result<()> {
+        let f = std::fs::File::create(path).map_err(RPolarsErr::from)?;
+
+        JsonWriter::new(f)
+            .with_json_format(JsonFormat::Json)
+            .finish(&mut self.df)
+            .map_err(RPolarsErr::from)?;
+        Ok(())
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    pub fn write_ndjson(&mut self, path: &str) -> Result<()> {
+        let f = std::fs::File::create(path).map_err(RPolarsErr::from)?;
+
+        JsonWriter::new(f)
+            .with_json_format(JsonFormat::JsonLines)
+            .finish(&mut self.df)
+            .map_err(RPolarsErr::from)?;
+
+        Ok(())
     }
 }

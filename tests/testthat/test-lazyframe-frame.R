@@ -762,6 +762,14 @@ test_that("fill_null(): basic usage", {
       b = c(1, 99, 99, 4)
     )
   )
+  expect_query_equal(
+    .input$fill_null(pl$lit(99) + 1),
+    df,
+    pl$DataFrame(
+      a = c(1.5, 2, 100, NaN),
+      b = c(1, 100, 100, 4)
+    )
+  )
 
   # can't pass "value" and "strategy"
   expect_query_error(
@@ -794,6 +802,51 @@ test_that("fill_null(): basic usage", {
     .input$fill_null(99, matches_supertype = FALSE),
     df,
     df
+  )
+})
+
+test_that("fill_null() fills categoricals if fill is character", {
+  df <- pl$DataFrame(
+    num = c(1, 2, NA),
+    str = c("a", "b", NA),
+    cat_lex = c("a", "b", NA),
+    cat_phy = c("a", "b", NA)
+  )$cast(cat_lex = pl$Categorical("lexical"), cat_phy = pl$Categorical("physical"))
+
+  expect_query_equal(
+    .input$fill_null("foobar"),
+    df,
+    pl$DataFrame(
+      num = c(1, 2, NA),
+      str = c("a", "b", "foobar"),
+      cat_lex = c("a", "b", "foobar"),
+      cat_phy = c("a", "b", "foobar")
+    )$cast(cat_lex = pl$Categorical("lexical"), cat_phy = pl$Categorical("physical"))
+  )
+})
+
+test_that("fill_null() works on date/datetime", {
+  df <- pl$DataFrame(
+    dt = as.Date(c("2020-01-01", NA)),
+    dtime = as.POSIXct(c("2020-01-01 00:00:00", NA), tz = "UTC")
+  )
+
+  expect_query_equal(
+    .input$fill_null(as.Date("2020-01-02")),
+    df,
+    pl$DataFrame(
+      dt = as.Date(c("2020-01-01", "2020-01-02")),
+      dtime = as.POSIXct(c("2020-01-01 00:00:00", NA), tz = "UTC")
+    )
+  )
+
+  expect_query_equal(
+    .input$fill_null(as.POSIXct("2020-01-02 00:00:00", tz = "UTC")),
+    df,
+    pl$DataFrame(
+      dt = as.Date(c("2020-01-01", NA)),
+      dtime = as.POSIXct(c("2020-01-01 00:00:00", "2020-01-02 00:00:00"), tz = "UTC")
+    )
   )
 })
 
@@ -1767,7 +1820,7 @@ test_that("rolling: error if period is negative", {
     a = c(3, 7, 5, 9, 2, 1)
   )
   expect_error(
-    df$rolling(index_column = "index", period = "-2i")$agg(pl$col("a"))$collect(),
+    df$rolling(index_column = "index", period = "-2i")$agg(pl$col("a")),
     "rolling window period should be strictly positive"
   )
 })
@@ -1849,231 +1902,348 @@ test_that("rolling: arg 'offset' works", {
   )
 })
 
-test_that("sink_parquet(): basic usage", {
-  lf <- as_polars_lf(mtcars)
-  df <- as_polars_df(mtcars)
-
-  tmpf <- withr::local_tempfile()
-  expect_error(
-    lf$sink_parquet(tmpf, compression = "rar"),
-    "must be one of"
+test_that("with_row_index() works", {
+  df <- pl$DataFrame(x = c(1, 3, 5), y = c(2, 4, 6))
+  expect_query_equal(
+    .input$with_row_index(),
+    .input = df,
+    pl$DataFrame(index = 0:2, x = c(1, 3, 5), y = c(2, 4, 6))$cast(index = pl$UInt32)
   )
-  lf$sink_parquet(tmpf)
-  expect_equal(pl$scan_parquet(tmpf)$collect(), df)
-
-  # return the input data
-  x <- lf$sink_parquet(tmpf)
-  expect_equal(x$collect(), df)
-})
-
-test_that("sink_parquet: argument 'statistics'", {
-  lf <- as_polars_lf(mtcars)
-
-  tmpf <- withr::local_tempfile()
-  expect_silent(lf$sink_parquet(tmpf, statistics = TRUE))
-  expect_silent(lf$sink_parquet(tmpf, statistics = FALSE))
-  expect_silent(lf$sink_parquet(tmpf, statistics = "full"))
-
-  expect_error(
-    lf$sink_parquet(tmpf, statistics = "foo"),
-    "must be TRUE, FALSE, 'full', or"
+  expect_query_equal(
+    .input$with_row_index("id", offset = 1000),
+    .input = df,
+    pl$DataFrame(id = 1000:1002, x = c(1, 3, 5), y = c(2, 4, 6))$cast(id = pl$UInt32)
   )
-  # TODO: uncomment when https://github.com/pola-rs/polars/issues/17306 is fixed
-  # expect_silent(lf$sink_parquet(
-  #   tmpf,
-  #   statistics = list(
-  #     min = TRUE,
-  #     max = FALSE,
-  #     distinct_count = TRUE,
-  #     null_count = FALSE
-  #   )
-  # ))
-  expect_error(
-    lf$sink_parquet(tmpf, statistics = list(foo = TRUE, foo2 = FALSE)),
-    "must be TRUE, FALSE, 'full', or"
+  expect_query_error(
+    .input$with_row_index(offset = -1),
+    .input = df,
+    "cannot be negative"
   )
-  expect_error(
-    lf$sink_parquet(tmpf, statistics = c(max = TRUE, min = FALSE)),
-    "must be TRUE, FALSE, 'full', or"
+  expect_query_error(
+    .input$with_row_index(name = 1),
+    .input = df,
+    "must be character"
   )
 })
 
-test_that("sink_csv works", {
-  lf <- as_polars_lf(mtcars)
-  temp_out <- withr::local_tempfile(fileext = ".csv")
-  lf$sink_csv(temp_out)
-
-  expect_equal(pl$read_csv(temp_out), lf$collect())
-
-  # return the input data
-  x <- lf$sink_csv(temp_out)
-  expect_equal(x$collect(), lf$collect())
-})
-
-test_that("sink_csv: null_value works", {
-  dat <- mtcars
-  dat[c(1, 3, 9, 12), c(3, 4, 5)] <- NA
-  lf <- as_polars_lf(dat)
-  temp_out <- withr::local_tempfile(fileext = ".csv")
-  expect_error(
-    lf$sink_csv(temp_out, null_value = 1),
-    "must be character, not double"
+test_that("group_by_dynamic: date variable", {
+  df <- pl$DataFrame(
+    dt = as.Date(as.Date("2021-12-16"):as.Date("2021-12-22"), origin = "1970-01-01"),
+    n = 0:6
   )
-  lf$sink_csv(temp_out, null_value = "hello")
-  expect_equal(
-    pl$read_csv(temp_out)$select("disp", "hp")$slice(offset = 0, length = 1),
-    pl$DataFrame(disp = "hello", hp = "hello")
-  )
-})
 
-test_that("sink_csv: separator works", {
-  lf <- as_polars_lf(mtcars)
-  temp_out <- withr::local_tempfile(fileext = ".csv")
-
-  lf$sink_csv(temp_out, separator = "|")
-  expect_equal(
-    pl$read_csv(temp_out, separator = "|"),
-    lf$collect()
-  )
-  expect_error(
-    lf$sink_csv(temp_out, separator = "£"),
-    "`separator` = '£' should be a single byte character"
-  )
-})
-
-test_that("sink_csv: quote_style and quote works", {
-  lf <- as_polars_lf(head(iris))
-  temp_out <- withr::local_tempfile(fileext = ".csv")
-
-  expect_error(
-    lf$sink_csv(temp_out, quote_style = "foo"),
-    "must be one of"
-  )
-  expect_error(
-    lf$sink_csv(temp_out, quote_style = 42),
-    "must be a string or character vector"
-  )
-  expect_error(
-    lf$sink_csv(temp_out, quote_char = "£"),
-    "`quote_char` = '£' should be a single byte character"
-  )
-  expect_error(
-    lf$sink_csv(temp_out, quote_char = ""),
-    "`quote_char` = '' should be a single byte character"
-  )
-  expect_error(
-    lf$sink_csv(temp_out, quote_char = c("a", "b")),
-    "`quote_char` should be a single byte character"
-  )
-})
-
-patrick::with_parameters_test_that(
-  "sink_csv: quote_style",
-  {
-    temp_out <- withr::local_tempfile(fileext = ".csv")
-    df <- pl$LazyFrame(
-      a = c(r"("foo")"),
-      b = 1,
-      c = letters[1]
-    )$sink_csv(temp_out, quote_style = quote_style)
-    expect_snapshot(readLines(temp_out))
-  },
-  quote_style = c("necessary", "always", "non_numeric", "never")
-)
-
-test_that("sink_csv: date_format works", {
-  dat <- pl$select(
-    date = pl$date_range(
-      as.Date("2020-01-01"),
-      as.Date("2023-01-02"),
-      interval = "1y"
-    )
-  )$lazy()
-  temp_out <- withr::local_tempfile(fileext = ".csv")
-  dat$sink_csv(temp_out, date_format = "%Y")
-
-  expect_equal(
-    pl$read_csv(temp_out)$with_columns(pl$col("date"))$sort("date")$cast(pl$Int32),
-    pl$DataFrame(date = 2020:2023)
-  )
-  dat$sink_csv(temp_out, date_format = "%d/%m/%Y")
-  expect_equal(
-    pl$read_csv(temp_out)$sort("date"),
-    pl$DataFrame(date = paste0("01/01/", 2020:2023))
-  )
-})
-
-test_that("sink_csv: datetime_format works", {
-  dat <- pl$select(
-    date = pl$datetime_range(
-      as.Date("2020-01-01"),
-      as.Date("2020-01-02"),
-      interval = "6h"
-    )
-  )$lazy()
-  temp_out <- withr::local_tempfile(fileext = ".csv")
-  dat$sink_csv(temp_out, datetime_format = "%Hh%Mm - %d/%m/%Y")
-
-  expect_equal(
-    pl$read_csv(temp_out)$sort("date"),
+  expect_query_equal(
+    .input$group_by_dynamic(index_column = "dt", every = "2d")$agg(
+      pl$col("n")$mean()
+    ),
+    .input = df,
     pl$DataFrame(
-      date = c(
-        "00h00m - 01/01/2020",
-        "00h00m - 02/01/2020",
-        paste0(c("06", "12", "18"), "h00m - 01/01/2020")
-      )
+      dt = as.Date(c("2021-12-15", "2021-12-17", "2021-12-19", "2021-12-21")),
+      n = c(0, 1.5, 3.5, 5.5)
     )
   )
 })
 
-test_that("sink_csv: time_format works", {
-  dat <- pl$select(
-    date = pl$datetime_range(
-      as.Date("2020-10-17"),
-      as.Date("2020-10-18"),
-      "8h"
+test_that("group_by_dynamic: datetime variable", {
+  df <- pl$DataFrame(
+    dt = c(
+      "2021-12-16 00:00:00",
+      "2021-12-16 00:30:00",
+      "2021-12-16 01:00:00",
+      "2021-12-16 01:30:00",
+      "2021-12-16 02:00:00",
+      "2021-12-16 02:30:00",
+      "2021-12-16 03:00:00"
+    ),
+    n = 0:6
+  )$with_columns(
+    pl$col("dt")$str$strptime(pl$Datetime("ms"), format = NULL)
+  )
+
+  expect_query_equal(
+    .input$group_by_dynamic(index_column = "dt", every = "1h")$agg(
+      pl$col("n")$mean()
+    ),
+    .input = df,
+    pl$DataFrame(
+      dt = c(
+        "2021-12-16 00:00:00",
+        "2021-12-16 01:00:00",
+        "2021-12-16 02:00:00",
+        "2021-12-16 03:00:00"
+      ),
+      n = c(0.5, 2.5, 4.5, 6)
+    )$with_columns(
+      pl$col("dt")$str$strptime(pl$Datetime("ms"), format = NULL)
     )
-  )$with_columns(pl$col("date")$dt$time())$lazy()
-  temp_out <- withr::local_tempfile(fileext = ".csv")
-  dat$sink_csv(temp_out, time_format = "%Hh%Mm%Ss")
-
-  expect_equal(
-    pl$read_csv(temp_out)$sort("date"),
-    pl$DataFrame(date = paste0(c("00", "00", "08", "16"), "h00m00s"))
   )
 })
 
-test_that("sink_csv: float_precision works", {
-  dat <- pl$LazyFrame(x = c(1.234, 5.6))
-  temp_out <- withr::local_tempfile(fileext = ".csv")
-  dat$sink_csv(temp_out, float_precision = 1)
+test_that("group_by_dynamic: integer variable", {
+  df <- pl$DataFrame(idx = 0:5, n = 0:5)
 
-  expect_equal(
-    pl$read_csv(temp_out)$sort("x"),
-    pl$DataFrame(x = c(1.2, 5.6))
-  )
-
-  dat$sink_csv(temp_out, float_precision = 3)
-  expect_equal(
-    pl$read_csv(temp_out)$sort("x"),
-    pl$DataFrame(x = c(1.234, 5.600))
+  expect_query_equal(
+    .input$group_by_dynamic("idx", every = "2i")$agg(pl$col("n")$mean()),
+    .input = df,
+    pl$DataFrame(
+      idx = c(0L, 2L, 4L),
+      n = c(0.5, 2.5, 4.5)
+    )
   )
 })
 
-test_that("sink_csv: float_scientific works", {
-  dat <- pl$LazyFrame(x = c(1e7, 5.6))
-  temp_out <- withr::local_tempfile(fileext = ".csv")
-  dat$sink_csv(temp_out, float_scientific = FALSE)
-  # cannot use read.csv() since it already formats as scientific
-  expect_equal(
-    readLines(temp_out),
-    c("x", "10000000", "5.6")
+test_that("group_by_dynamic: error if every is negative", {
+  df <- pl$DataFrame(idx = 0:5, n = 0:5)
+
+  expect_error(
+    df$group_by_dynamic("idx", every = "-2i")$agg(pl$col("n")$mean()),
+    "'every' argument must be positive"
+  )
+})
+
+test_that("group_by_dynamic: arg 'closed' works", {
+  df <- pl$DataFrame(
+    dt = c(
+      "2021-12-16 00:00:00",
+      "2021-12-16 00:30:00",
+      "2021-12-16 01:00:00",
+      "2021-12-16 01:30:00",
+      "2021-12-16 02:00:00",
+      "2021-12-16 02:30:00",
+      "2021-12-16 03:00:00"
+    ),
+    n = 0:6
+  )$with_columns(
+    pl$col("dt")$str$strptime(pl$Datetime("ms"), format = NULL)
   )
 
-  dat$sink_csv(temp_out, float_scientific = TRUE)
-  expect_equal(
-    readLines(temp_out),
-    c("x", "1e7", "5.6e0")
+  expect_query_equal(
+    .input$group_by_dynamic(index_column = "dt", closed = "right", every = "1h")$agg(pl$col(
+      "n"
+    )$mean()),
+    .input = df,
+    pl$DataFrame(
+      dt = c(
+        "2021-12-15 23:00:00",
+        "2021-12-16 00:00:00",
+        "2021-12-16 01:00:00",
+        "2021-12-16 02:00:00"
+      ),
+      n = c(0, 1.5, 3.5, 5.5)
+    )$with_columns(
+      pl$col("dt")$str$strptime(pl$Datetime("ms"), format = NULL)
+    )
+  )
+
+  expect_error(
+    df$group_by_dynamic(index_column = "dt", closed = "foobar", every = "1h")$agg(pl$col(
+      "n"
+    )$mean()),
+    "must be one of"
+  )
+})
+
+test_that("group_by_dynamic: arg 'label' works", {
+  df <- pl$DataFrame(
+    dt = c(
+      "2021-12-16 00:00:00",
+      "2021-12-16 00:30:00",
+      "2021-12-16 01:00:00",
+      "2021-12-16 01:30:00",
+      "2021-12-16 02:00:00",
+      "2021-12-16 02:30:00",
+      "2021-12-16 03:00:00"
+    ),
+    n = 0:6
+  )$with_columns(
+    pl$col("dt")$str$strptime(pl$Datetime("ms"), format = NULL)$dt$replace_time_zone("UTC")
+  )
+
+  expect_query_equal(
+    .input$group_by_dynamic(index_column = "dt", label = "right", every = "1h")$agg(
+      pl$col("n")$mean()
+    ),
+    .input = df,
+    pl$DataFrame(
+      dt = as.POSIXct(
+        c(
+          "2021-12-16 01:00:00",
+          "2021-12-16 02:00:00",
+          "2021-12-16 03:00:00",
+          "2021-12-16 04:00:00"
+        ),
+        tz = "UTC"
+      ),
+      n = c(0.5, 2.5, 4.5, 6)
+    )
+  )
+
+  expect_error(
+    df$group_by_dynamic(index_column = "dt", label = "foobar", every = "1h")$agg(
+      pl$col("n")$mean()
+    ),
+    "must be one of"
+  )
+})
+
+test_that("group_by_dynamic: arg 'start_by' works", {
+  df <- pl$DataFrame(
+    dt = as.Date(as.Date("2021-12-16"):as.Date("2021-12-22"), origin = "1970-01-01"),
+    n = 0:6
+  )
+
+  # 2021-12-16 is a Thursday so previous Monday is 2021-12-13 and next one is
+  # 2021-12-20
+  expect_query_equal(
+    .input$group_by_dynamic(index_column = "dt", start_by = "monday", every = "1w")$agg(pl$col(
+      "n"
+    )),
+    .input = df,
+    pl$DataFrame(
+      dt = as.Date(c("2021-12-13", "2021-12-20")),
+      n = list(0:3, 4:6)
+    )
+  )
+
+  expect_error(
+    df$group_by_dynamic(index_column = "dt", start_by = "foobar", every = "1h")$agg(
+      pl$col("n")$mean()
+    ),
+    "must be one of"
+  )
+})
+
+test_that("group_by_dynamic: argument 'by' works", {
+  df <- pl$DataFrame(
+    dt = c(
+      "2021-12-16 00:00:00",
+      "2021-12-16 00:30:00",
+      "2021-12-16 01:00:00",
+      "2021-12-16 01:30:00",
+      "2021-12-16 02:00:00",
+      "2021-12-16 02:30:00",
+      "2021-12-16 03:00:00"
+    ),
+    n = 0:6,
+    grp = c("a", "a", "a", "b", "b", "a", "a")
+  )$with_columns(
+    pl$col("dt")$str$strptime(pl$Datetime("ms"), format = NULL)
+  )
+
+  expect_query_equal(
+    .input$group_by_dynamic(index_column = "dt", every = "2h", group_by = pl$col("grp"))$agg(
+      pl$col("n")$mean()
+    ),
+    .input = df,
+    pl$DataFrame(
+      grp = c("a", "a", "b", "b"),
+      dt = as.POSIXct(
+        c(
+          "2021-12-16 00:00:00",
+          "2021-12-16 02:00:00",
+          "2021-12-16 00:00:00",
+          "2021-12-16 02:00:00"
+        )
+      ),
+      n = c(1, 5.5, 3, 4)
+    )
+  )
+
+  # string is parsed as column name in "by"
+  expect_query_equal(
+    .input$group_by_dynamic(index_column = "dt", every = "2h", group_by = "grp")$agg(
+      pl$col("n")$mean()
+    ),
+    .input = df,
+    pl$DataFrame(
+      grp = c("a", "a", "b", "b"),
+      dt = as.POSIXct(
+        c(
+          "2021-12-16 00:00:00",
+          "2021-12-16 02:00:00",
+          "2021-12-16 00:00:00",
+          "2021-12-16 02:00:00"
+        )
+      ),
+      n = c(1, 5.5, 3, 4)
+    )
+  )
+})
+
+test_that("group_by_dynamic: error if index not int or date/time", {
+  df <- pl$DataFrame(
+    index = c(1:5, 6.0),
+    a = c(3, 7, 5, 9, 2, 1)
+  )
+
+  expect_error(
+    df$group_by_dynamic(index_column = "index", every = "2i")$agg(
+      pl$sum("a")$alias("sum_a")
+    ),
+    "unsupported data type"
+  )
+})
+
+test_that("group_by_dynamic: arg 'offset' works", {
+  df <- pl$DataFrame(
+    dt = c(
+      "2020-01-01",
+      "2020-01-01",
+      "2020-01-01",
+      "2020-01-02",
+      "2020-01-03",
+      "2020-01-08"
+    ),
+    n = c(3, 10, 5, 9, 2, 1)
+  )$with_columns(
+    pl$col("dt")$str$strptime(pl$Date, format = NULL)
+  )
+
+  expect_query_equal(
+    .input$group_by_dynamic(index_column = "dt", every = "2d", offset = "1d")$agg(
+      pl$col("n")$mean()
+    ),
+    .input = df,
+    pl$DataFrame(
+      dt = as.Date(c("2019-12-31", "2020-01-02", "2020-01-08")),
+      n = c(6, 5.5, 1)
+    )
+  )
+})
+
+test_that("group_by_dynamic: arg 'include_boundaries' works", {
+  df <- pl$DataFrame(
+    dt = c(
+      "2020-01-01",
+      "2020-01-01",
+      "2020-01-01",
+      "2020-01-02",
+      "2020-01-03",
+      "2020-01-08"
+    ),
+    n = c(3, 7, 5, 9, 2, 1)
+  )$with_columns(
+    pl$col("dt")$str$strptime(pl$Date, format = NULL)
+  )
+
+  expect_query_equal(
+    .input$group_by_dynamic(
+      index_column = "dt",
+      every = "2d",
+      offset = "1d",
+      include_boundaries = TRUE
+    )$agg(pl$col("n")),
+    .input = df,
+    pl$DataFrame(
+      `_lower_boundary` = as.POSIXct(
+        c("2019-12-31 00:00:00", "2020-01-02 00:00:00", "2020-01-08 00:00:00")
+      ),
+      `_upper_boundary` = as.POSIXct(
+        c("2020-01-02 00:00:00", "2020-01-04 00:00:00", "2020-01-10 00:00:00")
+      ),
+      dt = as.Date(c("2019-12-31", "2020-01-02", "2020-01-08")),
+      n = list(c(3, 7, 5), c(9, 2), 1)
+    )
   )
 })
 

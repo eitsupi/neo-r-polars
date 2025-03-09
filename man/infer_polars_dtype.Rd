@@ -2,6 +2,8 @@
 % Please edit documentation in R/infer_polars_dtype.R
 \name{infer_polars_dtype}
 \alias{infer_polars_dtype}
+\alias{is_convertible_to_polars_series}
+\alias{is_convertible_to_polars_expr}
 \alias{infer_polars_dtype.default}
 \alias{infer_polars_dtype.polars_series}
 \alias{infer_polars_dtype.polars_data_frame}
@@ -10,10 +12,18 @@
 \alias{infer_polars_dtype.list}
 \alias{infer_polars_dtype.AsIs}
 \alias{infer_polars_dtype.data.frame}
+\alias{infer_polars_dtype.nanoarrow_array_stream}
+\alias{infer_polars_dtype.nanoarrow_array}
+\alias{infer_polars_dtype.RecordBatchReader}
+\alias{infer_polars_dtype.ArrowTabular}
 \alias{infer_polars_dtype.vctrs_vctr}
 \title{Infer Polars DataType corresponding to a given R object}
 \usage{
 infer_polars_dtype(x, ...)
+
+is_convertible_to_polars_series(x, ...)
+
+is_convertible_to_polars_expr(x, ...)
 
 \method{infer_polars_dtype}{default}(x, ...)
 
@@ -25,11 +35,19 @@ infer_polars_dtype(x, ...)
 
 \method{infer_polars_dtype}{`NULL`}(x, ...)
 
-\method{infer_polars_dtype}{list}(x, ..., strict = FALSE)
+\method{infer_polars_dtype}{list}(x, ..., strict = FALSE, infer_dtype_length = 10L)
 
 \method{infer_polars_dtype}{AsIs}(x, ...)
 
 \method{infer_polars_dtype}{data.frame}(x, ...)
+
+\method{infer_polars_dtype}{nanoarrow_array_stream}(x, ...)
+
+\method{infer_polars_dtype}{nanoarrow_array}(x, ...)
+
+\method{infer_polars_dtype}{RecordBatchReader}(x, ...)
+
+\method{infer_polars_dtype}{ArrowTabular}(x, ...)
 
 \method{infer_polars_dtype}{vctrs_vctr}(x, ...)
 }
@@ -43,19 +61,30 @@ the input \link{list}'s elements have different data types.
 If \code{FALSE} (default), all elements are automatically cast to the super type, or,
 casting to the super type is failed, the value will be \code{null}.
 If \code{TRUE}, the first non-\code{NULL} element's data type is used as the data type of the inner Series.}
+
+\item{infer_dtype_length}{The number of non-\code{NULL} elements to use for type inference.
+Must be a single positive integer-ish value. The default is \code{10}.
+If you want to infer the type of the entire list, set this to \code{Inf},
+but be aware that it may be slow.}
 }
 \value{
 A \link[=DataType]{polars DataType}
 }
 \description{
-This function is a helper function used to quickly find the \link{DataType} corresponding to an R object.
+\code{\link[=infer_polars_dtype]{infer_polars_dtype()}} is a helper function used to quickly find the \link{DataType} corresponding to an R object,
+in order words, it infers the type of the Polars \link{Series} that would be constructed from the object.
 In many cases, this function simply performs something like \code{head(x, 0) |> as_polars_series()}.
 It is much faster than actually constructing a \link{Series} using the entire object.
 This function is similar to \code{\link[nanoarrow:as_nanoarrow_schema]{nanoarrow::infer_nanoarrow_schema()}}.
+
+\code{\link[=is_convertible_to_polars_series]{is_convertible_to_polars_series()}} and \code{\link[=is_convertible_to_polars_expr]{is_convertible_to_polars_expr()}} are helper functions
+that check if the object can be converted to a \link{Series} or \link{Expr} respectively.
+These functions call \code{\link[=infer_polars_dtype]{infer_polars_dtype()}} internally and return \code{TRUE} if the type can be inferred without error.
+(Or, that object is already a Polars \link{Expr} for \code{\link[=is_convertible_to_polars_expr]{is_convertible_to_polars_expr()}}.)
 }
 \details{
-S3 objects based on atomic vectors or classes built on the vctrs package will work accurately
-if the S3 method of the \code{\link[=as_polars_series]{as_polars_series()}} function is defined.
+S3 objects based on atomic vectors or classes built on \link[vctrs:vctrs-package]{the vctrs package}
+will work accurately if the S3 method of the \code{\link[=as_polars_series]{as_polars_series()}} function is defined.
 }
 \examples{
 infer_polars_dtype(1:10)
@@ -63,9 +92,35 @@ infer_polars_dtype(1:10)
 # The type inference is also fast for objects
 # that would take a long time to construct a Series.
 infer_polars_dtype(1:100000000)
+
+# For lists, it is not possible to infer the type
+# without inspecting all elements.
+# However, this function can be configured to inspect only a few elements
+# via the `infer_dtype_length` argument.
+# If a sufficient length is specified, the correct type can be inferred.
+# (By default, the length is set to 10.)
+mixed_list <- list(1, NULL, "foo")
+infer_polars_dtype(mixed_list)
+infer_polars_dtype(mixed_list, infer_dtype_length = 2)
+
+# But if the length is too short, an incorrect type may be inferred.
+infer_polars_dtype(mixed_list, infer_dtype_length = 1)
+
+# is_convertible_to_polars_* functions are useful for checking if
+# the object can be converted to a Series or Expr quickly.
+try(infer_polars_dtype(1i))
+is_convertible_to_polars_series(1i)
+is_convertible_to_polars_expr(1i)
+
+# For polars Expr objects, infer_polars_dtype() will raise an error
+# because Expr can't be converted to a Series by `as_polars_series()`.
+try(infer_polars_dtype(pl$lit(1)))
+is_convertible_to_polars_series(pl$lit(1))
+is_convertible_to_polars_expr(pl$lit(1))
 }
 \seealso{
 \itemize{
 \item \code{\link[=as_polars_series]{as_polars_series()}}
+\item \link{check_polars}: Functions to check if the object is a polars object.
 }
 }

@@ -35,12 +35,6 @@ wrap.PlRLazyFrame <- function(x, ...) {
   self <- new.env(parent = emptyenv())
   self$`_ldf` <- x
 
-  lapply(names(polars_lazyframe__methods), function(name) {
-    fn <- polars_lazyframe__methods[[name]]
-    environment(fn) <- environment()
-    assign(name, fn, envir = self)
-  })
-
   class(self) <- c("polars_lazy_frame", "polars_object")
   self
 }
@@ -503,8 +497,8 @@ lazyframe__collect_schema <- function() {
 #' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Either a datatype to which
 #' all columns will be cast, or a list where the names are column names and the
 #' values are the datatypes to convert to.
-#' @param strict If `TRUE` (default), throw an error if a cast could not be done
-#' (for instance, due to an overflow). Otherwise, return `null`.
+#' @param .strict If `TRUE` (default), throw an error if a cast could not be
+#' done (for instance, due to an overflow). Otherwise, return `null`.
 #'
 #' @return A LazyFrame
 #'
@@ -999,50 +993,36 @@ lazyframe__fill_null <- function(
   matches_supertype = TRUE
 ) {
   wrap({
-    # Can't use check_exclusive() because it errors when we call this from the
-    # eager method.
-    if (!missing(value) && !missing(strategy) && !is.null(value) && !is.null(strategy)) {
-      abort("Exactly one of `value` or `strategy` must be supplied.")
-    }
+    check_exclusive_or_null(value, strategy)
     check_dots_empty0(...)
     if (!missing(value) && !is.null(value)) {
       if (is_polars_expr(value)) {
         dtypes <- NULL
-      } else if (is.logical(value)) {
-        dtypes <- pl$Boolean
-      } else if (isTRUE(matches_supertype) && is.numeric(value)) {
-        dtypes <- c(
-          pl$Int8,
-          pl$Int16,
-          pl$Int32,
-          pl$Int64,
-          pl$Int128,
-          pl$UInt8,
-          pl$UInt16,
-          pl$UInt32,
-          pl$UInt64,
-          pl$Float32,
-          pl$Float64,
-          pl$Decimal()
-        )
-      } else if (is.integer(value)) {
-        dtypes <- pl$Int64
-      } else if (is.double(value)) {
-        dtypes <- pl$Float64
-      } else if (inherits(value, "POSIXct")) {
-        abort("TODO")
-      } else if (is(x, "Duration")) {
-        abort("TODO")
-      } else if (is.Date(value)) {
-        dtypes <- pl$Date
-      } else if (is.character(value)) {
-        dtypes <- c(pl$String, pl$Categorical("physical"), pl$Categorical("lexical"))
       } else {
-        dtypes <- NULL
+        dtype <- infer_polars_dtype(value)
+        if (dtype$is_numeric() && isTRUE(matches_supertype)) {
+          dtypes <- c(
+            pl$Int8,
+            pl$Int16,
+            pl$Int32,
+            pl$Int64,
+            pl$Int128,
+            pl$UInt8,
+            pl$UInt16,
+            pl$UInt32,
+            pl$UInt64,
+            pl$Float32,
+            pl$Float64,
+            pl$Decimal()
+          )
+        } else if (inherits(dtype, "polars_dtype_string")) {
+          dtypes <- c(pl$String, pl$Categorical("physical"), pl$Categorical("lexical"))
+        } else {
+          dtypes <- dtype
+        }
       }
-      # TODO: time datatype
 
-      if (!is_list_of_polars_dtype(dtypes)) {
+      if (is_polars_dtype(dtypes)) {
         dtypes <- list(dtypes)
       }
 
@@ -1748,6 +1728,8 @@ lazyframe__rolling <- function(
 #' * `"datapoint"`: the first value of the index column in the given window. If
 #' you don’t need the label to be at one of the boundaries, choose this option
 #' for maximum performance.
+#' @param group_by Also group by this column/these columns. Can be expressions
+#' or objects coercible to expressions.
 #' @param start_by The strategy to determine the start of the first window by:
 #' * `"window"`: start by taking the earliest timestamp, truncating it with
 #'   `every`, and then adding `offset`. Note that weekly windows start on
@@ -1777,7 +1759,8 @@ lazyframe__rolling <- function(
 #' - 1i # length 1
 #' - 10i # length 10
 #'
-#' @return A [LazyGroupBy][LazyGroupBy_class] object
+# TODO: Add LazyGroupBy docs
+#' @return A [LazyGroupBy] object
 #' @seealso
 #' - [`<LazyFrame>$rolling()`][lazyframe__rolling]
 #'
@@ -1853,13 +1836,14 @@ lazyframe__group_by_dynamic <- function(
   offset = NULL,
   include_boundaries = FALSE,
   closed = c("left", "right", "both", "none"),
-  label = "left",
+  label = c("left", "right", "datapoint"),
   group_by = NULL,
   start_by = "window"
 ) {
   wrap({
     check_dots_empty0(...)
     closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
+    label <- arg_match0(label, values = c("left", "right", "datapoint"))
     start_by <- arg_match0(
       start_by,
       values = c(
@@ -1877,7 +1861,11 @@ lazyframe__group_by_dynamic <- function(
     every <- parse_as_duration_string(every)
     offset <- parse_as_duration_string(offset) %||% "0ns"
     period <- parse_as_duration_string(period) %||% every
-    group_by <- parse_into_list_of_expressions(!!!group_by)
+    group_by <- if (is_polars_expr(group_by)) {
+      list(group_by$`_rexpr`)
+    } else {
+      parse_into_list_of_expressions(!!!group_by)
+    }
 
     self$`_ldf`$group_by_dynamic(
       as_polars_expr(index_column)$`_rexpr`,
@@ -2176,8 +2164,25 @@ lazyframe__set_sorted <- function(column, ..., descending = FALSE) {
 #'   index = pl$int_range(pl$len(), dtype = pl$UInt32)
 #' )$collect()
 lazyframe__with_row_index <- function(name = "index", offset = 0) {
-  self$`_ldf`$with_row_index(name, offset) |>
-    wrap()
+  wrap({
+    tryCatch(
+      self$`_ldf`$with_row_index(name, offset),
+      error = function(e) {
+        is_overflow_error <- grepl("out of range", e$message)
+        if (isTRUE(is_overflow_error)) {
+          issue <- if (offset < 0) {
+            "negative"
+          } else {
+            "greater than the maximum index value"
+          }
+          msg <- paste0("`offset` input for `with_row_index` cannot be ", issue, ", got ", offset)
+        } else {
+          msg <- e$message
+        }
+        abort(msg, call = caller_env(4))
+      }
+    )
+  })
 }
 
 #' Perform joins on nearest keys
@@ -2353,260 +2358,6 @@ lazyframe__join_asof <- function(
       allow_eq = allow_exact_matches,
       check_sortedness = check_sortedness
     )
-  })
-}
-
-#' Evaluate the query in streaming mode and write to a Parquet file
-#'
-#' @description
-#' `r lifecycle::badge("experimental")`
-#'
-#' This allows streaming results that are larger than RAM to be written to disk.
-#'
-#' @inheritParams rlang::check_dots_empty0
-#' @param path A character. File path to which the file should be written.
-#' @param compression The compression method. Must be one of:
-#' * `"lz4"`: fast compression/decompression.
-#' * `"uncompressed"`
-#' * `"snappy"`: this guarantees that the parquet file will be compatible with
-#'   older parquet readers.
-#' * `"gzip"`
-#' * `"lzo"`
-#' * `"brotli"`
-#' * `"zstd"`: good compression performance.
-#' @param compression_level `NULL` or integer. The level of compression to use.
-#'  Only used if method is one of `"gzip"`, `"brotli"`, or `"zstd"`. Higher
-#' compression means smaller files on disk:
-#'  * `"gzip"`: min-level: 0, max-level: 10.
-#'  * `"brotli"`: min-level: 0, max-level: 11.
-#'  * `"zstd"`: min-level: 1, max-level: 22.
-#' @param statistics Whether statistics should be written to the Parquet
-#' headers. Possible values:
-#' * `TRUE`: enable default set of statistics (default). Some statistics may be
-#'   disabled.
-#' * `FALSE`: disable all statistics
-#' * `"full"`: calculate and write all available statistics
-#' * A list created via [parquet_statistics()] to specify which statistics to
-#'   include.
-#' @param row_group_size Size of the row groups in number of rows. If `NULL`
-#' (default), the chunks of the DataFrame are used. Writing in smaller chunks
-#' may reduce memory pressure and improve writing speeds.
-#' @param data_page_size Size of the data page in bytes. If `NULL` (default), it
-#' is set to 1024^2 bytes.
-#' @param maintain_order Maintain the order in which data is processed. Setting
-#' this to `FALSE` will be slightly faster.
-#' @inheritParams lazyframe__collect
-#' @inheritParams pl__scan_parquet
-#'
-#' @return Invisibly returns the input LazyFrame
-#'
-#' @examples
-#' # sink table 'mtcars' from mem to parquet
-#' tmpf <- tempfile()
-#' as_polars_lf(mtcars)$sink_parquet(tmpf)
-#'
-#' # stream a query end-to-end
-#' tmpf2 <- tempfile()
-#' pl$scan_parquet(tmpf)$select(pl$col("cyl") * 2)$sink_parquet(tmpf2)
-#'
-#' # load parquet directly into a DataFrame / memory
-#' pl$scan_parquet(tmpf2)$collect()
-lazyframe__sink_parquet <- function(
-  path,
-  ...,
-  compression = c("lz4", "uncompressed", "snappy", "gzip", "lzo", "brotli", "zstd"),
-  compression_level = NULL,
-  statistics = TRUE,
-  row_group_size = NULL,
-  data_page_size = NULL,
-  maintain_order = TRUE,
-  type_coercion = TRUE,
-  `_type_check` = TRUE,
-  predicate_pushdown = TRUE,
-  projection_pushdown = TRUE,
-  simplify_expression = TRUE,
-  slice_pushdown = TRUE,
-  collapse_joins = TRUE,
-  no_optimization = FALSE,
-  storage_options = NULL,
-  retries = 2
-) {
-  wrap({
-    check_dots_empty0(...)
-    compression <- arg_match0(
-      compression,
-      values = c("lz4", "uncompressed", "snappy", "gzip", "lzo", "brotli", "zstd")
-    )
-    lf <- set_sink_optimizations(
-      self,
-      type_coercion = type_coercion,
-      `_type_check` = `_type_check`,
-      predicate_pushdown = predicate_pushdown,
-      projection_pushdown = projection_pushdown,
-      simplify_expression = simplify_expression,
-      slice_pushdown = slice_pushdown,
-      collapse_joins = collapse_joins,
-      no_optimization = no_optimization
-    )
-    if (is_bool(statistics)) {
-      statistics <- parquet_statistics(
-        min = statistics,
-        max = statistics,
-        distinct_count = FALSE,
-        null_count = statistics
-      )
-    } else if (identical(statistics, "full")) {
-      statistics <- parquet_statistics(
-        min = TRUE,
-        max = TRUE,
-        distinct_count = TRUE,
-        null_count = TRUE
-      )
-    }
-    if (!inherits(statistics, "polars_parquet_statistics")) {
-      abort("`statistics` must be TRUE, FALSE, 'full', or a call to `parquet_statistics()`.")
-    }
-
-    lf$sink_parquet(
-      path = path,
-      compression = compression,
-      compression_level = compression_level,
-      stat_min = statistics[["min"]],
-      stat_max = statistics[["max"]],
-      stat_null_count = statistics[["null_count"]],
-      stat_distinct_count = statistics[["distinct_count"]],
-      row_group_size = row_group_size,
-      data_page_size = data_page_size,
-      maintain_order = maintain_order,
-      storage_options = storage_options,
-      retries = retries
-    )
-
-    invisible(self)
-  })
-}
-
-#' Evaluate the query in streaming mode and write to a CSV file
-#'
-#' @inherit lazyframe__sink_parquet description params return
-#' @inheritParams rlang::args_dots_empty
-#' @param include_bom Logical, whether to include UTF-8 BOM in the CSV output.
-#' @param include_header Logical, whether to include header in the CSV output.
-#' @param separator Separate CSV fields with this symbol.
-#' @param line_terminator String used to end each row.
-#' @param quote_char Byte to use as quoting character.
-#' @param batch_size Number of rows that will be processed per thread.
-#' @param datetime_format A format string, with the specifiers defined by the
-#' [chrono](https://docs.rs/chrono/latest/chrono/format/strftime/index.html)
-#' Rust crate. If no format specified, the default fractional-second precision
-#' is inferred from the maximum timeunit found in the frame’s Datetime cols (if
-#' any).
-#' @param date_format A format string, with the specifiers defined by the
-#' [chrono](https://docs.rs/chrono/latest/chrono/format/strftime/index.html)
-#' Rust crate.
-#' @param time_format A format string, with the specifiers defined by the
-#' [chrono](https://docs.rs/chrono/latest/chrono/format/strftime/index.html)
-#' Rust crate.
-#' @param float_scientific Whether to use scientific form always (`TRUE`),
-#' never (`FALSE`), or automatically (`NULL`) for Float32 and Float64 datatypes.
-#' @param float_precision Number of decimal places to write, applied to both
-#' Float32 and Float64 datatypes.
-#' @param null_value A string representing null values (defaulting to the empty
-#' string).
-#' @param quote_style Determines the quoting strategy used. Must be one of:
-#' * `"necessary"` (default): This puts quotes around fields only when
-#'   necessary. They are necessary when fields contain a quote, delimiter or
-#'   record terminator. Quotes are also necessary when writing an empty record
-#'   (which is indistinguishable from a record with one empty field). This is
-#'   the default.
-#' * `"always"`: This puts quotes around every field. Always.
-#' * `"never"`: This never puts quotes around fields, even if that results in
-#'   invalid CSV data (e.g.: by not quoting strings containing the separator).
-#' * `"non_numeric"`: This puts quotes around all fields that are non-numeric.
-#'   Namely, when writing a field that does not parse as a valid float or
-#'   integer, then quotes will be used even if they aren`t strictly necessary.
-#'
-#' @examples
-#' # sink table 'mtcars' from mem to CSV
-#' tmpf <- tempfile()
-#' pl$LazyFrame(mtcars)$sink_csv(tmpf)
-#'
-#' # stream a query end-to-end
-#' tmpf2 <- tempfile()
-#' pl$scan_csv(tmpf)$select(pl$col("cyl") * 2)$sink_csv(tmpf2)
-#'
-#' # load parquet directly into a DataFrame / memory
-#' pl$scan_csv(tmpf2)$collect()
-lazyframe__sink_csv <- function(
-  path,
-  ...,
-  include_bom = FALSE,
-  include_header = TRUE,
-  separator = ",",
-  line_terminator = "\n",
-  quote_char = '"',
-  batch_size = 1024,
-  datetime_format = NULL,
-  date_format = NULL,
-  time_format = NULL,
-  float_scientific = NULL,
-  float_precision = NULL,
-  null_value = "",
-  quote_style = "necessary",
-  maintain_order = TRUE,
-  type_coercion = TRUE,
-  `_type_check` = TRUE,
-  predicate_pushdown = TRUE,
-  projection_pushdown = TRUE,
-  simplify_expression = TRUE,
-  slice_pushdown = TRUE,
-  collapse_joins = TRUE,
-  no_optimization = FALSE,
-  storage_options = NULL,
-  retries = 2
-) {
-  wrap({
-    check_dots_empty0(...)
-    check_arg_is_1byte("separator", separator)
-    check_arg_is_1byte("quote_char", quote_char)
-    quote_style <- arg_match0(
-      quote_style,
-      values = c("necessary", "always", "never", "non_numeric")
-    )
-
-    lf <- set_sink_optimizations(
-      self,
-      type_coercion = type_coercion,
-      `_type_check` = `_type_check`,
-      predicate_pushdown = predicate_pushdown,
-      projection_pushdown = projection_pushdown,
-      simplify_expression = simplify_expression,
-      slice_pushdown = slice_pushdown,
-      collapse_joins = collapse_joins,
-      no_optimization = no_optimization
-    )
-
-    lf$sink_csv(
-      path = path,
-      include_bom = include_bom,
-      include_header = include_header,
-      separator = separator,
-      line_terminator = line_terminator,
-      quote_char = quote_char,
-      batch_size = batch_size,
-      datetime_format = datetime_format,
-      date_format = date_format,
-      time_format = time_format,
-      float_scientific = float_scientific,
-      float_precision = float_precision,
-      null_value = null_value,
-      quote_style = quote_style,
-      maintain_order = maintain_order,
-      storage_options = storage_options,
-      retries = retries
-    )
-
-    invisible(self)
   })
 }
 

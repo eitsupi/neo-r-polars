@@ -43,6 +43,35 @@ test_that("get_columns()", {
   )
 })
 
+test_that("get_column()", {
+  df <- pl$DataFrame(a = 1:2, b = c("foo", "bar"))
+
+  expect_equal(
+    df$get_column("a"),
+    as_polars_series(1:2, "a")
+  )
+  expect_error(
+    df$get_column("foo"),
+    "not found:"
+  )
+})
+
+test_that("get_column_index()", {
+  df <- pl$DataFrame(a = 1:2, b = c("foo", "bar"))
+  expect_equal(
+    df$get_column_index("a"),
+    0
+  )
+  expect_error(
+    df$get_column_index("foo"),
+    "not found:"
+  )
+  expect_error(
+    df$get_column_index(1),
+    "must be character, not double"
+  )
+})
+
 test_that("to_series()", {
   data <- data.frame(
     a = 1:2,
@@ -503,5 +532,70 @@ test_that("transpose() works", {
       j = c(2, 5),
       k = c(3, 6)
     )
+  )
+})
+
+test_that("sample() works", {
+  df <- pl$DataFrame(
+    foo = 1:3,
+    bar = 6:8,
+    ham = c("a", "b", "c")
+  )
+  expect_silent(df$sample(n = 2))
+  expect_equal(
+    df$sample(n = 2, seed = 0),
+    pl$DataFrame(
+      foo = 3:2,
+      bar = 8:7,
+      ham = c("c", "b")
+    )
+  )
+  expect_equal(
+    df$sample(fraction = 0.5, seed = 0),
+    pl$DataFrame(foo = 2L, bar = 7L, ham = "b")
+  )
+  expect_error(
+    df$sample(n = 2, fraction = 0.1),
+    "cannot specify both `n` and `fraction`"
+  )
+  expect_error(
+    df$sample(frac = 0.1),
+    "must be empty"
+  )
+
+  # TODO: uncomment when https://github.com/pola-rs/polars/issues/21521
+  # is resolved
+  # expect_error(
+  #   df$sample(fraction = "a")
+  # )
+  # expect_error(
+  #   df$sample(n = "a")
+  # )
+})
+
+test_that("hash_rows() works", {
+  df <- pl$DataFrame(
+    foo = c(1, NA, 3, 4),
+    ham = c("a", "b", NA, "d")
+  )
+  expect_equal(
+    df$hash_rows(seed = 42)$dtype,
+    pl$UInt64
+  )
+  expect_error(
+    df$hash_rows(seed = 42, seed_1 = "a"),
+    "`seed_1` must be a whole number or `NULL`, not the string"
+  )
+  expect_error(
+    df$hash_rows(seed = 42, seed_1 = 1.5),
+    "`seed_1` must be a whole number or `NULL`"
+  )
+  expect_error(
+    df$hash_rows(seed = 42, seed_1 = 1:2),
+    "`seed_1` must be a whole number or `NULL`"
+  )
+  expect_error(
+    df$hash_rows(seed = 42, seed_1 = -1),
+    "`seed_1` must be a whole number larger than or equal to 0 or `NULL`"
   )
 })

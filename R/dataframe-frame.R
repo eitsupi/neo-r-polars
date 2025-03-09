@@ -122,12 +122,6 @@ wrap.PlRDataFrame <- function(x, ...) {
     self
   )
 
-  lapply(names(polars_dataframe__methods), function(name) {
-    fn <- polars_dataframe__methods[[name]]
-    environment(fn) <- environment()
-    assign(name, fn, envir = self)
-  })
-
   class(self) <- c("polars_data_frame", "polars_object")
   self
 }
@@ -244,6 +238,42 @@ dataframe__get_columns <- function() {
     })
 }
 
+#' Get a single column by name
+#'
+#' @param name Name of the column to retrieve.
+#'
+#' @inherit as_polars_series return
+#' @examples
+#' df <- pl$DataFrame(foo = 1:3, bar = 4:6)
+#' df$get_column("foo")
+#'
+#' tryCatch(
+#'   df$get_column("baz"),
+#'   error = function(e) print(e)
+#' )
+dataframe__get_column <- function(name) {
+  self$`_df`$get_column(name) |>
+    wrap()
+}
+
+#' Find the index of a column by name
+#'
+#' @param name Name of the column to find.
+#'
+#' @return Numeric value (0-indexed) indicating the index of the column
+#' @examples
+#' df <- pl$DataFrame(foo = 1:3, bar = 4:6, ham = c("a", "b", "c"))
+#' df$get_column_index("ham")
+#'
+#' tryCatch(
+#'   df$get_column_index("sandwich"),
+#'   error = function(e) print(e)
+#' )
+dataframe__get_column_index <- function(name) {
+  self$`_df`$get_column_index(name) |>
+    wrap()
+}
+
 #' Group a DataFrame
 #'
 #' @inherit lazyframe__group_by description params
@@ -251,7 +281,7 @@ dataframe__get_columns <- function() {
 #' regardless of the `maintain_order` argument.
 #' @return [GroupBy][GroupBy_class] (a DataFrame with special groupby methods like `$agg()`)
 #' @seealso
-#' - [`<DataFrame>$partition_by()`][DataFrame_partition_by]
+#' - [`<DataFrame>$partition_by()`][dataframe__partition_by]
 #' @examples
 #' df <- pl$DataFrame(
 #'   a = c("a", "b", "a", "b", "c"),
@@ -409,6 +439,7 @@ dataframe__to_series <- function(index = 0) {
 #' Check whether the DataFrame is equal to another DataFrame
 #'
 #' @param other DataFrame to compare with.
+#' @param null_equal Consider null values as equal.
 #' @return A logical value
 #' @examples
 #' dat1 <- as_polars_df(iris)
@@ -1807,85 +1838,223 @@ dataframe__transpose <- function(
   })
 }
 
-#' Write to Parquet file
+#' Add a row index as the first column in the DataFrame
 #'
-#' @inheritParams lazyframe__sink_parquet
-#' @param file File path to which the result should be written. This should be
-#' a path to a directory if writing a partitioned dataset.
-#' @param partition_by A character vector indicating column(s) to partition by.
-#' A partitioned dataset will be written if this is specified.
-#' @param partition_chunk_size_bytes Approximate size to split DataFrames within
-#' a single partition when writing. Note this is calculated using the size of
-#' the DataFrame in memory (the size of the output file may differ depending
-#' on the file format / compression).
+#' @inheritParams lazyframe__with_row_index
 #'
-#' @return The input DataFrame is returned.
-#' @examplesIf requireNamespace("withr", quietly = TRUE)
-#' dat = as_polars_df(mtcars)
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(x = c(1, 3, 5), y = c(2, 4, 6))
+#' df$with_row_index()
 #'
-#' # write data to a single parquet file
-#' destination = withr::local_tempfile(fileext = ".parquet")
-#' dat$write_parquet(destination)
+#' df$with_row_index("id", offset = 1000)
 #'
-#' # write data to folder with a hive-partitioned structure
-#' dest_folder = withr::local_tempdir()
-#' dat$write_parquet(dest_folder, partition_by = c("gear", "cyl"))
-#' list.files(dest_folder, recursive = TRUE)
-dataframe__write_parquet <- function(
-  file,
+#' # An index column can also be created using the expressions int_range()
+#' # and len()$
+#' df$with_columns(
+#'   index = pl$int_range(pl$len(), dtype = pl$UInt32)
+#' )
+dataframe__with_row_index <- function(name = "index", offset = 0) {
+  wrap({
+    tryCatch(
+      self$`_df`$with_row_index(name, offset),
+      error = function(e) {
+        is_overflow_error <- grepl("out of range", e$message)
+        if (isTRUE(is_overflow_error)) {
+          issue <- if (offset < 0) {
+            "negative"
+          } else {
+            "greater than the maximum index value"
+          }
+          msg <- paste0("`offset` input for `with_row_index` cannot be ", issue, ", got ", offset)
+        } else {
+          msg <- e$message
+        }
+        abort(msg, call = caller_env(4))
+      }
+    )
+  })
+}
+
+#' Sample from this DataFrame
+#'
+#' @inheritParams expr__sample
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = 1:3,
+#'   bar = 6:8,
+#'   ham = c("a", "b", "c")
+#' )
+#' df$sample(n = 2, seed = 0)
+dataframe__sample <- function(
+  n = NULL,
   ...,
-  compression = c("lz4", "uncompressed", "snappy", "gzip", "lzo", "brotli", "zstd"),
-  compression_level = NULL,
-  statistics = TRUE,
-  row_group_size = NULL,
-  data_page_size = NULL,
-  partition_by = NULL,
-  partition_chunk_size_bytes = 4294967296,
-  storage_options = NULL,
-  retries = 2
+  fraction = NULL,
+  with_replacement = FALSE,
+  shuffle = FALSE,
+  seed = NULL
 ) {
   wrap({
-    compression <- compression %||% "uncompressed"
     check_dots_empty0(...)
-    check_character(partition_by, allow_null = TRUE)
-    compression <- arg_match0(
-      compression,
-      values = c("lz4", "uncompressed", "snappy", "gzip", "lzo", "brotli", "zstd")
-    )
-    if (is_bool(statistics)) {
-      statistics <- parquet_statistics(
-        min = statistics,
-        max = statistics,
-        distinct_count = FALSE,
-        null_count = statistics
-      )
-    } else if (identical(statistics, "full")) {
-      statistics <- parquet_statistics(
-        min = TRUE,
-        max = TRUE,
-        distinct_count = TRUE,
-        null_count = TRUE
+    if (!is.null(fraction) && !is.null(n)) {
+      abort("cannot specify both `n` and `fraction`")
+    }
+    if (is.null(seed)) {
+      seed <- sample.int(10000, 1)
+    }
+    if (!is.null(fraction)) {
+      if (!is_polars_series(fraction)) {
+        fraction <- as_polars_series(fraction, "frac")
+      }
+      return(
+        self$`_df`$sample_frac(fraction$`_s`, with_replacement, shuffle, seed) |>
+          wrap()
       )
     }
-    if (!inherits(statistics, "polars_parquet_statistics")) {
-      abort("`statistics` must be TRUE, FALSE, 'full', or a call to `parquet_statistics()`.")
+    if (is.null(n)) {
+      n <- 1
     }
-    self$`_df`$write_parquet(
-      path = file,
-      compression = compression,
-      compression_level = compression_level,
-      stat_min = statistics[["min"]],
-      stat_max = statistics[["max"]],
-      stat_null_count = statistics[["null_count"]],
-      stat_distinct_count = statistics[["distinct_count"]],
-      row_group_size = row_group_size,
-      data_page_size = data_page_size,
-      partition_by = partition_by,
-      partition_chunk_size_bytes = partition_chunk_size_bytes,
-      storage_options = storage_options,
-      retries = retries
+    if (!is_polars_series(n)) {
+      n <- as_polars_series(n, "")
+    }
+    self$`_df`$sample_n(n$`_s`, with_replacement, shuffle, seed)
+  })
+}
+
+#' @inherit lazyframe__group_by_dynamic title description params details
+#'
+# TODO: Add GroupBy docs
+#' @return A [GroupByDynamic] object
+#' @seealso
+#' - [`<DataFrame>$rolling()`][dataframe__rolling]
+#'
+#' @examples
+#' df <- pl$select(
+#'   time = pl$datetime_range(
+#'     start = as.POSIXct(strptime("2021-12-16 00:00:00", format = "%Y-%m-%d %H:%M:%S", tz = "UTC")),
+#'     end = as.POSIXct(strptime("2021-12-16 03:00:00", format = "%Y-%m-%d %H:%M:%S", tz = "UTC")),
+#'     interval = "30m"
+#'   ),
+#'   n = 0:6
+#' )
+#' df
+#'
+#' # Group by windows of 1 hour.
+#' df$group_by_dynamic("time", every = "1h", closed = "right")$agg(
+#'   vals = pl$col("n")
+#' )
+#'
+#' # The window boundaries can also be added to the aggregation result
+#' df$group_by_dynamic(
+#'   "time",
+#'   every = "1h", include_boundaries = TRUE, closed = "right"
+#' )$agg(
+#'   pl$col("n")$mean()
+#' )
+#'
+#' # When closed = "left", the window excludes the right end of interval:
+#' # [lower_bound, upper_bound)
+#' df$group_by_dynamic("time", every = "1h", closed = "left")$agg(
+#'   pl$col("n")
+#' )
+#'
+#' # When closed = "both" the time values at the window boundaries belong to 2
+#' # groups.
+#' df$group_by_dynamic("time", every = "1h", closed = "both")$agg(
+#'   pl$col("n")
+#' )
+#'
+#' # Dynamic group bys can also be combined with grouping on normal keys
+#' df <- df$with_columns(
+#'   groups = as_polars_series(c("a", "a", "a", "b", "b", "a", "a"))
+#' )
+#' df
+#'
+#' df$group_by_dynamic(
+#'   "time",
+#'   every = "1h",
+#'   closed = "both",
+#'   group_by = "groups",
+#'   include_boundaries = TRUE
+#' )$agg(pl$col("n"))
+#'
+#' # We can also create a dynamic group by based on an index column
+#' df <- pl$DataFrame(
+#'   idx = 0:5,
+#'   A = c("A", "A", "B", "B", "B", "C")
+#' )$with_columns(pl$col("idx")$set_sorted())
+#' df
+#'
+#' df$group_by_dynamic(
+#'   "idx",
+#'   every = "2i",
+#'   period = "3i",
+#'   include_boundaries = TRUE,
+#'   closed = "right"
+#' )$agg(A_agg_list = pl$col("A"))
+dataframe__group_by_dynamic <- function(
+  index_column,
+  ...,
+  every,
+  period = NULL,
+  offset = NULL,
+  include_boundaries = FALSE,
+  closed = c("left", "right", "both", "none"),
+  label = c("left", "right", "datapoint"),
+  group_by = NULL,
+  start_by = "window"
+) {
+  wrap({
+    check_dots_empty0(...)
+    wrap_to_group_by_dynamic(
+      self,
+      index_column = index_column,
+      every = every,
+      period = period,
+      offset = offset,
+      include_boundaries = include_boundaries,
+      closed = closed,
+      label = label,
+      group_by = group_by,
+      start_by = start_by
     )
-    invisible(self)
+  })
+}
+
+#' Hash and combine the rows in this DataFrame
+#'
+#' The hash value is of type [UInt64][polars_dtype].
+#'
+#' @param seed Random seed parameter. Defaults to 0.
+#' @param seed_1 Random seed parameter. Defaults to `seed` if not set.
+#' @param seed_2 Random seed parameter. Defaults to `seed` if not set.
+#' @param seed_3 Random seed parameter. Defaults to `seed` if not set.
+#'
+#' @details
+#' This implementation does not guarantee stable results across different
+#' Polars versions. Its stability is only guaranteed within a single version.
+#'
+#' @inherit as_polars_series return
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = c(1, NA, 3, 4),
+#'   ham = c("a", "b", NA, "d")
+#' )
+#' df$hash_rows(seed = 42)
+dataframe__hash_rows <- function(seed = 0, seed_1 = NULL, seed_2 = NULL, seed_3 = NULL) {
+  wrap({
+    check_number_whole(seed, min = 0)
+    check_number_whole(seed_1, min = 0, allow_null = TRUE)
+    check_number_whole(seed_2, min = 0, allow_null = TRUE)
+    check_number_whole(seed_3, min = 0, allow_null = TRUE)
+
+    self$`_df`$hash_rows(
+      seed,
+      seed_1 %||% seed,
+      seed_2 %||% seed,
+      seed_3 %||% seed
+    )
   })
 }
 

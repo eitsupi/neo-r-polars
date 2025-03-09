@@ -538,6 +538,7 @@ expr_list_tail <- function(n = 5L) {
 
 #' Run any polars expression on the sub-lists' values
 #'
+#' @inheritParams rlang::args_dots_empty
 #' @param expr Expression to run. Note that you can select an element with
 #'   `pl$element()`, `pl$first()`, and more. See Examples.
 #' @param parallel Run all expressions in parallel. Don't activate this blindly.
@@ -743,9 +744,9 @@ expr_list_sample <- function(
 
 #' Compute the standard deviation in every sub-list
 #'
-#' @param "Delta Degrees of Freedom": the divisor used in the calculation is
-#' `N - ddof`, where `N` represents the number of elements. By default ddof is
-#' 1.
+#' @param ddof "Delta Degrees of Freedom": the divisor used in the calculation
+#' is `N - ddof`, where `N` represents the number of elements. By default
+#' `ddof` is 1.
 #'
 #' @inherit as_polars_expr return
 #' @examples
