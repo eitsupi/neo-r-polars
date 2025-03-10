@@ -15,9 +15,11 @@
 #' Determines the compatibility level when exporting Polars' internal data structures.
 #' When specifying a new compatibility level, Polars exports its internal data structures
 #' that might not be interpretable by other Arrow implementations.
-#' The level can be specified as the name (e.g., `"newest"`) or as a scalar integer.
-#' - `"newest"` (default): Use the highest level (low compatibility).
-#' - `"oldest"`: Same as `0` (high compatibility).
+#' The level can be specified as the name (e.g., `"newest"`) or as a scalar integer
+#' (Currently, `0` or `1` is supported).
+#' - `"newest"` (default): Use the highest level, currently same as `1`
+#'   (Low compatibility).
+#' - `"oldest"`: Same as `0` (High compatibility).
 #' @return A [nanoarrow array stream][nanoarrow::as_nanoarrow_array_stream]
 #' @seealso
 #' - [`as_polars_series(<nanoarrow_array_stream>)`][as_polars_series]:

@@ -36,10 +36,12 @@ because Polars does not support all Arrow types.}
 Determines the compatibility level when exporting Polars' internal data structures.
 When specifying a new compatibility level, Polars exports its internal data structures
 that might not be interpretable by other Arrow implementations.
-The level can be specified as the name (e.g., \code{"newest"}) or as a scalar integer.
+The level can be specified as the name (e.g., \code{"newest"}) or as a scalar integer
+(Currently, \code{0} or \code{1} is supported).
 \itemize{
-\item \code{"newest"} (default): Use the highest level (low compatibility).
-\item \code{"oldest"}: Same as \code{0} (high compatibility).
+\item \code{"newest"} (default): Use the highest level, currently same as \code{1}
+(Low compatibility).
+\item \code{"oldest"}: Same as \code{0} (High compatibility).
 }}
 }
 \value{
