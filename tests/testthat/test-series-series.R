@@ -27,3 +27,25 @@ test_that("alias/rename works", {
     pl$Series("b", 1:3)
   )
 })
+
+test_that("rechunk() and n_chunks() work", {
+  s <- pl$Series("a", c(1, 2, 3))
+  expect_equal(s$n_chunks(), 1)
+
+  s2 <- pl$Series("a", c(4, 5, 6))
+  s <- pl$concat(s, s2, rechunk = FALSE)
+  expect_equal(s$n_chunks(), 2)
+
+  expect_equal(s$rechunk()$n_chunks(), 1)
+})
+
+test_that("rechunk() and chunk_lengths() work", {
+  s <- pl$Series("a", c(1, 2, 3))
+  expect_equal(s$chunk_lengths(), 3)
+
+  s2 <- pl$Series("a", c(4, 5, 6))
+  s <- pl$concat(s, s2, rechunk = FALSE)
+  expect_equal(s$chunk_lengths(), c(3, 3))
+
+  expect_equal(s$rechunk()$chunk_lengths(), 6)
+})
