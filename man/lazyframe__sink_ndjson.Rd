@@ -23,7 +23,7 @@ lazyframe__sink_ndjson(
 \arguments{
 \item{path}{A character. File path to which the file should be written.}
 
-\item{...}{Dots which should be empty.}
+\item{...}{These dots are for future extensions and must be empty.}
 
 \item{maintain_order}{Maintain the order in which data is processed. Setting
 this to \code{FALSE} will be slightly faster.}

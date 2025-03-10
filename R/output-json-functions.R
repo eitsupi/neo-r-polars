@@ -1,6 +1,6 @@
 # Output (ND)JSON functions: sink_ndjson, write_json, write_ndjson
-# (there is only sink_ndjson() in py-polars but there is sink_json() in
-# rust-polars).
+# (there is only sink_ndjson() in Python Polars but there is sink_json() in
+# Rust Polars).
 
 #' Evaluate the query in streaming mode and write to a NDJSON file
 #'
@@ -9,7 +9,7 @@
 #'
 #' This allows streaming results that are larger than RAM to be written to disk.
 #'
-#' @inheritParams rlang::check_dots_empty0
+#' @inheritParams rlang::args_dots_empty
 #' @param path A character. File path to which the file should be written.
 #' @inheritParams lazyframe__sink_parquet
 #' @inheritParams lazyframe__collect
