@@ -2177,6 +2177,7 @@ dataframe__unstack <- function(
 
 #' Summary statistics for a DataFrame.
 #'
+#' @inheritParams rlang::args_dots_empty
 #' @inheritParams lazyframe__describe
 #' @inherit as_polars_df return
 #' @examples
@@ -2200,9 +2201,11 @@ dataframe__unstack <- function(
 #' )
 dataframe__describe <- function(
   percentiles = c(0.25, 0.75),
+  ...,
   interpolation = c("nearest", "higher", "lower", "midpoint", "linear")
 ) {
   wrap({
+    check_dots_empty0(...)
     if (length(self$columns) == 0) {
       abort("cannot describe a DataFrame without any columns")
     }

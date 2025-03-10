@@ -2372,6 +2372,7 @@ lazyframe__join_asof <- function(
 #' `describe()` programmatically (versus interactive exploration) is not
 #' recommended for this reason.
 #'
+#' @inheritParams rlang::args_dots_empty
 #' @param percentiles One or more percentiles to include in the summary
 #' statistics. All values must be in the range `[0; 1]`.
 #' @param interpolation Interpolation method for computing quantiles. Must be
@@ -2402,9 +2403,11 @@ lazyframe__join_asof <- function(
 #' )
 lazyframe__describe <- function(
   percentiles = c(0.25, 0.5, 0.75),
+  ...,
   interpolation = c("nearest", "higher", "lower", "midpoint", "linear")
 ) {
   wrap({
+    check_dots_empty0(...)
     schema <- self$collect_schema()
     if (length(schema) == 0) {
       abort("cannot describe a LazyFrame without any columns")
