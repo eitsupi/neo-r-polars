@@ -142,7 +142,7 @@ impl PlRSeries {
         Ok(sexp.into())
     }
 
-    pub fn rechunk(&self) -> Result<PlRSeries> {
+    pub fn rechunk(&self) -> Result<Self> {
         Ok(self.series.rechunk().into())
     }
 }
