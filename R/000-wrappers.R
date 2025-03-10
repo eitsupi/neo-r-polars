@@ -4067,6 +4067,12 @@ class(`PlRLazyGroupBy`) <- c("PlRLazyGroupBy__bundle", "savvy_neopolars__sealed"
   }
 }
 
+`PlRSeries_chunk_lengths` <- function(self) {
+  function() {
+    .Call(savvy_PlRSeries_chunk_lengths__impl, `self`)
+  }
+}
+
 `PlRSeries_clone` <- function(self) {
   function() {
     .savvy_wrap_PlRSeries(.Call(savvy_PlRSeries_clone__impl, `self`))
@@ -4127,6 +4133,12 @@ class(`PlRLazyGroupBy`) <- c("PlRLazyGroupBy__bundle", "savvy_neopolars__sealed"
 `PlRSeries_name` <- function(self) {
   function() {
     .Call(savvy_PlRSeries_name__impl, `self`)
+  }
+}
+
+`PlRSeries_rechunk` <- function(self) {
+  function() {
+    .savvy_wrap_PlRSeries(.Call(savvy_PlRSeries_rechunk__impl, `self`))
   }
 }
 
@@ -4197,6 +4209,7 @@ class(`PlRLazyGroupBy`) <- c("PlRLazyGroupBy__bundle", "savvy_neopolars__sealed"
   e$`cat_is_local` <- `PlRSeries_cat_is_local`(ptr)
   e$`cat_to_local` <- `PlRSeries_cat_to_local`(ptr)
   e$`cat_uses_lexical_ordering` <- `PlRSeries_cat_uses_lexical_ordering`(ptr)
+  e$`chunk_lengths` <- `PlRSeries_chunk_lengths`(ptr)
   e$`clone` <- `PlRSeries_clone`(ptr)
   e$`div` <- `PlRSeries_div`(ptr)
   e$`dtype` <- `PlRSeries_dtype`(ptr)
@@ -4207,6 +4220,7 @@ class(`PlRLazyGroupBy`) <- c("PlRLazyGroupBy__bundle", "savvy_neopolars__sealed"
   e$`mul` <- `PlRSeries_mul`(ptr)
   e$`n_chunks` <- `PlRSeries_n_chunks`(ptr)
   e$`name` <- `PlRSeries_name`(ptr)
+  e$`rechunk` <- `PlRSeries_rechunk`(ptr)
   e$`rem` <- `PlRSeries_rem`(ptr)
   e$`rename` <- `PlRSeries_rename`(ptr)
   e$`reshape` <- `PlRSeries_reshape`(ptr)
