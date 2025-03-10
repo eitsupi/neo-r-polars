@@ -28,9 +28,9 @@ impl PlRExpr {
         Ok(self.inner.clone().str().to_lowercase().into())
     }
 
-    // fn str_to_titlecase(&self) -> Result<Self> {
-    //     f_str_to_titlecase(self)
-    // }
+    fn str_to_titlecase(&self) -> Result<Self> {
+        Ok(self.inner.clone().str().to_titlecase().into())
+    }
 
     fn str_strip_chars(&self, characters: &PlRExpr) -> Result<Self> {
         Ok(self
