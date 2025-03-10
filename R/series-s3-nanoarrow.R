@@ -57,14 +57,7 @@ as_nanoarrow_array_stream.polars_series <- function(
 ) {
   try_fetch(
     {
-      if (is_character(polars_compat_level)) {
-        polars_compat_level <- arg_match0(polars_compat_level, c("newest", "oldest"))
-      } else if (!is_scalar_integerish(polars_compat_level, finite = TRUE)) {
-        abort(sprintf(
-          "`polars_compat_level` must be a string or an integerish scalar value. got: %s",
-          toString(class(polars_compat_level))
-        ))
-      }
+      polars_compat_level <- arg_match_compat_level(polars_compat_level)
 
       pl_r_series <- if (!is.null(schema)) {
         # Sinse polars does not support all Arrow types,
