@@ -9,7 +9,6 @@ This requires a very recent Rust nightly toolchain.
 So executing 'rustup toolchain install nightly'...
 EOF
   rustup toolchain install nightly-2025-01-05
-  rustup override set nightly-2025-01-05
 fi
 
 sed -e "s/@TARGET@/${TARGET}/" src/Makevars.in > src/Makevars
