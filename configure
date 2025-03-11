@@ -1,5 +1,14 @@
+#!/usr/bin/env sh
+
 if [ "$(uname)" = "Emscripten" ]; then
   TARGET="wasm32-unknown-emscripten"
+  # Polars uses very recent nightly features, so we need to update the toolchain
+  cat <<EOF
+It seems that building for Emscripten.
+This requires a very recent Rust nightly toolchain.
+So executing 'rustup toolchain install nightly'...
+EOF
+  rustup toolchain install nightly
 fi
 
 sed -e "s/@TARGET@/${TARGET}/" src/Makevars.in > src/Makevars
