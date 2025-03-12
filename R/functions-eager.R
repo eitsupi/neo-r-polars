@@ -102,7 +102,7 @@ pl__concat <- function(
 
   if (startsWith(how, "align")) {
     if (!is_polars_df(first) && !is_polars_lf(first)) {
-      abort(paste0("\"", how, "\" strategy is only supported on DataFrames and LazyFrames.)"))
+      abort(sprintf("'%s' strategy is only supported on DataFrames and LazyFrames.", how))
     }
 
     join_method <- switch(
