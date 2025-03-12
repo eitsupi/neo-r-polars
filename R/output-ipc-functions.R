@@ -17,7 +17,7 @@
 lazyframe__sink_ipc <- function(
   path,
   ...,
-  compression = c("uncompressed", "zstd", "lz4"),
+  compression = c("zstd", "lz4"),
   maintain_order = TRUE,
   type_coercion = TRUE,
   `_type_check` = TRUE,
@@ -32,8 +32,8 @@ lazyframe__sink_ipc <- function(
 ) {
   wrap({
     check_dots_empty0(...)
-    compression <- compression %||% "uncompressed"
-    compression <- arg_match0(compression, values = c("uncompressed", "lz4", "zstd"))
+    compression <- compression %||% "zstd"
+    compression <- arg_match0(compression, values = c("lz4", "zstd"))
 
     lf <- set_sink_optimizations(
       self,
