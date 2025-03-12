@@ -10,9 +10,8 @@ This requires a very recent Rust nightly toolchain.
 So executing 'rustup toolchain install nightly'...
 EOF
   rustup toolchain uninstall nightly
-  rustup toolchain install "${rust_toolchain}" --force
-  rustup default "${rust_toolchain}"
-  rustup component add rust-src --toolchain "${rust_toolchain}"
+  rustup toolchain install "${rust_toolchain}" --force --component rust-src
+  rustup override set "${rust_toolchain}"
 fi
 
 sed -e "s/@TARGET@/${TARGET}/" src/Makevars.in > src/Makevars
