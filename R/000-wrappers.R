@@ -3778,15 +3778,15 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
   }
 }
 
-`PlRLazyFrame_sink_json` <- function(self) {
-  function(`path`, `retries`, `maintain_order`, `storage_options` = NULL) {
-    invisible(.Call(savvy_PlRLazyFrame_sink_json__impl, `self`, `path`, `retries`, `maintain_order`, `storage_options`))
-  }
-}
-
 `PlRLazyFrame_sink_ipc` <- function(self) {
   function(`path`, `maintain_order`, `retries`, `compression` = NULL, `storage_options` = NULL) {
     invisible(.Call(savvy_PlRLazyFrame_sink_ipc__impl, `self`, `path`, `maintain_order`, `retries`, `compression`, `storage_options`))
+  }
+}
+
+`PlRLazyFrame_sink_json` <- function(self) {
+  function(`path`, `retries`, `maintain_order`, `storage_options` = NULL) {
+    invisible(.Call(savvy_PlRLazyFrame_sink_json__impl, `self`, `path`, `retries`, `maintain_order`, `storage_options`))
   }
 }
 

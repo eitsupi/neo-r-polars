@@ -1364,8 +1364,8 @@ impl PlRLazyFrame {
         let _ = ldf.sink_json(path, options, cloud_options);
         Ok(())
     }
-  
-      fn sink_ipc(
+
+    fn sink_ipc(
         &self,
         path: &str,
         maintain_order: bool,
