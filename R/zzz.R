@@ -73,7 +73,8 @@ POLARS_STORE_ENVS <- list(
   "lazygroupby__" = polars_lazygroupby__methods,
   "dataframe__" = polars_dataframe__methods,
   "groupby__" = polars_groupby__methods,
-  "rolling_groupby__" = polars_rolling_groupby__methods
+  "rolling_groupby__" = polars_rolling_groupby__methods,
+  "group_by_dynamic__" = polars_group_by_dynamic__methods
 )
 
 lapply(names(POLARS_STORE_ENVS), function(name) {
@@ -97,6 +98,11 @@ on_load(local_use_cli())
   run_on_load()
 
   # Register S3 methods for optional packages
+  s3_register("arrow::as_arrow_table", "polars_data_frame")
+  s3_register("arrow::as_record_batch_reader", "polars_data_frame")
+  s3_register("arrow::as_record_batch_reader", "polars_series")
+  s3_register("nanoarrow::as_nanoarrow_array_stream", "polars_data_frame")
+  s3_register("nanoarrow::as_nanoarrow_array_stream", "polars_series")
   s3_register("tibble::as_tibble", "polars_data_frame")
   s3_register("tibble::as_tibble", "polars_lazy_frame")
   s3_register("waldo::compare_proxy", "polars_expr")

@@ -3,8 +3,8 @@ use crate::{PlRDataType, PlRExpr, PlRLazyFrame, PlRSeries, RPolarsErr};
 use either::Either;
 use polars::prelude::pivot::{pivot, pivot_stable};
 use savvy::{
-    r_println, savvy, ListSexp, NumericScalar, OwnedIntegerSexp, OwnedListSexp, Result, Sexp,
-    StringSexp, TypedSexp,
+    savvy, ListSexp, NumericScalar, OwnedIntegerSexp, OwnedListSexp, Result, Sexp, StringSexp,
+    TypedSexp,
 };
 
 #[savvy]
@@ -29,9 +29,8 @@ impl PlRDataFrame {
         Ok(df.into())
     }
 
-    pub fn print(&self) -> Result<()> {
-        r_println!("{:?}", self.df);
-        Ok(())
+    pub fn as_str(&self) -> Result<Sexp> {
+        format!("{:?}", self.df).try_into()
     }
 
     pub fn get_columns(&self) -> Result<Sexp> {
@@ -52,6 +51,23 @@ impl PlRDataFrame {
             );
         }
         Ok(list.into())
+    }
+
+    pub fn get_column(&self, name: &str) -> Result<PlRSeries> {
+        let series = self
+            .df
+            .column(name)
+            .map(|s| PlRSeries::new(s.as_materialized_series().clone()))
+            .map_err(RPolarsErr::from)?;
+        Ok(series)
+    }
+
+    pub fn get_column_index(&self, name: &str) -> Result<Sexp> {
+        let out = self
+            .df
+            .try_get_column_index(name)
+            .map_err(RPolarsErr::from)?;
+        (out as i32).try_into()
     }
 
     pub fn transpose(
@@ -303,5 +319,73 @@ impl PlRDataFrame {
 
     pub fn is_empty(&self) -> Result<Sexp> {
         self.df.is_empty().try_into()
+    }
+
+    fn with_row_index(&self, name: &str, offset: Option<NumericScalar>) -> Result<Self> {
+        let offset: Option<u32> = match offset {
+            Some(x) => Some(<Wrap<u32>>::try_from(x)?.0),
+            None => None,
+        };
+        Ok(self
+            .df
+            .with_row_index(name.into(), offset)
+            .map_err(RPolarsErr::from)?
+            .into())
+    }
+
+    pub fn sample_n(
+        &self,
+        n: &PlRSeries,
+        with_replacement: bool,
+        shuffle: bool,
+        seed: Option<NumericScalar>,
+    ) -> Result<Self> {
+        let seed = match seed {
+            Some(x) => Some(<Wrap<u64>>::try_from(x)?.0),
+            None => None,
+        };
+        Ok(self
+            .df
+            .sample_n(&n.series, with_replacement, shuffle, seed)
+            .map_err(RPolarsErr::from)?
+            .into())
+    }
+
+    pub fn sample_frac(
+        &self,
+        frac: &PlRSeries,
+        with_replacement: bool,
+        shuffle: bool,
+        seed: Option<NumericScalar>,
+    ) -> Result<Self> {
+        let seed = match seed {
+            Some(x) => Some(<Wrap<u64>>::try_from(x)?.0),
+            None => None,
+        };
+        Ok(self
+            .df
+            .sample_frac(&frac.series, with_replacement, shuffle, seed)
+            .map_err(RPolarsErr::from)?
+            .into())
+    }
+
+    pub fn hash_rows(
+        &mut self,
+        seed: NumericScalar,
+        seed_1: NumericScalar,
+        seed_2: NumericScalar,
+        seed_3: NumericScalar,
+    ) -> Result<PlRSeries> {
+        let k0 = <Wrap<u64>>::try_from(seed)?.0;
+        let k1 = <Wrap<u64>>::try_from(seed_1)?.0;
+        let k2 = <Wrap<u64>>::try_from(seed_2)?.0;
+        let k3 = <Wrap<u64>>::try_from(seed_3)?.0;
+        let hb = PlRandomState::with_seeds(k0, k1, k2, k3);
+        let series = self
+            .df
+            .hash_rows(Some(hb))
+            .map_err(RPolarsErr::from)?
+            .into_series();
+        Ok(series.into())
     }
 }

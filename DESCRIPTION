@@ -27,16 +27,17 @@ Suggests:
     ggplot2,
     hms,
     jsonlite,
-    nanoarrow,
+    nanoarrow (>= 0.6.0),
     patrick (>= 0.3.0),
     testthat (>= 3.0.0),
     tibble,
     vctrs,
     withr
 Additional_repositories: https://community.r-multiverse.org
-Config/Needs/dev: devtools, lifecycle
+Config/Needs/dev: devtools, lifecycle, readr, glue
 Config/testthat/edition: 3
 Config/testthat/parallel: true
+Config/testthat/start-first: lazyframe-frame, expr-expr, expr-*
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2

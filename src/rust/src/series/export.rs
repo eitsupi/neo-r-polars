@@ -1,6 +1,11 @@
 use crate::{prelude::*, PlRExpr, PlRSeries, RPolarsErr};
+use polars_core::utils::arrow::{
+    array::Array,
+    ffi::{export_iterator, ArrowArrayStream},
+};
 use savvy::{
-    savvy, FunctionArgs, FunctionSexp, OwnedIntegerSexp, OwnedListSexp, OwnedLogicalSexp, Sexp,
+    savvy, ExternalPointerSexp, FunctionArgs, FunctionSexp, OwnedIntegerSexp, OwnedListSexp,
+    OwnedLogicalSexp, Result, Sexp,
 };
 use strum_macros::EnumString;
 
@@ -36,7 +41,7 @@ enum DateConversion {
 #[derive(Debug, Clone, EnumString)]
 enum TimeConversion {
     #[strum(serialize = "hms")]
-    HMS,
+    Hms,
     ITime,
 }
 
@@ -78,7 +83,7 @@ impl PlRSeries {
         ambiguous: &PlRExpr,
         non_existent: &str,
         local_time_zone: &str,
-    ) -> savvy::Result<Sexp> {
+    ) -> Result<Sexp> {
         let series = &self.series;
 
         let int64 = Int64Conversion::try_from(int64).map_err(RPolarsErr::from)?;
@@ -101,7 +106,7 @@ impl PlRSeries {
             ambiguous: Expr,
             non_existent: NonExistent,
             local_time_zone: &str,
-        ) -> savvy::Result<Sexp> {
+        ) -> Result<Sexp> {
             match series.dtype() {
                 DataType::Boolean => Ok(<Sexp>::from(Wrap(series.bool().unwrap()))),
                 DataType::UInt8 | DataType::UInt16 | DataType::Int8 | DataType::Int16 => Ok(
@@ -237,7 +242,7 @@ impl PlRSeries {
                     ))),
                 },
                 DataType::Time => match time {
-                    TimeConversion::HMS => Ok(<Sexp>::from(Wrap(series.time().unwrap()))),
+                    TimeConversion::Hms => Ok(<Sexp>::from(Wrap(series.time().unwrap()))),
                     TimeConversion::ITime => Ok(<Sexp>::from(<data_table::ITime>::from(
                         series.cast(&DataType::Float64).unwrap().f64().unwrap(),
                     ))),
@@ -344,7 +349,7 @@ impl PlRSeries {
             }
         }
 
-        let r_vector = to_r_vector_recursive(
+        to_r_vector_recursive(
             series,
             ensure_vector,
             int64,
@@ -356,7 +361,58 @@ impl PlRSeries {
             ambiguous,
             non_existent,
             local_time_zone,
-        )?;
-        Ok(r_vector)
+        )
+    }
+
+    // TODO: move to upstream polars
+    pub fn to_arrow_c_stream(&self, stream_ptr: Sexp, polars_compat_level: Sexp) -> Result<()> {
+        let stream_ptr = unsafe {
+            ExternalPointerSexp::try_from(stream_ptr)?.cast_mut_unchecked::<ArrowArrayStream>()
+        };
+        let compat_level = <Wrap<CompatLevel>>::try_from(polars_compat_level)?.0;
+
+        let field = self.series.field().to_arrow(compat_level);
+        let iter = Box::new(SeriesStreamIterator::new(self.series.clone(), compat_level));
+        let stream = export_iterator(iter, field);
+
+        unsafe {
+            std::ptr::replace(stream_ptr, stream);
+        };
+
+        Ok(())
+    }
+}
+
+// TODO: move to upstream polars
+struct SeriesStreamIterator {
+    series: Series,
+    idx: usize,
+    n_chunks: usize,
+    compat_level: CompatLevel,
+}
+
+impl SeriesStreamIterator {
+    fn new(series: Series, compat_level: CompatLevel) -> Self {
+        Self {
+            series: series.clone(),
+            idx: 0,
+            n_chunks: series.n_chunks(),
+            compat_level,
+        }
+    }
+}
+
+impl Iterator for SeriesStreamIterator {
+    type Item = std::result::Result<Box<dyn Array>, PolarsError>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.idx >= self.n_chunks {
+            None
+        } else {
+            let batch = self.series.to_arrow(self.idx, self.compat_level);
+            self.idx += 1;
+
+            Some(std::result::Result::Ok(batch))
+        }
     }
 }

@@ -41,12 +41,18 @@ By "calendar day", we mean the corresponding time on the next day
 (which may not be 24 hours, due to daylight savings). Similarly for
 "calendar week", "calendar month", "calendar quarter", and "calendar year".}
 
+\item{...}{These dots are for future extensions and must be empty.}
+
 \item{min_periods}{The number of values in the window that should be
 non-null before computing a result. If \code{NULL} (default), it will be set
 equal to \code{window_size}.}
 
 \item{closed}{Define which sides of the interval are closed (inclusive).
 Default is \code{"right"}.}
+
+\item{ddof}{"Delta Degrees of Freedom": the divisor used in the calculation
+is \code{N - ddof}, where \code{N} represents the number of elements. By default
+\code{ddof} is 1.}
 }
 \value{
 A polars \link{expression}

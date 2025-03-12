@@ -16,7 +16,7 @@ patrick::with_parameters_test_that(
 )
 
 test_that("pl$DataFrame() requires series the same length", {
-  expect_error(pl$DataFrame(a = 1:2, b = "foo"), "has length 2")
+  expect_error(pl$DataFrame(a = 1:2, b = "foo"), "lengths don't match")
 })
 
 test_that("pl$DataFrame() rejects expressions", {
@@ -40,6 +40,35 @@ test_that("get_columns()", {
       a = as_polars_series(1:2, "a"),
       b = as_polars_series(c("foo", "bar"), "b")
     )
+  )
+})
+
+test_that("get_column()", {
+  df <- pl$DataFrame(a = 1:2, b = c("foo", "bar"))
+
+  expect_equal(
+    df$get_column("a"),
+    as_polars_series(1:2, "a")
+  )
+  expect_error(
+    df$get_column("foo"),
+    "not found:"
+  )
+})
+
+test_that("get_column_index()", {
+  df <- pl$DataFrame(a = 1:2, b = c("foo", "bar"))
+  expect_equal(
+    df$get_column_index("a"),
+    0
+  )
+  expect_error(
+    df$get_column_index("foo"),
+    "not found:"
+  )
+  expect_error(
+    df$get_column_index(1),
+    "must be character, not double"
   )
 })
 
@@ -503,5 +532,201 @@ test_that("transpose() works", {
       j = c(2, 5),
       k = c(3, 6)
     )
+  )
+})
+
+test_that("sample() works", {
+  df <- pl$DataFrame(
+    foo = 1:3,
+    bar = 6:8,
+    ham = c("a", "b", "c")
+  )
+  expect_silent(df$sample(n = 2))
+  expect_equal(
+    df$sample(n = 2, seed = 0),
+    pl$DataFrame(
+      foo = 3:2,
+      bar = 8:7,
+      ham = c("c", "b")
+    )
+  )
+  expect_equal(
+    df$sample(fraction = 0.5, seed = 0),
+    pl$DataFrame(foo = 2L, bar = 7L, ham = "b")
+  )
+  expect_error(
+    df$sample(n = 2, fraction = 0.1),
+    "cannot specify both `n` and `fraction`"
+  )
+  expect_error(
+    df$sample(frac = 0.1),
+    "must be empty"
+  )
+
+  # TODO: uncomment when https://github.com/pola-rs/polars/issues/21521
+  # is resolved
+  # expect_error(
+  #   df$sample(fraction = "a")
+  # )
+  # expect_error(
+  #   df$sample(n = "a")
+  # )
+})
+
+test_that("hash_rows() works", {
+  df <- pl$DataFrame(
+    foo = c(1, NA, 3, 4),
+    ham = c("a", "b", NA, "d")
+  )
+  expect_equal(
+    df$hash_rows(seed = 42)$dtype,
+    pl$UInt64
+  )
+  expect_error(
+    df$hash_rows(seed = 42, seed_1 = "a"),
+    "`seed_1` must be a whole number or `NULL`, not the string"
+  )
+  expect_error(
+    df$hash_rows(seed = 42, seed_1 = 1.5),
+    "`seed_1` must be a whole number or `NULL`"
+  )
+  expect_error(
+    df$hash_rows(seed = 42, seed_1 = 1:2),
+    "`seed_1` must be a whole number or `NULL`"
+  )
+  expect_error(
+    df$hash_rows(seed = 42, seed_1 = -1),
+    "`seed_1` must be a whole number larger than or equal to 0 or `NULL`"
+  )
+})
+
+test_that("unstack() works", {
+  df <- pl$DataFrame(x = LETTERS[1:8], y = 1:8)$with_columns(
+    z = pl$int_ranges(pl$col("y"), pl$col("y") + 2, dtype = pl$UInt8)
+  )
+
+  expect_identical(
+    df$unstack(step = 1) |> dim(),
+    c(1L, 24L)
+  )
+
+  expect_equal(
+    df$unstack(step = 4, how = "vertical"),
+    pl$DataFrame(
+      x_0 = c("A", "B", "C", "D"),
+      x_1 = c("E", "F", "G", "H"),
+      y_0 = 1:4,
+      y_1 = 5:8,
+      z_0 = list(1:2, 2:3, 3:4, 4:5),
+      z_1 = list(5:6, 6:7, 7:8, 8:9)
+    )$cast(z_0 = pl$List(pl$UInt8), z_1 = pl$List(pl$UInt8))
+  )
+  expect_equal(
+    df$unstack(step = 2, how = "horizontal"),
+    pl$DataFrame(
+      x_0 = c("A", "C", "E", "G"),
+      x_1 = c("B", "D", "F", "H"),
+      y_0 = seq(1L, 7L, by = 2L),
+      y_1 = seq(2L, 8L, by = 2L),
+      z_0 = list(1:2, 3:4, 5:6, 7:8),
+      z_1 = list(2:3, 4:5, 6:7, 8:9)
+    )$cast(z_0 = pl$List(pl$UInt8), z_1 = pl$List(pl$UInt8))
+  )
+  expect_error(
+    df$unstack(step = -1, how = "vertical"),
+    "must be a single positive"
+  )
+  expect_error(
+    df$unstack(columns = "a", step = 1),
+    "must be passed by position"
+  )
+  # selector
+  expect_equal(
+    df$unstack(cs$numeric(), step = 5),
+    pl$DataFrame(y_0 = 1:5, y_1 = c(6L, 7L, 8L, NA, NA))
+  )
+  # multiple selectors
+  expect_equal(
+    df$unstack(cs$numeric(), cs$string(), step = 5),
+    pl$DataFrame(
+      y_0 = 1:5,
+      y_1 = c(6L, 7L, 8L, NA, NA),
+      x_0 = c("A", "B", "C", "D", "E"),
+      x_1 = c("F", "G", "H", NA, NA)
+    )
+  )
+  # mix selector and column name
+  expect_equal(
+    df$unstack(cs$numeric(), "x", step = 5),
+    pl$DataFrame(
+      y_0 = 1:5,
+      y_1 = c(6L, 7L, 8L, NA, NA),
+      x_0 = c("A", "B", "C", "D", "E"),
+      x_1 = c("F", "G", "H", NA, NA)
+    )
+  )
+  # mix selector and expression
+  expect_equal(
+    df$unstack(cs$string(), pl$col("y") + 1, step = 5),
+    pl$DataFrame(
+      x_0 = c("A", "B", "C", "D", "E"),
+      x_1 = c("F", "G", "H", NA, NA),
+      y_0 = c(2, 3, 4, 5, 6),
+      y_1 = c(7, 8, 9, NA, NA)
+    )
+  )
+  # fill_values correctly used
+  expect_equal(
+    df$unstack(cs$numeric(), step = 5, fill_values = 0),
+    pl$DataFrame(y_0 = 1:5, y_1 = c(6L, 7L, 8L, 0L, 0L))
+  )
+  expect_equal(
+    df$unstack(cs$numeric(), step = 5, fill_values = pl$lit(0)),
+    pl$DataFrame(y_0 = 1:5, y_1 = c(6L, 7L, 8L, 0L, 0L))
+  )
+  expect_equal(
+    df$unstack("z", step = 5, fill_values = list(c(0, 0))),
+    pl$DataFrame(
+      z_0 = list(1:2, 2:3, 3:4, 4:5, 5:6),
+      z_1 = list(6:7, 7:8, 8:9, c(0, 0), c(0, 0)),
+    )$cast(pl$List(pl$UInt8))
+  )
+  expect_error(
+    df$unstack(cs$numeric(), step = 5, fill_values = c(0, 1)),
+    "Maybe `fill_values` is not a scalar value"
+  )
+  expect_error(
+    df$unstack(cs$numeric(), step = 5, fill_values = list(0, 1)),
+    "Maybe `fill_values` is not a scalar value"
+  )
+  expect_error(
+    df$unstack(cs$numeric(), step = 5, fill_values = list(x = 0, 1)),
+    "Maybe `fill_values` is not a scalar value"
+  )
+
+  ## Named list cases
+  expect_equal(
+    df$unstack(
+      "x",
+      "y",
+      step = 5,
+      fill_values = list(y = 999, x = "foo")
+    ),
+    pl$DataFrame(
+      x_0 = c("A", "B", "C", "D", "E"),
+      x_1 = c("F", "G", "H", "foo", "foo"),
+      y_0 = 1:5,
+      y_1 = c(6L, 7L, 8L, 999L, 999L)
+    )
+  )
+  expect_error(
+    df$unstack(cs$numeric(), step = 5, fill_values = list(y = 1:2)),
+    "Maybe one of `fill_values` is not a scalar value"
+  )
+
+  # column name padding
+  expect_identical(
+    pl$DataFrame(x = 1:10)$unstack(step = 1)$columns,
+    paste0("x_0", 0:9)
   )
 })

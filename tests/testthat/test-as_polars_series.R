@@ -289,3 +289,62 @@ patrick::with_parameters_test_that(
     expect_equal(series_duration$dtype, pl$Duration(time_unit))
   }
 )
+
+patrick::with_parameters_test_that(
+  "nanoarrow_array/nanoarrow_array_stream support",
+  .cases = {
+    skip_if_not_installed("nanoarrow")
+    # TODO: add more types
+    # fmt: skip
+    tibble::tribble(
+      ~.test_name, ~na_array,
+      "int16", nanoarrow::as_nanoarrow_array(1:10, schema = nanoarrow::na_int16()),
+      "int32", nanoarrow::as_nanoarrow_array(1:10, schema = nanoarrow::na_int32()),
+      "int64", nanoarrow::as_nanoarrow_array(1:10, schema = nanoarrow::na_int64()),
+    )
+  },
+  code = {
+    series_from_array_default <- as_polars_series(na_array)
+    series_from_stream_default <- as_polars_series(nanoarrow::as_nanoarrow_array_stream(na_array))
+    series_from_array_named <- as_polars_series(na_array, name = "foo")
+    series_from_stream_named <- as_polars_series(
+      nanoarrow::as_nanoarrow_array_stream(na_array),
+      name = "foo"
+    )
+
+    expect_s3_class(series_from_array_default, "polars_series")
+    expect_identical(series_from_array_default$name, "")
+    expect_snapshot(print(series_from_array_default))
+    expect_equal(series_from_array_default, series_from_stream_default)
+    expect_equal(series_from_array_named, series_from_stream_named)
+  }
+)
+
+patrick::with_parameters_test_that(
+  "arrow RecordBatchReader and Tabular objects support",
+  .cases = {
+    skip_if_not_installed("arrow")
+    # fmt: skip
+    tibble::tribble(
+      ~.test_name, ~construct_function,
+      "table", arrow::as_arrow_table,
+      "record_batch", arrow::as_record_batch,
+      "record_batch_reader", arrow::as_record_batch_reader,
+    )
+  },
+  code = {
+    obj <- data.frame(
+      int = 1:2,
+      chr = letters[1:2],
+      lst = I(list(TRUE, NA))
+    ) |>
+      construct_function()
+
+    series_default <- as_polars_series(obj)
+    series_named <- as_polars_series(obj, name = "foo")
+
+    expect_s3_class(series_default, "polars_series")
+    expect_identical(series_named$name, "foo")
+    expect_snapshot(print(series_default))
+  }
+)

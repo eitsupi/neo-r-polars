@@ -35,12 +35,6 @@ wrap.PlRLazyFrame <- function(x, ...) {
   self <- new.env(parent = emptyenv())
   self$`_ldf` <- x
 
-  lapply(names(polars_lazyframe__methods), function(name) {
-    fn <- polars_lazyframe__methods[[name]]
-    environment(fn) <- environment()
-    assign(name, fn, envir = self)
-  })
-
   class(self) <- c("polars_lazy_frame", "polars_object")
   self
 }
@@ -503,8 +497,8 @@ lazyframe__collect_schema <- function() {
 #' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Either a datatype to which
 #' all columns will be cast, or a list where the names are column names and the
 #' values are the datatypes to convert to.
-#' @param strict If `TRUE` (default), throw an error if a cast could not be done
-#' (for instance, due to an overflow). Otherwise, return `null`.
+#' @param .strict If `TRUE` (default), throw an error if a cast could not be
+#' done (for instance, due to an overflow). Otherwise, return `null`.
 #'
 #' @return A LazyFrame
 #'
@@ -999,50 +993,36 @@ lazyframe__fill_null <- function(
   matches_supertype = TRUE
 ) {
   wrap({
-    # Can't use check_exclusive() because it errors when we call this from the
-    # eager method.
-    if (!missing(value) && !missing(strategy) && !is.null(value) && !is.null(strategy)) {
-      abort("Exactly one of `value` or `strategy` must be supplied.")
-    }
+    check_exclusive_or_null(value, strategy)
     check_dots_empty0(...)
     if (!missing(value) && !is.null(value)) {
       if (is_polars_expr(value)) {
         dtypes <- NULL
-      } else if (is.logical(value)) {
-        dtypes <- pl$Boolean
-      } else if (isTRUE(matches_supertype) && is.numeric(value)) {
-        dtypes <- c(
-          pl$Int8,
-          pl$Int16,
-          pl$Int32,
-          pl$Int64,
-          pl$Int128,
-          pl$UInt8,
-          pl$UInt16,
-          pl$UInt32,
-          pl$UInt64,
-          pl$Float32,
-          pl$Float64,
-          pl$Decimal()
-        )
-      } else if (is.integer(value)) {
-        dtypes <- pl$Int64
-      } else if (is.double(value)) {
-        dtypes <- pl$Float64
-      } else if (inherits(value, "POSIXct")) {
-        abort("TODO")
-      } else if (is(x, "Duration")) {
-        abort("TODO")
-      } else if (is.Date(value)) {
-        dtypes <- pl$Date
-      } else if (is.character(value)) {
-        dtypes <- c(pl$String, pl$Categorical("physical"), pl$Categorical("lexical"))
       } else {
-        dtypes <- NULL
+        dtype <- infer_polars_dtype(value)
+        if (dtype$is_numeric() && isTRUE(matches_supertype)) {
+          dtypes <- c(
+            pl$Int8,
+            pl$Int16,
+            pl$Int32,
+            pl$Int64,
+            pl$Int128,
+            pl$UInt8,
+            pl$UInt16,
+            pl$UInt32,
+            pl$UInt64,
+            pl$Float32,
+            pl$Float64,
+            pl$Decimal()
+          )
+        } else if (inherits(dtype, "polars_dtype_string")) {
+          dtypes <- c(pl$String, pl$Categorical("physical"), pl$Categorical("lexical"))
+        } else {
+          dtypes <- dtype
+        }
       }
-      # TODO: time datatype
 
-      if (!is_list_of_polars_dtype(dtypes)) {
+      if (is_polars_dtype(dtypes)) {
         dtypes <- list(dtypes)
       }
 
@@ -1713,12 +1693,13 @@ lazyframe__rolling <- function(
 
 #' Group based on a date/time or integer column
 #'
+#' @description
 #' Time windows are calculated and rows are assigned to windows. Different from
 #' a normal group by is that a row can be member of multiple groups. By
 #' default, the windows look like:
 #' * [start, start + period)
 #' * [start + every, start + every + period)
-#' * [start + 2*every, start + 2*every + period)
+#' * [start + 2 * every, start + 2 * every + period)
 #' * …
 #'
 #' where `start` is determined by `start_by`, `offset`, `every`, and the
@@ -1748,6 +1729,8 @@ lazyframe__rolling <- function(
 #' * `"datapoint"`: the first value of the index column in the given window. If
 #' you don’t need the label to be at one of the boundaries, choose this option
 #' for maximum performance.
+#' @param group_by Also group by this column/these columns. Can be expressions
+#' or objects coercible to expressions.
 #' @param start_by The strategy to determine the start of the first window by:
 #' * `"window"`: start by taking the earliest timestamp, truncating it with
 #'   `every`, and then adding `offset`. Note that weekly windows start on
@@ -1777,7 +1760,8 @@ lazyframe__rolling <- function(
 #' - 1i # length 1
 #' - 10i # length 10
 #'
-#' @return A [LazyGroupBy][LazyGroupBy_class] object
+# TODO: Add LazyGroupBy docs
+#' @return A [LazyGroupBy] object
 #' @seealso
 #' - [`<LazyFrame>$rolling()`][lazyframe__rolling]
 #'
@@ -1853,13 +1837,14 @@ lazyframe__group_by_dynamic <- function(
   offset = NULL,
   include_boundaries = FALSE,
   closed = c("left", "right", "both", "none"),
-  label = "left",
+  label = c("left", "right", "datapoint"),
   group_by = NULL,
   start_by = "window"
 ) {
   wrap({
     check_dots_empty0(...)
     closed <- arg_match0(closed, values = c("both", "left", "right", "none"))
+    label <- arg_match0(label, values = c("left", "right", "datapoint"))
     start_by <- arg_match0(
       start_by,
       values = c(
@@ -1877,7 +1862,11 @@ lazyframe__group_by_dynamic <- function(
     every <- parse_as_duration_string(every)
     offset <- parse_as_duration_string(offset) %||% "0ns"
     period <- parse_as_duration_string(period) %||% every
-    group_by <- parse_into_list_of_expressions(!!!group_by)
+    group_by <- if (is_polars_expr(group_by)) {
+      list(group_by$`_rexpr`)
+    } else {
+      parse_into_list_of_expressions(!!!group_by)
+    }
 
     self$`_ldf`$group_by_dynamic(
       as_polars_expr(index_column)$`_rexpr`,
@@ -2176,8 +2165,25 @@ lazyframe__set_sorted <- function(column, ..., descending = FALSE) {
 #'   index = pl$int_range(pl$len(), dtype = pl$UInt32)
 #' )$collect()
 lazyframe__with_row_index <- function(name = "index", offset = 0) {
-  self$`_ldf`$with_row_index(name, offset) |>
-    wrap()
+  wrap({
+    tryCatch(
+      self$`_ldf`$with_row_index(name, offset),
+      error = function(e) {
+        is_overflow_error <- grepl("out of range", e$message)
+        if (isTRUE(is_overflow_error)) {
+          issue <- if (offset < 0) {
+            "negative"
+          } else {
+            "greater than the maximum index value"
+          }
+          msg <- paste0("`offset` input for `with_row_index` cannot be ", issue, ", got ", offset)
+        } else {
+          msg <- e$message
+        }
+        abort(msg, call = caller_env(4))
+      }
+    )
+  })
 }
 
 #' Perform joins on nearest keys
@@ -2356,132 +2362,201 @@ lazyframe__join_asof <- function(
   })
 }
 
-#' Evaluate the query in streaming mode and write to a Parquet file
+#' Creates a summary of statistics for a LazyFrame, returning a DataFrame.
 #'
 #' @description
-#' `r lifecycle::badge("experimental")`
+#' This method does not maintain the laziness of the frame, and will collect
+#' the final result. This could potentially be an expensive operation.
 #'
-#' This allows streaming results that are larger than RAM to be written to disk.
+#' We do not guarantee the output of `describe()` to be stable. It will show
+#' statistics that we deem informative, and may be updated in the future. Using
+#' `describe()` programmatically (versus interactive exploration) is not
+#' recommended for this reason.
 #'
-#' @inheritParams rlang::check_dots_empty0
-#' @param path A character. File path to which the file should be written.
-#' @param compression The compression method. Must be one of:
-#' * `"lz4"`: fast compression/decompression.
-#' * `"uncompressed"`
-#' * `"snappy"`: this guarantees that the parquet file will be compatible with
-#'   older parquet readers.
-#' * `"gzip"`
-#' * `"lzo"`
-#' * `"brotli"`
-#' * `"zstd"`: good compression performance.
-#' @param compression_level `NULL` or integer. The level of compression to use.
-#'  Only used if method is one of `"gzip"`, `"brotli"`, or `"zstd"`. Higher
-#' compression means smaller files on disk:
-#'  * `"gzip"`: min-level: 0, max-level: 10.
-#'  * `"brotli"`: min-level: 0, max-level: 11.
-#'  * `"zstd"`: min-level: 1, max-level: 22.
-#' @param statistics Whether statistics should be written to the Parquet
-#' headers. Possible values:
-#' * `TRUE`: enable default set of statistics (default)
-#' * `FALSE`: disable all statistics
-#' * `"full"`: calculate and write all available statistics
-#' * A list created via [parquet_statistics()] to specify which statistics to
-#'   include.
-#' @param row_group_size Size of the row groups in number of rows. If `NULL`
-#' (default), the chunks of the DataFrame are used. Writing in smaller chunks
-#' may reduce memory pressure and improve writing speeds.
-#' @param data_page_size Size of the data page in bytes. If `NULL` (default), it
-#' is set to 1024^2 bytes.
-#' @param maintain_order Maintain the order in which data is processed. Setting
-#' this to `FALSE` will be slightly faster.
-#' @inheritParams lazyframe__collect
-#' @inheritParams pl__scan_parquet
+#' @inheritParams rlang::args_dots_empty
+#' @param percentiles One or more percentiles to include in the summary
+#' statistics. All values must be in the range `[0; 1]`.
+#' @param interpolation Interpolation method for computing quantiles. Must be
+#' one of `"nearest"`, `"higher"`, `"lower"`, `"midpoint"`, or `"linear"`.
 #'
-#' @return Invisibly returns the input LazyFrame
+#' @details
+#' The median is included by default as the 50% percentile.
 #'
+#' @inherit as_polars_df return
 #' @examples
-#' # sink table 'mtcars' from mem to parquet
-#' tmpf <- tempfile()
-#' as_polars_lf(mtcars)$sink_parquet(tmpf)
+#' lf <- pl$LazyFrame(
+#'   int = 1:3,
+#'   float = c(0.5, NA, 2.5),
+#'   string = c(letters[1:2], NA),
+#'   date = c(as.Date("2024-01-20"), as.Date("2024-01-21"), NA),
+#'   cat = factor(c(letters[1:2], NA)),
+#'   bool = c(TRUE, FALSE, NA)
+#' )
+#' lf$collect()
 #'
-#' # stream a query end-to-end
-#' tmpf2 <- tempfile()
-#' pl$scan_parquet(tmpf)$select(pl$col("cyl") * 2)$sink_parquet(tmpf2)
+#' # Show default frame statistics:
+#' lf$describe()
 #'
-#' # load parquet directly into a DataFrame / memory
-#' pl$scan_parquet(tmpf2)$collect()
-lazyframe__sink_parquet <- function(
-  path,
+#' # Customize which percentiles are displayed, applying linear interpolation:
+#' lf$describe(
+#'   percentiles = c(0.1, 0.3, 0.5, 0.7, 0.9),
+#'   interpolation = "linear"
+#' )
+lazyframe__describe <- function(
+  percentiles = c(0.25, 0.5, 0.75),
   ...,
-  compression = c("lz4", "uncompressed", "snappy", "gzip", "lzo", "brotli", "zstd"),
-  compression_level = NULL,
-  statistics = TRUE,
-  row_group_size = NULL,
-  data_page_size = NULL,
-  maintain_order = TRUE,
-  type_coercion = TRUE,
-  `_type_check` = TRUE,
-  predicate_pushdown = TRUE,
-  projection_pushdown = TRUE,
-  simplify_expression = TRUE,
-  slice_pushdown = TRUE,
-  collapse_joins = TRUE,
-  no_optimization = FALSE,
-  storage_options = NULL,
-  retries = 2
+  interpolation = c("nearest", "higher", "lower", "midpoint", "linear")
 ) {
   wrap({
     check_dots_empty0(...)
-    compression <- arg_match0(
-      compression,
-      values = c("lz4", "uncompressed", "snappy", "gzip", "lzo", "brotli", "zstd")
-    )
-    lf <- set_sink_optimizations(
-      self,
-      type_coercion = type_coercion,
-      `_type_check` = `_type_check`,
-      predicate_pushdown = predicate_pushdown,
-      projection_pushdown = projection_pushdown,
-      simplify_expression = simplify_expression,
-      slice_pushdown = slice_pushdown,
-      collapse_joins = collapse_joins,
-      no_optimization = no_optimization
-    )
-    if (is_bool(statistics)) {
-      statistics <- parquet_statistics(
-        min = statistics,
-        max = statistics,
-        distinct_count = FALSE,
-        null_count = statistics
-      )
-    } else if (identical(statistics, "full")) {
-      statistics <- parquet_statistics(
-        min = TRUE,
-        max = TRUE,
-        distinct_count = TRUE,
-        null_count = TRUE
-      )
-    }
-    if (!inherits(statistics, "polars_parquet_statistics")) {
-      abort("`statistics` must be TRUE, FALSE, 'full', or a call to `parquet_statistics()`.")
+    schema <- self$collect_schema()
+    if (length(schema) == 0) {
+      abort("cannot describe a LazyFrame without any columns")
     }
 
-    lf$sink_parquet(
-      path = path,
-      compression = compression,
-      compression_level = compression_level,
-      stat_min = statistics[["min"]],
-      stat_max = statistics[["max"]],
-      stat_null_count = statistics[["null_count"]],
-      stat_distinct_count = statistics[["distinct_count"]],
-      row_group_size = row_group_size,
-      data_page_size = data_page_size,
-      maintain_order = maintain_order,
-      storage_options = storage_options,
-      retries = retries
-    )
+    # create list of metrics
+    metrics <- c("count", "null_count", "mean", "std", "min")
+    quantiles <- parse_percentiles(percentiles)
+    if (length(quantiles) > 0) {
+      metrics <- c(metrics, paste0(percentiles * 100, "%"))
+    }
+    metrics <- c(metrics, "max")
 
-    invisible(self)
+    skip_minmax <- function(x) {
+      dtypes <- class(dtype)
+      dtype$is_nested() ||
+        inherits(
+          dtypes,
+          c(
+            "polars_dtype_categorical",
+            "polars_dtype_enum",
+            "polars_dtype_null",
+            "polars_dtype_unknown"
+          )
+        )
+    }
+
+    # determine which columns will produce std/mean/percentile/etc
+    # statistics in a single pass over the frame schema
+    has_numeric_result <- c()
+    sort_cols <- c()
+    metric_exprs <- list()
+    null <- pl$lit(NULL)
+
+    for (i in seq_along(schema)) {
+      name <- names(schema)[i]
+      dtype <- schema[[i]]
+
+      is_numeric <- dtype$is_numeric()
+      is_temporal <- !is_numeric && dtype$is_temporal()
+
+      # counts
+      count_exprs <- c(
+        pl$col(name)$count()$name$prefix("count:"),
+        pl$col(name)$null_count()$name$prefix("null_count:")
+      )
+
+      # mean
+      mean_expr <- if (is_temporal || is_numeric || inherits(dtype, "polars_dtype_boolean")) {
+        pl$col(name)$mean()
+      } else {
+        pl$lit(NA, dtype = dtype)
+      }
+
+      # standard deviation, min, max
+      expr_std <- if (is_numeric) {
+        pl$col(name)$std()
+      } else {
+        pl$lit(NA, dtype = dtype)
+      }
+      min_expr <- if (!skip_minmax(dtype)) {
+        pl$col(name)$min()
+      } else {
+        pl$lit(NA, dtype = dtype)
+      }
+      max_expr <- if (!skip_minmax(dtype)) {
+        pl$col(name)$max()
+      } else {
+        pl$lit(NA, dtype = dtype)
+      }
+
+      # percentiles
+      pct_exprs <- c()
+      for (index_quantile in seq_along(quantiles)) {
+        p <- quantiles[index_quantile]
+        pct_expr <- if (is_temporal) {
+          pl$col(name)$to_physical()$quantile(p, interpolation)$cast(dtype)
+        } else if (is_numeric) {
+          pl$col(name)$quantile(p, interpolation)
+        } else {
+          pl$lit(NA, dtype = dtype)
+        }
+        sort_cols <- c(sort_cols, name)
+        pct_exprs <- c(pct_exprs, pct_expr$alias(paste0(p, ":", name)))
+      }
+
+      if (
+        is_numeric ||
+          dtype$is_nested() ||
+          inherits(self, "polars_dtype_null") ||
+          inherits(dtype, "polars_dtype_boolean")
+      ) {
+        has_numeric_result <- c(has_numeric_result, name)
+      }
+
+      # add column expressions (in end-state 'metrics' list order)
+      metric_exprs <- c(
+        metric_exprs,
+        count_exprs,
+        mean_expr$alias(paste0("mean:", name)),
+        expr_std$alias(paste0("std:", name)),
+        min_expr$alias(paste0("min:", name)),
+        pct_exprs,
+        max_expr$alias(paste0("max:", name))
+      )
+    }
+
+    # calculate requested metrics in parallel, then collect the result
+    df_metrics <- if (length(sort_cols) > 0) {
+      self$with_columns(pl$col(!!!unique(sort_cols))$sort())
+    } else {
+      self
+    }
+
+    df_metrics <- df_metrics$select(!!!metric_exprs)$collect()
+
+    # Cast by column type (numeric/bool -> float), (other -> string)
+    # This is done later in py-polars but we need to do it here. When we gather
+    # values in the list, we coerce the types, meaning that stats for date (for
+    # instance) are coerced to numeric. Casting those to string beforehand
+    # fixes this.
+    df_metrics_schema <- df_metrics$schema
+    for (i in seq_along(df_metrics_schema)) {
+      nm <- names(df_metrics_schema)[i]
+      dtype <- df_metrics_schema[[i]]
+      df_metrics_dtype <- if (dtype$is_numeric() || inherits(dtype, "polars_dtype_boolean")) {
+        pl$Float64
+      } else {
+        pl$String
+      }
+      df_metrics <- df_metrics$with_columns(pl$col(names(df_metrics_schema)[i])$cast(
+        df_metrics_dtype
+      ))
+    }
+
+    # From the 1 x (metrics * variables) table, we extract the stats for each
+    # variable in a list with length(metrics) elements.
+    # Probably could be optimized.
+    output <- vector("list", length = length(schema))
+    names(output) <- names(schema)
+    for (nm in seq_along(names(output))) {
+      for (i in seq_along(metrics)) {
+        output[[nm]][i] <- as.vector(df_metrics$to_series((nm - 1) * length(metrics) + i - 1))
+      }
+    }
+
+    append(list(statistic = metrics), output) |>
+      as_polars_df()
   })
 }
 

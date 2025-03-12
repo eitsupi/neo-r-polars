@@ -12,7 +12,7 @@ lazyframe__group_by_dynamic(
   offset = NULL,
   include_boundaries = FALSE,
   closed = c("left", "right", "both", "none"),
-  label = "left",
+  label = c("left", "right", "datapoint"),
   group_by = NULL,
   start_by = "window"
 )
@@ -52,6 +52,9 @@ you don’t need the label to be at one of the boundaries, choose this option
 for maximum performance.
 }}
 
+\item{group_by}{Also group by this column/these columns. Can be expressions
+or objects coercible to expressions.}
+
 \item{start_by}{The strategy to determine the start of the first window by:
 \itemize{
 \item \code{"window"}: start by taking the earliest timestamp, truncating it with
@@ -63,7 +66,7 @@ starts the window on the Monday before the first data point, etc.
 }}
 }
 \value{
-A \link[=LazyGroupBy_class]{LazyGroupBy} object
+A \link{LazyGroupBy} object
 }
 \description{
 Time windows are calculated and rows are assigned to windows. Different from
@@ -72,14 +75,14 @@ default, the windows look like:
 \itemize{
 \item [start, start + period)
 \item [start + every, start + every + period)
-\item [start + 2\emph{every, start + 2}every + period)
+\item [start + 2 * every, start + 2 * every + period)
 \item …
 }
-}
-\details{
+
 where \code{start} is determined by \code{start_by}, \code{offset}, \code{every}, and the
 earliest datapoint. See the \code{start_by} argument description for details.
-
+}
+\details{
 The \code{every}, \code{period}, and \code{offset} arguments are created with the following
 string language:
 \itemize{

@@ -24,6 +24,10 @@
 \alias{as_polars_series.list}
 \alias{as_polars_series.AsIs}
 \alias{as_polars_series.data.frame}
+\alias{as_polars_series.nanoarrow_array_stream}
+\alias{as_polars_series.nanoarrow_array}
+\alias{as_polars_series.RecordBatchReader}
+\alias{as_polars_series.ArrowTabular}
 \alias{as_polars_series.integer64}
 \alias{as_polars_series.ITime}
 \alias{as_polars_series.vctrs_unspecified}
@@ -79,6 +83,14 @@ as_polars_series(x, name = NULL, ...)
 \method{as_polars_series}{AsIs}(x, name = NULL, ...)
 
 \method{as_polars_series}{data.frame}(x, name = NULL, ...)
+
+\method{as_polars_series}{nanoarrow_array_stream}(x, name = NULL, ...)
+
+\method{as_polars_series}{nanoarrow_array}(x, name = NULL, ...)
+
+\method{as_polars_series}{RecordBatchReader}(x, name = NULL, ...)
+
+\method{as_polars_series}{ArrowTabular}(x, name = NULL, ...)
 
 \method{as_polars_series}{integer64}(x, name = NULL, ...)
 
