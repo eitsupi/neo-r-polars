@@ -15,4 +15,4 @@ EOF
   rustup default "${rust_toolchain}"
 fi
 
-sed -e "s/@TARGET@/${TARGET}/" src/Makevars.in > src/Makevars
+sed -e "s/@TARGET@/${TARGET}/" src/Makevars.in >src/Makevars
