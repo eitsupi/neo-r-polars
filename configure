@@ -7,9 +7,8 @@ if [ "$(uname)" = "Emscripten" ]; then
   cat <<EOF
 It seems that building for Emscripten.
 This requires a very recent Rust nightly toolchain.
-So executing 'rustup toolchain install nightly'...
+So executing 'rustup toolchain install ${rust_toolchain}'...
 EOF
-  rustup toolchain uninstall nightly
   rustup toolchain install "${rust_toolchain}" --force --component rust-src
   rustup default "${rust_toolchain}"
 fi
