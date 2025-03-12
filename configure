@@ -11,6 +11,7 @@ EOF
   rustup toolchain uninstall nightly
   rustup toolchain install nightly-2025-01-05 --force
   rustup default nightly-2025-01-05
+  rustup component add rust-src
 fi
 
 sed -e "s/@TARGET@/${TARGET}/" src/Makevars.in > src/Makevars
