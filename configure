@@ -11,7 +11,7 @@ So executing 'rustup toolchain install nightly'...
 EOF
   rustup toolchain uninstall nightly
   rustup toolchain install "${rust_toolchain}" --force --component rust-src
-  rustup override set "${rust_toolchain}"
+  rustup default "${rust_toolchain}"
 fi
 
 sed -e "s/@TARGET@/${TARGET}/" src/Makevars.in > src/Makevars
