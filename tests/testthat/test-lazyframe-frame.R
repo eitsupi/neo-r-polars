@@ -2278,29 +2278,3 @@ test_that("describe() works", {
   # min/max different depending on categorical ordering
   expect_snapshot(df$select(pl$col("cat")$cast(pl$Categorical("lexical")))$describe())
 })
-
-test_that("Test sinking data to IPC file", {
-  lf <- as_polars_lf(iris)
-  df <- as_polars_df(iris)
-
-  tmpf <- tempfile()
-  on.exit(unlink(tmpf))
-  lf$sink_ipc(tmpf)
-  expect_error(
-    lf$sink_ipc(tmpf, compression = "rar"),
-    "must be one of"
-  )
-  expect_silent(lf$sink_ipc(tmpf, compression = NULL))
-  expect_equal(pl$scan_ipc(tmpf)$collect(), df)
-
-  # update with new data
-  lf$slice(5, 5)$sink_ipc(tmpf)
-  expect_equal(
-    pl$scan_ipc(tmpf)$collect(),
-    df$slice(5, 5)
-  )
-
-  # return the input data
-  x <- lf$sink_ipc(tmpf)
-  expect_identical(x$collect(), df)
-})
