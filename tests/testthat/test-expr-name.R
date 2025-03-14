@@ -8,26 +8,25 @@ test_that("to_uppercase() works", {
   expect_named(df$select(pl$all()$name$to_uppercase()), c("VAR1", "VAR2"))
 })
 
-# TODO: this should work?
-# test_that("prefix() works", {
-#   expect_named(
-#     pl$DataFrame(alice = 1:3)$select(
-#       pl$col("alice")$alias("bob")$name$prefix("a_"),
-#       pl$col("alice")$alias("bob")$name$prefix("b_")
-#     ),
-#     c("a_bob", "b_bob")
-#   )
-# })
+test_that("prefix() works", {
+  expect_named(
+    pl$DataFrame(alice = 1:3)$select(
+      pl$col("alice")$name$prefix("a_"),
+      pl$col("alice")$name$prefix("b_")
+    ),
+    c("a_alice", "b_alice")
+  )
+})
 
-# test_that("suffix() works", {
-#   expect_named(
-#     pl$DataFrame(alice = 1:3)$select(
-#       pl$col("alice")$alias("bob")$name$suffix("_1"),
-#       pl$col("alice")$alias("bob")$name$suffix("_2")
-#     ),
-#     c("bob_1", "bob_2")
-#   )
-# })
+test_that("suffix() works", {
+  expect_named(
+    pl$DataFrame(alice = 1:3)$select(
+      pl$col("alice")$name$suffix("_1"),
+      pl$col("alice")$name$suffix("_2")
+    ),
+    c("alice_1", "alice_2")
+  )
+})
 
 test_that("keep() works", {
   expect_named(
