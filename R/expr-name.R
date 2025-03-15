@@ -111,7 +111,9 @@ expr_name_to_uppercase <- function() {
 #'   pl$struct(pl$all())$alias("my_struct")
 #' )
 #'
-#' df$with_columns(pl$col("my_struct")$name$prefix_fields("col_"))$unnest()
+#' df$with_columns(
+#'   pl$col("my_struct")$name$prefix_fields("col_")
+#' )$unnest("my_struct")
 expr_name_prefix_fields <- function(prefix) {
   self$`_rexpr`$name_prefix_fields(prefix) |>
     wrap()
@@ -128,7 +130,9 @@ expr_name_prefix_fields <- function(prefix) {
 #'   pl$struct(pl$all())$alias("my_struct")
 #' )
 #'
-#' df$with_columns(pl$col("my_struct")$name$suffix_fields("_post"))$unnest()
+#' df$with_columns(
+#'   pl$col("my_struct")$name$suffix_fields("_post")
+#' )$unnest("my_struct")
 expr_name_suffix_fields <- function(suffix) {
   self$`_rexpr`$name_suffix_fields(suffix) |>
     wrap()

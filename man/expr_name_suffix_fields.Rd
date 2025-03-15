@@ -20,5 +20,7 @@ df <- pl$DataFrame(a = 1, b = 2)$select(
   pl$struct(pl$all())$alias("my_struct")
 )
 
-df$with_columns(pl$col("my_struct")$name$suffix_fields("_post"))$unnest()
+df$with_columns(
+  pl$col("my_struct")$name$suffix_fields("_post")
+)$unnest("my_struct")
 }
