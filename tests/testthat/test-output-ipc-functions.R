@@ -1,26 +1,33 @@
-test_that("Test sinking data to IPC file", {
-  lf <- as_polars_lf(iris)
-  df <- as_polars_df(iris)
+patrick::with_parameters_test_that(
+  "Test sinking data to IPC file",
+  {
+    lf <- as_polars_lf(iris)
+    df <- as_polars_df(iris)
+    tmpf <- withr::local_tempfile()
+    expect_silent(lf$sink_ipc(tmpf, compression = compression))
+    expect_equal(pl$read_ipc(tmpf), df)
 
+    # update with new data
+    lf$slice(5, 5)$sink_ipc(tmpf)
+    expect_equal(
+      pl$read_ipc(tmpf),
+      df$slice(5, 5)
+    )
+
+    # return the input data
+    x <- lf$sink_ipc(tmpf)
+    expect_identical(x, lf)
+  },
+  compression = list("uncompressed", "zstd", "lz4", NULL)
+)
+
+test_that("sink_ipc: wrong compression", {
+  lf <- as_polars_lf(iris)
   tmpf <- withr::local_tempfile()
-  lf$sink_ipc(tmpf)
   expect_error(
     lf$sink_ipc(tmpf, compression = "rar"),
     "must be one of"
   )
-  expect_silent(lf$sink_ipc(tmpf, compression = NULL))
-  expect_equal(pl$scan_ipc(tmpf)$collect(), df)
-
-  # update with new data
-  lf$slice(5, 5)$sink_ipc(tmpf)
-  expect_equal(
-    pl$scan_ipc(tmpf)$collect(),
-    df$slice(5, 5)
-  )
-
-  # return the input data
-  x <- lf$sink_ipc(tmpf)
-  expect_identical(x$collect(), df)
 })
 
 # TODO-REWRITE: needs $write_ipc()
