@@ -2560,4 +2560,13 @@ lazyframe__describe <- function(
   })
 }
 
+lazyframe__sql <- function(query, ..., table_name = "self") {
+  wrap({
+    ctx <- wrap_to_sql_context(register_globals = FALSE)
+    name <- table_name
+    ctx$register(name = name, frame = self)
+    ctx$execute(query)
+  })
+}
+
 # TODO-REWRITE: implement $deserialize() for LazyFrame

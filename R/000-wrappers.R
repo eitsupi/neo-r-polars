@@ -4021,6 +4021,63 @@ class(`PlRLazyGroupBy`) <- c("PlRLazyGroupBy__bundle", "savvy_neopolars__sealed"
   cat('PlRLazyGroupBy')
 }
 
+### wrapper functions for PlRSQLContext
+
+`PlRSQLContext_execute` <- function(self) {
+  function(`query`) {
+    .savvy_wrap_PlRLazyFrame(.Call(savvy_PlRSQLContext_execute__impl, `self`, `query`))
+  }
+}
+
+`PlRSQLContext_get_tables` <- function(self) {
+  function() {
+    .savvy_wrap_Vec(.Call(savvy_PlRSQLContext_get_tables__impl, `self`))
+  }
+}
+
+`PlRSQLContext_register` <- function(self) {
+  function(`name`, `lf`) {
+    `lf` <- .savvy_extract_ptr(`lf`, "PlRLazyFrame")
+    invisible(.Call(savvy_PlRSQLContext_register__impl, `self`, `name`, `lf`))
+  }
+}
+
+`PlRSQLContext_unregister` <- function(self) {
+  function(`name`) {
+    invisible(.Call(savvy_PlRSQLContext_unregister__impl, `self`, `name`))
+  }
+}
+
+`.savvy_wrap_PlRSQLContext` <- function(ptr) {
+  e <- new.env(parent = emptyenv())
+  e$.ptr <- ptr
+  e$`execute` <- `PlRSQLContext_execute`(ptr)
+  e$`get_tables` <- `PlRSQLContext_get_tables`(ptr)
+  e$`register` <- `PlRSQLContext_register`(ptr)
+  e$`unregister` <- `PlRSQLContext_unregister`(ptr)
+
+  class(e) <- c("PlRSQLContext", "savvy_neopolars__sealed")
+  e
+}
+
+
+
+`PlRSQLContext` <- new.env(parent = emptyenv())
+
+### associated functions for PlRSQLContext
+
+`PlRSQLContext`$`new` <- function() {
+  .savvy_wrap_PlRSQLContext(.Call(savvy_PlRSQLContext_new__impl))
+}
+
+
+class(`PlRSQLContext`) <- c("PlRSQLContext__bundle", "savvy_neopolars__sealed")
+
+#' @export
+`print.PlRSQLContext__bundle` <- function(x, ...) {
+  cat('PlRSQLContext')
+}
+
 ### wrapper functions for PlRSeries
 
 `PlRSeries_add` <- function(self) {
