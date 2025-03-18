@@ -53,7 +53,7 @@ impl PlRSQLContext {
         Ok(self.context.get_tables())
     }
 
-    pub fn register(&mut self, name: &str, lf: &PlRLazyFrame) -> Result<()> {
+    pub fn register(&mut self, name: &str, lf: PlRLazyFrame) -> Result<()> {
         self.context.register(name, lf.ldf.clone());
         Ok(())
     }

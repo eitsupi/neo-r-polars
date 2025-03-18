@@ -1,13 +1,14 @@
 # The env for storing rolling_group_by methods
 polars_sql_context__methods <- new.env(parent = emptyenv())
 
-wrap_to_sql_context <- function(
+#' @export
+wrap.PlRSQLContext <- function(
+  x,
   frames = NULL,
   register_globals = FALSE
 ) {
   self <- new.env(parent = emptyenv())
-  self$`_ctxt` <- PlRSQLContext |>
-    .savvy_wrap_PlRSQLContext()
+  self$`_ctxt` <- x
   self$frames <- frames
   self$register_globals <- register_globals
 
@@ -16,7 +17,8 @@ wrap_to_sql_context <- function(
 }
 
 pl__SQLContext <- function(frames = NULL, register_globals = FALSE) {
-  wrap_to_sql_context(frames = frames, register_globals = register_globals)
+  PlRSQLContext$new() |>
+    wrap()
 }
 
 ensure_lazyframe <- function(obj) {
@@ -40,5 +42,55 @@ sql_context__register <- function(name, frame = NULL) {
     }
     self$`_ctxt`$register(name, frame$`_ldf`)
     self
+  })
+}
+
+#' Parse the given SQL query and execute it against the registered frame data
+#'
+#' @param query A valid string SQL query.
+#'
+#' @inherit as_polars_lf return
+#' @examples
+# # Declare frame data and register with a SQLContext:
+#' df <- pl$DataFrame(
+#'   title = c(
+#'     "The Godfather",
+#'     "The Dark Knight",
+#'     "Schindler's List",
+#'     "Pulp Fiction",
+#'     "The Shawshank Redemption"
+#'   ),
+#'   release_year = c(1972, 2008, 1993, 1994, 1994),
+#'   budget = c(6 * 1e6, 185 * 1e6, 22 * 1e6, 8 * 1e6, 25 * 1e6),
+#'   gross = c(134821952, 533316061, 96067179, 107930000, 28341469),
+#'   imdb_score = c(9.2, 9, 8.9, 8.9, 9.3)
+#' )
+#'
+# TODO: this should be pl$SQLContext(films = df)
+#' ctx <- pl$SQLContext()$register("films", df)
+#' ctx$execute(
+#'   "
+#'      SELECT title, release_year, imdb_score
+#'      FROM films
+#'      WHERE release_year > 1990
+#'      ORDER BY imdb_score DESC
+#'      "
+#' )$collect()
+#'
+#' # Execute a GROUP BY query:
+#' ctx$execute(
+#'   "
+#'      SELECT
+#'           MAX(release_year / 10) * 10 AS decade,
+#'           SUM(gross) AS total_gross,
+#'           COUNT(title) AS n_films,
+#'      FROM films
+#'      GROUP BY (release_year / 10) -- decade
+#'      ORDER BY total_gross DESC
+#'      "
+#' )$collect()
+sql_context__execute <- function(query) {
+  wrap({
+    self$`_ctxt`$execute(query)
   })
 }

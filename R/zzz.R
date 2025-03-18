@@ -81,7 +81,6 @@ POLARS_STORE_ENVS <- list(
 lapply(names(POLARS_STORE_ENVS), function(name) {
   target_env <- POLARS_STORE_ENVS[[name]]
   class(target_env) <- c("polars_object")
-
   assign_objects_to_env(
     POLARS_STORE_ENVS[[name]],
     sprintf("^%s", name),
