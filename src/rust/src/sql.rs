@@ -49,17 +49,8 @@ impl PlRSQLContext {
             .into())
     }
 
-    pub fn get_tables(&self) -> Result<Vec<String>> {
-        Ok(self.context.get_tables())
-    }
-
     pub fn register(&mut self, name: &str, lf: &PlRLazyFrame) -> Result<()> {
         self.context.register(name, lf.ldf.clone());
-        Ok(())
-    }
-
-    pub fn unregister(&mut self, name: &str) -> Result<()> {
-        self.context.unregister(name);
         Ok(())
     }
 }

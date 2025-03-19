@@ -4029,12 +4029,6 @@ class(`PlRLazyGroupBy`) <- c("PlRLazyGroupBy__bundle", "savvy_neopolars__sealed"
   }
 }
 
-`PlRSQLContext_get_tables` <- function(self) {
-  function() {
-    .savvy_wrap_Vec(.Call(savvy_PlRSQLContext_get_tables__impl, `self`))
-  }
-}
-
 `PlRSQLContext_register` <- function(self) {
   function(`name`, `lf`) {
     `lf` <- .savvy_extract_ptr(`lf`, "PlRLazyFrame")
@@ -4042,19 +4036,11 @@ class(`PlRLazyGroupBy`) <- c("PlRLazyGroupBy__bundle", "savvy_neopolars__sealed"
   }
 }
 
-`PlRSQLContext_unregister` <- function(self) {
-  function(`name`) {
-    invisible(.Call(savvy_PlRSQLContext_unregister__impl, `self`, `name`))
-  }
-}
-
 `.savvy_wrap_PlRSQLContext` <- function(ptr) {
   e <- new.env(parent = emptyenv())
   e$.ptr <- ptr
   e$`execute` <- `PlRSQLContext_execute`(ptr)
-  e$`get_tables` <- `PlRSQLContext_get_tables`(ptr)
   e$`register` <- `PlRSQLContext_register`(ptr)
-  e$`unregister` <- `PlRSQLContext_unregister`(ptr)
 
   class(e) <- c("PlRSQLContext", "savvy_neopolars__sealed")
   e
