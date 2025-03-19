@@ -16,9 +16,16 @@ wrap.PlRSQLContext <- function(
   self
 }
 
-pl__SQLContext <- function(frames = NULL, register_globals = FALSE) {
-  PlRSQLContext$new() |>
-    wrap()
+pl__SQLContext <- function(..., register_globals = FALSE) {
+  wrap({
+    self <- PlRSQLContext$new()
+    frames <- list2(...)
+    for (i in seq_along(frames)) {
+      frame <- ensure_lazyframe(frames[[i]])
+      self$register(names(frames)[i], frame$`_ldf`)
+    }
+    self
+  })
 }
 
 ensure_lazyframe <- function(obj) {
@@ -66,8 +73,7 @@ sql_context__register <- function(name, frame = NULL) {
 #'   imdb_score = c(9.2, 9, 8.9, 8.9, 9.3)
 #' )
 #'
-# TODO: this should be pl$SQLContext(films = df)
-#' ctx <- pl$SQLContext()$register("films", df)
+#' ctx <- pl$SQLContext(films = df)
 #' ctx$execute(
 #'   "
 #'      SELECT title, release_year, imdb_score

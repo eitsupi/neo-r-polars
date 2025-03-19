@@ -31,7 +31,7 @@ df <- pl$DataFrame(
   imdb_score = c(9.2, 9, 8.9, 8.9, 9.3)
 )
 
-ctx <- pl$SQLContext()$register("films", df)
+ctx <- pl$SQLContext(films = df)
 ctx$execute(
   "
      SELECT title, release_year, imdb_score
