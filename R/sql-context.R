@@ -51,7 +51,7 @@ sql_context__register <- function(name, frame = NULL) {
 #'
 #' @inherit as_polars_lf return
 #' @examples
-# # Declare frame data and register with a SQLContext:
+#' # Declare frame data and register with a SQLContext:
 #' df <- pl$DataFrame(
 #'   title = c(
 #'     "The Godfather",

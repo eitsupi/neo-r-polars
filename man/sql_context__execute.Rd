@@ -16,6 +16,7 @@ A polars \link{LazyFrame}
 Parse the given SQL query and execute it against the registered frame data
 }
 \examples{
+# Declare frame data and register with a SQLContext:
 df <- pl$DataFrame(
   title = c(
     "The Godfather",
