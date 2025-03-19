@@ -43,13 +43,13 @@ ctx$execute(
 # Execute a GROUP BY query:
 ctx$execute(
   "
-     SELECT
-          MAX(release_year / 10) * 10 AS decade,
-          SUM(gross) AS total_gross,
-          COUNT(title) AS n_films,
-     FROM films
-     GROUP BY (release_year / 10) -- decade
-     ORDER BY total_gross DESC
-     "
+  SELECT
+       MAX(release_year / 10) * 10 AS decade,
+       SUM(gross) AS total_gross,
+       COUNT(title) AS n_films,
+  FROM films
+  GROUP BY (release_year / 10) -- decade
+  ORDER BY total_gross DESC
+  "
 )$collect()
 }

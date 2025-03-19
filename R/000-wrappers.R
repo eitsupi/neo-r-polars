@@ -347,7 +347,7 @@ class(`PlRChainedThen`) <- c("PlRChainedThen__bundle", "savvy_neopolars__sealed"
 
 #' @export
 `print.PlRChainedThen__bundle` <- function(x, ...) {
-  cat('PlRChainedThen\n')
+  cat('PlRChainedThen')
 }
 
 ### wrapper functions for PlRChainedWhen
@@ -380,7 +380,7 @@ class(`PlRChainedWhen`) <- c("PlRChainedWhen__bundle", "savvy_neopolars__sealed"
 
 #' @export
 `print.PlRChainedWhen__bundle` <- function(x, ...) {
-  cat('PlRChainedWhen\n')
+  cat('PlRChainedWhen')
 }
 
 ### wrapper functions for PlRDataFrame
@@ -675,7 +675,7 @@ class(`PlRDataFrame`) <- c("PlRDataFrame__bundle", "savvy_neopolars__sealed")
 
 #' @export
 `print.PlRDataFrame__bundle` <- function(x, ...) {
-  cat('PlRDataFrame\n')
+  cat('PlRDataFrame')
 }
 
 ### wrapper functions for PlRDataType
@@ -792,7 +792,7 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
 
 #' @export
 `print.PlRDataType__bundle` <- function(x, ...) {
-  cat('PlRDataType\n')
+  cat('PlRDataType')
 }
 
 ### wrapper functions for PlRExpr
@@ -3518,7 +3518,7 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
 
 #' @export
 `print.PlRExpr__bundle` <- function(x, ...) {
-  cat('PlRExpr\n')
+  cat('PlRExpr')
 }
 
 ### wrapper functions for PlRLazyFrame
@@ -3972,7 +3972,7 @@ class(`PlRLazyFrame`) <- c("PlRLazyFrame__bundle", "savvy_neopolars__sealed")
 
 #' @export
 `print.PlRLazyFrame__bundle` <- function(x, ...) {
-  cat('PlRLazyFrame\n')
+  cat('PlRLazyFrame')
 }
 
 ### wrapper functions for PlRLazyGroupBy
@@ -4018,7 +4018,7 @@ class(`PlRLazyGroupBy`) <- c("PlRLazyGroupBy__bundle", "savvy_neopolars__sealed"
 
 #' @export
 `print.PlRLazyGroupBy__bundle` <- function(x, ...) {
-  cat('PlRLazyGroupBy\n')
+  cat('PlRLazyGroupBy')
 }
 
 ### wrapper functions for PlRSQLContext
@@ -4341,7 +4341,7 @@ class(`PlRSeries`) <- c("PlRSeries__bundle", "savvy_neopolars__sealed")
 
 #' @export
 `print.PlRSeries__bundle` <- function(x, ...) {
-  cat('PlRSeries\n')
+  cat('PlRSeries')
 }
 
 ### wrapper functions for PlRThen
@@ -4382,7 +4382,7 @@ class(`PlRThen`) <- c("PlRThen__bundle", "savvy_neopolars__sealed")
 
 #' @export
 `print.PlRThen__bundle` <- function(x, ...) {
-  cat('PlRThen\n')
+  cat('PlRThen')
 }
 
 ### wrapper functions for PlRWhen
@@ -4415,6 +4415,6 @@ class(`PlRWhen`) <- c("PlRWhen__bundle", "savvy_neopolars__sealed")
 
 #' @export
 `print.PlRWhen__bundle` <- function(x, ...) {
-  cat('PlRWhen\n')
+  cat('PlRWhen')
 }
 
