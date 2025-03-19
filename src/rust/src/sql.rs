@@ -28,11 +28,6 @@ impl TryFrom<EnvironmentSexp> for &PlRSQLContext {
 }
 
 #[savvy]
-#[allow(
-    clippy::wrong_self_convention,
-    clippy::should_implement_trait,
-    clippy::len_without_is_empty
-)]
 impl PlRSQLContext {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Result<PlRSQLContext> {
