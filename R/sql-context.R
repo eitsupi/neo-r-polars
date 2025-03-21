@@ -2,15 +2,9 @@
 polars_sql_context__methods <- new.env(parent = emptyenv())
 
 #' @export
-wrap.PlRSQLContext <- function(
-  x,
-  frames = NULL,
-  register_globals = FALSE
-) {
+wrap.PlRSQLContext <- function(x) {
   self <- new.env(parent = emptyenv())
   self$`_ctxt` <- x
-  self$frames <- frames
-  self$register_globals <- register_globals
 
   class(self) <- c("polars_sql_context", "polars_object")
   self
@@ -44,6 +38,9 @@ sql_context__register <- function(name, frame = NULL) {
 sql_context__register_many <- function(...) {
   wrap({
     frames <- list2(...)
+    if (is.null(names(frames)) || any(names(frames) == "")) {
+      abort("All frames in `...` must be named.", call = caller_env(3))
+    }
     for (i in seq_along(frames)) {
       self$register(names(frames)[i], frames[[i]])
     }
