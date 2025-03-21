@@ -18,16 +18,14 @@ wrap.PlRSQLContext <- function(
 
 pl__SQLContext <- function(..., register_globals = FALSE) {
   wrap({
-    self <- PlRSQLContext$new()
-    frames <- list2(...)
-    for (i in seq_along(frames)) {
-      frame <- ensure_lazyframe(frames[[i]])
-      self$register(names(frames)[i], frame$`_ldf`)
-    }
+    self <- PlRSQLContext$new() |>
+      wrap()
+    self$register_many(...)
     self
   })
 }
 
+# Will error if cannot be converted
 ensure_lazyframe <- function(obj) {
   if (is_polars_df(obj)) {
     obj$lazy()
@@ -48,6 +46,16 @@ sql_context__register <- function(name, frame = NULL) {
       pl$LazyFrame()
     }
     self$`_ctxt`$register(name, frame$`_ldf`)
+    self
+  })
+}
+
+sql_context__register_many <- function(...) {
+  wrap({
+    frames <- list2(...)
+    for (i in seq_along(frames)) {
+      self$register(names(frames)[i], frames[[i]])
+    }
     self
   })
 }
