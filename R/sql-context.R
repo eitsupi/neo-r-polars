@@ -25,17 +25,8 @@ pl__SQLContext <- function(..., register_globals = FALSE) {
   })
 }
 
-# Will error if cannot be converted
 ensure_lazyframe <- function(obj) {
-  if (is_polars_df(obj)) {
-    obj$lazy()
-  } else if (is_polars_lf(obj)) {
-    obj
-  } else if (is_convertible_to_polars_series(obj)) {
-    as_polars_series(obj)$to_frame()$lazy()
-  } else {
-    abort("Cannot convert object to LazyFrame")
-  }
+  as_polars_lf(obj)
 }
 
 sql_context__register <- function(name, frame = NULL) {
