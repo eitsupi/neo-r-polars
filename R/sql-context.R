@@ -10,6 +10,23 @@ wrap.PlRSQLContext <- function(x) {
   self
 }
 
+#' Initialize a new `SQLContext`
+#'
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Elements that are known in the
+#' current `SQLContext`. It accepts any R object that can be converted to a
+#' LazyFrame via `as_polars_lf()`. All elements must be named.
+#'
+# TODO: this can take an integer
+#' @param register_globals Register compatible objects found in the global
+#' environment, automatically mapping their name to a table name. To register
+#' other objects, pass them explicitly in `...`, or call the `execute_global`
+#' class function.
+#'
+#' @return An object of class `"polars_sql_context"`
+#' @examples
+#' pl$SQLContext(mtcars = mtcars)
+#'
+#' pl$SQLContext(mtcars = mtcars, a = data.frame(x = 1))
 pl__SQLContext <- function(..., register_globals = FALSE) {
   wrap({
     self <- PlRSQLContext$new() |>
@@ -23,6 +40,16 @@ ensure_lazyframe <- function(obj) {
   as_polars_lf(obj)
 }
 
+#' Register a single frame as a table, using the given name
+#'
+#' @param name Name of the table.
+#' @param frame Object to associate with this table name.
+#'
+#' @inherit pl__SQLContext return
+#' @examples
+#' df <- pl$DataFrame(x = 1)
+#' ctx <- pl$SQLContext()
+#' ctx$register("frame_data", df)$execute("SELECT * FROM frame_data")$collect()
 sql_context__register <- function(name, frame = NULL) {
   wrap({
     frame <- if (!is.null(frame)) {
@@ -35,9 +62,22 @@ sql_context__register <- function(name, frame = NULL) {
   })
 }
 
+#' Register multiple eager/lazy frames as tables, using the associated names
+#'
+#' @inherit pl__SQLContext params return
+#' @examples
+#' df <- pl$DataFrame(x = 1)
+#' df2 <- pl$DataFrame(x = 2)
+#' df3 <- pl$DataFrame(x = 3)
+#'
+#' ctx <- pl$SQLContext()
+#' ctx$register_many(tab1 = df, tab2 = df2, tab3 = df3)
 sql_context__register_many <- function(...) {
   wrap({
     frames <- list2(...)
+    if (length(frames) == 0) {
+      return(self)
+    }
     if (is.null(names(frames)) || any(names(frames) == "")) {
       abort("All frames in `...` must be named.", call = caller_env(3))
     }
