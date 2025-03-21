@@ -37,15 +37,15 @@ lf1$sql("SELECT c, b FROM self WHERE a > 1")$collect()
 # Apply SQL transforms (aliasing "self" to "frame") then filter natively
 # (you can freely mix SQL and native operations):
 lf1$sql(
-  query="
-      SELECT
-         a,
-         (a \% 2 == 0) AS a_is_even,
-         (b::float4 / 2) AS 'b/2',
-         CONCAT_WS(':', c, c, c) AS c_c_c
-      FROM frame
-      ORDER BY a
-",
-table_name="frame",
+  query = "
+       SELECT
+          a,
+          (a \% 2 == 0) AS a_is_even,
+          (b::float4 / 2) AS 'b/2',
+          CONCAT_WS(':', c, c, c) AS c_c_c
+       FROM frame
+       ORDER BY a
+ ",
+  table_name = "frame",
 )$filter(!pl$col("c_c_c")$str$starts_with("x"))$collect()
 }
