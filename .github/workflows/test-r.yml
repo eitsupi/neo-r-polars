@@ -79,6 +79,8 @@ jobs:
           extra-packages: any::rcmdcheck
           needs: check
           cache: "always"
+        env:
+          NOT_CRAN: "true"
 
       - id: rust-target
         name: Set Rust target
