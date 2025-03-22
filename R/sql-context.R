@@ -74,7 +74,7 @@ sql_context__register_many <- function(...) {
     if (length(frames) == 0) {
       return(self)
     }
-    if (is.null(names(frames)) || any(names(frames) == "")) {
+    if (!is_named2(frames)) {
       abort("All frames in `...` must be named.", call = caller_env(3))
     }
     for (i in seq_along(frames)) {
