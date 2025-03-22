@@ -20,14 +20,14 @@ as_polars_lf <- function(x, ...) {
 #' @export
 as_polars_lf.default <- function(x, ...) {
   try_fetch(
-    as_polars_df(x, ...),
+    as_polars_df(x, ...)$lazy(),
     error = function(cnd) {
       abort(
-        "Failed to create a polars DataFrame.",
+        "Failed to create a polars LazyFrame.",
         parent = cnd
       )
     }
-  )$lazy()
+  )
 }
 
 #' @rdname as_polars_lf
