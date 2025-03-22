@@ -182,7 +182,7 @@ as_polars_series <- function(x, name = NULL, ...) {
 #' @rdname as_polars_series
 #' @export
 as_polars_series.default <- function(x, name = NULL, ...) {
-  abort(sprintf("Unsupported object can be converted to a polars Series: %s", obj_type_friendly(x)))
+  abort(sprintf("%s can't be converted to a polars Series", obj_type_friendly(x)))
 }
 
 #' @rdname as_polars_series
