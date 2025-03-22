@@ -46,9 +46,9 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - ubuntu-latest
-          # TODO: enable macos and windows
-          # - macos-latest
+          # - ubuntu-latest
+          # TODO: enable all os
+          - macos-latest
           # - windows-latest
         r:
           - release
