@@ -10,7 +10,7 @@ wrap.PlRSQLContext <- function(x) {
   self
 }
 
-get_frame_locals <- function(..., all_compatible, n_objects = NULL, named = NULL) {
+get_frame_locals <- function(all_compatible) {
   all_obj <- ls(global_env())
   compatible_obj <- if (isTRUE(all_compatible)) {
     Filter(
