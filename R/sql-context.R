@@ -10,55 +10,29 @@ wrap.PlRSQLContext <- function(x) {
   self
 }
 
-get_frame_locals <- function(all_compatible) {
-  all_obj <- ls(global_env())
-  compatible_obj <- Filter(
-    \(x) {
-      obj <- get(x, envir = global_env())
-      if (isTRUE(all_compatible)) {
-        is_convertible_to_polars_series(obj)
-      } else {
-        is_polars_df(obj) || is_polars_lf(obj) || is_polars_series(obj)
-      }
-    },
-    all_obj
-  )
-
-  lapply(compatible_obj, get) |>
-    setNames(compatible_obj)
-}
-
 #' Initialize a new `SQLContext`
 #'
 #' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Elements that are known in the
 #' current `SQLContext`. It accepts any R object that can be converted to a
 #' LazyFrame via `as_polars_lf()`. All elements must be named.
 #'
-# TODO: this can take an integer
-#' @param .register_globals Register compatible objects found in the global
-#' environment, automatically mapping their name to a table name. To register
-#' other objects, pass them explicitly in `...`, or call the `execute_global`
-#' class function.
+# TODO: add this param (see commit that dropped incomplete implementation in
+# https://github.com/eitsupi/neo-r-polars/pull/205)
+# @param .register_globals Register compatible objects found in the global
+# environment, automatically mapping their name to a table name. To register
+# other objects, pass them explicitly in `...`, or call the `execute_global`
+# class function.
 #'
 #' @return An object of class `"polars_sql_context"`
 #' @examples
 #' pl$SQLContext(mtcars = mtcars)
 #'
 #' pl$SQLContext(mtcars = mtcars, a = data.frame(x = 1))
-pl__SQLContext <- function(..., .register_globals = FALSE) {
+pl__SQLContext <- function(...) {
   wrap({
     self <- PlRSQLContext$new() |>
       wrap()
-    frames <- list2(...)
-    if (isTRUE(.register_globals)) {
-      from_env <- get_frame_locals(all_compatible = FALSE)
-      for (i in seq_along(from_env)) {
-        if (!names(from_env)[i] %in% names(frames)) {
-          frames <- append(frames, from_env[i])
-        }
-      }
-    }
-    self$register_many(!!!frames)
+    self$register_many(...)
     self
   })
 }

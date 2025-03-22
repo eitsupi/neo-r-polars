@@ -4,17 +4,12 @@
 \alias{pl__SQLContext}
 \title{Initialize a new \code{SQLContext}}
 \usage{
-pl__SQLContext(..., .register_globals = FALSE)
+pl__SQLContext(...)
 }
 \arguments{
 \item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> Elements that are known in the
 current \code{SQLContext}. It accepts any R object that can be converted to a
 LazyFrame via \code{as_polars_lf()}. All elements must be named.}
-
-\item{.register_globals}{Register compatible objects found in the global
-environment, automatically mapping their name to a table name. To register
-other objects, pass them explicitly in \code{...}, or call the \code{execute_global}
-class function.}
 }
 \value{
 An object of class \code{"polars_sql_context"}

@@ -2599,7 +2599,7 @@ lazyframe__describe <- function(
 lazyframe__sql <- function(query, ..., table_name = "self") {
   wrap({
     check_dots_empty0(...)
-    ctx <- pl$SQLContext(register_globals = FALSE)
+    ctx <- pl$SQLContext()
     ctx$register(name = table_name, frame = self)
     ctx$execute(query)
   })
