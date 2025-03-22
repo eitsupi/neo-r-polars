@@ -49,11 +49,7 @@ pl__SQLContext <- function(...) {
 #' ctx$register("frame_data", df)$execute("SELECT * FROM frame_data")$collect()
 sql_context__register <- function(name, frame = NULL) {
   wrap({
-    frame <- if (!is.null(frame)) {
-      as_polars_lf(frame)
-    } else {
-      pl$LazyFrame()
-    }
+    frame <- as_polars_lf(frame)
     self$`_ctxt`$register(name, frame$`_ldf`)
     self
   })
@@ -72,9 +68,6 @@ sql_context__register <- function(name, frame = NULL) {
 sql_context__register_many <- function(...) {
   wrap({
     frames <- list2(...)
-    if (length(frames) == 0) {
-      return(self)
-    }
     if (!is_named2(frames)) {
       abort("All frames in `...` must be named.", call = caller_env(3))
     }
