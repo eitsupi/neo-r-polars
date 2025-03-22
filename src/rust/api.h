@@ -552,6 +552,7 @@ SEXP savvy_PlRLazyGroupBy_tail__ffi(SEXP self__, SEXP c_arg__n);
 
 // methods and associated functions for PlRSQLContext
 SEXP savvy_PlRSQLContext_execute__ffi(SEXP self__, SEXP c_arg__query);
+SEXP savvy_PlRSQLContext_get_tables__ffi(SEXP self__);
 SEXP savvy_PlRSQLContext_new__ffi(void);
 SEXP savvy_PlRSQLContext_register__ffi(SEXP self__, SEXP c_arg__name, SEXP c_arg__lf);
 

@@ -4029,6 +4029,12 @@ class(`PlRLazyGroupBy`) <- c("PlRLazyGroupBy__bundle", "savvy_neopolars__sealed"
   }
 }
 
+`PlRSQLContext_get_tables` <- function(self) {
+  function() {
+    .Call(savvy_PlRSQLContext_get_tables__impl, `self`)
+  }
+}
+
 `PlRSQLContext_register` <- function(self) {
   function(`name`, `lf`) {
     `lf` <- .savvy_extract_ptr(`lf`, "PlRLazyFrame")
@@ -4040,6 +4046,7 @@ class(`PlRLazyGroupBy`) <- c("PlRLazyGroupBy__bundle", "savvy_neopolars__sealed"
   e <- new.env(parent = emptyenv())
   e$.ptr <- ptr
   e$`execute` <- `PlRSQLContext_execute`(ptr)
+  e$`get_tables` <- `PlRSQLContext_get_tables`(ptr)
   e$`register` <- `PlRSQLContext_register`(ptr)
 
   class(e) <- c("PlRSQLContext", "savvy_neopolars__sealed")

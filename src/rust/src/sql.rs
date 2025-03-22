@@ -1,6 +1,6 @@
 use crate::{PlRLazyFrame, RPolarsErr};
 use polars::sql::SQLContext;
-use savvy::{savvy, EnvironmentSexp, Result};
+use savvy::{savvy, EnvironmentSexp, Result, Sexp};
 
 #[savvy]
 #[repr(transparent)]
@@ -42,6 +42,10 @@ impl PlRSQLContext {
             .execute(query)
             .map_err(RPolarsErr::from)?
             .into())
+    }
+
+    pub fn get_tables(&self) -> Result<Sexp> {
+        self.context.get_tables().try_into()
     }
 
     pub fn register(&mut self, name: &str, lf: &PlRLazyFrame) -> Result<()> {

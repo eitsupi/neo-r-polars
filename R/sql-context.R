@@ -10,6 +10,31 @@ wrap.PlRSQLContext <- function(x) {
   self
 }
 
+get_frame_locals <- function(..., all_compatible, n_objects = NULL, named = NULL) {
+  all_obj <- ls(global_env())
+  compatible_obj <- if (isTRUE(all_compatible)) {
+    Filter(
+      \(x) {
+        obj <- get(x, envir = global_env())
+        is_convertible_to_polars_series(obj)
+      },
+      all_obj
+    )
+  } else {
+    Filter(
+      \(x) {
+        obj <- get(x, envir = global_env())
+        is_polars_df(obj) || is_polars_lf(obj) || is_polars_series(obj)
+      },
+      all_obj
+    )
+  }
+  compatible_obj <- unlist(compatible_obj, recursive = FALSE)
+
+  lapply(compatible_obj, get) |>
+    setNames(compatible_obj)
+}
+
 #' Initialize a new `SQLContext`
 #'
 #' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Elements that are known in the
@@ -17,7 +42,7 @@ wrap.PlRSQLContext <- function(x) {
 #' LazyFrame via `as_polars_lf()`. All elements must be named.
 #'
 # TODO: this can take an integer
-#' @param register_globals Register compatible objects found in the global
+#' @param .register_globals Register compatible objects found in the global
 #' environment, automatically mapping their name to a table name. To register
 #' other objects, pass them explicitly in `...`, or call the `execute_global`
 #' class function.
@@ -27,11 +52,20 @@ wrap.PlRSQLContext <- function(x) {
 #' pl$SQLContext(mtcars = mtcars)
 #'
 #' pl$SQLContext(mtcars = mtcars, a = data.frame(x = 1))
-pl__SQLContext <- function(..., register_globals = FALSE) {
+pl__SQLContext <- function(..., .register_globals = FALSE) {
   wrap({
     self <- PlRSQLContext$new() |>
       wrap()
-    self$register_many(...)
+    frames <- list2(...)
+    if (isTRUE(.register_globals)) {
+      from_env <- get_frame_locals(all_compatible = FALSE)
+      for (i in seq_along(from_env)) {
+        if (!names(from_env)[i] %in% names(frames)) {
+          frames <- append(frames, from_env[i])
+        }
+      }
+    }
+    self$register_many(!!!frames)
     self
   })
 }
@@ -81,6 +115,28 @@ sql_context__register_many <- function(...) {
       self$register(names(frames)[i], frames[[i]])
     }
     self
+  })
+}
+
+#' Return a list of the registered table names
+#'
+#' @details
+#' This method will return the same values as the "SHOW TABLES" SQL statement,
+#' but as a vector instead of a frame.
+#'
+#' @return A character vector
+#' @examples
+#' # Executing as SQL:
+#' frame_data <- pl$DataFrame(x = 1)
+#' ctx <- pl$SQLContext(hello_world=frame_data, foo = data.frame(x = 2))
+#' ctx$execute("SHOW TABLES")$collect()
+#'
+#' # Calling the method:
+#' ctx$tables()
+sql_context__tables <- function() {
+  wrap({
+    self$`_ctxt`$get_tables() |>
+      sort()
   })
 }
 
