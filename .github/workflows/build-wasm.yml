@@ -26,6 +26,8 @@ jobs:
       - uses: mozilla-actions/sccache-action@v0.0.8
       - name: Build wasm package
         shell: Rscript {0}
+        env:
+          GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pak::pak(c("r-wasm/rwasm"))
           rwasm::build("local::.")
