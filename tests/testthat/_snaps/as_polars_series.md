@@ -424,6 +424,14 @@
       	null
       ]
 
+# as_polars_series.default throws an error
+
+    Code
+      as_polars_series(x)
+    Condition
+      Error in `as_polars_series()`:
+      ! Unsupported object can be converted to a polars Series: a <foo> object
+
 # as_polars_series works for vctrs_rcrd
 
     Code

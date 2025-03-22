@@ -1401,7 +1401,7 @@ test_that("sort(): various errors", {
   expect_query_error(
     .input$sort(complex(1)),
     pl$DataFrame(x = 1),
-    "Unsupported class"
+    "Unsupported"
   )
   expect_query_error(
     .input$sort(by = complex(1)),

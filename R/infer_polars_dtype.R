@@ -87,7 +87,7 @@ infer_polars_dtype.default <- function(x, ...) {
     infer_polars_dtype_default_impl(x, ...),
     error = function(cnd) {
       abort(
-        sprintf("Unsupported class for `infer_polars_dtype()`: %s", toString(class(x))),
+        sprintf("Can't infer polars dtype of %s", obj_type_friendly(x)),
         parent = cnd
       )
     }

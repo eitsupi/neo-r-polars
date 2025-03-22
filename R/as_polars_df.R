@@ -78,7 +78,10 @@ as_polars_df.default <- function(x, ...) {
     infer_polars_dtype(x, ...),
     error = function(cnd) {
       abort(
-        "This object is not supported for the default method of `as_polars_df()` because it can't be converted to a polars Series.",
+        sprintf(
+          "%s may not be converted to a polars Series, and hence to a polars DataFrame.",
+          obj_type_friendly(x)
+        ),
         parent = cnd
       )
     }

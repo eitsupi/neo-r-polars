@@ -13,9 +13,9 @@
       as_polars_lf(0+1i)
     Condition
       Error in `as_polars_df()`:
-      ! This object is not supported for the default method of `as_polars_df()` because it can't be converted to a polars Series.
+      ! the complex number 0+1i may not be converted to a polars Series, and hence to a polars DataFrame.
       Caused by error in `infer_polars_dtype()`:
-      ! Unsupported class for `infer_polars_dtype()`: complex
+      ! Can't infer polars dtype of the complex number 0+1i
       Caused by error in `as_polars_series()`:
-      ! Unsupported class for `as_polars_series()`: complex
+      ! Unsupported object can be converted to a polars Series: an empty complex vector
 
