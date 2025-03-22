@@ -46,8 +46,8 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          # - ubuntu-latest
           # TODO: enable all os
+          - ubuntu-latest
           - macos-latest
           # - windows-latest
         r:
@@ -63,6 +63,10 @@ jobs:
       LIBR_POLARS_BUILD: "true"
 
     steps:
+      - name: More space
+        if: runner.os == 'Linux'
+        uses: jlumbroso/free-disk-space@1.3.1
+
       - uses: actions/checkout@v4
 
       - uses: r-lib/actions/setup-pandoc@v2
