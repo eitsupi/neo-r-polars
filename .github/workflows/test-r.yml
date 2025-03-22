@@ -55,7 +55,7 @@ jobs:
           - os: ubuntu-latest
             r: devel
           - os: ubuntu-latest
-            r: "4.2"
+            r: "4.3"
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
