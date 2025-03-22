@@ -78,6 +78,7 @@ jobs:
         with:
           extra-packages: any::rcmdcheck
           needs: check
+          cache: "always"
 
       - id: rust-target
         name: Set Rust target
@@ -93,7 +94,7 @@ jobs:
           workspaces: "src/rust -> target"
           shared-key: ${{ steps.rust-target.outputs.TARGET }}
           # TODO: remove this line once the test is green
-          cache-on-failure: 'true'
+          cache-on-failure: "true"
 
       - name: Build lib
         env:
