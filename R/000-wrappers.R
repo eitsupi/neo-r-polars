@@ -347,7 +347,7 @@ class(`PlRChainedThen`) <- c("PlRChainedThen__bundle", "savvy_neopolars__sealed"
 
 #' @export
 `print.PlRChainedThen__bundle` <- function(x, ...) {
-  cat('PlRChainedThen')
+  cat('PlRChainedThen\n')
 }
 
 ### wrapper functions for PlRChainedWhen
@@ -380,7 +380,7 @@ class(`PlRChainedWhen`) <- c("PlRChainedWhen__bundle", "savvy_neopolars__sealed"
 
 #' @export
 `print.PlRChainedWhen__bundle` <- function(x, ...) {
-  cat('PlRChainedWhen')
+  cat('PlRChainedWhen\n')
 }
 
 ### wrapper functions for PlRDataFrame
@@ -675,7 +675,7 @@ class(`PlRDataFrame`) <- c("PlRDataFrame__bundle", "savvy_neopolars__sealed")
 
 #' @export
 `print.PlRDataFrame__bundle` <- function(x, ...) {
-  cat('PlRDataFrame')
+  cat('PlRDataFrame\n')
 }
 
 ### wrapper functions for PlRDataType
@@ -792,7 +792,7 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
 
 #' @export
 `print.PlRDataType__bundle` <- function(x, ...) {
-  cat('PlRDataType')
+  cat('PlRDataType\n')
 }
 
 ### wrapper functions for PlRExpr
@@ -3518,7 +3518,7 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
 
 #' @export
 `print.PlRExpr__bundle` <- function(x, ...) {
-  cat('PlRExpr')
+  cat('PlRExpr\n')
 }
 
 ### wrapper functions for PlRLazyFrame
@@ -3972,7 +3972,7 @@ class(`PlRLazyFrame`) <- c("PlRLazyFrame__bundle", "savvy_neopolars__sealed")
 
 #' @export
 `print.PlRLazyFrame__bundle` <- function(x, ...) {
-  cat('PlRLazyFrame')
+  cat('PlRLazyFrame\n')
 }
 
 ### wrapper functions for PlRLazyGroupBy
@@ -4018,7 +4018,57 @@ class(`PlRLazyGroupBy`) <- c("PlRLazyGroupBy__bundle", "savvy_neopolars__sealed"
 
 #' @export
 `print.PlRLazyGroupBy__bundle` <- function(x, ...) {
-  cat('PlRLazyGroupBy')
+  cat('PlRLazyGroupBy\n')
+}
+
+### wrapper functions for PlRSQLContext
+
+`PlRSQLContext_execute` <- function(self) {
+  function(`query`) {
+    .savvy_wrap_PlRLazyFrame(.Call(savvy_PlRSQLContext_execute__impl, `self`, `query`))
+  }
+}
+
+`PlRSQLContext_get_tables` <- function(self) {
+  function() {
+    .Call(savvy_PlRSQLContext_get_tables__impl, `self`)
+  }
+}
+
+`PlRSQLContext_register` <- function(self) {
+  function(`name`, `lf`) {
+    `lf` <- .savvy_extract_ptr(`lf`, "PlRLazyFrame")
+    invisible(.Call(savvy_PlRSQLContext_register__impl, `self`, `name`, `lf`))
+  }
+}
+
+`.savvy_wrap_PlRSQLContext` <- function(ptr) {
+  e <- new.env(parent = emptyenv())
+  e$.ptr <- ptr
+  e$`execute` <- `PlRSQLContext_execute`(ptr)
+  e$`get_tables` <- `PlRSQLContext_get_tables`(ptr)
+  e$`register` <- `PlRSQLContext_register`(ptr)
+
+  class(e) <- c("PlRSQLContext", "savvy_neopolars__sealed")
+  e
+}
+
+
+
+`PlRSQLContext` <- new.env(parent = emptyenv())
+
+### associated functions for PlRSQLContext
+
+`PlRSQLContext`$`new` <- function() {
+  .savvy_wrap_PlRSQLContext(.Call(savvy_PlRSQLContext_new__impl))
+}
+
+
+class(`PlRSQLContext`) <- c("PlRSQLContext__bundle", "savvy_neopolars__sealed")
+
+#' @export
+`print.PlRSQLContext__bundle` <- function(x, ...) {
+  cat('PlRSQLContext\n')
 }
 
 ### wrapper functions for PlRSeries
@@ -4298,7 +4348,7 @@ class(`PlRSeries`) <- c("PlRSeries__bundle", "savvy_neopolars__sealed")
 
 #' @export
 `print.PlRSeries__bundle` <- function(x, ...) {
-  cat('PlRSeries')
+  cat('PlRSeries\n')
 }
 
 ### wrapper functions for PlRThen
@@ -4339,7 +4389,7 @@ class(`PlRThen`) <- c("PlRThen__bundle", "savvy_neopolars__sealed")
 
 #' @export
 `print.PlRThen__bundle` <- function(x, ...) {
-  cat('PlRThen')
+  cat('PlRThen\n')
 }
 
 ### wrapper functions for PlRWhen
@@ -4372,6 +4422,6 @@ class(`PlRWhen`) <- c("PlRWhen__bundle", "savvy_neopolars__sealed")
 
 #' @export
 `print.PlRWhen__bundle` <- function(x, ...) {
-  cat('PlRWhen')
+  cat('PlRWhen\n')
 }
 
