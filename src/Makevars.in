@@ -13,7 +13,8 @@ CARGO_BUILD_ARGS = --lib \
 	--target-dir "$(TARGET_DIR)" \
 	--target $(TARGET)
 
-all: C_clean
+.PHONY: all
+all: $(SHLIB) cleanup
 
 $(SHLIB): $(STATLIB)
 
@@ -34,8 +35,13 @@ $(STATLIB):
 	    cargo build $(CARGO_BUILD_ARGS) -Zbuild-std=panic_abort,std; \
 	  fi
 
-C_clean:
-	rm -Rf $(SHLIB) $(STATLIB) $(OBJECTS)
+.PHONY: cleanup
+# Clean up files that may cause warnings in R CMD check on CRAN just after the build
+cleanup: $(SHLIB)
+	if [ "$(NOT_CRAN)" != "true" ]; then \
+		rm -Rf "$(STATLIB)" "$(CARGOTMP)" "$(VENDOR_DIR)" "$(LIBDIR)/build"; \
+	fi
 
+.PHONY: clean
 clean:
-	rm -Rf $(SHLIB) $(STATLIB) $(OBJECTS) rust/target
+	rm -Rf "$(SHLIB)" "$(STATLIB)" "$(OBJECTS)" "$(TARGET_DIR)"

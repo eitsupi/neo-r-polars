@@ -18,7 +18,8 @@ CARGO_BUILD_ARGS = --lib \
 # to overwrite it via configuration.
 CARGO_LINKER = x86_64-w64-mingw32.static.posix-gcc.exe
 
-all: C_clean
+.PHONY: all
+all: $(SHLIB) cleanup
 
 $(SHLIB): $(STATLIB)
 
@@ -37,8 +38,20 @@ $(STATLIB):
 	  export LIBRARY_PATH="$${LIBRARY_PATH};$(LIBDIR)/libgcc_mock" && \
 	  cargo build $(CARGO_BUILD_ARGS)
 
-C_clean:
-	rm -Rf $(SHLIB) $(STATLIB) $(OBJECTS)
+.PHONY: cleanup
+# Clean up files that may cause warnings in R CMD check on CRAN just after the build
+cleanup: $(SHLIB)
+	if [ "$(NOT_CRAN)" != "true" ]; then \
+		rm -Rf "$(STATLIB)" "$(CARGOTMP)" "$(VENDOR_DIR)" "$(LIBDIR)/build"; \
+	fi
 
+.PHONY: cleanup
+# Clean up files that may cause warnings in R CMD check on CRAN just after the build
+cleanup: $(SHLIB)
+	if [ "$(NOT_CRAN)" != "true" ]; then \
+		rm -Rf "$(STATLIB)" "$(CARGOTMP)" "$(VENDOR_DIR)" "$(LIBDIR)/build"; \
+	fi
+
+.PHONY: clean
 clean:
-	rm -Rf $(SHLIB) $(STATLIB) $(OBJECTS) rust/target
+	rm -Rf "$(SHLIB)" "$(STATLIB)" "$(OBJECTS)" "$(LIBGCC_MOCK_DIR)" "$(TARGET_DIR)"
