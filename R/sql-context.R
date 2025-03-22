@@ -29,7 +29,6 @@ get_frame_locals <- function(all_compatible) {
       all_obj
     )
   }
-  compatible_obj <- unlist(compatible_obj, recursive = FALSE)
 
   lapply(compatible_obj, get) |>
     setNames(compatible_obj)
