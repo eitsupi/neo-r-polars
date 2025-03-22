@@ -8,7 +8,7 @@
       Caused by error in `as_polars_expr()`:
       ! Evaluation failed.
       Caused by error in `as_polars_series()`:
-      ! Unsupported object can be converted to a polars Series: the complex number 0+0i
+      ! the complex number 0+0i can't be converted to a polars Series.
 
 # meta$output_name
 

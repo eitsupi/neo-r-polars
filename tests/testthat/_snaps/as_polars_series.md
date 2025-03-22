@@ -430,7 +430,7 @@
       as_polars_series(x)
     Condition
       Error in `as_polars_series()`:
-      ! Unsupported object can be converted to a polars Series: a <foo> object
+      ! a <foo> object can't be converted to a polars Series.
 
 # as_polars_series works for vctrs_rcrd
 

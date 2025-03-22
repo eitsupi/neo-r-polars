@@ -133,5 +133,5 @@
       Caused by error in `infer_polars_dtype()`:
       ! Can't infer polars dtype of the complex number 0+1i
       Caused by error in `as_polars_series()`:
-      ! Unsupported object can be converted to a polars Series: an empty complex vector
+      ! an empty complex vector can't be converted to a polars Series.
 
