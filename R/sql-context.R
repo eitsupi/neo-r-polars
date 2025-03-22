@@ -12,23 +12,17 @@ wrap.PlRSQLContext <- function(x) {
 
 get_frame_locals <- function(all_compatible) {
   all_obj <- ls(global_env())
-  compatible_obj <- if (isTRUE(all_compatible)) {
-    Filter(
-      \(x) {
-        obj <- get(x, envir = global_env())
+  compatible_obj <- Filter(
+    \(x) {
+      obj <- get(x, envir = global_env())
+      if (isTRUE(all_compatible)) {
         is_convertible_to_polars_series(obj)
-      },
-      all_obj
-    )
-  } else {
-    Filter(
-      \(x) {
-        obj <- get(x, envir = global_env())
+      } else {
         is_polars_df(obj) || is_polars_lf(obj) || is_polars_series(obj)
-      },
-      all_obj
-    )
-  }
+      }
+    },
+    all_obj
+  )
 
   lapply(compatible_obj, get) |>
     setNames(compatible_obj)
