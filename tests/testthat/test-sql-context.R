@@ -23,5 +23,15 @@ test_that("arg '.register_globals' works", {
     pl$SQLContext(mtcars = mtcars, .register_globals = TRUE)$tables(),
     c("foo", "mtcars")
   )
+
+  # Conflict between table passed in `$SQLContext()` and table existing in
+  # environment -> the former takes precedence
+  expect_equal(
+    pl$SQLContext(mtcars = mtcars, foo = data.frame(x = 2), .register_globals = TRUE)$execute(
+      "SELECT * FROM foo"
+    )$collect(),
+    pl$DataFrame(x = 2)
+  )
+
   rm("foo", envir = global_env())
 })
