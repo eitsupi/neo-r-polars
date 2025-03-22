@@ -46,16 +46,16 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          # TODO: enable all os
           - ubuntu-latest
           - macos-latest
-          # - windows-latest
+          - windows-latest
         r:
           - release
-        # TODO: enable devel and oldrel
-        # include:
-        #   - os: ubuntu-latest
-        #     r: devel
+        include:
+          - os: ubuntu-latest
+            r: devel
+          - os: ubuntu-latest
+            r: "4.2"
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
