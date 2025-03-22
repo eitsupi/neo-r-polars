@@ -106,6 +106,9 @@ jobs:
           # make sure savvy is built from source because rust-cache doesn't work well.
           (find ~/.cargo/registry/ src/rust/target -name 'savvy-*' -print0 | xargs -0 rm -rf) || true
 
+          # Since the debug build is faster to compile (200 sec v.s. 600 sec on macos-14 runner without cache),
+          # R CMD check is slower (100 sec v.s. 700 sec on macos-14 runner).
+          # So we don't use the debug build for now here.
           Rscript -e 'pkgbuild::compile_dll(debug = FALSE)'
           echo "LIBR_POLARS_PATH=$(pwd)/src/rust/target/${{ steps.rust-target.outputs.TARGET }}/release/libr_polars.a" >>"$GITHUB_ENV"
 
