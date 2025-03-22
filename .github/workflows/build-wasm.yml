@@ -4,6 +4,7 @@ on:
     branches:
       - main
     paths:
+      - .github/workflows/build-wasm.yml
       - src/**
       - configure*
   workflow_dispatch:
@@ -15,10 +16,23 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/r-wasm/webr:main
+    env:
+      SCCACHE_GHA_ENABLED: "true"
+      RUSTC_WRAPPER: sccache
     steps:
       - uses: actions/checkout@v4
-      - name: Build wasm package
-        uses: r-wasm/actions/build-rwasm@main
+      - uses: actions/cache@v4
         with:
-          packages: |
-            local::.
+          path: |
+            ~/.cargo/registry
+          key: wasm-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - uses: mozilla-actions/sccache-action@v0.0.8
+      - name: Build wasm package
+        shell: Rscript {0}
+        env:
+          GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pak::pak(c("r-wasm/rwasm"))
+          rwasm::build("local::.")
