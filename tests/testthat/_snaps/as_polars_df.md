@@ -130,8 +130,8 @@
     Condition
       Error in `as_polars_df()`:
       ! This object is not supported for the default method of `as_polars_df()` because it can't be converted to a polars Series.
-      Caused by error:
+      Caused by error in `infer_polars_dtype()`:
       ! Unsupported class for `infer_polars_dtype()`: complex
-      Caused by error in `infer_polars_dtype_default_impl()`:
+      Caused by error in `as_polars_series()`:
       ! Unsupported class for `as_polars_series()`: complex
 

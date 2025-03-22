@@ -28,7 +28,7 @@
       ! Evaluation failed in `$concat_str()`.
       Caused by error in `as_polars_expr()`:
       ! Evaluation failed.
-      Caused by error in `as_polars_expr()`:
+      Caused by error in `as_polars_series()`:
       ! Unsupported class for `as_polars_series()`: complex
 
 ---

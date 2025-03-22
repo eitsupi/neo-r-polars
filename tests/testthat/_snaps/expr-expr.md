@@ -7,7 +7,7 @@
       ! Evaluation failed in `$select()`.
       Caused by error:
       ! Evaluation failed in `$collect()`.
-      Caused by error:
+      Caused by error in `as_polars_series()`:
       ! Unsupported class for `as_polars_series()`: function
       Error:
       ! Evaluation failed in `$select()`.
@@ -25,7 +25,7 @@
       ! Evaluation failed in `$select()`.
       Caused by error:
       ! Evaluation failed in `$collect()`.
-      Caused by error:
+      Caused by error in `as_polars_series()`:
       ! Unsupported class for `as_polars_series()`: complex
       Error:
       ! Evaluation failed in `$select()`.
