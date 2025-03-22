@@ -95,9 +95,14 @@ test_that("read/scan: arg glob works", {
     pl$DataFrame(a = 1:2)$cast(pl$Int64)
   )
   # Don't use snapshot because path printed in error message changes every time
+  # and, on Windows, '*' is not a valid character in a path
   expect_error(
     pl$read_csv(paste0(tmpdir, "/*.csv"), glob = FALSE),
-    "No such file or directory"
+    if (identical(tolower(Sys.info()[["sysname"]]), "windows")) {
+      "syntax is incorrect"
+    } else {
+      "No such file or directory"
+    }
   )
 })
 

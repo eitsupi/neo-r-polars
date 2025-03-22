@@ -95,6 +95,7 @@ jobs:
         with:
           workspaces: "src/rust -> target"
           shared-key: ${{ steps.rust-target.outputs.TARGET }}
+          cache-on-failure: "true"
 
       - name: Build lib
         env:
@@ -116,4 +117,4 @@ jobs:
         with:
           upload-snapshots: true
           # TODO: remove this line once R CMD check is ok
-          error-on: '"never"'
+          error-on: '"error"'
