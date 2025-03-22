@@ -36,10 +36,6 @@ pl__SQLContext <- function(..., register_globals = FALSE) {
   })
 }
 
-ensure_lazyframe <- function(obj) {
-  as_polars_lf(obj)
-}
-
 #' Register a single frame as a table, using the given name
 #'
 #' @param name Name of the table.
@@ -53,7 +49,7 @@ ensure_lazyframe <- function(obj) {
 sql_context__register <- function(name, frame = NULL) {
   wrap({
     frame <- if (!is.null(frame)) {
-      ensure_lazyframe(frame)
+      as_polars_lf(frame)
     } else {
       pl$LazyFrame()
     }
