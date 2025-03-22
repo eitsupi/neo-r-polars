@@ -45,13 +45,6 @@ cleanup: $(SHLIB)
 		rm -Rf "$(STATLIB)" "$(CARGOTMP)" "$(VENDOR_DIR)" "$(LIBDIR)/build"; \
 	fi
 
-.PHONY: cleanup
-# Clean up files that may cause warnings in R CMD check on CRAN just after the build
-cleanup: $(SHLIB)
-	if [ "$(NOT_CRAN)" != "true" ]; then \
-		rm -Rf "$(STATLIB)" "$(CARGOTMP)" "$(VENDOR_DIR)" "$(LIBDIR)/build"; \
-	fi
-
 .PHONY: clean
 clean:
 	rm -Rf "$(SHLIB)" "$(STATLIB)" "$(OBJECTS)" "$(LIBGCC_MOCK_DIR)" "$(TARGET_DIR)"
