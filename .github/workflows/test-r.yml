@@ -164,7 +164,7 @@ jobs:
 
           # Since the debug build is faster to compile (200 sec v.s. 600 sec on macos-14 runner without cache),
           # we use the debug build here.
-          Rscript -e "pkgbuild::compile_dll(debug = ${{ runner.os == 'Windows' && FALSE || TRUE }})"
+          Rscript -e "pkgbuild::compile_dll(debug = ${{ runner.os == 'Windows' && 'FALSE' || 'TRUE' }})"
           echo "LIBR_POLARS_PATH=$(pwd)/src/rust/target/${{ steps.rust-target.outputs.TARGET }}/release/libr_polars.a" >>"$GITHUB_ENV"
 
       - name: Run tests
