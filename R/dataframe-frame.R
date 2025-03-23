@@ -438,6 +438,7 @@ dataframe__to_series <- function(index = 0) {
 
 #' Check whether the DataFrame is equal to another DataFrame
 #'
+#' @inheritParams rlang::args_dots_empty
 #' @param other DataFrame to compare with.
 #' @param null_equal Consider null values as equal.
 #' @return A logical value
@@ -482,7 +483,7 @@ dataframe__slice <- function(offset, length = NULL) {
 #' @inherit lazyframe__head title details
 #' @param n Number of rows to return. If a negative value is passed,
 #' return all rows except the last [`abs(n)`][abs].
-#' @return A [DataFrame][DataFrame_class]
+#' @inherit as_polars_df return
 #' @examples
 #' df <- pl$DataFrame(foo = 1:5, bar = 6:10, ham = letters[1:5])
 #'
