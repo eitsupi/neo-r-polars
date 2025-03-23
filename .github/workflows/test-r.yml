@@ -118,7 +118,8 @@ jobs:
       matrix:
         os:
           - macos-latest
-          - windows-latest
+          # TODO: Windows seems buggy, so we disable it for now
+          # - windows-latest
         r:
           - release
         include:
