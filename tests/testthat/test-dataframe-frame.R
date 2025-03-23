@@ -730,3 +730,11 @@ test_that("unstack() works", {
     paste0("x_0", 0:9)
   )
 })
+
+test_that("$glimpse() works", {
+  df <- as_polars_df(iris)$with_columns(pl$lit(42)$cast(pl$Int8))
+  expect_snapshot(df$glimpse())
+  expect_snapshot(df$glimpse(max_items_per_column = 2))
+  expect_snapshot(df$glimpse(max_colname_length = 2))
+  expect_type(invisible(df$glimpse()), "character")
+})
