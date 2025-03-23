@@ -1,6 +1,6 @@
 use crate::{prelude::*, PlRDataFrame, PlRDataType, PlRSeries, RPolarsErr};
 use polars_core::series::IsSorted;
-use savvy::{savvy, NumericScalar, NumericSexp, OwnedIntegerSexp, Result, Sexp};
+use savvy::{savvy, NullSexp, NumericScalar, NumericSexp, OwnedIntegerSexp, Result, Sexp};
 
 #[savvy]
 impl PlRSeries {
@@ -142,7 +142,13 @@ impl PlRSeries {
         Ok(sexp.into())
     }
 
-    pub fn rechunk(&self) -> Result<Self> {
-        Ok(self.series.rechunk().into())
+    pub fn rechunk(&mut self, in_place: bool) -> Result<Sexp> {
+        let series = self.series.rechunk();
+        if in_place {
+            self.series = series;
+            Ok(NullSexp.into())
+        } else {
+            PlRSeries::new(series).try_into()
+        }
     }
 }

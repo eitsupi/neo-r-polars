@@ -269,6 +269,8 @@ series__chunk_lengths <- function() {
 #' Create a single chunk of memory for this Series
 #'
 #' @inherit as_polars_series return
+#' @inheritParams rlang::args_dots_empty
+#' @param in_place Bool to indicate if the operation should be done in place.
 #' @examples
 #' s <- pl$Series("a", c(1, 2, 3))
 #' s$n_chunks()
@@ -278,7 +280,16 @@ series__chunk_lengths <- function() {
 #' s$n_chunks()
 #'
 #' s$rechunk()$n_chunks()
-series__rechunk <- function() {
-  self$`_s`$rechunk() |>
-    wrap()
+series__rechunk <- function(..., in_place = FALSE) {
+  wrap({
+    check_dots_empty0(...)
+
+    opt_s <- self$`_s`$rechunk(in_place)
+    if (in_place) {
+      self
+    } else {
+      opt_s |>
+        .savvy_wrap_PlRSeries()
+    }
+  })
 }

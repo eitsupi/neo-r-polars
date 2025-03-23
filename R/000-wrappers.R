@@ -4199,8 +4199,8 @@ class(`PlRSQLContext`) <- c("PlRSQLContext__bundle", "savvy_neopolars__sealed")
 }
 
 `PlRSeries_rechunk` <- function(self) {
-  function() {
-    .savvy_wrap_PlRSeries(.Call(savvy_PlRSeries_rechunk__impl, `self`))
+  function(`in_place`) {
+    .Call(savvy_PlRSeries_rechunk__impl, `self`, `in_place`)
   }
 }
 
