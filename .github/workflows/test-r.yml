@@ -95,7 +95,6 @@ jobs:
         with:
           workspaces: "src/rust -> target"
           shared-key: ${{ steps.rust-target.outputs.TARGET }}
-          cache-on-failure: "true"
 
       - name: Build lib
         env:
