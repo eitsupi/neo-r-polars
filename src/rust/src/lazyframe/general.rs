@@ -1368,18 +1368,16 @@ impl PlRLazyFrame {
     fn sink_ipc(
         &self,
         path: &str,
+        compression: &str,
         maintain_order: bool,
         retries: NumericScalar,
-        compression: Option<&str>,
         storage_options: Option<StringSexp>,
     ) -> Result<()> {
         let path: PathBuf = path.into();
 
         let retries = <Wrap<usize>>::try_from(retries)?.0;
-        let compression: Option<IpcCompression> = match compression {
-            Some(x) => Some(<Wrap<IpcCompression>>::try_from(x)?.0),
-            None => None,
-        };
+        let compression: Option<IpcCompression> =
+            <Wrap<Option<IpcCompression>>>::try_from(compression)?.0;
         let options = IpcWriterOptions {
             compression,
             maintain_order,

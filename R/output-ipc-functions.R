@@ -1,18 +1,17 @@
 # TODO: add write_ipc
 
-#' Evaluate the query in streaming mode and write to an IPC file
+#' Evaluate the query in streaming mode and write to an Arrow IPC file
 #'
 #' @inherit lazyframe__sink_parquet description params return
 #' @inheritParams rlang::args_dots_empty
-#' @param compression Must be one of:
-#' * `"uncompressed"`;
-#' * `"lz4"`: fast compression/decompression;
-#' * `"zstd"`: good compression performance.
-#'
-#' If `NULL`, it uses `"uncompressed"`.
+#' @param compression Determines the compression algorithm.
+#' Must be one of:
+#' - `"uncompressed"` or `NULL`: Write an uncompressed Arrow file.
+#' - `"lz4"`: Fast compression/decompression.
+#' - `"zstd"` (default): Good compression performance.
 #'
 #' @examples
-#' tmpf <- tempfile()
+#' tmpf <- tempfile(fileext = ".arrow")
 #' as_polars_lf(mtcars)$sink_ipc(tmpf)
 #' pl$scan_ipc(tmpf)$collect()
 lazyframe__sink_ipc <- function(
@@ -33,11 +32,10 @@ lazyframe__sink_ipc <- function(
 ) {
   wrap({
     check_dots_empty0(...)
-    compression <- compression %||% "uncompressed"
-    compression <- arg_match0(compression, values = c("zstd", "lz4", "uncompressed"))
-    if (compression == "uncompressed") {
-      compression <- NULL
-    }
+    compression <- arg_match0(
+      compression %||% "uncompressed",
+      values = c("zstd", "lz4", "uncompressed")
+    )
 
     lf <- set_sink_optimizations(
       self,

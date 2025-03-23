@@ -3784,8 +3784,8 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
 }
 
 `PlRLazyFrame_sink_ipc` <- function(self) {
-  function(`path`, `maintain_order`, `retries`, `compression` = NULL, `storage_options` = NULL) {
-    invisible(.Call(savvy_PlRLazyFrame_sink_ipc__impl, `self`, `path`, `maintain_order`, `retries`, `compression`, `storage_options`))
+  function(`path`, `compression`, `maintain_order`, `retries`, `storage_options` = NULL) {
+    invisible(.Call(savvy_PlRLazyFrame_sink_ipc__impl, `self`, `path`, `compression`, `maintain_order`, `retries`, `storage_options`))
   }
 }
 

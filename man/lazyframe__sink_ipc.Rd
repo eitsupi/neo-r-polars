@@ -2,7 +2,7 @@
 % Please edit documentation in R/output-ipc-functions.R
 \name{lazyframe__sink_ipc}
 \alias{lazyframe__sink_ipc}
-\title{Evaluate the query in streaming mode and write to an IPC file}
+\title{Evaluate the query in streaming mode and write to an Arrow IPC file}
 \usage{
 lazyframe__sink_ipc(
   path,
@@ -26,14 +26,13 @@ lazyframe__sink_ipc(
 
 \item{...}{These dots are for future extensions and must be empty.}
 
-\item{compression}{Must be one of:
+\item{compression}{Determines the compression algorithm.
+Must be one of:
 \itemize{
-\item \code{"uncompressed"};
-\item \code{"lz4"}: fast compression/decompression;
-\item \code{"zstd"}: good compression performance.
-}
-
-If \code{NULL}, it uses \code{"uncompressed"}.}
+\item \code{"uncompressed"} or \code{NULL}: Write an uncompressed Arrow file.
+\item \code{"lz4"}: Fast compression/decompression.
+\item \code{"zstd"} (default): Good compression performance.
+}}
 
 \item{maintain_order}{Maintain the order in which data is processed. Setting
 this to \code{FALSE} will be slightly faster.}
@@ -79,7 +78,7 @@ Invisibly returns the input LazyFrame
 This allows streaming results that are larger than RAM to be written to disk.
 }
 \examples{
-tmpf <- tempfile()
+tmpf <- tempfile(fileext = ".arrow")
 as_polars_lf(mtcars)$sink_ipc(tmpf)
 pl$scan_ipc(tmpf)$collect()
 }
