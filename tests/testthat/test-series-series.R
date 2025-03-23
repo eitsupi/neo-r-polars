@@ -29,23 +29,28 @@ test_that("alias/rename works", {
 })
 
 test_that("rechunk() and n_chunks() work", {
-  s <- pl$Series("a", c(1, 2, 3))
-  expect_equal(s$n_chunks(), 1)
+  s <- as_polars_series(1:3)
+  expect_identical(s$n_chunks(), 1L)
 
-  s2 <- pl$Series("a", c(4, 5, 6))
-  s <- pl$concat(s, s2, rechunk = FALSE)
-  expect_equal(s$n_chunks(), 2)
+  s2 <- as_polars_series(4:6)
+  s3 <- pl$concat(s, s2, rechunk = FALSE)
+  expect_identical(s3$n_chunks(), 2L)
 
-  expect_equal(s$rechunk()$n_chunks(), 1)
+  expect_identical(s3$rechunk()$n_chunks(), 1L)
+  # The original chunk size is not changed yet
+  expect_identical(s3$n_chunks(), 2L)
+  expect_identical(s3$rechunk(in_place = TRUE)$n_chunks(), 1L)
+  # The operation above changes the original chunk size
+  expect_identical(s3$n_chunks(), 1L)
 })
 
 test_that("rechunk() and chunk_lengths() work", {
-  s <- pl$Series("a", c(1, 2, 3))
-  expect_equal(s$chunk_lengths(), 3)
+  s <- as_polars_series(1:3)
+  expect_identical(s$chunk_lengths(), 3L)
 
-  s2 <- pl$Series("a", c(4, 5, 6))
-  s <- pl$concat(s, s2, rechunk = FALSE)
-  expect_equal(s$chunk_lengths(), c(3, 3))
+  s2 <- as_polars_series(4:6)
+  s3 <- pl$concat(s, s2, rechunk = FALSE)
+  expect_identical(s3$chunk_lengths(), c(3L, 3L))
 
-  expect_equal(s$rechunk()$chunk_lengths(), 6)
+  expect_identical(s3$rechunk()$chunk_lengths(), 6L)
 })
