@@ -174,7 +174,7 @@ jobs:
 
       - name: Run tests
         run: |
-          Rscript -e 'testthat::test_dir("tests")'
+          Rscript -e 'devtools::test()'
 
       - name: Run examples
         run: |
