@@ -14,7 +14,7 @@ Description: Lightning-fast 'DataFrame' library written in 'Rust'. Convert
     'Apache Arrow' Columnar Format.
 License: MIT + file LICENSE
 Depends:
-    R (>= 4.2)
+    R (>= 4.3)
 Imports:
     rlang (>= 1.1.0)
 Suggests:
@@ -23,6 +23,7 @@ Suggests:
     blob,
     cli,
     clock,
+    curl,
     data.table,
     ggplot2,
     hms,
