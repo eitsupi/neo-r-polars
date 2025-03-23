@@ -153,7 +153,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: "src/rust -> target"
-          shared-key: ${{ steps.rust-target.outputs.TARGET }}-debug
+          # On Windows, DEBUG build seems buggy <https://github.com/eitsupi/neo-r-polars/issues/218>
+          shared-key: ${{ steps.rust-target.outputs.TARGET }}${{ runner.os == 'Windows' && '-release' || '-debug' }}
 
       - name: Build lib
         env:
