@@ -215,7 +215,8 @@ test_that("read/scan: multiple files errors if different schema", {
 
 test_that("read/scan: bad paths", {
   expect_snapshot(pl$read_csv(character()), error = TRUE)
-  expect_snapshot(pl$read_csv("some invalid path"), error = TRUE)
+  # Error message is platform dependent
+  expect_error(pl$read_csv("some invalid path"), "os error 2")
 })
 
 test_that("read/scan: scan_csv can include file path", {
