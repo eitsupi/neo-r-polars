@@ -4,7 +4,12 @@
 \alias{series__rechunk}
 \title{Create a single chunk of memory for this Series}
 \usage{
-series__rechunk()
+series__rechunk(..., in_place = FALSE)
+}
+\arguments{
+\item{...}{These dots are for future extensions and must be empty.}
+
+\item{in_place}{Bool to indicate if the operation should be done in place.}
 }
 \value{
 A \link[=Series]{polars Series}
