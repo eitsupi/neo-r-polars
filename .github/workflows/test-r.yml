@@ -166,12 +166,6 @@ jobs:
           # we use the debug build here.
           Rscript -e 'pkgbuild::compile_dll(debug = TRUE)'
 
-      - name: Install package
-        env:
-          DEBUG: "true"
-        run: |
-          R CMD INSTALL --no-multiarch --with-keep.source .
-
       - name: Run tests
         shell: Rscript {0}
         run: |
