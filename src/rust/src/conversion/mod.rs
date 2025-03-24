@@ -211,7 +211,7 @@ impl TryFrom<&str> for Wrap<CategoricalOrdering> {
             v => {
                 return Err(format!(
                     "categorical `ordering` must be one of ('physical', 'lexical'), got '{v}'"
-                ))
+                ));
             }
         };
         Ok(Wrap(ordering))
