@@ -59,7 +59,7 @@ lazyframe__sink_ipc <- function(
   })
 }
 
-#' Write to Arrow IPC binary stream or Feather file.
+#' Write to Arrow IPC file.
 #'
 #' @inherit lazyframe__sink_parquet description params return
 #' @inheritParams rlang::args_dots_empty

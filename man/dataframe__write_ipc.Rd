@@ -2,7 +2,7 @@
 % Please edit documentation in R/output-ipc-functions.R
 \name{dataframe__write_ipc}
 \alias{dataframe__write_ipc}
-\title{Write to Arrow IPC binary stream or Feather file.}
+\title{Write to Arrow IPC file.}
 \usage{
 dataframe__write_ipc(
   path,
