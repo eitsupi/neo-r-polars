@@ -7,7 +7,7 @@
 dataframe__write_ipc(
   path,
   ...,
-  compression = c("zstd", "lz4"),
+  compression = c("zstd", "lz4", "uncompressed"),
   compat_level = c("newest", "oldest"),
   storage_options = NULL,
   retries = 2
@@ -18,13 +18,17 @@ dataframe__write_ipc(
 
 \item{...}{These dots are for future extensions and must be empty.}
 
-\item{compression}{Must be one of:
+\item{compression}{The compression method. Must be one of:
 \itemize{
 \item \code{"lz4"}: fast compression/decompression.
+\item \code{"uncompressed"}
+\item \code{"snappy"}: this guarantees that the parquet file will be compatible with
+older parquet readers.
+\item \code{"gzip"}
+\item \code{"lzo"}
+\item \code{"brotli"}
 \item \code{"zstd"}: good compression performance.
-}
-
-If \code{NULL}, it uses \code{"zstd"}.}
+}}
 
 \item{compat_level}{Use a specific compatibility level when exporting
 Polars' internal data structures.}

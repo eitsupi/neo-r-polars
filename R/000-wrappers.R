@@ -599,7 +599,7 @@ class(`PlRChainedWhen`) <- c("PlRChainedWhen__bundle", "savvy_neopolars__sealed"
 }
 
 `PlRDataFrame_write_ipc` <- function(self) {
-  function(`path`, `retries`, `compat_level`, `compression` = NULL, `storage_options` = NULL) {
+  function(`path`, `retries`, `compat_level`, `compression`, `storage_options` = NULL) {
     invisible(.Call(savvy_PlRDataFrame_write_ipc__impl, `self`, `path`, `retries`, `compat_level`, `compression`, `storage_options`))
   }
 }

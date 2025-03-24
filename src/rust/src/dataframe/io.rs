@@ -237,16 +237,15 @@ impl PlRDataFrame {
         path: &str,
         retries: NumericScalar,
         compat_level: Sexp,
-        compression: Option<&str>,
+        compression: &str,
         storage_options: Option<StringSexp>,
     ) -> Result<()> {
         let path: PathBuf = path.into();
         let compat_level = <Wrap<CompatLevel>>::try_from(compat_level)?.0;
         let retries = <Wrap<usize>>::try_from(retries)?.0;
-        let compression: Option<IpcCompression> = match compression {
-            Some(x) => Some(<Wrap<IpcCompression>>::try_from(x)?.0),
-            None => None,
-        };
+        let compression: Option<IpcCompression> =
+            <Wrap<Option<IpcCompression>>>::try_from(compression)?.0;
+
         let cloud_options = match storage_options {
             Some(x) => {
                 let out = <Wrap<Vec<(String, String)>>>::try_from(x).map_err(|_| {
