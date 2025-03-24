@@ -1,5 +1,5 @@
 patrick::with_parameters_test_that(
-  "Test sinking data to IPC file",
+  "Test sinking data to Arrow file",
   {
     lf <- as_polars_lf(iris)
     df <- as_polars_df(iris)
@@ -31,11 +31,25 @@ test_that("sink_ipc: wrong compression", {
 })
 
 patrick::with_parameters_test_that(
-  "Test writing data to IPC file",
-  {
-    df <- as_polars_df(iris)
+  "Test writing data to Arrow file {compression %||% 'NULL'} - {compat_level}",
+  .cases = {
+    skip_if_not_installed("arrow")
+
+    expand.grid(
+      compression = list("uncompressed", "zstd", "lz4", NULL),
+      compat_level = list(0, 1, "oldest", "newest")
+    ) |>
+      tibble::as_tibble()
+  },
+  code = {
+    df <- pl$DataFrame(
+      int = 1:3,
+      chr = letters[1:3],
+      cat = factor(letters[1:3]),
+    )
     tmpf <- withr::local_tempfile()
-    expect_silent(df$write_ipc(tmpf, compression = compression))
+    expect_silent(df$write_ipc(tmpf, compression = compression, compat_level = compat_level))
+    expect_snapshot(arrow::read_ipc_file(tmpf, as_data_frame = FALSE))
     expect_equal(pl$read_ipc(tmpf), df)
 
     # update with new data
@@ -48,8 +62,7 @@ patrick::with_parameters_test_that(
     # return the input data
     x <- df$write_ipc(tmpf)
     expect_identical(x, df)
-  },
-  compression = list("uncompressed", "zstd", "lz4", NULL)
+  }
 )
 
 test_that("write_ipc: wrong compression", {
