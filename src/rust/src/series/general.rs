@@ -134,12 +134,12 @@ impl PlRSeries {
     }
 
     fn chunk_lengths(&self) -> Result<Sexp> {
-        let out = self.series.chunk_lengths().collect::<Vec<usize>>();
-        let mut sexp = OwnedIntegerSexp::new(out.len())?;
-        for (i, out) in out.into_iter().enumerate() {
-            let _ = sexp.set_elt(i, out as i32);
-        }
-        Ok(sexp.into())
+        let lengths: std::result::Result<Vec<i32>, _> = self
+            .series
+            .chunk_lengths()
+            .map(|l| <i32>::try_from(l))
+            .collect();
+        lengths?.try_into()
     }
 
     pub fn rechunk(&mut self, in_place: bool) -> Result<Sexp> {
