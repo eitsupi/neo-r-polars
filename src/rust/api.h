@@ -1,5 +1,6 @@
 SEXP savvy_all_horizontal__ffi(SEXP c_arg__exprs);
 SEXP savvy_any_horizontal__ffi(SEXP c_arg__exprs);
+SEXP savvy_arg_sort_by__ffi(SEXP c_arg__by, SEXP c_arg__descending, SEXP c_arg__nulls_last, SEXP c_arg__maintain_order, SEXP c_arg__multithreaded);
 SEXP savvy_arg_where__ffi(SEXP c_arg__condition);
 SEXP savvy_as_struct__ffi(SEXP c_arg__exprs);
 SEXP savvy_coalesce__ffi(SEXP c_arg__exprs);
@@ -550,6 +551,12 @@ SEXP savvy_PlRLazyFrame_with_row_index__ffi(SEXP self__, SEXP c_arg__name, SEXP 
 SEXP savvy_PlRLazyGroupBy_agg__ffi(SEXP self__, SEXP c_arg__aggs);
 SEXP savvy_PlRLazyGroupBy_head__ffi(SEXP self__, SEXP c_arg__n);
 SEXP savvy_PlRLazyGroupBy_tail__ffi(SEXP self__, SEXP c_arg__n);
+
+// methods and associated functions for PlRSQLContext
+SEXP savvy_PlRSQLContext_execute__ffi(SEXP self__, SEXP c_arg__query);
+SEXP savvy_PlRSQLContext_get_tables__ffi(SEXP self__);
+SEXP savvy_PlRSQLContext_new__ffi(void);
+SEXP savvy_PlRSQLContext_register__ffi(SEXP self__, SEXP c_arg__name, SEXP c_arg__lf);
 
 // methods and associated functions for PlRSeries
 SEXP savvy_PlRSeries_add__ffi(SEXP self__, SEXP c_arg__other);
