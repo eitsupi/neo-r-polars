@@ -30,8 +30,16 @@ older parquet readers.
 \item \code{"zstd"}: good compression performance.
 }}
 
-\item{compat_level}{Use a specific compatibility level when exporting
-Polars' internal data structures.}
+\item{compat_level}{Determines the compatibility level when exporting Polars' internal data structures.
+When specifying a new compatibility level, Polars exports its internal data structures
+that might not be interpretable by other Arrow implementations.
+The level can be specified as the name (e.g., \code{"newest"}) or as a scalar integer
+(Currently, \code{0} or \code{1} is supported).
+\itemize{
+\item \code{"newest"} (default): Use the highest level, currently same as \code{1}
+(Low compatibility).
+\item \code{"oldest"}: Same as \code{0} (High compatibility).
+}}
 
 \item{storage_options}{Named vector containing options that indicate how to
 connect to a cloud provider. The cloud providers currently supported are

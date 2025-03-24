@@ -65,9 +65,14 @@ lazyframe__sink_ipc <- function(
 #' @inheritParams rlang::args_dots_empty
 #' @inheritParams lazyframe__sink_ipc
 #'
-#' @param compat_level Use a specific compatibility level when exporting
-#' Polars' internal data structures.
-#'
+#' @param compat_level Determines the compatibility level when exporting Polars' internal data structures.
+#' When specifying a new compatibility level, Polars exports its internal data structures
+#' that might not be interpretable by other Arrow implementations.
+#' The level can be specified as the name (e.g., `"newest"`) or as a scalar integer
+#' (Currently, `0` or `1` is supported).
+#' - `"newest"` (default): Use the highest level, currently same as `1`
+#'   (Low compatibility).
+#' - `"oldest"`: Same as `0` (High compatibility).
 #' @inherit write_csv return
 #' @examples
 #' tmpf <- tempfile()
@@ -87,7 +92,7 @@ dataframe__write_ipc <- function(
       compression %||% "uncompressed",
       values = c("zstd", "lz4", "uncompressed")
     )
-    compat_level <- arg_match0(compat_level, values = c("newest", "oldest"))
+    compat_level <- arg_match_compat_level(compat_level)
 
     self$`_df`$write_ipc(
       path = path,
