@@ -168,9 +168,11 @@ jobs:
           Rscript -e "pkgbuild::compile_dll(debug = ${{ runner.os == 'Windows' && 'FALSE' || 'TRUE' }})"
 
       - name: Run tests
+        shell: Rscript {0}
         run: |
-          Rscript -e 'devtools::test()'
+          devtools::test()
 
       - name: Run examples
+        shell: Rscript {0}
         run: |
-          Rscript -e 'devtools::run_examples(document = FALSE)'
+          devtools::run_examples(document = FALSE)
