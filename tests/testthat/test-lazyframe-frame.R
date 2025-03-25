@@ -1,3 +1,7 @@
+test_that("should fail", {
+  expect_true(FALSE)
+})
+
 test_that("select works lazy/eager", {
   .data <- pl$DataFrame(
     int32 = 1:5,
