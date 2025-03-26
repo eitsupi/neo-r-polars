@@ -34,8 +34,6 @@ patrick::with_parameters_test_that(
   "Test writing data to Arrow file {compression %||% 'NULL'} - {compat_level}",
   .cases = {
     skip_if_not_installed("arrow")
-    # Workaround for R CMD check on R < 4.4
-    skip_if_not(exists("%||%"))
 
     expand.grid(
       compression = list("uncompressed", "zstd", "lz4", NULL),
