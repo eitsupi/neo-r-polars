@@ -35,6 +35,12 @@ patrick::with_parameters_test_that(
   .cases = {
     skip_if_not_installed("arrow")
 
+    # Workaround for R < 4.4
+    # https://github.com/eitsupi/neo-r-polars/pull/240
+    if (!exists("%||%", envir = baseenv())) {
+      `%||%` <- rlang::`%||%`
+    }
+
     expand.grid(
       compression = list("uncompressed", "zstd", "lz4", NULL),
       compat_level = list(0, 1, "oldest", "newest")
