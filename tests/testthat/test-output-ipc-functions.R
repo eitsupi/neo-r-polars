@@ -37,9 +37,7 @@ patrick::with_parameters_test_that(
 
     # Workaround for R < 4.4
     # https://github.com/eitsupi/neo-r-polars/pull/240
-    if (!exists("%||%", envir = baseenv())) {
-      `%||%` <- rlang::`%||%`
-    }
+    skip_if_not(exists("%||%", envir = baseenv()))
 
     expand.grid(
       compression = list("uncompressed", "zstd", "lz4", NULL),
