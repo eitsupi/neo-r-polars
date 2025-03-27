@@ -2343,9 +2343,5 @@ test_that("reverse() works", {
   )
 
   df <- pl$DataFrame()
-  expect_query_equal(
-    .input$reverse(),
-    .input = df,
-    df
-  )
+  expect_query_equal(.input$reverse(), .input = df, df)
 })
