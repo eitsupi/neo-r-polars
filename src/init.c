@@ -149,11 +149,6 @@ SEXP savvy_dtype_cols__impl(SEXP c_arg__dtypes) {
     return handle_result(res);
 }
 
-SEXP savvy_dtype_str_repr__impl(SEXP c_arg__dtype) {
-    SEXP res = savvy_dtype_str_repr__ffi(c_arg__dtype);
-    return handle_result(res);
-}
-
 SEXP savvy_duration__impl(SEXP c_arg__time_unit, SEXP c_arg__weeks, SEXP c_arg__days, SEXP c_arg__hours, SEXP c_arg__minutes, SEXP c_arg__seconds, SEXP c_arg__milliseconds, SEXP c_arg__microseconds, SEXP c_arg__nanoseconds) {
     SEXP res = savvy_duration__ffi(c_arg__time_unit, c_arg__weeks, c_arg__days, c_arg__hours, c_arg__minutes, c_arg__seconds, c_arg__milliseconds, c_arg__microseconds, c_arg__nanoseconds);
     return handle_result(res);
@@ -494,8 +489,8 @@ SEXP savvy_PlRDataType__get_dtype_names__impl(SEXP self__) {
     return handle_result(res);
 }
 
-SEXP savvy_PlRDataType_as_str__impl(SEXP self__) {
-    SEXP res = savvy_PlRDataType_as_str__ffi(self__);
+SEXP savvy_PlRDataType_as_str__impl(SEXP self__, SEXP c_arg__abbreviated) {
+    SEXP res = savvy_PlRDataType_as_str__ffi(self__, c_arg__abbreviated);
     return handle_result(res);
 }
 
@@ -2989,7 +2984,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_datetime_range__impl", (DL_FUNC) &savvy_datetime_range__impl, 6},
     {"savvy_datetime_ranges__impl", (DL_FUNC) &savvy_datetime_ranges__impl, 6},
     {"savvy_dtype_cols__impl", (DL_FUNC) &savvy_dtype_cols__impl, 1},
-    {"savvy_dtype_str_repr__impl", (DL_FUNC) &savvy_dtype_str_repr__impl, 1},
     {"savvy_duration__impl", (DL_FUNC) &savvy_duration__impl, 9},
     {"savvy_field__impl", (DL_FUNC) &savvy_field__impl, 1},
     {"savvy_first__impl", (DL_FUNC) &savvy_first__impl, 0},
@@ -3058,7 +3052,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRDataFrame_write_parquet__impl", (DL_FUNC) &savvy_PlRDataFrame_write_parquet__impl, 14},
     {"savvy_PlRDataType__get_datatype_fields__impl", (DL_FUNC) &savvy_PlRDataType__get_datatype_fields__impl, 1},
     {"savvy_PlRDataType__get_dtype_names__impl", (DL_FUNC) &savvy_PlRDataType__get_dtype_names__impl, 1},
-    {"savvy_PlRDataType_as_str__impl", (DL_FUNC) &savvy_PlRDataType_as_str__impl, 1},
+    {"savvy_PlRDataType_as_str__impl", (DL_FUNC) &savvy_PlRDataType_as_str__impl, 2},
     {"savvy_PlRDataType_eq__impl", (DL_FUNC) &savvy_PlRDataType_eq__impl, 2},
     {"savvy_PlRDataType_infer_supertype__impl", (DL_FUNC) &savvy_PlRDataType_infer_supertype__impl, 2},
     {"savvy_PlRDataType_max__impl", (DL_FUNC) &savvy_PlRDataType_max__impl, 1},

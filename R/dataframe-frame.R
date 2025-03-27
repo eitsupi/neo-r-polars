@@ -2256,7 +2256,7 @@ dataframe__glimpse <- function(
       }
       list(
         col_name = col_name,
-        dtype_str = dtype_str_repr(dtype$`_dt`),
+        dtype_str = dtype$as_str(abbreviated = TRUE),
         val_str = val_str
       )
     }

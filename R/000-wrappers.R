@@ -170,12 +170,6 @@ NULL
 }
 
 
-`dtype_str_repr` <- function(`dtype`) {
-  `dtype` <- .savvy_extract_ptr(`dtype`, "PlRDataType")
-  .Call(savvy_dtype_str_repr__impl, `dtype`)
-}
-
-
 `duration` <- function(`time_unit`, `weeks` = NULL, `days` = NULL, `hours` = NULL, `minutes` = NULL, `seconds` = NULL, `milliseconds` = NULL, `microseconds` = NULL, `nanoseconds` = NULL) {
   `weeks` <- .savvy_extract_ptr(`weeks`, "PlRExpr")
   `days` <- .savvy_extract_ptr(`days`, "PlRExpr")
@@ -704,8 +698,8 @@ class(`PlRDataFrame`) <- c("PlRDataFrame__bundle", "savvy_neopolars__sealed")
 }
 
 `PlRDataType_as_str` <- function(self) {
-  function() {
-    .Call(savvy_PlRDataType_as_str__impl, `self`)
+  function(`abbreviated`) {
+    .Call(savvy_PlRDataType_as_str__impl, `self`, `abbreviated`)
   }
 }
 

@@ -280,3 +280,11 @@ datatype__min <- function() {
   self$`_dt`$min() |>
     wrap()
 }
+
+#' @param abbreviated Use short form of datatype name, used for instance in
+#' [`glimpse()`][dataframe__glimpse].
+#' @noRd
+datatype__as_str <- function(abbreviated = FALSE) {
+  self$`_dt`$as_str(abbreviated = abbreviated) |>
+    wrap()
+}
