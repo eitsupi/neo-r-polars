@@ -225,23 +225,8 @@ NULL
 }
 
 
-`lit_from_bool` <- function(`value`) {
-  .savvy_wrap_PlRExpr(.Call(savvy_lit_from_bool__impl, `value`))
-}
-
-
-`lit_from_f64` <- function(`value`) {
-  .savvy_wrap_PlRExpr(.Call(savvy_lit_from_f64__impl, `value`))
-}
-
-
-`lit_from_i32` <- function(`value`) {
-  .savvy_wrap_PlRExpr(.Call(savvy_lit_from_i32__impl, `value`))
-}
-
-
-`lit_from_raw` <- function(`value`) {
-  .savvy_wrap_PlRExpr(.Call(savvy_lit_from_raw__impl, `value`))
+`lit_bin_from_raw` <- function(`value`) {
+  .savvy_wrap_PlRExpr(.Call(savvy_lit_bin_from_raw__impl, `value`))
 }
 
 
@@ -254,11 +239,6 @@ NULL
 `lit_from_series_first` <- function(`value`) {
   `value` <- .savvy_extract_ptr(`value`, "PlRSeries")
   .savvy_wrap_PlRExpr(.Call(savvy_lit_from_series_first__impl, `value`))
-}
-
-
-`lit_from_str` <- function(`value`) {
-  .savvy_wrap_PlRExpr(.Call(savvy_lit_from_str__impl, `value`))
 }
 
 
@@ -598,6 +578,12 @@ class(`PlRChainedWhen`) <- c("PlRChainedWhen__bundle", "savvy_neopolars__sealed"
   }
 }
 
+`PlRDataFrame_write_ipc` <- function(self) {
+  function(`path`, `retries`, `compat_level`, `compression`, `storage_options` = NULL) {
+    invisible(.Call(savvy_PlRDataFrame_write_ipc__impl, `self`, `path`, `retries`, `compat_level`, `compression`, `storage_options`))
+  }
+}
+
 `PlRDataFrame_write_json` <- function(self) {
   function(`path`) {
     invisible(.Call(savvy_PlRDataFrame_write_json__impl, `self`, `path`))
@@ -653,6 +639,7 @@ class(`PlRChainedWhen`) <- c("PlRChainedWhen__bundle", "savvy_neopolars__sealed"
   e$`width` <- `PlRDataFrame_width`(ptr)
   e$`with_row_index` <- `PlRDataFrame_with_row_index`(ptr)
   e$`write_csv` <- `PlRDataFrame_write_csv`(ptr)
+  e$`write_ipc` <- `PlRDataFrame_write_ipc`(ptr)
   e$`write_json` <- `PlRDataFrame_write_json`(ptr)
   e$`write_ndjson` <- `PlRDataFrame_write_ndjson`(ptr)
   e$`write_parquet` <- `PlRDataFrame_write_parquet`(ptr)
@@ -4129,6 +4116,12 @@ class(`PlRSQLContext`) <- c("PlRSQLContext__bundle", "savvy_neopolars__sealed")
   }
 }
 
+`PlRSeries_chunk_lengths` <- function(self) {
+  function() {
+    .Call(savvy_PlRSeries_chunk_lengths__impl, `self`)
+  }
+}
+
 `PlRSeries_clone` <- function(self) {
   function() {
     .savvy_wrap_PlRSeries(.Call(savvy_PlRSeries_clone__impl, `self`))
@@ -4189,6 +4182,12 @@ class(`PlRSQLContext`) <- c("PlRSQLContext__bundle", "savvy_neopolars__sealed")
 `PlRSeries_name` <- function(self) {
   function() {
     .Call(savvy_PlRSeries_name__impl, `self`)
+  }
+}
+
+`PlRSeries_rechunk` <- function(self) {
+  function(`in_place`) {
+    .Call(savvy_PlRSeries_rechunk__impl, `self`, `in_place`)
   }
 }
 
@@ -4259,6 +4258,7 @@ class(`PlRSQLContext`) <- c("PlRSQLContext__bundle", "savvy_neopolars__sealed")
   e$`cat_is_local` <- `PlRSeries_cat_is_local`(ptr)
   e$`cat_to_local` <- `PlRSeries_cat_to_local`(ptr)
   e$`cat_uses_lexical_ordering` <- `PlRSeries_cat_uses_lexical_ordering`(ptr)
+  e$`chunk_lengths` <- `PlRSeries_chunk_lengths`(ptr)
   e$`clone` <- `PlRSeries_clone`(ptr)
   e$`div` <- `PlRSeries_div`(ptr)
   e$`dtype` <- `PlRSeries_dtype`(ptr)
@@ -4269,6 +4269,7 @@ class(`PlRSQLContext`) <- c("PlRSQLContext__bundle", "savvy_neopolars__sealed")
   e$`mul` <- `PlRSeries_mul`(ptr)
   e$`n_chunks` <- `PlRSeries_n_chunks`(ptr)
   e$`name` <- `PlRSeries_name`(ptr)
+  e$`rechunk` <- `PlRSeries_rechunk`(ptr)
   e$`rem` <- `PlRSeries_rem`(ptr)
   e$`rename` <- `PlRSeries_rename`(ptr)
   e$`reshape` <- `PlRSeries_reshape`(ptr)
@@ -4333,12 +4334,12 @@ class(`PlRSQLContext`) <- c("PlRSQLContext__bundle", "savvy_neopolars__sealed")
   .savvy_wrap_PlRSeries(.Call(savvy_PlRSeries_new_series_list__impl, `name`, `values`, `strict`))
 }
 
-`PlRSeries`$`new_single_binary` <- function(`name`, `values`) {
-  .savvy_wrap_PlRSeries(.Call(savvy_PlRSeries_new_single_binary__impl, `name`, `values`))
-}
-
 `PlRSeries`$`new_str` <- function(`name`, `values`) {
   .savvy_wrap_PlRSeries(.Call(savvy_PlRSeries_new_str__impl, `name`, `values`))
+}
+
+`PlRSeries`$`new_uint8` <- function(`name`, `values`) {
+  .savvy_wrap_PlRSeries(.Call(savvy_PlRSeries_new_uint8__impl, `name`, `values`))
 }
 
 

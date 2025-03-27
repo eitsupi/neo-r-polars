@@ -29,13 +29,9 @@ SEXP savvy_int_range__ffi(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__step, 
 SEXP savvy_int_ranges__ffi(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__step, SEXP c_arg__dtype);
 SEXP savvy_last__ffi(void);
 SEXP savvy_len__ffi(void);
-SEXP savvy_lit_from_bool__ffi(SEXP c_arg__value);
-SEXP savvy_lit_from_f64__ffi(SEXP c_arg__value);
-SEXP savvy_lit_from_i32__ffi(SEXP c_arg__value);
-SEXP savvy_lit_from_raw__ffi(SEXP c_arg__value);
+SEXP savvy_lit_bin_from_raw__ffi(SEXP c_arg__value);
 SEXP savvy_lit_from_series__ffi(SEXP c_arg__value);
 SEXP savvy_lit_from_series_first__ffi(SEXP c_arg__value);
-SEXP savvy_lit_from_str__ffi(SEXP c_arg__value);
 SEXP savvy_lit_null__ffi(void);
 SEXP savvy_max_horizontal__ffi(SEXP c_arg__exprs);
 SEXP savvy_mean_horizontal__ffi(SEXP c_arg__exprs, SEXP c_arg__ignore_nulls);
@@ -90,6 +86,7 @@ SEXP savvy_PlRDataFrame_unpivot__ffi(SEXP self__, SEXP c_arg__on, SEXP c_arg__in
 SEXP savvy_PlRDataFrame_width__ffi(SEXP self__);
 SEXP savvy_PlRDataFrame_with_row_index__ffi(SEXP self__, SEXP c_arg__name, SEXP c_arg__offset);
 SEXP savvy_PlRDataFrame_write_csv__ffi(SEXP self__, SEXP c_arg__path, SEXP c_arg__include_bom, SEXP c_arg__include_header, SEXP c_arg__separator, SEXP c_arg__line_terminator, SEXP c_arg__quote_char, SEXP c_arg__batch_size, SEXP c_arg__retries, SEXP c_arg__datetime_format, SEXP c_arg__date_format, SEXP c_arg__time_format, SEXP c_arg__float_scientific, SEXP c_arg__float_precision, SEXP c_arg__null_value, SEXP c_arg__quote_style, SEXP c_arg__storage_options);
+SEXP savvy_PlRDataFrame_write_ipc__ffi(SEXP self__, SEXP c_arg__path, SEXP c_arg__retries, SEXP c_arg__compat_level, SEXP c_arg__compression, SEXP c_arg__storage_options);
 SEXP savvy_PlRDataFrame_write_json__ffi(SEXP self__, SEXP c_arg__path);
 SEXP savvy_PlRDataFrame_write_ndjson__ffi(SEXP self__, SEXP c_arg__path);
 SEXP savvy_PlRDataFrame_write_parquet__ffi(SEXP self__, SEXP c_arg__path, SEXP c_arg__compression, SEXP c_arg__retries, SEXP c_arg__partition_chunk_size_bytes, SEXP c_arg__stat_min, SEXP c_arg__stat_max, SEXP c_arg__stat_distinct_count, SEXP c_arg__stat_null_count, SEXP c_arg__compression_level, SEXP c_arg__row_group_size, SEXP c_arg__data_page_size, SEXP c_arg__partition_by, SEXP c_arg__storage_options);
@@ -566,6 +563,7 @@ SEXP savvy_PlRSeries_cast__ffi(SEXP self__, SEXP c_arg__dtype, SEXP c_arg__stric
 SEXP savvy_PlRSeries_cat_is_local__ffi(SEXP self__);
 SEXP savvy_PlRSeries_cat_to_local__ffi(SEXP self__);
 SEXP savvy_PlRSeries_cat_uses_lexical_ordering__ffi(SEXP self__);
+SEXP savvy_PlRSeries_chunk_lengths__ffi(SEXP self__);
 SEXP savvy_PlRSeries_clone__ffi(SEXP self__);
 SEXP savvy_PlRSeries_div__ffi(SEXP self__, SEXP c_arg__other);
 SEXP savvy_PlRSeries_dtype__ffi(SEXP self__);
@@ -587,8 +585,9 @@ SEXP savvy_PlRSeries_new_i64_from_clock_pair__ffi(SEXP c_arg__name, SEXP c_arg__
 SEXP savvy_PlRSeries_new_i64_from_numeric_and_multiplier__ffi(SEXP c_arg__name, SEXP c_arg__values, SEXP c_arg__multiplier, SEXP c_arg__rounding);
 SEXP savvy_PlRSeries_new_null__ffi(SEXP c_arg__name, SEXP c_arg__length);
 SEXP savvy_PlRSeries_new_series_list__ffi(SEXP c_arg__name, SEXP c_arg__values, SEXP c_arg__strict);
-SEXP savvy_PlRSeries_new_single_binary__ffi(SEXP c_arg__name, SEXP c_arg__values);
 SEXP savvy_PlRSeries_new_str__ffi(SEXP c_arg__name, SEXP c_arg__values);
+SEXP savvy_PlRSeries_new_uint8__ffi(SEXP c_arg__name, SEXP c_arg__values);
+SEXP savvy_PlRSeries_rechunk__ffi(SEXP self__, SEXP c_arg__in_place);
 SEXP savvy_PlRSeries_rem__ffi(SEXP self__, SEXP c_arg__other);
 SEXP savvy_PlRSeries_rename__ffi(SEXP self__, SEXP c_arg__name);
 SEXP savvy_PlRSeries_reshape__ffi(SEXP self__, SEXP c_arg__dimensions);

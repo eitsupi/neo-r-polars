@@ -189,23 +189,8 @@ SEXP savvy_len__impl(void) {
     return handle_result(res);
 }
 
-SEXP savvy_lit_from_bool__impl(SEXP c_arg__value) {
-    SEXP res = savvy_lit_from_bool__ffi(c_arg__value);
-    return handle_result(res);
-}
-
-SEXP savvy_lit_from_f64__impl(SEXP c_arg__value) {
-    SEXP res = savvy_lit_from_f64__ffi(c_arg__value);
-    return handle_result(res);
-}
-
-SEXP savvy_lit_from_i32__impl(SEXP c_arg__value) {
-    SEXP res = savvy_lit_from_i32__ffi(c_arg__value);
-    return handle_result(res);
-}
-
-SEXP savvy_lit_from_raw__impl(SEXP c_arg__value) {
-    SEXP res = savvy_lit_from_raw__ffi(c_arg__value);
+SEXP savvy_lit_bin_from_raw__impl(SEXP c_arg__value) {
+    SEXP res = savvy_lit_bin_from_raw__ffi(c_arg__value);
     return handle_result(res);
 }
 
@@ -216,11 +201,6 @@ SEXP savvy_lit_from_series__impl(SEXP c_arg__value) {
 
 SEXP savvy_lit_from_series_first__impl(SEXP c_arg__value) {
     SEXP res = savvy_lit_from_series_first__ffi(c_arg__value);
-    return handle_result(res);
-}
-
-SEXP savvy_lit_from_str__impl(SEXP c_arg__value) {
-    SEXP res = savvy_lit_from_str__ffi(c_arg__value);
     return handle_result(res);
 }
 
@@ -461,6 +441,11 @@ SEXP savvy_PlRDataFrame_with_row_index__impl(SEXP self__, SEXP c_arg__name, SEXP
 
 SEXP savvy_PlRDataFrame_write_csv__impl(SEXP self__, SEXP c_arg__path, SEXP c_arg__include_bom, SEXP c_arg__include_header, SEXP c_arg__separator, SEXP c_arg__line_terminator, SEXP c_arg__quote_char, SEXP c_arg__batch_size, SEXP c_arg__retries, SEXP c_arg__datetime_format, SEXP c_arg__date_format, SEXP c_arg__time_format, SEXP c_arg__float_scientific, SEXP c_arg__float_precision, SEXP c_arg__null_value, SEXP c_arg__quote_style, SEXP c_arg__storage_options) {
     SEXP res = savvy_PlRDataFrame_write_csv__ffi(self__, c_arg__path, c_arg__include_bom, c_arg__include_header, c_arg__separator, c_arg__line_terminator, c_arg__quote_char, c_arg__batch_size, c_arg__retries, c_arg__datetime_format, c_arg__date_format, c_arg__time_format, c_arg__float_scientific, c_arg__float_precision, c_arg__null_value, c_arg__quote_style, c_arg__storage_options);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRDataFrame_write_ipc__impl(SEXP self__, SEXP c_arg__path, SEXP c_arg__retries, SEXP c_arg__compat_level, SEXP c_arg__compression, SEXP c_arg__storage_options) {
+    SEXP res = savvy_PlRDataFrame_write_ipc__ffi(self__, c_arg__path, c_arg__retries, c_arg__compat_level, c_arg__compression, c_arg__storage_options);
     return handle_result(res);
 }
 
@@ -2784,6 +2769,11 @@ SEXP savvy_PlRSeries_cat_uses_lexical_ordering__impl(SEXP self__) {
     return handle_result(res);
 }
 
+SEXP savvy_PlRSeries_chunk_lengths__impl(SEXP self__) {
+    SEXP res = savvy_PlRSeries_chunk_lengths__ffi(self__);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRSeries_clone__impl(SEXP self__) {
     SEXP res = savvy_PlRSeries_clone__ffi(self__);
     return handle_result(res);
@@ -2889,13 +2879,18 @@ SEXP savvy_PlRSeries_new_series_list__impl(SEXP c_arg__name, SEXP c_arg__values,
     return handle_result(res);
 }
 
-SEXP savvy_PlRSeries_new_single_binary__impl(SEXP c_arg__name, SEXP c_arg__values) {
-    SEXP res = savvy_PlRSeries_new_single_binary__ffi(c_arg__name, c_arg__values);
+SEXP savvy_PlRSeries_new_str__impl(SEXP c_arg__name, SEXP c_arg__values) {
+    SEXP res = savvy_PlRSeries_new_str__ffi(c_arg__name, c_arg__values);
     return handle_result(res);
 }
 
-SEXP savvy_PlRSeries_new_str__impl(SEXP c_arg__name, SEXP c_arg__values) {
-    SEXP res = savvy_PlRSeries_new_str__ffi(c_arg__name, c_arg__values);
+SEXP savvy_PlRSeries_new_uint8__impl(SEXP c_arg__name, SEXP c_arg__values) {
+    SEXP res = savvy_PlRSeries_new_uint8__ffi(c_arg__name, c_arg__values);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRSeries_rechunk__impl(SEXP self__, SEXP c_arg__in_place) {
+    SEXP res = savvy_PlRSeries_rechunk__ffi(self__, c_arg__in_place);
     return handle_result(res);
 }
 
@@ -2992,13 +2987,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_int_ranges__impl", (DL_FUNC) &savvy_int_ranges__impl, 4},
     {"savvy_last__impl", (DL_FUNC) &savvy_last__impl, 0},
     {"savvy_len__impl", (DL_FUNC) &savvy_len__impl, 0},
-    {"savvy_lit_from_bool__impl", (DL_FUNC) &savvy_lit_from_bool__impl, 1},
-    {"savvy_lit_from_f64__impl", (DL_FUNC) &savvy_lit_from_f64__impl, 1},
-    {"savvy_lit_from_i32__impl", (DL_FUNC) &savvy_lit_from_i32__impl, 1},
-    {"savvy_lit_from_raw__impl", (DL_FUNC) &savvy_lit_from_raw__impl, 1},
+    {"savvy_lit_bin_from_raw__impl", (DL_FUNC) &savvy_lit_bin_from_raw__impl, 1},
     {"savvy_lit_from_series__impl", (DL_FUNC) &savvy_lit_from_series__impl, 1},
     {"savvy_lit_from_series_first__impl", (DL_FUNC) &savvy_lit_from_series_first__impl, 1},
-    {"savvy_lit_from_str__impl", (DL_FUNC) &savvy_lit_from_str__impl, 1},
     {"savvy_lit_null__impl", (DL_FUNC) &savvy_lit_null__impl, 0},
     {"savvy_max_horizontal__impl", (DL_FUNC) &savvy_max_horizontal__impl, 1},
     {"savvy_mean_horizontal__impl", (DL_FUNC) &savvy_mean_horizontal__impl, 2},
@@ -3047,6 +3038,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRDataFrame_width__impl", (DL_FUNC) &savvy_PlRDataFrame_width__impl, 1},
     {"savvy_PlRDataFrame_with_row_index__impl", (DL_FUNC) &savvy_PlRDataFrame_with_row_index__impl, 3},
     {"savvy_PlRDataFrame_write_csv__impl", (DL_FUNC) &savvy_PlRDataFrame_write_csv__impl, 17},
+    {"savvy_PlRDataFrame_write_ipc__impl", (DL_FUNC) &savvy_PlRDataFrame_write_ipc__impl, 6},
     {"savvy_PlRDataFrame_write_json__impl", (DL_FUNC) &savvy_PlRDataFrame_write_json__impl, 2},
     {"savvy_PlRDataFrame_write_ndjson__impl", (DL_FUNC) &savvy_PlRDataFrame_write_ndjson__impl, 2},
     {"savvy_PlRDataFrame_write_parquet__impl", (DL_FUNC) &savvy_PlRDataFrame_write_parquet__impl, 14},
@@ -3511,6 +3503,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRSeries_cat_is_local__impl", (DL_FUNC) &savvy_PlRSeries_cat_is_local__impl, 1},
     {"savvy_PlRSeries_cat_to_local__impl", (DL_FUNC) &savvy_PlRSeries_cat_to_local__impl, 1},
     {"savvy_PlRSeries_cat_uses_lexical_ordering__impl", (DL_FUNC) &savvy_PlRSeries_cat_uses_lexical_ordering__impl, 1},
+    {"savvy_PlRSeries_chunk_lengths__impl", (DL_FUNC) &savvy_PlRSeries_chunk_lengths__impl, 1},
     {"savvy_PlRSeries_clone__impl", (DL_FUNC) &savvy_PlRSeries_clone__impl, 1},
     {"savvy_PlRSeries_div__impl", (DL_FUNC) &savvy_PlRSeries_div__impl, 2},
     {"savvy_PlRSeries_dtype__impl", (DL_FUNC) &savvy_PlRSeries_dtype__impl, 1},
@@ -3532,8 +3525,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRSeries_new_i64_from_numeric_and_multiplier__impl", (DL_FUNC) &savvy_PlRSeries_new_i64_from_numeric_and_multiplier__impl, 4},
     {"savvy_PlRSeries_new_null__impl", (DL_FUNC) &savvy_PlRSeries_new_null__impl, 2},
     {"savvy_PlRSeries_new_series_list__impl", (DL_FUNC) &savvy_PlRSeries_new_series_list__impl, 3},
-    {"savvy_PlRSeries_new_single_binary__impl", (DL_FUNC) &savvy_PlRSeries_new_single_binary__impl, 2},
     {"savvy_PlRSeries_new_str__impl", (DL_FUNC) &savvy_PlRSeries_new_str__impl, 2},
+    {"savvy_PlRSeries_new_uint8__impl", (DL_FUNC) &savvy_PlRSeries_new_uint8__impl, 2},
+    {"savvy_PlRSeries_rechunk__impl", (DL_FUNC) &savvy_PlRSeries_rechunk__impl, 2},
     {"savvy_PlRSeries_rem__impl", (DL_FUNC) &savvy_PlRSeries_rem__impl, 2},
     {"savvy_PlRSeries_rename__impl", (DL_FUNC) &savvy_PlRSeries_rename__impl, 2},
     {"savvy_PlRSeries_reshape__impl", (DL_FUNC) &savvy_PlRSeries_reshape__impl, 2},
