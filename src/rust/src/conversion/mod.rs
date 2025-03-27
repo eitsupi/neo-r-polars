@@ -4,7 +4,10 @@ use crate::prelude::*;
 use crate::{PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame, PlRSeries, RPolarsErr};
 use polars::prelude::cloud::CloudOptions;
 use polars::series::ops::NullBehavior;
-use savvy::{ListSexp, NumericScalar, NumericSexp, NumericTypedSexp, Sexp, StringSexp, TypedSexp};
+use savvy::{
+    ListSexp, NumericScalar, NumericSexp, NumericTypedSexp, OwnedIntegerSexp, Sexp, StringSexp,
+    TypedSexp,
+};
 use search_sorted::SearchSortedSide;
 pub mod base_date;
 mod chunked_array;
@@ -208,7 +211,7 @@ impl TryFrom<&str> for Wrap<CategoricalOrdering> {
             v => {
                 return Err(format!(
                     "categorical `ordering` must be one of ('physical', 'lexical'), got '{v}'"
-                ))
+                ));
             }
         };
         Ok(Wrap(ordering))

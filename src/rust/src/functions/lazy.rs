@@ -1,7 +1,7 @@
-use crate::{prelude::*, PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame, PlRSeries, RPolarsErr};
+use crate::{PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame, PlRSeries, RPolarsErr, prelude::*};
 use polars::functions;
 use polars::lazy::dsl;
-use savvy::{savvy, ListSexp, LogicalSexp, NumericSexp, RawSexp, Result, StringSexp};
+use savvy::{ListSexp, LogicalSexp, NumericSexp, RawSexp, Result, StringSexp, savvy};
 
 macro_rules! set_unwrapped_or_0 {
     ($($var:ident),+ $(,)?) => {
@@ -143,27 +143,7 @@ pub fn last() -> Result<PlRExpr> {
 }
 
 #[savvy]
-pub fn lit_from_bool(value: bool) -> Result<PlRExpr> {
-    Ok(dsl::lit(value).into())
-}
-
-#[savvy]
-pub fn lit_from_i32(value: i32) -> Result<PlRExpr> {
-    Ok(dsl::lit(value).into())
-}
-
-#[savvy]
-pub fn lit_from_f64(value: f64) -> Result<PlRExpr> {
-    Ok(dsl::lit(value).into())
-}
-
-#[savvy]
-pub fn lit_from_str(value: &str) -> Result<PlRExpr> {
-    Ok(dsl::lit(value).into())
-}
-
-#[savvy]
-pub fn lit_from_raw(value: RawSexp) -> Result<PlRExpr> {
+pub fn lit_bin_from_raw(value: RawSexp) -> Result<PlRExpr> {
     Ok(dsl::lit(value.as_slice()).into())
 }
 
