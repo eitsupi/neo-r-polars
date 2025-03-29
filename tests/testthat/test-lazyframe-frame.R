@@ -2334,6 +2334,18 @@ test_that("sql() works", {
   )
 })
 
+test_that("reverse() works", {
+  df <- pl$DataFrame(key = c("a", "b", "c"), val = 1:3)
+  expect_query_equal(
+    .input$reverse(),
+    .input = df,
+    pl$DataFrame(key = c("c", "b", "a"), val = 3:1)
+  )
+
+  df <- pl$DataFrame()
+  expect_query_equal(.input$reverse(), .input = df, df)
+})
+
 test_that("count() works", {
   df <- pl$DataFrame(
     a = 1:4,
