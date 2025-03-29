@@ -2228,7 +2228,7 @@ dataframe__reverse <- function() {
   self$select(pl$col("*")$reverse()) |>
     wrap()
 }
-         
+
 #' @inherit lazyframe__count title
 #' @inherit as_polars_df return
 #'
