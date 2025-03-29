@@ -2217,6 +2217,18 @@ dataframe__describe <- function(
   })
 }
 
+#' Reverse the DataFrame
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(key = c("a", "b", "c"), val = 1:3)
+#'
+#' df$reverse()
+dataframe__reverse <- function() {
+  self$select(pl$col("*")$reverse()) |>
+    wrap()
+}
+
 #' Show a dense preview of the DataFrame
 #'
 #' The formatting shows one line per column so that wide DataFrames display
