@@ -2268,7 +2268,7 @@ dataframe__glimpse <- function(
       }
       list(
         col_name = col_name,
-        dtype_str = dtype$as_str(abbreviated = TRUE),
+        dtype_str = dtype$`_dt`$as_str(abbreviated = TRUE),
         val_str = val_str
       )
     }

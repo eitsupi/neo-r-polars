@@ -281,10 +281,5 @@ datatype__min <- function() {
     wrap()
 }
 
-#' @param abbreviated Use short form of datatype name, used for instance in
-#' [`glimpse()`][dataframe__glimpse].
-#' @noRd
-datatype__as_str <- function(abbreviated = FALSE) {
-  self$`_dt`$as_str(abbreviated = abbreviated) |>
-    wrap()
-}
+# TODO: add S3 format.polars_dtype with an arg `abbreviated` instead of
+# x$`_dt`$as_str()
