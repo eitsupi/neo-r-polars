@@ -2288,7 +2288,7 @@ dataframe__glimpse <- function(
     schema <- self$schema
 
     parse_column <- \(col_name, dtype) {
-      values <- self$select(pl$col(col_name)$slice(0, max_n_values)) |>
+      values <- self$select(pl$col(col_name)$slice(0, max_n_values)$cast(pl$String)) |>
         as.list()
       val_str <- toString(values[[1]])
       if (nchar(col_name) > max_colname_length) {
