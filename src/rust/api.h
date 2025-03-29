@@ -1,3 +1,5 @@
+SEXP savvy_rust_polars_version__ffi(void);
+SEXP savvy_thread_pool_size__ffi(void);
 SEXP savvy_all_horizontal__ffi(SEXP c_arg__exprs);
 SEXP savvy_any_horizontal__ffi(SEXP c_arg__exprs);
 SEXP savvy_arg_sort_by__ffi(SEXP c_arg__by, SEXP c_arg__descending, SEXP c_arg__nulls_last, SEXP c_arg__maintain_order, SEXP c_arg__multithreaded);
