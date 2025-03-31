@@ -6,3 +6,10 @@
 # Generated Makefiles
 src/Makevars
 src/Makevars.win
+
+# altdoc stuff
+altdoc/freeze.rds
+docs
+.venv_altdoc
+altdoc/mkdocs.yml
+altdoc/reference_home.md

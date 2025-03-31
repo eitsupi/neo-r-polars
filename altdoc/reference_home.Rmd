@@ -1,0 +1,19 @@
+---
+output:
+  github_document:
+    html_preview: false
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Reference
+
+`polars` provides a large number of functions for numerous data types and this
+can sometimes be a bit overwhelming. Overall, you should be able to do anything
+you want with `polars` by specifying the **data structure** you want to use and
+then by applying **expressions** in a particular **context**.
