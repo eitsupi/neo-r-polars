@@ -34,7 +34,9 @@ lazyframe__sink_ipc <- function(
   collapse_joins = TRUE,
   no_optimization = FALSE,
   storage_options = NULL,
-  retries = 2
+  retries = 2,
+  sync_on_close = c("none", "data", "all"),
+  mkdir = FALSE
 ) {
   wrap({
     check_dots_empty0(...)
@@ -43,6 +45,10 @@ lazyframe__sink_ipc <- function(
       values = c("zstd", "lz4", "uncompressed")
     )
     compat_level <- arg_match_compat_level(compat_level)
+    sync_on_close <- arg_match0(
+      sync_on_close %||% "none",
+      values = c("none", "data", "all")
+    )
 
     lf <- set_sink_optimizations(
       self,
@@ -61,6 +67,8 @@ lazyframe__sink_ipc <- function(
       compression = compression,
       compat_level = compat_level,
       maintain_order = maintain_order,
+      sync_on_close = sync_on_close,
+      mkdir = mkdir,
       storage_options = storage_options,
       retries = retries
     )

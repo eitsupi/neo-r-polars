@@ -1,6 +1,6 @@
 use crate::{
     PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame, PlRLazyGroupBy, PlRSeries, RPolarsErr,
-    prelude::*,
+    prelude::{sync_on_close::SyncOnCloseType, *},
 };
 use polars::io::cloud::CloudOptions;
 use polars::io::{HiveOptions, RowIndex};
@@ -1201,12 +1201,14 @@ impl PlRLazyFrame {
         &self,
         path: &str,
         compression: &str,
-        maintain_order: bool,
         stat_min: bool,
         stat_max: bool,
         stat_distinct_count: bool,
         stat_null_count: bool,
         retries: NumericScalar,
+        sync_on_close: &str,
+        maintain_order: bool,
+        mkdir: bool,
         compression_level: Option<NumericScalar>,
         row_group_size: Option<NumericScalar>,
         data_page_size: Option<NumericScalar>,
@@ -1256,8 +1258,12 @@ impl PlRLazyFrame {
                 parse_cloud_options(path.to_str().unwrap(), cloud_options.unwrap_or_default())?;
             Some(cloud_options.with_max_retries(retries))
         };
-        // TODO: SinkOptions construct
-        let sink_options = SinkOptions::default();
+        let sync_on_close = <Wrap<SyncOnCloseType>>::try_from(sync_on_close)?.0;
+        let sink_options = SinkOptions {
+            sync_on_close,
+            maintain_order,
+            mkdir,
+        };
         let _ = self
             .ldf
             .clone()
@@ -1274,9 +1280,11 @@ impl PlRLazyFrame {
         separator: &str,
         line_terminator: &str,
         quote_char: &str,
-        maintain_order: bool,
         batch_size: NumericScalar,
         retries: NumericScalar,
+        sync_on_close: &str,
+        maintain_order: bool,
+        mkdir: bool,
         datetime_format: Option<&str>,
         date_format: Option<&str>,
         time_format: Option<&str>,
@@ -1338,8 +1346,12 @@ impl PlRLazyFrame {
                 parse_cloud_options(path.to_str().unwrap(), cloud_options.unwrap_or_default())?;
             Some(cloud_options.with_max_retries(retries))
         };
-        // TODO: SinkOptions construct
-        let sink_options = SinkOptions::default();
+        let sync_on_close = <Wrap<SyncOnCloseType>>::try_from(sync_on_close)?.0;
+        let sink_options = SinkOptions {
+            sync_on_close,
+            maintain_order,
+            mkdir,
+        };
 
         let _ = self
             .ldf
@@ -1354,15 +1366,21 @@ impl PlRLazyFrame {
         &self,
         path: &str,
         retries: NumericScalar,
+        sync_on_close: &str,
         maintain_order: bool,
+        mkdir: bool,
         storage_options: Option<StringSexp>,
     ) -> Result<()> {
         let options = JsonWriterOptions {};
         let _retries = <Wrap<usize>>::try_from(retries)?.0;
 
         let cloud_options = Some(CloudOptions::default());
-        // TODO: SinkOptions construct
-        let sink_options = SinkOptions::default();
+        let sync_on_close = <Wrap<SyncOnCloseType>>::try_from(sync_on_close)?.0;
+        let sink_options = SinkOptions {
+            sync_on_close,
+            maintain_order,
+            mkdir,
+        };
 
         let ldf = self.ldf.clone();
         let _ = ldf.sink_json(path, options, cloud_options, sink_options);
@@ -1374,8 +1392,10 @@ impl PlRLazyFrame {
         path: &str,
         compression: &str,
         compat_level: Sexp,
-        maintain_order: bool,
         retries: NumericScalar,
+        sync_on_close: &str,
+        maintain_order: bool,
+        mkdir: bool,
         storage_options: Option<StringSexp>,
     ) -> Result<()> {
         let path: PathBuf = path.into();
@@ -1406,8 +1426,12 @@ impl PlRLazyFrame {
                 parse_cloud_options(path.to_str().unwrap(), cloud_options.unwrap_or_default())?;
             Some(cloud_options.with_max_retries(retries))
         };
-        // TODO: SinkOptions construct
-        let sink_options = SinkOptions::default();
+        let sync_on_close = <Wrap<SyncOnCloseType>>::try_from(sync_on_close)?.0;
+        let sink_options = SinkOptions {
+            sync_on_close,
+            maintain_order,
+            mkdir,
+        };
 
         let _ = self
             .ldf
