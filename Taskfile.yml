@@ -231,3 +231,39 @@ tasks:
       - dev/**/*.R
     cmds:
       - air format dev/
+
+  build-website:
+    desc: Build the website.
+    sources:
+      - man/*.Rd
+      - altdoc/altdoc_postprocessing.R
+      - altdoc/*.yml
+      - "{{.VIGNETTES}}"
+    generates:
+      - docs/**
+    cmds:
+      - task: build-readme
+      - task: build-altdoc-ref-home
+      - Rscript -e
+        'future::plan(future::multicore);
+        altdoc::render_docs(freeze = FALSE, parallel = TRUE, verbose = TRUE);
+        source("altdoc/altdoc_postprocessing.R");'
+
+  build-altdoc-ref-home:
+    internal: true
+    desc: Build the altdoc reference home markdown
+    sources:
+      - "{{.R_SOURCE}}"
+      - src/Makevars*
+      - configure*
+      - "{{.MANIFEST}}"
+      - "{{.CARGO_LOCK}}"
+      - "{{.RUST_SOURCE}}"
+    generates:
+      - altdoc/reference_home.md
+    deps:
+      - install-package
+    cmds:
+      - Rscript -e
+        'library({{.PACKAGE_NAME}});
+        rmarkdown::render("altdoc/reference_home.Rmd")'
