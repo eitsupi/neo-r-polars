@@ -1,10 +1,9 @@
 ## Developers
 
 The primary developer of the upstream Polars project is Ritchie Vink
-([@ritchie46](https://github.com/ritchie46)). This R port is
-maintained by Søren Welling
-([@sorhawell](https://github.com/sorhawell)) and
-[contributors](https://github.com/pola-rs/r-polars/graphs/contributors).
+([@ritchie46](https://github.com/ritchie46)). This R package is
+maintained by [@eitsupi](https://github.com/eitsupi) and [Etienne Bacher](https://github.com/etiennebacher). The original R package was created by Søren Welling
+([@sorhawell](https://github.com/sorhawell)).
 
 Development occurs on Github: https://github.com/pola-rs/r-polars
 
