@@ -672,11 +672,12 @@ nav:
         - sql_context__register_many: man/sql_context__register_many.md
         - sql_context__register: man/sql_context__register.md
         - sql_context__tables: man/sql_context__tables.md
-      Other:
+      From R:
         - as_polars_df: man/as_polars_df.md
         - as_polars_expr: man/as_polars_expr.md
         - as_polars_lf: man/as_polars_lf.md
         - as_polars_series: man/as_polars_series.md
+      Other:
         - check_polars: man/check_polars.md
         - pl_api_register_series_namespace: man/pl_api_register_series_namespace.md
         - pl: man/pl.md
