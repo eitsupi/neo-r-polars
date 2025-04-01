@@ -54,13 +54,8 @@ nav:
         - repeat_: man/pl__repeat_.md
         - Series: man/pl__Series.md
         - show_versions: man/pl__show_versions.md
-        - SQLContext: man/pl__SQLContext.md
       Series:
-        - alias: man/series__alias.md
-        - chunk_lengths: man/series__chunk_lengths.md
-        - n_chunks: man/series__n_chunks.md
-        - rechunk: man/series__rechunk.md
-        - to_frame: man/series__to_frame.md
+        - About series: about_series_functions.md
         - to_r_vector: man/series__to_r_vector.md
       DataFrame:
         - bottom_k: man/dataframe__bottom_k.md
@@ -668,6 +663,7 @@ nav:
         - s3-as.data.frame: man/s3-as.data.frame.md
         - s3-as.list: man/s3-as.list.md
       SQL Interface:
+        - SQLContext: man/pl__SQLContext.md
         - sql_context__execute: man/sql_context__execute.md
         - sql_context__register_many: man/sql_context__register_many.md
         - sql_context__register: man/sql_context__register.md
