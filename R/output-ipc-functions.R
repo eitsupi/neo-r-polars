@@ -62,7 +62,7 @@ lazyframe__sink_ipc <- function(
       no_optimization = no_optimization
     )
 
-    lf$sink_ipc(
+    lf <- lf$sink_ipc(
       path = path,
       compression = compression,
       compat_level = compat_level,
@@ -73,8 +73,10 @@ lazyframe__sink_ipc <- function(
       retries = retries
     )
 
-    invisible(self)
+    # TODO: support `engine`, `lazy` arguments
+    wrap(lf)$collect()
   })
+  invisible(self)
 }
 
 #' Write to Arrow IPC file.

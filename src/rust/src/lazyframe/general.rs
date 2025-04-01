@@ -1213,7 +1213,7 @@ impl PlRLazyFrame {
         row_group_size: Option<NumericScalar>,
         data_page_size: Option<NumericScalar>,
         storage_options: Option<StringSexp>,
-    ) -> Result<()> {
+    ) -> Result<Self> {
         let path: PathBuf = path.into();
         let statistics = StatisticsOptions {
             min_value: stat_min,
@@ -1264,12 +1264,12 @@ impl PlRLazyFrame {
             maintain_order,
             mkdir,
         };
-        let _ = self
-            .ldf
+        self.ldf
             .clone()
             .sink_parquet(&path, options, cloud_options, sink_options)
-            .map_err(RPolarsErr::from);
-        Ok(())
+            .map(PlRLazyFrame::from)
+            .map_err(RPolarsErr::from)
+            .map_err(Into::into)
     }
 
     fn sink_csv(
@@ -1293,7 +1293,7 @@ impl PlRLazyFrame {
         null_value: Option<&str>,
         quote_style: Option<&str>,
         storage_options: Option<StringSexp>,
-    ) -> Result<()> {
+    ) -> Result<Self> {
         let path: PathBuf = path.into();
         let quote_style = match quote_style {
             Some(x) => <Wrap<QuoteStyle>>::try_from(x)?.0,
@@ -1353,12 +1353,12 @@ impl PlRLazyFrame {
             mkdir,
         };
 
-        let _ = self
-            .ldf
+        self.ldf
             .clone()
             .sink_csv(&path, options, cloud_options, sink_options)
-            .map_err(RPolarsErr::from);
-        Ok(())
+            .map(PlRLazyFrame::from)
+            .map_err(RPolarsErr::from)
+            .map_err(Into::into)
     }
 
     #[cfg(not(target_arch = "wasm32"))]
@@ -1370,7 +1370,7 @@ impl PlRLazyFrame {
         maintain_order: bool,
         mkdir: bool,
         storage_options: Option<StringSexp>,
-    ) -> Result<()> {
+    ) -> Result<Self> {
         let options = JsonWriterOptions {};
         let _retries = <Wrap<usize>>::try_from(retries)?.0;
 
@@ -1383,8 +1383,10 @@ impl PlRLazyFrame {
         };
 
         let ldf = self.ldf.clone();
-        let _ = ldf.sink_json(path, options, cloud_options, sink_options);
-        Ok(())
+        ldf.sink_json(path, options, cloud_options, sink_options)
+            .map(PlRLazyFrame::from)
+            .map_err(RPolarsErr::from)
+            .map_err(Into::into)
     }
 
     fn sink_ipc(
@@ -1397,7 +1399,7 @@ impl PlRLazyFrame {
         maintain_order: bool,
         mkdir: bool,
         storage_options: Option<StringSexp>,
-    ) -> Result<()> {
+    ) -> Result<Self> {
         let path: PathBuf = path.into();
 
         let retries = <Wrap<usize>>::try_from(retries)?.0;
@@ -1433,11 +1435,11 @@ impl PlRLazyFrame {
             mkdir,
         };
 
-        let _ = self
-            .ldf
+        self.ldf
             .clone()
             .sink_ipc(&path, options, cloud_options, sink_options)
-            .map_err(RPolarsErr::from);
-        Ok(())
+            .map(PlRLazyFrame::from)
+            .map_err(RPolarsErr::from)
+            .map_err(Into::into)
     }
 }

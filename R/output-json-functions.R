@@ -59,7 +59,7 @@ lazyframe__sink_ndjson <- function(
       no_optimization = no_optimization
     )
 
-    lf$sink_json(
+    lf <- lf$sink_json(
       path = path,
       maintain_order = maintain_order,
       sync_on_close = sync_on_close,
@@ -68,8 +68,10 @@ lazyframe__sink_ndjson <- function(
       retries = retries
     )
 
-    invisible(self)
+    # TODO: support `engine`, `lazy` arguments
+    wrap(lf)$collect()
   })
+  invisible(self)
 }
 
 #' Serialize to JSON representation

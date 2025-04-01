@@ -106,7 +106,7 @@ lazyframe__sink_csv <- function(
       no_optimization = no_optimization
     )
 
-    lf$sink_csv(
+    lf <- lf$sink_csv(
       path = path,
       include_bom = include_bom,
       include_header = include_header,
@@ -128,8 +128,10 @@ lazyframe__sink_csv <- function(
       retries = retries
     )
 
-    invisible(self)
+    # TODO: support `engine`, `lazy` arguments
+    wrap(lf)$collect()
   })
+  invisible(self)
 }
 
 #' Write to comma-separated values (CSV) file

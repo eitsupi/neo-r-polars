@@ -118,7 +118,7 @@ lazyframe__sink_parquet <- function(
       abort("`statistics` must be TRUE, FALSE, 'full', or a call to `parquet_statistics()`.")
     }
 
-    lf$sink_parquet(
+    lf <- lf$sink_parquet(
       path = path,
       compression = compression,
       compression_level = compression_level,
@@ -135,8 +135,10 @@ lazyframe__sink_parquet <- function(
       retries = retries
     )
 
-    invisible(self)
+    # TODO: support `engine`, `lazy` arguments
+    wrap(lf)$collect()
   })
+  invisible(self)
 }
 
 #' Write to Parquet file
