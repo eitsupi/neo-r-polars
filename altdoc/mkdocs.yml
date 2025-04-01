@@ -48,57 +48,14 @@ nav:
   - Reference:
       Reference: reference_home.md
       Polars:
-        - all_horizontal: man/pl__all_horizontal.md
-        - all: man/pl__all.md
-        - any_horizontal: man/pl__any_horizontal.md
-        - any: man/pl__any.md
-        - arg_sort_by: man/pl__arg_sort_by.md
-        - arg_where: man/pl__arg_where.md
-        - coalesce: man/pl__coalesce.md
         - col: man/pl__col.md
-        - concat_list: man/pl__concat_list.md
-        - concat_str: man/pl__concat_str.md
         - concat: man/pl__concat.md
-        - cum_sum: man/pl__cum_sum.md
         - DataFrame: man/pl__DataFrame.md
-        - date_range: man/pl__date_range.md
-        - date_ranges: man/pl__date_ranges.md
-        - datetime_range: man/pl__datetime_range.md
-        - datetime_ranges: man/pl__datetime_ranges.md
-        - datetime: man/pl__datetime.md
-        - duration: man/pl__duration.md
-        - element: man/pl__element.md
-        - first: man/pl__first.md
-        - int_range: man/pl__int_range.md
-        - int_ranges: man/pl__int_ranges.md
-        - last: man/pl__last.md
         - LazyFrame: man/pl__LazyFrame.md
-        - len: man/pl__len.md
-        - lit: man/pl__lit.md
-        - max_horizontal: man/pl__max_horizontal.md
-        - max: man/pl__max.md
-        - mean_horizontal: man/pl__mean_horizontal.md
-        - min_horizontal: man/pl__min_horizontal.md
-        - min: man/pl__min.md
-        - nth: man/pl__nth.md
-        - read_csv: man/pl__read_csv.md
-        - read_ipc_stream: man/pl__read_ipc_stream.md
-        - read_ipc: man/pl__read_ipc.md
-        - read_ndjson: man/pl__read_ndjson.md
-        - read_parquet: man/pl__read_parquet.md
         - repeat_: man/pl__repeat_.md
-        - scan_csv: man/pl__scan_csv.md
-        - scan_ipc: man/pl__scan_ipc.md
-        - scan_ndjson: man/pl__scan_ndjson.md
-        - scan_parquet: man/pl__scan_parquet.md
         - Series: man/pl__Series.md
         - show_versions: man/pl__show_versions.md
         - SQLContext: man/pl__SQLContext.md
-        - struct: man/pl__struct.md
-        - sum_horizontal: man/pl__sum_horizontal.md
-        - sum: man/pl__sum.md
-        - time_range: man/pl__time_range.md
-        - time_ranges: man/pl__time_ranges.md
       Series:
         - alias: man/series__alias.md
         - chunk_lengths: man/series__chunk_lengths.md
@@ -177,11 +134,6 @@ nav:
         - with_columns_seq: man/dataframe__with_columns_seq.md
         - with_columns: man/dataframe__with_columns.md
         - with_row_index: man/dataframe__with_row_index.md
-        - write_csv: man/dataframe__write_csv.md
-        - write_ipc: man/dataframe__write_ipc.md
-        - write_json: man/dataframe__write_json.md
-        - write_ndjson: man/dataframe__write_ndjson.md
-        - write_parquet: man/dataframe__write_parquet.md
       LazyFrame:
         - bottom_k: man/lazyframe__bottom_k.md
         - cast: man/lazyframe__cast.md
@@ -225,10 +177,6 @@ nav:
         - serialize: man/lazyframe__serialize.md
         - set_sorted: man/lazyframe__set_sorted.md
         - shift: man/lazyframe__shift.md
-        - sink_csv: man/lazyframe__sink_csv.md
-        - sink_ipc: man/lazyframe__sink_ipc.md
-        - sink_ndjson: man/lazyframe__sink_ndjson.md
-        - sink_parquet: man/lazyframe__sink_parquet.md
         - slice: man/lazyframe__slice.md
         - sort: man/lazyframe__sort.md
         - sql: man/lazyframe__sql.md
@@ -367,7 +315,6 @@ nav:
             - not: man/expr__not.md
             - null_count: man/expr__null_count.md
             - or: man/expr__or.md
-            - over: man/expr__over.md
             - pct_change: man/expr__pct_change.md
             - peak_max: man/expr__peak_max.md
             - peak_min: man/expr__peak_min.md
@@ -403,7 +350,6 @@ nav:
             - rolling_sum: man/expr__rolling_sum.md
             - rolling_var_by: man/expr__rolling_var_by.md
             - rolling_var: man/expr__rolling_var.md
-            - rolling: man/expr__rolling.md
             - round_sig_figs: man/expr__round_sig_figs.md
             - round: man/expr__round.md
             - sample: man/expr__sample.md
@@ -470,49 +416,41 @@ nav:
         - Categorical:
             - cat_get_categories: man/expr_cat_get_categories.md
             - cat_set_ordering: man/expr_cat_set_ordering.md
-        - DateTime:
-            - dt_add_business_days: man/expr_dt_add_business_days.md
-            - dt_base_utc_offset: man/expr_dt_base_utc_offset.md
-            - dt_cast_time_unit: man/expr_dt_cast_time_unit.md
-            - dt_century: man/expr_dt_century.md
-            - dt_combine: man/expr_dt_combine.md
-            - dt_convert_time_zone: man/expr_dt_convert_time_zone.md
-            - dt_date: man/expr_dt_date.md
-            - dt_day: man/expr_dt_day.md
-            - dt_dst_offset: man/expr_dt_dst_offset.md
-            - dt_epoch: man/expr_dt_epoch.md
-            - dt_hour: man/expr_dt_hour.md
-            - dt_is_leap_year: man/expr_dt_is_leap_year.md
-            - dt_iso_year: man/expr_dt_iso_year.md
-            - dt_microsecond: man/expr_dt_microsecond.md
-            - dt_millisecond: man/expr_dt_millisecond.md
-            - dt_minute: man/expr_dt_minute.md
-            - dt_month_end: man/expr_dt_month_end.md
-            - dt_month_start: man/expr_dt_month_start.md
-            - dt_month: man/expr_dt_month.md
-            - dt_nanosecond: man/expr_dt_nanosecond.md
-            - dt_offset_by: man/expr_dt_offset_by.md
-            - dt_ordinal_day: man/expr_dt_ordinal_day.md
-            - dt_quarter: man/expr_dt_quarter.md
-            - dt_replace_time_zone: man/expr_dt_replace_time_zone.md
-            - dt_round: man/expr_dt_round.md
-            - dt_second: man/expr_dt_second.md
-            - dt_strftime: man/expr_dt_strftime.md
-            - dt_time: man/expr_dt_time.md
-            - dt_timestamp: man/expr_dt_timestamp.md
-            - dt_to_string: man/expr_dt_to_string.md
-            - dt_total_days: man/expr_dt_total_days.md
-            - dt_total_hours: man/expr_dt_total_hours.md
-            - dt_total_microseconds: man/expr_dt_total_microseconds.md
-            - dt_total_milliseconds: man/expr_dt_total_milliseconds.md
-            - dt_total_minutes: man/expr_dt_total_minutes.md
-            - dt_total_nanoseconds: man/expr_dt_total_nanoseconds.md
-            - dt_total_seconds: man/expr_dt_total_seconds.md
-            - dt_truncate: man/expr_dt_truncate.md
-            - dt_week: man/expr_dt_week.md
-            - dt_weekday: man/expr_dt_weekday.md
-            - dt_with_time_unit: man/expr_dt_with_time_unit.md
-            - dt_year: man/expr_dt_year.md
+        - Functions:
+            - all_horizontal: man/pl__all_horizontal.md
+            - all: man/pl__all.md
+            - any_horizontal: man/pl__any_horizontal.md
+            - any: man/pl__any.md
+            - arg_sort_by: man/pl__arg_sort_by.md
+            - arg_where: man/pl__arg_where.md
+            - coalesce: man/pl__coalesce.md
+            - concat_list: man/pl__concat_list.md
+            - concat_str: man/pl__concat_str.md
+            - cum_sum: man/pl__cum_sum.md
+            - date_range: man/pl__date_range.md
+            - date_ranges: man/pl__date_ranges.md
+            - datetime: man/pl__datetime.md
+            - datetime_range: man/pl__datetime_range.md
+            - datetime_ranges: man/pl__datetime_ranges.md
+            - duration: man/pl__duration.md
+            - element: man/pl__element.md
+            - first: man/pl__first.md
+            - int_range: man/pl__int_range.md
+            - int_ranges: man/pl__int_ranges.md
+            - last: man/pl__last.md
+            - len: man/pl__len.md
+            - lit: man/pl__lit.md
+            - max: man/pl__max.md
+            - max_horizontal: man/pl__max_horizontal.md
+            - mean_horizontal: man/pl__mean_horizontal.md
+            - min: man/pl__min.md
+            - min_horizontal: man/pl__min_horizontal.md
+            - nth: man/pl__nth.md
+            - struct: man/pl__struct.md
+            - sum_horizontal: man/pl__sum_horizontal.md
+            - sum: man/pl__sum.md
+            - time_range: man/pl__time_range.md
+            - time_ranges: man/pl__time_ranges.md
         - List:
             - list_all: man/expr_list_all.md
             - list_any: man/expr_list_any.md
@@ -624,6 +562,71 @@ nav:
             - struct_rename_fields: man/expr_struct_rename_fields.md
             - struct_unnest: man/expr_struct_unnest.md
             - struct_with_fields: man/expr_struct_with_fields.md
+        - Temporal:
+            - dt_add_business_days: man/expr_dt_add_business_days.md
+            - dt_base_utc_offset: man/expr_dt_base_utc_offset.md
+            - dt_cast_time_unit: man/expr_dt_cast_time_unit.md
+            - dt_century: man/expr_dt_century.md
+            - dt_combine: man/expr_dt_combine.md
+            - dt_convert_time_zone: man/expr_dt_convert_time_zone.md
+            - dt_date: man/expr_dt_date.md
+            - dt_day: man/expr_dt_day.md
+            - dt_dst_offset: man/expr_dt_dst_offset.md
+            - dt_epoch: man/expr_dt_epoch.md
+            - dt_hour: man/expr_dt_hour.md
+            - dt_is_leap_year: man/expr_dt_is_leap_year.md
+            - dt_iso_year: man/expr_dt_iso_year.md
+            - dt_microsecond: man/expr_dt_microsecond.md
+            - dt_millisecond: man/expr_dt_millisecond.md
+            - dt_minute: man/expr_dt_minute.md
+            - dt_month_end: man/expr_dt_month_end.md
+            - dt_month_start: man/expr_dt_month_start.md
+            - dt_month: man/expr_dt_month.md
+            - dt_nanosecond: man/expr_dt_nanosecond.md
+            - dt_offset_by: man/expr_dt_offset_by.md
+            - dt_ordinal_day: man/expr_dt_ordinal_day.md
+            - dt_quarter: man/expr_dt_quarter.md
+            - dt_replace_time_zone: man/expr_dt_replace_time_zone.md
+            - dt_round: man/expr_dt_round.md
+            - dt_second: man/expr_dt_second.md
+            - dt_strftime: man/expr_dt_strftime.md
+            - dt_time: man/expr_dt_time.md
+            - dt_timestamp: man/expr_dt_timestamp.md
+            - dt_to_string: man/expr_dt_to_string.md
+            - dt_total_days: man/expr_dt_total_days.md
+            - dt_total_hours: man/expr_dt_total_hours.md
+            - dt_total_microseconds: man/expr_dt_total_microseconds.md
+            - dt_total_milliseconds: man/expr_dt_total_milliseconds.md
+            - dt_total_minutes: man/expr_dt_total_minutes.md
+            - dt_total_nanoseconds: man/expr_dt_total_nanoseconds.md
+            - dt_total_seconds: man/expr_dt_total_seconds.md
+            - dt_truncate: man/expr_dt_truncate.md
+            - dt_week: man/expr_dt_week.md
+            - dt_weekday: man/expr_dt_weekday.md
+            - dt_with_time_unit: man/expr_dt_with_time_unit.md
+            - dt_year: man/expr_dt_year.md
+        - Window:
+            - over: man/expr__over.md
+            - rolling: man/expr__rolling.md
+      Input/Output:
+        - read_csv: man/pl__read_csv.md
+        - scan_csv: man/pl__scan_csv.md
+        - sink_csv: man/lazyframe__sink_csv.md
+        - write_csv: man/dataframe__write_csv.md
+        - read_ipc: man/pl__read_ipc.md
+        - read_ipc_stream: man/pl__read_ipc_stream.md
+        - scan_ipc: man/pl__scan_ipc.md
+        - sink_ipc: man/lazyframe__sink_ipc.md
+        - write_ipc: man/dataframe__write_ipc.md
+        - read_ndjson: man/pl__read_ndjson.md
+        - scan_ndjson: man/pl__scan_ndjson.md
+        - sink_ndjson: man/lazyframe__sink_ndjson.md
+        - write_json: man/dataframe__write_json.md
+        - write_ndjson: man/dataframe__write_ndjson.md
+        - read_parquet: man/pl__read_parquet.md
+        - scan_parquet: man/pl__scan_parquet.md
+        - sink_parquet: man/lazyframe__sink_parquet.md
+        - write_parquet: man/dataframe__write_parquet.md
       Other:
         - as_polars_df: man/as_polars_df.md
         - as_polars_expr: man/as_polars_expr.md
