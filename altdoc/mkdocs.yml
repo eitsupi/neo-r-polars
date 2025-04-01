@@ -608,31 +608,7 @@ nav:
         - Window:
             - over: man/expr__over.md
             - rolling: man/expr__rolling.md
-      Input/Output:
-        - read_csv: man/pl__read_csv.md
-        - scan_csv: man/pl__scan_csv.md
-        - sink_csv: man/lazyframe__sink_csv.md
-        - write_csv: man/dataframe__write_csv.md
-        - read_ipc: man/pl__read_ipc.md
-        - read_ipc_stream: man/pl__read_ipc_stream.md
-        - scan_ipc: man/pl__scan_ipc.md
-        - sink_ipc: man/lazyframe__sink_ipc.md
-        - write_ipc: man/dataframe__write_ipc.md
-        - read_ndjson: man/pl__read_ndjson.md
-        - scan_ndjson: man/pl__scan_ndjson.md
-        - sink_ndjson: man/lazyframe__sink_ndjson.md
-        - write_json: man/dataframe__write_json.md
-        - write_ndjson: man/dataframe__write_ndjson.md
-        - read_parquet: man/pl__read_parquet.md
-        - scan_parquet: man/pl__scan_parquet.md
-        - sink_parquet: man/lazyframe__sink_parquet.md
-        - write_parquet: man/dataframe__write_parquet.md
-      Other:
-        - as_polars_df: man/as_polars_df.md
-        - as_polars_expr: man/as_polars_expr.md
-        - as_polars_lf: man/as_polars_lf.md
-        - as_polars_series: man/as_polars_series.md
-        - check_polars: man/check_polars.md
+      Selectors:
         - cs__all: man/cs__all.md
         - cs__alpha: man/cs__alpha.md
         - cs__alphanumeric: man/cs__alphanumeric.md
@@ -663,6 +639,31 @@ nav:
         - cs__time: man/cs__time.md
         - cs__unsigned_integer: man/cs__unsigned_integer.md
         - cs: man/cs.md
+      Input/Output:
+        - read_csv: man/pl__read_csv.md
+        - scan_csv: man/pl__scan_csv.md
+        - sink_csv: man/lazyframe__sink_csv.md
+        - write_csv: man/dataframe__write_csv.md
+        - read_ipc: man/pl__read_ipc.md
+        - read_ipc_stream: man/pl__read_ipc_stream.md
+        - scan_ipc: man/pl__scan_ipc.md
+        - sink_ipc: man/lazyframe__sink_ipc.md
+        - write_ipc: man/dataframe__write_ipc.md
+        - read_ndjson: man/pl__read_ndjson.md
+        - scan_ndjson: man/pl__scan_ndjson.md
+        - sink_ndjson: man/lazyframe__sink_ndjson.md
+        - write_json: man/dataframe__write_json.md
+        - write_ndjson: man/dataframe__write_ndjson.md
+        - read_parquet: man/pl__read_parquet.md
+        - scan_parquet: man/pl__scan_parquet.md
+        - sink_parquet: man/lazyframe__sink_parquet.md
+        - write_parquet: man/dataframe__write_parquet.md
+      Other:
+        - as_polars_df: man/as_polars_df.md
+        - as_polars_expr: man/as_polars_expr.md
+        - as_polars_lf: man/as_polars_lf.md
+        - as_polars_series: man/as_polars_series.md
+        - check_polars: man/check_polars.md
         - infer_polars_dtype: man/infer_polars_dtype.md
         - pl_api_register_series_namespace: man/pl_api_register_series_namespace.md
         - pl: man/pl.md
