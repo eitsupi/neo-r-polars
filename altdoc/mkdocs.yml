@@ -640,6 +640,9 @@ nav:
         - cs__time: man/cs__time.md
         - cs__unsigned_integer: man/cs__unsigned_integer.md
         - cs: man/cs.md
+      Data types:
+        - infer_polars_dtype: man/infer_polars_dtype.md
+        - polars_dtype: man/polars_dtype.md
       Input/Output:
         - read_csv: man/pl__read_csv.md
         - scan_csv: man/pl__scan_csv.md
@@ -675,10 +678,8 @@ nav:
         - as_polars_lf: man/as_polars_lf.md
         - as_polars_series: man/as_polars_series.md
         - check_polars: man/check_polars.md
-        - infer_polars_dtype: man/infer_polars_dtype.md
         - pl_api_register_series_namespace: man/pl_api_register_series_namespace.md
         - pl: man/pl.md
-        - polars_dtype: man/polars_dtype.md
         - polars_duration_string: man/polars_duration_string.md
         - polars_expr: man/polars_expr.md
         - series_struct_unnest: man/series_struct_unnest.md
