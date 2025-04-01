@@ -18,3 +18,4 @@
 ^\.mega-linter\.yml$
 
 ^altdoc$
+^docs$
