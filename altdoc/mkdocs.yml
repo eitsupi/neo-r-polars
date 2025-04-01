@@ -413,7 +413,7 @@ nav:
             - bin_ends_with: man/expr_bin_ends_with.md
             - bin_size: man/expr_bin_size.md
             - bin_starts_with: man/expr_bin_starts_with.md
-        - Categorical:
+        - Categories:
             - cat_get_categories: man/expr_cat_get_categories.md
             - cat_set_ordering: man/expr_cat_set_ordering.md
         - Functions:
