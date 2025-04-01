@@ -18,7 +18,6 @@ Depends:
 Imports:
     rlang (>= 1.1.0)
 Suggests:
-    altdoc,
     arrow,
     bit64,
     blob,
@@ -35,8 +34,6 @@ Suggests:
     tibble,
     vctrs,
     withr
-Remotes:
-    etiennebacher/altdoc
 Additional_repositories: https://community.r-multiverse.org
 Config/Needs/dev: devtools, lifecycle, readr, glue
 Config/testthat/edition: 3
