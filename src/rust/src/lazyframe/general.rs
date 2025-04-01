@@ -1373,8 +1373,7 @@ impl PlRLazyFrame {
         &self,
         path: &str,
         compression: &str,
-        // TODO: support `compat_level`
-        // compat_level: Sexp,
+        compat_level: Sexp,
         maintain_order: bool,
         retries: NumericScalar,
         storage_options: Option<StringSexp>,
@@ -1384,8 +1383,10 @@ impl PlRLazyFrame {
         let retries = <Wrap<usize>>::try_from(retries)?.0;
         let compression: Option<IpcCompression> =
             <Wrap<Option<IpcCompression>>>::try_from(compression)?.0;
+        let compat_level = <Wrap<CompatLevel>>::try_from(compat_level)?.0;
         let options = IpcWriterOptions {
             compression,
+            compat_level,
             ..Default::default()
         };
 

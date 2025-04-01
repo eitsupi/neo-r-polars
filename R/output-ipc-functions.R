@@ -7,7 +7,14 @@
 #' - `"uncompressed"` or `NULL`: Write an uncompressed Arrow file.
 #' - `"lz4"`: Fast compression/decompression.
 #' - `"zstd"` (default): Good compression performance.
-#'
+#' @param compat_level Determines the compatibility level when exporting Polars' internal data structures.
+#' When specifying a new compatibility level, Polars exports its internal data structures
+#' that might not be interpretable by other Arrow implementations.
+#' The level can be specified as the name (e.g., `"newest"`) or as a scalar integer
+#' (Currently, `0` or `1` is supported).
+#' - `"newest"` (default): Use the highest level, currently same as `1`
+#'   (Low compatibility).
+#' - `"oldest"`: Same as `0` (High compatibility).
 #' @examples
 #' tmpf <- tempfile(fileext = ".arrow")
 #' as_polars_lf(mtcars)$sink_ipc(tmpf)
@@ -16,6 +23,7 @@ lazyframe__sink_ipc <- function(
   path,
   ...,
   compression = c("zstd", "lz4", "uncompressed"),
+  compat_level = c("newest", "oldest"),
   maintain_order = TRUE,
   type_coercion = TRUE,
   `_type_check` = TRUE,
@@ -34,6 +42,7 @@ lazyframe__sink_ipc <- function(
       compression %||% "uncompressed",
       values = c("zstd", "lz4", "uncompressed")
     )
+    compat_level <- arg_match_compat_level(compat_level)
 
     lf <- set_sink_optimizations(
       self,
@@ -50,6 +59,7 @@ lazyframe__sink_ipc <- function(
     lf$sink_ipc(
       path = path,
       compression = compression,
+      compat_level = compat_level,
       maintain_order = maintain_order,
       storage_options = storage_options,
       retries = retries
@@ -64,15 +74,6 @@ lazyframe__sink_ipc <- function(
 #' @inherit lazyframe__sink_parquet description params return
 #' @inheritParams rlang::args_dots_empty
 #' @inheritParams lazyframe__sink_ipc
-#'
-#' @param compat_level Determines the compatibility level when exporting Polars' internal data structures.
-#' When specifying a new compatibility level, Polars exports its internal data structures
-#' that might not be interpretable by other Arrow implementations.
-#' The level can be specified as the name (e.g., `"newest"`) or as a scalar integer
-#' (Currently, `0` or `1` is supported).
-#' - `"newest"` (default): Use the highest level, currently same as `1`
-#'   (Low compatibility).
-#' - `"oldest"`: Same as `0` (High compatibility).
 #' @inherit write_csv return
 #' @examples
 #' tmpf <- tempfile()
