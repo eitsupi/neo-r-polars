@@ -460,46 +460,6 @@ nav:
             - arr_to_list: man/expr_arr_to_list.md
             - arr_unique: man/expr_arr_unique.md
             - arr_var: man/expr_arr_var.md
-        - List:
-            - list_all: man/expr_list_all.md
-            - list_any: man/expr_list_any.md
-            - list_arg_max: man/expr_list_arg_max.md
-            - list_arg_min: man/expr_list_arg_min.md
-            - list_concat: man/expr_list_concat.md
-            - list_contains: man/expr_list_contains.md
-            - list_count_matches: man/expr_list_count_matches.md
-            - list_diff: man/expr_list_diff.md
-            - list_drop_nulls: man/expr_list_drop_nulls.md
-            - list_eval: man/expr_list_eval.md
-            - list_explode: man/expr_list_explode.md
-            - list_first: man/expr_list_first.md
-            - list_gather_every: man/expr_list_gather_every.md
-            - list_gather: man/expr_list_gather.md
-            - list_get: man/expr_list_get.md
-            - list_head: man/expr_list_head.md
-            - list_join: man/expr_list_join.md
-            - list_last: man/expr_list_last.md
-            - list_len: man/expr_list_len.md
-            - list_max: man/expr_list_max.md
-            - list_mean: man/expr_list_mean.md
-            - list_median: man/expr_list_median.md
-            - list_min: man/expr_list_min.md
-            - list_n_unique: man/expr_list_n_unique.md
-            - list_reverse: man/expr_list_reverse.md
-            - list_sample: man/expr_list_sample.md
-            - list_set_difference: man/expr_list_set_difference.md
-            - list_set_intersection: man/expr_list_set_intersection.md
-            - list_set_symmetric_difference: man/expr_list_set_symmetric_difference.md
-            - list_set_union: man/expr_list_set_union.md
-            - list_shift: man/expr_list_shift.md
-            - list_slice: man/expr_list_slice.md
-            - list_sort: man/expr_list_sort.md
-            - list_std: man/expr_list_std.md
-            - list_sum: man/expr_list_sum.md
-            - list_tail: man/expr_list_tail.md
-            - list_to_array: man/expr_list_to_array.md
-            - list_unique: man/expr_list_unique.md
-            - list_var: man/expr_list_var.md
         - Binary:
             - bin_contains: man/expr_bin_contains.md
             - bin_decode: man/expr_bin_decode.md
@@ -553,6 +513,46 @@ nav:
             - dt_weekday: man/expr_dt_weekday.md
             - dt_with_time_unit: man/expr_dt_with_time_unit.md
             - dt_year: man/expr_dt_year.md
+        - List:
+            - list_all: man/expr_list_all.md
+            - list_any: man/expr_list_any.md
+            - list_arg_max: man/expr_list_arg_max.md
+            - list_arg_min: man/expr_list_arg_min.md
+            - list_concat: man/expr_list_concat.md
+            - list_contains: man/expr_list_contains.md
+            - list_count_matches: man/expr_list_count_matches.md
+            - list_diff: man/expr_list_diff.md
+            - list_drop_nulls: man/expr_list_drop_nulls.md
+            - list_eval: man/expr_list_eval.md
+            - list_explode: man/expr_list_explode.md
+            - list_first: man/expr_list_first.md
+            - list_gather_every: man/expr_list_gather_every.md
+            - list_gather: man/expr_list_gather.md
+            - list_get: man/expr_list_get.md
+            - list_head: man/expr_list_head.md
+            - list_join: man/expr_list_join.md
+            - list_last: man/expr_list_last.md
+            - list_len: man/expr_list_len.md
+            - list_max: man/expr_list_max.md
+            - list_mean: man/expr_list_mean.md
+            - list_median: man/expr_list_median.md
+            - list_min: man/expr_list_min.md
+            - list_n_unique: man/expr_list_n_unique.md
+            - list_reverse: man/expr_list_reverse.md
+            - list_sample: man/expr_list_sample.md
+            - list_set_difference: man/expr_list_set_difference.md
+            - list_set_intersection: man/expr_list_set_intersection.md
+            - list_set_symmetric_difference: man/expr_list_set_symmetric_difference.md
+            - list_set_union: man/expr_list_set_union.md
+            - list_shift: man/expr_list_shift.md
+            - list_slice: man/expr_list_slice.md
+            - list_sort: man/expr_list_sort.md
+            - list_std: man/expr_list_std.md
+            - list_sum: man/expr_list_sum.md
+            - list_tail: man/expr_list_tail.md
+            - list_to_array: man/expr_list_to_array.md
+            - list_unique: man/expr_list_unique.md
+            - list_var: man/expr_list_var.md
         - Meta:
             - meta_eq: man/expr_meta_eq.md
             - meta_has_multiple_outputs: man/expr_meta_has_multiple_outputs.md
