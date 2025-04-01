@@ -1239,7 +1239,6 @@ impl PlRLazyFrame {
             statistics,
             row_group_size,
             data_page_size,
-            maintain_order,
         };
         let cloud_options = match storage_options {
             Some(x) => {
@@ -1257,10 +1256,12 @@ impl PlRLazyFrame {
                 parse_cloud_options(path.to_str().unwrap(), cloud_options.unwrap_or_default())?;
             Some(cloud_options.with_max_retries(retries))
         };
+        // TODO: SinkOptions construct
+        let sink_options = SinkOptions::default();
         let _ = self
             .ldf
             .clone()
-            .sink_parquet(&path, options, cloud_options)
+            .sink_parquet(&path, options, cloud_options, sink_options)
             .map_err(RPolarsErr::from);
         Ok(())
     }
@@ -1318,7 +1319,6 @@ impl PlRLazyFrame {
         let options = CsvWriterOptions {
             include_bom,
             include_header,
-            maintain_order,
             batch_size,
             serialize_options,
         };
@@ -1338,11 +1338,13 @@ impl PlRLazyFrame {
                 parse_cloud_options(path.to_str().unwrap(), cloud_options.unwrap_or_default())?;
             Some(cloud_options.with_max_retries(retries))
         };
+        // TODO: SinkOptions construct
+        let sink_options = SinkOptions::default();
 
         let _ = self
             .ldf
             .clone()
-            .sink_csv(&path, options, cloud_options)
+            .sink_csv(&path, options, cloud_options, sink_options)
             .map_err(RPolarsErr::from);
         Ok(())
     }
@@ -1355,13 +1357,15 @@ impl PlRLazyFrame {
         maintain_order: bool,
         storage_options: Option<StringSexp>,
     ) -> Result<()> {
-        let options = JsonWriterOptions { maintain_order };
+        let options = JsonWriterOptions {};
         let _retries = <Wrap<usize>>::try_from(retries)?.0;
 
         let cloud_options = Some(CloudOptions::default());
+        // TODO: SinkOptions construct
+        let sink_options = SinkOptions::default();
 
         let ldf = self.ldf.clone();
-        let _ = ldf.sink_json(path, options, cloud_options);
+        let _ = ldf.sink_json(path, options, cloud_options, sink_options);
         Ok(())
     }
 
@@ -1369,6 +1373,8 @@ impl PlRLazyFrame {
         &self,
         path: &str,
         compression: &str,
+        // TODO: support `compat_level`
+        // compat_level: Sexp,
         maintain_order: bool,
         retries: NumericScalar,
         storage_options: Option<StringSexp>,
@@ -1380,7 +1386,7 @@ impl PlRLazyFrame {
             <Wrap<Option<IpcCompression>>>::try_from(compression)?.0;
         let options = IpcWriterOptions {
             compression,
-            maintain_order,
+            ..Default::default()
         };
 
         let cloud_options = match storage_options {
@@ -1399,11 +1405,13 @@ impl PlRLazyFrame {
                 parse_cloud_options(path.to_str().unwrap(), cloud_options.unwrap_or_default())?;
             Some(cloud_options.with_max_retries(retries))
         };
+        // TODO: SinkOptions construct
+        let sink_options = SinkOptions::default();
 
         let _ = self
             .ldf
             .clone()
-            .sink_ipc(&path, options, cloud_options)
+            .sink_ipc(&path, options, cloud_options, sink_options)
             .map_err(RPolarsErr::from);
         Ok(())
     }
