@@ -658,6 +658,16 @@ nav:
         - scan_parquet: man/pl__scan_parquet.md
         - sink_parquet: man/lazyframe__sink_parquet.md
         - write_parquet: man/dataframe__write_parquet.md
+      S3 methods:
+        - s3-as_nanoarrow_array_stream: man/s3-as_nanoarrow_array_stream.md
+        - s3-as_tibble: man/s3-as_tibble.md
+        - s3-as.data.frame: man/s3-as.data.frame.md
+        - s3-as.list: man/s3-as.list.md
+      SQL Interface:
+        - sql_context__execute: man/sql_context__execute.md
+        - sql_context__register_many: man/sql_context__register_many.md
+        - sql_context__register: man/sql_context__register.md
+        - sql_context__tables: man/sql_context__tables.md
       Other:
         - as_polars_df: man/as_polars_df.md
         - as_polars_expr: man/as_polars_expr.md
@@ -670,14 +680,6 @@ nav:
         - polars_dtype: man/polars_dtype.md
         - polars_duration_string: man/polars_duration_string.md
         - polars_expr: man/polars_expr.md
-        - s3-as_nanoarrow_array_stream: man/s3-as_nanoarrow_array_stream.md
-        - s3-as_tibble: man/s3-as_tibble.md
-        - s3-as.data.frame: man/s3-as.data.frame.md
-        - s3-as.list: man/s3-as.list.md
         - series_struct_unnest: man/series_struct_unnest.md
-        - sql_context__execute: man/sql_context__execute.md
-        - sql_context__register_many: man/sql_context__register_many.md
-        - sql_context__register: man/sql_context__register.md
-        - sql_context__tables: man/sql_context__tables.md
   - About: about.md
   - Changelog: NEWS.md
