@@ -33,14 +33,14 @@ theme:
     - toc.follow
 
 markdown_extensions:
-  # - mdx_truly_sane_lists
+  - mdx_truly_sane_lists
   - footnotes
   - toc:
       baselevel: 1
       toc_depth: 3
-  # - pymdownx.highlight:
-  #     anchor_linenums: yes
-  # - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: yes
+  - pymdownx.superfences
 
 extra_css:
   - stylesheets/extra.css
