@@ -48,7 +48,6 @@ nav:
   - Reference:
       Reference: reference_home.md
       Polars:
-        - col: man/pl__col.md
         - concat: man/pl__concat.md
         - DataFrame: man/pl__DataFrame.md
         - LazyFrame: man/pl__LazyFrame.md
@@ -197,7 +196,6 @@ nav:
             - abs: man/expr__abs.md
             - add: man/expr__add.md
             - agg_groups: man/expr__agg_groups.md
-            - alias: man/expr__alias.md
             - all: man/expr__all.md
             - and: man/expr__and.md
             - any: man/expr__any.md
@@ -253,7 +251,6 @@ nav:
             - ewm_mean: man/expr__ewm_mean.md
             - ewm_std: man/expr__ewm_std.md
             - ewm_var: man/expr__ewm_var.md
-            - exclude: man/expr__exclude.md
             - exp: man/expr__exp.md
             - explode: man/expr__explode.md
             - extend_constant: man/expr__extend_constant.md
@@ -416,6 +413,10 @@ nav:
         - Categories:
             - cat_get_categories: man/expr_cat_get_categories.md
             - cat_set_ordering: man/expr_cat_set_ordering.md
+        - Columns / names:
+            - alias: man/expr__alias.md
+            - exclude: man/expr__exclude.md
+            - col: man/pl__col.md
         - Functions:
             - all_horizontal: man/pl__all_horizontal.md
             - all: man/pl__all.md
