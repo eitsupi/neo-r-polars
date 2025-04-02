@@ -5,6 +5,7 @@ output:
 ---
 
 ```{r, include = FALSE}
+library(polars)
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"

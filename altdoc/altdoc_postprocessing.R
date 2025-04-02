@@ -118,6 +118,16 @@ for (i in to_modify) {
       paste0("<code class='language-R'>&lt;Expr&gt;$", subns, "$"),
       orig
     )
+  } else if (which_class %in% c("dataframe", "lazyframe")) {
+    new <- gsub(
+      paste0("<code class='language-R'>", which_class, "__"),
+      paste0(
+        "<code class='language-R'>&lt;",
+        if (which_class == "dataframe") "DataFrame" else "LazyFrame",
+        "&gt;$"
+      ),
+      orig
+    )
   } else {
     new <- gsub(
       paste0("<code class='language-R'>", which_class, "_"),
