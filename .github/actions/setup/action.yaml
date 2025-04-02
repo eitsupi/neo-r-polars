@@ -1,3 +1,4 @@
+---
 name: setup
 description: Setup build environment (except R)
 inputs:
