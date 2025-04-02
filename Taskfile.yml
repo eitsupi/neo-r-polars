@@ -48,6 +48,14 @@ tasks:
       # TODO: check the savvy version
       - cargo install savvy-cli
 
+  setup-python-tools:
+    desc: Install Python tools for development.
+    deps:
+      - setup-venv
+    cmds:
+      - "{{.VENV_BIN}}/python -m pip install --upgrade uv"
+      - "{{.VENV_BIN}}/uv pip install --upgrade mkdocs-material mdx_truly_sane_lists"
+
   build-rust:
     desc: Build the Rust library wrappers.
     aliases:

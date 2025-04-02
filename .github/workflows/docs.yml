@@ -96,10 +96,9 @@ jobs:
           extra-packages: any::rcmdcheck
           needs: dev,website
 
-      # TODO: why was this in the pre-rewrite docs workflow?
-      # - name: Get requirements
-      #   run: |
-      #     task setup-python-tools
+      - name: Get requirements
+        run: |
+          task setup-python-tools
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
