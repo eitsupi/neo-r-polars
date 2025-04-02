@@ -32,11 +32,11 @@ markdown_extensions:
       baselevel: 1
       toc_depth: 3
   - pymdownx.highlight:
-      anchor_linenums: yes
+      anchor_linenums: true
   - pymdownx.superfences
 extra_css:
   - stylesheets/extra.css
-use_directory_urls: no
+use_directory_urls: false
 nav:
   - Home: README.md
   - Articles:
@@ -125,8 +125,8 @@ nav:
             - with_columns: man/dataframe__with_columns.md
             - with_row_index: man/dataframe__with_row_index.md
         - Misc:
-          - equals: man/dataframe__equals.md
-          - lazy: man/dataframe__lazy.md
+            - equals: man/dataframe__equals.md
+            - lazy: man/dataframe__lazy.md
       LazyFrame:
         - Aggregation:
             - count: man/lazyframe__count.md

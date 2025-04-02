@@ -88,7 +88,7 @@ jobs:
           use-public-rspm: true
           Ncpus: 2
 
-        # altdoc uses quarto to render files
+      # altdoc uses quarto to render files
       - uses: quarto-dev/quarto-actions/setup@v2
 
       - uses: r-lib/actions/setup-r-dependencies@v2

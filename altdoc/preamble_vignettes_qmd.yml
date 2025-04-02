@@ -7,4 +7,3 @@ knitr:
   opts_chunk:
     comment: "#>"
 ---
-
