@@ -48,6 +48,14 @@ tasks:
       # TODO: check the savvy version
       - cargo install savvy-cli
 
+  setup-venv:
+    desc: Setup Python venv for development.
+    internal: true
+    generates:
+      - "{{.VENV_BIN}}"
+    cmds:
+      - python3 -m venv {{.VENV_DIR}}
+
   setup-python-tools:
     desc: Install Python tools for development.
     deps:
