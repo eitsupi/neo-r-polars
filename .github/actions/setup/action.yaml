@@ -48,7 +48,7 @@ runs:
       if: inputs.rust-nightly == 'true' || env.LIBR_POLARS_FEATURES == 'full_features'
       shell: bash
       run: |
-        task setup-rust-toolchain
+        task setup-rust-tools
 
     - name: Set up Rust target
       if: inputs.target != ''
