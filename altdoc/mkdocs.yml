@@ -47,16 +47,6 @@ nav:
       - Differences with Python: vignettes/differences-with-python.md
   - Reference:
       Reference: reference_home.md
-      Polars:
-        - concat: man/pl__concat.md
-        - DataFrame: man/pl__DataFrame.md
-        - LazyFrame: man/pl__LazyFrame.md
-        - repeat_: man/pl__repeat_.md
-        - Series: man/pl__Series.md
-        - show_versions: man/pl__show_versions.md
-      Series:
-        - About series: about_series_functions.md
-        - to_r_vector: man/series__to_r_vector.md
       DataFrame:
         - Aggregation:
             - count: man/dataframe__count.md
@@ -204,6 +194,9 @@ nav:
             - collect_schema: man/lazyframe__collect_schema.md
             - profile: man/lazyframe__profile.md
             - serialize: man/lazyframe__serialize.md
+      Series:
+        - About series: about_series_functions.md
+        - to_r_vector: man/series__to_r_vector.md
       Expressions:
         - All others:
             - abs: man/expr__abs.md
@@ -336,6 +329,7 @@ nav:
             - rank: man/expr__rank.md
             - rechunk: man/expr__rechunk.md
             - reinterpret: man/expr__reinterpret.md
+            - repeat_: man/pl__repeat_.md
             - repeat_by: man/expr__repeat_by.md
             - replace_strict: man/expr__replace_strict.md
             - replace: man/expr__replace.md
@@ -653,6 +647,12 @@ nav:
         - cs__time: man/cs__time.md
         - cs__unsigned_integer: man/cs__unsigned_integer.md
         - cs: man/cs.md
+      Functions:
+        - concat: man/pl__concat.md
+        - Expr: man/polars_expr.md
+        - DataFrame: man/pl__DataFrame.md
+        - LazyFrame: man/pl__LazyFrame.md
+        - Series: man/pl__Series.md
       Data types:
         - infer_polars_dtype: man/infer_polars_dtype.md
         - polars_dtype: man/polars_dtype.md
@@ -696,7 +696,6 @@ nav:
         - pl_api_register_series_namespace: man/pl_api_register_series_namespace.md
         - pl: man/pl.md
         - polars_duration_string: man/polars_duration_string.md
-        - polars_expr: man/polars_expr.md
-        - series_struct_unnest: man/series_struct_unnest.md
+        - show_versions: man/pl__show_versions.md
   - About: about.md
   - Changelog: NEWS.md
