@@ -8,6 +8,8 @@ env:
 vars:
   REQUIRED_R_PKGS_FOR_S3_METHODS: nanoarrow,tibble
 
+  VENV_DIR: .venv_altdoc
+
   MANIFEST: src/rust/Cargo.toml
   CARGO_LOCK: src/rust/Cargo.lock
   R_SOURCE: R/*
