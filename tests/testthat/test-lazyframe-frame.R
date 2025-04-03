@@ -2406,4 +2406,7 @@ test_that("error and warning from collect engines", {
   expect_deprecated(
     as_polars_lf(mtcars)$collect(streaming = TRUE)
   )
+  expect_deprecated(
+    as_polars_lf(mtcars)$collect(streaming = FALSE)
+  )
 })

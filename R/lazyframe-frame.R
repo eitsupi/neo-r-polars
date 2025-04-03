@@ -234,15 +234,18 @@ lazyframe__collect <- function(
     check_dots_empty0(...)
     engine <- arg_match0(engine, c("auto", "in-memory", "streaming", "old-streaming"))
     # TODO: remove the streaming argument
-    if (isTRUE(streaming)) {
+    if (!missing(streaming)) {
       deprecate_warn(
         c(
           "The `streaming` argument is deprecated and will be removed in the future.",
           i = "Use `engine = \"old-streaming\"` for traditional streaming mode.",
-          i = "Use `engine = \"streaming\"` for the new streaming engine."
-        )
+          i = "Use `engine = \"streaming\"` for the new streaming mode.",
+          i = "Use `engine = \"in-memory\"` for non-streaming mode."
+        ),
+        always = TRUE
       )
-      engine <- "old-streaming"
+      if (isTRUE(streaming)) engine <- "old-streaming"
+      if (isFALSE(streaming)) engine <- "in-memory"
     }
 
     if (isTRUE(no_optimization) || isTRUE(`_eager`)) {
