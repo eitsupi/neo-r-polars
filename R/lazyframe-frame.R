@@ -176,10 +176,18 @@ lazyframe__group_by <- function(..., .maintain_order = FALSE) {
 #' @param cluster_with_columns A logical, indicats to combine sequential independent calls to with_columns.
 #' @param collapse_joins Collapse a join and filters into a faster join.
 #' @param no_optimization A logical. If `TRUE`, turn off (certain) optimizations.
-#' @param streaming A logical. If `TRUE`, process the query in batches to handle larger-than-memory data.
+#' @param streaming `r lifecycle::badge("deprecated")`
+#' A logical. If `TRUE`, process the query in batches to handle larger-than-memory data.
 #' If `FALSE` (default), the entire query is processed in a single batch.
 #' Note that streaming mode is considered unstable.
 #' It may be changed at any point without it being considered a breaking change.
+#' @param engine Select the engine used to process the query.
+#' At the moment, if set to `"auto"` (default), the query is run using the polars in-memory engine.
+#' Available engines are:
+#' - `"auto"` (default): Select the engine automatically.
+#' - `"in-memory"`: Use the in-memory engine.
+#' - `"streaming"`: `r lifecycle::badge("experimental")` Use the (new) streaming engine.
+#' - `"old-streaming"`: `r lifecycle::badge("superseded")` Use the old streaming engine.
 #' @param _eager A logical, indicates to turn off multi-node optimizations and
 #' the other optimizations. This option is intended for internal use only.
 #' @param _check_order,_type_check For internal use only.
@@ -189,9 +197,6 @@ lazyframe__group_by <- function(..., .maintain_order = FALSE) {
 #' @seealso
 #'  - [`$profile()`][lazyframe__profile] - same as `$collect()` but also returns
 #'    a table with each operation profiled.
-#'  - [`$collect_in_background()`][lazyframe__collect_in_background] - non-blocking
-#'    collect returns a future handle. Can also just be used via
-#'    `$collect(collect_in_background = TRUE)`.
 #'  - [`$sink_parquet()`][lazyframe__sink_parquet()] streams query to a parquet file.
 #'  - [`$sink_ipc()`][lazyframe__sink_ipc()] streams query to a arrow file.
 #'
@@ -230,6 +235,9 @@ lazyframe__collect <- function(
     engine <- arg_match0(engine, c("auto", "in-memory", "streaming", "old-streaming"))
     # TODO: remove the streaming argument
     if (isTRUE(streaming)) {
+      deprecate_warn(
+        "The `streaming` argument is deprecated and will be removed in future. Use `engine = 'old-streaming'` instead."
+      )
       engine <- "old-streaming"
     }
 
@@ -284,9 +292,6 @@ lazyframe__collect <- function(
 #' also stored in the list.
 #' @seealso
 #'  - [`$collect()`][lazyframe__collect] - regular collect.
-#'  - [`$collect_in_background()`][lazyframe__collect_in_background] - non-blocking
-#'    collect returns a future handle. Can also just be used via
-#'    `$collect(collect_in_background = TRUE)`.
 #'  - [`$sink_parquet()`][lazyframe__sink_parquet()] streams query to a parquet file.
 #'  - [`$sink_ipc()`][lazyframe__sink_ipc()] streams query to a arrow file.
 #'
