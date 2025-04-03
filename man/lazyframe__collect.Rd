@@ -46,11 +46,11 @@ lazyframe__collect(
 
 \item{no_optimization}{A logical. If \code{TRUE}, turn off (certain) optimizations.}
 
-\item{engine}{Select the engine used to process the query.
-At the moment, if set to \code{"auto"} (default), the query is run using the polars in-memory engine.
-Available engines are:
+\item{engine}{The engine name to use for processing the query.
+One of the followings:
 \itemize{
 \item \code{"auto"} (default): Select the engine automatically.
+The \code{"in-memory"} engine will be selected for most cases.
 \item \code{"in-memory"}: Use the in-memory engine.
 \item \code{"streaming"}: \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Use the (new) streaming engine.
 \item \code{"old-streaming"}: \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#superseded}{\figure{lifecycle-superseded.svg}{options: alt='[Superseded]'}}}{\strong{[Superseded]}} Use the old streaming engine.

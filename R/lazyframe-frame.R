@@ -181,10 +181,10 @@ lazyframe__group_by <- function(..., .maintain_order = FALSE) {
 #' If `FALSE` (default), the entire query is processed in a single batch.
 #' Note that streaming mode is considered unstable.
 #' It may be changed at any point without it being considered a breaking change.
-#' @param engine Select the engine used to process the query.
-#' At the moment, if set to `"auto"` (default), the query is run using the polars in-memory engine.
-#' Available engines are:
+#' @param engine The engine name to use for processing the query.
+#' One of the followings:
 #' - `"auto"` (default): Select the engine automatically.
+#'   The `"in-memory"` engine will be selected for most cases.
 #' - `"in-memory"`: Use the in-memory engine.
 #' - `"streaming"`: `r lifecycle::badge("experimental")` Use the (new) streaming engine.
 #' - `"old-streaming"`: `r lifecycle::badge("superseded")` Use the old streaming engine.
@@ -236,7 +236,11 @@ lazyframe__collect <- function(
     # TODO: remove the streaming argument
     if (isTRUE(streaming)) {
       deprecate_warn(
-        "The `streaming` argument is deprecated and will be removed in future. Use `engine = 'old-streaming'` instead."
+        c(
+          "The `streaming` argument is deprecated and will be removed in the future.",
+          i = "Use `engine = \"old-streaming\"` for traditional streaming mode.",
+          i = "Use `engine = \"streaming\"` for the new streaming engine."
+        )
       )
       engine <- "old-streaming"
     }
