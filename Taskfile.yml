@@ -4,6 +4,7 @@ env:
   NOT_CRAN: "true"
   LIBR_POLARS_BUILD: "true"
   DEBUG: "true"
+  VIRTUAL_ENV: "{{.VENV_DIR}}"
 
 vars:
   REQUIRED_R_PKGS_FOR_S3_METHODS: nanoarrow,tibble
