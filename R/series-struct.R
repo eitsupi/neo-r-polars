@@ -10,8 +10,6 @@ namespace_series_struct <- function(x) {
   class(self) <- c(
     "polars_namespace_series_struct",
     "polars_namespace_series",
-    # TODO: remove this
-    "polars_struct_namespace",
     "polars_object"
   )
   self
