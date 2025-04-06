@@ -767,9 +767,9 @@ test_that("rechunk() works", {
     a_chunked = pl$col("a")$append(pl$col("b")),
     a_rechunked = pl$col("a")$append(pl$col("b"))$rechunk()
   )$get_columns()
-  expect_equal(
+  expect_identical(
     lapply(series_list, \(x) x$chunk_lengths()),
-    list(a_chunked = c(3, 3), a_rechunked = 6)
+    list(a_chunked = c(3L, 3L), a_rechunked = 6L)
   )
 })
 
