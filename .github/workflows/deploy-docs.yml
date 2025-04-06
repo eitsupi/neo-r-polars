@@ -95,6 +95,11 @@ jobs:
         run: |
           echo "TARGET=$(rustc -vV | grep host | cut -d' ' -f2)" >>"$GITHUB_OUTPUT"
 
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "src/rust -> target"
+          shared-key: ${{ steps.rust-target.outputs.TARGET }}-debug
+
       - name: Build lib
         env:
           LIBR_POLARS_BUILD: "true"
@@ -102,11 +107,6 @@ jobs:
           # make sure savvy is built from source because rust-cache doesn't work well.
           (find ~/.cargo/registry/ src/rust/target -name 'savvy-*' -print0 | xargs -0 rm -rf) || true
           Rscript -e "pkgbuild::compile_dll(debug = TRUE)"
-
-      - uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: "src/rust -> target"
-          shared-key: ${{ steps.rust-target.outputs.TARGET }}-debug
 
       - name: Install package
         id: install-package
