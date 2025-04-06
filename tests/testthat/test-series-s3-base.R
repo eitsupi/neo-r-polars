@@ -18,3 +18,7 @@ test_that("Extract works for series struct namespace", {
   )
   expect_error(s$struct[NA_character_])
 })
+
+test_that(".DollarNames(<series>)", {
+  expect_snapshot(.DollarNames(as_polars_series(NULL)))
+})
