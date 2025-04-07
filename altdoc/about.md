@@ -11,7 +11,7 @@ Consider joining our [Discord](https://discord.com/invite/4UfP5cfBE7)
 (subchannel) for additional help and discussion.
 
 **'Polars'** is a query engine/syntax for multiple languages. The R specific implementation
-can be referred to as **r-polars** and is derived from **rust-polars**.
+can be referred to as the R API and is derived from the Rust API.
 
 The **polars** package for R is published under the MIT license.
 
