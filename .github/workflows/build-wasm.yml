@@ -20,7 +20,8 @@ jobs:
       - name: Copy rust-toolchain.toml
         # r-wasm/actions/build-rwasm@main does not execute the bootstrap.R script
         run: |
-          cp src/rust/rust-toolchain.toml src/rust-toolchain.toml
+          mkdir -p tools
+          cp src/rust/rust-toolchain.toml tools/rust-toolchain.toml
       - name: Build wasm package
         uses: r-wasm/actions/build-rwasm@main
         with:
