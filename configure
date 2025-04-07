@@ -68,6 +68,11 @@ So using the rust-toolchain.toml file to set the toolchain.
 EOF
     export TARGET="wasm32-unknown-emscripten"
     copy_rust_toolchain_toml
+    # rust-src is needed for Emscripten builds
+    root_dir="$(pwd)"
+    cd "${root_dir}/src" || true
+    rustup component add rust-src
+    cd "${root_dir}" || true
   fi
 }
 
