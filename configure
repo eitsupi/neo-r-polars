@@ -68,8 +68,6 @@ So using the rust-toolchain.toml file to set the toolchain.
 EOF
     export TARGET="wasm32-unknown-emscripten"
     copy_rust_toolchain_toml
-    # Workaround for webr builder image's rustup override setting.
-    rustup override unset || true
   fi
 }
 
