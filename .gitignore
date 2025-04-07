@@ -6,3 +6,6 @@
 # Generated Makefiles
 src/Makevars
 src/Makevars.win
+
+# Copied files by bootstrap.R
+tools/rust-toolchain.toml
