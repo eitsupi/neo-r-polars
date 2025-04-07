@@ -7,5 +7,6 @@
 src/Makevars
 src/Makevars.win
 
-# Copied files by bootstrap.R
+# Copied files
 tools/rust-toolchain.toml
+src/rust-toolchain.toml
