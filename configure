@@ -40,8 +40,8 @@ EOF
 check_rustup() {
   if [ "$(command -v rustup)" ]; then
   root_dir="$(pwd)"
-  # Change to the src/rust directory to detect rust-toolchain.toml
-  cd "${root_dir}/src/rust" || true
+  # Change to the src directory to detect rust-toolchain.toml
+  cd "${root_dir}/src" || true
     cat <<EOF
 -------------------------- [RUSTUP FOUND] --------------------------
 $(rustup show)
@@ -148,10 +148,10 @@ copy_rust_toolchain_toml() {
     cat <<EOF
 ------------------ [RUST TOOLCHAIN CONFIGURATION] ------------------
 The Rust toolchain file was found at <tools/${toolchain_file}>.
-Copying it to <src/rust/${toolchain_file}>.
+Copying it to <src/${toolchain_file}>.
 --------------------------------------------------------------------
 EOF
-  cp "tools/${toolchain_file}" "src/rust/${toolchain_file}" &&
+  cp "tools/${toolchain_file}" "src/${toolchain_file}" &&
     echo "Done!" || echo "Failed to copy ${toolchain_file}."
   fi
 }
