@@ -34,6 +34,7 @@ markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.superfences
+  - pymdownx.snippets
 extra_css:
   - stylesheets/extra.css
 use_directory_urls: false
@@ -195,7 +196,8 @@ nav:
             - profile: man/lazyframe__profile.md
             - serialize: man/lazyframe__serialize.md
       Series:
-        - About series: about_series_functions.md
+        - Series: man/pl__Series.md
+        # - About series: about_series_functions.md
         - to_r_vector: man/series__to_r_vector.md
       Expressions:
         - All others:
@@ -652,7 +654,6 @@ nav:
         - Expr: man/polars_expr.md
         - DataFrame: man/pl__DataFrame.md
         - LazyFrame: man/pl__LazyFrame.md
-        - Series: man/pl__Series.md
       Data types:
         - infer_polars_dtype: man/infer_polars_dtype.md
         - polars_dtype: man/polars_dtype.md
