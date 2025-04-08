@@ -563,6 +563,7 @@ nav:
             - str_to_integer: man/expr_str_to_integer.md
             - str_to_lowercase: man/expr_str_to_lowercase.md
             - str_to_time: man/expr_str_to_time.md
+            - str_to_titlecase: man/expr_str_to_titlecase.md
             - str_to_uppercase: man/expr_str_to_uppercase.md
             - str_zfill: man/expr_str_zfill.md
         - Struct:
