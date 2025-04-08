@@ -22,6 +22,7 @@ SEXP savvy_datetime_range__ffi(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__e
 SEXP savvy_datetime_ranges__ffi(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__every, SEXP c_arg__closed, SEXP c_arg__time_unit, SEXP c_arg__time_zone);
 SEXP savvy_dtype_cols__ffi(SEXP c_arg__dtypes);
 SEXP savvy_duration__ffi(SEXP c_arg__time_unit, SEXP c_arg__weeks, SEXP c_arg__days, SEXP c_arg__hours, SEXP c_arg__minutes, SEXP c_arg__seconds, SEXP c_arg__milliseconds, SEXP c_arg__microseconds, SEXP c_arg__nanoseconds);
+SEXP savvy_feature_nightly_enabled__ffi(void);
 SEXP savvy_field__ffi(SEXP c_arg__names);
 SEXP savvy_first__ffi(void);
 SEXP savvy_index_cols__ffi(SEXP c_arg__indices);

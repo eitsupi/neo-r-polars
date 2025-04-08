@@ -1,10 +1,14 @@
 # print polars_info()
 
     Code
-      info
+      polars_info()
     Output
-      Polars R package version : 999.999.999
-      Rust Polars crate version: 999.999.999
+      Polars R package version : 0.0.0
+      Rust Polars crate version: 0.0.0
       
       Thread pool size: 1 
+      
+      Features:            
+      nightly TRUE
+      
 

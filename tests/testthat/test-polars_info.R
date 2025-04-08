@@ -1,4 +1,5 @@
-patrick::with_parameters_test_that("polars_info() features are logical",
+patrick::with_parameters_test_that(
+  "polars_info() features are logical",
   {
     expect_type(feature, "logical")
     expect_length(feature, 1)
@@ -7,25 +8,13 @@ patrick::with_parameters_test_that("polars_info() features are logical",
 )
 
 test_that("print polars_info()", {
-  info <- polars_info()
-
-  expect_type(info$versions$r_package, "character")
-  expect_type(info$versions$rust_crate, "character")
-
-  # Ensure static version for snapshot test
-  info$versions$r_package <- "999.999.999"
-  info$versions$rust_crate <- "999.999.999"
-
-  # Ensure the thread_pool_size is 1 for snapshot test
-  info$thread_pool_size <- 1
-
-  # Ensure all features are FALSE for snapshot test
-  for (feature in names(info$features)) {
-    info$features[[feature]] <- FALSE
-  }
-
-  # Ensure code_completion is deactivated for snapshot test
-  info$code_completion <- "deactivated"
-
-  expect_snapshot(info)
+  with_mocked_bindings(
+    {
+      expect_snapshot(polars_info())
+    },
+    .self_version = "0.0.0",
+    rust_polars_version = function() "0.0.0",
+    thread_pool_size = function() 1L,
+    feature_nightly_enabled = function() TRUE
+  )
 })

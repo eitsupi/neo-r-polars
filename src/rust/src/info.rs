@@ -1,4 +1,9 @@
-use savvy::{Result, Sexp, savvy};
+use savvy::{OwnedLogicalSexp, Result, Sexp, savvy};
+
+#[savvy]
+fn feature_nightly_enabled() -> Result<Sexp> {
+    OwnedLogicalSexp::try_from_scalar(cfg!(feature = "nightly")).map(Into::into)
+}
 
 #[savvy]
 fn rust_polars_version() -> Result<Sexp> {

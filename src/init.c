@@ -154,6 +154,11 @@ SEXP savvy_duration__impl(SEXP c_arg__time_unit, SEXP c_arg__weeks, SEXP c_arg__
     return handle_result(res);
 }
 
+SEXP savvy_feature_nightly_enabled__impl(void) {
+    SEXP res = savvy_feature_nightly_enabled__ffi();
+    return handle_result(res);
+}
+
 SEXP savvy_field__impl(SEXP c_arg__names) {
     SEXP res = savvy_field__ffi(c_arg__names);
     return handle_result(res);
@@ -2990,6 +2995,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_datetime_ranges__impl", (DL_FUNC) &savvy_datetime_ranges__impl, 6},
     {"savvy_dtype_cols__impl", (DL_FUNC) &savvy_dtype_cols__impl, 1},
     {"savvy_duration__impl", (DL_FUNC) &savvy_duration__impl, 9},
+    {"savvy_feature_nightly_enabled__impl", (DL_FUNC) &savvy_feature_nightly_enabled__impl, 0},
     {"savvy_field__impl", (DL_FUNC) &savvy_field__impl, 1},
     {"savvy_first__impl", (DL_FUNC) &savvy_first__impl, 0},
     {"savvy_index_cols__impl", (DL_FUNC) &savvy_index_cols__impl, 1},

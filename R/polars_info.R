@@ -3,18 +3,17 @@ polars_info <- function() {
   # Similar to arrow::arrow_info()
   out <- list(
     versions = list(
-      r_package = as.character(utils::packageVersion("polars")),
+      r_package = .self_version,
       rust_crate = rust_polars_version()
     ),
-    thread_pool_size = thread_pool_size()
-    # TODO-REWRITE: enable those
-    # features = cargo_rpolars_feature_info(),
-    # code_completion = .polars_autocompletion$mode %||% "deactivated"
+    thread_pool_size = thread_pool_size(),
+    features = list(
+      nightly = feature_nightly_enabled()
+    )
   )
   structure(out, class = "polars_info")
 }
 
-#' @noRd
 #' @export
 print.polars_info <- function(x, ...) {
   # Copied from the arrow package
@@ -32,7 +31,6 @@ print.polars_info <- function(x, ...) {
   cat("Rust Polars crate version: ", format(x$versions$rust_crate), "\n", sep = "")
   cat("\n")
   cat("Thread pool size:", x$thread_pool_size, "\n")
-  # cat("\n")
-  # print_key_values("Features", unlist(x$features))
-  # cat("Code completion:", x$code_completion, "\n")
+  cat("\n")
+  print_key_values("Features", unlist(x$features))
 }

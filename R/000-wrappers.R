@@ -183,6 +183,11 @@ NULL
 }
 
 
+`feature_nightly_enabled` <- function() {
+  .Call(savvy_feature_nightly_enabled__impl)
+}
+
+
 `field` <- function(`names`) {
   .savvy_wrap_PlRExpr(.Call(savvy_field__impl, `names`))
 }
