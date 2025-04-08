@@ -1,6 +1,7 @@
 #' @export
 print.polars_data_frame <- function(x, ...) {
-  x$`_df`$print()
+  x$`_df`$as_str() |>
+    writeLines()
   invisible(x)
 }
 
@@ -39,21 +40,25 @@ names.polars_data_frame <- function(x) x$columns
 #' @export
 #' @rdname s3-as.list
 as.list.polars_data_frame <- function(
-    x, ...,
-    as_series = FALSE,
-    int64 = c("double", "character", "integer", "integer64"),
-    date = c("Date", "IDate"),
-    time = c("hms", "ITime"),
-    struct = c("dataframe", "tibble"),
-    decimal = c("double", "character"),
-    as_clock_class = FALSE,
-    ambiguous = c("raise", "earliest", "latest", "null"),
-    non_existent = c("raise", "null")) {
+  x,
+  ...,
+  as_series = FALSE,
+  uint8 = c("integer", "raw"),
+  int64 = c("double", "character", "integer", "integer64"),
+  date = c("Date", "IDate"),
+  time = c("hms", "ITime"),
+  struct = c("dataframe", "tibble"),
+  decimal = c("double", "character"),
+  as_clock_class = FALSE,
+  ambiguous = c("raise", "earliest", "latest", "null"),
+  non_existent = c("raise", "null")
+) {
   if (isTRUE(as_series)) {
     as_polars_df(x, ...)$get_columns()
   } else {
     as_polars_df(x, ...)$to_struct()$to_r_vector(
       ensure_vector = TRUE,
+      uint8 = uint8,
       int64 = int64,
       date = date,
       time = time,
@@ -80,16 +85,20 @@ as.list.polars_data_frame <- function(
 #' @export
 #' @rdname s3-as.data.frame
 as.data.frame.polars_data_frame <- function(
-    x, ...,
-    int64 = c("double", "character", "integer", "integer64"),
-    date = c("Date", "IDate"),
-    time = c("hms", "ITime"),
-    decimal = c("double", "character"),
-    as_clock_class = FALSE,
-    ambiguous = c("raise", "earliest", "latest", "null"),
-    non_existent = c("raise", "null")) {
+  x,
+  ...,
+  uint8 = c("integer", "raw"),
+  int64 = c("double", "character", "integer", "integer64"),
+  date = c("Date", "IDate"),
+  time = c("hms", "ITime"),
+  decimal = c("double", "character"),
+  as_clock_class = FALSE,
+  ambiguous = c("raise", "earliest", "latest", "null"),
+  non_existent = c("raise", "null")
+) {
   as_polars_df(x, ...)$to_struct()$to_r_vector(
     ensure_vector = FALSE,
+    uint8 = uint8,
     int64 = int64,
     date = date,
     time = time,

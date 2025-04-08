@@ -5,13 +5,11 @@ namespace_expr_cat <- function(x) {
   self <- new.env(parent = emptyenv())
   self$`_rexpr` <- x$`_rexpr`
 
-  lapply(names(polars_expr_cat_methods), function(name) {
-    fn <- polars_expr_cat_methods[[name]]
-    environment(fn) <- environment()
-    assign(name, fn, envir = self)
-  })
-
-  class(self) <- c("polars_namespace_expr", "polars_object")
+  class(self) <- c(
+    "polars_namespace_expr_cat",
+    "polars_namespace_expr",
+    "polars_object"
+  )
   self
 }
 
@@ -63,7 +61,9 @@ expr_cat_get_categories <- function() {
 #' )$sort("cats", "vals")
 expr_cat_set_ordering <- function(ordering) {
   wrap({
-    deprecate_warn("$cat$set_ordering() is deprecated. Use pl$Categorical(<ordering>) when initiating the variable or with $cast() instead.")
+    deprecate_warn(
+      "$cat$set_ordering() is deprecated. Use pl$Categorical(<ordering>) when initiating the variable or with $cast() instead."
+    )
     ordering <- arg_match0(ordering, values = c("lexical", "physical"))
     self$`_rexpr`$cat_set_ordering(ordering)
   })

@@ -12,7 +12,8 @@
 #'
 #' The class/type of the exported object depends on the data type of the Series as follows:
 #' - Boolean: [logical].
-#' - UInt8, UInt16, Int8, Int16, Int32: [integer].
+#' - UInt8: [integer] or [raw], depending on the `uint8` argument.
+#' - UInt16, Int8, Int16, Int32: [integer].
 #' - Int64, UInt32, UInt64: [double], [character], [integer], or [bit64::integer64],
 #'   depending on the `int64` argument.
 #' - Float32, Float64: [double].
@@ -40,6 +41,11 @@
 #' When the Series has the Struct data type and this argument is `FALSE` (default),
 #' the return value is a [data.frame], not a [vector] (`is.vector(<data.frame>)` is `FALSE`).
 #' If `TRUE`, return a named [list] instead of a [data.frame].
+#' @param uint8 Determine how to convert Polars' UInt8 type values to R type.
+#' One of the followings:
+#' - `"integer"` (default): Convert to the R's [integer] type.
+#' - `"raw"`: Convert to the R's [raw] type.
+#'   If the value is `null`, export as `00`.
 #' @param int64 Determine how to convert Polars' Int64, UInt32, or UInt64 type values to R type.
 #' One of the followings:
 #' - `"double"` (default): Convert to the R's [double] type.
@@ -117,7 +123,17 @@
 #' ## but the top-level Struct is exported as a named list
 #' series_struct$to_r_vector(struct = "tibble", ensure_vector = TRUE)
 #'
-#' # Integer values handling
+#' # UInt8 values handling
+#' series_uint8 <- as_polars_series(c(NA, 0, 255))$cast(pl$UInt8)
+#' series_uint8
+#'
+#' ## Export UInt8 as integer
+#' series_uint8$to_r_vector(uint8 = "integer")
+#'
+#' ## Export UInt8 as raw (`null` is exported as `00`)
+#' series_uint8$to_r_vector(uint8 = "raw")
+#'
+#' # Other Integer values handlings
 #' series_uint64 <- as_polars_series(
 #'   c(NA, "0", "4294967295", "18446744073709551615")
 #' )$cast(pl$UInt64)
@@ -168,19 +184,22 @@
 #'   series_datetime$to_r_vector(as_clock_class = TRUE)
 #' }
 series__to_r_vector <- function(
-    ...,
-    ensure_vector = FALSE,
-    int64 = c("double", "character", "integer", "integer64"),
-    date = c("Date", "IDate"),
-    time = c("hms", "ITime"),
-    struct = c("dataframe", "tibble"),
-    decimal = c("double", "character"),
-    as_clock_class = FALSE,
-    ambiguous = c("raise", "earliest", "latest", "null"),
-    non_existent = c("raise", "null")) {
+  ...,
+  ensure_vector = FALSE,
+  uint8 = c("integer", "raw"),
+  int64 = c("double", "character", "integer", "integer64"),
+  date = c("Date", "IDate"),
+  time = c("hms", "ITime"),
+  struct = c("dataframe", "tibble"),
+  decimal = c("double", "character"),
+  as_clock_class = FALSE,
+  ambiguous = c("raise", "earliest", "latest", "null"),
+  non_existent = c("raise", "null")
+) {
   wrap({
     check_dots_empty0(...)
 
+    uint8 <- arg_match0(uint8, c("integer", "raw"))
     int64 <- arg_match0(int64, c("double", "character", "integer", "integer64"))
     date <- arg_match0(date, c("Date", "IDate"))
     time <- arg_match0(time, c("hms", "ITime"))
@@ -196,28 +215,37 @@ series__to_r_vector <- function(
     # Ensure the bit64 package is loaded if int64 is set to 'integer64'
     if (identical(int64, "integer64")) {
       if (!is_bit64_installed()) {
-        abort("If the `int64` argument is set to 'integer64', the `bit64` package must be installed.")
+        abort(
+          "If the `int64` argument is set to 'integer64', the `bit64` package must be installed."
+        )
       }
     }
     if (identical(time, "ITime")) {
       if (!is_datatable_installed()) {
-        abort("If the `time` argument is set to 'ITime', the `data.table` package must be installed.")
+        abort(
+          "If the `time` argument is set to 'ITime', the `data.table` package must be installed."
+        )
       }
     }
     if (identical(struct, "tibble")) {
       if (!is_tibble_installed()) {
-        warn("If the `struct` argument is set to 'tibble', the `tibble` package is recommended to be installed.")
+        warn(
+          "If the `struct` argument is set to 'tibble', the `tibble` package is recommended to be installed."
+        )
       }
     }
     if (isTRUE(as_clock_class)) {
       if (!is_clock_installed()) {
-        abort("If the `as_clock_class` argument is set to `TRUE`, the `clock` package must be installed.")
+        abort(
+          "If the `as_clock_class` argument is set to `TRUE`, the `clock` package must be installed."
+        )
       }
     }
 
     ambiguous <- as_polars_expr(ambiguous, as_lit = TRUE)$`_rexpr`
     self$`_s`$to_r_vector(
       ensure_vector = ensure_vector,
+      uint8 = uint8,
       int64 = int64,
       date = date,
       time = time,

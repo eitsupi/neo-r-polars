@@ -14,6 +14,8 @@
 #' all elements must have the same type.
 #' So the [as_polars_series()] function automatically casts all elements to the same type
 #' or throws an error, depending on the `strict` argument.
+#' We can check the [data type][DataType] of the [Series] that will be created from the [list] by using the
+#' [infer_polars_dtype()] function in advance.
 #' If you want to create a list with all elements of the same type in R,
 #' consider using the [vctrs::list_of()] function.
 #'
@@ -53,9 +55,10 @@
 #' the internal representation of seconds.
 #' Please check the [clock_duration][clock::duration-helper] documentation for more details.
 #'
-#' ## S3 method for [polars_data_frame][DataFrame]
+#' ## S3 methods for [polars_data_frame][DataFrame], [polars_lazy_frame][LazyFrame], and [data.frame]
 #'
-#' This method is a shortcut for [`<DataFrame>$to_struct()`][dataframe__to_struct].
+#' These methods are shortcuts for `as_polars_df(x, ...)$to_struct()`.
+#' See [as_polars_df()] and [`<DataFrame>$to_struct()`][dataframe__to_struct] for more details.
 #' @param x An R object.
 #' @param name A single string or `NULL`. Name of the Series.
 #' Will be used as a column name when used in a [polars DataFrame][DataFrame].
@@ -70,6 +73,7 @@
 #' @seealso
 #' - [`<Series>$to_r_vector()`][series__to_r_vector]: Export the Series as an R vector.
 #' - [as_polars_df()]: Create a Polars DataFrame from an R object.
+#' - [infer_polars_dtype()]: Infer the Polars [DataType] corresponding to an R object.
 #' @examples
 #' # double
 #' as_polars_series(c(NA, 1, 2))
@@ -84,7 +88,7 @@
 #' as_polars_series(c(NA, TRUE, FALSE))
 #'
 #' # raw
-#' as_polars_series(charToRaw("foo"))
+#' as_polars_series(as.raw(c(0, 16, 255)))
 #'
 #' # factor
 #' as_polars_series(factor(c(NA, "a", "b")))
@@ -114,6 +118,9 @@
 #'
 #' as.difftime(c(0.0005, 0.0010, 0.0015, 0.0020), units = "weeks") |>
 #'   as_polars_series()
+#'
+#' # numeric_version
+#' as_polars_series(getRversion())
 #'
 #' # NULL
 #' as_polars_series(NULL)
@@ -175,10 +182,7 @@ as_polars_series <- function(x, name = NULL, ...) {
 #' @rdname as_polars_series
 #' @export
 as_polars_series.default <- function(x, name = NULL, ...) {
-  abort(
-    paste0("Unsupported class for `as_polars_series()`: ", toString(class(x))),
-    call = parent.frame()
-  )
+  abort(sprintf("%s can't be converted to a polars Series.", obj_type_friendly(x)))
 }
 
 #' @rdname as_polars_series
@@ -194,8 +198,12 @@ as_polars_series.polars_series <- function(x, name = NULL, ...) {
 #' @rdname as_polars_series
 #' @export
 as_polars_series.polars_data_frame <- function(x, name = NULL, ...) {
-  x$to_struct(name = name %||% "")
+  as_polars_df(x, ...)$to_struct(name = name %||% "")
 }
+
+#' @rdname as_polars_series
+#' @export
+as_polars_series.polars_lazy_frame <- as_polars_series.polars_data_frame
 
 # This is only used for showing the special error message.
 # So, this method is not documented.
@@ -240,7 +248,7 @@ as_polars_series.logical <- function(x, name = NULL, ...) {
 #' @rdname as_polars_series
 #' @export
 as_polars_series.raw <- function(x, name = NULL, ...) {
-  PlRSeries$new_single_binary(name %||% "", x) |>
+  PlRSeries$new_uint8(name %||% "", x) |>
     wrap()
 }
 
@@ -272,7 +280,10 @@ as_polars_series.POSIXct <- function(x, name = NULL, ...) {
     name <- name %||% ""
 
     int_series <- PlRSeries$new_i64_from_numeric_and_multiplier(
-      name, x, 1000L, "floor"
+      name,
+      x,
+      1000L,
+      "floor"
     )
 
     if (tzone == "") {
@@ -284,7 +295,8 @@ as_polars_series.POSIXct <- function(x, name = NULL, ...) {
           Sys.timezone()
         )$dt$replace_time_zone(
           NULL,
-          ambiguous = "raise", non_existent = "raise"
+          ambiguous = "raise",
+          non_existent = "raise"
         )
       )$to_series()
     } else {
@@ -306,6 +318,10 @@ as_polars_series.POSIXlt <- function(x, name = NULL, ...) {
     time_zone <- Sys.timezone()
   }
 
+  # POSIXlt allows '60s', but pl$datetime doesn't
+  second_fixed <- x$sec %% 60
+  minute_diff <- x$sec %/% 60
+
   pl$select(
     pl$datetime(
       year = x$year + 1900L,
@@ -313,17 +329,22 @@ as_polars_series.POSIXlt <- function(x, name = NULL, ...) {
       day = x$mday,
       hour = x$hour,
       minute = x$min,
-      second = x$sec,
+      second = second_fixed,
       time_zone = time_zone,
       time_unit = "ns",
       ambiguous = pl$when(x$isdst == 0)$then(pl$lit("latest"))$otherwise(pl$lit("earliest"))
-    )$alias(name %||% "") + pl$duration(nanoseconds = (x$sec - floor(x$sec)) * 1e9)
+    )$alias(name %||% "") +
+      pl$duration(
+        minutes = minute_diff,
+        nanoseconds = (x$sec - floor(x$sec)) * 1e9
+      )
   )$to_series()
 }
 
 #' @rdname as_polars_series
 #' @export
 as_polars_series.difftime <- function(x, name = NULL, ...) {
+  # fmt: skip
   mul_value <- switch(attr(x, "units"),
     "secs" = 1000L,
     "mins" = 60000L,
@@ -334,9 +355,27 @@ as_polars_series.difftime <- function(x, name = NULL, ...) {
   )
 
   PlRSeries$new_i64_from_numeric_and_multiplier(
-    name %||% "", x, mul_value, "round"
+    name %||% "",
+    x,
+    mul_value,
+    "round"
   )$cast(pl$Duration("ms")$`_dt`, strict = TRUE) |>
     wrap()
+}
+
+#' @rdname as_polars_series
+#' @export
+as_polars_series.numeric_version <- function(x, name = NULL, ...) {
+  wrap({
+    if (length(x) == 0L) {
+      # Because if the length is 0, new_series_list will return a List(Null) type
+      PlRSeries$new_null(name %||% "", 0L)$cast(pl$List(pl$Int32)$`_dt`, TRUE)
+    } else {
+      unclass(x) |>
+        lapply(\(item) PlRSeries$new_i32("", item)) |>
+        PlRSeries$new_series_list(name %||% "", values = _, strict = TRUE)
+    }
+  })
 }
 
 #' @rdname as_polars_series
@@ -351,7 +390,10 @@ as_polars_series.hms <- function(x, name = NULL, ...) {
     }
 
     PlRSeries$new_i64_from_numeric_and_multiplier(
-      name %||% "", x, 1000000000L, "floor"
+      name %||% "",
+      x,
+      1000000000L,
+      "floor"
     )$cast(pl$Time$`_dt`, strict = TRUE) |>
       wrap()
   })
@@ -383,6 +425,7 @@ as_polars_series.NULL <- function(x, name = NULL, ...) {
   })
 }
 
+# TODO: move the infer supertype logic on the Rust side to `infer_polars_dtype()`
 #' @rdname as_polars_series
 #' @export
 as_polars_series.list <- function(x, name = NULL, ..., strict = FALSE) {
@@ -407,8 +450,46 @@ as_polars_series.AsIs <- function(x, name = NULL, ...) {
 
 #' @rdname as_polars_series
 #' @export
-as_polars_series.data.frame <- function(x, name = NULL, ...) {
-  as_polars_df(x, ...)$to_struct(name = name %||% "")
+as_polars_series.data.frame <- as_polars_series.polars_data_frame
+
+#' @rdname as_polars_series
+#' @export
+as_polars_series.nanoarrow_array_stream <- function(x, name = NULL, ...) {
+  wrap({
+    plrseries <- PlRSeries$from_arrow_c_stream(x)
+    if (is.null(name)) {
+      plrseries
+    } else {
+      plrseries$rename(name)
+      plrseries
+    }
+  })
+}
+
+#' @rdname as_polars_series
+#' @export
+as_polars_series.nanoarrow_array <- function(x, name = NULL, ...) {
+  nanoarrow::as_nanoarrow_array_stream(x) |>
+    as_polars_series(name = name, ...)
+}
+
+#' @rdname as_polars_series
+#' @export
+as_polars_series.RecordBatchReader <- function(x, name = NULL, ...) {
+  wrap({
+    # This function is not exported from the arrow package
+    # <https://github.com/apache/arrow/issues/39793>
+    stream_ptr <- utils::getFromNamespace("allocate_arrow_array_stream", "arrow")()
+    x$export_to_c(stream_ptr)
+    as_polars_series.nanoarrow_array_stream(stream_ptr, name = name, ...)
+  })
+}
+
+#' @rdname as_polars_series
+#' @export
+as_polars_series.ArrowTabular <- function(x, name = NULL, ...) {
+  arrow::as_record_batch_reader(x) |>
+    as_polars_series(name = name, ...)
 }
 
 #' @rdname as_polars_series
@@ -422,7 +503,10 @@ as_polars_series.integer64 <- function(x, name = NULL, ...) {
 #' @export
 as_polars_series.ITime <- function(x, name = NULL, ...) {
   PlRSeries$new_i64_from_numeric_and_multiplier(
-    name %||% "", x, 1000000000L, "floor"
+    name %||% "",
+    x,
+    1000000000L,
+    "floor"
   )$cast(pl$Time$`_dt`, strict = TRUE) |>
     wrap()
 }
@@ -451,6 +535,7 @@ as_polars_series.vctrs_rcrd <- function(x, name = NULL, ...) {
 as_polars_series.clock_time_point <- function(x, name = NULL, ...) {
   precision <- clock::time_point_precision(x)
 
+  # fmt: skip
   time_unit <- switch(precision,
     nanosecond = "ns",
     microsecond = "us",
@@ -486,6 +571,7 @@ as_polars_series.clock_zoned_time <- function(x, name = NULL, ...) {
     time_zone <- Sys.timezone()
   }
 
+  # fmt: skip
   time_unit <- switch(precision,
     nanosecond = "ns",
     microsecond = "us",
@@ -509,6 +595,7 @@ as_polars_series.clock_zoned_time <- function(x, name = NULL, ...) {
 as_polars_series.clock_duration <- function(x, name = NULL, ...) {
   precision <- clock::duration_precision(x)
 
+  # fmt: skip
   time_unit <- switch(precision,
     nanosecond = "ns",
     microsecond = "us",

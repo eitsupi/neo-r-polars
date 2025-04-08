@@ -1,5 +1,5 @@
 use crate::{PlRExpr, RPolarsErr};
-use savvy::{savvy, OwnedListSexp, Result, Sexp};
+use savvy::{OwnedListSexp, Result, Sexp, savvy};
 
 #[savvy]
 impl PlRExpr {
@@ -91,16 +91,15 @@ impl PlRExpr {
         Ok(out.into())
     }
 
-    // TODO: enable after polars update
-    // fn meta_selector_xor(&self, other: &PlRExpr) -> Result<Self> {
-    //     let out = self
-    //         .inner
-    //         .clone()
-    //         .meta()
-    //         ._selector_xor(other.inner.clone())
-    //         .map_err(RPolarsErr::from)?;
-    //     Ok(out.into())
-    // }
+    fn _meta_selector_xor(&self, other: &PlRExpr) -> Result<Self> {
+        let out = self
+            .inner
+            .clone()
+            .meta()
+            ._selector_xor(other.inner.clone())
+            .map_err(RPolarsErr::from)?;
+        Ok(out.into())
+    }
 
     fn _meta_as_selector(&self) -> Result<Self> {
         Ok(self.inner.clone().meta()._into_selector().into())

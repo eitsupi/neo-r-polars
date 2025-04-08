@@ -1,11 +1,12 @@
 #' @export
 print.polars_expr <- function(x, ...) {
-  x$`_rexpr`$print()
+  x$`_rexpr`$as_str() |>
+    writeLines()
   invisible(x)
 }
 
 #' @export
-`[.polars_struct_namespace` <- function(x, i, ...) {
+`[.polars_namespace_expr_struct` <- function(x, i, ...) {
   if (is.numeric(i)) {
     x$field_by_index(i)
   } else if (is.character(i)) {

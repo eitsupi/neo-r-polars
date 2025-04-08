@@ -5,13 +5,11 @@ namespace_expr_bin <- function(x) {
   self <- new.env(parent = emptyenv())
   self$`_rexpr` <- x$`_rexpr`
 
-  lapply(names(polars_expr_bin_methods), function(name) {
-    fn <- polars_expr_bin_methods[[name]]
-    environment(fn) <- environment()
-    assign(name, fn, envir = self)
-  })
-
-  class(self) <- c("polars_namespace_expr", "polars_object")
+  class(self) <- c(
+    "polars_namespace_expr_bin",
+    "polars_namespace_expr",
+    "polars_object"
+  )
   self
 }
 
@@ -66,7 +64,7 @@ expr_bin_ends_with <- function(suffix) {
 
 #' Check if values start with a binary substring
 #'
-#' @param sub Prefix substring.
+#' @param prefix Prefix substring.
 #'
 #' @inherit as_polars_expr return
 #'
@@ -117,6 +115,7 @@ expr_bin_decode <- function(encoding, ..., strict = TRUE) {
     check_dots_empty0(...)
     encoding <- arg_match0(encoding, c("hex", "base64"))
 
+    # fmt: skip
     switch(encoding,
       hex = self$`_rexpr`$bin_hex_decode(strict),
       base64 = self$`_rexpr`$bin_base64_decode(strict),
@@ -142,6 +141,7 @@ expr_bin_encode <- function(encoding) {
   wrap({
     encoding <- arg_match0(encoding, c("hex", "base64"))
 
+    # fmt: skip
     switch(encoding,
       hex = self$`_rexpr`$bin_hex_encode(),
       base64 = self$`_rexpr`$bin_base64_encode(),
@@ -171,6 +171,7 @@ expr_bin_size <- function(unit = c("b", "kb", "mb", "gb", "tb")) {
   wrap({
     unit <- arg_match0(unit, values = c("b", "kb", "mb", "gb", "tb"))
     sz <- self$`_rexpr`$bin_size_bytes()
+    # fmt: skip
     switch(unit,
       "b" = sz,
       "kb" = sz$div(as_polars_expr(1024)$`_rexpr`),

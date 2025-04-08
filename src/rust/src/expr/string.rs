@@ -1,5 +1,5 @@
-use crate::{prelude::*, PlRExpr, RPolarsErr};
-use savvy::{savvy, NumericScalar, Result};
+use crate::{PlRDataType, PlRExpr, RPolarsErr, prelude::*};
+use savvy::{NumericScalar, Result, savvy};
 
 #[savvy]
 impl PlRExpr {
@@ -134,25 +134,44 @@ impl PlRExpr {
             .into())
     }
 
+    #[allow(unused_variables)]
     fn str_json_path_match(&self, pat: &PlRExpr) -> Result<Self> {
-        Ok(self
-            .inner
-            .clone()
-            .str()
-            .json_path_match(pat.inner.clone())
-            .into())
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            Ok(self
+                .inner
+                .clone()
+                .str()
+                .json_path_match(pat.inner.clone())
+                .into())
+        }
+        #[cfg(target_arch = "wasm32")]
+        {
+            Err(RPolarsErr::Other(format!("Not supported in WASM")).into())
+        }
     }
 
-    // fn str_json_decode(&self, dtype: &PlRExpr, infer_schema_len: &PlRExpr) -> Result<Self> {
-    //     let dtype = robj_to!(Option, RPolarsDataType, dtype)?.map(|dty| dty.0);
-    //     let infer_schema_len = robj_to!(Option, usize, infer_schema_len)?;
-    //     Ok(self
-    //         .inner
-    //         .clone()
-    //         .str()
-    //         .json_decode(dtype, infer_schema_len)
-    //         .into())
-    // }
+    #[allow(unused_variables)]
+    fn str_json_decode(
+        &self,
+        dtype: &PlRDataType,
+        infer_schema_len: NumericScalar,
+    ) -> Result<Self> {
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let infer_schema_len = <Wrap<usize>>::try_from(infer_schema_len)?.0;
+            Ok(self
+                .inner
+                .clone()
+                .str()
+                .json_decode(Some(dtype.dt.clone()), Some(infer_schema_len))
+                .into())
+        }
+        #[cfg(target_arch = "wasm32")]
+        {
+            Err(RPolarsErr::Other(format!("Not supported in WASM")).into())
+        }
+    }
 
     fn str_hex_encode(&self) -> Result<Self> {
         Ok(self.inner.clone().str().hex_encode().into())

@@ -3,4 +3,10 @@
 # Task cache
 .task
 
+# Generated Makefiles
 src/Makevars
+src/Makevars.win
+
+# Copied files
+tools/rust-toolchain.toml
+src/rust-toolchain.toml

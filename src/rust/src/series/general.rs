@@ -1,11 +1,11 @@
-use crate::{prelude::*, PlRDataFrame, PlRDataType, PlRSeries, RPolarsErr};
-use savvy::{r_println, savvy, NumericScalar, NumericSexp, Result, Sexp};
+use crate::{PlRDataFrame, PlRDataType, PlRSeries, RPolarsErr, prelude::*};
+use polars_core::series::IsSorted;
+use savvy::{NullSexp, NumericScalar, NumericSexp, OwnedIntegerSexp, Result, Sexp, savvy};
 
 #[savvy]
 impl PlRSeries {
-    fn print(&self) -> Result<()> {
-        r_println!("{:?}", self.series);
-        Ok(())
+    fn as_str(&self) -> Result<Sexp> {
+        format!("{:?}", self.series).try_into()
     }
 
     fn struct_unnest(&self) -> Result<PlRDataFrame> {
@@ -21,6 +21,22 @@ impl PlRSeries {
             .map(|s| s.name().as_str())
             .collect::<Vec<_>>()
             .try_into()
+    }
+
+    fn is_sorted_ascending_flag(&self) -> Result<Sexp> {
+        matches!(self.series.is_sorted_flag(), IsSorted::Ascending).try_into()
+    }
+
+    fn is_sorted_descending_flag(&self) -> Result<Sexp> {
+        matches!(self.series.is_sorted_flag(), IsSorted::Descending).try_into()
+    }
+
+    fn can_fast_explode_flag(&self) -> Result<Sexp> {
+        let out = match self.series.list() {
+            Err(_) => false,
+            Ok(list) => list._can_fast_explode(),
+        };
+        out.try_into()
     }
 
     pub fn cat_uses_lexical_ordering(&self) -> Result<Sexp> {
@@ -115,5 +131,24 @@ impl PlRSeries {
 
     fn n_chunks(&self) -> Result<Sexp> {
         (self.series.n_chunks() as i32).try_into()
+    }
+
+    fn chunk_lengths(&self) -> Result<Sexp> {
+        let lengths: std::result::Result<Vec<i32>, _> = self
+            .series
+            .chunk_lengths()
+            .map(|l| <i32>::try_from(l))
+            .collect();
+        lengths?.try_into()
+    }
+
+    pub fn rechunk(&mut self, in_place: bool) -> Result<Sexp> {
+        let series = self.series.rechunk();
+        if in_place {
+            self.series = series;
+            Ok(NullSexp.into())
+        } else {
+            PlRSeries::new(series).try_into()
+        }
     }
 }

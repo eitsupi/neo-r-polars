@@ -3,6 +3,8 @@ Title: R Bindings for the 'polars' Rust Library
 Version: 0.0.0.9000
 Authors@R: c(
     person("Tatsuya", "Shima", , "ts1s1andn@gmail.com", role = c("aut", "cre")),
+    person("Etienne", "Bacher", , "etienne.bacher@protonmail.com", role = "aut",
+           comment = c(ORCID = "0000-0002-9271-5075")),
     person("Authors of the dependency Rust crates", role = "aut")
   )
 Description: Lightning-fast 'DataFrame' library written in 'Rust'. Convert
@@ -12,7 +14,7 @@ Description: Lightning-fast 'DataFrame' library written in 'Rust'. Convert
     'Apache Arrow' Columnar Format.
 License: MIT + file LICENSE
 Depends:
-    R (>= 4.2)
+    R (>= 4.3)
 Imports:
     rlang (>= 1.1.0)
 Suggests:
@@ -21,18 +23,23 @@ Suggests:
     blob,
     cli,
     clock,
+    curl,
     data.table,
+    ggplot2,
     hms,
     jsonlite,
-    nanoarrow,
-    patrick,
+    nanoarrow (>= 0.6.0),
+    patrick (>= 0.3.0),
     testthat (>= 3.0.0),
     tibble,
     vctrs,
     withr
-Config/Needs/dev: devtools, lifecycle
+Additional_repositories: https://community.r-multiverse.org
+Config/Needs/dev: devtools, lifecycle, readr, glue
+Config/build/bootstrap: TRUE
 Config/testthat/edition: 3
 Config/testthat/parallel: true
+Config/testthat/start-first: lazyframe-frame, expr-expr, expr-*
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2

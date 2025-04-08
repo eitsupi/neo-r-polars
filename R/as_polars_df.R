@@ -2,13 +2,15 @@
 #' Create a Polars DataFrame from an R object
 #'
 #' The [as_polars_df()] function creates a [polars DataFrame][DataFrame] from various R objects.
-#' [Polars DataFrame][DataFrame] is based on a sequence of [Polars Series][Series],
-#' so basically, the input object is converted to a [list] of
-#' [Polars Series][Series] by [as_polars_series()],
-#' then a [Polars DataFrame][DataFrame] is created from the list.
+#' Because [Polars DataFrame][DataFrame] can be converted to a [struct type][pl__Struct] [Series]
+#' and vice versa, objects that are converted to a [struct type][pl__Struct] type [Series] by
+#' [as_polars_series()] are supported by this function.
 #'
-#' The default method of [as_polars_df()] throws an error,
-#' so we need to define methods for the classes we want to support.
+#' ## Default S3 method
+#'
+#' Basically, this method is a shortcut for `as_polars_series(x, ...)$struct$unnest()`.
+#' Before converting the object to a [Series], the [infer_polars_dtype()] function is used
+#' to check if the object can be converted to a [struct dtype][pl__Struct].
 #'
 #' ## S3 method for [list]
 #'
@@ -72,18 +74,39 @@ as_polars_df <- function(x, ...) {
 #' @rdname as_polars_df
 #' @export
 as_polars_df.default <- function(x, ...) {
-  abort(
-    paste0("Unsupported class for `as_polars_df()`: ", toString(class(x))),
-    call = parent.frame()
+  dtype <- try_fetch(
+    infer_polars_dtype(x, ...),
+    error = function(cnd) {
+      abort(
+        sprintf(
+          "%s may not be converted to a polars Series, and hence to a polars DataFrame.",
+          obj_type_friendly(x)
+        ),
+        parent = cnd
+      )
+    }
   )
+  if (inherits(dtype, "polars_dtype_struct")) {
+    as_polars_series(x, ...)$struct$unnest()
+  } else {
+    # TODO: improve error message after `format(<dtype>)` or something else is implemented to show the dtype
+    abort(
+      c(
+        "This object is not supported for the default method of `as_polars_df()` because it is not a Struct dtype like object.",
+        i = "Use `infer_polars_dtype()` to check the dtype for corresponding to the object."
+      )
+    )
+  }
 }
 
 #' @rdname as_polars_df
 #' @export
 as_polars_df.polars_series <- function(
-    x, ...,
-    column_name = NULL,
-    from_struct = TRUE) {
+  x,
+  ...,
+  column_name = NULL,
+  from_struct = TRUE
+) {
   if (isTRUE(from_struct) && inherits(x$dtype, "polars_dtype_struct")) {
     x$struct$unnest()
   } else {
@@ -106,16 +129,19 @@ as_polars_df.polars_group_by <- function(x, ...) {
 #' @rdname as_polars_df
 #' @export
 as_polars_df.polars_lazy_frame <- function(
-    x, ..., type_coercion = TRUE,
-    predicate_pushdown = TRUE,
-    projection_pushdown = TRUE,
-    simplify_expression = TRUE,
-    slice_pushdown = TRUE,
-    comm_subplan_elim = TRUE,
-    comm_subexpr_elim = TRUE,
-    cluster_with_columns = TRUE,
-    no_optimization = FALSE,
-    streaming = FALSE) {
+  x,
+  ...,
+  type_coercion = TRUE,
+  predicate_pushdown = TRUE,
+  projection_pushdown = TRUE,
+  simplify_expression = TRUE,
+  slice_pushdown = TRUE,
+  comm_subplan_elim = TRUE,
+  comm_subexpr_elim = TRUE,
+  cluster_with_columns = TRUE,
+  no_optimization = FALSE,
+  engine = c("auto", "in-memory", "streaming", "old-streaming")
+) {
   x$collect(
     type_coercion = type_coercion,
     predicate_pushdown = predicate_pushdown,
@@ -125,7 +151,8 @@ as_polars_df.polars_lazy_frame <- function(
     comm_subplan_elim = comm_subplan_elim,
     comm_subexpr_elim = comm_subexpr_elim,
     cluster_with_columns = cluster_with_columns,
-    streaming = streaming
+    no_optimization = no_optimization,
+    engine = engine
   )
 }
 

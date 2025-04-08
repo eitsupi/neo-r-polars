@@ -2,12 +2,12 @@
 % Please edit documentation in R/expr-string.R
 \name{expr_str_contains_any}
 \alias{expr_str_contains_any}
-\title{Use the aho-corasick algorithm to find matches}
+\title{Use the Aho-Corasick algorithm to find matches}
 \usage{
 expr_str_contains_any(patterns, ..., ascii_case_insensitive = FALSE)
 }
 \arguments{
-\item{patterns}{Character vector or something can be coerced to strings \link[=Expr_class]{Expr}
+\item{patterns}{Character vector or something can be coerced to strings \link{Expr}
 of a valid regex pattern, compatible with the \href{https://docs.rs/regex/latest/regex/}{regex crate}.}
 
 \item{...}{These dots are for future extensions and must be empty.}

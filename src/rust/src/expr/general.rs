@@ -1,20 +1,19 @@
 use crate::map::lazy::map_single;
-use crate::{prelude::*, PlRDataType, PlRExpr};
+use crate::{PlRDataType, PlRExpr, prelude::*};
 use polars::lazy::dsl;
 use polars::series::ops::NullBehavior;
 use polars_core::chunked_array::cast::CastOptions;
 use polars_core::series::IsSorted;
 use savvy::{
-    r_println, savvy, FunctionSexp, ListSexp, LogicalSexp, NumericScalar, NumericSexp, Result,
-    StringSexp,
+    FunctionSexp, ListSexp, LogicalSexp, NumericScalar, NumericSexp, Result, Sexp, StringSexp,
+    savvy,
 };
 use std::ops::Neg;
 
 #[savvy]
 impl PlRExpr {
-    fn print(&self) -> Result<()> {
-        r_println!("{:?}", self.inner);
-        Ok(())
+    fn as_str(&self) -> Result<Sexp> {
+        format!("{:?}", self.inner).try_into()
     }
 
     fn abs(&self) -> Result<Self> {
@@ -508,8 +507,12 @@ impl PlRExpr {
         Ok(self.inner.clone().is_duplicated().into())
     }
 
-    fn is_in(&self, expr: &PlRExpr) -> Result<Self> {
-        Ok(self.inner.clone().is_in(expr.inner.clone()).into())
+    fn is_in(&self, expr: &PlRExpr, nulls_equal: bool) -> Result<Self> {
+        Ok(self
+            .inner
+            .clone()
+            .is_in(expr.inner.clone(), nulls_equal)
+            .into())
     }
 
     fn sqrt(&self) -> Result<Self> {
@@ -767,7 +770,7 @@ impl PlRExpr {
 
     fn backward_fill(&self, limit: Option<NumericScalar>) -> Result<Self> {
         let limit: FillNullLimit = match limit {
-            Some(x) => Some(<Wrap<u32>>::try_from(x)?.0.into()),
+            Some(x) => Some(<Wrap<u32>>::try_from(x)?.0),
             None => None,
         };
         Ok(self.inner.clone().backward_fill(limit).into())
@@ -775,17 +778,17 @@ impl PlRExpr {
 
     fn forward_fill(&self, limit: Option<NumericScalar>) -> Result<Self> {
         let limit: FillNullLimit = match limit {
-            Some(x) => Some(<Wrap<u32>>::try_from(x)?.0.into()),
+            Some(x) => Some(<Wrap<u32>>::try_from(x)?.0),
             None => None,
         };
         Ok(self.inner.clone().forward_fill(limit).into())
     }
 
-    fn shift(&self, n: PlRExpr, fill_value: Option<PlRExpr>) -> Result<Self> {
+    fn shift(&self, n: &PlRExpr, fill_value: Option<&PlRExpr>) -> Result<Self> {
         let expr = self.inner.clone();
         let out = match fill_value {
             Some(v) => expr.shift_and_fill(n.inner.clone(), v.inner.clone()),
-            None => expr.shift(n.inner),
+            None => expr.shift(n.inner.clone()),
         };
         Ok(out.into())
     }
@@ -800,7 +803,7 @@ impl PlRExpr {
         limit: Option<NumericScalar>,
     ) -> Result<Self> {
         let limit: FillNullLimit = match limit {
-            Some(x) => Some(<Wrap<u32>>::try_from(x)?.0.into()),
+            Some(x) => Some(<Wrap<u32>>::try_from(x)?.0),
             None => None,
         };
         let strategy = parse_fill_null_strategy(strategy, limit)?;
@@ -870,10 +873,7 @@ impl PlRExpr {
         labels: Option<StringSexp>,
     ) -> Result<Self> {
         let breaks: Vec<f64> = breaks.as_slice_f64().into();
-        let labels = match labels {
-            Some(x) => Some(x.to_vec()),
-            None => None,
-        };
+        let labels = labels.map(|x| x.to_vec());
         Ok(self
             .inner
             .clone()
@@ -890,10 +890,7 @@ impl PlRExpr {
         labels: Option<StringSexp>,
     ) -> Result<Self> {
         let probs: Vec<f64> = probs.as_slice_f64().into();
-        let labels = match labels {
-            Some(x) => Some(x.to_vec()),
-            None => None,
-        };
+        let labels = labels.map(|x| x.to_vec());
         Ok(self
             .inner
             .clone()
@@ -910,10 +907,7 @@ impl PlRExpr {
         labels: Option<StringSexp>,
     ) -> Result<Self> {
         let n_bins = <Wrap<usize>>::try_from(n_bins)?.0;
-        let labels = match labels {
-            Some(x) => Some(x.to_vec()),
-            None => None,
-        };
+        let labels = labels.map(|x| x.to_vec());
         Ok(self
             .inner
             .clone()

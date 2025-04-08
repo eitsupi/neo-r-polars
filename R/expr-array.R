@@ -5,18 +5,13 @@ namespace_expr_arr <- function(x) {
   self <- new.env(parent = emptyenv())
   self$`_rexpr` <- x$`_rexpr`
 
-  lapply(names(polars_expr_arr_methods), function(name) {
-    fn <- polars_expr_arr_methods[[name]]
-    environment(fn) <- environment()
-    assign(name, fn, envir = self)
-  })
-
   class(self) <- c(
-    "polars_namespace_expr", "polars_object"
+    "polars_namespace_expr_arr",
+    "polars_namespace_expr",
+    "polars_object"
   )
   self
 }
-
 
 
 #' Compute the sum of the sub-arrays
@@ -35,7 +30,6 @@ expr_arr_sum <- function() {
 #' Compute the max value of the sub-arrays
 #'
 #' @inherit as_polars_expr return
-#' @inherit expr_str_to_titlecase details
 #' @examples
 #' df <- pl$DataFrame(
 #'   values = list(c(1, 2), c(3, 4), c(NA, NA))
@@ -48,7 +42,6 @@ expr_arr_max <- function() {
 
 #' Compute the min value of the sub-arrays
 #'
-#' @inherit expr_str_to_titlecase details
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
@@ -75,7 +68,7 @@ expr_arr_median <- function() {
 
 #' Compute the standard deviation of the sub-arrays
 #'
-#' @inheritParams DataFrame_std
+#' @inheritParams dataframe__std
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
@@ -89,7 +82,7 @@ expr_arr_std <- function(ddof = 1) {
 
 #' Compute the variance of the sub-arrays
 #'
-#' @inheritParams DataFrame_var
+#' @inheritParams dataframe__var
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
@@ -104,7 +97,7 @@ expr_arr_var <- function(ddof = 1) {
 #' Sort values in every sub-array
 #'
 #' @inheritParams rlang::args_dots_empty
-#' @inheritParams expr_sort
+#' @inheritParams expr__sort
 #' @examples
 #' df <- pl$DataFrame(
 #'   values = list(c(2, 1), c(3, 4), c(NA, 6))
@@ -133,7 +126,7 @@ expr_arr_reverse <- function() {
 #' Get the unique values in every sub-array
 #'
 #' @inheritParams rlang::args_dots_empty
-#' @inheritParams expr_unique
+#' @inheritParams expr__unique
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
@@ -204,7 +197,7 @@ expr_arr_contains <- function(item) {
 #' @param separator String to separate the items with. Can be an Expr. Strings
 #'   are not parsed as columns.
 #' @inheritParams rlang::args_dots_empty
-#' @inheritParams pl_concat_str
+#' @inheritParams pl__concat_str
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -282,7 +275,7 @@ expr_arr_any <- function() {
 
 #' Shift values in every sub-array by the given number of indices
 #'
-#' @inheritParams DataFrame_shift
+#' @inheritParams dataframe__shift
 #'
 #' @inherit as_polars_expr return
 #' @examples

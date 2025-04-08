@@ -5,13 +5,11 @@ namespace_expr_list <- function(x) {
   self <- new.env(parent = emptyenv())
   self$`_rexpr` <- x$`_rexpr`
 
-  lapply(names(polars_expr_list_methods), function(name) {
-    fn <- polars_expr_list_methods[[name]]
-    environment(fn) <- environment()
-    assign(name, fn, envir = self)
-  })
-
-  class(self) <- c("polars_namespace_expr", "polars_object")
+  class(self) <- c(
+    "polars_namespace_expr_list",
+    "polars_namespace_expr",
+    "polars_object"
+  )
   self
 }
 
@@ -170,7 +168,7 @@ expr_list_concat <- function(other) {
 #' @inheritParams rlang::args_dots_empty
 #' @param null_on_oob If `TRUE`, return `null` if an index is out of bounds.
 #' Otherwise, raise an error.
-#' @return [Expr][expr_class]
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   values = list(c(2, 2, NA), c(1, 2, 3), NA, NULL),
@@ -230,7 +228,7 @@ expr_list_gather <- function(index, ..., null_on_oob = FALSE) {
 
 #' Take every `n`-th value starting from offset in sub-lists
 #'
-#' @inheritParams expr_gather_every
+#' @inheritParams expr__gather_every
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -304,7 +302,7 @@ expr_list_contains <- function(item) {
 #'
 #' @param separator String to separate the items with. Can be an Expr. Strings
 #'   are *not* parsed as columns.
-#' @inheritParams pl_concat_str
+#' @inheritParams pl__concat_str
 #' @inheritParams rlang::args_dots_empty
 #'
 #' @inherit as_polars_expr return
@@ -383,7 +381,7 @@ expr_list_diff <- function(n = 1, null_behavior = c("ignore", "drop")) {
 
 #' Shift list values by the given number of indices
 #'
-#' @inheritParams DataFrame_shift
+#' @inheritParams dataframe__shift
 #'
 #' @inherit as_polars_expr return
 #'
@@ -538,6 +536,7 @@ expr_list_tail <- function(n = 5L) {
 
 #' Run any polars expression on the sub-lists' values
 #'
+#' @inheritParams rlang::args_dots_empty
 #' @param expr Expression to run. Note that you can select an element with
 #'   `pl$element()`, `pl$first()`, and more. See Examples.
 #' @param parallel Run all expressions in parallel. Don't activate this blindly.
@@ -717,8 +716,13 @@ expr_list_explode <- function() {
 #'   sample = pl$col("values")$list$sample(n = pl$col("n"), seed = 1)
 #' )
 expr_list_sample <- function(
-    n = NULL, ..., fraction = NULL, with_replacement = FALSE, shuffle = FALSE,
-    seed = NULL) {
+  n = NULL,
+  ...,
+  fraction = NULL,
+  with_replacement = FALSE,
+  shuffle = FALSE,
+  seed = NULL
+) {
   wrap({
     check_dots_empty0(...)
     if (!is.null(n) && !is.null(fraction)) {
@@ -726,16 +730,21 @@ expr_list_sample <- function(
     } else if (!is.null(n)) {
       self$`_rexpr`$list_sample_n(as_polars_expr(n)$`_rexpr`, with_replacement, shuffle, seed)
     } else {
-      self$`_rexpr`$list_sample_frac(as_polars_expr(fraction %||% 1)$`_rexpr`, with_replacement, shuffle, seed)
+      self$`_rexpr`$list_sample_frac(
+        as_polars_expr(fraction %||% 1)$`_rexpr`,
+        with_replacement,
+        shuffle,
+        seed
+      )
     }
   })
 }
 
 #' Compute the standard deviation in every sub-list
 #'
-#' @param "Delta Degrees of Freedom": the divisor used in the calculation is
-#' `N - ddof`, where `N` represents the number of elements. By default ddof is
-#' 1.
+#' @param ddof "Delta Degrees of Freedom": the divisor used in the calculation
+#' is `N - ddof`, where `N` represents the number of elements. By default
+#' `ddof` is 1.
 #'
 #' @inherit as_polars_expr return
 #' @examples

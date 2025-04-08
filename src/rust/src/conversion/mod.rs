@@ -1,10 +1,14 @@
 use std::num::NonZeroUsize;
+use std::str::FromStr;
 
 use crate::prelude::*;
 use crate::{PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame, PlRSeries, RPolarsErr};
 use polars::prelude::cloud::CloudOptions;
 use polars::series::ops::NullBehavior;
-use savvy::{ListSexp, NumericScalar, NumericSexp, NumericTypedSexp, StringSexp, TypedSexp};
+use savvy::{
+    ListSexp, NumericScalar, NumericSexp, NumericTypedSexp, OwnedIntegerSexp, Sexp, StringSexp,
+    TypedSexp,
+};
 use search_sorted::SearchSortedSide;
 pub mod base_date;
 mod chunked_array;
@@ -83,6 +87,20 @@ impl From<ListSexp> for Wrap<Vec<Option<Vec<u8>>>> {
             })
             .collect::<Vec<_>>();
         Wrap(raw_list)
+    }
+}
+
+impl TryFrom<&str> for Wrap<u8> {
+    type Error = String;
+
+    fn try_from(string: &str) -> Result<Self, String> {
+        let mut utf8_byte_iter = string.as_bytes().iter();
+        match (utf8_byte_iter.next(), utf8_byte_iter.next()) {
+            (Some(s), None) => Ok(Wrap(*s)),
+            (None, None) => Err("cannot extract single byte from empty string".to_string()),
+            (Some(_), Some(_)) => Err("multi byte-string not allowed".to_string()),
+            (None, Some(_)) => unreachable!("the iter() cannot yield Some after None(depleted)"),
+        }
     }
 }
 
@@ -194,7 +212,7 @@ impl TryFrom<&str> for Wrap<CategoricalOrdering> {
             v => {
                 return Err(format!(
                     "categorical `ordering` must be one of ('physical', 'lexical'), got '{v}'"
-                ))
+                ));
             }
         };
         Ok(Wrap(ordering))
@@ -602,6 +620,117 @@ impl TryFrom<&str> for Wrap<QuantileMethod> {
     }
 }
 
+impl TryFrom<&str> for Wrap<UniqueKeepStrategy> {
+    type Error = String;
+
+    fn try_from(strategy: &str) -> Result<Self, String> {
+        let parsed = match strategy {
+            "first" => UniqueKeepStrategy::First,
+            "last" => UniqueKeepStrategy::Last,
+            "none" => UniqueKeepStrategy::None,
+            "any" => UniqueKeepStrategy::Any,
+            _ => return Err("unreachable".to_string()),
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
+impl TryFrom<&str> for Wrap<JoinType> {
+    type Error = String;
+
+    fn try_from(how: &str) -> Result<Self, String> {
+        let parsed = match how {
+            "cross" => JoinType::Cross,
+            "inner" => JoinType::Inner,
+            "left" => JoinType::Left,
+            "right" => JoinType::Right,
+            "full" => JoinType::Full,
+            "semi" => JoinType::Semi,
+            "anti" => JoinType::Anti,
+            _ => return Err("unreachable".to_string()),
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
+impl TryFrom<&str> for Wrap<JoinValidation> {
+    type Error = String;
+
+    fn try_from(validation: &str) -> Result<Self, String> {
+        let parsed = match validation {
+            "m:m" => JoinValidation::ManyToMany,
+            "1:m" => JoinValidation::OneToMany,
+            "1:1" => JoinValidation::OneToOne,
+            "m:1" => JoinValidation::ManyToOne,
+            _ => return Err("unreachable".to_string()),
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
+impl TryFrom<&str> for Wrap<Label> {
+    type Error = String;
+
+    fn try_from(label: &str) -> Result<Self, String> {
+        let parsed = match label {
+            "left" => Label::Left,
+            "right" => Label::Right,
+            "datapoint" => Label::DataPoint,
+            _ => return Err("unreachable".to_string()),
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
+impl TryFrom<&str> for Wrap<StartBy> {
+    type Error = String;
+
+    fn try_from(start_by: &str) -> Result<Self, String> {
+        let parsed = match start_by {
+            "window" => StartBy::WindowBound,
+            "datapoint" => StartBy::DataPoint,
+            "monday" => StartBy::Monday,
+            "tuesday" => StartBy::Tuesday,
+            "wednesday" => StartBy::Wednesday,
+            "thursday" => StartBy::Thursday,
+            "friday" => StartBy::Friday,
+            "saturday" => StartBy::Saturday,
+            "sunday" => StartBy::Sunday,
+            _ => return Err("unreachable".to_string()),
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
+impl TryFrom<&str> for Wrap<QuoteStyle> {
+    type Error = String;
+
+    fn try_from(quote_style: &str) -> Result<Self, String> {
+        let parsed = match quote_style {
+            "always" => QuoteStyle::Always,
+            "necessary" => QuoteStyle::Necessary,
+            "non_numeric" => QuoteStyle::NonNumeric,
+            "never" => QuoteStyle::Never,
+            _ => return Err("unreachable".to_string()),
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
+impl TryFrom<&str> for Wrap<AsofStrategy> {
+    type Error = String;
+
+    fn try_from(strategy: &str) -> Result<Self, String> {
+        let parsed = match strategy {
+            "forward" => AsofStrategy::Forward,
+            "backward" => AsofStrategy::Backward,
+            "nearest" => AsofStrategy::Nearest,
+            _ => return Err("unreachable".to_string()),
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
 impl TryFrom<&str> for Wrap<CsvEncoding> {
     type Error = String;
 
@@ -625,13 +754,13 @@ impl TryFrom<StringSexp> for Wrap<NullValues> {
             let names = null_values.get_names().unwrap();
             let res = names
                 .into_iter()
-                .zip(values.into_iter())
+                .zip(values)
                 .map(|(xi, yi)| (xi.into(), yi.into()))
                 .collect::<Vec<(PlSmallStr, PlSmallStr)>>();
-            return Ok(Wrap(NullValues::Named(res)));
+            Ok(Wrap(NullValues::Named(res)))
         } else if null_values.len() == 1 {
             let vals = null_values.to_vec();
-            let val = *(vals.get(0).unwrap());
+            let val = *(vals.first().unwrap());
             return Ok(Wrap(NullValues::AllColumnsSingle(val.into())));
         } else {
             let vals = null_values
@@ -639,7 +768,7 @@ impl TryFrom<StringSexp> for Wrap<NullValues> {
                 .into_iter()
                 .map(|x| x.into())
                 .collect::<Vec<PlSmallStr>>();
-            return Ok(Wrap(NullValues::AllColumns(vals.into())));
+            return Ok(Wrap(NullValues::AllColumns(vals)));
         }
     }
 }
@@ -665,6 +794,8 @@ pub(crate) fn parse_cloud_options(
     Ok(out)
 }
 
+// TODO: Refactor with adding `parquet` feature as like Python Polars
+#[cfg(not(target_arch = "wasm32"))]
 impl TryFrom<&str> for Wrap<ParallelStrategy> {
     type Error = String;
 
@@ -675,6 +806,121 @@ impl TryFrom<&str> for Wrap<ParallelStrategy> {
             "row_groups" => ParallelStrategy::RowGroups,
             "prefiltered" => ParallelStrategy::Prefiltered,
             "none" => ParallelStrategy::None,
+            _ => return Err("unreachable".to_string()),
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
+impl TryFrom<&str> for Wrap<MaintainOrderJoin> {
+    type Error = String;
+
+    fn try_from(maintain_order: &str) -> Result<Self, String> {
+        let parsed = match maintain_order {
+            "none" => MaintainOrderJoin::None,
+            "left" => MaintainOrderJoin::Left,
+            "right" => MaintainOrderJoin::Right,
+            "left_right" => MaintainOrderJoin::LeftRight,
+            "right_left" => MaintainOrderJoin::RightLeft,
+            _ => return Err("unreachable".to_string()),
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
+impl TryFrom<&str> for Wrap<Engine> {
+    type Error = savvy::Error;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        Engine::from_str(value).map_err(Into::into).map(Wrap)
+    }
+}
+
+impl TryFrom<NumericScalar> for Wrap<CompatLevel> {
+    type Error = savvy::Error;
+
+    fn try_from(value: NumericScalar) -> Result<Self, Self::Error> {
+        // CompatLevel is u16, but currently only use 0 and 1, so u8 is enough
+        let level = <Wrap<u8>>::try_from(value)?.0 as u16;
+        let compat_level = CompatLevel::with_level(level).map_err(RPolarsErr::from)?;
+        Ok(Wrap(compat_level))
+    }
+}
+
+impl TryFrom<&str> for Wrap<CompatLevel> {
+    type Error = savvy::Error;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        let compat_level = match value {
+            "newest" => CompatLevel::newest(),
+            "oldest" => CompatLevel::oldest(),
+            _ => return Err("unreachable".to_string().into()),
+        };
+        Ok(Wrap(compat_level))
+    }
+}
+
+impl TryFrom<Sexp> for Wrap<CompatLevel> {
+    type Error = savvy::Error;
+
+    fn try_from(value: Sexp) -> Result<Self, Self::Error> {
+        if value.is_numeric() {
+            <NumericScalar>::try_from(value).and_then(|v| <Wrap<CompatLevel>>::try_from(v))
+        } else if value.is_string() {
+            <&str>::try_from(value).and_then(|v| <Wrap<CompatLevel>>::try_from(v))
+        } else {
+            Err("Invalid compat level".to_string().into())
+        }
+    }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+pub(crate) fn parse_parquet_compression(
+    compression: &str,
+    compression_level: Option<i32>,
+) -> savvy::Result<ParquetCompression> {
+    let parsed = match compression {
+        "uncompressed" => ParquetCompression::Uncompressed,
+        "snappy" => ParquetCompression::Snappy,
+        "gzip" => ParquetCompression::Gzip(
+            compression_level
+                .map(|lvl| {
+                    GzipLevel::try_new(lvl as u8)
+                        .map_err(|e| savvy::Error::new(format!("{e:?}").as_str()))
+                })
+                .transpose()?,
+        ),
+        "lzo" => ParquetCompression::Lzo,
+        "brotli" => ParquetCompression::Brotli(
+            compression_level
+                .map(|lvl| {
+                    BrotliLevel::try_new(lvl as u32)
+                        .map_err(|e| savvy::Error::new(format!("{e:?}").as_str()))
+                })
+                .transpose()?,
+        ),
+        "lz4" => ParquetCompression::Lz4Raw,
+        "zstd" => ParquetCompression::Zstd(
+            compression_level
+                .map(|lvl| {
+                    ZstdLevel::try_new(lvl)
+                        .map_err(|e| savvy::Error::new(format!("{e:?}").as_str()))
+                })
+                .transpose()?,
+        ),
+        _ => return Err(RPolarsErr::Other("unreachable".to_string()).into()),
+    };
+    Ok(parsed)
+}
+
+impl TryFrom<&str> for Wrap<Option<IpcCompression>> {
+    type Error = String;
+
+    fn try_from(compression: &str) -> Result<Self, String> {
+        let parsed = match compression {
+            "lz4" => Some(IpcCompression::LZ4),
+            "zstd" => Some(IpcCompression::ZSTD),
+            "uncompressed" => None,
             _ => return Err("unreachable".to_string()),
         };
         Ok(Wrap(parsed))

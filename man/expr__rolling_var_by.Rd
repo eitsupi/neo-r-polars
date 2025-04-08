@@ -14,8 +14,10 @@ expr__rolling_var_by(
 )
 }
 \arguments{
-\item{by}{This column must be of dtype Datetime or Date. Accepts expression
-input. Strings are parsed as column names.}
+\item{by}{Should be DateTime, Date, UInt64, UInt32, Int64, or Int32 data
+type after conversion by \code{\link[=as_polars_expr]{as_polars_expr()}}. Note that the
+integer ones require using \code{"i"} in \code{window_size}. Accepts expression input.
+Strings are parsed as column names.}
 
 \item{window_size}{The length of the window. Can be a dynamic temporal size
 indicated by a timedelta or the following string language:
@@ -39,12 +41,18 @@ By "calendar day", we mean the corresponding time on the next day
 (which may not be 24 hours, due to daylight savings). Similarly for
 "calendar week", "calendar month", "calendar quarter", and "calendar year".}
 
+\item{...}{These dots are for future extensions and must be empty.}
+
 \item{min_periods}{The number of values in the window that should be
 non-null before computing a result. If \code{NULL} (default), it will be set
 equal to \code{window_size}.}
 
 \item{closed}{Define which sides of the interval are closed (inclusive).
 Default is \code{"right"}.}
+
+\item{ddof}{"Delta Degrees of Freedom": the divisor used in the calculation
+is \code{N - ddof}, where \code{N} represents the number of elements. By default
+\code{ddof} is 1.}
 }
 \value{
 A polars \link{expression}
