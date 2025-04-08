@@ -3,7 +3,10 @@
 export PATH="$PATH:$HOME/.cargo/bin"
 
 NOT_CRAN=${NOT_CRAN:-"false"}
+
 LIBR_POLARS_BUILD=${LIBR_POLARS_BUILD:-""}
+# Passed to the --feture flag of cargo build
+FEATURES=${LIBR_POLARS_FEATURES:-""}
 
 # Detect if this is on R-universe.
 MY_UNIVERSE=${MY_UNIVERSE:-""}
@@ -140,6 +143,7 @@ generate_makevars() {
     sed \
       -e "s|@TARGET@|${TARGET}|" \
       -e "s|@PROFILE@|${PROFILE}|" \
+      -e "s|@FEATURES@|${FEATURES}|" \
       "$makefile.in" >"$makefile"
   done
 
@@ -161,6 +165,24 @@ EOF
   fi
 }
 
+check_feature() {
+  cat <<EOF
+------------------------- [FEATURES CHECK] -------------------------
+Selected features: '${FEATURES}'
+--------------------------------------------------------------------
+EOF
+  # TODO: needs documented, and maybe also use on R-universe?
+  if [ "$(echo "${FEATURES}" | grep nightly)" ] && [ "${NOT_CRAN}" = "true" ]; then
+    cat <<EOF
+-------------------- [NIGHTLY TOOLCHAIN NEEDED] --------------------
+The 'nightly' feature requires a specific version of the Rust nightly toolchain.
+So using the rust-toolchain.toml file to set the toolchain.
+--------------------------------------------------------------------
+EOF
+  copy_rust_toolchain_toml
+  fi
+}
+
 # catch DEBUG envvar, which is passed from pkgbuild::compile_dll()
 if [ "${DEBUG}" = "true" ]; then
   PROFILE=dev
@@ -168,8 +190,12 @@ else
   PROFILE=release
 fi
 
+# Ensure run bootstrap.R
+"${R_HOME}/bin${R_ARCH_BIN}/Rscript" "bootstrap.R"
+
 check_bin_lib
 check_cargo
+check_feature
 check_emscripten
 check_rustup
 
