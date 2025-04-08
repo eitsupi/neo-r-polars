@@ -23,7 +23,7 @@ patrick::with_parameters_test_that(
         "integer", c(1L, NA), "", pl$Int32,
         "character", c("foo", NA), "", pl$String,
         "logical", c(TRUE, FALSE, NA), "", pl$Boolean,
-        "raw", charToRaw("foo"), "", pl$Binary,
+        "raw", charToRaw("foo"), "", pl$UInt8,
         "array", array(1:24, c(2, 3, 4)), "", pl$Array(pl$Int32, c(3, 2)),
         "factor", factor("foo"), "", pl$Categorical(),
         "Date", as.Date(c("2021-01-01", NA)), "", pl$Date,
@@ -70,7 +70,7 @@ patrick::with_parameters_test_that(
 test_that("as_polars_series.default throws an error", {
   x <- 1
   class(x) <- "foo"
-  expect_error(as_polars_series(x), "Unsupported class")
+  expect_snapshot(as_polars_series(x), error = TRUE)
 })
 
 test_that("as_polars_series.polars_expr throws an error", {

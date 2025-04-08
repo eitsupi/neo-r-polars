@@ -1,11 +1,17 @@
 [package]
 name = "r-polars"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
+rust-version = "1.85.0"
 publish = false
 
 [lib]
 crate-type = ["staticlib", "lib"]
+
+[features]
+default = []
+# also includes simd
+nightly = ["polars/nightly"]
 
 [profile.release]
 panic = "unwind"
@@ -15,10 +21,10 @@ too_many_arguments = "allow"
 
 [dependencies]
 ciborium = "0.2"
-either = "1.14"
+either = "1.15"
 flume = "0.11"
-polars-core = { git = "https://github.com/pola-rs/polars.git", rev = "ff994f0502bc5ce886df43ffbbf468a79adcf281", default-features = false }
-polars-error = { git = "https://github.com/pola-rs/polars.git", rev = "ff994f0502bc5ce886df43ffbbf468a79adcf281", default-features = false }
+polars-core = { git = "https://github.com/pola-rs/polars.git", rev = "ac9d598fd07d85b26a29bd7465a7bfa945b6f963", default-features = false }
+polars-error = { git = "https://github.com/pola-rs/polars.git", rev = "ac9d598fd07d85b26a29bd7465a7bfa945b6f963", default-features = false }
 savvy = { version = "0.8", features = ["use-custom-error"] }
 serde_json = "1"
 state = "0.6"
@@ -26,9 +32,21 @@ strum = "0.26"
 strum_macros = "0.26"
 thiserror = "2"
 
+# These features are enabled by default, but not supported on emscripten
+# <https://github.com/pola-rs/polars/blob/93ceaccdac6f05c9b07a5117f3a4a90c238dbd29/.github/workflows/test-pyodide.yml#L40-L45>
+[target.'cfg(not(target_os = "emscripten"))'.dependencies.polars]
+git = "https://github.com/pola-rs/polars.git"
+rev = "ac9d598fd07d85b26a29bd7465a7bfa945b6f963"
+features = ["cloud", "extract_jsonpath", "json", "parquet"]
+
+[target.'cfg(not(target_os = "emscripten"))'.dependencies.polars-lazy]
+git = "https://github.com/pola-rs/polars.git"
+rev = "ac9d598fd07d85b26a29bd7465a7bfa945b6f963"
+features = ["new_streaming"]
+
 [dependencies.polars]
 git = "https://github.com/pola-rs/polars.git"
-rev = "ff994f0502bc5ce886df43ffbbf468a79adcf281"
+rev = "ac9d598fd07d85b26a29bd7465a7bfa945b6f963"
 features = [
     "abs",
     "approx_unique",
@@ -40,7 +58,6 @@ features = [
     "binary_encoding",
     "bitwise",
     "business",
-    "cloud",
     "concat_str",
     "cross_join",
     "cse",
@@ -57,7 +74,6 @@ features = [
     "ewma",
     "ewma_by",
     "extract_groups",
-    "extract_jsonpath",
     "find_many",
     "fused",
     "hist",
@@ -71,7 +87,6 @@ features = [
     "is_in",
     "is_last_distinct",
     "is_unique",
-    "json",
     "lazy",
     "list_any_all",
     "list_count",
@@ -89,7 +104,6 @@ features = [
     "month_start",
     "month_end",
     "offset_by",
-    "parquet",
     "partition_by",
     "pct_change",
     "peaks",
@@ -112,6 +126,7 @@ features = [
     "serde",
     "serde-lazy",
     "sign",
+    "sql",
     "streaming",
     "strings",
     "string_encoding",
@@ -123,7 +138,7 @@ features = [
     "to_dummies",
     "top_k",
     "trigonometry",
-    "unique_counts"
+    "unique_counts",
 ]
 
 [target.'cfg(all(any(not(target_family = "unix"), target_os = "emscripten", allocator = "mimalloc")))'.dependencies]

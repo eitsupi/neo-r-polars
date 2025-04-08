@@ -1,13 +1,20 @@
-use crate::{prelude::*, PlRExpr, PlRSeries, RPolarsErr};
+use crate::{PlRExpr, PlRSeries, RPolarsErr, prelude::*};
 use polars_core::utils::arrow::{
     array::Array,
-    ffi::{export_iterator, ArrowArrayStream},
+    ffi::{ArrowArrayStream, export_iterator},
 };
 use savvy::{
-    savvy, ExternalPointerSexp, FunctionArgs, FunctionSexp, OwnedIntegerSexp, OwnedListSexp,
-    OwnedLogicalSexp, Result, Sexp,
+    ExternalPointerSexp, FunctionArgs, FunctionSexp, OwnedIntegerSexp, OwnedListSexp,
+    OwnedLogicalSexp, Result, Sexp, savvy,
 };
 use strum_macros::EnumString;
+
+#[derive(Debug, Clone, EnumString)]
+#[strum(serialize_all = "lowercase")]
+enum UInt8Conversion {
+    Integer,
+    Raw,
+}
 
 #[derive(Debug, Clone, EnumString)]
 #[strum(serialize_all = "lowercase")]
@@ -47,7 +54,7 @@ enum TimeConversion {
 
 // `vctrs::unspecified` like function
 fn vctrs_unspecified_sexp(n: usize) -> Sexp {
-    let mut sexp = OwnedLogicalSexp::new(n).unwrap();
+    let mut sexp = unsafe { OwnedLogicalSexp::new_without_init(n).unwrap() };
     let _ = sexp.set_class(["vctrs_unspecified"]);
     for i in 0..n {
         let _ = sexp.set_na(i);
@@ -74,6 +81,7 @@ impl PlRSeries {
     pub fn to_r_vector(
         &self,
         ensure_vector: bool,
+        uint8: &str,
         int64: &str,
         date: &str,
         time: &str,
@@ -86,6 +94,7 @@ impl PlRSeries {
     ) -> Result<Sexp> {
         let series = &self.series;
 
+        let uint8 = UInt8Conversion::try_from(uint8).map_err(RPolarsErr::from)?;
         let int64 = Int64Conversion::try_from(int64).map_err(RPolarsErr::from)?;
         let date = DateConversion::try_from(date).map_err(RPolarsErr::from)?;
         let time = TimeConversion::try_from(time).map_err(RPolarsErr::from)?;
@@ -97,6 +106,7 @@ impl PlRSeries {
         fn to_r_vector_recursive(
             series: &Series,
             ensure_vector: bool,
+            uint8: UInt8Conversion,
             int64: Int64Conversion,
             date: DateConversion,
             time: TimeConversion,
@@ -109,9 +119,15 @@ impl PlRSeries {
         ) -> Result<Sexp> {
             match series.dtype() {
                 DataType::Boolean => Ok(<Sexp>::from(Wrap(series.bool().unwrap()))),
-                DataType::UInt8 | DataType::UInt16 | DataType::Int8 | DataType::Int16 => Ok(
-                    <Sexp>::from(Wrap(series.cast(&DataType::Int32).unwrap().i32().unwrap())),
-                ),
+                DataType::UInt8 => match uint8 {
+                    UInt8Conversion::Integer => Ok(<Sexp>::from(Wrap(
+                        series.cast(&DataType::Int32).unwrap().i32().unwrap(),
+                    ))),
+                    UInt8Conversion::Raw => Ok(<Sexp>::from(Wrap(series.u8().unwrap()))),
+                },
+                DataType::UInt16 | DataType::Int8 | DataType::Int16 => Ok(<Sexp>::from(Wrap(
+                    series.cast(&DataType::Int32).unwrap().i32().unwrap(),
+                ))),
                 DataType::Int32 => Ok(<Sexp>::from(Wrap(series.i32().unwrap()))),
                 DataType::UInt32 | DataType::UInt64 | DataType::Int64 | DataType::Int128 => {
                     match int64 {
@@ -153,6 +169,7 @@ impl PlRSeries {
                         to_r_vector_recursive(
                             &empty_inner_series,
                             false,
+                            uint8.clone(),
                             int64.clone(),
                             date.clone(),
                             time.clone(),
@@ -173,6 +190,7 @@ impl PlRSeries {
                                 to_r_vector_recursive(
                                     s.as_ref(),
                                     false,
+                                    uint8.clone(),
                                     int64.clone(),
                                     date.clone(),
                                     time.clone(),
@@ -199,6 +217,7 @@ impl PlRSeries {
                         to_r_vector_recursive(
                             &empty_inner_series,
                             false,
+                            uint8.clone(),
                             int64.clone(),
                             date.clone(),
                             time.clone(),
@@ -219,6 +238,7 @@ impl PlRSeries {
                                 to_r_vector_recursive(
                                     s.as_ref(),
                                     false,
+                                    uint8.clone(),
                                     int64.clone(),
                                     date.clone(),
                                     time.clone(),
@@ -321,6 +341,7 @@ impl PlRSeries {
                             to_r_vector_recursive(
                                 s,
                                 false,
+                                uint8.clone(),
                                 int64.clone(),
                                 date.clone(),
                                 time.clone(),
@@ -352,6 +373,7 @@ impl PlRSeries {
         to_r_vector_recursive(
             series,
             ensure_vector,
+            uint8,
             int64,
             date,
             time,

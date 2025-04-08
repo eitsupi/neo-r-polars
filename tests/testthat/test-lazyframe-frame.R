@@ -22,6 +22,30 @@ test_that("select works lazy/eager", {
   )
 })
 
+test_that("select_seq() works", {
+  .data <- pl$DataFrame(
+    int32 = 1:5,
+    int64 = as_polars_series(1:5)$cast(pl$Int64),
+    string = letters[1:5],
+  )
+
+  expect_query_equal(
+    .input$select_seq("int32"),
+    .data,
+    pl$DataFrame(int32 = 1:5)
+  )
+  expect_query_equal(
+    .input$select_seq(pl$lit("int32")),
+    .data,
+    pl$DataFrame(literal = "int32")
+  )
+  expect_query_equal(
+    .input$select_seq(foo = "int32"),
+    .data,
+    pl$DataFrame(foo = 1:5)
+  )
+})
+
 test_that("POLARS_AUTO_STRUCTIFY works for select", {
   .data <- pl$DataFrame(
     foo = 1:3,
@@ -796,7 +820,7 @@ test_that("fill_null(): basic usage", {
     pl$DataFrame(
       a = c(1.5, 2, 99, NaN),
       b = c(1, 99, 99, 4)
-    )$cast(a = pl$Float32, b = pl$Float64)
+    )
   )
   expect_query_equal(
     .input$fill_null(99, matches_supertype = FALSE),
@@ -1401,7 +1425,7 @@ test_that("sort(): various errors", {
   expect_query_error(
     .input$sort(complex(1)),
     pl$DataFrame(x = 1),
-    "Unsupported class"
+    "can't be converted to a polars Series"
   )
   expect_query_error(
     .input$sort(by = complex(1)),
@@ -2244,5 +2268,145 @@ test_that("group_by_dynamic: arg 'include_boundaries' works", {
       dt = as.Date(c("2019-12-31", "2020-01-02", "2020-01-08")),
       n = list(c(3, 7, 5), c(9, 2), 1)
     )
+  )
+})
+
+test_that("describe() works", {
+  df <- pl$DataFrame(
+    float = c(1.5, 2, NA),
+    string = c(letters[1:2], NA),
+    date = c(as.Date("2024-01-20"), as.Date("2024-01-21"), NA),
+    cat = factor(c("zz", "a", NA)),
+    bool = c(TRUE, FALSE, NA)
+  )
+  expect_snapshot(df$describe())
+  expect_snapshot(df$lazy()$describe())
+
+  expect_query_error(
+    .input$describe(percentiles = 1.1),
+    .input = df,
+    "`percentiles` must all be in the range [0, 1]",
+    fixed = TRUE
+  )
+  expect_error(
+    pl$DataFrame()$describe(),
+    "cannot describe a DataFrame without any columns"
+  )
+  expect_error(
+    pl$LazyFrame()$describe(),
+    "cannot describe a LazyFrame without any columns"
+  )
+
+  expect_snapshot(df$describe(percentiles = 0.1))
+
+  # min/max different depending on categorical ordering
+  expect_snapshot(df$select(pl$col("cat")$cast(pl$Categorical("lexical")))$describe())
+})
+
+test_that("sql() works", {
+  lf <- pl$LazyFrame(a = 1:3, b = 6:8, c = c("z", "y", "x"))
+
+  expect_equal(
+    lf$sql("SELECT c, b FROM self WHERE a > 1")$collect(),
+    pl$DataFrame(c = c("y", "x"), b = 7:8)
+  )
+
+  # Can chain SQL and other functions
+  expect_equal(
+    lf$sql(
+      query = "
+         SELECT
+            a,
+            (a % 2 == 0) AS a_is_even,
+            (b::float4 / 2) AS 'b/2',
+            CONCAT_WS(':', c, c, c) AS c_c_c
+         FROM frame
+         ORDER BY a
+   ",
+      table_name = "frame",
+    )$filter(!pl$col("c_c_c")$str$starts_with("x"))$collect(),
+    pl$DataFrame(
+      a = 1:2,
+      a_is_even = c(FALSE, TRUE),
+      `b/2` = c(3, 3.5),
+      c_c_c = c("z:z:z", "y:y:y")
+    )$cast(`b/2` = pl$Float32)
+  )
+
+  # arg "table_name" works
+  expect_equal(
+    lf$sql(
+      query = "SELECT a FROM foobar",
+      table_name = "foobar",
+    )$collect(),
+    pl$DataFrame(a = 1:3)
+  )
+  expect_error(
+    lf$sql(
+      query = "SELECT a FROM wrong_name",
+      table_name = "foobar"
+    ),
+    "relation 'wrong_name' was not found"
+  )
+
+  expect_error(
+    lf$sql(
+      query = "SELECT a FROM self",
+      a = 1
+    ),
+    "must be empty"
+  )
+})
+
+test_that("reverse() works", {
+  df <- pl$DataFrame(key = c("a", "b", "c"), val = 1:3)
+  expect_query_equal(
+    .input$reverse(),
+    .input = df,
+    pl$DataFrame(key = c("c", "b", "a"), val = 3:1)
+  )
+
+  df <- pl$DataFrame()
+  expect_query_equal(.input$reverse(), .input = df, df)
+})
+
+test_that("count() works", {
+  df <- pl$DataFrame(
+    a = 1:4,
+    b = c(1, 2, 1, NA),
+    c = rep(NA, 4)
+  )
+
+  expect_query_equal(
+    .input$count(),
+    df,
+    pl$DataFrame(a = 4, b = 3, c = 0)$cast(pl$UInt32)
+  )
+})
+
+patrick::with_parameters_test_that(
+  "engine arguments of collect works",
+  engine = c("auto", "in-memory", "streaming", "old-streaming"),
+  {
+    df <- pl$DataFrame(a = 1:4, b = letters[1:4])
+
+    expect_equal(
+      df$lazy()$collect(engine = engine),
+      df
+    )
+  }
+)
+
+test_that("error and warning from collect engines", {
+  expect_snapshot(
+    as_polars_lf(mtcars)$collect(engine = "gpu"),
+    error = TRUE
+  )
+
+  expect_deprecated(
+    as_polars_lf(mtcars)$collect(streaming = TRUE)
+  )
+  expect_deprecated(
+    as_polars_lf(mtcars)$collect(streaming = FALSE)
   )
 })

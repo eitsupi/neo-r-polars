@@ -326,6 +326,23 @@ dataframe__select <- function(...) {
     wrap()
 }
 
+#' Select columns from this DataFrame
+#'
+#' @inherit lazyframe__select_seq description params
+#' @inherit as_polars_df return
+#'
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = 1:3,
+#'   bar = 6:8,
+#'   ham = letters[1:3]
+#' )
+#' df$select_seq("foo", bar2 = pl$col("bar") * 2)
+dataframe__select_seq <- function(...) {
+  self$lazy()$select_seq(...)$collect(`_eager` = TRUE) |>
+    wrap()
+}
+
 #' Modify/append column(s) of a DataFrame
 #'
 #' @inherit lazyframe__with_columns description params
@@ -438,6 +455,7 @@ dataframe__to_series <- function(index = 0) {
 
 #' Check whether the DataFrame is equal to another DataFrame
 #'
+#' @inheritParams rlang::args_dots_empty
 #' @param other DataFrame to compare with.
 #' @param null_equal Consider null values as equal.
 #' @return A logical value
@@ -482,7 +500,7 @@ dataframe__slice <- function(offset, length = NULL) {
 #' @inherit lazyframe__head title details
 #' @param n Number of rows to return. If a negative value is passed,
 #' return all rows except the last [`abs(n)`][abs].
-#' @return A [DataFrame][DataFrame_class]
+#' @inherit as_polars_df return
 #' @examples
 #' df <- pl$DataFrame(foo = 1:5, bar = 6:10, ham = letters[1:5])
 #'
@@ -2173,4 +2191,155 @@ dataframe__unstack <- function(
     }
     PlRDataFrame$init(new_columns)
   })
+}
+
+#' Summary statistics for a DataFrame.
+#'
+#' @inheritParams rlang::args_dots_empty
+#' @inheritParams lazyframe__describe
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(
+#'   int = 1:3,
+#'   float = c(0.5, NA, 2.5),
+#'   string = c(letters[1:2], NA),
+#'   date = c(as.Date("2024-01-20"), as.Date("2024-01-21"), NA),
+#'   cat = factor(c(letters[1:2], NA)),
+#'   bool = c(TRUE, FALSE, NA)
+#' )
+#' df
+#'
+#' # Show default frame statistics:
+#' df$describe()
+#'
+#' # Customize which percentiles are displayed, applying linear interpolation:
+#' df$describe(
+#'   percentiles = c(0.1, 0.3, 0.5, 0.7, 0.9),
+#'   interpolation = "linear"
+#' )
+dataframe__describe <- function(
+  percentiles = c(0.25, 0.75),
+  ...,
+  interpolation = c("nearest", "higher", "lower", "midpoint", "linear")
+) {
+  wrap({
+    check_dots_empty0(...)
+    if (length(self$columns) == 0) {
+      abort("cannot describe a DataFrame without any columns")
+    }
+    self$lazy()$describe(
+      percentiles = percentiles,
+      interpolation = interpolation
+    )
+  })
+}
+
+#' Reverse the DataFrame
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' df <- pl$DataFrame(key = c("a", "b", "c"), val = 1:3)
+#'
+#' df$reverse()
+dataframe__reverse <- function() {
+  self$select(pl$col("*")$reverse()) |>
+    wrap()
+}
+
+#' @inherit lazyframe__count title
+#' @inherit as_polars_df return
+#'
+#' @examples
+#' df <- pl$DataFrame(a = 1:4, b = c(1, 2, 1, NA), c = rep(NA, 4))
+#' df$count()
+dataframe__count <- function() {
+  self$lazy()$count()$collect(`_eager` = TRUE) |>
+    wrap()
+}
+
+#' Show a dense preview of the DataFrame
+#'
+#' The formatting shows one line per column so that wide DataFrames display
+#' cleanly. Each line shows the column name, the data type, and the first few
+#' values.
+#'
+#' @inheritParams rlang::args_dots_empty
+#' @param max_items_per_column Maximum number of items to show per column.
+#' @param max_colname_length Maximum length of the displayed column names.
+#' Values that exceed this value are truncated with a trailing ellipsis.
+#'
+#' @return Returns a character value (invisibly)
+#'
+#' @examples
+#' df <- as_polars_df(iris)
+#' df$glimpse()
+#'
+#' df$glimpse(max_items_per_column = 3)
+#'
+#' df$glimpse(max_items_per_column = 3, max_colname_length = 3)
+dataframe__glimpse <- function(
+  ...,
+  max_items_per_column = 10,
+  max_colname_length = 50
+) {
+  wrap({
+    check_dots_empty0(...)
+    max_n_values <- min(max_items_per_column, self$height)
+    schema <- self$schema
+
+    parse_column <- \(col_name, dtype) {
+      values <- self$select(pl$col(col_name)$slice(0, max_n_values)$cast(pl$String)) |>
+        as.list()
+      val_str <- toString(values[[1]])
+      if (nchar(col_name) > max_colname_length) {
+        col_name <- paste0(substr(col_name, 1, max_colname_length - 1), "...")
+      }
+      list(
+        col_name = col_name,
+        dtype_str = dtype$`_dt`$as_str(abbreviated = TRUE),
+        val_str = val_str
+      )
+    }
+
+    data <- lapply(seq_along(schema), \(x) {
+      parse_column(names(schema)[x], schema[[x]])
+    })
+
+    # determine column layout widths
+    max_col_name <- lapply(data, \(x) x[["col_name"]]) |>
+      unlist() |>
+      nchar() |>
+      max()
+    max_col_dtype <- lapply(data, \(x) x[["dtype_str"]]) |>
+      unlist() |>
+      nchar() |>
+      max()
+
+    # header
+    output <- paste0("Rows: ", self$height, "\nColumns: ", self$width, "\n")
+
+    # individual columns: one row per column
+    for (i in seq_along(data)) {
+      dat <- data[[i]]
+      if (nchar(dat$col_name) < max_col_name) {
+        dat$col_name <- paste0(dat$col_name, strrep(" ", max_col_name - nchar(dat$col_name)))
+      }
+      if (nchar(dat$dtype_str) < max_col_dtype) {
+        dat$dtype_str <- paste0(
+          strrep(" ", max_col_dtype - nchar(dat$dtype_str)),
+          " <",
+          dat$dtype_str,
+          ">"
+        )
+      } else {
+        dat$dtype_str <- paste0(" <", dat$dtype_str, ">")
+      }
+      output <- paste0(
+        output,
+        paste0("$ ", dat$col_name, dat$dtype_str, ": ", dat$val_str, "\n")
+      )
+    }
+    cat(output)
+  })
+  invisible(output)
 }

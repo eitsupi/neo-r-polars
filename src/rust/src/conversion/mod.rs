@@ -1,10 +1,14 @@
 use std::num::NonZeroUsize;
+use std::str::FromStr;
 
 use crate::prelude::*;
 use crate::{PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame, PlRSeries, RPolarsErr};
 use polars::prelude::cloud::CloudOptions;
 use polars::series::ops::NullBehavior;
-use savvy::{ListSexp, NumericScalar, NumericSexp, NumericTypedSexp, Sexp, StringSexp, TypedSexp};
+use savvy::{
+    ListSexp, NumericScalar, NumericSexp, NumericTypedSexp, OwnedIntegerSexp, Sexp, StringSexp,
+    TypedSexp,
+};
 use search_sorted::SearchSortedSide;
 pub mod base_date;
 mod chunked_array;
@@ -208,7 +212,7 @@ impl TryFrom<&str> for Wrap<CategoricalOrdering> {
             v => {
                 return Err(format!(
                     "categorical `ordering` must be one of ('physical', 'lexical'), got '{v}'"
-                ))
+                ));
             }
         };
         Ok(Wrap(ordering))
@@ -824,6 +828,14 @@ impl TryFrom<&str> for Wrap<MaintainOrderJoin> {
     }
 }
 
+impl TryFrom<&str> for Wrap<Engine> {
+    type Error = savvy::Error;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        Engine::from_str(value).map_err(Into::into).map(Wrap)
+    }
+}
+
 impl TryFrom<NumericScalar> for Wrap<CompatLevel> {
     type Error = savvy::Error;
 
@@ -899,4 +911,18 @@ pub(crate) fn parse_parquet_compression(
         _ => return Err(RPolarsErr::Other("unreachable".to_string()).into()),
     };
     Ok(parsed)
+}
+
+impl TryFrom<&str> for Wrap<Option<IpcCompression>> {
+    type Error = String;
+
+    fn try_from(compression: &str) -> Result<Self, String> {
+        let parsed = match compression {
+            "lz4" => Some(IpcCompression::LZ4),
+            "zstd" => Some(IpcCompression::ZSTD),
+            "uncompressed" => None,
+            _ => return Err("unreachable".to_string()),
+        };
+        Ok(Wrap(parsed))
+    }
 }

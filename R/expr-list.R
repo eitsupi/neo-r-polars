@@ -5,13 +5,11 @@ namespace_expr_list <- function(x) {
   self <- new.env(parent = emptyenv())
   self$`_rexpr` <- x$`_rexpr`
 
-  lapply(names(polars_expr_list_methods), function(name) {
-    fn <- polars_expr_list_methods[[name]]
-    environment(fn) <- environment()
-    assign(name, fn, envir = self)
-  })
-
-  class(self) <- c("polars_namespace_expr", "polars_object")
+  class(self) <- c(
+    "polars_namespace_expr_list",
+    "polars_namespace_expr",
+    "polars_object"
+  )
   self
 }
 
@@ -170,7 +168,7 @@ expr_list_concat <- function(other) {
 #' @inheritParams rlang::args_dots_empty
 #' @param null_on_oob If `TRUE`, return `null` if an index is out of bounds.
 #' Otherwise, raise an error.
-#' @return [Expr][expr_class]
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   values = list(c(2, 2, NA), c(1, 2, 3), NA, NULL),

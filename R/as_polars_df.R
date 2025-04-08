@@ -74,7 +74,18 @@ as_polars_df <- function(x, ...) {
 #' @rdname as_polars_df
 #' @export
 as_polars_df.default <- function(x, ...) {
-  dtype <- infer_polars_dtype(x, ...)
+  dtype <- try_fetch(
+    infer_polars_dtype(x, ...),
+    error = function(cnd) {
+      abort(
+        sprintf(
+          "%s may not be converted to a polars Series, and hence to a polars DataFrame.",
+          obj_type_friendly(x)
+        ),
+        parent = cnd
+      )
+    }
+  )
   if (inherits(dtype, "polars_dtype_struct")) {
     as_polars_series(x, ...)$struct$unnest()
   } else {
@@ -83,8 +94,7 @@ as_polars_df.default <- function(x, ...) {
       c(
         "This object is not supported for the default method of `as_polars_df()` because it is not a Struct dtype like object.",
         i = "Use `infer_polars_dtype()` to check the dtype for corresponding to the object."
-      ),
-      call = parent.frame()
+      )
     )
   }
 }
@@ -130,7 +140,7 @@ as_polars_df.polars_lazy_frame <- function(
   comm_subexpr_elim = TRUE,
   cluster_with_columns = TRUE,
   no_optimization = FALSE,
-  streaming = FALSE
+  engine = c("auto", "in-memory", "streaming", "old-streaming")
 ) {
   x$collect(
     type_coercion = type_coercion,
@@ -141,7 +151,8 @@ as_polars_df.polars_lazy_frame <- function(
     comm_subplan_elim = comm_subplan_elim,
     comm_subexpr_elim = comm_subexpr_elim,
     cluster_with_columns = cluster_with_columns,
-    streaming = streaming
+    no_optimization = no_optimization,
+    engine = engine
   )
 }
 

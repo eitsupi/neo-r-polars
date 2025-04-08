@@ -110,7 +110,7 @@ lazyframe__select <- function(...) {
 #'   bar = 6:8,
 #'   ham = letters[1:3]
 #' )
-#' lf$select_seq("foo")$collect()
+#' lf$select_seq("foo", bar2 = pl$col("bar") * 2)$collect()
 lazyframe__select_seq <- function(...) {
   wrap({
     structify <- parse_env_auto_structify()
@@ -159,6 +159,7 @@ lazyframe__group_by <- function(..., .maintain_order = FALSE) {
 }
 
 # TODO: see also section
+# TODO: engine's default value "auto" causes panic when `sink_*` if without the new_streaming feature <https://github.com/pola-rs/polars/pull/22074>
 #' Materialize this LazyFrame into a DataFrame
 #'
 #' By default, all query optimizations are enabled.
@@ -175,10 +176,18 @@ lazyframe__group_by <- function(..., .maintain_order = FALSE) {
 #' @param cluster_with_columns A logical, indicats to combine sequential independent calls to with_columns.
 #' @param collapse_joins Collapse a join and filters into a faster join.
 #' @param no_optimization A logical. If `TRUE`, turn off (certain) optimizations.
-#' @param streaming A logical. If `TRUE`, process the query in batches to handle larger-than-memory data.
+#' @param streaming `r lifecycle::badge("deprecated")`
+#' A logical. If `TRUE`, process the query in batches to handle larger-than-memory data.
 #' If `FALSE` (default), the entire query is processed in a single batch.
 #' Note that streaming mode is considered unstable.
 #' It may be changed at any point without it being considered a breaking change.
+#' @param engine The engine name to use for processing the query.
+#' One of the followings:
+#' - `"auto"` (default): Select the engine automatically.
+#'   The `"in-memory"` engine will be selected for most cases.
+#' - `"in-memory"`: Use the in-memory engine.
+#' - `"streaming"`: `r lifecycle::badge("experimental")` Use the (new) streaming engine.
+#' - `"old-streaming"`: `r lifecycle::badge("superseded")` Use the old streaming engine.
 #' @param _eager A logical, indicates to turn off multi-node optimizations and
 #' the other optimizations. This option is intended for internal use only.
 #' @param _check_order,_type_check For internal use only.
@@ -188,9 +197,6 @@ lazyframe__group_by <- function(..., .maintain_order = FALSE) {
 #' @seealso
 #'  - [`$profile()`][lazyframe__profile] - same as `$collect()` but also returns
 #'    a table with each operation profiled.
-#'  - [`$collect_in_background()`][lazyframe__collect_in_background] - non-blocking
-#'    collect returns a future handle. Can also just be used via
-#'    `$collect(collect_in_background = TRUE)`.
 #'  - [`$sink_parquet()`][lazyframe__sink_parquet()] streams query to a parquet file.
 #'  - [`$sink_ipc()`][lazyframe__sink_ipc()] streams query to a arrow file.
 #'
@@ -219,12 +225,28 @@ lazyframe__collect <- function(
   cluster_with_columns = TRUE,
   collapse_joins = TRUE,
   no_optimization = FALSE,
+  engine = c("auto", "in-memory", "streaming", "old-streaming"),
   streaming = FALSE,
   `_check_order` = TRUE,
   `_eager` = FALSE
 ) {
   wrap({
     check_dots_empty0(...)
+    engine <- arg_match0(engine, c("auto", "in-memory", "streaming", "old-streaming"))
+    # TODO: remove the streaming argument
+    if (!missing(streaming)) {
+      deprecate_warn(
+        c(
+          "The `streaming` argument is deprecated and will be removed in the future.",
+          i = "Use `engine = \"old-streaming\"` for traditional streaming mode.",
+          i = "Use `engine = \"streaming\"` for the new streaming mode.",
+          i = "Use `engine = \"in-memory\"` for non-streaming mode."
+        ),
+        always = TRUE
+      )
+      if (isTRUE(streaming)) engine <- "old-streaming"
+      if (isFALSE(streaming)) engine <- "in-memory"
+    }
 
     if (isTRUE(no_optimization) || isTRUE(`_eager`)) {
       predicate_pushdown <- FALSE
@@ -248,12 +270,12 @@ lazyframe__collect <- function(
       comm_subexpr_elim = comm_subexpr_elim,
       cluster_with_columns = cluster_with_columns,
       collapse_joins = collapse_joins,
-      streaming = streaming,
+      streaming = FALSE,
       `_check_order` = `_check_order`,
       `_eager` = `_eager`
     )
 
-    ldf$collect()
+    ldf$collect(engine)
   })
 }
 
@@ -277,9 +299,6 @@ lazyframe__collect <- function(
 #' also stored in the list.
 #' @seealso
 #'  - [`$collect()`][lazyframe__collect] - regular collect.
-#'  - [`$collect_in_background()`][lazyframe__collect_in_background] - non-blocking
-#'    collect returns a future handle. Can also just be used via
-#'    `$collect(collect_in_background = TRUE)`.
 #'  - [`$sink_parquet()`][lazyframe__sink_parquet()] streams query to a parquet file.
 #'  - [`$sink_ipc()`][lazyframe__sink_ipc()] streams query to a arrow file.
 #'
@@ -775,7 +794,7 @@ lazyframe__drop <- function(..., strict = TRUE) {
 #' @param length Length of the slice. If `NULL` (default), all rows starting at
 #' the offset will be selected.
 #'
-#' @return A [LazyFrame][lazyframe__class]
+#' @inherit as_polars_lf return
 #' @examples
 #' lf <- pl$LazyFrame(x = c("a", "b", "c"), y = 1:3, z = 4:6)
 #' lf$slice(1, 2)$collect()
@@ -1545,7 +1564,7 @@ lazyframe__explode <- function(...) {
 #' Clone a LazyFrame
 #'
 #' This makes a very cheap deep copy/clone of an existing
-#' [`LazyFrame`][lazyframe__class]. Rarely useful as `LazyFrame`s are nearly 100%
+#' [LazyFrame]. Rarely useful as `LazyFrame`s are nearly 100%
 #' immutable. Any modification of a `LazyFrame` should lead to a clone anyways,
 #' but this can be useful when dealing with attributes (see examples).
 #'
@@ -1693,12 +1712,13 @@ lazyframe__rolling <- function(
 
 #' Group based on a date/time or integer column
 #'
+#' @description
 #' Time windows are calculated and rows are assigned to windows. Different from
 #' a normal group by is that a row can be member of multiple groups. By
 #' default, the windows look like:
 #' * [start, start + period)
 #' * [start + every, start + every + period)
-#' * [start + 2*every, start + 2*every + period)
+#' * [start + 2 * every, start + 2 * every + period)
 #' * …
 #'
 #' where `start` is determined by `start_by`, `offset`, `every`, and the
@@ -2358,6 +2378,249 @@ lazyframe__join_asof <- function(
       allow_eq = allow_exact_matches,
       check_sortedness = check_sortedness
     )
+  })
+}
+
+#' Creates a summary of statistics for a LazyFrame, returning a DataFrame.
+#'
+#' @description
+#' This method does not maintain the laziness of the frame, and will collect
+#' the final result. This could potentially be an expensive operation.
+#'
+#' We do not guarantee the output of `describe()` to be stable. It will show
+#' statistics that we deem informative, and may be updated in the future. Using
+#' `describe()` programmatically (versus interactive exploration) is not
+#' recommended for this reason.
+#'
+#' @inheritParams rlang::args_dots_empty
+#' @param percentiles One or more percentiles to include in the summary
+#' statistics. All values must be in the range `[0; 1]`.
+#' @param interpolation Interpolation method for computing quantiles. Must be
+#' one of `"nearest"`, `"higher"`, `"lower"`, `"midpoint"`, or `"linear"`.
+#'
+#' @details
+#' The median is included by default as the 50% percentile.
+#'
+#' @inherit as_polars_df return
+#' @examples
+#' lf <- pl$LazyFrame(
+#'   int = 1:3,
+#'   float = c(0.5, NA, 2.5),
+#'   string = c(letters[1:2], NA),
+#'   date = c(as.Date("2024-01-20"), as.Date("2024-01-21"), NA),
+#'   cat = factor(c(letters[1:2], NA)),
+#'   bool = c(TRUE, FALSE, NA)
+#' )
+#' lf$collect()
+#'
+#' # Show default frame statistics:
+#' lf$describe()
+#'
+#' # Customize which percentiles are displayed, applying linear interpolation:
+#' lf$describe(
+#'   percentiles = c(0.1, 0.3, 0.5, 0.7, 0.9),
+#'   interpolation = "linear"
+#' )
+lazyframe__describe <- function(
+  percentiles = c(0.25, 0.5, 0.75),
+  ...,
+  interpolation = c("nearest", "higher", "lower", "midpoint", "linear")
+) {
+  wrap({
+    check_dots_empty0(...)
+    schema <- self$collect_schema()
+    if (length(schema) == 0) {
+      abort("cannot describe a LazyFrame without any columns")
+    }
+
+    # create list of metrics
+    metrics <- c("count", "null_count", "mean", "std", "min")
+    quantiles <- parse_percentiles(percentiles)
+    if (length(quantiles) > 0) {
+      metrics <- c(metrics, paste0(percentiles * 100, "%"))
+    }
+    metrics <- c(metrics, "max")
+
+    skip_minmax <- function(x) {
+      dtypes <- class(dtype)
+      dtype$is_nested() ||
+        inherits(
+          dtypes,
+          c(
+            "polars_dtype_categorical",
+            "polars_dtype_enum",
+            "polars_dtype_null",
+            "polars_dtype_unknown"
+          )
+        )
+    }
+
+    # determine which columns will produce std/mean/percentile/etc
+    # statistics in a single pass over the frame schema
+    has_numeric_result <- c()
+    sort_cols <- c()
+    metric_exprs <- list()
+    null <- pl$lit(NULL)
+
+    for (i in seq_along(schema)) {
+      name <- names(schema)[i]
+      dtype <- schema[[i]]
+
+      is_numeric <- dtype$is_numeric()
+      is_temporal <- !is_numeric && dtype$is_temporal()
+
+      # counts
+      count_exprs <- c(
+        pl$col(name)$count()$name$prefix("count:"),
+        pl$col(name)$null_count()$name$prefix("null_count:")
+      )
+
+      # mean
+      mean_expr <- if (is_temporal || is_numeric || inherits(dtype, "polars_dtype_boolean")) {
+        pl$col(name)$mean()
+      } else {
+        pl$lit(NA, dtype = dtype)
+      }
+
+      # standard deviation, min, max
+      expr_std <- if (is_numeric) {
+        pl$col(name)$std()
+      } else {
+        pl$lit(NA, dtype = dtype)
+      }
+      min_expr <- if (!skip_minmax(dtype)) {
+        pl$col(name)$min()
+      } else {
+        pl$lit(NA, dtype = dtype)
+      }
+      max_expr <- if (!skip_minmax(dtype)) {
+        pl$col(name)$max()
+      } else {
+        pl$lit(NA, dtype = dtype)
+      }
+
+      # percentiles
+      pct_exprs <- c()
+      for (index_quantile in seq_along(quantiles)) {
+        p <- quantiles[index_quantile]
+        pct_expr <- if (is_temporal) {
+          pl$col(name)$to_physical()$quantile(p, interpolation)$cast(dtype)
+        } else if (is_numeric) {
+          pl$col(name)$quantile(p, interpolation)
+        } else {
+          pl$lit(NA, dtype = dtype)
+        }
+        sort_cols <- c(sort_cols, name)
+        pct_exprs <- c(pct_exprs, pct_expr$alias(paste0(p, ":", name)))
+      }
+
+      if (
+        is_numeric ||
+          dtype$is_nested() ||
+          inherits(self, "polars_dtype_null") ||
+          inherits(dtype, "polars_dtype_boolean")
+      ) {
+        has_numeric_result <- c(has_numeric_result, name)
+      }
+
+      # add column expressions (in end-state 'metrics' list order)
+      metric_exprs <- c(
+        metric_exprs,
+        count_exprs,
+        mean_expr$alias(paste0("mean:", name)),
+        expr_std$alias(paste0("std:", name)),
+        min_expr$alias(paste0("min:", name)),
+        pct_exprs,
+        max_expr$alias(paste0("max:", name))
+      )
+    }
+
+    # calculate requested metrics in parallel, then collect the result
+    df_metrics <- if (length(sort_cols) > 0) {
+      self$with_columns(pl$col(!!!unique(sort_cols))$sort())
+    } else {
+      self
+    }
+
+    df_metrics <- df_metrics$select(!!!metric_exprs)$collect()
+
+    # Cast by column type (numeric/bool -> float), (other -> string)
+    # This is done later in py-polars but we need to do it here. When we gather
+    # values in the list, we coerce the types, meaning that stats for date (for
+    # instance) are coerced to numeric. Casting those to string beforehand
+    # fixes this.
+    df_metrics_schema <- df_metrics$schema
+    for (i in seq_along(df_metrics_schema)) {
+      nm <- names(df_metrics_schema)[i]
+      dtype <- df_metrics_schema[[i]]
+      df_metrics_dtype <- if (dtype$is_numeric() || inherits(dtype, "polars_dtype_boolean")) {
+        pl$Float64
+      } else {
+        pl$String
+      }
+      df_metrics <- df_metrics$with_columns(pl$col(names(df_metrics_schema)[i])$cast(
+        df_metrics_dtype
+      ))
+    }
+
+    # From the 1 x (metrics * variables) table, we extract the stats for each
+    # variable in a list with length(metrics) elements.
+    # Probably could be optimized.
+    output <- vector("list", length = length(schema))
+    names(output) <- names(schema)
+    for (nm in seq_along(names(output))) {
+      for (i in seq_along(metrics)) {
+        output[[nm]][i] <- as.vector(df_metrics$to_series((nm - 1) * length(metrics) + i - 1))
+      }
+    }
+
+    append(list(statistic = metrics), output) |>
+      as_polars_df()
+  })
+}
+
+#' Execute a SQL query against the LazyFrame
+#'
+#' @inheritParams rlang::args_dots_empty
+#' @param query SQL query to execute.
+#' @param table_name Optionally provide an explicit name for the table that
+#' represents the calling frame (defaults to `"self"`).
+#'
+#' @details
+#' The calling frame is automatically registered as a table in the SQL context
+#' under the name `"self"`. If you want access to the DataFrames and LazyFrames
+#' found in the current globals, use the top-level [`pl$sql()`][pl__sql].
+#'
+#' More control over registration and execution behaviour is available by using
+#' the [`SQLContext`][pl__SQLContext] object.
+#'
+#' @inherit as_polars_lf return
+#' @examples
+#' lf1 <- pl$LazyFrame(a = 1:3, b = 6:8, c = c("z", "y", "x"))
+#'
+#' # Query the LazyFrame using SQL:
+#' lf1$sql("SELECT c, b FROM self WHERE a > 1")$collect()
+#'
+#' # Apply SQL transforms (aliasing "self" to "frame") then filter natively
+#' # (you can freely mix SQL and native operations):
+#' lf1$sql(
+#'   query = "
+#'        SELECT
+#'           a,
+#'           (a % 2 == 0) AS a_is_even,
+#'           (b::float4 / 2) AS 'b/2',
+#'           CONCAT_WS(':', c, c, c) AS c_c_c
+#'        FROM frame
+#'        ORDER BY a
+#'  ",
+#'   table_name = "frame",
+#' )$filter(!pl$col("c_c_c")$str$starts_with("x"))$collect()
+lazyframe__sql <- function(query, ..., table_name = "self") {
+  wrap({
+    check_dots_empty0(...)
+    ctx <- pl$SQLContext()
+    ctx$register(name = table_name, frame = self)
+    ctx$execute(query)
   })
 }
 

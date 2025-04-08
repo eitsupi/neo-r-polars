@@ -12,7 +12,7 @@
       
       Resolved plan until failure:
       
-      	---> FAILED HERE RESOLVING 'select' <---
+      	---> FAILED HERE RESOLVING 'sink' <---
       DF ["a", "b"]; PROJECT */2 COLUMNS
 
 # concat_str
@@ -28,8 +28,8 @@
       ! Evaluation failed in `$concat_str()`.
       Caused by error in `as_polars_expr()`:
       ! Evaluation failed.
-      Caused by error in `as_polars_expr()`:
-      ! Unsupported class for `as_polars_series()`: complex
+      Caused by error in `as_polars_series()`:
+      ! the complex number 0+0i can't be converted to a polars Series.
 
 ---
 

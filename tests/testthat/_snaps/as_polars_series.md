@@ -85,10 +85,12 @@
     Code
       print(pl_series)
     Output
-      shape: (1,)
-      Series: '' [binary]
+      shape: (3,)
+      Series: '' [u8]
       [
-      	b"foo"
+      	102
+      	111
+      	111
       ]
 
 # as_polars_series works for classes array
@@ -423,6 +425,14 @@
       	null
       	null
       ]
+
+# as_polars_series.default throws an error
+
+    Code
+      as_polars_series(x)
+    Condition
+      Error in `as_polars_series()`:
+      ! a <foo> object can't be converted to a polars Series.
 
 # as_polars_series works for vctrs_rcrd
 

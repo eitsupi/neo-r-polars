@@ -1,12 +1,12 @@
 use crate::map::lazy::map_single;
-use crate::{prelude::*, PlRDataType, PlRExpr};
+use crate::{PlRDataType, PlRExpr, prelude::*};
 use polars::lazy::dsl;
 use polars::series::ops::NullBehavior;
 use polars_core::chunked_array::cast::CastOptions;
 use polars_core::series::IsSorted;
 use savvy::{
-    savvy, FunctionSexp, ListSexp, LogicalSexp, NumericScalar, NumericSexp, Result, Sexp,
-    StringSexp,
+    FunctionSexp, ListSexp, LogicalSexp, NumericScalar, NumericSexp, Result, Sexp, StringSexp,
+    savvy,
 };
 use std::ops::Neg;
 
@@ -507,8 +507,12 @@ impl PlRExpr {
         Ok(self.inner.clone().is_duplicated().into())
     }
 
-    fn is_in(&self, expr: &PlRExpr) -> Result<Self> {
-        Ok(self.inner.clone().is_in(expr.inner.clone()).into())
+    fn is_in(&self, expr: &PlRExpr, nulls_equal: bool) -> Result<Self> {
+        Ok(self
+            .inner
+            .clone()
+            .is_in(expr.inner.clone(), nulls_equal)
+            .into())
     }
 
     fn sqrt(&self) -> Result<Self> {
@@ -780,11 +784,11 @@ impl PlRExpr {
         Ok(self.inner.clone().forward_fill(limit).into())
     }
 
-    fn shift(&self, n: PlRExpr, fill_value: Option<PlRExpr>) -> Result<Self> {
+    fn shift(&self, n: &PlRExpr, fill_value: Option<&PlRExpr>) -> Result<Self> {
         let expr = self.inner.clone();
         let out = match fill_value {
             Some(v) => expr.shift_and_fill(n.inner.clone(), v.inner.clone()),
-            None => expr.shift(n.inner),
+            None => expr.shift(n.inner.clone()),
         };
         Ok(out.into())
     }

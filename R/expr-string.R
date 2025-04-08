@@ -5,13 +5,8 @@ namespace_expr_str <- function(x) {
   self <- new.env(parent = emptyenv())
   self$`_rexpr` <- x$`_rexpr`
 
-  lapply(names(polars_expr_str_methods), function(name) {
-    fn <- polars_expr_str_methods[[name]]
-    environment(fn) <- environment()
-    assign(name, fn, envir = self)
-  })
-
   class(self) <- c(
+    "polars_namespace_expr_str",
     "polars_namespace_expr",
     "polars_object"
   )
@@ -545,7 +540,7 @@ expr_str_pad_start <- function(length, fill_char = " ") {
 #' on [grouping and flags](https://docs.rs/regex/latest/regex/#grouping-and-flags)
 #' for additional information about the use of inline expression modifiers.
 #'
-#' @param pattern A character or something can be coerced to a string [Expr][Expr_class]
+#' @param pattern A character or something can be coerced to a string [Expr]
 #' of a valid regex pattern, compatible with the [regex crate](https://docs.rs/regex/latest/regex/).
 #' @inheritParams rlang::args_dots_empty
 #' @param literal Logical. If `TRUE` (default), treat `pattern` as a literal string,
@@ -876,7 +871,7 @@ expr_str_splitn <- function(by, n) {
 #' @section Capture groups:
 #' The dollar sign (`$`) is a special character related to capture groups.
 #' To refer to a literal dollar sign, use `$$` instead or set `literal` to `TRUE`.
-#' @param value A character or an [Expr][Expr_class] of string
+#' @param value A character or an [Expr] of string
 #' that will replace the matched substring.
 #' @param n A number of matches to replace.
 #' Note that regex replacement with `n > 1` not yet supported,
@@ -1023,7 +1018,7 @@ expr_str_reverse <- function() {
 #'
 #' This function determines if any of the patterns find a match.
 #' @inherit expr_str_contains params return
-#' @param patterns Character vector or something can be coerced to strings [Expr][Expr_class]
+#' @param patterns Character vector or something can be coerced to strings [Expr]
 #' of a valid regex pattern, compatible with the [regex crate](https://docs.rs/regex/latest/regex/).
 #' @param ascii_case_insensitive Enable ASCII-aware case insensitive matching.
 #' When this option is enabled, searching will be performed without respect to

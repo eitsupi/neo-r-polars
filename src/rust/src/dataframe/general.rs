@@ -3,9 +3,10 @@ use crate::{PlRDataType, PlRExpr, PlRLazyFrame, PlRSeries, RPolarsErr};
 use either::Either;
 use polars::prelude::pivot::{pivot, pivot_stable};
 use savvy::{
-    savvy, ListSexp, NumericScalar, OwnedIntegerSexp, OwnedListSexp, Result, Sexp, StringSexp,
-    TypedSexp,
+    ListSexp, NumericScalar, OwnedIntegerSexp, OwnedListSexp, Result, Sexp, StringSexp, TypedSexp,
+    savvy,
 };
+use std::hash::BuildHasher;
 
 #[savvy]
 impl PlRDataFrame {
@@ -254,13 +255,13 @@ impl PlRDataFrame {
         on: StringSexp,
         maintain_order: bool,
         sort_columns: bool,
-        aggregate_expr: Option<PlRExpr>,
+        aggregate_expr: Option<&PlRExpr>,
         separator: Option<&str>,
         index: Option<StringSexp>,
         values: Option<StringSexp>,
     ) -> Result<Self> {
         let fun = if maintain_order { pivot_stable } else { pivot };
-        let agg_expr = aggregate_expr.map(|expr| expr.inner);
+        let agg_expr = aggregate_expr.map(|expr| expr.inner.clone());
         let on = on.to_vec();
         let index = index.map(|x| x.to_vec());
         let values = values.map(|x| x.to_vec());
@@ -380,7 +381,8 @@ impl PlRDataFrame {
         let k1 = <Wrap<u64>>::try_from(seed_1)?.0;
         let k2 = <Wrap<u64>>::try_from(seed_2)?.0;
         let k3 = <Wrap<u64>>::try_from(seed_3)?.0;
-        let hb = PlRandomState::with_seeds(k0, k1, k2, k3);
+        let seed = PlFixedStateQuality::default().hash_one((k0, k1, k2, k3));
+        let hb = PlSeedableRandomStateQuality::seed_from_u64(seed);
         let series = self
             .df
             .hash_rows(Some(hb))

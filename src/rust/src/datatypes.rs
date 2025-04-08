@@ -1,9 +1,9 @@
-use crate::{prelude::*, PlRExpr, RPolarsErr};
+use crate::{PlRExpr, RPolarsErr, prelude::*};
 use polars::lazy::dsl;
 use polars_core::utils::{arrow::array::Utf8ViewArray, try_get_supertype};
 use savvy::{
-    savvy, EnvironmentSexp, ListSexp, NullSexp, NumericScalar, NumericSexp, OwnedListSexp,
-    OwnedRealSexp, OwnedStringSexp, Result, Sexp, StringSexp, TypedSexp,
+    EnvironmentSexp, ListSexp, NullSexp, NumericScalar, NumericSexp, OwnedListSexp, OwnedRealSexp,
+    OwnedStringSexp, Result, Sexp, StringSexp, TypedSexp, savvy,
 };
 
 // As not like in Python, define the data type class in
@@ -256,8 +256,12 @@ impl PlRDataType {
         }
     }
 
-    fn as_str(&self) -> Result<Sexp> {
-        format!("{}", self).try_into()
+    fn as_str(&self, abbreviated: bool) -> Result<Sexp> {
+        if abbreviated {
+            self.dt.clone().to_string().try_into()
+        } else {
+            format!("{}", self).try_into()
+        }
     }
 
     fn _get_dtype_names(&self) -> Result<Sexp> {

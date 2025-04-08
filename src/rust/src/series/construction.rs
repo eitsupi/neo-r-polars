@@ -1,8 +1,8 @@
-use crate::{prelude::*, PlRSeries};
-use polars_core::utils::{try_get_supertype, CustomIterTools};
+use crate::{PlRSeries, prelude::*};
+use polars_core::utils::{CustomIterTools, try_get_supertype};
 use savvy::{
-    savvy, sexp::na::NotAvailableValue, IntegerSexp, ListSexp, LogicalSexp, NumericSexp,
-    NumericTypedSexp, RawSexp, RealSexp, Result, StringSexp, TypedSexp,
+    IntegerSexp, ListSexp, LogicalSexp, NumericSexp, NumericTypedSexp, RawSexp, RealSexp, Result,
+    StringSexp, TypedSexp, savvy, sexp::na::NotAvailableValue,
 };
 
 #[savvy]
@@ -33,11 +33,7 @@ impl PlRSeries {
             .iter()
             .map(|value| {
                 let value = value.to_bits() as i64;
-                if value == i64::MIN {
-                    None
-                } else {
-                    Some(value)
-                }
+                if value == i64::MIN { None } else { Some(value) }
             })
             .collect_trusted();
         Ok(ca.with_name(name.into()).into_series().into())
@@ -66,8 +62,8 @@ impl PlRSeries {
         Ok(ca.with_name(name.into()).into_series().into())
     }
 
-    fn new_single_binary(name: &str, values: RawSexp) -> Result<Self> {
-        let ca = BinaryChunked::from_slice(name.into(), &[values.as_slice()]);
+    fn new_uint8(name: &str, values: RawSexp) -> Result<Self> {
+        let ca = UInt8Chunked::new(name.into(), values.as_slice());
         Ok(ca.into_series().into())
     }
 

@@ -428,7 +428,7 @@ test_that("prefix suffix reverse", {
   )
 })
 
-test_that("and or is_in xor", {
+test_that("and or xor", {
   expect_equal(
     pl$select(pl$lit(TRUE) & TRUE),
     pl$DataFrame(literal = TRUE)
@@ -477,7 +477,9 @@ test_that("and or is_in xor", {
     pl$select(pl$lit(FALSE)$xor(pl$lit(FALSE))),
     pl$DataFrame(literal = FALSE)
   )
+})
 
+test_that("is_in", {
   df <- pl$DataFrame(a = c(1:3, NA))
   expect_equal(
     df$select(pl$lit(1L)$is_in(pl$col("a"))),
@@ -490,40 +492,54 @@ test_that("and or is_in xor", {
 
   # NA_int == NA_int
   expect_equal(
-    pl$DataFrame(a = c(1:4, NA))$select(pl$col("a")$is_in(pl$lit(NA_integer_))),
+    pl$DataFrame(a = c(1:4, NA))$select(pl$col("a")$is_in(NA_integer_)),
     pl$DataFrame(a = c(rep(FALSE, 4), NA))
+  )
+  expect_equal(
+    pl$DataFrame(a = c(1:4, NA))$select(pl$col("a")$is_in(NA_integer_, nulls_equal = TRUE)),
+    pl$DataFrame(a = c(rep(FALSE, 4), TRUE))
   )
 
   # can compare NA_int with NA_real
   expect_equal(
-    pl$DataFrame(a = c(1:4, NA_integer_))$select(pl$col("a")$is_in(pl$lit(NA_real_))),
+    pl$DataFrame(a = c(1:4, NA_integer_))$select(pl$col("a")$is_in(NA_real_)),
     pl$DataFrame(a = c(rep(FALSE, 4), NA))
+  )
+  expect_equal(
+    pl$DataFrame(a = c(1:4, NA_integer_))$select(pl$col("a")$is_in(NA_real_, nulls_equal = TRUE)),
+    pl$DataFrame(a = c(rep(FALSE, 4), TRUE))
   )
 
   # behavior for NA and NULL
+  # TODO: replace `pl$lit(NULL)$cast(pl$Boolean)` to `pl$lit(NA)` causes panic, should be fixed at upstream
   expect_equal(
-    pl$select(pl$lit(NULL) == pl$lit(NULL)),
+    pl$select(pl$lit(NULL)$cast(pl$Boolean)$is_in(NA)),
     pl$DataFrame(literal = NA)
   )
+  # TODO: replace `pl$lit(NULL)$cast(pl$Boolean)` to `pl$lit(NA)` causes panic, should be fixed at upstream
   expect_equal(
-    pl$select(pl$lit(NA) == pl$lit(NA)),
+    pl$select(pl$lit(NULL)$cast(pl$Boolean)$is_in(NULL)),
     pl$DataFrame(literal = NA)
   )
+  # TODO: replace the first `pl$lit(NULL)$cast(pl$Boolean)` to `NULL` causes panic, should be fixed at upstream
+  # TODO: replace the first `pl$lit(NULL)$cast(pl$Boolean)` to `NULL` and the second `pl$lit(NULL)$cast(pl$Boolean)` to `NA` causes panic, should be fixed at upstream
+  # Original code: pl$select(pl$lit(NULL)$is_in(NA))
   expect_equal(
-    pl$select(pl$lit(NULL) == pl$lit(NA)),
+    pl$select(pl$lit(NULL)$cast(pl$Boolean)$is_in(pl$lit(NULL)$cast(pl$Boolean))),
     pl$DataFrame(literal = NA)
   )
+
+  # Works with list
+  # TODO: The last value of the out column should be a null (<https://github.com/pola-rs/polars/issues/21485>)
   expect_equal(
-    pl$select(pl$lit(NA)$is_in(pl$lit(NA))),
-    pl$DataFrame(literal = NA)
+    pl$DataFrame(a = c(2L, 1L, NA))$with_columns(out = pl$col("a")$is_in(list(0:1, 1:2, NA))),
+    pl$DataFrame(a = c(2L, 1L, NA), out = c(FALSE, TRUE, TRUE))
   )
   expect_equal(
-    pl$select(pl$lit(NA)$is_in(pl$lit(NULL))),
-    pl$DataFrame(literal = NA)
-  )
-  expect_equal(
-    pl$select(pl$lit(NULL)$is_in(pl$lit(NA))),
-    pl$DataFrame(literal = NA)
+    pl$DataFrame(a = c(2L, 1L, NA))$with_columns(
+      out = pl$col("a")$is_in(list(0:1, 1:2, NA), nulls_equal = TRUE)
+    ),
+    pl$DataFrame(a = c(2L, 1L, NA), out = c(FALSE, TRUE, TRUE))
   )
 })
 
@@ -746,17 +762,16 @@ test_that("Expr_append", {
   )
 })
 
-# TODO-REWRITE: needs Series$chunk_lengths()
-# test_that("rechunk chunk_lengths", {
-#   series_list <- pl$DataFrame(list(a = 1:3, b = 4:6))$select(
-#     pl$col("a")$append(pl$col("b"))$alias("a_chunked"),
-#     pl$col("a")$append(pl$col("b"))$rechunk()$alias("a_rechunked")
-#   )$get_columns()
-#   expect_equal(
-#     lapply(series_list, \(x) x$chunk_lengths()),
-#     list(c(3, 3), 6)
-#   )
-# })
+test_that("rechunk() works", {
+  series_list <- pl$DataFrame(a = 1:3, b = 4:6)$select(
+    a_chunked = pl$col("a")$append(pl$col("b")),
+    a_rechunked = pl$col("a")$append(pl$col("b"))$rechunk()
+  )$get_columns()
+  expect_identical(
+    lapply(series_list, \(x) x$chunk_lengths()),
+    list(a_chunked = c(3L, 3L), a_rechunked = 6L)
+  )
+})
 
 test_that("cum_sum cum_prod cum_min cum_max cum_count", {
   l_actual <- pl$DataFrame(a = 1:4)$select(
@@ -2712,15 +2727,19 @@ test_that("rolling: passing a difftime as period works", {
   )
 })
 
-test_that("eq_missing and ne_missing", {
+test_that("eq, ne, eq_missing and ne_missing", {
   x <- c(rep(TRUE, 3), rep(FALSE, 3), rep(NA, 3))
   y <- c(rep(c(TRUE, FALSE, NA), 3))
   expect_equal(
     pl$DataFrame(x = x, y = y)$select(
-      pl$col("x")$eq_missing(pl$col("y"))$alias("eq_missing"),
-      pl$col("x")$ne_missing(pl$col("y"))$alias("ne_missing")
+      eq = pl$col("x")$eq(pl$col("y")),
+      ne = pl$col("x")$ne(pl$col("y")),
+      eq_missing = pl$col("x")$eq_missing(pl$col("y")),
+      ne_missing = pl$col("x")$ne_missing(pl$col("y"))
     ),
     pl$DataFrame(
+      eq = c(TRUE, FALSE, NA, FALSE, TRUE, NA, NA, NA, NA),
+      ne = c(FALSE, TRUE, NA, TRUE, FALSE, NA, NA, NA, NA),
       eq_missing = c(TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE),
       ne_missing = c(FALSE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, FALSE)
     )

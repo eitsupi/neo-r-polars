@@ -3,6 +3,7 @@ version: "3"
 env:
   NOT_CRAN: "true"
   LIBR_POLARS_BUILD: "true"
+  LIBR_POLARS_FEATURES: "nightly"
   DEBUG: "true"
 
 vars:
@@ -14,6 +15,7 @@ vars:
   R_TESTS: tests/*
   VIGNETTES: vignettes/**/*.Rmd
   RUST_SOURCE: src/rust/src/**/*.rs
+  MAKEVARS_IN: src/Makevars{{if eq OS "windows"}}.win{{end}}.in
 
   R_FUNC_LOAD_REQUIRED_PKGS:
     strsplit("{{.REQUIRED_R_PKGS_FOR_S3_METHODS}}", ",") |>
@@ -52,7 +54,7 @@ tasks:
     aliases:
       - br
     sources:
-      - src/Makevars*
+      - "{{.MAKEVARS_IN}}"
       - configure*
       - "{{.MANIFEST}}"
       - "{{.CARGO_LOCK}}"
@@ -131,7 +133,7 @@ tasks:
     sources:
       - tests/**/*
       - "{{.R_SOURCE}}"
-      - src/Makevars*
+      - "{{.MAKEVARS_IN}}"
       - configure*
       - "{{.MANIFEST}}"
       - "{{.CARGO_LOCK}}"
@@ -145,7 +147,7 @@ tasks:
     sources:
       - README.Rmd
       - "{{.R_SOURCE}}"
-      - src/Makevars*
+      - "{{.MAKEVARS_IN}}"
       - configure*
       - "{{.MANIFEST}}"
       - "{{.CARGO_LOCK}}"
@@ -164,7 +166,7 @@ tasks:
     sources:
       - DESCRIPTION
       - "{{.R_SOURCE}}"
-      - src/Makevars*
+      - "{{.MAKEVARS_IN}}"
       - configure*
       - "{{.MANIFEST}}"
       - "{{.CARGO_LOCK}}"
@@ -211,6 +213,7 @@ tasks:
 
   format-rust:
     desc: Format Rust files.
+    # TODO: use the rust-toolchain.toml file
     aliases:
       - fmt-rust
     sources:
@@ -225,8 +228,10 @@ tasks:
     desc: Format dev scripts.
     sources:
       - dev/**/*.R
+      - bootstrap.R
       - air.toml
     generates:
       - dev/**/*.R
+      - bootstrap.R
     cmds:
-      - air format dev/
+      - air format dev/ bootstrap.R
