@@ -197,7 +197,6 @@ nav:
             - serialize: man/lazyframe__serialize.md
       Series:
         - Series: man/pl__Series.md
-        # - About series: about_series_functions.md
         - to_r_vector: man/series__to_r_vector.md
       Expressions:
         - All others:
