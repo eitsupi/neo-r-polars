@@ -1,5 +1,3 @@
-SEXP savvy_rust_polars_version__ffi(void);
-SEXP savvy_thread_pool_size__ffi(void);
 SEXP savvy_all_horizontal__ffi(SEXP c_arg__exprs);
 SEXP savvy_any_horizontal__ffi(SEXP c_arg__exprs);
 SEXP savvy_arg_sort_by__ffi(SEXP c_arg__by, SEXP c_arg__descending, SEXP c_arg__nulls_last, SEXP c_arg__maintain_order, SEXP c_arg__multithreaded);
@@ -39,7 +37,9 @@ SEXP savvy_max_horizontal__ffi(SEXP c_arg__exprs);
 SEXP savvy_mean_horizontal__ffi(SEXP c_arg__exprs, SEXP c_arg__ignore_nulls);
 SEXP savvy_min_horizontal__ffi(SEXP c_arg__exprs);
 SEXP savvy_repeat___ffi(SEXP c_arg__value, SEXP c_arg__n, SEXP c_arg__dtype);
+SEXP savvy_rust_polars_version__ffi(void);
 SEXP savvy_sum_horizontal__ffi(SEXP c_arg__exprs, SEXP c_arg__ignore_nulls);
+SEXP savvy_thread_pool_size__ffi(void);
 SEXP savvy_time_range__ffi(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__every, SEXP c_arg__closed);
 SEXP savvy_time_ranges__ffi(SEXP c_arg__start, SEXP c_arg__end, SEXP c_arg__every, SEXP c_arg__closed);
 SEXP savvy_when__ffi(SEXP c_arg__condition);

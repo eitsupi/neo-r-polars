@@ -1,4 +1,4 @@
-use savvy::{savvy, Result, Sexp};
+use savvy::{Result, Sexp, savvy};
 
 #[savvy]
 fn rust_polars_version() -> Result<Sexp> {

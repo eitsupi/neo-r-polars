@@ -34,16 +34,6 @@ SEXP handle_result(SEXP res_) {
     return (SEXP)res;
 }
 
-SEXP savvy_rust_polars_version__impl(void) {
-    SEXP res = savvy_rust_polars_version__ffi();
-    return handle_result(res);
-}
-
-SEXP savvy_thread_pool_size__impl(void) {
-    SEXP res = savvy_thread_pool_size__ffi();
-    return handle_result(res);
-}
-
 SEXP savvy_all_horizontal__impl(SEXP c_arg__exprs) {
     SEXP res = savvy_all_horizontal__ffi(c_arg__exprs);
     return handle_result(res);
@@ -239,8 +229,18 @@ SEXP savvy_repeat___impl(SEXP c_arg__value, SEXP c_arg__n, SEXP c_arg__dtype) {
     return handle_result(res);
 }
 
+SEXP savvy_rust_polars_version__impl(void) {
+    SEXP res = savvy_rust_polars_version__ffi();
+    return handle_result(res);
+}
+
 SEXP savvy_sum_horizontal__impl(SEXP c_arg__exprs, SEXP c_arg__ignore_nulls) {
     SEXP res = savvy_sum_horizontal__ffi(c_arg__exprs, c_arg__ignore_nulls);
+    return handle_result(res);
+}
+
+SEXP savvy_thread_pool_size__impl(void) {
+    SEXP res = savvy_thread_pool_size__ffi();
     return handle_result(res);
 }
 
@@ -2966,8 +2966,6 @@ SEXP savvy_PlRWhen_then__impl(SEXP self__, SEXP c_arg__statement) {
 
 
 static const R_CallMethodDef CallEntries[] = {
-    {"savvy_rust_polars_version__impl", (DL_FUNC) &savvy_rust_polars_version__impl, 0},
-    {"savvy_thread_pool_size__impl", (DL_FUNC) &savvy_thread_pool_size__impl, 0},
     {"savvy_all_horizontal__impl", (DL_FUNC) &savvy_all_horizontal__impl, 1},
     {"savvy_any_horizontal__impl", (DL_FUNC) &savvy_any_horizontal__impl, 1},
     {"savvy_arg_sort_by__impl", (DL_FUNC) &savvy_arg_sort_by__impl, 5},
@@ -3007,7 +3005,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_mean_horizontal__impl", (DL_FUNC) &savvy_mean_horizontal__impl, 2},
     {"savvy_min_horizontal__impl", (DL_FUNC) &savvy_min_horizontal__impl, 1},
     {"savvy_repeat___impl", (DL_FUNC) &savvy_repeat___impl, 3},
+    {"savvy_rust_polars_version__impl", (DL_FUNC) &savvy_rust_polars_version__impl, 0},
     {"savvy_sum_horizontal__impl", (DL_FUNC) &savvy_sum_horizontal__impl, 2},
+    {"savvy_thread_pool_size__impl", (DL_FUNC) &savvy_thread_pool_size__impl, 0},
     {"savvy_time_range__impl", (DL_FUNC) &savvy_time_range__impl, 4},
     {"savvy_time_ranges__impl", (DL_FUNC) &savvy_time_ranges__impl, 4},
     {"savvy_when__impl", (DL_FUNC) &savvy_when__impl, 1},
