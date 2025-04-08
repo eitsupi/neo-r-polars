@@ -183,6 +183,11 @@ NULL
 }
 
 
+`feature_nightly_enabled` <- function() {
+  .Call(savvy_feature_nightly_enabled__impl)
+}
+
+
 `field` <- function(`names`) {
   .savvy_wrap_PlRExpr(.Call(savvy_field__impl, `names`))
 }
@@ -270,8 +275,18 @@ NULL
 }
 
 
+`rust_polars_version` <- function() {
+  .Call(savvy_rust_polars_version__impl)
+}
+
+
 `sum_horizontal` <- function(`exprs`, `ignore_nulls`) {
   .savvy_wrap_PlRExpr(.Call(savvy_sum_horizontal__impl, `exprs`, `ignore_nulls`))
+}
+
+
+`thread_pool_size` <- function() {
+  .Call(savvy_thread_pool_size__impl)
 }
 
 
@@ -2986,6 +3001,12 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
   }
 }
 
+`PlRExpr_str_to_titlecase` <- function(self) {
+  function() {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_str_to_titlecase__impl, `self`))
+  }
+}
+
 `PlRExpr_str_to_uppercase` <- function(self) {
   function() {
     .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_str_to_uppercase__impl, `self`))
@@ -3465,6 +3486,7 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
   e$`str_to_integer` <- `PlRExpr_str_to_integer`(ptr)
   e$`str_to_lowercase` <- `PlRExpr_str_to_lowercase`(ptr)
   e$`str_to_time` <- `PlRExpr_str_to_time`(ptr)
+  e$`str_to_titlecase` <- `PlRExpr_str_to_titlecase`(ptr)
   e$`str_to_uppercase` <- `PlRExpr_str_to_uppercase`(ptr)
   e$`str_zfill` <- `PlRExpr_str_zfill`(ptr)
   e$`struct_field_by_index` <- `PlRExpr_struct_field_by_index`(ptr)
