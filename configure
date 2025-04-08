@@ -42,15 +42,15 @@ EOF
 
 check_rustup() {
   if [ "$(command -v rustup)" ]; then
-  root_dir="$(pwd)"
-  # Change to the src directory to detect rust-toolchain.toml
-  cd "${root_dir}/src" || true
+    root_dir="$(pwd)"
+    # Change to the src directory to detect rust-toolchain.toml
+    cd "${root_dir}/src" || true
     cat <<EOF
 -------------------------- [RUSTUP FOUND] --------------------------
 $(rustup show)
 --------------------------------------------------------------------
 EOF
-  cd "${root_dir}" || true
+    cd "${root_dir}" || true
   else
     cat <<EOF
 ------------------------ [RUSTUP NOT FOUND] ------------------------
@@ -161,8 +161,8 @@ The Rust toolchain file was found at <tools/${toolchain_file}>.
 Copying it to <src/${toolchain_file}>.
 --------------------------------------------------------------------
 EOF
-  cp "tools/${toolchain_file}" "src/${toolchain_file}" &&
-    echo "Done!" || echo "Failed to copy ${toolchain_file}."
+    cp "tools/${toolchain_file}" "src/${toolchain_file}" &&
+      echo "Done!" || echo "Failed to copy ${toolchain_file}."
   fi
 }
 
@@ -173,14 +173,14 @@ Selected features: '${FEATURES}'
 --------------------------------------------------------------------
 EOF
   # TODO: needs documented, and maybe also use on R-universe?
-  if [ "$(echo "${FEATURES}" | grep nightly)" ] && [ "${NOT_CRAN}" = "true" ]; then
+  if echo "${FEATURES}" | grep -q nightly && [ "${NOT_CRAN}" = "true" ]; then
     cat <<EOF
 -------------------- [NIGHTLY TOOLCHAIN NEEDED] --------------------
 The 'nightly' feature requires a specific version of the Rust nightly toolchain.
 So using the rust-toolchain.toml file to set the toolchain.
 --------------------------------------------------------------------
 EOF
-  copy_rust_toolchain_toml
+    copy_rust_toolchain_toml
   fi
 }
 
