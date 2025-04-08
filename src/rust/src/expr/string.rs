@@ -29,7 +29,17 @@ impl PlRExpr {
     }
 
     fn str_to_titlecase(&self) -> Result<Self> {
-        Ok(self.inner.clone().str().to_titlecase().into())
+        #[cfg(feature = "nightly")]
+        {
+            Ok(self.inner.clone().str().to_titlecase().into())
+        }
+        #[cfg(not(feature = "nightly"))]
+        {
+            Err(RPolarsErr::Other(format!(
+                "The 'nightly' feature is not enabled for this build."
+            ))
+            .into())
+        }
     }
 
     fn str_strip_chars(&self, characters: &PlRExpr) -> Result<Self> {

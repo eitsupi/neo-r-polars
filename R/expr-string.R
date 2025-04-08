@@ -328,8 +328,6 @@ expr_str_to_lowercase <- function() {
 #'   pl$lit(c("hello there", "HI, THERE", NA))$str$to_titlecase()
 #' )$to_series()
 expr_str_to_titlecase <- function() {
-  # check_feature("nightly", "in $to_titlecase():")
-
   self$`_rexpr`$str_to_titlecase() |>
     wrap()
 }
