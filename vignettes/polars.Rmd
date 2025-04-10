@@ -49,11 +49,11 @@ don't have to. However, unlike Spark, Polars is natively multithreaded instead
 of multinoded. This makes (r)polars much simpler to install and can be used as
 one would any other R package.
 
-This R port relies on the excellent [**extendr**](https://github.com/extendr)
-package, which is the R equivalent to pyo3+maturin. **extendr** is very
+This R port relies on the [**savvy**](https://docs.rs/savvy)
+package, which is the R equivalent to pyo3+maturin. **savvy** is very
 convenient for calling Rust from R, and vice versa, and is what we use to build
-the **polars** package. Once built, however, **polars** has no other
-dependencies other than R itself. This makes it very fast and lightweight to
+the **polars** package. Once built, however, **polars** only depends on [`rlang`](https://rlang.r-lib.org/).
+This makes it very fast and lightweight to
 install, and so **polars** can immediately be used to tackle your big (or
 small!) data wrangling tasks.
 
@@ -69,6 +69,7 @@ The documentation for these can be accessed by typing these commands:
 ```r
 ?pl__DataFrame
 ?dataframe__group_by
+?lazyframe__filter
 ```
 
 The [Polars user guide](https://docs.pola.rs/) offers a
