@@ -168,8 +168,10 @@ lazygroupby__quantile <- function(
   ...,
   interpolation = c("nearest", "higher", "lower", "midpoint", "linear")
 ) {
-  self$agg(pl$all()$quantile(quantile = quantile, interpolation = interpolation)) |>
-    wrap()
+  wrap({
+    check_dots_empty0(...)
+    self$agg(pl$all()$quantile(quantile = quantile, interpolation = interpolation))
+  })
 }
 
 #' Count the unique values per group
