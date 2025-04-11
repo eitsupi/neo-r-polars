@@ -15,6 +15,30 @@
 #'   of the Series and width of the Series (always 1).
 #' @inheritParams as_polars_series
 #' @param values An R object. Passed as the `x` param of [as_polars_series()].
+#'
+#' @details
+#' All functions that can be applied to an `Expr` can be applied to a `Series`.
+#' For instance, one could use `str$to_uppercase()` on a `Series`` like this:
+#' ```r
+#' pl$Series("x", letters[1:3])$str$to_uppercase()
+#'
+#' #> shape: (3,)
+#' #> Series: 'x' [str]
+#' #> [
+#' #> 	"A"
+#' #> 	"B"
+#' #> 	"C"
+#' #> ]
+#' ```
+#'
+#' Some functions in `Series` may not be available on `Expr`, such as
+#' `$to_r_vector()`:
+#'
+#' ```r
+#' pl$Series("x", letters[1:3])$to_r_vector()
+#' #> [1] "a" "b" "c"
+#' ```
+#'
 #' @seealso
 #' - [as_polars_series()]
 #' @examples
