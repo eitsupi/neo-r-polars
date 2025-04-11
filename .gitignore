@@ -8,7 +8,6 @@ src/Makevars
 src/Makevars.win
 
 # Copied files
-tools/rust-toolchain.toml
 src/rust-toolchain.toml
 
 # altdoc stuff

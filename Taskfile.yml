@@ -20,6 +20,7 @@ vars:
   R_TESTS: tests/*
   VIGNETTES: vignettes/**/*.Rmd
   RUST_SOURCE: src/rust/src/**/*.rs
+  RUST_TOOLCHAIN_CONFIG: src/rust/rust-toolchain.toml
   MAKEVARS_IN: src/Makevars{{if eq OS "windows"}}.win{{end}}.in
 
   R_FUNC_LOAD_REQUIRED_PKGS:
@@ -80,6 +81,7 @@ tasks:
       - "{{.MANIFEST}}"
       - "{{.CARGO_LOCK}}"
       - "{{.RUST_SOURCE}}"
+      - "{{.RUST_TOOLCHAIN_CONFIG}}"
     generates:
       - R/000-wrappers.R
     deps:
@@ -159,6 +161,7 @@ tasks:
       - "{{.MANIFEST}}"
       - "{{.CARGO_LOCK}}"
       - "{{.RUST_SOURCE}}"
+      - "{{.RUST_TOOLCHAIN_CONFIG}}"
     cmds:
       - Rscript -e 'devtools::test()'
 
@@ -173,6 +176,7 @@ tasks:
       - "{{.MANIFEST}}"
       - "{{.CARGO_LOCK}}"
       - "{{.RUST_SOURCE}}"
+      - "{{.RUST_TOOLCHAIN_CONFIG}}"
     generates:
       - README.md
     deps:
@@ -192,6 +196,7 @@ tasks:
       - "{{.MANIFEST}}"
       - "{{.CARGO_LOCK}}"
       - "{{.RUST_SOURCE}}"
+      - "{{.RUST_TOOLCHAIN_CONFIG}}"
     deps:
       - build-documents
     cmds:
@@ -234,28 +239,27 @@ tasks:
 
   format-rust:
     desc: Format Rust files.
-    # TODO: use the rust-toolchain.toml file
+    dir: src/rust
     aliases:
       - fmt-rust
     sources:
       - "{{.RUST_SOURCE}}"
+      - "{{.RUST_TOOLCHAIN_CONFIG}}"
       - "{{.MANIFEST}}"
     generates:
       - "{{.RUST_SOURCE}}"
     cmds:
-      - cargo fmt --all --manifest-path {{.MANIFEST}}
+      - cargo fmt --all
 
   format-devscripts:
     desc: Format dev scripts.
     sources:
       - dev/**/*.R
-      - bootstrap.R
       - air.toml
     generates:
       - dev/**/*.R
-      - bootstrap.R
     cmds:
-      - air format dev/ bootstrap.R
+      - air format dev/
 
   build-website:
     desc: Build the website.
