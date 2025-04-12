@@ -2,6 +2,8 @@
 output:
   github_document:
     html_preview: false
+# used by altdoc
+default-image-extension: ''
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -15,75 +17,74 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Rewrite of [r-polars](https://github.com/pola-rs/r-polars)
+# polars
 
-## Motivation
+<!-- badges: start -->
+[![R-multiverse status](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fcommunity.r-multiverse.org%2Fapi%2Fpackages%2Fpolars&query=%24.Version&label=r-multiverse)](https://community.r-multiverse.org/polars)
+[![R-universe status badge](https://rpolars.r-universe.dev/badges/polars)](https://rpolars.r-universe.dev)
+[![CRAN status](https://www.r-pkg.org/badges/version/polars)](https://CRAN.R-project.org/package=polars)
+[![Dev R-CMD-check](https://github.com/pola-rs/r-polars/actions/workflows/check.yaml/badge.svg)](https://github.com/pola-rs/r-polars/actions/workflows/check.yaml)
+[![Docs dev version](https://img.shields.io/badge/docs-dev-blue.svg)](https://pola-rs.github.io/r-polars)
+<!-- badges: end -->
 
-I have been developing r-polars for over a year, and I felt that a significant rewrite was necessary.
-r-polars is a clone of [py-polars](https://github.com/pola-rs/polars/tree/main/py-polars) /
-[polars-python](https://github.com/pola-rs/polars/tree/main/crates/polars-python),
-but the package structure is currently quite different.
-Therefore, it was difficult to keep up with frequent updates.
+The **polars** package for R gives users access to [a lightning
+fast](https://duckdblabs.github.io/db-benchmark/) Data Frame library written in
+Rust. [Polars](https://www.pola.rs/)' embarrassingly parallel execution, cache
+efficient algorithms and expressive API makes it perfect for efficient data
+wrangling, data pipelines, snappy APIs, and much more besides. Polars also supports
+"streaming mode" for out-of-memory operations. This allows users to analyze
+datasets many times larger than RAM.
 
-I thought that now, around the release of Python Polars 1.0.0, is a good time for a complete rewrite, so I decided to try it.
+Examples of common operations:
 
-There are several reasons to rewrite r-polars on both the Rust and R sides.
+- read CSV, JSON, Parquet, and other file formats;
+- filter rows and select columns;
+- modify and create new columns;
+- group by and aggregate;
+- reshape data;
+- join and concatenate different datasets;
+- sort data;
+- work with dates and times;
+- handle missing values;
+- use the lazy execution engine for maximum performance and
+  memory-efficient operations
 
-### Rust side
+Note that this package is rapidly evolving and there are a number of breaking
+changes at each version. Be sure to check the [changelog](https://pola-rs.github.io/r-polars/NEWS.html)
+when updating `polars`.
 
-1. Appropriate file division. Due to the limitations of [extendr](https://github.com/extendr/extendr),
-   it is not possible to place multiple impl blocks.
-   ([extendr/extendr#538](https://github.com/extendr/extendr/issues/538))
-2. Error handling.
-   There is a lot of custom code to use the Result type with extendr, which is quite different from other packages based on extendr.
-   ([extendr/extendr#650](https://github.com/extendr/extendr/issues/650))
-3. Simplify type conversion.
-   The code is difficult to follow because it uses a macro called `robj_to` for type conversion (at least in rust-analyzer).
+## Install
 
-About 1 and 2, I expect that switching from extendr to [savvy](https://github.com/yutannihilation/savvy)
-will improve the situation.
+The recommended way to install this package is via R-multiverse:
 
-For 3, in py-polars and nodejs-polars, a thin `Wrap` struct wraps other types and processes them with standard `From` traits etc.,
-which I think makes the code cleaner.
+```r
+Sys.setenv(NOT_CRAN = "true")
+install.packages("polars", repos = "https://community.r-multiverse.org")
+```
 
-### R side
+[The "Install" vignette](https://pola-rs.github.io/r-polars/vignettes/install.html) (`vignette("install", "polars")`)
+gives more details on how to install this package and other ways to install it.
 
-1. The structure of classes.
-   In py-polars, the strategy is that classes defined on the Rust side (e.g., `PyDataFrame`) are wrapped by classes defined on the Python side (e.g., `DataFrame`).
-   In r-polars, a complex strategy is adopted to update classes created by Rust side/extendr (e.g., `RPolarsDataFrame`) with a lot of custom code.
-   (This is also related to the fact that extendr makes associated functions of Rust structs members of R classes. savvy does not mix associated functions and methods.)
-2. S3 methods first.
-   This is also related to the Rust side, in the current r-polars, generic functions like `as_polars_series` were added later,
-   so there are several places where type conversion from R to Polars is done on the Rust side, making it difficult to understand where the type conversion is done.
-   If type conversion from R to Polars is done with two generic functions, `as_polars_series` and `as_polars_expr`, the code will be much simpler and customization from the R side will be possible.
-3. Error handling.
-   Currently, r-polars has its own Result type on the R side, and error handling is done through it.
-   The backtrace generated that is quite easy to understand, but it is not necessarily easy to use when using polars internally in other packages, such as `testthat::expect_error()`.
-4. Based on `rlang`.
-   Currently, r-polars has no R package dependencies. This is great,
-   but that includes [a degraded copy of `list2()`](https://github.com/pola-rs/r-polars/blob/6eac27a0766d2b6ca92a72c1c7fa76eaeb58bb98/R/dotdotdot.R#L1-L20)
-   instead of the convenient functions in the `rlang` package.
-   `rlang` is a lightweight R package, and I feel that it is more beneficial to depend on the convenient functions of `rlang` than to stick to no dependencies.
+## Quickstart example
 
-1 and 3 are also related to the fact that it is built with extendr, and it seems that switching to savvy is appropriate here as well.
-If we abandon the current Result type on the R side, it is natural to use `rlang` for error handling, so from that perspective, it is reasonable to depend on `rlang` in 4.
+To avoid conflicts with other packages and base R function names, **polars**'s
+top level functions are hosted in the `pl` namespace, and accessible via the
+`pl$` prefix.
+This means that `polars` queries written in Python and in R are very similar.
 
-### Current Status
-
-The directory structure on the Rust side is a complete copy of py-polars.
-The structure of R classes is also the same as py-polars.
-
-The basic classes such as `DataFrame`, `Series`, `Expr`, and `LazyFrame` have been implemented,
-and some functions work correctly.
+For example, rewriting the Python example from <https://github.com/pola-rs/polars> in R:
 
 ```{r}
+library(polars)
+
 df <- pl$DataFrame(
   A = 1:5,
   fruits = c("banana", "banana", "apple", "apple", "banana"),
   B = 5:1,
-  cars = c("beetle", "audi", "beetle", "beetle", "beetle"),
+  cars = c("beetle", "audi", "beetle", "beetle", "beetle")
 )
 
+# embarrassingly parallel execution & very expressive query language
 df$sort("fruits")$select(
   "fruits",
   "cars",
@@ -92,76 +93,46 @@ df$sort("fruits")$select(
   pl$col("A")$filter(pl$col("B") > 2)$sum()$over("cars")$alias("sum_A_by_cars"),
   pl$col("A")$sum()$over("fruits")$alias("sum_A_by_fruits"),
   pl$col("A")$reverse()$over("fruits")$alias("rev_A_by_fruits"),
-  pl$col("A")$sort_by("B")$over("fruits")$alias("sort_A_by_B_by_fruits"),
+  pl$col("A")$sort_by("B")$over("fruits")$alias("sort_A_by_B_by_fruits")
 )
 ```
 
-Errors is displayed in a way that is not as bad. (Thanks, @etiennebacher)
+The [Get Started vignette](https://pola-rs.github.io/r-polars/vignettes/polars.html) (`vignette("polars")`) provides
+a more detailed introduction to **polars**.
 
-```{r}
-#| error: true
-# Error from the Rust side
-pl$DataFrame(a = "a")$cast(a = pl$Int8)
-```
+## Extensions
 
-```{r}
-#| error: true
-# Error from the R side
-pl$DataFrame(a = "a")$cast(a = integer)
-```
+While one can use **polars** as-is, other packages build on it to
+provide different syntaxes:
 
-The functionality to dispatch the methods of `Expr` to `Series` has also been implemented.
+- [polarssql](https://rpolars.github.io/r-polarssql/) provides a **polars**
+  backend for [DBI](https://dbi.r-dbi.org/) and [dbplyr](https://dbplyr.tidyverse.org/).
+- [tidypolars](https://tidypolars.etiennebacher.com/) allows one to
+  use the [tidyverse](https://www.tidyverse.org/) syntax while using the power of **polars**.
 
-```{r}
-s <- as_polars_series(mtcars)
+## Getting help
 
-s$struct$field |>
-  body()
-s$struct$field("am")
-```
+The online documentation can be found at <https://pola-rs.github.io/r-polars/>.
 
-Due to the changes in the package structure, it is now possible to add namespaces, which was not possible with the current r-polars.
+If you encounter a bug, please file an issue with a minimal reproducible example on
+[GitHub](https://github.com/pola-rs/r-polars/issues).
 
-```{r}
-math_shortcuts <- function(s) {
-  # Create a new environment to store the methods
-  self <- new.env(parent = emptyenv())
+Consider joining our [Discord](https://discord.com/invite/4UfP5cfBE7) subchannel for
+additional help and discussion.
 
-  # Store the series
-  self$`_s` <- s
+## Development
 
-  # Add methods
-  self$square <- function() self$`_s` * self$`_s`
-  self$cube <- function() self$`_s` * self$`_s` * self$`_s`
+The primary developer of the upstream Polars project is Ritchie Vink ([@ritchie46](https://github.com/ritchie46)).
+This R package is maintained by [@eitsupi](https://github.com/eitsupi) and [Etienne Bacher](https://github.com/etiennebacher).
+The original R package (since then rewritten from scratch) was created by Søren Welling ([@sorhawell](https://github.com/sorhawell)).
 
-  # Set the class
-  class(self) <- c("polars_namespace_series", "polars_object")
+Development occurs on Github: https://github.com/pola-rs/r-polars
 
-  # Return the environment
-  self
-}
+Consider joining our [Discord](https://discord.com/invite/4UfP5cfBE7)
+(subchannel) for additional help and discussion.
 
-pl$api$register_series_namespace("math", math_shortcuts)
+**'Polars'** is a query engine/syntax for multiple languages. The R specific implementation
+can be referred to as the R API and is derived from the Rust API.
 
-s <- as_polars_series(c(1.5, 31, 42, 64.5))
-s$math$square()$rename("s^2")
-```
+The **polars** package for R is published under the MIT license.
 
-It is now possible to have different bindings for each instance.
-
-```{r}
-#| error: true
-# The `fields` binding is only available for `Struct`.
-pl$Struct(a = pl$Int32)$fields
-pl$Int32$fields
-```
-
-### Disadvantages
-
-Due to the changes in the R class structure, the methods are now dynamically added by a loop each time an R class is built.
-So I'm worried that the performance will degrade after a large number of methods are available.
-However, it is difficult to compare this at the moment.
-
-### Next Steps
-
-I would like to check if it is possible to implement a process like `map_elements` that calls the R from the Rust side.
