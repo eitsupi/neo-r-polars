@@ -107,12 +107,12 @@ jobs:
         run: |
           # make sure savvy is built from source because rust-cache doesn't work well.
           (find ~/.cargo/registry/ src/rust/target -name 'savvy-*' -print0 | xargs -0 rm -rf) || true
-          Rscript -e "pkgbuild::compile_dll(debug = FALSE)" # TODO: change to debug = TRUE
+          Rscript -e "pkgbuild::compile_dll(debug = TRUE)"
 
       - name: Install package
         id: install-package
         env:
-          DEBUG: "false" # TODO: change to true
+          DEBUG: "true"
           LIBR_POLARS_FEATURES: nightly
         run: |
           R CMD INSTALL --no-multiarch --with-keep.source .
