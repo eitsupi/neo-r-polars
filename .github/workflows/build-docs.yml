@@ -98,7 +98,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: "src/rust -> target"
-          shared-key: ${{ steps.rust-target.outputs.TARGET }}-release-nightly # TODO: change to debug
+          shared-key: ${{ steps.rust-target.outputs.TARGET }}-debug-nightly
 
       - name: Build lib
         env:
