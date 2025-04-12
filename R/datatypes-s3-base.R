@@ -38,7 +38,12 @@
 
 #' @export
 print.polars_dtype <- function(x, ...) {
-  x$`_dt`$as_str(abbreviated = FALSE) |>
+  format(x, abbreviated = FALSE) |>
     writeLines()
   invisible(x)
+}
+
+#' @export
+format.polars_dtype <- function(x, abbreviated = FALSE, ...) {
+  x$`_dt`$as_str(abbreviated = abbreviated)
 }
