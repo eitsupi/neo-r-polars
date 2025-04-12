@@ -103,7 +103,7 @@ jobs:
       - name: Build lib
         env:
           LIBR_POLARS_BUILD: "true"
-          LIBR_POLARS_FEATURES: "" # TODO: change to nightly
+          LIBR_POLARS_FEATURES: nightly
         run: |
           # make sure savvy is built from source because rust-cache doesn't work well.
           (find ~/.cargo/registry/ src/rust/target -name 'savvy-*' -print0 | xargs -0 rm -rf) || true
@@ -113,7 +113,7 @@ jobs:
         id: install-package
         env:
           DEBUG: "true"
-          LIBR_POLARS_FEATURES: "" # TODO: change to nightly
+          LIBR_POLARS_FEATURES: nightly
         run: |
           R CMD INSTALL --no-multiarch --with-keep.source .
 
