@@ -22,27 +22,6 @@ Within a series all elements have the same Data Type.
 \details{
 The \code{pl$Series()} function mimics the constructor of the Series class of Python Polars.
 This function calls \code{\link[=as_polars_series]{as_polars_series()}} internally to convert the input object to a Polars Series.
-
-All functions that can be applied to an \code{Expr} can be applied to a \code{Series}.
-For instance, one could use \code{str$to_uppercase()} on a `Series`` like this:
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{pl$Series("x", letters[1:3])$str$to_uppercase()
-
-#> shape: (3,)
-#> Series: 'x' [str]
-#> [
-#> 	"A"
-#> 	"B"
-#> 	"C"
-#> ]
-}\if{html}{\out{</div>}}
-
-Some functions in \code{Series} may not be available on \code{Expr}, such as
-\verb{$to_r_vector()}:
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{pl$Series("x", letters[1:3])$to_r_vector()
-#> [1] "a" "b" "c"
-}\if{html}{\out{</div>}}
 }
 \section{Active bindings}{
 
