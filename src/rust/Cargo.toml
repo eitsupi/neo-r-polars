@@ -25,7 +25,9 @@ either = "1.15"
 flume = "0.11"
 polars-core = { git = "https://github.com/pola-rs/polars.git", rev = "ac9d598fd07d85b26a29bd7465a7bfa945b6f963", default-features = false }
 polars-error = { git = "https://github.com/pola-rs/polars.git", rev = "ac9d598fd07d85b26a29bd7465a7bfa945b6f963", default-features = false }
-savvy = { version = "0.8", features = ["use-custom-error"] }
+savvy = { git = "https://github.com/yutannihilation/savvy.git", rev = "ec1db2e14aad3c3fa480f2d92542f289a8e04882", features = [
+    "use-custom-error",
+] }
 serde_json = "1"
 state = "0.6"
 strum = "0.26"
