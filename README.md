@@ -71,16 +71,6 @@ For example, rewriting the Python example from
 
 ``` r
 library(polars)
-#> Registered S3 method overwritten by 'polars':
-#>   method            from     
-#>   print.polars_info neopolars
-#> 
-#> Attaching package: 'polars'
-#> The following objects are masked from 'package:neopolars':
-#> 
-#>     as_polars_df, as_polars_lf, as_polars_series,
-#>     is_polars_df, is_polars_dtype, is_polars_lf,
-#>     is_polars_series, pl, polars_info
 
 df <- pl$DataFrame(
   A = 1:5,
@@ -151,11 +141,6 @@ maintained by [@eitsupi](https://github.com/eitsupi) and [Etienne
 Bacher](https://github.com/etiennebacher). The original R package (since
 then rewritten from scratch) was created by Søren Welling
 ([@sorhawell](https://github.com/sorhawell)).
-
-Development occurs on Github: <https://github.com/pola-rs/r-polars>
-
-Consider joining our [Discord](https://discord.com/invite/4UfP5cfBE7)
-(subchannel) for additional help and discussion.
 
 **‘Polars’** is a query engine/syntax for multiple languages. The R
 specific implementation can be referred to as the R API and is derived
