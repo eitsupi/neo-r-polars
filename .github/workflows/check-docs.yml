@@ -1,0 +1,57 @@
+name: Check missing docs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/check-docs.yaml
+      - altdoc/mkdocs.yml
+      - man/**
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/check-docs.yaml
+      - altdoc/mkdocs.yml
+      - man/**
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check man pages are in mkdocs.yml
+        run: |
+          YAML_FILE="altdoc/mkdocs.yml"
+          FILE_LIST=(man/*.Rd)
+
+          # Track missing files
+          missing=0
+
+          for file in "${FILE_LIST[@]}"; do
+              base=$(basename "$file" .Rd)
+              expected_name="$base.md"
+
+              if ! grep -q "$expected_name" "$YAML_FILE"; then
+                  echo "Missing in YAML: $expected_name"
+                  missing=1
+              fi
+          done
+
+          if [ "$missing" -ne 0 ]; then
+              echo "One or more .Rd files are not referenced as .md in the YAML file."
+              exit 1
+          else
+              echo "All .Rd files are properly referenced in the YAML file as .md."
+          fi
