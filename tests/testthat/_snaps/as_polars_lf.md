@@ -6,8 +6,8 @@
       Error in `as_polars_lf()`:
       ! Failed to create a polars LazyFrame.
       Caused by error in `as_polars_df()`:
-      ! This object is not supported for the default method of `as_polars_df()` because it is not a Struct dtype like object.
-      i Use `infer_polars_dtype()` to check the dtype for corresponding to the object.
+      ! `x` would have dtype 'Float64' once converted to polars.
+      i `as_polars_df()` requires `x` to be an object with dtype 'Struct'.
 
 ---
 
