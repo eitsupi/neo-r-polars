@@ -35,7 +35,7 @@ METHODS_EXCLUDE <- c(
     fn
   } else if (name %in% dispatched_method_names) {
     fn <- polars_expr__methods[[name]]
-    expr_wrap_function_factory(fn, x, namespace = NULL)
+    expr_wrap_function_factory(fn, x, namespace = NULL, name = name)
   } else {
     NextMethod()
   }

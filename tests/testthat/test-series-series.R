@@ -54,3 +54,12 @@ test_that("rechunk() and chunk_lengths() work", {
 
   expect_identical(s3$rechunk()$chunk_lengths(), 6L)
 })
+
+test_that("some functions must return an R scalar", {
+  s <- pl$Series("", 1:2)
+  expect_identical(s$max(), 2L)
+  expect_identical(s$min(), 1L)
+  expect_identical(s$sum(), 3L)
+  expect_identical(s$mean(), 1.5)
+  expect_identical(s$median(), 1.5)
+})
