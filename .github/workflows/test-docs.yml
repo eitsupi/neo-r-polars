@@ -1,4 +1,4 @@
-name: Check missing docs
+name: Test documentation
 
 on:
   push:
