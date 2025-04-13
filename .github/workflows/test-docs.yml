@@ -5,14 +5,14 @@ on:
     branches:
       - main
     paths:
-      - .github/workflows/check-missing-docs.yml
+      - .github/workflows/test-docs.yml
       - altdoc/mkdocs.yml
       - man/**
   pull_request:
     branches:
       - main
     paths:
-      - .github/workflows/check-missing-docs.yml
+      - .github/workflows/test-docs.yml
       - altdoc/mkdocs.yml
       - man/**
   workflow_dispatch:
