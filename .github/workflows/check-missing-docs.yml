@@ -44,14 +44,12 @@ jobs:
               expected_name="$base.md"
 
               if ! grep -q "$expected_name" "$YAML_FILE"; then
-                  echo "Missing in YAML: $expected_name"
+                  echo "Missing in mkdocs.yml: $expected_name"
                   missing=1
               fi
           done
 
           if [ "$missing" -ne 0 ]; then
-              echo "One or more .Rd files are not referenced as .md in the YAML file."
+              echo "One or more man pages are not referenced mkdocs.yml."
               exit 1
-          else
-              echo "All .Rd files are properly referenced in the YAML file as .md."
           fi
