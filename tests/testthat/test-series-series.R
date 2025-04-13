@@ -4,7 +4,8 @@ patrick::with_parameters_test_that(
     # fmt: skip
     tibble::tribble(
       ~.test_name, ~x,
-      "int32", as_polars_series(1:3),
+      "null", as_polars_series(NULL),
+      "int32", as_polars_series(1:1000),
       "int128", as_polars_series(1:3)$cast(pl$Int128),
       "struct", as_polars_series(data.frame(a = 1:3, b = letters[1:3])),
     )
@@ -16,6 +17,21 @@ patrick::with_parameters_test_that(
     expect_equal(pl$deserialize_series(serialized), x)
   }
 )
+
+test_that("deserialize series' error", {
+  expect_snapshot(
+    pl$deserialize_series(0L),
+    error = TRUE
+  )
+  expect_snapshot(
+    pl$deserialize_series(raw(0)),
+    error = TRUE
+  )
+  expect_snapshot(
+    pl$deserialize_series(as.raw(1:100)),
+    error = TRUE
+  )
+})
 
 test_that("flags work", {
   s <- as_polars_series(c(2, 1, 3))

@@ -21,7 +21,9 @@ impl PlRSeries {
     // Similar to `__setstate__` in Python
     fn deserialize(data: RawSexp) -> Result<Self> {
         let mut cursor = Cursor::new(data.as_slice());
-        let series = Series::deserialize_from_reader(&mut cursor).map_err(RPolarsErr::from)?;
+        let series = Series::deserialize_from_reader(&mut cursor).map_err(|_| {
+            RPolarsErr::Other("The input value is not a valid serialized Series.".to_string())
+        })?;
         Ok(series.into())
     }
 
