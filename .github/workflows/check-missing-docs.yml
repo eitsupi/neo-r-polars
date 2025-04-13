@@ -31,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check man pages are in mkdocs.yml
+      - name: Check missing man pages in mkdocs.yml
         run: |
           YAML_FILE="altdoc/mkdocs.yml"
           FILE_LIST=(man/*.Rd)
