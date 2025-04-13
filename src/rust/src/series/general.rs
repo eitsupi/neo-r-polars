@@ -12,19 +12,19 @@ impl PlRSeries {
         format!("{:?}", self.series).try_into()
     }
 
+    // Similar to `__getstate__` in Python
     fn serialize(&self) -> Result<Sexp> {
         let bytes = self.series.serialize_to_bytes().map_err(RPolarsErr::from)?;
         OwnedRawSexp::try_from_iter(bytes).map(Into::into)
     }
 
-    // Similar to `__getstate__` in Python
+    // Similar to `__setstate__` in Python
     fn deserialize(data: RawSexp) -> Result<Self> {
         let mut cursor = Cursor::new(data.as_slice());
         let series = Series::deserialize_from_reader(&mut cursor).map_err(RPolarsErr::from)?;
         Ok(series.into())
     }
 
-    // Similar to `__setstate__` in Python
     fn struct_unnest(&self) -> Result<PlRDataFrame> {
         let ca = self.series.struct_().map_err(RPolarsErr::from)?;
         let df: DataFrame = ca.clone().unnest();
