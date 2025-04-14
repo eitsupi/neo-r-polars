@@ -2654,5 +2654,3 @@ lazyframe__sql <- function(query, ..., table_name = "self") {
     ctx$execute(query)
   })
 }
-
-# TODO-REWRITE: implement $deserialize() for LazyFrame
