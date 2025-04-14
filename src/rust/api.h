@@ -562,6 +562,9 @@ SEXP savvy_PlRSQLContext_register__ffi(SEXP self__, SEXP c_arg__name, SEXP c_arg
 // methods and associated functions for PlRSeries
 SEXP savvy_PlRSeries_add__ffi(SEXP self__, SEXP c_arg__other);
 SEXP savvy_PlRSeries_as_str__ffi(SEXP self__);
+SEXP savvy_PlRSeries_bitwise_and__ffi(SEXP self__);
+SEXP savvy_PlRSeries_bitwise_or__ffi(SEXP self__);
+SEXP savvy_PlRSeries_bitwise_xor__ffi(SEXP self__);
 SEXP savvy_PlRSeries_can_fast_explode_flag__ffi(SEXP self__);
 SEXP savvy_PlRSeries_cast__ffi(SEXP self__, SEXP c_arg__dtype, SEXP c_arg__strict);
 SEXP savvy_PlRSeries_cat_is_local__ffi(SEXP self__);
@@ -572,10 +575,16 @@ SEXP savvy_PlRSeries_clone__ffi(SEXP self__);
 SEXP savvy_PlRSeries_div__ffi(SEXP self__, SEXP c_arg__other);
 SEXP savvy_PlRSeries_dtype__ffi(SEXP self__);
 SEXP savvy_PlRSeries_equals__ffi(SEXP self__, SEXP c_arg__other, SEXP c_arg__check_dtypes, SEXP c_arg__check_names, SEXP c_arg__null_equal);
+SEXP savvy_PlRSeries_first__ffi(SEXP self__);
 SEXP savvy_PlRSeries_from_arrow_c_stream__ffi(SEXP c_arg__stream_ptr);
 SEXP savvy_PlRSeries_is_sorted_ascending_flag__ffi(SEXP self__);
 SEXP savvy_PlRSeries_is_sorted_descending_flag__ffi(SEXP self__);
+SEXP savvy_PlRSeries_last__ffi(SEXP self__);
 SEXP savvy_PlRSeries_len__ffi(SEXP self__);
+SEXP savvy_PlRSeries_max__ffi(SEXP self__);
+SEXP savvy_PlRSeries_mean__ffi(SEXP self__);
+SEXP savvy_PlRSeries_median__ffi(SEXP self__);
+SEXP savvy_PlRSeries_min__ffi(SEXP self__);
 SEXP savvy_PlRSeries_mul__ffi(SEXP self__, SEXP c_arg__other);
 SEXP savvy_PlRSeries_n_chunks__ffi(SEXP self__);
 SEXP savvy_PlRSeries_name__ffi(SEXP self__);
@@ -591,16 +600,21 @@ SEXP savvy_PlRSeries_new_null__ffi(SEXP c_arg__name, SEXP c_arg__length);
 SEXP savvy_PlRSeries_new_series_list__ffi(SEXP c_arg__name, SEXP c_arg__values, SEXP c_arg__strict);
 SEXP savvy_PlRSeries_new_str__ffi(SEXP c_arg__name, SEXP c_arg__values);
 SEXP savvy_PlRSeries_new_uint8__ffi(SEXP c_arg__name, SEXP c_arg__values);
+SEXP savvy_PlRSeries_product__ffi(SEXP self__);
+SEXP savvy_PlRSeries_quantile__ffi(SEXP self__, SEXP c_arg__quantile, SEXP c_arg__interpolation);
 SEXP savvy_PlRSeries_rechunk__ffi(SEXP self__, SEXP c_arg__in_place);
 SEXP savvy_PlRSeries_rem__ffi(SEXP self__, SEXP c_arg__other);
 SEXP savvy_PlRSeries_rename__ffi(SEXP self__, SEXP c_arg__name);
 SEXP savvy_PlRSeries_reshape__ffi(SEXP self__, SEXP c_arg__dimensions);
 SEXP savvy_PlRSeries_slice__ffi(SEXP self__, SEXP c_arg__offset, SEXP c_arg__length);
+SEXP savvy_PlRSeries_std__ffi(SEXP self__, SEXP c_arg__ddof);
 SEXP savvy_PlRSeries_struct_fields__ffi(SEXP self__);
 SEXP savvy_PlRSeries_struct_unnest__ffi(SEXP self__);
 SEXP savvy_PlRSeries_sub__ffi(SEXP self__, SEXP c_arg__other);
+SEXP savvy_PlRSeries_sum__ffi(SEXP self__);
 SEXP savvy_PlRSeries_to_arrow_c_stream__ffi(SEXP self__, SEXP c_arg__stream_ptr, SEXP c_arg__polars_compat_level);
 SEXP savvy_PlRSeries_to_r_vector__ffi(SEXP self__, SEXP c_arg__ensure_vector, SEXP c_arg__uint8, SEXP c_arg__int64, SEXP c_arg__date, SEXP c_arg__time, SEXP c_arg__struct, SEXP c_arg__decimal, SEXP c_arg__as_clock_class, SEXP c_arg__ambiguous, SEXP c_arg__non_existent, SEXP c_arg__local_time_zone);
+SEXP savvy_PlRSeries_var__ffi(SEXP self__, SEXP c_arg__ddof);
 
 // methods and associated functions for PlRThen
 SEXP savvy_PlRThen_otherwise__ffi(SEXP self__, SEXP c_arg__statement);

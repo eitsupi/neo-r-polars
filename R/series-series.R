@@ -296,3 +296,81 @@ series__rechunk <- function(..., in_place = FALSE) {
     }
   })
 }
+
+series__min <- function() {
+  self$`_s`$min() |>
+    wrap()
+}
+
+series__max <- function() {
+  self$`_s`$max() |>
+    wrap()
+}
+
+series__mean <- function() {
+  self$`_s`$mean() |>
+    wrap()
+}
+
+series__median <- function() {
+  self$`_s`$median() |>
+    wrap()
+}
+
+series__product <- function() {
+  self$`_s`$product() |>
+    wrap()
+}
+
+series__sum <- function() {
+  self$`_s`$sum() |>
+    wrap()
+}
+
+series__std <- function(ddof = 1) {
+  self$`_s`$std(ddof) |>
+    wrap()
+}
+
+series__var <- function(ddof = 1) {
+  self$`_s`$var(ddof) |>
+    wrap()
+}
+
+series__quantile <- function(
+  quantile,
+  interpolation = c("nearest", "higher", "lower", "midpoint", "linear")
+) {
+  wrap({
+    interpolation <- arg_match0(
+      interpolation,
+      values = c("nearest", "higher", "lower", "midpoint", "linear")
+    )
+    self$`_s`$quantile(quantile, interpolation)
+  })
+}
+
+series__first <- function() {
+  self$`_s`$first() |>
+    wrap()
+}
+
+series__last <- function() {
+  self$`_s`$last() |>
+    wrap()
+}
+
+series__bitwise_and <- function() {
+  self$`_s`$bitwise_and() |>
+    wrap()
+}
+
+series__bitwise_or <- function() {
+  self$`_s`$bitwise_or() |>
+    wrap()
+}
+
+series__bitwise_xor <- function() {
+  self$`_s`$bitwise_xor() |>
+    wrap()
+}

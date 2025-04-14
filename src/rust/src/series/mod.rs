@@ -1,3 +1,4 @@
+mod aggregation;
 mod arithmetic;
 mod construction;
 mod export;

@@ -2764,6 +2764,21 @@ SEXP savvy_PlRSeries_as_str__impl(SEXP self__) {
     return handle_result(res);
 }
 
+SEXP savvy_PlRSeries_bitwise_and__impl(SEXP self__) {
+    SEXP res = savvy_PlRSeries_bitwise_and__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRSeries_bitwise_or__impl(SEXP self__) {
+    SEXP res = savvy_PlRSeries_bitwise_or__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRSeries_bitwise_xor__impl(SEXP self__) {
+    SEXP res = savvy_PlRSeries_bitwise_xor__ffi(self__);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRSeries_can_fast_explode_flag__impl(SEXP self__) {
     SEXP res = savvy_PlRSeries_can_fast_explode_flag__ffi(self__);
     return handle_result(res);
@@ -2814,6 +2829,11 @@ SEXP savvy_PlRSeries_equals__impl(SEXP self__, SEXP c_arg__other, SEXP c_arg__ch
     return handle_result(res);
 }
 
+SEXP savvy_PlRSeries_first__impl(SEXP self__) {
+    SEXP res = savvy_PlRSeries_first__ffi(self__);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRSeries_from_arrow_c_stream__impl(SEXP c_arg__stream_ptr) {
     SEXP res = savvy_PlRSeries_from_arrow_c_stream__ffi(c_arg__stream_ptr);
     return handle_result(res);
@@ -2829,8 +2849,33 @@ SEXP savvy_PlRSeries_is_sorted_descending_flag__impl(SEXP self__) {
     return handle_result(res);
 }
 
+SEXP savvy_PlRSeries_last__impl(SEXP self__) {
+    SEXP res = savvy_PlRSeries_last__ffi(self__);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRSeries_len__impl(SEXP self__) {
     SEXP res = savvy_PlRSeries_len__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRSeries_max__impl(SEXP self__) {
+    SEXP res = savvy_PlRSeries_max__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRSeries_mean__impl(SEXP self__) {
+    SEXP res = savvy_PlRSeries_mean__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRSeries_median__impl(SEXP self__) {
+    SEXP res = savvy_PlRSeries_median__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRSeries_min__impl(SEXP self__) {
+    SEXP res = savvy_PlRSeries_min__ffi(self__);
     return handle_result(res);
 }
 
@@ -2909,6 +2954,16 @@ SEXP savvy_PlRSeries_new_uint8__impl(SEXP c_arg__name, SEXP c_arg__values) {
     return handle_result(res);
 }
 
+SEXP savvy_PlRSeries_product__impl(SEXP self__) {
+    SEXP res = savvy_PlRSeries_product__ffi(self__);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRSeries_quantile__impl(SEXP self__, SEXP c_arg__quantile, SEXP c_arg__interpolation) {
+    SEXP res = savvy_PlRSeries_quantile__ffi(self__, c_arg__quantile, c_arg__interpolation);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRSeries_rechunk__impl(SEXP self__, SEXP c_arg__in_place) {
     SEXP res = savvy_PlRSeries_rechunk__ffi(self__, c_arg__in_place);
     return handle_result(res);
@@ -2934,6 +2989,11 @@ SEXP savvy_PlRSeries_slice__impl(SEXP self__, SEXP c_arg__offset, SEXP c_arg__le
     return handle_result(res);
 }
 
+SEXP savvy_PlRSeries_std__impl(SEXP self__, SEXP c_arg__ddof) {
+    SEXP res = savvy_PlRSeries_std__ffi(self__, c_arg__ddof);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRSeries_struct_fields__impl(SEXP self__) {
     SEXP res = savvy_PlRSeries_struct_fields__ffi(self__);
     return handle_result(res);
@@ -2949,6 +3009,11 @@ SEXP savvy_PlRSeries_sub__impl(SEXP self__, SEXP c_arg__other) {
     return handle_result(res);
 }
 
+SEXP savvy_PlRSeries_sum__impl(SEXP self__) {
+    SEXP res = savvy_PlRSeries_sum__ffi(self__);
+    return handle_result(res);
+}
+
 SEXP savvy_PlRSeries_to_arrow_c_stream__impl(SEXP self__, SEXP c_arg__stream_ptr, SEXP c_arg__polars_compat_level) {
     SEXP res = savvy_PlRSeries_to_arrow_c_stream__ffi(self__, c_arg__stream_ptr, c_arg__polars_compat_level);
     return handle_result(res);
@@ -2956,6 +3021,11 @@ SEXP savvy_PlRSeries_to_arrow_c_stream__impl(SEXP self__, SEXP c_arg__stream_ptr
 
 SEXP savvy_PlRSeries_to_r_vector__impl(SEXP self__, SEXP c_arg__ensure_vector, SEXP c_arg__uint8, SEXP c_arg__int64, SEXP c_arg__date, SEXP c_arg__time, SEXP c_arg__struct, SEXP c_arg__decimal, SEXP c_arg__as_clock_class, SEXP c_arg__ambiguous, SEXP c_arg__non_existent, SEXP c_arg__local_time_zone) {
     SEXP res = savvy_PlRSeries_to_r_vector__ffi(self__, c_arg__ensure_vector, c_arg__uint8, c_arg__int64, c_arg__date, c_arg__time, c_arg__struct, c_arg__decimal, c_arg__as_clock_class, c_arg__ambiguous, c_arg__non_existent, c_arg__local_time_zone);
+    return handle_result(res);
+}
+
+SEXP savvy_PlRSeries_var__impl(SEXP self__, SEXP c_arg__ddof) {
+    SEXP res = savvy_PlRSeries_var__ffi(self__, c_arg__ddof);
     return handle_result(res);
 }
 
@@ -3522,6 +3592,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRSQLContext_register__impl", (DL_FUNC) &savvy_PlRSQLContext_register__impl, 3},
     {"savvy_PlRSeries_add__impl", (DL_FUNC) &savvy_PlRSeries_add__impl, 2},
     {"savvy_PlRSeries_as_str__impl", (DL_FUNC) &savvy_PlRSeries_as_str__impl, 1},
+    {"savvy_PlRSeries_bitwise_and__impl", (DL_FUNC) &savvy_PlRSeries_bitwise_and__impl, 1},
+    {"savvy_PlRSeries_bitwise_or__impl", (DL_FUNC) &savvy_PlRSeries_bitwise_or__impl, 1},
+    {"savvy_PlRSeries_bitwise_xor__impl", (DL_FUNC) &savvy_PlRSeries_bitwise_xor__impl, 1},
     {"savvy_PlRSeries_can_fast_explode_flag__impl", (DL_FUNC) &savvy_PlRSeries_can_fast_explode_flag__impl, 1},
     {"savvy_PlRSeries_cast__impl", (DL_FUNC) &savvy_PlRSeries_cast__impl, 3},
     {"savvy_PlRSeries_cat_is_local__impl", (DL_FUNC) &savvy_PlRSeries_cat_is_local__impl, 1},
@@ -3532,10 +3605,16 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRSeries_div__impl", (DL_FUNC) &savvy_PlRSeries_div__impl, 2},
     {"savvy_PlRSeries_dtype__impl", (DL_FUNC) &savvy_PlRSeries_dtype__impl, 1},
     {"savvy_PlRSeries_equals__impl", (DL_FUNC) &savvy_PlRSeries_equals__impl, 5},
+    {"savvy_PlRSeries_first__impl", (DL_FUNC) &savvy_PlRSeries_first__impl, 1},
     {"savvy_PlRSeries_from_arrow_c_stream__impl", (DL_FUNC) &savvy_PlRSeries_from_arrow_c_stream__impl, 1},
     {"savvy_PlRSeries_is_sorted_ascending_flag__impl", (DL_FUNC) &savvy_PlRSeries_is_sorted_ascending_flag__impl, 1},
     {"savvy_PlRSeries_is_sorted_descending_flag__impl", (DL_FUNC) &savvy_PlRSeries_is_sorted_descending_flag__impl, 1},
+    {"savvy_PlRSeries_last__impl", (DL_FUNC) &savvy_PlRSeries_last__impl, 1},
     {"savvy_PlRSeries_len__impl", (DL_FUNC) &savvy_PlRSeries_len__impl, 1},
+    {"savvy_PlRSeries_max__impl", (DL_FUNC) &savvy_PlRSeries_max__impl, 1},
+    {"savvy_PlRSeries_mean__impl", (DL_FUNC) &savvy_PlRSeries_mean__impl, 1},
+    {"savvy_PlRSeries_median__impl", (DL_FUNC) &savvy_PlRSeries_median__impl, 1},
+    {"savvy_PlRSeries_min__impl", (DL_FUNC) &savvy_PlRSeries_min__impl, 1},
     {"savvy_PlRSeries_mul__impl", (DL_FUNC) &savvy_PlRSeries_mul__impl, 2},
     {"savvy_PlRSeries_n_chunks__impl", (DL_FUNC) &savvy_PlRSeries_n_chunks__impl, 1},
     {"savvy_PlRSeries_name__impl", (DL_FUNC) &savvy_PlRSeries_name__impl, 1},
@@ -3551,16 +3630,21 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRSeries_new_series_list__impl", (DL_FUNC) &savvy_PlRSeries_new_series_list__impl, 3},
     {"savvy_PlRSeries_new_str__impl", (DL_FUNC) &savvy_PlRSeries_new_str__impl, 2},
     {"savvy_PlRSeries_new_uint8__impl", (DL_FUNC) &savvy_PlRSeries_new_uint8__impl, 2},
+    {"savvy_PlRSeries_product__impl", (DL_FUNC) &savvy_PlRSeries_product__impl, 1},
+    {"savvy_PlRSeries_quantile__impl", (DL_FUNC) &savvy_PlRSeries_quantile__impl, 3},
     {"savvy_PlRSeries_rechunk__impl", (DL_FUNC) &savvy_PlRSeries_rechunk__impl, 2},
     {"savvy_PlRSeries_rem__impl", (DL_FUNC) &savvy_PlRSeries_rem__impl, 2},
     {"savvy_PlRSeries_rename__impl", (DL_FUNC) &savvy_PlRSeries_rename__impl, 2},
     {"savvy_PlRSeries_reshape__impl", (DL_FUNC) &savvy_PlRSeries_reshape__impl, 2},
     {"savvy_PlRSeries_slice__impl", (DL_FUNC) &savvy_PlRSeries_slice__impl, 3},
+    {"savvy_PlRSeries_std__impl", (DL_FUNC) &savvy_PlRSeries_std__impl, 2},
     {"savvy_PlRSeries_struct_fields__impl", (DL_FUNC) &savvy_PlRSeries_struct_fields__impl, 1},
     {"savvy_PlRSeries_struct_unnest__impl", (DL_FUNC) &savvy_PlRSeries_struct_unnest__impl, 1},
     {"savvy_PlRSeries_sub__impl", (DL_FUNC) &savvy_PlRSeries_sub__impl, 2},
+    {"savvy_PlRSeries_sum__impl", (DL_FUNC) &savvy_PlRSeries_sum__impl, 1},
     {"savvy_PlRSeries_to_arrow_c_stream__impl", (DL_FUNC) &savvy_PlRSeries_to_arrow_c_stream__impl, 3},
     {"savvy_PlRSeries_to_r_vector__impl", (DL_FUNC) &savvy_PlRSeries_to_r_vector__impl, 12},
+    {"savvy_PlRSeries_var__impl", (DL_FUNC) &savvy_PlRSeries_var__impl, 2},
     {"savvy_PlRThen_otherwise__impl", (DL_FUNC) &savvy_PlRThen_otherwise__impl, 2},
     {"savvy_PlRThen_when__impl", (DL_FUNC) &savvy_PlRThen_when__impl, 2},
     {"savvy_PlRWhen_then__impl", (DL_FUNC) &savvy_PlRWhen_then__impl, 2},

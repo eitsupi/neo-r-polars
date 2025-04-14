@@ -4107,6 +4107,24 @@ class(`PlRSQLContext`) <- c("PlRSQLContext__bundle", "savvy_neopolars__sealed")
   }
 }
 
+`PlRSeries_bitwise_and` <- function(self) {
+  function() {
+    .Call(savvy_PlRSeries_bitwise_and__impl, `self`)
+  }
+}
+
+`PlRSeries_bitwise_or` <- function(self) {
+  function() {
+    .Call(savvy_PlRSeries_bitwise_or__impl, `self`)
+  }
+}
+
+`PlRSeries_bitwise_xor` <- function(self) {
+  function() {
+    .Call(savvy_PlRSeries_bitwise_xor__impl, `self`)
+  }
+}
+
 `PlRSeries_can_fast_explode_flag` <- function(self) {
   function() {
     .Call(savvy_PlRSeries_can_fast_explode_flag__impl, `self`)
@@ -4170,6 +4188,12 @@ class(`PlRSQLContext`) <- c("PlRSQLContext__bundle", "savvy_neopolars__sealed")
   }
 }
 
+`PlRSeries_first` <- function(self) {
+  function() {
+    .Call(savvy_PlRSeries_first__impl, `self`)
+  }
+}
+
 `PlRSeries_is_sorted_ascending_flag` <- function(self) {
   function() {
     .Call(savvy_PlRSeries_is_sorted_ascending_flag__impl, `self`)
@@ -4182,9 +4206,39 @@ class(`PlRSQLContext`) <- c("PlRSQLContext__bundle", "savvy_neopolars__sealed")
   }
 }
 
+`PlRSeries_last` <- function(self) {
+  function() {
+    .Call(savvy_PlRSeries_last__impl, `self`)
+  }
+}
+
 `PlRSeries_len` <- function(self) {
   function() {
     .Call(savvy_PlRSeries_len__impl, `self`)
+  }
+}
+
+`PlRSeries_max` <- function(self) {
+  function() {
+    .Call(savvy_PlRSeries_max__impl, `self`)
+  }
+}
+
+`PlRSeries_mean` <- function(self) {
+  function() {
+    .Call(savvy_PlRSeries_mean__impl, `self`)
+  }
+}
+
+`PlRSeries_median` <- function(self) {
+  function() {
+    .Call(savvy_PlRSeries_median__impl, `self`)
+  }
+}
+
+`PlRSeries_min` <- function(self) {
+  function() {
+    .Call(savvy_PlRSeries_min__impl, `self`)
   }
 }
 
@@ -4204,6 +4258,18 @@ class(`PlRSQLContext`) <- c("PlRSQLContext__bundle", "savvy_neopolars__sealed")
 `PlRSeries_name` <- function(self) {
   function() {
     .Call(savvy_PlRSeries_name__impl, `self`)
+  }
+}
+
+`PlRSeries_product` <- function(self) {
+  function() {
+    .Call(savvy_PlRSeries_product__impl, `self`)
+  }
+}
+
+`PlRSeries_quantile` <- function(self) {
+  function(`quantile`, `interpolation`) {
+    .Call(savvy_PlRSeries_quantile__impl, `self`, `quantile`, `interpolation`)
   }
 }
 
@@ -4238,6 +4304,12 @@ class(`PlRSQLContext`) <- c("PlRSQLContext__bundle", "savvy_neopolars__sealed")
   }
 }
 
+`PlRSeries_std` <- function(self) {
+  function(`ddof`) {
+    .Call(savvy_PlRSeries_std__impl, `self`, `ddof`)
+  }
+}
+
 `PlRSeries_struct_fields` <- function(self) {
   function() {
     .Call(savvy_PlRSeries_struct_fields__impl, `self`)
@@ -4257,6 +4329,12 @@ class(`PlRSQLContext`) <- c("PlRSQLContext__bundle", "savvy_neopolars__sealed")
   }
 }
 
+`PlRSeries_sum` <- function(self) {
+  function() {
+    .Call(savvy_PlRSeries_sum__impl, `self`)
+  }
+}
+
 `PlRSeries_to_arrow_c_stream` <- function(self) {
   function(`stream_ptr`, `polars_compat_level`) {
     invisible(.Call(savvy_PlRSeries_to_arrow_c_stream__impl, `self`, `stream_ptr`, `polars_compat_level`))
@@ -4270,11 +4348,20 @@ class(`PlRSQLContext`) <- c("PlRSQLContext__bundle", "savvy_neopolars__sealed")
   }
 }
 
+`PlRSeries_var` <- function(self) {
+  function(`ddof`) {
+    .Call(savvy_PlRSeries_var__impl, `self`, `ddof`)
+  }
+}
+
 `.savvy_wrap_PlRSeries` <- function(ptr) {
   e <- new.env(parent = emptyenv())
   e$.ptr <- ptr
   e$`add` <- `PlRSeries_add`(ptr)
   e$`as_str` <- `PlRSeries_as_str`(ptr)
+  e$`bitwise_and` <- `PlRSeries_bitwise_and`(ptr)
+  e$`bitwise_or` <- `PlRSeries_bitwise_or`(ptr)
+  e$`bitwise_xor` <- `PlRSeries_bitwise_xor`(ptr)
   e$`can_fast_explode_flag` <- `PlRSeries_can_fast_explode_flag`(ptr)
   e$`cast` <- `PlRSeries_cast`(ptr)
   e$`cat_is_local` <- `PlRSeries_cat_is_local`(ptr)
@@ -4285,22 +4372,33 @@ class(`PlRSQLContext`) <- c("PlRSQLContext__bundle", "savvy_neopolars__sealed")
   e$`div` <- `PlRSeries_div`(ptr)
   e$`dtype` <- `PlRSeries_dtype`(ptr)
   e$`equals` <- `PlRSeries_equals`(ptr)
+  e$`first` <- `PlRSeries_first`(ptr)
   e$`is_sorted_ascending_flag` <- `PlRSeries_is_sorted_ascending_flag`(ptr)
   e$`is_sorted_descending_flag` <- `PlRSeries_is_sorted_descending_flag`(ptr)
+  e$`last` <- `PlRSeries_last`(ptr)
   e$`len` <- `PlRSeries_len`(ptr)
+  e$`max` <- `PlRSeries_max`(ptr)
+  e$`mean` <- `PlRSeries_mean`(ptr)
+  e$`median` <- `PlRSeries_median`(ptr)
+  e$`min` <- `PlRSeries_min`(ptr)
   e$`mul` <- `PlRSeries_mul`(ptr)
   e$`n_chunks` <- `PlRSeries_n_chunks`(ptr)
   e$`name` <- `PlRSeries_name`(ptr)
+  e$`product` <- `PlRSeries_product`(ptr)
+  e$`quantile` <- `PlRSeries_quantile`(ptr)
   e$`rechunk` <- `PlRSeries_rechunk`(ptr)
   e$`rem` <- `PlRSeries_rem`(ptr)
   e$`rename` <- `PlRSeries_rename`(ptr)
   e$`reshape` <- `PlRSeries_reshape`(ptr)
   e$`slice` <- `PlRSeries_slice`(ptr)
+  e$`std` <- `PlRSeries_std`(ptr)
   e$`struct_fields` <- `PlRSeries_struct_fields`(ptr)
   e$`struct_unnest` <- `PlRSeries_struct_unnest`(ptr)
   e$`sub` <- `PlRSeries_sub`(ptr)
+  e$`sum` <- `PlRSeries_sum`(ptr)
   e$`to_arrow_c_stream` <- `PlRSeries_to_arrow_c_stream`(ptr)
   e$`to_r_vector` <- `PlRSeries_to_r_vector`(ptr)
+  e$`var` <- `PlRSeries_var`(ptr)
 
   class(e) <- c("PlRSeries", "savvy_neopolars__sealed")
   e

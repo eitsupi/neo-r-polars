@@ -15,7 +15,8 @@ METHODS_EXCLUDE <- c(
   "exclude",
   "inspect",
   "over",
-  "rolling"
+  "rolling",
+  "product"
 )
 
 # Special case of the dollar method because dispatching allowed expr methods
@@ -35,7 +36,7 @@ METHODS_EXCLUDE <- c(
     fn
   } else if (name %in% dispatched_method_names) {
     fn <- polars_expr__methods[[name]]
-    expr_wrap_function_factory(fn, x, namespace = NULL, name = name)
+    expr_wrap_function_factory(fn, x, namespace = NULL)
   } else {
     NextMethod()
   }
