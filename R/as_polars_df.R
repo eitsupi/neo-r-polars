@@ -91,12 +91,12 @@ as_polars_df.default <- function(x, ...) {
   } else {
     abort(
       c(
-        paste0(
-          "`x` would have dtype '",
-          format(infer_polars_dtype(x)),
-          "' once converted to polars."
-        ),
-        i = "`as_polars_df()` requires `x` to be an object with dtype 'Struct'."
+        "This object is not supported for the default method of `as_polars_df()`.",
+        i = "It requires `x` to be Series with dtype 'struct'.",
+        i = sprintf(
+          "`x` would have dtype '%s' once converted to polars Series by `as_polars_series()`.",
+          format(dtype, abbreviated = TRUE)
+        )
       )
     )
   }

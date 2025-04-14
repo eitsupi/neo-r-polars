@@ -120,8 +120,9 @@
       as_polars_df(1)
     Condition
       Error in `as_polars_df()`:
-      ! `x` would have dtype 'Float64' once converted to polars.
-      i `as_polars_df()` requires `x` to be an object with dtype 'Struct'.
+      ! This object is not supported for the default method of `as_polars_df()`.
+      i It requires `x` to be Series with dtype 'struct'.
+      i `x` would have dtype 'f64' once converted to polars Series by `as_polars_series()`.
 
 ---
 
