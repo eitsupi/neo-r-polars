@@ -72,6 +72,7 @@ test_that("some functions must return an R scalar", {
   expect_identical(s$bitwise_or(), 3L)
   expect_identical(s$bitwise_xor(), 3L)
 
+  # Ensure AnyValue -> R conversion in Rust doesn't panic
   s <- pl$Series("", c(TRUE, FALSE))
   expect_identical(s$bitwise_and(), FALSE)
   expect_identical(s$bitwise_or(), TRUE)
