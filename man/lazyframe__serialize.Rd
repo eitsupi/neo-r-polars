@@ -20,7 +20,7 @@ One of:
 Serialize to JSON format (character vector).
 }}
 
-\item{data}{A raw vector of serialized \link{Series}.}
+\item{data}{A raw vector of serialized \link{LazyFrame}.}
 }
 \value{
 \itemize{

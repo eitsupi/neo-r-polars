@@ -42,7 +42,6 @@ wrap.PlRLazyFrame <- function(x, ...) {
 #' Serialize the logical plan of this LazyFrame
 #'
 #' @inheritParams rlang::args_dots_empty
-#' @inheritParams series__serialize
 #' @param format A character of the format in which to serialize.
 #' One of:
 #' - `"binary"` (default): Serialize to binary format (raw vector).
@@ -75,6 +74,7 @@ lazyframe__serialize <- function(..., format = c("binary", "json")) {
 }
 
 # TODO: support json format
+#' @param data A raw vector of serialized [LazyFrame].
 #' @rdname lazyframe__serialize
 pl__deserialize_lf <- function(data) {
   PlRLazyFrame$deserialize_binary(data) |>
