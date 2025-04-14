@@ -12,8 +12,7 @@ expr_wrap_function_factory <- function(fn, self, namespace = NULL) {
   new_fn <- function() {
     wrap({
       expr <- do.call(fn, as.list(match.call()[-1]), envir = parent.frame())
-      out <- wrap(`_s`)$to_frame()$select(expr)$to_series()
-      out
+      wrap(`_s`)$to_frame()$select(expr)$to_series()
     })
   }
 

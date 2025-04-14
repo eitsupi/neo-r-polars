@@ -15,8 +15,7 @@ METHODS_EXCLUDE <- c(
   "exclude",
   "inspect",
   "over",
-  "rolling",
-  "product"
+  "rolling"
 )
 
 # Special case of the dollar method because dispatching allowed expr methods
