@@ -1,7 +1,7 @@
 use crate::{PlRDataFrame, PlRDataType, PlRSeries, RPolarsErr, prelude::*};
 use polars_core::series::IsSorted;
 use savvy::{
-    NullSexp, NumericScalar, NumericSexp, OwnedIntegerSexp, OwnedRawSexp, RawSexp, Result, Sexp,
+    NullSexp, NumericScalar, NumericSexp, OwnedRawSexp, RawSexp, Result, Sexp,
     savvy,
 };
 use std::io::Cursor;
@@ -156,7 +156,7 @@ impl PlRSeries {
         let lengths: std::result::Result<Vec<i32>, _> = self
             .series
             .chunk_lengths()
-            .map(|l| <i32>::try_from(l))
+            .map(<i32>::try_from)
             .collect();
         lengths?.try_into()
     }
