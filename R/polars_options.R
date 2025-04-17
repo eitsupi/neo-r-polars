@@ -39,7 +39,13 @@
 polars_options <- function() {
   out <- list(
     df_knitr_print = getOption("polars.df_knitr_print") %||% "auto",
-    conversion_int64 = getOption("polars.conversion_int64") %||% "double"
+    conversion_int64 = getOption("polars.conversion_int64") %||% "double",
+    conversion_uint8 = getOption("polars.conversion_uint8") %||% "integer",
+    conversion_date = getOption("polars.conversion_date") %||% "Date",
+    conversion_time = getOption("polars.conversion_time") %||% "hms",
+    conversion_decimal = getOption("polars.conversion_decimal") %||% "double",
+    conversion_ambiguous = getOption("polars.conversion_ambiguous") %||% "raise",
+    conversion_non_existent = getOption("polars.conversion_non_existent") %||% "raise"
   )
 
   arg_match0(out[["df_knitr_print"]], c("auto"), arg_nm = "df_knitr_print") # TODO: complete possible values
@@ -48,9 +54,24 @@ polars_options <- function() {
     c("double", "character", "integer", "integer64"),
     arg_nm = "conversion_int64"
   )
-  if (out[["conversion_int64"]] == "integer64" && !"bit64" %in% .packages()) {
-    abort(r"(package `bit64` must be attached to use `conversion_int64 = "integer64"`.)")
-  }
+  arg_match0(out[["conversion_uint8"]], c("integer", "raw"), arg_nm = "conversion_uint8")
+  arg_match0(out[["conversion_date"]], c("Date", "IDate"), arg_nm = "conversion_date")
+  arg_match0(out[["conversion_time"]], c("hms", "ITime"), arg_nm = "conversion_time")
+  arg_match0(out[["conversion_decimal"]], c("double", "character"), arg_nm = "conversion_decimal")
+  arg_match0(
+    out[["conversion_ambiguous"]],
+    c("raise", "earliest", "latest", "null"),
+    arg_nm = "conversion_ambiguous"
+  )
+  arg_match0(
+    out[["conversion_non_existent"]],
+    c("raise", "null"),
+    arg_nm = "conversion_non_existent"
+  )
+  check_option_required_package(out[["conversion_int64"]], "conversion_int64", "integer64", "bit64")
+  check_option_required_package(out[["conversion_date"]], "conversion_date", "IDate", "data.table")
+  check_option_required_package(out[["conversion_time"]], "conversion_time", "hms", "hms")
+  check_option_required_package(out[["conversion_time"]], "conversion_time", "ITime", "data.table")
   structure(out, class = "polars_options")
 }
 
@@ -60,7 +81,13 @@ polars_options_reset <- function() {
   options(
     list(
       polars.df_knitr_print = "auto",
-      polars.conversion_int64 = "double"
+      polars.conversion_int64 = "double",
+      polars.conversion_uint8 = "integer",
+      polars.conversion_date = "Date",
+      polars.conversion_time = "hms",
+      polars.conversion_decimal = "double",
+      polars.conversion_ambiguous = "raise",
+      polars.conversion_non_existent = "raise"
     )
   )
 }

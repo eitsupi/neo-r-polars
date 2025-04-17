@@ -34,3 +34,27 @@ use_option_if_missing <- function(x, is_missing, default) {
   }
   x
 }
+
+#' @param x Option value set by user.
+#' @param option_name Name of the option set by user, e.g. `"conversion_int64"`.
+#' @param option_value Option value that requires checking for package presence,
+#' e.g. `"integer64"`
+#' @param pkg Name of package that must be present to use this `option_value`,
+#' e.g. `"bit64".`
+#' @noRd
+check_option_required_package <- function(x, option_name, option_value, pkg) {
+  if (x == option_value && !pkg %in% .packages()) {
+    abort(
+      paste0(
+        "package `",
+        pkg,
+        "` must be attached to use `",
+        option_name,
+        " = \"",
+        option_value,
+        "\"`."
+      ),
+      call = caller_env()
+    )
+  }
+}

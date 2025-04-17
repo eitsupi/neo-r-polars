@@ -1,6 +1,9 @@
 test_that("default options", {
   polars_options_reset()
+  skip_if_not_installed("hms")
+  library(hms)
   expect_snapshot(polars_options())
+  try(detach("package:hms"), silent = TRUE)
 })
 
 test_that("options are validated", {
@@ -13,9 +16,29 @@ test_that("options are validated", {
     list(polars.df_knitr_print = "foobar"),
     expect_snapshot(print(polars_options()), error = TRUE)
   )
+  withr::with_options(
+    list(polars.conversion_uint8 = "foobar"),
+    expect_snapshot(print(polars_options()), error = TRUE)
+  )
+  withr::with_options(
+    list(polars.conversion_date = "foobar"),
+    expect_snapshot(print(polars_options()), error = TRUE)
+  )
+  withr::with_options(
+    list(polars.conversion_time = "foobar"),
+    expect_snapshot(print(polars_options()), error = TRUE)
+  )
+  withr::with_options(
+    list(polars.conversion_ambiguous = "foobar"),
+    expect_snapshot(print(polars_options()), error = TRUE)
+  )
+  withr::with_options(
+    list(polars.conversion_non_existent = "foobar"),
+    expect_snapshot(print(polars_options()), error = TRUE)
+  )
 })
 
-test_that("option 'int64 ' works", {
+test_that("option 'conversion_int64' works", {
   polars_options_reset()
   df <- pl$DataFrame(a = c(1:3, NA))$cast(a = pl$Int64)
 
@@ -96,3 +119,97 @@ test_that("option 'int64 ' works", {
     }
   )
 })
+
+test_that("option 'conversion_date' works", {
+  polars_options_reset()
+  df <- pl$DataFrame(a = as.Date("2020-01-01"))
+
+  # TODO: expect_identical() fails because x is integer and y is double?
+  expect_equal(
+    as.list(df, as_series = FALSE),
+    list(a = as.Date("2020-01-01"))
+  )
+
+  try(detach("package:data.table"), silent = TRUE)
+  withr::with_options(
+    list(polars.conversion_date = "IDate"),
+    expect_snapshot(polars_options(), error = TRUE)
+  )
+
+  skip_if_not_installed("data.table")
+  suppressPackageStartupMessages(library(data.table))
+
+  withr::with_options(
+    list(polars.conversion_date = "IDate"),
+    expect_message(
+      expect_identical(
+        as.list(df, as_series = FALSE),
+        list(a = data.table::as.IDate("2020-01-01"))
+      ),
+      r"(Using `date = "IDate"`)"
+    )
+  )
+})
+
+test_that("option 'conversion_time' works", {
+  skip_if_not_installed("hms")
+  polars_options_reset()
+  df <- pl$DataFrame(a = hms::hms(1, 1, 1))
+
+  try(detach("package:hms"), silent = TRUE)
+  expect_snapshot(polars_options(), error = TRUE)
+
+  suppressPackageStartupMessages(library(hms))
+
+  withr::with_options(
+    list(polars.conversion_time = "hms"),
+    expect_identical(
+      as.list(df, as_series = FALSE),
+      list(a = hms::hms(1, 1, 1))
+    )
+  )
+
+  try(detach("package:data.table"), silent = TRUE)
+  withr::with_options(
+    list(polars.conversion_time = "ITime"),
+    expect_snapshot(polars_options(), error = TRUE)
+  )
+
+  skip_if_not_installed("data.table")
+  suppressPackageStartupMessages(library(data.table))
+
+  withr::with_options(
+    list(polars.conversion_time = "ITime"),
+    expect_message(
+      expect_identical(
+        as.list(df, as_series = FALSE),
+        list(a = data.table::as.ITime("01:01:01"))
+      ),
+      r"(Using `time = "ITime"`)"
+    )
+  )
+})
+
+test_that("option 'conversion_uint8' works", {
+  polars_options_reset()
+  df <- pl$DataFrame(a = 1)$cast(pl$UInt8)
+
+  expect_identical(
+    as.list(df, as_series = FALSE),
+    list(a = 1L)
+  )
+
+  withr::with_options(
+    list(polars.conversion_uint8 = "raw"),
+    expect_message(
+      expect_identical(
+        as.list(df, as_series = FALSE),
+        list(a = as.raw(1L))
+      ),
+      r"(Using `uint8 = "raw"`)"
+    )
+  )
+})
+
+# TODO: how to test conversion of ambiguous or non-existent dates from polars
+# to R?

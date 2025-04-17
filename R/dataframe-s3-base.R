@@ -55,6 +55,12 @@ as.list.polars_data_frame <- function(
   non_existent = c("raise", "null")
 ) {
   int64 <- use_option_if_missing(int64, missing(int64), "double")
+  uint8 <- use_option_if_missing(uint8, missing(uint8), "integer")
+  date <- use_option_if_missing(date, missing(date), "Date")
+  time <- use_option_if_missing(time, missing(time), "hms")
+  decimal <- use_option_if_missing(decimal, missing(decimal), "double")
+  ambiguous <- use_option_if_missing(ambiguous, missing(ambiguous), "raise")
+  non_existent <- use_option_if_missing(non_existent, missing(non_existent), "raise")
 
   if (isTRUE(as_series)) {
     # Ensure collect data because x may be a lazy frame
@@ -103,6 +109,12 @@ as.data.frame.polars_data_frame <- function(
   non_existent = c("raise", "null")
 ) {
   int64 <- use_option_if_missing(int64, missing(int64), "double")
+  uint8 <- use_option_if_missing(uint8, missing(uint8), "integer")
+  date <- use_option_if_missing(date, missing(date), "Date")
+  time <- use_option_if_missing(time, missing(time), "hms")
+  decimal <- use_option_if_missing(decimal, missing(decimal), "double")
+  ambiguous <- use_option_if_missing(ambiguous, missing(ambiguous), "raise")
+  non_existent <- use_option_if_missing(non_existent, missing(non_existent), "raise")
 
   as_polars_df(x, ...)$to_struct()$to_r_vector(
     ensure_vector = FALSE,
