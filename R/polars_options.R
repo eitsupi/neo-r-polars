@@ -1,9 +1,10 @@
 #' Get and reset polars options
 #'
-#' @description `polars_options()` returns a list of options for polars. Options
+#' @description
+#' `polars_options()` returns a list of options for polars. Options
 #' can be set with [`options()`]. Note that **options must be prefixed with
-#' "polars."**, e.g to modify the option `strictly_immutable` you need to pass
-#' `options(polars.strictly_immutable =)`. See below for a description of all
+#' "polars."**, e.g to modify the option `int64_conversion` you need to pass
+#' `options(polars.int64_conversion =)`. See below for a description of all
 #' options.
 #'
 #' `polars_options_reset()` brings all polars options back to their default
@@ -15,8 +16,10 @@
 #' * `int64_conversion` (`"double"`): How should Int64 values be handled when
 #'   converting a polars object to R?
 #'    * `"double"` converts the integer values to double.
-#'    * `"bit64"` uses `bit64::as.integer64()` to do the conversion (requires
-#'   the package `bit64` to be attached).
+#'    * `"integer"` converts to the R's [integer] type. If the value is out of
+#'      the range of R's integer type, export as [NA_integer_].
+#'    * `"integer64"` uses `bit64::as.integer64()` to do the conversion
+#'      (requires the package `bit64` to be attached).
 #'    * `"character"` converts Int64 values to character.
 #' * `df_knitr_print` (TODO: possible values??)
 #'
