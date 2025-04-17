@@ -23,7 +23,8 @@
 #' `polars_options_reset()` doesn't return anything.
 #'
 #' @export
-#' @examplesIf requireNamespace("withr", quietly = TRUE)
+#' @examplesIf requireNamespace("withr", quietly = TRUE) && requireNamespace("hms", quietly = TRUE)
+#' library(hms)
 #' polars_options()
 #' withr::with_options(
 #'   list(polars.conversion_int64 = "character"),
