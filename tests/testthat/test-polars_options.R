@@ -67,9 +67,32 @@ test_that("option 'int64_conversion ' works", {
     list(a = c("1", "2", "3", NA))
   )
 
-  # arg correctly passed from as.data.frame() to as.list()
-  expect_identical(
-    as.data.frame(df, int64 = "character"),
-    data.frame(a = c("1", "2", "3", NA))
+  # check other S3 methods
+  withr::with_options(
+    list(polars.int64_conversion = "character"),
+    {
+      expect_message(
+        expect_identical(
+          as.data.frame(df),
+          data.frame(a = c("1", "2", "3", NA))
+        ),
+        r"(Using `int64 = "character"`)"
+      )
+      expect_message(
+        expect_identical(
+          as.vector(pl$Series("a", c(1:3, NA))$cast(pl$Int64)),
+          c("1", "2", "3", NA)
+        ),
+        r"(Using `int64 = "character"`)"
+      )
+      skip_if_not_installed("tibble")
+      expect_message(
+        expect_identical(
+          tibble::as_tibble(df),
+          tibble::tibble(a = c("1", "2", "3", NA))
+        ),
+        r"(Using `int64 = "character"`)"
+      )
+    }
   )
 })
