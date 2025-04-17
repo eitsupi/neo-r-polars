@@ -13,14 +13,7 @@
 #' @details The following options are available (in alphabetical order, with the
 #'   default value in parenthesis):
 #'
-#' * `conversion_int64` (`"double"`): How should Int64 values be handled when
-#'   converting a polars object to R?
-#'    * `"double"` converts the integer values to double.
-#'    * `"integer"` converts to the R's [integer] type. If the value is out of
-#'      the range of R's integer type, export as [NA_integer_].
-#'    * `"integer64"` uses `bit64::as.integer64()` to do the conversion
-#'      (requires the package `bit64` to be attached).
-#'    * `"character"` converts Int64 values to character.
+#' * for all `conversion_*` options, see arguments of [to_r_vector()][series__to_r_vector].
 #' * `df_knitr_print` (TODO: possible values??)
 #'
 #' @return

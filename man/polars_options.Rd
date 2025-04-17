@@ -18,8 +18,8 @@ values are option values.
 \description{
 \code{polars_options()} returns a list of options for polars. Options
 can be set with \code{\link[=options]{options()}}. Note that \strong{options must be prefixed with
-"polars."}, e.g to modify the option \code{int64_conversion} you need to pass
-\code{options(polars.int64_conversion =)}. See below for a description of all
+"polars."}, e.g to modify the option \code{conversion_int64} you need to pass
+\code{options(polars.conversion_int64 =)}. See below for a description of all
 options.
 
 \code{polars_options_reset()} brings all polars options back to their default
@@ -29,16 +29,7 @@ value.
 The following options are available (in alphabetical order, with the
 default value in parenthesis):
 \itemize{
-\item \code{int64_conversion} (\code{"double"}): How should Int64 values be handled when
-converting a polars object to R?
-\itemize{
-\item \code{"double"} converts the integer values to double.
-\item \code{"integer"} converts to the R's \link{integer} type. If the value is out of
-the range of R's integer type, export as \link{NA_integer_}.
-\item \code{"integer64"} uses \code{bit64::as.integer64()} to do the conversion
-(requires the package \code{bit64} to be attached).
-\item \code{"character"} converts Int64 values to character.
-}
+\item for all \verb{conversion_*} options, see arguments of \link[=series__to_r_vector]{to_r_vector()}.
 \item \code{df_knitr_print} (TODO: possible values??)
 }
 }
@@ -46,7 +37,7 @@ the range of R's integer type, export as \link{NA_integer_}.
 \dontshow{if (requireNamespace("withr", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 polars_options()
 withr::with_options(
-  list(polars.int64_conversion = "character"),
+  list(polars.conversion_int64 = "character"),
   polars_options()
 )
 \dontshow{\}) # examplesIf}
