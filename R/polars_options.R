@@ -3,8 +3,8 @@
 #' @description
 #' `polars_options()` returns a list of options for polars. Options
 #' can be set with [`options()`]. Note that **options must be prefixed with
-#' "polars."**, e.g to modify the option `int64_conversion` you need to pass
-#' `options(polars.int64_conversion =)`. See below for a description of all
+#' "polars."**, e.g to modify the option `conversion_int64` you need to pass
+#' `options(polars.conversion_int64 =)`. See below for a description of all
 #' options.
 #'
 #' `polars_options_reset()` brings all polars options back to their default
@@ -13,7 +13,7 @@
 #' @details The following options are available (in alphabetical order, with the
 #'   default value in parenthesis):
 #'
-#' * `int64_conversion` (`"double"`): How should Int64 values be handled when
+#' * `conversion_int64` (`"double"`): How should Int64 values be handled when
 #'   converting a polars object to R?
 #'    * `"double"` converts the integer values to double.
 #'    * `"integer"` converts to the R's [integer] type. If the value is out of
@@ -33,23 +33,23 @@
 #' @examplesIf requireNamespace("withr", quietly = TRUE)
 #' polars_options()
 #' withr::with_options(
-#'   list(polars.int64_conversion = "character"),
+#'   list(polars.conversion_int64 = "character"),
 #'   polars_options()
 #' )
 polars_options <- function() {
   out <- list(
     df_knitr_print = getOption("polars.df_knitr_print") %||% "auto",
-    int64_conversion = getOption("polars.int64_conversion") %||% "double"
+    conversion_int64 = getOption("polars.conversion_int64") %||% "double"
   )
 
   arg_match0(out[["df_knitr_print"]], c("auto"), arg_nm = "df_knitr_print") # TODO: complete possible values
   arg_match0(
-    out[["int64_conversion"]],
+    out[["conversion_int64"]],
     c("double", "character", "integer", "integer64"),
-    arg_nm = "int64_conversion"
+    arg_nm = "conversion_int64"
   )
-  if (out[["int64_conversion"]] == "integer64" && !"bit64" %in% .packages()) {
-    abort(r"(package `bit64` must be attached to use `int64_conversion = "integer64"`.)")
+  if (out[["conversion_int64"]] == "integer64" && !"bit64" %in% .packages()) {
+    abort(r"(package `bit64` must be attached to use `conversion_int64 = "integer64"`.)")
   }
   structure(out, class = "polars_options")
 }
@@ -60,7 +60,7 @@ polars_options_reset <- function() {
   options(
     list(
       polars.df_knitr_print = "auto",
-      polars.int64_conversion = "double"
+      polars.conversion_int64 = "double"
     )
   )
 }

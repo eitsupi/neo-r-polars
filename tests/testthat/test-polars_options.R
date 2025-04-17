@@ -6,7 +6,7 @@ test_that("default options", {
 test_that("options are validated", {
   polars_options_reset()
   withr::with_options(
-    list(polars.int64_conversion = "foobar"),
+    list(polars.conversion_int64 = "foobar"),
     expect_snapshot(print(polars_options()), error = TRUE)
   )
   withr::with_options(
@@ -15,7 +15,7 @@ test_that("options are validated", {
   )
 })
 
-test_that("option 'int64_conversion ' works", {
+test_that("option 'int64 ' works", {
   polars_options_reset()
   df <- pl$DataFrame(a = c(1:3, NA))$cast(a = pl$Int64)
 
@@ -27,7 +27,7 @@ test_that("option 'int64_conversion ' works", {
 
   # can convert to character
   withr::with_options(
-    list(polars.int64_conversion = "character"),
+    list(polars.conversion_int64 = "character"),
     {
       expect_message(
         expect_identical(
@@ -42,7 +42,7 @@ test_that("option 'int64_conversion ' works", {
   # can convert to bit64, but *only* if bit64 is attached
   try(detach("package:bit64"), silent = TRUE)
   withr::with_options(
-    list(polars.int64_conversion = "integer64"),
+    list(polars.conversion_int64 = "integer64"),
     expect_snapshot(polars_options(), error = TRUE)
   )
 
@@ -50,7 +50,7 @@ test_that("option 'int64_conversion ' works", {
   suppressPackageStartupMessages(library(bit64))
 
   withr::with_options(
-    list(polars.int64_conversion = "integer64"),
+    list(polars.conversion_int64 = "integer64"),
     expect_message(
       expect_identical(
         as.list(df, as_series = FALSE),
@@ -69,7 +69,7 @@ test_that("option 'int64_conversion ' works", {
 
   # check other S3 methods
   withr::with_options(
-    list(polars.int64_conversion = "character"),
+    list(polars.conversion_int64 = "character"),
     {
       expect_message(
         expect_identical(

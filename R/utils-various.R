@@ -19,3 +19,18 @@ extend_bool <- function(value, n_match, value_name, match_name) {
     value
   }
 }
+
+#' @param x Argument passed in calling function, e.g. `int64`.
+#' @param is_missing Is `x` missing in the calling function?
+#' @param default The default of `x` in the calling function
+#' @noRd
+use_option_if_missing <- function(x, is_missing, default) {
+  nm <- deparse(substitute(x))
+  if (is_missing) {
+    x <- getOption(paste0("polars.conversion_", nm), default)
+    if (x != default) {
+      inform(paste0("Using `", nm, " = \"", x, "\"`."))
+    }
+  }
+  x
+}
