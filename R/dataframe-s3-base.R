@@ -54,6 +54,12 @@ as.list.polars_data_frame <- function(
   ambiguous = c("raise", "earliest", "latest", "null"),
   non_existent = c("raise", "null")
 ) {
+  if (missing(int64)) {
+    int64 <- getOption("polars.int64_conversion", int64[1])
+    if (int64 != "double") {
+      inform(paste0("Using `int64 = \"", int64, "\"`."))
+    }
+  }
   if (isTRUE(as_series)) {
     # Ensure collect data because x may be a lazy frame
     x <- as_polars_df(x, ...)
