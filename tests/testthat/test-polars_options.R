@@ -9,7 +9,7 @@ test_that("default options", {
 test_that("options are validated", {
   polars_options_reset()
   withr::with_options(
-    list(polars.conversion_int64 = "foobar"),
+    list(polars.to_r_vector_int64 = "foobar"),
     expect_snapshot(print(polars_options()), error = TRUE)
   )
   withr::with_options(
@@ -17,28 +17,28 @@ test_that("options are validated", {
     expect_snapshot(print(polars_options()), error = TRUE)
   )
   withr::with_options(
-    list(polars.conversion_uint8 = "foobar"),
+    list(polars.to_r_vector_uint8 = "foobar"),
     expect_snapshot(print(polars_options()), error = TRUE)
   )
   withr::with_options(
-    list(polars.conversion_date = "foobar"),
+    list(polars.to_r_vector_date = "foobar"),
     expect_snapshot(print(polars_options()), error = TRUE)
   )
   withr::with_options(
-    list(polars.conversion_time = "foobar"),
+    list(polars.to_r_vector_time = "foobar"),
     expect_snapshot(print(polars_options()), error = TRUE)
   )
   withr::with_options(
-    list(polars.conversion_ambiguous = "foobar"),
+    list(polars.to_r_vector_ambiguous = "foobar"),
     expect_snapshot(print(polars_options()), error = TRUE)
   )
   withr::with_options(
-    list(polars.conversion_non_existent = "foobar"),
+    list(polars.to_r_vector_non_existent = "foobar"),
     expect_snapshot(print(polars_options()), error = TRUE)
   )
 })
 
-test_that("option 'conversion_int64' works", {
+test_that("option 'to_r_vector_int64' works", {
   polars_options_reset()
   df <- pl$DataFrame(a = c(1:3, NA))$cast(a = pl$Int64)
 
@@ -50,7 +50,7 @@ test_that("option 'conversion_int64' works", {
 
   # can convert to character
   withr::with_options(
-    list(polars.conversion_int64 = "character"),
+    list(polars.to_r_vector_int64 = "character"),
     {
       expect_message(
         expect_identical(
@@ -65,7 +65,7 @@ test_that("option 'conversion_int64' works", {
   # can convert to bit64, but *only* if bit64 is attached
   try(detach("package:bit64"), silent = TRUE)
   withr::with_options(
-    list(polars.conversion_int64 = "integer64"),
+    list(polars.to_r_vector_int64 = "integer64"),
     expect_snapshot(polars_options(), error = TRUE)
   )
 
@@ -73,7 +73,7 @@ test_that("option 'conversion_int64' works", {
   suppressPackageStartupMessages(library(bit64))
 
   withr::with_options(
-    list(polars.conversion_int64 = "integer64"),
+    list(polars.to_r_vector_int64 = "integer64"),
     expect_message(
       expect_identical(
         as.list(df, as_series = FALSE),
@@ -92,7 +92,7 @@ test_that("option 'conversion_int64' works", {
 
   # check other S3 methods
   withr::with_options(
-    list(polars.conversion_int64 = "character"),
+    list(polars.to_r_vector_int64 = "character"),
     {
       expect_message(
         expect_identical(
@@ -120,7 +120,7 @@ test_that("option 'conversion_int64' works", {
   )
 })
 
-test_that("option 'conversion_date' works", {
+test_that("option 'to_r_vector_date' works", {
   polars_options_reset()
   df <- pl$DataFrame(a = as.Date("2020-01-01"))
 
@@ -132,7 +132,7 @@ test_that("option 'conversion_date' works", {
 
   try(detach("package:data.table"), silent = TRUE)
   withr::with_options(
-    list(polars.conversion_date = "IDate"),
+    list(polars.to_r_vector_date = "IDate"),
     expect_snapshot(polars_options(), error = TRUE)
   )
 
@@ -140,7 +140,7 @@ test_that("option 'conversion_date' works", {
   suppressPackageStartupMessages(library(data.table))
 
   withr::with_options(
-    list(polars.conversion_date = "IDate"),
+    list(polars.to_r_vector_date = "IDate"),
     expect_message(
       expect_identical(
         as.list(df, as_series = FALSE),
@@ -151,7 +151,7 @@ test_that("option 'conversion_date' works", {
   )
 })
 
-test_that("option 'conversion_time' works", {
+test_that("option 'to_r_vector_time' works", {
   skip_if_not_installed("hms")
   polars_options_reset()
   df <- pl$DataFrame(a = hms::hms(1, 1, 1))
@@ -162,7 +162,7 @@ test_that("option 'conversion_time' works", {
   suppressPackageStartupMessages(library(hms))
 
   withr::with_options(
-    list(polars.conversion_time = "hms"),
+    list(polars.to_r_vector_time = "hms"),
     expect_identical(
       as.list(df, as_series = FALSE),
       list(a = hms::hms(1, 1, 1))
@@ -171,7 +171,7 @@ test_that("option 'conversion_time' works", {
 
   try(detach("package:data.table"), silent = TRUE)
   withr::with_options(
-    list(polars.conversion_time = "ITime"),
+    list(polars.to_r_vector_time = "ITime"),
     expect_snapshot(polars_options(), error = TRUE)
   )
 
@@ -179,7 +179,7 @@ test_that("option 'conversion_time' works", {
   suppressPackageStartupMessages(library(data.table))
 
   withr::with_options(
-    list(polars.conversion_time = "ITime"),
+    list(polars.to_r_vector_time = "ITime"),
     expect_message(
       expect_identical(
         as.list(df, as_series = FALSE),
@@ -190,7 +190,7 @@ test_that("option 'conversion_time' works", {
   )
 })
 
-test_that("option 'conversion_uint8' works", {
+test_that("option 'to_r_vector_uint8' works", {
   polars_options_reset()
   df <- pl$DataFrame(a = 1)$cast(pl$UInt8)
 
@@ -200,7 +200,7 @@ test_that("option 'conversion_uint8' works", {
   )
 
   withr::with_options(
-    list(polars.conversion_uint8 = "raw"),
+    list(polars.to_r_vector_uint8 = "raw"),
     expect_message(
       expect_identical(
         as.list(df, as_series = FALSE),

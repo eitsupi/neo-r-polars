@@ -27,7 +27,7 @@ extend_bool <- function(value, n_match, value_name, match_name) {
 use_option_if_missing <- function(x, is_missing, default) {
   nm <- deparse(substitute(x))
   if (is_missing) {
-    x <- getOption(paste0("polars.conversion_", nm), default)
+    x <- getOption(paste0("polars.to_r_vector_", nm), default)
     if (x != default) {
       inform(paste0("Using `", nm, " = \"", x, "\"`."))
     }
@@ -36,7 +36,7 @@ use_option_if_missing <- function(x, is_missing, default) {
 }
 
 #' @param x Option value set by user.
-#' @param option_name Name of the option set by user, e.g. `"conversion_int64"`.
+#' @param option_name Name of the option set by user, e.g. `"to_r_vector_int64"`.
 #' @param option_value Option value that requires checking for package presence,
 #' e.g. `"integer64"`
 #' @param pkg Name of package that must be present to use this `option_value`,
