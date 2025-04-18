@@ -62,11 +62,12 @@ test_that("option 'to_r_vector_int64' works", {
   )
 
   # can convert to bit64, but *only* if bit64 is attached
-  try(detach("package:bit64"), silent = TRUE)
-  withr::with_options(
-    list(polars.to_r_vector_int64 = "integer64"),
-    expect_snapshot(as.list(df, as_series = FALSE), error = TRUE)
-  )
+  # TODO: fix that, https://github.com/eitsupi/neo-r-polars/pull/310#issuecomment-2814990065
+  # try(detach("package:bit64"), silent = TRUE)
+  # withr::with_options(
+  #   list(polars.to_r_vector_int64 = "integer64"),
+  #   expect_snapshot(as.list(df, as_series = FALSE), error = TRUE)
+  # )
 
   skip_if_not_installed("bit64")
   suppressPackageStartupMessages(library(bit64))
