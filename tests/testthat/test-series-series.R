@@ -89,3 +89,27 @@ test_that("rechunk() and chunk_lengths() work", {
 
   expect_identical(s3$rechunk()$chunk_lengths(), 6L)
 })
+
+test_that("some functions must return an R scalar", {
+  s <- pl$Series("", 1:2)
+  expect_identical(s$max(), 2L)
+  expect_identical(s$min(), 1L)
+  expect_identical(s$sum(), 3L)
+  expect_identical(s$mean(), 1.5)
+  expect_identical(s$product(), 2)
+  expect_identical(s$quantile(0.3), 1)
+  expect_identical(s$var(), 0.5)
+  expect_identical(s$std(), 0.7071, tolerance = 0.0001)
+  expect_identical(s$median(), 1.5)
+  expect_identical(s$first(), 1L)
+  expect_identical(s$last(), 2L)
+  expect_identical(s$bitwise_and(), 0L)
+  expect_identical(s$bitwise_or(), 3L)
+  expect_identical(s$bitwise_xor(), 3L)
+
+  # Ensure AnyValue -> R conversion in Rust doesn't panic
+  s <- pl$Series("", c(TRUE, FALSE))
+  expect_identical(s$bitwise_and(), FALSE)
+  expect_identical(s$bitwise_or(), TRUE)
+  expect_identical(s$bitwise_xor(), TRUE)
+})
