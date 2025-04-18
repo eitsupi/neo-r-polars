@@ -52,12 +52,11 @@ test_that("option 'to_r_vector_int64' works", {
   withr::with_options(
     list(polars.to_r_vector_int64 = "character"),
     {
-      expect_message(
+      expect_snapshot(
         expect_identical(
           as.list(df, as_series = FALSE),
           list(a = c("1", "2", "3", NA))
-        ),
-        r"(Using `int64 = "character"`)"
+        )
       )
     }
   )
@@ -66,7 +65,7 @@ test_that("option 'to_r_vector_int64' works", {
   try(detach("package:bit64"), silent = TRUE)
   withr::with_options(
     list(polars.to_r_vector_int64 = "integer64"),
-    expect_snapshot(polars_options(), error = TRUE)
+    expect_snapshot(as.list(df, as_series = FALSE), error = TRUE)
   )
 
   skip_if_not_installed("bit64")
@@ -74,12 +73,11 @@ test_that("option 'to_r_vector_int64' works", {
 
   withr::with_options(
     list(polars.to_r_vector_int64 = "integer64"),
-    expect_message(
+    expect_snapshot(
       expect_identical(
         as.list(df, as_series = FALSE),
         list(a = as.integer64(c(1, 2, 3, NA)))
-      ),
-      r"(Using `int64 = "integer64"`)"
+      )
     )
   )
 
@@ -94,29 +92,32 @@ test_that("option 'to_r_vector_int64' works", {
   withr::with_options(
     list(polars.to_r_vector_int64 = "character"),
     {
-      expect_message(
+      expect_snapshot(
         expect_identical(
           as.data.frame(df),
           data.frame(a = c("1", "2", "3", NA))
-        ),
-        r"(Using `int64 = "character"`)"
+        )
       )
-      expect_message(
+      expect_snapshot(
         expect_identical(
           as.vector(pl$Series("a", c(1:3, NA))$cast(pl$Int64)),
           c("1", "2", "3", NA)
-        ),
-        r"(Using `int64 = "character"`)"
+        )
       )
       skip_if_not_installed("tibble")
-      expect_message(
+      expect_snapshot(
         expect_identical(
           tibble::as_tibble(df),
           tibble::tibble(a = c("1", "2", "3", NA))
-        ),
-        r"(Using `int64 = "character"`)"
+        )
       )
     }
+  )
+
+  # error if wrong option
+  withr::with_options(
+    list(polars.to_r_vector_int64 = complex(1)),
+    expect_snapshot(as.list(df, as_series = FALSE), error = TRUE)
   )
 })
 
@@ -141,12 +142,11 @@ test_that("option 'to_r_vector_date' works", {
 
   withr::with_options(
     list(polars.to_r_vector_date = "IDate"),
-    expect_message(
+    expect_snapshot(
       expect_identical(
         as.list(df, as_series = FALSE),
         list(a = data.table::as.IDate("2020-01-01"))
-      ),
-      r"(Using `date = "IDate"`)"
+      )
     )
   )
 })
@@ -180,12 +180,11 @@ test_that("option 'to_r_vector_time' works", {
 
   withr::with_options(
     list(polars.to_r_vector_time = "ITime"),
-    expect_message(
+    expect_snapshot(
       expect_identical(
         as.list(df, as_series = FALSE),
         list(a = data.table::as.ITime("01:01:01"))
-      ),
-      r"(Using `time = "ITime"`)"
+      )
     )
   )
 })
@@ -201,12 +200,11 @@ test_that("option 'to_r_vector_uint8' works", {
 
   withr::with_options(
     list(polars.to_r_vector_uint8 = "raw"),
-    expect_message(
+    expect_snapshot(
       expect_identical(
         as.list(df, as_series = FALSE),
         list(a = as.raw(1L))
-      ),
-      r"(Using `uint8 = "raw"`)"
+      )
     )
   )
 })

@@ -28,8 +28,15 @@ use_option_if_missing <- function(x, is_missing, default) {
   nm <- deparse(substitute(x))
   if (is_missing) {
     x <- getOption(paste0("polars.to_r_vector_", nm), default)
-    if (x != default) {
-      inform(paste0("Using `", nm, " = \"", x, "\"`."))
+    if (!identical(x, default)) {
+      inform(
+        sprintf(
+          '`%s` is overridden by the option "%s" with %s',
+          nm,
+          paste0("polars.to_r_vector_", nm),
+          rlang:::obj_type_friendly(x)
+        ),
+      )
     }
   }
   x
