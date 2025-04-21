@@ -77,7 +77,7 @@ min.polars_series <- function(x, ...) x$min()
 #' @export
 mean.polars_series <- function(x, ...) x$mean()
 
-#' @export
+#' @exportS3Method stats::median
 median.polars_series <- function(x, ...) x$median()
 
 #' @export
