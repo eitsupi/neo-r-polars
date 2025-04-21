@@ -113,3 +113,9 @@ as.data.frame.polars_data_frame <- function(
     non_existent = non_existent
   )
 }
+
+#' @export
+head.polars_data_frame <- function(x, n = 6L, ...) x$head(n = n)
+
+#' @export
+tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)

@@ -21,3 +21,9 @@ as.list.polars_lazy_frame <- as.list.polars_data_frame
 #' @export
 #' @rdname s3-as.data.frame
 as.data.frame.polars_lazy_frame <- as.data.frame.polars_data_frame
+
+#' @export
+head.polars_lazy_frame <- head.polars_data_frame
+
+#' @export
+tail.polars_lazy_frame <- tail.polars_data_frame
