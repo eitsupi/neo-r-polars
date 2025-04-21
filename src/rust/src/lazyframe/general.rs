@@ -2,14 +2,12 @@ use crate::{
     PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame, PlRLazyGroupBy, PlRSeries, RPolarsErr,
     prelude::{sync_on_close::SyncOnCloseType, *},
 };
-use polars::io::cloud::CloudOptions;
 use polars::io::{HiveOptions, RowIndex};
 use savvy::{
     ListSexp, LogicalSexp, NumericScalar, OwnedListSexp, OwnedStringSexp, Result, Sexp, StringSexp,
     savvy,
 };
-use std::num::NonZeroUsize;
-use std::path::PathBuf;
+use std::{num::NonZeroUsize, path::PathBuf};
 
 #[savvy]
 impl PlRLazyFrame {
@@ -203,16 +201,13 @@ impl PlRLazyFrame {
         let ldf = self.ldf.clone();
         let by = <Wrap<Vec<Expr>>>::from(by).0;
         Ok(ldf
-            .sort_by_exprs(
-                by,
-                SortMultipleOptions {
-                    descending: descending.to_vec(),
-                    nulls_last: nulls_last.to_vec(),
-                    maintain_order,
-                    multithreaded,
-                    limit: None,
-                },
-            )
+            .sort_by_exprs(by, SortMultipleOptions {
+                descending: descending.to_vec(),
+                nulls_last: nulls_last.to_vec(),
+                maintain_order,
+                multithreaded,
+                limit: None,
+            })
             .into())
     }
 
@@ -241,16 +236,13 @@ impl PlRLazyFrame {
     ) -> Result<Self> {
         let ldf = self.ldf.clone();
         Ok(ldf
-            .sort(
-                [by_column],
-                SortMultipleOptions {
-                    descending: vec![descending],
-                    nulls_last: vec![nulls_last],
-                    multithreaded,
-                    maintain_order,
-                    limit: None,
-                },
-            )
+            .sort([by_column], SortMultipleOptions {
+                descending: vec![descending],
+                nulls_last: vec![nulls_last],
+                multithreaded,
+                maintain_order,
+                limit: None,
+            })
             .into())
     }
 
@@ -336,12 +328,6 @@ impl PlRLazyFrame {
         Ok(out.into())
     }
 
-    fn serialize(&self) -> Result<Sexp> {
-        let dump = serde_json::to_string(&self.ldf.logical_plan)
-            .map_err(|err| RPolarsErr::Other(err.to_string()))?;
-        dump.try_into()
-    }
-
     fn select_seq(&mut self, exprs: ListSexp) -> Result<Self> {
         let ldf = self.ldf.clone();
         let exprs = <Wrap<Vec<Expr>>>::from(exprs).0;
@@ -359,16 +345,12 @@ impl PlRLazyFrame {
         let closed_window = <Wrap<ClosedWindow>>::try_from(closed)?.0;
         let ldf = self.ldf.clone();
         let by = <Wrap<Vec<Expr>>>::from(by).0;
-        let lazy_gb = ldf.rolling(
-            index_column.inner.clone(),
-            by,
-            RollingGroupOptions {
-                index_column: "".into(),
-                period: Duration::try_parse(period).map_err(RPolarsErr::from)?,
-                offset: Duration::try_parse(offset).map_err(RPolarsErr::from)?,
-                closed_window,
-            },
-        );
+        let lazy_gb = ldf.rolling(index_column.inner.clone(), by, RollingGroupOptions {
+            index_column: "".into(),
+            period: Duration::try_parse(period).map_err(RPolarsErr::from)?,
+            offset: Duration::try_parse(offset).map_err(RPolarsErr::from)?,
+            closed_window,
+        });
 
         Ok(PlRLazyGroupBy { lgb: Some(lazy_gb) })
     }
@@ -390,10 +372,8 @@ impl PlRLazyFrame {
         let ldf = self.ldf.clone();
         let label = <Wrap<Label>>::try_from(label)?.0;
         let start_by = <Wrap<StartBy>>::try_from(start_by)?.0;
-        let lazy_gb = ldf.group_by_dynamic(
-            index_column.inner.clone(),
-            group_by,
-            DynamicGroupOptions {
+        let lazy_gb =
+            ldf.group_by_dynamic(index_column.inner.clone(), group_by, DynamicGroupOptions {
                 every: Duration::try_parse(every).map_err(RPolarsErr::from)?,
                 period: Duration::try_parse(period).map_err(RPolarsErr::from)?,
                 offset: Duration::try_parse(offset).map_err(RPolarsErr::from)?,
@@ -402,8 +382,7 @@ impl PlRLazyFrame {
                 closed_window,
                 start_by,
                 ..Default::default()
-            },
-        );
+            });
 
         Ok(PlRLazyGroupBy { lgb: Some(lazy_gb) })
     }
@@ -1372,10 +1351,26 @@ impl PlRLazyFrame {
         mkdir: bool,
         storage_options: Option<StringSexp>,
     ) -> Result<Self> {
+        let path: PathBuf = path.into();
         let options = JsonWriterOptions {};
-        let _retries = <Wrap<usize>>::try_from(retries)?.0;
+        let retries = <Wrap<usize>>::try_from(retries)?.0;
 
-        let cloud_options = Some(CloudOptions::default());
+        let cloud_options = match storage_options {
+            Some(x) => {
+                let out = <Wrap<Vec<(String, String)>>>::try_from(x).map_err(|_| {
+                    RPolarsErr::Other(
+                        "`storage_options` must be a named character vector".to_string(),
+                    )
+                })?;
+                Some(out.0)
+            }
+            None => None,
+        };
+        let cloud_options = {
+            let cloud_options =
+                parse_cloud_options(path.to_str().unwrap(), cloud_options.unwrap_or_default())?;
+            Some(cloud_options.with_max_retries(retries))
+        };
         let sync_on_close = <Wrap<SyncOnCloseType>>::try_from(sync_on_close)?.0;
         let sink_options = SinkOptions {
             sync_on_close,
