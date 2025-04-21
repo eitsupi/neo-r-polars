@@ -2454,3 +2454,12 @@ test_that("error and warning from collect engines", {
     as_polars_lf(mtcars)$collect(streaming = FALSE)
   )
 })
+
+test_that("group_by() warns with arg maintain_order", {
+  dat <- as_polars_df(mtcars)
+  expect_query_warning(
+    .input$group_by("a", maintain_order = TRUE),
+    .input = dat,
+    "contain an argument named `maintain_order`"
+  )
+})

@@ -196,6 +196,11 @@ lazyframe__select_seq <- function(...) {
 lazyframe__group_by <- function(..., .maintain_order = FALSE) {
   wrap({
     exprs <- parse_into_list_of_expressions(...)
+    if (any(names(exprs) == "maintain_order")) {
+      warn(
+        "In `$group_by()`, `...` contain an argument named `maintain_order`. Did you mean `.maintain_order` instead?"
+      )
+    }
     self$`_ldf`$group_by(exprs, .maintain_order)
   })
 }
