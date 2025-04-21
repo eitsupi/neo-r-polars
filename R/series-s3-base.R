@@ -82,8 +82,3 @@ median.polars_series <- function(x, ...) x$median()
 
 #' @export
 sum.polars_series <- function(x, ...) x$sum()
-
-#' @export
-`[.polars_series` <- function(x, i) {
-  pl$select(x)[i, , drop = TRUE]
-}
