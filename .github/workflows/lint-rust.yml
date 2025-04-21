@@ -20,14 +20,44 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  RUSTFLAGS: -C debuginfo=0
+
 jobs:
   cargo-fmt:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Rust
-        run: rustup component add rustfmt
-
       - name: Run cargo fmt
-        run: cargo fmt --all --check --manifest-path src/rust/Cargo.toml
+        working-directory: src/rust
+        run: |
+          rustup component add rustfmt
+          cargo fmt --all --check
+
+  cargo-clippy:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "src/rust -> target"
+
+      - name: Fix cache
+        run: |
+          # make sure savvy is built from source because rust-cache doesn't work well.
+          (find ~/.cargo/registry/ src/rust/target -name 'savvy-*' -print0 | xargs -0 rm -rf) || true
+
+      - name: Run cargo clippy
+        working-directory: src/rust
+        run: |
+          rustup component add clippy
+          cargo clippy \
+            --all-targets \
+            --all-features \
+            --locked \
+            -- \
+            -D warnings \
+            -D clippy::dbg_macro

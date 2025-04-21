@@ -135,6 +135,45 @@ dataframe__set_column_names <- function(names) {
   })
 }
 
+# TODO: support json format
+# TODO: use nanoarrow instead of arrow in examples after <https://github.com/apache/arrow-nanoarrow/issues/743> is fixed
+#' Serialize the DataFrame to a binary format
+#'
+#' Serialize the DataFrame to a binary format.
+#' Currently, this format is uncompressed Arrow IPC stream format,
+#' so other Apache Arrow implementations may be able to read it.
+#' @return
+#' - `<dataframe>$serialize()` returns raw vector of serialized [DataFrame].
+#' - `pl$deserialize_df()` returns a deserialized [DataFrame].
+#' @examples
+#' df <- pl$DataFrame(
+#'   foo = 1:3,
+#'   bar = 6:8,
+#' )$cast(bar = pl$UInt8)
+#'
+#' # Serialize the DataFrame to a binary format
+#' serialized <- df$serialize()
+#' serialized
+#'
+#' # The bytes can later be deserialized back to a DataFrame
+#' pl$deserialize_df(serialized)
+#'
+#' # Other Apache Arrow implementations may be able to read it.
+#' if (requireNamespace("arrow", quietly = TRUE)) {
+#'   arrow::read_ipc_stream(serialized, as_data_frame = FALSE)
+#' }
+dataframe__serialize <- function() {
+  self$`_df`$serialize_binary() |>
+    wrap()
+}
+
+#' @param data A raw vector of serialized [DataFrame].
+#' @rdname dataframe__serialize
+pl__deserialize_df <- function(data) {
+  PlRDataFrame$deserialize_binary(data) |>
+    wrap()
+}
+
 dataframe__collect_schema <- function() self$schema
 
 # TODO: link to data type docs
@@ -293,7 +332,7 @@ dataframe__get_column_index <- function(name) {
 #'
 #' # Set `maintain_order = TRUE` to ensure the order of the groups is
 #' # consistent with the input.
-#' df$group_by("a", maintain_order = TRUE)$agg(pl$col("c"))
+#' df$group_by("a", .maintain_order = TRUE)$agg(pl$col("c"))
 #'
 #' # Group by multiple columns by passing a list of column names.
 #' df$group_by(c("a", "b"))$agg(pl$max("c"))
@@ -432,8 +471,6 @@ dataframe__with_columns_seq <- function(...) {
     wrap()
 }
 
-# TODO-REWRITE: before release, add in news that param idx was renamed "index"
-# and mention that it errors if out of bounds
 #' Select column as Series at index location
 #'
 #' @param index Index of the column to return as Series. Defaults to 0, which is
@@ -1950,8 +1987,8 @@ dataframe__sample <- function(
 #' @examples
 #' df <- pl$select(
 #'   time = pl$datetime_range(
-#'     start = as.POSIXct(strptime("2021-12-16 00:00:00", format = "%Y-%m-%d %H:%M:%S", tz = "UTC")),
-#'     end = as.POSIXct(strptime("2021-12-16 03:00:00", format = "%Y-%m-%d %H:%M:%S", tz = "UTC")),
+#'     start = strptime("2021-12-16 00:00:00", format = "%Y-%m-%d %H:%M:%S", tz = "UTC"),
+#'     end = strptime("2021-12-16 03:00:00", format = "%Y-%m-%d %H:%M:%S", tz = "UTC"),
 #'     interval = "30m"
 #'   ),
 #'   n = 0:6
@@ -2296,7 +2333,7 @@ dataframe__glimpse <- function(
       }
       list(
         col_name = col_name,
-        dtype_str = dtype$`_dt`$as_str(abbreviated = TRUE),
+        dtype_str = format(dtype, abbreviated = TRUE),
         val_str = val_str
       )
     }
