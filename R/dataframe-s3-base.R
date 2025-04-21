@@ -114,8 +114,8 @@ as.data.frame.polars_data_frame <- function(
   )
 }
 
-#' @export
+#' @exportS3Method utils::head
 head.polars_data_frame <- function(x, n = 6L, ...) x$head(n = n)
 
-#' @export
+#' @exportS3Method utils::tail
 tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
