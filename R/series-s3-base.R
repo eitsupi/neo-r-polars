@@ -8,7 +8,7 @@ print.polars_series <- function(x, ...) {
 #' @export
 `[.polars_namespace_series_struct` <- `[.polars_namespace_expr_struct`
 
-# Copied from https://github.com/pola-rs/r-polars/blob/ebfeed44f7b81980b1693c3dc1539d7217b593b4/R/series__series.R#L167-L174
+# Copied from https://github.com/pola-rs/r-polars/blob/ebfeed44f7b81980b1693c3dc1539d7217b593b4/R/series__series.R#L167-L174 # nolint
 # TODO: recheck
 METHODS_EXCLUDE <- c(
   "agg_groups",
