@@ -30,7 +30,9 @@ METHODS_EXCLUDE <- c(
     env_get(x, name)
   } else if (name %in% method_names) {
     fn <- polars_series__methods[[name]]
+    # nolint start: object_usage_linter
     self <- x
+    # nolint end
     environment(fn) <- environment()
     fn
   } else if (name %in% dispatched_method_names) {
