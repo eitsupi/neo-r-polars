@@ -199,7 +199,7 @@ lazyframe__group_by <- function(..., .maintain_order = FALSE) {
     if (has_name(exprs, "maintain_order")) {
       warn(
         c(
-          "In `$group_by()`, `...` contain an argument named `maintain_order`.",
+          `!` = "In `$group_by()`, `...` contain an argument named `maintain_order`.",
           i = "You may want to specify the argument `.maintain_order` instead."
         )
       )
