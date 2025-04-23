@@ -226,20 +226,18 @@
 # group_by() warns with arg maintain_order
 
     Code
-      dat$group_by("cyl", maintain_order = TRUE)$agg()
+      dat$group_by("a", maintain_order = TRUE)$agg()
     Condition
       Warning:
       ! In `$group_by()`, `...` contain an argument named `maintain_order`.
       i You may want to specify the argument `.maintain_order` instead.
     Output
-      shape: (3, 2)
+      shape: (1, 2)
       ┌─────┬────────────────┐
-      │ cyl ┆ maintain_order │
+      │ a   ┆ maintain_order │
       │ --- ┆ ---            │
-      │ f64 ┆ bool           │
+      │ i32 ┆ bool           │
       ╞═════╪════════════════╡
-      │ 4.0 ┆ true           │
-      │ 6.0 ┆ true           │
-      │ 8.0 ┆ true           │
+      │ 1   ┆ true           │
       └─────┴────────────────┘
 
