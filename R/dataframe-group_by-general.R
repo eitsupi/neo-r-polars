@@ -4,7 +4,7 @@ polars_groupby__methods <- new.env(parent = emptyenv())
 wrap_to_group_by <- function(x, by, maintain_order) {
   if (has_name(by, "maintain_order")) {
     warn(
-      "In `$group_by()`, `...` contain an argument named `maintain_order`. Did you mean `.maintain_order` instead?"
+      "In `$group_by()`, `...` contain an argument named `maintain_order`. Did you mean `.maintain_order` instead?" # nolint
     )
   }
   self <- new.env(parent = emptyenv())
