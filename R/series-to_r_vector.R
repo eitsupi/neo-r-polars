@@ -218,7 +218,7 @@ series__to_r_vector <- function(
         abort(
           c(
             "The `bit64` package is not installed.",
-            `*` = 'If `int64 = "integer64"`, the `bit64` package is must be installed.'
+            `*` = 'If `int64 = "integer64"`, the `bit64` package must be installed.'
           )
         )
       }
@@ -228,7 +228,7 @@ series__to_r_vector <- function(
         abort(
           c(
             "The `data.table` package is not installed.",
-            `*` = 'If `time = "ITime"`, the `data.table` package is must to be installed.'
+            `*` = 'If `time = "ITime"`, the `data.table` package must be installed.'
           )
         )
       }
