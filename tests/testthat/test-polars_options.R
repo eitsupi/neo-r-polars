@@ -1,11 +1,3 @@
-test_that("default options", {
-  polars_options_reset()
-  skip_if_not_installed("hms")
-  library(hms)
-  expect_snapshot(polars_options())
-  try(detach("package:hms"), silent = TRUE)
-})
-
 test_that("options are validated", {
   polars_options_reset()
   withr::with_options(
@@ -61,32 +53,27 @@ test_that("option 'to_r_vector_int64' works", {
     }
   )
 
-  # can convert to bit64, but *only* if bit64 is attached
-  # TODO: fix that, https://github.com/eitsupi/neo-r-polars/pull/310#issuecomment-2814990065
-  # try(detach("package:bit64"), silent = TRUE)
-  # withr::with_options(
-  #   list(polars.to_r_vector_int64 = "integer64"),
-  #   expect_snapshot(as.list(df, as_series = FALSE), error = TRUE)
-  # )
-
-  skip_if_not_installed("bit64")
-  suppressPackageStartupMessages(library(bit64))
-
+  # bit64 is automatically loaded if required
   withr::with_options(
     list(polars.to_r_vector_int64 = "integer64"),
     expect_snapshot(
       expect_identical(
         as.list(df, as_series = FALSE),
-        list(a = as.integer64(c(1, 2, 3, NA)))
+        list(a = bit64::as.integer64(c(1, 2, 3, NA)))
       )
     )
   )
 
-  # can override the global option by passing a custom arg
-  # option currently is "integer64"
-  expect_identical(
-    as.list(df, int64 = "character", as_series = FALSE),
-    list(a = c("1", "2", "3", NA))
+  # can override the global option by passing a custom arg (no message in this
+  # case)
+  withr::with_options(
+    list(polars.to_r_vector_int64 = "integer64"),
+    expect_silent(
+      expect_identical(
+        as.list(df, int64 = "character", as_series = FALSE),
+        list(a = c("1", "2", "3", NA))
+      )
+    )
   )
 
   # check other S3 methods
@@ -132,15 +119,7 @@ test_that("option 'to_r_vector_date' works", {
     list(a = as.Date("2020-01-01"))
   )
 
-  try(detach("package:data.table"), silent = TRUE)
-  withr::with_options(
-    list(polars.to_r_vector_date = "IDate"),
-    expect_snapshot(polars_options(), error = TRUE)
-  )
-
-  skip_if_not_installed("data.table")
-  suppressPackageStartupMessages(library(data.table))
-
+  # data.table is automatically loaded if required
   withr::with_options(
     list(polars.to_r_vector_date = "IDate"),
     expect_snapshot(
@@ -154,14 +133,11 @@ test_that("option 'to_r_vector_date' works", {
 
 test_that("option 'to_r_vector_time' works", {
   skip_if_not_installed("hms")
+  skip_if_not_installed("data.table")
   polars_options_reset()
   df <- pl$DataFrame(a = hms::hms(1, 1, 1))
 
-  try(detach("package:hms"), silent = TRUE)
-  expect_snapshot(polars_options(), error = TRUE)
-
-  suppressPackageStartupMessages(library(hms))
-
+  # hms is automatically loaded if required
   withr::with_options(
     list(polars.to_r_vector_time = "hms"),
     expect_identical(
@@ -170,22 +146,12 @@ test_that("option 'to_r_vector_time' works", {
     )
   )
 
-  try(detach("package:data.table"), silent = TRUE)
+  # data.table is automatically loaded if required
   withr::with_options(
     list(polars.to_r_vector_time = "ITime"),
-    expect_snapshot(polars_options(), error = TRUE)
-  )
-
-  skip_if_not_installed("data.table")
-  suppressPackageStartupMessages(library(data.table))
-
-  withr::with_options(
-    list(polars.to_r_vector_time = "ITime"),
-    expect_snapshot(
-      expect_identical(
-        as.list(df, as_series = FALSE),
-        list(a = data.table::as.ITime("01:01:01"))
-      )
+    expect_identical(
+      as.list(df, as_series = FALSE),
+      list(a = data.table::as.ITime("01:01:01"))
     )
   )
 })
