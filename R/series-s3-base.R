@@ -8,7 +8,7 @@ print.polars_series <- function(x, ...) {
 #' @export
 `[.polars_namespace_series_struct` <- `[.polars_namespace_expr_struct`
 
-# Copied from https://github.com/pola-rs/r-polars/blob/ebfeed44f7b81980b1693c3dc1539d7217b593b4/R/series__series.R#L167-L174
+# Copied from https://github.com/pola-rs/r-polars/blob/ebfeed44f7b81980b1693c3dc1539d7217b593b4/R/series__series.R#L167-L174 # nolint
 # TODO: recheck
 METHODS_EXCLUDE <- c(
   "agg_groups",
@@ -30,7 +30,9 @@ METHODS_EXCLUDE <- c(
     env_get(x, name)
   } else if (name %in% method_names) {
     fn <- polars_series__methods[[name]]
+    # nolint start: object_usage_linter
     self <- x
+    # nolint end
     environment(fn) <- environment()
     fn
   } else if (name %in% dispatched_method_names) {
@@ -68,3 +70,18 @@ as.vector.polars_series <- function(x, mode = "any") {
 
 #' @export
 length.polars_series <- function(x) x$len()
+
+#' @export
+max.polars_series <- function(x, ...) x$max()
+
+#' @export
+min.polars_series <- function(x, ...) x$min()
+
+#' @export
+mean.polars_series <- function(x, ...) x$mean()
+
+#' @exportS3Method stats::median
+median.polars_series <- function(x, ...) x$median()
+
+#' @export
+sum.polars_series <- function(x, ...) x$sum()
