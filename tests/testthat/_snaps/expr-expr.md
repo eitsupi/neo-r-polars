@@ -86,7 +86,7 @@
       ! Evaluation failed in `$exclude()`.
       Caused by error:
       ! Invalid `...` elements.
-      * All elements in `...` must be ether of single strings or Polars data types.
+      * All elements in `...` must be either single strings or Polars data types.
       i `cs$exclude()` accepts mixing column names and Polars data types.
 
 ---
