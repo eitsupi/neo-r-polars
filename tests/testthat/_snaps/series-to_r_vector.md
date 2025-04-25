@@ -1,3 +1,41 @@
+# Optional package suggestion
+
+    Code
+      as_polars_series(1)$to_r_vector()
+    Message
+      i The `vctrs` package is not installed.
+      i Return value may not be printed correctly.
+      i The `blob` package is not installed.
+      i The blob class vector will not be printed correctly.
+    Condition
+      Warning:
+      ! The `hms` package is not installed.
+      i The hms class vector will be printed as difftime.
+    Output
+      [1] 1
+
+# int64 argument error
+
+    Code
+      as_polars_series(1)$to_r_vector(int64 = "integer64")
+    Condition
+      Error in `as_polars_series(1)$to_r_vector()`:
+      ! Evaluation failed in `$to_r_vector()`.
+      Caused by error in `as_polars_series(1)$to_r_vector()`:
+      ! The `bit64` package is not installed.
+      * If `int64 = "integer64"`, the `bit64` package must be installed.
+
+# time argument error
+
+    Code
+      as_polars_series(1)$to_r_vector(time = "ITime")
+    Condition
+      Error in `as_polars_series(1)$to_r_vector()`:
+      ! Evaluation failed in `$to_r_vector()`.
+      Caused by error in `as_polars_series(1)$to_r_vector()`:
+      ! The `data.table` package is not installed.
+      * If `time = "ITime"`, the `data.table` package must be installed.
+
 # struct conversion dataframe
 
     Code

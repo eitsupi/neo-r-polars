@@ -16,16 +16,18 @@ names.polars_data_frame <- function(x) x$columns
 
 #' Export the polars object as an R list
 #'
-#' This S3 method calls [`as_polars_df(x, ...)$get_columns()`][dataframe__get_columns] or
-#' `as_polars_df(x, ...)$to_struct()$to_r_vector(ensure_vector = TRUE)` depending on the `as_series` argument.
+#' These S3 methods call [`as_polars_df(x, ...)$get_columns()`][dataframe__get_columns] with
+#' [rlang::set_names()], or, `as_polars_df(x, ...)$to_struct()$to_r_vector(ensure_vector = TRUE)`
+#' depending on the `as_series` argument.
 #'
-#' Arguments other than `x` and `as_series` are passed to [`<Series>$to_r_vector()`][series__to_r_vector],
+#' Arguments other than `x` and `as_series` are passed to
+#' [`<Series>$to_r_vector()`][series__to_r_vector],
 #' so they are ignored when `as_series=TRUE`.
 #' @inheritParams series__to_r_vector
 #' @param x A polars object
 #' @param ... Passed to [as_polars_df()].
 #' @param as_series Whether to convert each column to an [R vector][vector] or a [Series].
-#' If `TRUE`, return a list of [Series], otherwise a list of [vectors][vector] (default).
+#' If `TRUE` (default), return a list of [Series], otherwise a list of [vectors][vector].
 #' @return A [list]
 #' @seealso
 #' - [`<DataFrame>$get_columns()`][dataframe__get_columns]
@@ -42,7 +44,7 @@ names.polars_data_frame <- function(x) x$columns
 as.list.polars_data_frame <- function(
   x,
   ...,
-  as_series = FALSE,
+  as_series = TRUE,
   uint8 = c("integer", "raw"),
   int64 = c("double", "character", "integer", "integer64"),
   date = c("Date", "IDate"),
@@ -54,7 +56,10 @@ as.list.polars_data_frame <- function(
   non_existent = c("raise", "null")
 ) {
   if (isTRUE(as_series)) {
-    as_polars_df(x, ...)$get_columns()
+    # Ensure collect data because x may be a lazy frame
+    x <- as_polars_df(x, ...)
+    x$get_columns() |>
+      set_names(x$columns)
   } else {
     as_polars_df(x, ...)$to_struct()$to_r_vector(
       ensure_vector = TRUE,
@@ -74,7 +79,8 @@ as.list.polars_data_frame <- function(
 #' Export the polars object as an R DataFrame
 #'
 #' This S3 method is a shortcut for
-#' [`as_polars_df(x, ...)$to_struct()$to_r_vector(ensure_vector = FALSE, struct = "dataframe")`][series__to_r_vector].
+#' [`as_polars_df(x, ...)$to_struct()$to_r_vector(ensure_vector = FALSE, struct = "dataframe")`]
+#' [series__to_r_vector].
 #' @inheritParams as.list.polars_data_frame
 #' @return An [R data frame][data.frame]
 #' @examples
@@ -109,3 +115,9 @@ as.data.frame.polars_data_frame <- function(
     non_existent = non_existent
   )
 }
+
+#' @exportS3Method utils::head
+head.polars_data_frame <- function(x, n = 6L, ...) x$head(n = n)
+
+#' @exportS3Method utils::tail
+tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)

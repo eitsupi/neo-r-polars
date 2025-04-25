@@ -63,6 +63,7 @@
 #' @param time Determine how to convert Polars' Time type values to R class.
 #' One of the followings:
 #' - `"hms"` (default): Convert to the [hms::hms] class.
+#'   If the [hms][hms::hms-package] package is not installed, a warning will be shown.
 #' - `"ITime"`: Convert to the [data.table::ITime][data.table::IDateTime] class.
 #'   The [data.table][data.table::data.table-package] package must be installed.
 #' @param struct Determine how to convert Polars' Struct type values to R class.
@@ -212,32 +213,74 @@ series__to_r_vector <- function(
         as_polars_expr(as_lit = TRUE)
     }
 
+    # The vctrs package should be loaded to print vctrs_list_of and vctrs_unspecified correctly.
+    if (!is_vctrs_installed()) {
+      inform(
+        c(
+          i = "The `vctrs` package is not installed.",
+          i = "Return value may not be printed correctly."
+        )
+      )
+    }
+
+    # The blob package should be loaded to print blob correctly.
+    if (!is_blob_installed()) {
+      inform(
+        c(
+          i = "The `blob` package is not installed.",
+          i = "The blob class vector will not be printed correctly."
+        )
+      )
+    }
+
     # Ensure the bit64 package is loaded if int64 is set to 'integer64'
     if (identical(int64, "integer64")) {
       if (!is_bit64_installed()) {
         abort(
-          "If the `int64` argument is set to 'integer64', the `bit64` package must be installed."
+          c(
+            "The `bit64` package is not installed.",
+            `*` = 'If `int64 = "integer64"`, the `bit64` package must be installed.'
+          )
         )
       }
     }
     if (identical(time, "ITime")) {
       if (!is_datatable_installed()) {
         abort(
-          "If the `time` argument is set to 'ITime', the `data.table` package must be installed."
+          c(
+            "The `data.table` package is not installed.",
+            `*` = 'If `time = "ITime"`, the `data.table` package must be installed.'
+          )
+        )
+      }
+    } else {
+      # The hms package should be loaded to print hms correctly.
+      if (!is_hms_installed()) {
+        warn(
+          c(
+            `!` = "The `hms` package is not installed.",
+            i = "The hms class vector will be printed as difftime."
+          )
         )
       }
     }
     if (identical(struct, "tibble")) {
       if (!is_tibble_installed()) {
         warn(
-          "If the `struct` argument is set to 'tibble', the `tibble` package is recommended to be installed."
+          c(
+            `!` = "The `tibble` package is not installed.",
+            i = 'If `struct = "tibble"`, the `tibble` package is recommended to be installed.'
+          )
         )
       }
     }
     if (isTRUE(as_clock_class)) {
       if (!is_clock_installed()) {
         abort(
-          "If the `as_clock_class` argument is set to `TRUE`, the `clock` package must be installed."
+          c(
+            "The `clock` package is not installed.",
+            `*` = "If `as_clock_class = TRUE`, the `clock` package must be installed."
+          )
         )
       }
     }
@@ -257,6 +300,18 @@ series__to_r_vector <- function(
       local_time_zone = Sys.timezone()
     )
   })
+}
+
+is_vctrs_installed <- function() {
+  is_installed("vctrs")
+}
+
+is_blob_installed <- function() {
+  is_installed("blob")
+}
+
+is_hms_installed <- function() {
+  is_installed("hms")
 }
 
 is_bit64_installed <- function() {

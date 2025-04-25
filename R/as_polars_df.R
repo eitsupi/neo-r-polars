@@ -14,10 +14,13 @@
 #'
 #' ## S3 method for [list]
 #'
-#' - The argument `...` (except `name`) is passed to [as_polars_series()] for each element of the list.
-#' - All elements of the list must be converted to the same length of [Series] by [as_polars_series()].
+#' - The argument `...` (except `name`) is passed to [as_polars_series()]
+#'   for each element of the list.
+#' - All elements of the list must be converted to the same length of [Series] by
+#'   [as_polars_series()].
 #' - The name of the each element is used as the column name of the [DataFrame].
-#'   For unnamed elements, the column name will be an empty string `""` or if the element is a [Series],
+#'   For unnamed elements, the column name will be an empty string `""` or if the element is
+#'   a [Series],
 #'   the column name will be the name of the [Series].
 #'
 #' ## S3 method for [data.frame]
@@ -28,8 +31,10 @@
 #' ## S3 method for [polars_series][Series]
 #'
 #' This is a shortcut for [`<Series>$to_frame()`][series__to_frame] or
-#' [`<Series>$struct$unnest()`][series_struct_unnest], depending on the `from_struct` argument and the [Series] data type.
-#' The `column_name` argument is passed to the `name` argument of the [`$to_frame()`][series__to_frame] method.
+#' [`<Series>$struct$unnest()`][series_struct_unnest], depending on the `from_struct` argument
+#' and the [Series] data type.
+#' The `column_name` argument is passed to the `name` argument of the
+#' [`$to_frame()`][series__to_frame] method.
 #'
 #' ## S3 method for [polars_lazy_frame][LazyFrame]
 #'
@@ -45,7 +50,8 @@
 #' from the struct [Series]. In this case, the `column_name` argument is ignored.
 #' @seealso
 #' - [`as.list(<polars_data_frame>)`][as.list.polars_data_frame]: Export the DataFrame as an R list.
-#' - [`as.data.frame(<polars_data_frame>)`][as.data.frame.polars_data_frame]: Export the DataFrame as an R data frame.
+#' - [`as.data.frame(<polars_data_frame>)`][as.data.frame.polars_data_frame]:
+#'   Export the DataFrame as an R data frame.
 #' @examples
 #' # list
 #' as_polars_df(list(a = 1:2, b = c("foo", "bar")))
@@ -78,9 +84,13 @@ as_polars_df.default <- function(x, ...) {
     infer_polars_dtype(x, ...),
     error = function(cnd) {
       abort(
-        sprintf(
-          "%s may not be converted to a polars Series, and hence to a polars DataFrame.",
-          obj_type_friendly(x)
+        c(
+          "This object can't be converted to a Polars Series, and hence to a Polars DataFrame.",
+          `*` = sprintf(
+            "%s can't be converted to a Polars Series by `as_polars_series()`.",
+            obj_type_friendly(x)
+          ),
+          i = "The object must be converted to a struct type Series by `as_polars_series()` first."
         ),
         parent = cnd
       )
@@ -89,11 +99,14 @@ as_polars_df.default <- function(x, ...) {
   if (inherits(dtype, "polars_dtype_struct")) {
     as_polars_series(x, ...)$struct$unnest()
   } else {
-    # TODO: improve error message after `format(<dtype>)` or something else is implemented to show the dtype
     abort(
       c(
-        "This object is not supported for the default method of `as_polars_df()` because it is not a Struct dtype like object.",
-        i = "Use `infer_polars_dtype()` to check the dtype for corresponding to the object."
+        "This object is not supported for the default method of `as_polars_df()`.",
+        `*` = sprintf(
+          "It requires `x` to be Series with struct type, got: %s.",
+          format(dtype, abbreviated = TRUE)
+        ),
+        i = "Use `infer_polars_dtype()` to check the data type of the object."
       )
     )
   }

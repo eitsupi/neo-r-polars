@@ -1,3 +1,43 @@
+# Can't serialize lazyframe includes map function
+
+    Code
+      pl$LazyFrame()$select(pl$lit(1)$map_batches(function(x) x + 1))$serialize()
+    Condition
+      Error:
+      ! Evaluation failed in `$serialize()`.
+      Caused by error:
+      ! serialization not supported for this 'opaque' function
+
+# deserialize lazyframe' error
+
+    Code
+      pl$deserialize_lf(0L)
+    Condition
+      Error in `pl$deserialize_lf()`:
+      ! Evaluation failed in `$deserialize_lf()`.
+      Caused by error:
+      ! Argument `data` must be raw, not integer
+
+---
+
+    Code
+      pl$deserialize_lf(raw(0))
+    Condition
+      Error in `pl$deserialize_lf()`:
+      ! Evaluation failed in `$deserialize_lf()`.
+      Caused by error:
+      ! The input value is not a valid serialized LazyFrame.
+
+---
+
+    Code
+      pl$deserialize_lf(as.raw(1:100))
+    Condition
+      Error in `pl$deserialize_lf()`:
+      ! Evaluation failed in `$deserialize_lf()`.
+      Caused by error:
+      ! The input value is not a valid serialized LazyFrame.
+
 # $to_dot() works
 
     Code
@@ -135,6 +175,26 @@
 ---
 
     Code
+      pl$DataFrame()$describe()
+    Condition
+      Error:
+      ! Evaluation failed in `$describe()`.
+      Caused by error:
+      ! Can't describe a DataFrame without any columns
+
+---
+
+    Code
+      pl$LazyFrame()$describe()
+    Condition
+      Error:
+      ! Evaluation failed in `$describe()`.
+      Caused by error:
+      ! Can't describe a LazyFrame without any columns
+
+---
+
+    Code
       df$describe(percentiles = 0.1)
     Output
       shape: (7, 6)
@@ -182,4 +242,22 @@
       ! Evaluation failed in `$collect()`.
       Caused by error in `as_polars_lf(mtcars)$collect()`:
       ! `engine` must be one of "auto", "in-memory", "streaming", or "old-streaming", not "gpu".
+
+# group_by() warns with arg maintain_order
+
+    Code
+      dat$group_by("a", maintain_order = TRUE)$agg()
+    Condition
+      Warning:
+      ! In `$group_by()`, `...` contain an argument named `maintain_order`.
+      i You may want to specify the argument `.maintain_order` instead.
+    Output
+      shape: (1, 2)
+      ┌─────┬────────────────┐
+      │ a   ┆ maintain_order │
+      │ --- ┆ ---            │
+      │ i32 ┆ bool           │
+      ╞═════╪════════════════╡
+      │ 1   ┆ true           │
+      └─────┴────────────────┘
 

@@ -8,13 +8,17 @@
       wrap({
         check_polars_dtype(other)
         if (!inherits(other, "polars_dtype_enum")) {
-          abort("`other` must be a Enum data type")
+          abort(
+            sprintf("`other` must be a Enum data type, got: %s", format(other, abbreviated = TRUE))
+          )
         }
 
         PlRDataType$new_enum(unique(c(self$categories, other$categories)))
       })
     }
+    # nolint start: object_usage_linter
     self <- x
+    # nolint end
     environment(fn) <- environment()
     fn
   } else {
@@ -38,7 +42,16 @@
 
 #' @export
 print.polars_dtype <- function(x, ...) {
-  x$`_dt`$as_str(abbreviated = FALSE) |>
+  format(x, abbreviated = FALSE) |>
     writeLines()
   invisible(x)
+}
+
+#' @param abbreviated If `TRUE`, use the abbreviated form of the dtype name,
+#' e.g. "i64" instead of "Int64".
+#' @export
+#' @noRd
+format.polars_dtype <- function(x, ..., abbreviated = FALSE) {
+  check_dots_empty0(...)
+  x$`_dt`$as_str(abbreviated = abbreviated)
 }
