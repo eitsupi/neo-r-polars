@@ -8,13 +8,17 @@
       wrap({
         check_polars_dtype(other)
         if (!inherits(other, "polars_dtype_enum")) {
-          abort("`other` must be a Enum data type")
+          abort(
+            sprintf("`other` must be a Enum data type, got: %s", format(other, abbreviated = TRUE))
+          )
         }
 
         PlRDataType$new_enum(unique(c(self$categories, other$categories)))
       })
     }
+    # nolint start: object_usage_linter
     self <- x
+    # nolint end
     environment(fn) <- environment()
     fn
   } else {

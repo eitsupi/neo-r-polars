@@ -68,6 +68,7 @@ One of the followings:
 One of the followings:
 \itemize{
 \item \code{"hms"} (default): Convert to the \link[hms:hms]{hms::hms} class.
+If the \link[hms:hms-package]{hms} package is not installed, a warning will be shown.
 \item \code{"ITime"}: Convert to the \link[data.table:IDateTime]{data.table::ITime} class.
 The \link[data.table:data.table]{data.table} package must be installed.
 }}
@@ -117,7 +118,8 @@ An \link[=data.frame]{R data frame}
 }
 \description{
 This S3 method is a shortcut for
-\code{\link[=series__to_r_vector]{as_polars_df(x, ...)$to_struct()$to_r_vector(ensure_vector = FALSE, struct = "dataframe")}}.
+\code{\link{as_polars_df(x, ...)$to_struct()$to_r_vector(ensure_vector = FALSE, struct = "dataframe")}}
+\link{series__to_r_vector}.
 }
 \examples{
 df <- as_polars_df(list(a = 1:3, b = 4:6))

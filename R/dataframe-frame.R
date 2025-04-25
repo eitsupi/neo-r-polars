@@ -9,15 +9,18 @@
 #'
 #' The `pl$DataFrame()` function mimics the constructor of the DataFrame class of Python Polars.
 #' This function is basically a shortcut for
-#' `as_polars_df(list(...))$cast(!!!.schema_overrides, .strict = .strict)`, so each argument in `...` is
-#' converted to a Polars Series by [as_polars_series()] and then passed to [as_polars_df()].
+#' `as_polars_df(list(...))$cast(!!!.schema_overrides, .strict = .strict)`,
+#' so each argument in `...` is converted to a Polars Series by [as_polars_series()]
+#' and then passed to [as_polars_df()].
 #' @aliases polars_data_frame DataFrame
 #'
 #' @section Active bindings:
 #' - `columns`: `$columns` returns a character vector with the names of the columns.
 #' - `dtypes`: `$dtypes` returns a nameless list of the data type of each column.
-#' - `schema`: `$schema` returns a named list with the column names as names and the data types as values.
-#' - `shape`: `$shape` returns a integer vector of length two with the number of rows and columns of the DataFrame.
+#' - `schema`: `$schema` returns a named list with the column names as names
+#'   and the data types as values.
+#' - `shape`: `$shape` returns a integer vector of length two with the number of rows
+#'   and columns of the DataFrame.
 #' - `height`: `$height` returns a integer with the number of rows of the DataFrame.
 #' - `width`: `$width` returns a integer with the number of columns of the DataFrame.
 #' - `flags`: `$flags` returns a list with column names as names and a named
@@ -84,7 +87,7 @@ pl__DataFrame <- function(..., .schema_overrides = NULL, .strict = TRUE) {
       if (is_polars_expr(val)) {
         abort(
           c(
-            "passing polars expression objects to `pl$DataFrame()` is not supported.",
+            "Passing Polars expression objects to `pl$DataFrame()` is not supported.",
             i = "Try evaluating the expression first using `pl$select()`."
           )
         )
@@ -136,7 +139,7 @@ dataframe__set_column_names <- function(names) {
 }
 
 # TODO: support json format
-# TODO: use nanoarrow instead of arrow in examples after <https://github.com/apache/arrow-nanoarrow/issues/743> is fixed
+# TODO: use nanoarrow instead of arrow in examples after <https://github.com/apache/arrow-nanoarrow/issues/743> is fixed # nolint
 #' Serialize the DataFrame to a binary format
 #'
 #' Serialize the DataFrame to a binary format.
@@ -1878,10 +1881,9 @@ dataframe__transpose <- function(
       column_names <- column_names(seq_len(n_elems) - 1)
       if (!is_character(column_names, n = n_elems)) {
         abort(
-          paste(
-            "The function in `column_names` must return a character vector with",
-            n_elems,
-            "elements."
+          sprintf(
+            "The function in `column_names` must return a character vector with %d elements.",
+            n_elems
           )
         )
       }
@@ -1953,7 +1955,7 @@ dataframe__sample <- function(
   wrap({
     check_dots_empty0(...)
     if (!is.null(fraction) && !is.null(n)) {
-      abort("cannot specify both `n` and `fraction`")
+      abort("Can't specify both `n` and `fraction`.")
     }
     if (is.null(seed)) {
       seed <- sample.int(10000, 1)
@@ -2156,7 +2158,10 @@ dataframe__unstack <- function(
       all(vapply(fill_values, is_convertible_to_polars_expr, logical(1)))
     if (!fill_values_is_named_list && !is_convertible_to_polars_expr(fill_values)) {
       abort(
-        "`fill_value` must be a object convertible to a Polars expression, or a named list of such objects."
+        c(
+          "Invalid `fill_values`.",
+          `*` = "It must be convertible to a Polars expression, or a named list of such objects."
+        )
       )
     }
 
@@ -2195,8 +2200,9 @@ dataframe__unstack <- function(
         error = function(cnd) {
           msg_part <- if (fill_values_is_named_list) "one of " else ""
           abort(
-            sprintf(
-              "Expanding the DataFrame failed. Maybe %s`fill_values` is not a scalar value.",
+            "Expanding the DataFrame failed.",
+            `*` = sprintf(
+              "Maybe %s`fill_values` is not a scalar value.",
               msg_part
             ),
             call = parent.frame(),
@@ -2262,7 +2268,7 @@ dataframe__describe <- function(
   wrap({
     check_dots_empty0(...)
     if (length(self$columns) == 0) {
-      abort("cannot describe a DataFrame without any columns")
+      abort("Can't describe a DataFrame without any columns")
     }
     self$lazy()$describe(
       percentiles = percentiles,
