@@ -121,7 +121,7 @@ as_polars_expr.default <- function(x, ..., keep_series = FALSE) {
       as_polars_series(x, name = "literal", ...)
     }
 
-    if (isTRUE(keep_series) || series$len() != 1L) {
+    if (series$len() != 1L || isTRUE(keep_series)) {
       lit_from_series(series$`_s`)
     } else {
       # Treat as scalar
