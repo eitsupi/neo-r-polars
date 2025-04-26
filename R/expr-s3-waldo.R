@@ -1,4 +1,5 @@
-# TODO: `$meta$serialize` does not support all literal values https://github.com/pola-rs/polars/pull/17679
+# nolint start: object_name_linter
+
 # exported in zzz.R
 compare_proxy.polars_expr <- function(x, path) {
   list(
@@ -11,3 +12,5 @@ compare_proxy.polars_expr <- function(x, path) {
     path = path
   )
 }
+
+# nolint end

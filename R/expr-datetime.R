@@ -69,7 +69,9 @@ expr_dt_convert_time_zone <- function(time_zone) {
 #' )
 
 #' df$with_columns(
-#'   London_to_Amsterdam = pl$col("london_timezone")$dt$replace_time_zone(time_zone="Europe/Amsterdam")
+#'   London_to_Amsterdam = pl$col("london_timezone")$dt$replace_time_zone(
+#'     time_zone="Europe/Amsterdam"
+#'   )
 #' )
 #' # You can use `ambiguous` to deal with ambiguous datetimes:
 #' dates <- c(
@@ -251,7 +253,8 @@ expr_dt_combine <- function(time, time_unit = c("us", "ns", "ms")) {
 #' `NULL` will be treated as `"iso"`.
 #' Available formats depend on the column [data type][DataType]:
 #' - For [Date/Time/Datetime][DataType], refer to the
-#'   [chrono strftime documentation][https://docs.rs/chrono/latest/chrono/format/strftime/index.html]
+#'   [chrono strftime documentation]
+#'   [https://docs.rs/chrono/latest/chrono/format/strftime/index.html]
 #'   for specification. Example: `"%y-%m-%d"`.
 #'   Special case `"iso"` will use the ISO8601 format.
 #' - For [Duration][DataType], `"iso"` or `"polars"` can be used.
@@ -301,10 +304,9 @@ expr_dt_to_string <- function(format = NULL) {
 #' @param format Single string of format to use, or `NULL`.
 #' `NULL` will be treated as `"iso"`.
 #' Available formats depend on the column [data type][DataType]:
-#' - For [Date/Time/Datetime][DataType], refer to the
-#'   [chrono strftime documentation][https://docs.rs/chrono/latest/chrono/format/strftime/index.html]
-#'   for specification. Example: `"%y-%m-%d"`.
-#'   Special case `"iso"` will use the ISO8601 format.
+#' - For [Date/Time/Datetime][DataType], refer to the [chrono strftime documentation]
+#'   [https://docs.rs/chrono/latest/chrono/format/strftime/index.html] for specification.
+#'   Example: `"%y-%m-%d"`. Special case `"iso"` will use the ISO8601 format.
 #' - For [Duration][DataType], `"iso"` or `"polars"` can be used.
 #'   The `"iso"` format string results in ISO8601 duration string output,
 #'   and `"polars"` results in the same form seen in the polars print representation.
@@ -717,7 +719,10 @@ expr_dt_timestamp <- function(time_unit = c("us", "ns", "ms")) {
 expr_dt_with_time_unit <- function(time_unit = c("ns", "us", "ms")) {
   wrap({
     deprecate_warn(
-      "$dt$with_time_unit() is deprecated. Cast to Int64 and to Datetime(<desired unit>) instead."
+      c(
+        `!` = "`$dt$with_time_unit()` is deprecated.",
+        i = "Cast to Int64 and then to Datetime with the desired time unit instead."
+      )
     )
     time_unit <- arg_match0(time_unit, values = c("ns", "us", "ms"))
     self$`_rexpr`$dt_with_time_unit(time_unit)
@@ -1081,7 +1086,8 @@ expr_dt_date <- function() {
 #' @param n An integer value or a [polars expression][Expr] representing the number of
 #' business days to offset by.
 #' @param week_mask Non-NA logical vector of length 7, representing the days of
-#' the week to count. The default is Monday to Friday (`c(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE)`).
+#' the week to count. The default is Monday to Friday
+#' (`c(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE)`).
 #' If you wanted to count only Monday to Thursday, you would pass
 #' `c(TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE)`.
 #' @param holidays A [Date] class vector, representing the holidays to exclude from the count.
@@ -1122,7 +1128,7 @@ expr_dt_add_business_days <- function(
     check_dots_empty0(...)
 
     if (!(is_scalar_integerish(n) && !anyNA(n)) && !is_polars_expr(n)) {
-      abort("`n` must be a single non-`NA` integer-ish value or a polars expression.")
+      abort("`n` must be a single non-`NA` integer-ish value or a Polars expression.")
     }
     if (!(is_logical(week_mask, n = 7L) && !anyNA(week_mask))) {
       abort("`week_mask` must be a vector with 7 logical values, without any `NA`.")

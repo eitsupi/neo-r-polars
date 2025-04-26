@@ -67,7 +67,7 @@ lazyframe__serialize <- function(..., format = c("binary", "json")) {
     if (format == "binary") {
       self$`_ldf`$serialize_binary()
     } else {
-      deprecate_warn("'json' serialization format of LazyFrame is deprecated.")
+      deprecate_warn(c(`!` = '"json" serialization format of LazyFrame is deprecated.'))
       self$`_ldf`$serialize_json()
     }
   })
@@ -97,8 +97,8 @@ pl__deserialize_lf <- function(data) {
 #' @param ... <[`dynamic-dots`][rlang::dyn-dots]>
 #' Name-value pairs of objects to be converted to polars [expressions][Expr]
 #' by the [as_polars_expr()] function.
-#' Characters are parsed as column names, other non-expression inputs are parsed as [literals][pl__lit].
-#' Each name will be used as the expression name.
+#' Characters are parsed as column names, other non-expression inputs are parsed as
+#' [literals][pl__lit]. Each name will be used as the expression name.
 #' @examples
 #' # Pass the name of a column to select that column.
 #' lf <- pl$LazyFrame(
@@ -196,12 +196,19 @@ lazyframe__select_seq <- function(...) {
 lazyframe__group_by <- function(..., .maintain_order = FALSE) {
   wrap({
     exprs <- parse_into_list_of_expressions(...)
+    if (has_name(exprs, "maintain_order")) {
+      warn(
+        c(
+          `!` = "In `$group_by()`, `...` contain an argument named `maintain_order`.",
+          i = "You may want to specify the argument `.maintain_order` instead."
+        )
+      )
+    }
     self$`_ldf`$group_by(exprs, .maintain_order)
   })
 }
 
 # TODO: see also section
-# TODO: engine's default value "auto" causes panic when `sink_*` if without the new_streaming feature <https://github.com/pola-rs/polars/pull/22074>
 #' Materialize this LazyFrame into a DataFrame
 #'
 #' By default, all query optimizations are enabled.
@@ -213,9 +220,11 @@ lazyframe__group_by <- function(..., .maintain_order = FALSE) {
 #' @param projection_pushdown A logical, indicats projection pushdown optimization.
 #' @param simplify_expression A logical, indicats simplify expression optimization.
 #' @param slice_pushdown A logical, indicats slice pushdown optimization.
-#' @param comm_subplan_elim A logical, indicats tring to cache branching subplans that occur on self-joins or unions.
+#' @param comm_subplan_elim A logical, indicats tring to cache branching subplans that occur
+#' on self-joins or unions.
 #' @param comm_subexpr_elim A logical, indicats tring to cache common subexpressions.
-#' @param cluster_with_columns A logical, indicats to combine sequential independent calls to with_columns.
+#' @param cluster_with_columns A logical, indicats to combine sequential independent calls
+#' to with_columns.
 #' @param collapse_joins Collapse a join and filters into a faster join.
 #' @param no_optimization A logical. If `TRUE`, turn off (certain) optimizations.
 #' @param streaming `r lifecycle::badge("deprecated")`
@@ -843,7 +852,7 @@ lazyframe__drop <- function(..., strict = TRUE) {
 lazyframe__slice <- function(offset, length = NULL) {
   wrap({
     if (isTRUE(length < 0)) {
-      abort(sprintf("negative slice length (%s) are invalid for LazyFrame", length))
+      abort(sprintf("Negative slice `length` (%s) are invalid for LazyFrame.", length))
     }
     self$`_ldf`$slice(offset, length)
   })
@@ -1377,14 +1386,16 @@ lazyframe__join <- function(
     uses_left_on <- !is.null(left_on)
     uses_right_on <- !is.null(right_on)
     uses_lr_on <- uses_left_on | uses_right_on
+
+    # TODO: improve error message
     if (uses_on && uses_lr_on) {
-      abort("cannot use 'on' in conjunction with 'left_on' or 'right_on'.")
+      abort("Can't use `on` in conjunction with `left_on` or `right_on`.")
     }
     if (uses_left_on && !uses_right_on) {
-      abort("'left_on' requires corresponding 'right_on'")
+      abort("`left_on` requires corresponding `right_on`.")
     }
     if (!uses_left_on && uses_right_on) {
-      abort("'right_on' requires corresponding 'left_on'")
+      abort("`right_on` requires corresponding `left_on`.")
     }
     if (how == "cross") {
       if (uses_on | uses_lr_on) {
@@ -1414,7 +1425,7 @@ lazyframe__join <- function(
       rexprs_left <- parse_into_list_of_expressions(!!!left_on)
       rexprs_right <- parse_into_list_of_expressions(!!!right_on)
     } else {
-      abort("must specify either `on`, or `left_on` and `right_on`.")
+      abort("Must specify either `on`, or `left_on` and `right_on`.")
     }
     self$`_ldf`$join(
       other$`_ldf`,
@@ -2388,7 +2399,12 @@ lazyframe__join_asof <- function(
         tolerance_num <- series$`_s`
       } else {
         abort(
-          "`tolerance` must be one of NULL, a single string, or an R object that can be converted to a Polars Series of length 1."
+          c(
+            "invalid `tolerance`. `tolerance` must be one of the followings:",
+            `*` = "`NULL`.",
+            `*` = "A single string.",
+            `*` = "Something convertible to a Polars Series of length 1."
+          )
         )
       }
     }
@@ -2461,7 +2477,7 @@ lazyframe__describe <- function(
     check_dots_empty0(...)
     schema <- self$collect_schema()
     if (length(schema) == 0) {
-      abort("cannot describe a LazyFrame without any columns")
+      abort("Can't describe a LazyFrame without any columns")
     }
 
     # create list of metrics

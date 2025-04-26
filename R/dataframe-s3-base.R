@@ -20,7 +20,8 @@ names.polars_data_frame <- function(x) x$columns
 #' [rlang::set_names()], or, `as_polars_df(x, ...)$to_struct()$to_r_vector(ensure_vector = TRUE)`
 #' depending on the `as_series` argument.
 #'
-#' Arguments other than `x` and `as_series` are passed to [`<Series>$to_r_vector()`][series__to_r_vector],
+#' Arguments other than `x` and `as_series` are passed to
+#' [`<Series>$to_r_vector()`][series__to_r_vector],
 #' so they are ignored when `as_series=TRUE`.
 #' @inheritParams series__to_r_vector
 #' @param x A polars object
@@ -78,7 +79,8 @@ as.list.polars_data_frame <- function(
 #' Export the polars object as an R DataFrame
 #'
 #' This S3 method is a shortcut for
-#' [`as_polars_df(x, ...)$to_struct()$to_r_vector(ensure_vector = FALSE, struct = "dataframe")`][series__to_r_vector].
+#' [`as_polars_df(x, ...)$to_struct()$to_r_vector(ensure_vector = FALSE, struct = "dataframe")`]
+#' [series__to_r_vector].
 #' @inheritParams as.list.polars_data_frame
 #' @return An [R data frame][data.frame]
 #' @examples
@@ -113,6 +115,12 @@ as.data.frame.polars_data_frame <- function(
     non_existent = non_existent
   )
 }
+
+#' @exportS3Method utils::head
+head.polars_data_frame <- function(x, n = 6L, ...) x$head(n = n)
+
+#' @exportS3Method utils::tail
+tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
 
 #' Try to match `tibble` behavior as much as possible, following
 #' https://tibble.tidyverse.org/articles/invariants.html#column-subsetting
