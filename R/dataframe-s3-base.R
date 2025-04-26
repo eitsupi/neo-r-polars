@@ -113,3 +113,177 @@ as.data.frame.polars_data_frame <- function(
     non_existent = non_existent
   )
 }
+
+#' Try to match `tibble` behavior as much as possible, following
+#' https://tibble.tidyverse.org/articles/invariants.html#column-subsetting
+#' @export
+#' @noRd
+`[.polars_data_frame` <- function(x, i, j, drop = FALSE) {
+  cols <- names(x)
+
+  i_arg <- substitute(i)
+  j_arg <- substitute(j)
+  if (missing(i)) {
+    i <- NULL
+    i_arg <- NULL
+  } else if (is.null(i)) {
+    i <- integer()
+  }
+  if (missing(j)) {
+    j <- NULL
+    j_arg <- NULL
+  } else if (is.null(j)) {
+    j <- integer()
+  }
+  n_real_args <- nargs() - !missing(drop)
+  if (n_real_args <= 2L) {
+    if (!missing(drop)) {
+      warn(
+        c(
+          "!" = "`drop` argument ignored for subsetting a frame with `x[j]`.",
+          "i" = "It has an effect only for `x[i, j]`."
+        )
+      )
+      drop <- FALSE
+    }
+    j <- i
+    i <- NULL
+    j_arg <- i_arg
+    i_arg <- NULL
+  }
+
+  if (is.null(i) && is.null(j)) {
+    return(x)
+  }
+
+  if (!is.null(i) && !is.character(i) && !is.numeric(i) && !is.logical(i)) {
+    abort(
+      c(
+        sprintf("Can't subset rows with `%s`.", deparse(i_arg)),
+        "i" = sprintf(
+          "`%s` must be logical, numeric, or character, not %s.",
+          deparse(i_arg),
+          obj_type_friendly(i)
+        )
+      )
+    )
+  }
+
+  if (!is.null(i)) {
+    if (is.logical(i)) {
+      if (length(i) == 1 && isTRUE(i)) {
+        idx <- rep_len(TRUE, x$height)
+      } else if (length(i) == x$height) {
+        idx <- i
+      } else {
+        abort(
+          c(
+            "!" = sprintf("Can't subset rows with `%s`.", deparse(i_arg)),
+            "i" = sprintf(
+              "Logical subscript `%s` must be size 1 or %s, not %s",
+              deparse(i_arg),
+              x$height,
+              length(i)
+            )
+          )
+        )
+      }
+    } else {
+      if (all(i < 0)) {
+        i <- setdiff(seq_len(x$height), abs(i))
+      } else if (any(i < 0) && any(i > 0)) {
+        sign_start <- sign(i[i != 0])[1]
+        loc <- if (sign_start == -1) {
+          which(sign(i) == 1)[1]
+        } else if (sign_start == 1) {
+          which(sign(i) == -1)[1]
+        }
+        abort(
+          c(
+            "!" = sprintf("Can't subset rows with `%s`.", deparse(i_arg)),
+            "x" = "Negative and positive locations can't be mixed.",
+            "i" = sprintf(
+              "Subscript `%s` has a positive value at location %s.",
+              deparse(i_arg),
+              loc
+            )
+          )
+        )
+      }
+      idx <- seq_len(x$height) %in% i
+    }
+
+    x <- x$filter(pl$lit(idx))
+  }
+
+  if (!is.null(j)) {
+    to_select <- if (is.numeric(j)) {
+      wrong_locs <- j[j > length(cols)]
+      if (length(wrong_locs) > 0) {
+        abort(
+          c(
+            "Can't subset columns past the end.",
+            "i" = sprintf("Location(s) %s don't exist.", oxford_comma(wrong_locs, final = "and")),
+            "i" = sprintf("There are only %s columns.", length(cols))
+          )
+        )
+      }
+      if (all(j < 0)) {
+        j <- setdiff(seq_len(length(cols)), abs(j))
+      } else if (any(j < 0) && any(j > 0)) {
+        sign_start <- sign(j[j != 0])[1]
+        loc <- if (sign_start == -1) {
+          which(sign(j) == 1)[1]
+        } else if (sign_start == 1) {
+          which(sign(j) == -1)[1]
+        }
+        abort(
+          c(
+            "!" = sprintf("Can't subset columns with `%s`.", deparse(j_arg)),
+            "x" = "Negative and positive locations can't be mixed.",
+            "i" = sprintf(
+              "Subscript `%s` has a positive value at location %s.",
+              deparse(j_arg),
+              loc
+            )
+          )
+        )
+      }
+      cols[j]
+    } else if (is.character(j)) {
+      j
+    } else if (is.logical(j)) {
+      if (length(j) == 1) {
+        cols
+      } else if (length(j) == length(cols)) {
+        cols[j]
+      } else {
+        abort(
+          c(
+            "!" = sprintf("Can't subset columns with `%s`.", deparse(j_arg)),
+            "i" = sprintf(
+              "Logical subscript `%s` must be size 1 or %s, not %s",
+              deparse(j_arg),
+              length(cols),
+              length(j)
+            )
+          )
+        )
+      }
+    }
+
+    # Don't do this too early because x[, TRUE, drop = TRUE] mustn't drop if
+    # x has more than 1 column
+    if (length(to_select) > 1) {
+      drop <- FALSE
+    }
+
+    x <- x$select(to_select)
+  }
+
+  if (isTRUE(drop)) {
+    as.list(x)
+  } else {
+    x
+  }
+}
