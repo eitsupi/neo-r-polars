@@ -28,6 +28,24 @@
       x Negative and positive locations can't be mixed.
       i Subscript `1:-2` has a negative value at location 3.
 
+---
+
+    Code
+      test[mean, ]
+    Condition
+      Error in `test[mean, ]`:
+      ! Can't subset rows with `mean`.
+      i `mean` must be logical, numeric, or character, not a function.
+
+---
+
+    Code
+      test[list(1), ]
+    Condition
+      Error in `test[list(1), ]`:
+      ! Can't subset rows with `list(1)`.
+      i `list(1)` must be logical, numeric, or character, not a list.
+
 # `[` operator works to subset rows only
 
     Code

@@ -73,6 +73,9 @@ test_that("`[` operator works to subset columns only", {
   ### Empty args
   expect_identical(test[], test)
   expect_identical(test[,], test)
+
+  expect_snapshot(test[mean, ], error = TRUE)
+  expect_snapshot(test[list(1), ], error = TRUE)
 })
 
 test_that("`[` operator works to subset rows only", {

@@ -129,8 +129,11 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
 `[.polars_data_frame` <- function(x, i, j, drop = FALSE) {
   cols <- names(x)
 
+  # useful for error messages below
   i_arg <- substitute(i)
   j_arg <- substitute(j)
+
+  # taken from tibble:::`[`
   if (missing(i)) {
     i <- NULL
     i_arg <- NULL
@@ -164,6 +167,9 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
     return(x)
   }
 
+  #### Rows -----------------------------------------------------
+
+  # check accepted types for subsetting rows
   if (!is.null(i) && !is.character(i) && !is.numeric(i) && !is.logical(i)) {
     abort(
       c(
@@ -178,6 +184,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
   }
 
   if (!is.null(i)) {
+    # If logical, `i` must be of length 1 or number of rows
     if (is.logical(i)) {
       if (length(i) == 1 && isTRUE(i)) {
         idx <- rep_len(TRUE, x$height)
@@ -197,6 +204,8 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
         )
       }
     } else {
+      # Negative indices -> drop those rows
+      # Do not accept mixing negative and positive indices
       if (all(i < 0)) {
         i <- setdiff(seq_len(x$height), abs(i))
       } else if (any(i < 0) && any(i > 0)) {
@@ -225,8 +234,29 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
     x <- x$filter(pl$lit(idx))
   }
 
+  #### Columns -----------------------------------------------------
+
+  # check accepted types for subsetting columns
+  if (!is.null(j) && !is.character(j) && !is.numeric(j) && !is.logical(j)) {
+    abort(
+      c(
+        sprintf("Can't subset columns with `%s`.", deparse(j_arg)),
+        "i" = sprintf(
+          "`%s` must be logical, numeric, or character, not %s.",
+          deparse(j_arg),
+          obj_type_friendly(j)
+        )
+      )
+    )
+  }
+
   if (!is.null(j)) {
-    to_select <- if (is.numeric(j)) {
+    # Can be:
+    # - numeric but cannot beyond the number of columns, and cannot mix positive
+    #   and negative indices
+    # - logical but must be of length 1 or number of columns
+    # - character
+    if (is.numeric(j)) {
       wrong_locs <- j[j > length(cols)]
       if (length(wrong_locs) > 0) {
         abort(
@@ -259,14 +289,14 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
           )
         )
       }
-      cols[j]
+      to_select <- cols[j]
     } else if (is.character(j)) {
-      j
+      to_select <- j
     } else if (is.logical(j)) {
       if (length(j) == 1) {
-        cols
+        to_select <- cols
       } else if (length(j) == length(cols)) {
-        cols[j]
+        to_select <- cols[j]
       } else {
         abort(
           c(
