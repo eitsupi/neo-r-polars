@@ -31,19 +31,19 @@
 ---
 
     Code
-      test[mean, ]
+      test[mean]
     Condition
-      Error in `test[mean, ]`:
-      ! Can't subset rows with `mean`.
+      Error in `test[mean]`:
+      ! Can't subset columns with `mean`.
       i `mean` must be logical, numeric, or character, not a function.
 
 ---
 
     Code
-      test[list(1), ]
+      test[list(1)]
     Condition
-      Error in `test[list(1), ]`:
-      ! Can't subset rows with `list(1)`.
+      Error in `test[list(1)]`:
+      ! Can't subset columns with `list(1)`.
       i `list(1)` must be logical, numeric, or character, not a list.
 
 # `[` operator works to subset rows only
