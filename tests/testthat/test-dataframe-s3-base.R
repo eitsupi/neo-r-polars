@@ -41,6 +41,7 @@ test_that("`[` operator works to subset columns only", {
   expect_identical(test[, -2:-1], pl$DataFrame(c = 7:9))
   expect_snapshot(test[, 10:12], error = TRUE)
   expect_snapshot(test[, -2:1], error = TRUE)
+  expect_snapshot(test[, 1:-2], error = TRUE)
 
   ### Column names
   expect_identical(test["a"], pl$DataFrame(a = 1:3))
@@ -96,6 +97,7 @@ test_that("`[` operator works to subset rows only", {
     pl$DataFrame(a = 3L, b = 6L, c = 9L)
   )
   expect_snapshot(test[-2:1, ], error = TRUE)
+  expect_snapshot(test[1:-2, ], error = TRUE)
 
   ### Character
   expect_identical(

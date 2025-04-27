@@ -18,6 +18,16 @@
       x Negative and positive locations can't be mixed.
       i Subscript `-2:1` has a positive value at location 4.
 
+---
+
+    Code
+      test[, 1:-2]
+    Condition
+      Error in `test[, 1:-2]`:
+      ! Can't subset columns with `1:-2`.
+      x Negative and positive locations can't be mixed.
+      i Subscript `1:-2` has a negative value at location 3.
+
 # `[` operator works to subset rows only
 
     Code
@@ -27,6 +37,16 @@
       ! Can't subset rows with `-2:1`.
       x Negative and positive locations can't be mixed.
       i Subscript `-2:1` has a positive value at location 4.
+
+---
+
+    Code
+      test[1:-2, ]
+    Condition
+      Error in `test[1:-2, ]`:
+      ! Can't subset rows with `1:-2`.
+      x Negative and positive locations can't be mixed.
+      i Subscript `1:-2` has a negative value at location 3.
 
 ---
 

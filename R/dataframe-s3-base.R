@@ -211,8 +211,9 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
             "!" = sprintf("Can't subset rows with `%s`.", deparse(i_arg)),
             "x" = "Negative and positive locations can't be mixed.",
             "i" = sprintf(
-              "Subscript `%s` has a positive value at location %s.",
+              "Subscript `%s` has a %s value at location %s.",
               deparse(i_arg),
+              if (sign_start == 1) "negative" else "positive",
               loc
             )
           )
@@ -250,8 +251,9 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
             "!" = sprintf("Can't subset columns with `%s`.", deparse(j_arg)),
             "x" = "Negative and positive locations can't be mixed.",
             "i" = sprintf(
-              "Subscript `%s` has a positive value at location %s.",
+              "Subscript `%s` has a %s value at location %s.",
               deparse(j_arg),
+              if (sign_start == 1) "negative" else "positive",
               loc
             )
           )
