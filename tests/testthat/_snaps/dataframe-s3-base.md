@@ -31,6 +31,15 @@
 ---
 
     Code
+      test[, 1.5]
+    Condition
+      Error in `test[, 1.5]`:
+      ! Can't subset columns with `1.5`.
+      x Can't convert from `j` <double> to <integer> due to loss of precision.
+
+---
+
+    Code
       test[mean]
     Condition
       Error in `test[mean]`:
@@ -65,6 +74,15 @@
       ! Can't subset rows with `1:-2`.
       x Negative and positive locations can't be mixed.
       i Subscript `1:-2` has a negative value at location 3.
+
+---
+
+    Code
+      test[1.5, ]
+    Condition
+      Error in `test[1.5, ]`:
+      ! Can't subset rows with `1.5`.
+      x Can't convert from `i` <double> to <integer> due to loss of precision.
 
 ---
 

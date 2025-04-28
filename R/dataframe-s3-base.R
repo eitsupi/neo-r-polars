@@ -137,13 +137,13 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
   if (missing(i)) {
     i <- NULL
     i_arg <- NULL
-  } else if (is.null(i)) {
+  } else if (is_null(i)) {
     i <- integer()
   }
   if (missing(j)) {
     j <- NULL
     j_arg <- NULL
-  } else if (is.null(j)) {
+  } else if (is_null(j)) {
     j <- integer()
   }
   n_real_args <- nargs() - !missing(drop)
@@ -163,14 +163,14 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
     i_arg <- NULL
   }
 
-  if (is.null(i) && is.null(j)) {
+  if (is_null(i) && is_null(j)) {
     return(x)
   }
 
   #### Rows -----------------------------------------------------
 
   # check accepted types for subsetting rows
-  if (!is.null(i) && !is.character(i) && !is.numeric(i) && !is.logical(i)) {
+  if (!is_null(i) && !is_character(i) && !is.numeric(i) && !is_logical(i)) {
     abort(
       c(
         sprintf("Can't subset rows with `%s`.", deparse(i_arg)),
@@ -183,9 +183,18 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
     )
   }
 
-  if (!is.null(i)) {
+  if (is.numeric(i) && !rlang::is_integerish(i)) {
+    abort(
+      c(
+        sprintf("Can't subset rows with `%s`.", deparse(i_arg)),
+        "x" = "Can't convert from `i` <double> to <integer> due to loss of precision."
+      )
+    )
+  }
+
+  if (!is_null(i)) {
     # If logical, `i` must be of length 1 or number of rows
-    if (is.logical(i)) {
+    if (is_logical(i)) {
       if (length(i) == 1 && isTRUE(i)) {
         idx <- rep_len(TRUE, x$height)
       } else if (length(i) == x$height) {
@@ -237,7 +246,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
   #### Columns -----------------------------------------------------
 
   # check accepted types for subsetting columns
-  if (!is.null(j) && !is.character(j) && !is.numeric(j) && !is.logical(j)) {
+  if (!is_null(j) && !is_character(j) && !is.numeric(j) && !is_logical(j)) {
     abort(
       c(
         sprintf("Can't subset columns with `%s`.", deparse(j_arg)),
@@ -250,7 +259,16 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
     )
   }
 
-  if (!is.null(j)) {
+  if (is.numeric(j) && !rlang::is_integerish(j)) {
+    abort(
+      c(
+        sprintf("Can't subset columns with `%s`.", deparse(j_arg)),
+        "x" = "Can't convert from `j` <double> to <integer> due to loss of precision."
+      )
+    )
+  }
+
+  if (!is_null(j)) {
     # Can be:
     # - numeric but cannot beyond the number of columns, and cannot mix positive
     #   and negative indices
@@ -290,9 +308,9 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
         )
       }
       to_select <- cols[j]
-    } else if (is.character(j)) {
+    } else if (is_character(j)) {
       to_select <- j
-    } else if (is.logical(j)) {
+    } else if (is_logical(j)) {
       if (length(j) == 1) {
         to_select <- cols
       } else if (length(j) == length(cols)) {
