@@ -215,28 +215,31 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
     } else {
       # Negative indices -> drop those rows
       # Do not accept mixing negative and positive indices
-      if (all(i < 0)) {
-        i <- setdiff(seq_len(x$height), abs(i))
-      } else if (any(i < 0) && any(i > 0)) {
-        sign_start <- sign(i[i != 0])[1]
-        loc <- if (sign_start == -1) {
-          which(sign(i) == 1)[1]
-        } else if (sign_start == 1) {
-          which(sign(i) == -1)[1]
-        }
-        abort(
-          c(
-            "!" = sprintf("Can't subset rows with `%s`.", deparse(i_arg)),
-            "x" = "Negative and positive locations can't be mixed.",
-            "i" = sprintf(
-              "Subscript `%s` has a %s value at location %s.",
-              deparse(i_arg),
-              if (sign_start == 1) "negative" else "positive",
-              loc
+      if (is.numeric(i)) {
+        if (all(i < 0)) {
+          i <- setdiff(seq_len(x$height), abs(i))
+        } else if (any(i < 0) && any(i > 0)) {
+          sign_start <- sign(i[i != 0])[1]
+          loc <- if (sign_start == -1) {
+            which(sign(i) == 1)[1]
+          } else if (sign_start == 1) {
+            which(sign(i) == -1)[1]
+          }
+          abort(
+            c(
+              "!" = sprintf("Can't subset rows with `%s`.", deparse(i_arg)),
+              "x" = "Negative and positive locations can't be mixed.",
+              "i" = sprintf(
+                "Subscript `%s` has a %s value at location %s.",
+                deparse(i_arg),
+                if (sign_start == 1) "negative" else "positive",
+                loc
+              )
             )
           )
-        )
+        }
       }
+
       idx <- seq_len(x$height) %in% i
     }
 
