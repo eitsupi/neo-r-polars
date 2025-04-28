@@ -268,6 +268,21 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
     )
   }
 
+  # NA values are accepted for rows but not columns.
+  if (anyNA(j)) {
+    na_val <- which(is.na(j))
+    abort(
+      c(
+        sprintf("Can't subset columns with `%s`.", deparse(j_arg)),
+        "x" = sprintf("Subscript `%s` can't contain missing values.", deparse(j_arg)),
+        "x" = sprintf(
+          "It has missing value(s) at location %s.",
+          oxford_comma(na_val, final = "and")
+        )
+      )
+    )
+  }
+
   if (!is_null(j)) {
     # Can be:
     # - numeric but cannot beyond the number of columns, and cannot mix positive

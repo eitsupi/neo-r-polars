@@ -55,6 +55,36 @@
       ! Can't subset columns with `list(1)`.
       i `list(1)` must be logical, numeric, or character, not a list.
 
+---
+
+    Code
+      test[NA]
+    Condition
+      Error in `test[NA]`:
+      ! Can't subset columns with `NA`.
+      x Subscript `NA` can't contain missing values.
+      x It has missing value(s) at location 1.
+
+---
+
+    Code
+      test[c(1, NA, NA)]
+    Condition
+      Error in `test[c(1, NA, NA)]`:
+      ! Can't subset columns with `c(1, NA, NA)`.
+      x Subscript `c(1, NA, NA)` can't contain missing values.
+      x It has missing value(s) at location 2 and 3.
+
+---
+
+    Code
+      test[c("a", NA)]
+    Condition
+      Error in `test[c("a", NA)]`:
+      ! Can't subset columns with `c("a", NA)`.
+      x Subscript `c("a", NA)` can't contain missing values.
+      x It has missing value(s) at location 2.
+
 # `[` operator works to subset rows only
 
     Code
