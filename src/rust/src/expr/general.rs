@@ -767,22 +767,6 @@ impl PlRExpr {
         Ok(out.into())
     }
 
-    fn backward_fill(&self, limit: Option<NumericScalar>) -> Result<Self> {
-        let limit: FillNullLimit = match limit {
-            Some(x) => Some(<Wrap<u32>>::try_from(x)?.0),
-            None => None,
-        };
-        Ok(self.inner.clone().backward_fill(limit).into())
-    }
-
-    fn forward_fill(&self, limit: Option<NumericScalar>) -> Result<Self> {
-        let limit: FillNullLimit = match limit {
-            Some(x) => Some(<Wrap<u32>>::try_from(x)?.0),
-            None => None,
-        };
-        Ok(self.inner.clone().forward_fill(limit).into())
-    }
-
     fn shift(&self, n: &PlRExpr, fill_value: Option<&PlRExpr>) -> Result<Self> {
         let expr = self.inner.clone();
         let out = match fill_value {
