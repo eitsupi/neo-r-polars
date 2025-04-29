@@ -2741,20 +2741,30 @@ expr__rolling_quantile <- function(
 #' Apply a rolling skew over values
 #'
 #' @inherit expr__rolling_max description params details
-#' @inheritParams expr__skew
-#'
 #' @inherit as_polars_expr return
+#' @inheritParams expr__skew
+#' @param min_samples The number of values in the window thatshould be non-null before computing
+#' a result. If set to `NULL` (default), it will be set equal to `window_size`.
+#' @param center Set the labels at the center of the window.
 #' @examples
 #' df <- pl$DataFrame(a = c(1, 4, 2, 9))
 #' df$with_columns(
 #'   rolling_skew = pl$col("a")$rolling_skew(3)
 #' )
-expr__rolling_skew <- function(window_size, ..., bias = TRUE) {
+expr__rolling_skew <- function(
+  window_size,
+  ...,
+  bias = TRUE,
+  min_samples = NULL,
+  center = FALSE
+) {
   wrap({
     check_dots_empty0(...)
     self$`_rexpr`$rolling_skew(
       window_size = window_size,
-      bias = bias
+      bias = bias,
+      min_samples = min_samples,
+      center = center
     )
   })
 }
