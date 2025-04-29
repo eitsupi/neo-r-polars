@@ -170,7 +170,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
   #### Rows -----------------------------------------------------
 
   # check accepted types for subsetting rows
-  if (!is_null(i) && !is_character(i) && !is.numeric(i) && !is_logical(i)) {
+  if (!is_null(i) && !is_bare_character(i) && !is_bare_numeric(i) && !is_bare_logical(i)) {
     abort(
       c(
         sprintf("Can't subset rows with `%s`.", deparse(i_arg)),
@@ -183,7 +183,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
     )
   }
 
-  if (is.numeric(i) && !rlang::is_integerish(i)) {
+  if (is_bare_numeric(i) && !rlang::is_integerish(i)) {
     abort(
       c(
         sprintf("Can't subset rows with `%s`.", deparse(i_arg)),
@@ -194,7 +194,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
 
   if (!is_null(i)) {
     # If logical, `i` must be of length 1 or number of rows
-    if (is_logical(i)) {
+    if (is_bare_logical(i)) {
       if (length(i) == 1 && isTRUE(i)) {
         idx <- rep_len(TRUE, x$height)
       } else if (length(i) == x$height) {
@@ -215,7 +215,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
     } else {
       # Negative indices -> drop those rows
       # Do not accept mixing negative and positive indices
-      if (is.numeric(i)) {
+      if (is_bare_numeric(i)) {
         if (all(i < 0)) {
           i <- setdiff(seq_len(x$height), abs(i))
         } else if (any(i < 0) && any(i > 0)) {
@@ -249,7 +249,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
   #### Columns -----------------------------------------------------
 
   # check accepted types for subsetting columns
-  if (!is_null(j) && !is_character(j) && !is.numeric(j) && !is_logical(j)) {
+  if (!is_null(j) && !is_bare_character(j) && !is_bare_numeric(j) && !is_bare_logical(j)) {
     abort(
       c(
         sprintf("Can't subset columns with `%s`.", deparse(j_arg)),
@@ -262,7 +262,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
     )
   }
 
-  if (is.numeric(j) && !rlang::is_integerish(j)) {
+  if (is_bare_numeric(j) && !rlang::is_integerish(j)) {
     abort(
       c(
         sprintf("Can't subset columns with `%s`.", deparse(j_arg)),
@@ -292,7 +292,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
     #   and negative indices
     # - logical but must be of length 1 or number of columns
     # - character
-    if (is.numeric(j)) {
+    if (is_bare_numeric(j)) {
       wrong_locs <- j[j > length(cols)]
       if (length(wrong_locs) > 0) {
         abort(
@@ -326,9 +326,9 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
         )
       }
       to_select <- cols[j]
-    } else if (is_character(j)) {
+    } else if (is_bare_character(j)) {
       to_select <- j
-    } else if (is_logical(j)) {
+    } else if (is_bare_logical(j)) {
       if (length(j) == 1) {
         to_select <- cols
       } else if (length(j) == length(cols)) {
