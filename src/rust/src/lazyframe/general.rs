@@ -1259,7 +1259,12 @@ impl PlRLazyFrame {
         };
         self.ldf
             .clone()
-            .sink_parquet(&path, options, cloud_options, sink_options)
+            .sink_parquet(
+                SinkTarget::Path(Arc::new(path)),
+                options,
+                cloud_options,
+                sink_options,
+            )
             .map(PlRLazyFrame::from)
             .map_err(RPolarsErr::from)
             .map_err(Into::into)
@@ -1348,7 +1353,12 @@ impl PlRLazyFrame {
 
         self.ldf
             .clone()
-            .sink_csv(&path, options, cloud_options, sink_options)
+            .sink_csv(
+                SinkTarget::Path(Arc::new(path)),
+                options,
+                cloud_options,
+                sink_options,
+            )
             .map(PlRLazyFrame::from)
             .map_err(RPolarsErr::from)
             .map_err(Into::into)
@@ -1392,10 +1402,15 @@ impl PlRLazyFrame {
         };
 
         let ldf = self.ldf.clone();
-        ldf.sink_json(path, options, cloud_options, sink_options)
-            .map(PlRLazyFrame::from)
-            .map_err(RPolarsErr::from)
-            .map_err(Into::into)
+        ldf.sink_json(
+            SinkTarget::Path(Arc::new(path)),
+            options,
+            cloud_options,
+            sink_options,
+        )
+        .map(PlRLazyFrame::from)
+        .map_err(RPolarsErr::from)
+        .map_err(Into::into)
     }
 
     fn sink_ipc(
@@ -1446,7 +1461,12 @@ impl PlRLazyFrame {
 
         self.ldf
             .clone()
-            .sink_ipc(&path, options, cloud_options, sink_options)
+            .sink_ipc(
+                SinkTarget::Path(Arc::new(path)),
+                options,
+                cloud_options,
+                sink_options,
+            )
             .map(PlRLazyFrame::from)
             .map_err(RPolarsErr::from)
             .map_err(Into::into)
