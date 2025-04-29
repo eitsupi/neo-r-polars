@@ -122,10 +122,10 @@ head.polars_data_frame <- function(x, n = 6L, ...) x$head(n = n)
 #' @exportS3Method utils::tail
 tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
 
-#' Try to match `tibble` behavior as much as possible, following
-#' https://tibble.tidyverse.org/articles/invariants.html#column-subsetting
+# Try to match `tibble` behavior as much as possible, following
+# https://tibble.tidyverse.org/articles/invariants.html#column-subsetting
+# TODO: add document
 #' @export
-#' @noRd
 `[.polars_data_frame` <- function(x, i, j, drop = FALSE) {
   cols <- names(x)
 
@@ -133,7 +133,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
   i_arg <- substitute(i)
   j_arg <- substitute(j)
 
-  # taken from tibble:::`[`
+  # taken from tibble:::`[.tbl_df`
   if (missing(i)) {
     i <- NULL
     i_arg <- NULL
@@ -151,8 +151,8 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
     if (!missing(drop)) {
       warn(
         c(
-          "!" = "`drop` argument ignored for subsetting a frame with `x[j]`.",
-          "i" = "It has an effect only for `x[i, j]`."
+          `!` = "`drop` argument ignored for subsetting a frame with `x[j]`.",
+          i = "It has an effect only for `x[i, j]`."
         )
       )
       drop <- FALSE
@@ -174,7 +174,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
     abort(
       c(
         sprintf("Can't subset rows with `%s`.", deparse(i_arg)),
-        "i" = sprintf(
+        i = sprintf(
           "`%s` must be logical, numeric, or character, not %s.",
           deparse(i_arg),
           obj_type_friendly(i)
@@ -187,7 +187,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
     abort(
       c(
         sprintf("Can't subset rows with `%s`.", deparse(i_arg)),
-        "x" = "Can't convert from `i` <double> to <integer> due to loss of precision."
+        x = "Can't convert from `i` <double> to <integer> due to loss of precision."
       )
     )
   }
@@ -202,8 +202,8 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
       } else {
         abort(
           c(
-            "!" = sprintf("Can't subset rows with `%s`.", deparse(i_arg)),
-            "i" = sprintf(
+            `!` = sprintf("Can't subset rows with `%s`.", deparse(i_arg)),
+            i = sprintf(
               "Logical subscript `%s` must be size 1 or %s, not %s",
               deparse(i_arg),
               x$height,
@@ -227,9 +227,9 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
           }
           abort(
             c(
-              "!" = sprintf("Can't subset rows with `%s`.", deparse(i_arg)),
-              "x" = "Negative and positive locations can't be mixed.",
-              "i" = sprintf(
+              `!` = sprintf("Can't subset rows with `%s`.", deparse(i_arg)),
+              x = "Negative and positive locations can't be mixed.",
+              i = sprintf(
                 "Subscript `%s` has a %s value at location %s.",
                 deparse(i_arg),
                 if (sign_start == 1) "negative" else "positive",
@@ -253,7 +253,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
     abort(
       c(
         sprintf("Can't subset columns with `%s`.", deparse(j_arg)),
-        "i" = sprintf(
+        i = sprintf(
           "`%s` must be logical, numeric, or character, not %s.",
           deparse(j_arg),
           obj_type_friendly(j)
@@ -266,7 +266,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
     abort(
       c(
         sprintf("Can't subset columns with `%s`.", deparse(j_arg)),
-        "x" = "Can't convert from `j` <double> to <integer> due to loss of precision."
+        x = "Can't convert from `j` <double> to <integer> due to loss of precision."
       )
     )
   }
@@ -277,8 +277,8 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
     abort(
       c(
         sprintf("Can't subset columns with `%s`.", deparse(j_arg)),
-        "x" = sprintf("Subscript `%s` can't contain missing values.", deparse(j_arg)),
-        "x" = sprintf(
+        x = sprintf("Subscript `%s` can't contain missing values.", deparse(j_arg)),
+        x = sprintf(
           "It has missing value(s) at location %s.",
           oxford_comma(na_val, final = "and")
         )
@@ -298,8 +298,8 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
         abort(
           c(
             "Can't subset columns past the end.",
-            "i" = sprintf("Location(s) %s don't exist.", oxford_comma(wrong_locs, final = "and")),
-            "i" = sprintf("There are only %s columns.", length(cols))
+            i = sprintf("Location(s) %s don't exist.", oxford_comma(wrong_locs, final = "and")),
+            i = sprintf("There are only %s columns.", length(cols))
           )
         )
       }
@@ -314,9 +314,9 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
         }
         abort(
           c(
-            "!" = sprintf("Can't subset columns with `%s`.", deparse(j_arg)),
-            "x" = "Negative and positive locations can't be mixed.",
-            "i" = sprintf(
+            `!` = sprintf("Can't subset columns with `%s`.", deparse(j_arg)),
+            x = "Negative and positive locations can't be mixed.",
+            i = sprintf(
               "Subscript `%s` has a %s value at location %s.",
               deparse(j_arg),
               if (sign_start == 1) "negative" else "positive",
@@ -336,8 +336,8 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
       } else {
         abort(
           c(
-            "!" = sprintf("Can't subset columns with `%s`.", deparse(j_arg)),
-            "i" = sprintf(
+            `!` = sprintf("Can't subset columns with `%s`.", deparse(j_arg)),
+            i = sprintf(
               "Logical subscript `%s` must be size 1 or %s, not %s",
               deparse(j_arg),
               length(cols),
