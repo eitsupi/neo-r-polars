@@ -1349,6 +1349,7 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
 
 `PlRExpr_diff` <- function(self) {
   function(`n`, `null_behavior`) {
+    `n` <- .savvy_extract_ptr(`n`, "PlRExpr")
     .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_diff__impl, `self`, `n`, `null_behavior`))
   }
 }

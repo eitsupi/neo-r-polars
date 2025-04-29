@@ -277,10 +277,9 @@ impl PlRExpr {
         Ok(self.inner.clone().pow(exponent.inner.clone()).into())
     }
 
-    fn diff(&self, n: NumericScalar, null_behavior: &str) -> Result<Self> {
-        let n = <Wrap<i64>>::try_from(n)?.0;
+    fn diff(&self, n: &PlRExpr, null_behavior: &str) -> Result<Self> {
         let null_behavior = <Wrap<NullBehavior>>::try_from(null_behavior)?.0;
-        Ok(self.inner.clone().diff(n, null_behavior).into())
+        Ok(self.inner.clone().diff(n.inner, null_behavior).into())
     }
 
     fn reshape(&self, dimensions: NumericSexp) -> Result<Self> {
