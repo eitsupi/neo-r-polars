@@ -358,7 +358,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
   }
 
   if (isTRUE(drop)) {
-    as.list(x)
+    x$get_columns()[[1]]
   } else {
     x
   }

@@ -35,7 +35,7 @@ test_that("`[` operator works to subset columns only", {
     expect_identical(test[1, drop = TRUE], pl$DataFrame(a = 1:3)),
     "`drop` argument ignored for subsetting a frame",
   )
-  expect_identical(test[, 1, drop = TRUE], list(a = pl$Series("a", 1:3)))
+  expect_identical(test[, 1, drop = TRUE], pl$Series("a", 1:3))
   expect_identical(test[1:2], pl$DataFrame(a = 1:3, b = 4:6))
   expect_identical(test[, 1:2, drop = TRUE], pl$DataFrame(a = 1:3, b = 4:6))
   expect_identical(test[, -2:-1], pl$DataFrame(c = 7:9))
@@ -50,7 +50,7 @@ test_that("`[` operator works to subset columns only", {
     expect_identical(test["a", drop = TRUE], pl$DataFrame(a = 1:3)),
     "`drop` argument ignored for subsetting a frame",
   )
-  expect_identical(test[, "a", drop = TRUE], list(a = pl$Series("a", 1:3)))
+  expect_identical(test[, "a", drop = TRUE], pl$Series("a", 1:3))
   expect_identical(test[c("a", "b")], pl$DataFrame(a = 1:3, b = 4:6))
   expect_identical(test[, c("a", "b"), drop = TRUE], pl$DataFrame(a = 1:3, b = 4:6))
   expect_error(
@@ -68,7 +68,7 @@ test_that("`[` operator works to subset columns only", {
   expect_identical(test[, TRUE, drop = TRUE], test)
   expect_identical(
     test[, c(TRUE, FALSE, FALSE), drop = TRUE],
-    list(a = pl$Series("a", 1:3))
+    pl$Series("a", 1:3)
   )
 
   ### Empty args
