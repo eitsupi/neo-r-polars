@@ -130,8 +130,17 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
   cols <- names(x)
 
   # useful for error messages below
+  called_from_lazy_s3_method <- identical(caller_fn(), `[.polars_lazy_frame`)
+  if (isTRUE(called_from_lazy_s3_method)) {
+    # Necessary so that e.g. `test[mean]` prints "Can't subset columns with
+    # `mean`." and not "Can't subset columns with `j`."
+    j_arg <- mget("j_arg", envir = caller_env(), ifnotfound = NA)[["j_arg"]]
+    error_env <- caller_env()
+  } else {
+    j_arg <- substitute(j)
+    error_env <- current_env()
+  }
   i_arg <- substitute(i)
-  j_arg <- substitute(j)
 
   # taken from tibble:::`[.tbl_df`
   if (missing(i)) {
@@ -179,7 +188,8 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
           deparse(i_arg),
           obj_type_friendly(i)
         )
-      )
+      ),
+      call = error_env
     )
   }
 
@@ -188,7 +198,8 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
       c(
         sprintf("Can't subset rows with `%s`.", deparse(i_arg)),
         x = "Can't convert from `i` <double> to <integer> due to loss of precision."
-      )
+      ),
+      call = error_env
     )
   }
 
@@ -209,7 +220,8 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
               x$height,
               length(i)
             )
-          )
+          ),
+          call = error_env
         )
       }
     } else {
@@ -235,7 +247,8 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
                 if (sign_start == 1) "negative" else "positive",
                 loc
               )
-            )
+            ),
+            call = error_env
           )
         }
       }
@@ -258,7 +271,8 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
           deparse(j_arg),
           obj_type_friendly(j)
         )
-      )
+      ),
+      call = error_env
     )
   }
 
@@ -267,7 +281,8 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
       c(
         sprintf("Can't subset columns with `%s`.", deparse(j_arg)),
         x = "Can't convert from `j` <double> to <integer> due to loss of precision."
-      )
+      ),
+      call = error_env
     )
   }
 
@@ -282,7 +297,8 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
           "It has missing value(s) at location %s.",
           oxford_comma(na_val, final = "and")
         )
-      )
+      ),
+      call = error_env
     )
   }
 
@@ -302,7 +318,8 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
             "Can't subset columns past the end.",
             i = sprintf("Location(s) %s don't exist.", oxford_comma(wrong_locs, final = "and")),
             i = sprintf("There are only %s columns.", length(cols))
-          )
+          ),
+          call = error_env
         )
       }
       if (all(j < 0)) {
@@ -324,11 +341,18 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
               if (sign_start == 1) "negative" else "positive",
               loc
             )
-          )
+          ),
+          call = error_env
         )
       }
       cols[j]
     } else if (is_bare_character(j)) {
+      if (!all(j %in% cols)) {
+        abort(
+          sprintf("Column(s) not found: %s.", oxford_comma(setdiff(j, cols))),
+          call = error_env
+        )
+      }
       j
     } else if (is_bare_logical(j)) {
       if (length(j) == 1) {
@@ -345,7 +369,8 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
               length(cols),
               length(j)
             )
-          )
+          ),
+          call = error_env
         )
       }
     }

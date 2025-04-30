@@ -85,7 +85,7 @@
       x Subscript `c("a", NA)` can't contain missing values.
       x It has missing value(s) at location 2.
 
-# `[` operator works to subset rows only
+# `[` operator cannot subset rows
 
     Code
       test[1:2, ]
