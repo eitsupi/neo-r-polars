@@ -237,9 +237,9 @@ dat$group_by("cyl")$mean()
 
 We can now start chaining together various methods (expressions) to manipulate
 it in different ways. For example, we can subset the data by rows
-([`$filter()`](https://pola-rs.github.io/r-polars/man/DataFrame_filter.html))
+([`$filter()`](https://pola-rs.github.io/r-polars/man/dataframe__filter.html))
 and also columns
-([`$select()`](https://pola-rs.github.io/r-polars/man/DataFrame_select.html)):
+([`$select()`](https://pola-rs.github.io/r-polars/man/dataframe__select.html)):
 
 ```{r}
 dat$filter(pl$col("cyl") == 6)
@@ -380,7 +380,7 @@ flights$join(planes, on = "tailnum", how = "left")
 ```
 
 More information on the **polars** joining method can be found in the
-[reference manual](https://pola-rs.github.io/r-polars/man/DataFrame_join.html).
+[reference manual](https://pola-rs.github.io/r-polars/man/dataframe__join.html).
 
 The package supports many other data manipulation operations, which we won't
 cover here. Hopefully, you will already have a sense of the key syntax features.
@@ -396,7 +396,7 @@ performance. Delaying execution until the last possible moment allows Polars to
 apply automatic optimization to every query. Let's take a quick look.
 
 To create a so-called
-"[LazyFrame](https://pola-rs.github.io/r-polars/man/LazyFrame_class.html)" from an
+"[LazyFrame](https://pola-rs.github.io/r-polars/man/pl__LazyFrame.html)" from an
 existing object in memory, we can invoke the `$lazy()` method.
 
 ```{r}
