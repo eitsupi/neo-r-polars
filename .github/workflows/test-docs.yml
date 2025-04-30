@@ -80,9 +80,11 @@ jobs:
           declare -A md_counts
 
           # Extract man/*.md paths and check for duplicates
+          md_paths=$(grep -o 'man/[^[:space:]]\+\.md' "$YAML_FILE" || true)
           while read -r md_path; do
-              ((md_counts["$md_path"]++))
-          done < <(grep -o 'man/[^[:space:]]\+\.md' "$YAML_FILE" || true)
+            ((md_counts["$md_path"]++))
+          done <<< "$md_paths"
+
 
           # Report duplicates
           for file in "${!md_counts[@]}"; do
