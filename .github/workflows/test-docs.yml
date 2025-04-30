@@ -80,9 +80,8 @@ jobs:
           declare -A md_counts
 
           # Extract man/*.md paths and count them
-          md_paths=$(awk '{ while (match($0, /man\/[^[:space:]]+\.md/)) { print substr($0, RSTART, RLENGTH); $0 = substr($0, RSTART + RLENGTH) } }' "$YAML_FILE")
-
-          for md_path in $md_paths; do
+          awk '{ while (match($0, /man\/[^[:space:]]+\.md/)) { print substr($0, RSTART, RLENGTH); $0 = substr($0, RSTART + RLENGTH) } }' "$YAML_FILE" |
+          while IFS= read -r md_path; do
             ((md_counts["$md_path"]++))
           done
 
