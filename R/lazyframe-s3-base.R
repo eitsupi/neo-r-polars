@@ -34,7 +34,11 @@ tail.polars_lazy_frame <- tail.polars_data_frame
 # TODO: add document
 #' @export
 `[.polars_lazy_frame` <- function(x, i, j, drop = FALSE) {
-  cols <- names(x)
+  cols <- names(x$collect_schema())
+
+  # useful for error messages below
+  i_arg <- substitute(i)
+  j_arg <- substitute(j)
 
   if (isTRUE(drop)) {
     warn(
@@ -43,10 +47,10 @@ tail.polars_lazy_frame <- tail.polars_data_frame
         i = "Collect the LazyFrame first."
       )
     )
-    warn <- FALSE
   }
-  if (!missing(i) || !is_null(i)) {
-    if (!missing(j)) {
+  if (!missing(i)) {
+    n_real_args <- nargs() - !missing(drop)
+    if (n_real_args > 2) {
       abort(
         c(
           `!` = "Cannot subset rows of a LazyFrame with `[`.",
@@ -55,12 +59,16 @@ tail.polars_lazy_frame <- tail.polars_data_frame
       )
     } else {
       j <- i
+      j_arg <- i_arg
       i <- NULL
     }
+  } else {
+    i <- NULL
   }
 
-  # useful for error messages below
-  j_arg <- substitute(j)
+  if (missing(j)) {
+    j <- NULL
+  }
 
   if (is_null(i) && is_null(j)) {
     return(x)
@@ -82,7 +90,7 @@ tail.polars_lazy_frame <- tail.polars_data_frame
     )
   }
 
-  if (is_bare_numeric(j) && !rlang::is_integerish(j)) {
+  if (is_bare_numeric(j) && !is_integerish(j)) {
     abort(
       c(
         sprintf("Can't subset columns with `%s`.", deparse(j_arg)),
@@ -147,6 +155,9 @@ tail.polars_lazy_frame <- tail.polars_data_frame
       }
       to_select <- cols[j]
     } else if (is_bare_character(j)) {
+      if (!all(j %in% cols)) {
+        abort(sprintf("Column(s) not found: %s.", oxford_comma(setdiff(j, cols))))
+      }
       to_select <- j
     } else if (is_bare_logical(j)) {
       if (length(j) == 1) {
@@ -168,18 +179,8 @@ tail.polars_lazy_frame <- tail.polars_data_frame
       }
     }
 
-    # Don't do this too early because x[, TRUE, drop = TRUE] mustn't drop if
-    # x has more than 1 column
-    if (length(to_select) > 1) {
-      drop <- FALSE
-    }
-
     x <- x$select(to_select)
   }
 
-  if (isTRUE(drop)) {
-    x$get_columns()[[1]]
-  } else {
-    x
-  }
+  x
 }

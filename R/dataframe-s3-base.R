@@ -151,7 +151,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
     if (!missing(drop)) {
       warn(
         c(
-          `!` = "`drop` argument ignored for subsetting a frame with `x[j]`.",
+          `!` = "`drop` argument ignored for subsetting a DataFrame with `x[j]`.",
           i = "It has an effect only for `x[i, j]`."
         )
       )
