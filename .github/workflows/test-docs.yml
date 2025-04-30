@@ -77,24 +77,23 @@ jobs:
         run: |
           YAML_FILE="altdoc/mkdocs.yml"
           duplicate=0
-          declare -A rd_counts
+          declare -A md_counts
 
-          # Extract man/*.md paths and check for duplicates after converting to .Rd
+          # Extract man/*.md paths and check for duplicates
           while read -r md_path; do
-              rd_file="${md_path%.md}.Rd"
-              ((rd_counts["$rd_file"]++))
+              ((md_counts["$md_path"]++))
           done < <(grep -oP 'man/\S+?\.md' "$YAML_FILE")
 
           # Report duplicates
-          for file in "${!rd_counts[@]}"; do
-              if [ "${rd_counts[$file]}" -gt 1 ]; then
-                  echo "Duplicate reference: $file (${rd_counts[$file]} times)"
+          for file in "${!md_counts[@]}"; do
+              if [ "${md_counts[$file]}" -gt 1 ]; then
+                  echo "Duplicate reference: $file (${md_counts[$file]} times)"
                   duplicate=1
               fi
           done
 
           # Exit with error if any duplicates were found
           if [ "$duplicate" -ne 0 ]; then
-                  echo "One or more man pages are duplicated in mkdocs.yml."
-                  exit 1
+              echo "One or more man pages are duplicated in mkdocs.yml."
+              exit 1
           fi
