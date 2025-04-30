@@ -98,4 +98,3 @@ jobs:
                   echo "One or more man pages are duplicated in mkdocs.yml."
                   exit 1
           fi
-
