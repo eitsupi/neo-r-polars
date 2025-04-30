@@ -60,20 +60,43 @@ jobs:
           MAN_DIR="man"
           missing=0
 
-          # Extract all paths in mkdocs.yml that start with "man/" and end with ".md"
-          grep -oP 'man/\S+?\.md' "$YAML_FILE" | while read -r md_path; do
-              # Convert .md path to .Rd path
+          while read -r md_path; do
               rd_file="${md_path%.md}.Rd"
-
-              # Check if the corresponding .Rd file exists
               if [ ! -f "$rd_file" ]; then
-                  echo "Exists in mkdocs.yml but not in 'man': $rd_file"
+                  echo "Missing: $rd_file"
                   missing=1
               fi
-          done
+          done < <(grep -oP 'man/\S+?\.md' "$YAML_FILE")
 
           # Exit with error if any files are missing
           if [ "$missing" -ne 0 ]; then
               echo "One or more man pages are referenced in mkdocs.yml but don't exist in 'man'."
               exit 1
           fi
+
+      - name: Check no duplicate paths in mkdocs.yml
+        run: |
+          YAML_FILE="altdoc/mkdocs.yml"
+          duplicate=0
+          declare -A rd_counts
+
+          # Extract man/*.md paths and check for duplicates after converting to .Rd
+          while read -r md_path; do
+              rd_file="${md_path%.md}.Rd"
+              ((rd_counts["$rd_file"]++))
+          done < <(grep -oP 'man/\S+?\.md' "$YAML_FILE")
+
+          # Report duplicates
+          for file in "${!rd_counts[@]}"; do
+              if [ "${rd_counts[$file]}" -gt 1 ]; then
+                  echo "Duplicate reference: $file (${rd_counts[$file]} times)"
+                  duplicate=1
+              fi
+          done
+
+          # Exit with error if any duplicates were found
+          if [ "$duplicate" -ne 0 ]; then
+                  echo "One or more man pages are duplicated in mkdocs.yml."
+                  exit 1
+          fi
+
