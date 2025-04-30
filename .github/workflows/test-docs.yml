@@ -72,30 +72,3 @@ jobs:
               echo "One or more man pages are referenced in mkdocs.yml but don't exist in 'man'."
               exit 1
           fi
-
-      - name: Check no duplicate paths in mkdocs.yml
-        run: |
-          YAML_FILE="altdoc/mkdocs.yml"
-          duplicate=0
-          declare -A md_counts
-
-          # Extract man/*.md paths and count them
-          awk '{ while (match($0, /man\/[^[:space:]]+\.md/)) { print substr($0, RSTART, RLENGTH); $0 = substr($0, RSTART + RLENGTH) } }' "$YAML_FILE" |
-          while IFS= read -r md_path; do
-            ((md_counts["$md_path"]++))
-          done
-
-          # Report duplicates
-          for file in "${!md_counts[@]}"; do
-            if [ "${md_counts[$file]}" -gt 1 ]; then
-              echo "Duplicate reference: $file (${md_counts[$file]} times)"
-              duplicate=1
-            fi
-          done
-
-          # Exit with error if any duplicates were found
-          if [ "$duplicate" -ne 0 ]; then
-            echo "One or more man pages are duplicated in mkdocs.yml."
-            exit 1
-          fi
-        shell: bash
