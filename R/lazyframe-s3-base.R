@@ -34,7 +34,7 @@ tail.polars_lazy_frame <- tail.polars_data_frame
 # TODO: add document
 #' @export
 `[.polars_lazy_frame` <- function(x, i, j, drop = FALSE) {
-  cols <- names(x$collect_schema())
+  cols <- names(x)
 
   # useful for error messages below
   i_arg <- substitute(i)
