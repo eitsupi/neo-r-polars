@@ -82,7 +82,7 @@ test_that("`[` operator works to subset columns only", {
   expect_snapshot(test[c("a", NA)], error = TRUE)
 })
 
-test_that("`[` operator works to subset rows only", {
+test_that("`[` operator cannot subset rows", {
   test <- pl$LazyFrame(a = 1:3, b = 4:6, c = 7:9)
   expect_snapshot(test[1:2, ], error = TRUE)
   expect_snapshot(test[1:2, "a"], error = TRUE)
