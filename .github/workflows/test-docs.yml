@@ -80,10 +80,10 @@ jobs:
           declare -A md_counts
 
           # Extract man/*.md paths and check for duplicates
-          md_paths=$(grep -o 'man/[^[:space:]]\+\.md' "$YAML_FILE" || true)
           while read -r md_path; do
             ((md_counts["$md_path"]++))
-          done <<< "$md_paths"
+          done < <(awk '{ while (match($0, /man\/[^[:space:]]+\.md/)) { print substr($0, RSTART, RLENGTH); $0 = substr($0, RSTART + RLENGTH) } }' "$YAML_FILE")
+
 
 
           # Report duplicates
