@@ -50,6 +50,30 @@ jobs:
           done
 
           if [ "$missing" -ne 0 ]; then
-              echo "One or more man pages are not referenced mkdocs.yml."
+              echo "One or more man pages are not referenced in mkdocs.yml."
+              exit 1
+          fi
+
+      - name: Check pages in mkdocs.yml that don't exist in "man" folder
+        run: |
+          YAML_FILE="altdoc/mkdocs.yml"
+          MAN_DIR="man"
+          missing=0
+
+          # Extract all paths in mkdocs.yml that start with "man/" and end with ".md"
+          grep -oP 'man/\S+?\.md' "$YAML_FILE" | while read -r md_path; do
+              # Convert .md path to .Rd path
+              rd_file="${md_path%.md}.Rd"
+
+              # Check if the corresponding .Rd file exists
+              if [ ! -f "$rd_file" ]; then
+                  echo "Exists in mkdocs.yml but not in 'man': $rd_file"
+                  missing=1
+              fi
+          done
+
+          # Exit with error if any files are missing
+          if [ "$missing" -ne 0 ]; then
+              echo "One or more man pages are referenced in mkdocs.yml but don't exist in 'man'."
               exit 1
           fi
