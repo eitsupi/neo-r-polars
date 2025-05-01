@@ -301,7 +301,7 @@ SEXP savvy_PlRExpr_list_count_matches__ffi(SEXP self__, SEXP c_arg__expr);
 SEXP savvy_PlRExpr_list_diff__ffi(SEXP self__, SEXP c_arg__n, SEXP c_arg__null_behavior);
 SEXP savvy_PlRExpr_list_drop_nulls__ffi(SEXP self__);
 SEXP savvy_PlRExpr_list_eval__ffi(SEXP self__, SEXP c_arg__expr, SEXP c_arg__parallel);
-SEXP savvy_PlRExpr_list_gather__ffi(SEXP self__, SEXP c_arg__index, SEXP c_arg__null_on_oob);
+SEXP savvy_PlRExpr_list_gather__ffi(SEXP self__, SEXP c_arg__indices, SEXP c_arg__null_on_oob);
 SEXP savvy_PlRExpr_list_gather_every__ffi(SEXP self__, SEXP c_arg__n, SEXP c_arg__offset);
 SEXP savvy_PlRExpr_list_get__ffi(SEXP self__, SEXP c_arg__index, SEXP c_arg__null_on_oob);
 SEXP savvy_PlRExpr_list_join__ffi(SEXP self__, SEXP c_arg__separator, SEXP c_arg__ignore_nulls);

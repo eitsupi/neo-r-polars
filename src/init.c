@@ -1499,8 +1499,8 @@ SEXP savvy_PlRExpr_list_eval__impl(SEXP self__, SEXP c_arg__expr, SEXP c_arg__pa
     return handle_result(res);
 }
 
-SEXP savvy_PlRExpr_list_gather__impl(SEXP self__, SEXP c_arg__index, SEXP c_arg__null_on_oob) {
-    SEXP res = savvy_PlRExpr_list_gather__ffi(self__, c_arg__index, c_arg__null_on_oob);
+SEXP savvy_PlRExpr_list_gather__impl(SEXP self__, SEXP c_arg__indices, SEXP c_arg__null_on_oob) {
+    SEXP res = savvy_PlRExpr_list_gather__ffi(self__, c_arg__indices, c_arg__null_on_oob);
     return handle_result(res);
 }
 

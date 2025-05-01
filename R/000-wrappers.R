@@ -1966,9 +1966,9 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
 }
 
 `PlRExpr_list_gather` <- function(self) {
-  function(`index`, `null_on_oob`) {
-    `index` <- .savvy_extract_ptr(`index`, "PlRExpr")
-    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_list_gather__impl, `self`, `index`, `null_on_oob`))
+  function(`indices`, `null_on_oob`) {
+    `indices` <- .savvy_extract_ptr(`indices`, "PlRExpr")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_list_gather__impl, `self`, `indices`, `null_on_oob`))
   }
 }
 
