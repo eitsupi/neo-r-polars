@@ -812,24 +812,22 @@ test_that("cum_sum cum_prod cum_min cum_max cum_count", {
 
 test_that("floor ceil round", {
   l_input <- list(
-    a = c(0.33, 1.02, 1.5, NaN, NA, Inf, -Inf)
-  )
-
-  l_actual <- pl$DataFrame(!!!l_input)$select(
-    floor = pl$col("a")$floor(),
-    ceil = pl$col("a")$ceil(),
-    round = pl$col("a")$round(0)
-  )
-
-  l_expected <- pl$DataFrame(
-    floor = floor(l_input$a),
-    ceil = ceiling(l_input$a),
-    round = round(l_input$a)
+    a = c(0.33, 1.02, 1.5, 2.5, -1.5, NaN, NA, Inf, -Inf)
   )
 
   expect_equal(
-    l_actual,
-    l_expected
+    pl$DataFrame(!!!l_input)$select(
+      floor = pl$col("a")$floor(),
+      ceil = pl$col("a")$ceil(),
+      round = pl$col("a")$round(0),
+      round_half_away_from_zero = pl$col("a")$round(0, "half_away_from_zero"),
+    ),
+    pl$DataFrame(
+      floor = floor(l_input$a),
+      ceil = ceiling(l_input$a),
+      round = round(l_input$a),
+      round_half_away_from_zero = floor(abs(l_input$a) + 0.5) * sign(l_input$a),
+    )
   )
 })
 

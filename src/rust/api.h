@@ -399,7 +399,7 @@ SEXP savvy_PlRExpr_rolling_sum__ffi(SEXP self__, SEXP c_arg__window_size, SEXP c
 SEXP savvy_PlRExpr_rolling_sum_by__ffi(SEXP self__, SEXP c_arg__by, SEXP c_arg__window_size, SEXP c_arg__min_periods, SEXP c_arg__closed);
 SEXP savvy_PlRExpr_rolling_var__ffi(SEXP self__, SEXP c_arg__window_size, SEXP c_arg__center, SEXP c_arg__ddof, SEXP c_arg__weights, SEXP c_arg__min_periods);
 SEXP savvy_PlRExpr_rolling_var_by__ffi(SEXP self__, SEXP c_arg__by, SEXP c_arg__window_size, SEXP c_arg__min_periods, SEXP c_arg__closed, SEXP c_arg__ddof);
-SEXP savvy_PlRExpr_round__ffi(SEXP self__, SEXP c_arg__decimals);
+SEXP savvy_PlRExpr_round__ffi(SEXP self__, SEXP c_arg__decimals, SEXP c_arg__mode);
 SEXP savvy_PlRExpr_round_sig_figs__ffi(SEXP self__, SEXP c_arg__digits);
 SEXP savvy_PlRExpr_sample_frac__ffi(SEXP self__, SEXP c_arg__frac, SEXP c_arg__with_replacement, SEXP c_arg__shuffle, SEXP c_arg__seed);
 SEXP savvy_PlRExpr_sample_n__ffi(SEXP self__, SEXP c_arg__n, SEXP c_arg__with_replacement, SEXP c_arg__shuffle, SEXP c_arg__seed);

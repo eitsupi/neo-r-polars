@@ -742,9 +742,10 @@ impl PlRExpr {
             .into())
     }
 
-    fn round(&self, decimals: NumericScalar) -> Result<Self> {
+    fn round(&self, decimals: NumericScalar, mode: &str) -> Result<Self> {
         let decimals = <Wrap<u32>>::try_from(decimals)?.0;
-        Ok(self.inner.clone().round(decimals).into())
+        let mode = <Wrap<RoundMode>>::try_from(mode)?.0;
+        Ok(self.inner.clone().round(decimals, mode).into())
     }
 
     fn round_sig_figs(&self, digits: NumericScalar) -> Result<Self> {

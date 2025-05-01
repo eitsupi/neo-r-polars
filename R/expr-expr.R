@@ -4502,17 +4502,20 @@ expr__sample <- function(
 #' Round underlying floating point data by decimals digits
 #'
 #' @param decimals Number of decimals to round by.
+#' @param mode Rounding mode. One of `"half_to_even"` (default) or `"half_away_from_zero"`.
 #'
 #' @inherit as_polars_expr return
 #' @examples
-#' df <- pl$DataFrame(a = c(0.33, 0.52, 1.02, 1.17))
+#' df <- pl$DataFrame(a = c(0.5, 1.5, 2.5, 3.5))
 #'
 #' df$with_columns(
-#'   rounded = pl$col("a")$round(1)
+#'   half_to_even = pl$col("a")$round(0),
+#'   half_away_from_zero = pl$col("a")$round(0, "half_away_from_zero"),
 #' )
-expr__round <- function(decimals) {
+expr__round <- function(decimals, mode = c("half_to_even", "half_away_from_zero")) {
   wrap({
-    self$`_rexpr`$round(decimals)
+    mode <- arg_match0(mode, values = c("half_to_even", "half_away_from_zero"))
+    self$`_rexpr`$round(decimals, mode)
   })
 }
 

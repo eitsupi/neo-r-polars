@@ -2592,8 +2592,8 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
 }
 
 `PlRExpr_round` <- function(self) {
-  function(`decimals`) {
-    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_round__impl, `self`, `decimals`))
+  function(`decimals`, `mode`) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_round__impl, `self`, `decimals`, `mode`))
   }
 }
 

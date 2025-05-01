@@ -1989,8 +1989,8 @@ SEXP savvy_PlRExpr_rolling_var_by__impl(SEXP self__, SEXP c_arg__by, SEXP c_arg_
     return handle_result(res);
 }
 
-SEXP savvy_PlRExpr_round__impl(SEXP self__, SEXP c_arg__decimals) {
-    SEXP res = savvy_PlRExpr_round__ffi(self__, c_arg__decimals);
+SEXP savvy_PlRExpr_round__impl(SEXP self__, SEXP c_arg__decimals, SEXP c_arg__mode) {
+    SEXP res = savvy_PlRExpr_round__ffi(self__, c_arg__decimals, c_arg__mode);
     return handle_result(res);
 }
 
@@ -3387,7 +3387,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_rolling_sum_by__impl", (DL_FUNC) &savvy_PlRExpr_rolling_sum_by__impl, 5},
     {"savvy_PlRExpr_rolling_var__impl", (DL_FUNC) &savvy_PlRExpr_rolling_var__impl, 6},
     {"savvy_PlRExpr_rolling_var_by__impl", (DL_FUNC) &savvy_PlRExpr_rolling_var_by__impl, 6},
-    {"savvy_PlRExpr_round__impl", (DL_FUNC) &savvy_PlRExpr_round__impl, 2},
+    {"savvy_PlRExpr_round__impl", (DL_FUNC) &savvy_PlRExpr_round__impl, 3},
     {"savvy_PlRExpr_round_sig_figs__impl", (DL_FUNC) &savvy_PlRExpr_round_sig_figs__impl, 2},
     {"savvy_PlRExpr_sample_frac__impl", (DL_FUNC) &savvy_PlRExpr_sample_frac__impl, 5},
     {"savvy_PlRExpr_sample_n__impl", (DL_FUNC) &savvy_PlRExpr_sample_n__impl, 5},
