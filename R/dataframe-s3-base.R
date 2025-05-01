@@ -326,14 +326,10 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
     if (length(non_existent_cols) > 0L) {
       abort(
         c(
-          `!` = "Can't subset columns that don't exist.",
+          "Can't subset columns that don't exist.",
           x = sprintf(
             "Columns %s don't exist.",
             oxford_comma(sprintf("`%s`", non_existent_cols), final = "and")
-          ),
-          i = sprintf(
-            "Available columns are %s.",
-            oxford_comma(sprintf("`%s`", cols), final = "and")
           )
         )
       )
