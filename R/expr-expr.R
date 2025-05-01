@@ -2743,7 +2743,7 @@ expr__rolling_quantile <- function(
 #' @inherit expr__rolling_max description params details
 #' @inherit as_polars_expr return
 #' @inheritParams expr__skew
-#' @param min_samples The number of values in the window thatshould be non-null before computing
+#' @param min_samples The number of values in the window that should be non-null before computing
 #' a result. If set to `NULL` (default), it will be set equal to `window_size`.
 #' @param center Set the labels at the center of the window.
 #' @examples

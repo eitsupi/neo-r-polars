@@ -19,7 +19,7 @@ expr__rolling_skew(
 
 \item{bias}{If \code{FALSE}, the calculations are corrected for statistical bias.}
 
-\item{min_samples}{The number of values in the window thatshould be non-null before computing
+\item{min_samples}{The number of values in the window that should be non-null before computing
 a result. If set to \code{NULL} (default), it will be set equal to \code{window_size}.}
 
 \item{center}{Set the labels at the center of the window.}
