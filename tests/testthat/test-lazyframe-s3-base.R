@@ -31,17 +31,11 @@ test_that("`[` operator works to subset columns only", {
 
   ### Indices
   expect_identical(test[1]$collect(), pl$LazyFrame(a = 1:3)$collect())
-  expect_warning(
-    expect_identical(test[1, drop = TRUE]$collect(), pl$LazyFrame(a = 1:3)$collect()),
-    "`drop` argument ignored when subsetting a LazyFrame",
-  )
-  expect_warning(
-    expect_identical(test[, 1, drop = TRUE]$collect(), pl$LazyFrame(a = 1:3)$collect()),
-    "`drop` argument ignored when subsetting a LazyFrame",
-  )
   expect_identical(test[1:2]$collect(), pl$LazyFrame(a = 1:3, b = 4:6)$collect())
   expect_identical(test[, 1:2]$collect(), pl$LazyFrame(a = 1:3, b = 4:6)$collect())
   expect_identical(test[, -2:-1]$collect(), pl$LazyFrame(c = 7:9)$collect())
+  expect_snapshot(test[1, drop = TRUE]$collect())
+  expect_snapshot(test[, 1, drop = TRUE]$collect())
   expect_snapshot(test[, 10:12], error = TRUE)
   expect_snapshot(test[, -2:1], error = TRUE)
   expect_snapshot(test[, 1:-2], error = TRUE)
@@ -49,19 +43,10 @@ test_that("`[` operator works to subset columns only", {
 
   ### Column names
   expect_identical(test["a"]$collect(), pl$LazyFrame(a = 1:3)$collect())
-  expect_warning(
-    expect_identical(test["a", drop = TRUE]$collect(), pl$LazyFrame(a = 1:3)$collect()),
-    "`drop` argument ignored when subsetting a LazyFrame",
-  )
-  expect_warning(
-    expect_identical(test[, "a", drop = TRUE]$collect(), pl$LazyFrame(a = 1:3)$collect()),
-    "`drop` argument ignored when subsetting a LazyFrame",
-  )
   expect_identical(test[c("a", "b")]$collect(), pl$LazyFrame(a = 1:3, b = 4:6)$collect())
-  expect_error(
-    test[c("a", "foo")],
-    "not found: foo"
-  )
+  expect_snapshot(test["a", drop = TRUE]$collect())
+  expect_snapshot(test[, "a", drop = TRUE]$collect())
+  expect_snapshot(test[c("a", "foo")], error = TRUE)
 
   ### Logical values
   expect_identical(test[TRUE]$collect(), test$collect())

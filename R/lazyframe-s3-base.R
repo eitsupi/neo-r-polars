@@ -33,20 +33,13 @@ tail.polars_lazy_frame <- tail.polars_data_frame
 # https://tibble.tidyverse.org/articles/invariants.html#column-subsetting
 # TODO: add document
 #' @export
-`[.polars_lazy_frame` <- function(x, i, j, drop = FALSE) {
-  cols <- names(x)
-
+`[.polars_lazy_frame` <- function(x, i, j, ..., drop = FALSE) {
   # useful for error messages below
   i_arg <- substitute(i)
   j_arg <- substitute(j)
 
   if (isTRUE(drop)) {
-    warn(
-      c(
-        `!` = "`drop` argument ignored when subsetting a LazyFrame.",
-        i = "Collect the LazyFrame first."
-      )
-    )
+    warn(c(`!` = "`drop = TRUE` is not supported for LazyFrame."))
   }
   if (!missing(i)) {
     n_real_args <- nargs() - !missing(drop)
@@ -54,7 +47,10 @@ tail.polars_lazy_frame <- tail.polars_data_frame
       abort(
         c(
           `!` = "Cannot subset rows of a LazyFrame with `[`.",
-          i = "Either use `$slice()` or collect the LazyFrame first."
+          i = "There are several functions that can be used to get a specific range of rows.",
+          `*` = "`$slice()` can be used to get a slice of rows.",
+          `*` = "`$gather_every()` can be used to take every nth row.",
+          `*` = "`$reverse()` can be used to reverse the order of rows."
         )
       )
     } else {
@@ -68,5 +64,5 @@ tail.polars_lazy_frame <- tail.polars_data_frame
 
   # We must put `i` as an empty arg so that both missing(i) and nargs() work
   # in the `polars_data_frame` method.
-  `[.polars_data_frame`(x, , j = j)
+  `[.polars_data_frame`(x, , j = j, drop = FALSE)
 }

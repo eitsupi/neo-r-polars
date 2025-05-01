@@ -1,6 +1,44 @@
 # `[` operator works to subset columns only
 
     Code
+      test[1, drop = TRUE]$collect()
+    Condition
+      Warning:
+      ! `drop = TRUE` is not supported for LazyFrame.
+    Output
+      shape: (3, 1)
+      ┌─────┐
+      │ a   │
+      │ --- │
+      │ i32 │
+      ╞═════╡
+      │ 1   │
+      │ 2   │
+      │ 3   │
+      └─────┘
+
+---
+
+    Code
+      test[, 1, drop = TRUE]$collect()
+    Condition
+      Warning:
+      ! `drop = TRUE` is not supported for LazyFrame.
+    Output
+      shape: (3, 1)
+      ┌─────┐
+      │ a   │
+      │ --- │
+      │ i32 │
+      ╞═════╡
+      │ 1   │
+      │ 2   │
+      │ 3   │
+      └─────┘
+
+---
+
+    Code
       test[, 10:12]
     Condition
       Error in `test[, 10:12]`:
@@ -36,6 +74,52 @@
       Error in `test[, 1.5]`:
       ! Can't subset columns with `1.5`.
       x Can't convert from `j` <double> to <integer> due to loss of precision.
+
+---
+
+    Code
+      test["a", drop = TRUE]$collect()
+    Condition
+      Warning:
+      ! `drop = TRUE` is not supported for LazyFrame.
+    Output
+      shape: (3, 1)
+      ┌─────┐
+      │ a   │
+      │ --- │
+      │ i32 │
+      ╞═════╡
+      │ 1   │
+      │ 2   │
+      │ 3   │
+      └─────┘
+
+---
+
+    Code
+      test[, "a", drop = TRUE]$collect()
+    Condition
+      Warning:
+      ! `drop = TRUE` is not supported for LazyFrame.
+    Output
+      shape: (3, 1)
+      ┌─────┐
+      │ a   │
+      │ --- │
+      │ i32 │
+      ╞═════╡
+      │ 1   │
+      │ 2   │
+      │ 3   │
+      └─────┘
+
+---
+
+    Code
+      test[c("a", "foo")]
+    Condition
+      Error in `test[c("a", "foo")]`:
+      ! Column(s) not found: foo.
 
 ---
 
@@ -92,7 +176,10 @@
     Condition
       Error in `test[1:2, ]`:
       ! Cannot subset rows of a LazyFrame with `[`.
-      i Either use `$slice()` or collect the LazyFrame first.
+      i There are several functions that can be used to get a specific range of rows.
+      * `$slice()` can be used to get a slice of rows.
+      * `$gather_every()` can be used to take every nth row.
+      * `$reverse()` can be used to reverse the order of rows.
 
 ---
 
@@ -101,5 +188,8 @@
     Condition
       Error in `test[1:2, "a"]`:
       ! Cannot subset rows of a LazyFrame with `[`.
-      i Either use `$slice()` or collect the LazyFrame first.
+      i There are several functions that can be used to get a specific range of rows.
+      * `$slice()` can be used to get a slice of rows.
+      * `$gather_every()` can be used to take every nth row.
+      * `$reverse()` can be used to reverse the order of rows.
 
