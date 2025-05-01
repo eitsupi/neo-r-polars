@@ -3572,8 +3572,8 @@ expr__append <- function(other, ..., upcast = TRUE) {
 
 #' Fill missing values with the next non-null value
 #'
-#' @param limit The number of consecutive null values to backward fill.
-#'
+#' This is an alias of [`$fill_null(strategy = "backward")`][expr__fill_null].
+#' @inheritParams expr__fill_null
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
@@ -3584,14 +3584,14 @@ expr__append <- function(other, ..., upcast = TRUE) {
 #' df$select(pl$all()$backward_fill())
 #' df$select(pl$all()$backward_fill(limit = 1))
 expr__backward_fill <- function(limit = NULL) {
-  self$`_rexpr`$backward_fill(limit) |>
+  self$`_rexpr`$fill_null(strategy = "backward", limit = limit) |>
     wrap()
 }
 
 #' Fill missing values with the last non-null value
 #'
-#' @param limit The number of consecutive null values to forward fill.
-#'
+#' This is an alias of [`$fill_null(strategy = "forward")`][expr__fill_null].
+#' @inheritParams expr__fill_null
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
@@ -3602,7 +3602,7 @@ expr__backward_fill <- function(limit = NULL) {
 #' df$select(pl$all()$forward_fill())
 #' df$select(pl$all()$forward_fill(limit = 1))
 expr__forward_fill <- function(limit = NULL) {
-  self$`_rexpr`$forward_fill(limit) |>
+  self$`_rexpr`$fill_null(strategy = "forward", limit = limit) |>
     wrap()
 }
 
