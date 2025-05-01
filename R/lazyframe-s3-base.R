@@ -36,9 +36,7 @@ tail.polars_lazy_frame <- tail.polars_data_frame
 `[.polars_lazy_frame` <- function(x, i, j, ..., drop = FALSE) {
   # get from `[.polars_data_frame`
   i_arg <- substitute(i)
-  # nolint start: object_usage_linter
-  j_arg <- substitute(j)
-  # nolint end
+  j_arg <- substitute(j) # nolint: object_usage_linter
 
   if (isTRUE(drop)) {
     warn(c(`!` = "`drop = TRUE` is not supported for LazyFrame."))
