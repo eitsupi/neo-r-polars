@@ -53,10 +53,8 @@ test_that("`[` operator works to subset columns only", {
   expect_identical(test[, "a", drop = TRUE], pl$Series("a", 1:3))
   expect_identical(test[c("a", "b")], pl$DataFrame(a = 1:3, b = 4:6))
   expect_identical(test[, c("a", "b"), drop = TRUE], pl$DataFrame(a = 1:3, b = 4:6))
-  expect_error(
-    test[c("a", "foo")],
-    "not found: foo"
-  )
+  expect_snapshot(test[c("foo", "a", "bar", "baz")], error = TRUE)
+  expect_snapshot(test["*"], error = TRUE)
 
   ### Logical values
   expect_identical(test[TRUE], test)

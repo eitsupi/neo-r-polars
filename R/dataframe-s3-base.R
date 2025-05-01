@@ -286,7 +286,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
   # - numeric but cannot beyond the number of columns, and cannot mix positive
   #   and negative indices
   # - logical but must be of length 1 or number of columns
-  # - character
+  # - character, should not contain non-existing column names
   to_select <- if (is_bare_numeric(j)) {
     wrong_locs <- j[j > length(cols)]
     if (length(wrong_locs) > 0) {
@@ -322,7 +322,24 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
     }
     cols[j]
   } else if (is_bare_character(j)) {
-    j
+    non_existent_cols <- setdiff(j, cols)
+    if (length(non_existent_cols) > 0L) {
+      abort(
+        c(
+          `!` = "Can't subset columns that don't exist.",
+          x = sprintf(
+            "Columns %s don't exist.",
+            oxford_comma(sprintf("`%s`", non_existent_cols), final = "and")
+          ),
+          i = sprintf(
+            "Available columns are %s.",
+            oxford_comma(sprintf("`%s`", cols), final = "and")
+          )
+        )
+      )
+    } else {
+      j
+    }
   } else if (is_bare_logical(j)) {
     if (length(j) %in% c(1L, length(cols))) {
       cols[j]
