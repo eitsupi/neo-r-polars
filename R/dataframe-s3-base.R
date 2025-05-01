@@ -176,7 +176,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
   i <- i %||% FALSE
   j <- j %||% character()
 
-  # $height() doesn't exist for LazyFrame but we may still hit the branches that
+  # $height doesn't exist for LazyFrame but we may still hit the branches that
   # require it if the user does lf[TRUE,] or lf[FALSE,] for instance.
   x_height <- if (called_from_lazy_s3_method) {
     NULL
