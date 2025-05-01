@@ -119,7 +119,8 @@
       test[c("a", "foo")]
     Condition
       Error in `test[c("a", "foo")]`:
-      ! Column(s) not found: foo.
+      ! Can't subset columns that don't exist.
+      x Columns `foo` don't exist.
 
 ---
 
@@ -187,6 +188,18 @@
       test[1:2, "a"]
     Condition
       Error in `test[1:2, "a"]`:
+      ! Cannot subset rows of a LazyFrame with `[`.
+      i There are several functions that can be used to get a specific range of rows.
+      * `$slice()` can be used to get a slice of rows.
+      * `$gather_every()` can be used to take every nth row.
+      * `$reverse()` can be used to reverse the order of rows.
+
+---
+
+    Code
+      test[c(FALSE, FALSE), ]
+    Condition
+      Error in `test[c(FALSE, FALSE), ]`:
       ! Cannot subset rows of a LazyFrame with `[`.
       i There are several functions that can be used to get a specific range of rows.
       * `$slice()` can be used to get a slice of rows.

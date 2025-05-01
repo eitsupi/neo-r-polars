@@ -176,6 +176,14 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
   i <- i %||% FALSE
   j <- j %||% character()
 
+  # $height() doesn't exist for LazyFrame but we may still hit the branches that
+  # require it if the user does lf[TRUE,] or lf[FALSE,] for instance.
+  x_height <- if (called_from_lazy_s3_method) {
+    NULL
+  } else {
+    x$height
+  }
+
   #### Rows -----------------------------------------------------
 
   # check accepted types for subsetting rows
@@ -205,7 +213,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
 
   # If logical, `i` must be of length 1 or number of rows
   if (is_bare_logical(i)) {
-    if (length(i) %in% c(1L, x$height)) {
+    if (length(i) %in% c(1L, x_height)) {
       idx <- i
     } else {
       abort(
@@ -214,7 +222,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
           i = sprintf(
             "Logical subscript `%s` must be size 1 or %s, not %s",
             deparse(i_arg),
-            x$height,
+            x_height,
             length(i)
           )
         )
@@ -225,7 +233,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
     # Do not accept mixing negative and positive indices
     if (is_bare_numeric(i)) {
       if (all(i < 0)) {
-        i <- setdiff(seq_len(x$height), abs(i))
+        i <- setdiff(seq_len(x_height), abs(i))
       } else if (any(i < 0) && any(i > 0)) {
         sign_start <- sign(i[i != 0])[1]
         loc <- if (sign_start == -1) {
@@ -249,7 +257,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
       }
     }
 
-    idx <- seq_len(x$height) %in% i
+    idx <- seq_len(x_height) %in% i
   }
 
   x <- x$filter(pl$lit(idx))
@@ -310,7 +318,8 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
           "Can't subset columns past the end.",
           i = sprintf("Location(s) %s don't exist.", oxford_comma(wrong_locs, final = "and")),
           i = sprintf("There are only %s columns.", length(cols))
-        )
+        ),
+        call = error_env
       )
     }
     if (all(j < 0)) {
@@ -332,7 +341,8 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
             if (sign_start == 1) "negative" else "positive",
             loc
           )
-        )
+        ),
+        call = error_env
       )
     }
     cols[j]
@@ -346,7 +356,8 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
             "Columns %s don't exist.",
             oxford_comma(sprintf("`%s`", non_existent_cols), final = "and")
           )
-        )
+        ),
+        call = error_env
       )
     } else {
       j
@@ -364,7 +375,8 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
             length(cols),
             length(j)
           )
-        )
+        ),
+        call = error_env
       )
     }
   }

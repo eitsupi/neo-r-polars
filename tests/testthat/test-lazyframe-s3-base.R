@@ -71,4 +71,10 @@ test_that("`[` operator cannot subset rows", {
   test <- pl$LazyFrame(a = 1:3, b = 4:6, c = 7:9)
   expect_snapshot(test[1:2, ], error = TRUE)
   expect_snapshot(test[1:2, "a"], error = TRUE)
+  expect_snapshot(test[c(FALSE, FALSE), ], error = TRUE)
+
+  # Special cases
+  expect_identical(test[TRUE, ]$collect(), test$collect())
+  expect_identical(test[FALSE, ]$collect(), test$clear()$collect())
+  expect_identical(test[NULL, ]$collect(), test$clear()$collect())
 })
