@@ -395,10 +395,10 @@ impl PlRExpr {
         window_size: NumericScalar,
         bias: bool,
         center: bool,
-        min_periods: Option<NumericScalar>,
+        min_samples: Option<NumericScalar>,
     ) -> Result<Self> {
         let window_size = <Wrap<usize>>::try_from(window_size)?.0;
-        let min_periods: usize = match min_periods {
+        let min_periods: usize = match min_samples {
             Some(x) => <Wrap<usize>>::try_from(x)?.0,
             None => window_size,
         };
