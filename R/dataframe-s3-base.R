@@ -134,7 +134,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
   if (isTRUE(called_from_lazy_s3_method)) {
     # Necessary so that e.g. `test[mean]` prints "Can't subset columns with
     # `mean`." and not "Can't subset columns with `j`."
-    j_arg <- mget("j_arg", envir = caller_env(), ifnotfound = NA)[["j_arg"]]
+    j_arg <- env_get(caller_env(), "j_arg", default = NULL)
     error_env <- caller_env()
   } else {
     j_arg <- substitute(j)

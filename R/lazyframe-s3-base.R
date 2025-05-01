@@ -34,9 +34,11 @@ tail.polars_lazy_frame <- tail.polars_data_frame
 # TODO: add document
 #' @export
 `[.polars_lazy_frame` <- function(x, i, j, ..., drop = FALSE) {
-  # useful for error messages below
+  # get from `[.polars_data_frame`
   i_arg <- substitute(i)
+  # nolint start: object_usage_linter
   j_arg <- substitute(j)
+  # nolint end
 
   if (isTRUE(drop)) {
     warn(c(`!` = "`drop = TRUE` is not supported for LazyFrame."))
@@ -56,10 +58,7 @@ tail.polars_lazy_frame <- tail.polars_data_frame
     } else {
       j <- i
       j_arg <- i_arg
-      i <- NULL
     }
-  } else {
-    i <- NULL
   }
 
   # We must put `i` as an empty arg so that both missing(i) and nargs() work
