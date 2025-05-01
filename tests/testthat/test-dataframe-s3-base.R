@@ -172,4 +172,10 @@ test_that("`[`'s drop argument works correctly", {
     test[1, character(), drop = TRUE],
     as_polars_df(NULL)
   )
+
+  # drop should be named
+  expect_equal(
+    test[, "a", TRUE],
+    pl$DataFrame(a = 1:3)
+  )
 })
