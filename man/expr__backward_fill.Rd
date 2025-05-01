@@ -13,6 +13,7 @@ expr__backward_fill(limit = NULL)
 A polars \link{expression}
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#superseded}{\figure{lifecycle-superseded.svg}{options: alt='[Superseded]'}}}{\strong{[Superseded]}}
 This is an alias of \code{\link[=expr__fill_null]{$fill_null(strategy = "backward")}}.
 }
 \examples{

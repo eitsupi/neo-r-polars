@@ -3582,6 +3582,7 @@ expr__append <- function(other, ..., upcast = TRUE) {
 
 #' Fill missing values with the next non-null value
 #'
+#' `r lifecycle::badge("superseded")`
 #' This is an alias of [`$fill_null(strategy = "backward")`][expr__fill_null].
 #'
 #' @param limit The number of consecutive null values to backward fill.
@@ -3601,6 +3602,7 @@ expr__backward_fill <- function(limit = NULL) {
 
 #' Fill missing values with the last non-null value
 #'
+#' `r lifecycle::badge("superseded")`
 #' This is an alias of [`$fill_null(strategy = "forward")`][expr__fill_null].
 #'
 #' @param limit The number of consecutive null values to forward fill.
