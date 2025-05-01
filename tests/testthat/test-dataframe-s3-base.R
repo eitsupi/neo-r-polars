@@ -60,6 +60,7 @@ test_that("`[` operator works to subset columns only", {
 
   ### Logical values
   expect_identical(test[TRUE], test)
+  expect_identical(test[FALSE], pl$DataFrame())
   expect_identical(test[c(TRUE, TRUE, FALSE)], pl$DataFrame(a = 1:3, b = 4:6))
   expect_error(
     test[c(TRUE, FALSE)],
@@ -126,6 +127,7 @@ test_that("`[` operator works to subset rows only", {
 
   ### Logical
   expect_identical(test[TRUE, ], test)
+  expect_identical(test[FALSE, ], test$clear())
   expect_identical(
     test[c(TRUE, TRUE, FALSE), ],
     pl$DataFrame(a = 1:2, b = 4:5, c = 7:8)
@@ -155,6 +157,9 @@ test_that("`[` operator works to subset both rows and columns", {
   test <- pl$DataFrame(a = 1:3, b = 4:6, c = 7:9)
   expect_identical(test[1:2, "a"], pl$DataFrame(a = 1:2))
   expect_identical(test[TRUE, "a"], pl$DataFrame(a = 1:3))
+  expect_identical(test[NULL, "a"], test$select("a")$clear())
+  # TODO: polars drops the row if columns are dropped
+  expect_identical(test[1, NULL], pl$DataFrame())
 })
 
 test_that("`[`'s drop argument works correctly", {
