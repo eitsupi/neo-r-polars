@@ -279,7 +279,11 @@ impl PlRExpr {
 
     fn diff(&self, n: &PlRExpr, null_behavior: &str) -> Result<Self> {
         let null_behavior = <Wrap<NullBehavior>>::try_from(null_behavior)?.0;
-        Ok(self.inner.clone().diff(n.inner.clone(), null_behavior).into())
+        Ok(self
+            .inner
+            .clone()
+            .diff(n.inner.clone(), null_behavior)
+            .into())
     }
 
     fn reshape(&self, dimensions: NumericSexp) -> Result<Self> {
