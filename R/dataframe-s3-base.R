@@ -229,7 +229,8 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
               n_rows,
               length(i)
             )
-          )
+          ),
+          call = error_env
         )
       }
       seq_len(n_rows)[i]
@@ -260,7 +261,8 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
                     n_na,
                     oxford_comma(which(is.na(i)), final = "and")
                   )
-                )
+                ),
+                call = error_env
               )
             }
             # If all values are NA, i will be used as the index
@@ -286,7 +288,8 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
                 if (sign_start == 1) "negative" else "positive",
                 loc
               )
-            )
+            ),
+            call = error_env
           )
         } else {
           # Positive integer-ish
