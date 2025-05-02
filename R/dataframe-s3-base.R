@@ -247,7 +247,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
         # Negative indices -> drop those rows
         # - Do not accept NA values in negative indices
         # - Do not accept mixing negative and positive indices
-        if (all(i < 0, na.rm = TRUE)) {
+        if (suppressWarnings(max(i, na.rm = TRUE) < 0)) {
           n_na <- sum(is.na(i))
           if (n_na > 0) {
             if (n_na < length(i)) {
@@ -270,7 +270,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
           } else {
             setdiff(seq_n_rows, abs(i))
           }
-        } else if (any(i < 0, na.rm = TRUE)) {
+        } else if (suppressWarnings(min(i, na.rm = TRUE) < 0)) {
           # Mixing negative and positive indices (Not allowed)
           sign_start <- sign(i[i != 0])[1]
           loc <- if (sign_start == -1) {
