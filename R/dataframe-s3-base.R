@@ -212,79 +212,97 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
     )
   }
 
-  # If logical, `i` must be of length 1 or number of rows
-  x <- if (is_bare_logical(i)) {
-    if (length(i) %in% c(1L, n_rows)) {
-      x$filter(i)
-    } else {
-      abort(
-        c(
-          `!` = sprintf("Can't subset rows with `%s`.", deparse(i_arg)),
-          i = sprintf(
-            "Logical subscript `%s` must be size 1 or %s, not %s",
-            deparse(i_arg),
-            n_rows,
-            length(i)
-          )
-        )
-      )
-    }
+  x <- if (is_logical(i) && !anyNA(i) && length(i) %in% c(1L, n_rows)) {
+    # If non-NA logical vector, just passing it to $filter() is enough
+    x$filter(i)
   } else {
-    seq_n_rows <- seq_len(n_rows)
-    # Negative indices -> drop those rows
-    # - Do not accept NA values in negative indices
-    # - Do not accept mixing negative and positive indices
-    if (is_bare_numeric(i)) {
-      if (all(i < 0, na.rm = TRUE)) {
-        n_na <- sum(is.na(i))
-        if (n_na > 0) {
-          if (n_na < length(i)) {
-            abort(
-              c(
-                sprintf("Can't subset rows with `%s`.", deparse(i_arg)),
-                x = "Negative locations can't have missing values.",
-                i = sprintf(
-                  "Subscript `%s` has %s missing values at location %s.",
-                  deparse(i_arg),
-                  n_na,
-                  oxford_comma(which(is.na(i)), final = "and")
-                )
-              )
-            )
-          }
-          # If all values are NA, do nothing for i
-        } else {
-          i <- setdiff(seq_len(n_rows), abs(i))
-        }
-      } else if (any(i < 0, na.rm = TRUE)) {
-        sign_start <- sign(i[i != 0])[1]
-        loc <- if (sign_start == -1) {
-          which(sign(i) == 1)[1]
-        } else if (sign_start == 1) {
-          which(sign(i) == -1)[1]
-        }
+    # Else, we need to use `select_rows_by_index()` and calculate the indices in R
+    idx <- if (is_logical(i)) {
+      # If logical, `i` must be of length 1 or number of rows
+      if (!length(i) %in% c(1L, n_rows)) {
         abort(
           c(
             `!` = sprintf("Can't subset rows with `%s`.", deparse(i_arg)),
-            x = "Negative and positive locations can't be mixed.",
             i = sprintf(
-              "Subscript `%s` has a %s value at location %s.",
+              "Logical subscript `%s` must be size 1 or %s, not %s",
               deparse(i_arg),
-              if (sign_start == 1) "negative" else "positive",
-              loc
+              n_rows,
+              length(i)
             )
-          ),
-          call = error_env
+          )
         )
       }
-    }
+      seq_len(n_rows)[i]
+    } else {
+      # For LazyFrame (n_rows is NA), this branch is unreachable.
+      # So this operation is safe.
+      seq_n_rows <- seq_len(n_rows)
 
-    idx <- i
-    idx[!idx %in% seq_len(n_rows)] <- NA
-    # idx may be character (only including integer-like strings),
-    # so convert to numeric before subtracting 1
-    if (is_character(idx)) mode(idx) <- "numeric"
-    # Similar to Python Polars' _convert_series_to_indices
+      idx <- if (is_character(i)) {
+        # Character case
+        i
+      } else {
+        # Integer-ish case
+        # Negative indices -> drop those rows
+        # - Do not accept NA values in negative indices
+        # - Do not accept mixing negative and positive indices
+        if (all(i < 0, na.rm = TRUE)) {
+          n_na <- sum(is.na(i))
+          if (n_na > 0) {
+            if (n_na < length(i)) {
+              abort(
+                c(
+                  sprintf("Can't subset rows with `%s`.", deparse(i_arg)),
+                  x = "Negative locations can't have missing values.",
+                  i = sprintf(
+                    "Subscript `%s` has %s missing values at location %s.",
+                    deparse(i_arg),
+                    n_na,
+                    oxford_comma(which(is.na(i)), final = "and")
+                  )
+                )
+              )
+            }
+            # If all values are NA, i will be used as the index
+            i
+          } else {
+            setdiff(seq_n_rows, abs(i))
+          }
+        } else if (any(i < 0, na.rm = TRUE)) {
+          # Mixing negative and positive indices (Not allowed)
+          sign_start <- sign(i[i != 0])[1]
+          loc <- if (sign_start == -1) {
+            which(sign(i) == 1)[1]
+          } else if (sign_start == 1) {
+            which(sign(i) == -1)[1]
+          }
+          abort(
+            c(
+              `!` = sprintf("Can't subset rows with `%s`.", deparse(i_arg)),
+              x = "Negative and positive locations can't be mixed.",
+              i = sprintf(
+                "Subscript `%s` has a %s value at location %s.",
+                deparse(i_arg),
+                if (sign_start == 1) "negative" else "positive",
+                loc
+              )
+            )
+          )
+        } else {
+          # Positive integer-ish
+          i
+        }
+      }
+
+      # Need to replace invalid indices with NA
+      idx[!idx %in% seq_n_rows] <- NA
+      # Ensure idx is numeric for further processing
+      if (is_character(idx)) mode(idx) <- "numeric"
+      idx
+    }
+    # Similar to Python Polars' _convert_series_to_indices,
+    # but we already check idx values above, so just need to
+    # convert to UInt32
     indices <- as_polars_series(idx - 1L)$cast(pl$UInt32, strict = TRUE)
     select_rows_by_index(x, indices)
   }

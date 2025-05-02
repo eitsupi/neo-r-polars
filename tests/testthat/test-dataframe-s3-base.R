@@ -145,19 +145,16 @@ test_that("`[` operator works to subset rows only", {
     test[c(TRUE, TRUE, FALSE), ],
     pl$DataFrame(a = 1:2, b = 4:5, c = 7:8)
   )
-  # TODO
-  # expect_identical(
-  #   test[NA, ],
-  #   pl$DataFrame(a = rep(NA, 3), b = rep(NA, 3), c = rep(NA, 3))
-  # )
-  # expect_identical(
-  #   test[NA_integer_, ],
-  #   pl$DataFrame(a = NA, b = NA, c = NA)
-  # )
-  expect_error(
-    test[c(TRUE, FALSE), ],
-    "must be size 1 or 3, not 2"
+  expect_identical(
+    test[NA, ],
+    pl$DataFrame(a = rep(NA_integer_, 3), b = rep(NA_integer_, 3), c = rep(NA_integer_, 3))
   )
+  expect_identical(
+    test[c(FALSE, NA, TRUE), ],
+    pl$DataFrame(a = c(NA_integer_, 3L), b = c(NA_integer_, 6L), c = c(NA_integer_, 9L))
+  )
+  expect_snapshot(test[c(TRUE, FALSE), ], error = TRUE)
+  expect_snapshot(test[c(NA, FALSE), ], error = TRUE)
 
   expect_snapshot(test[mean, ], error = TRUE)
   expect_snapshot(test[list(1), ], error = TRUE)

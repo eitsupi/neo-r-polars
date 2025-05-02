@@ -145,6 +145,24 @@
 ---
 
     Code
+      test[c(TRUE, FALSE), ]
+    Condition
+      Error in `test[c(TRUE, FALSE), ]`:
+      ! Can't subset rows with `c(TRUE, FALSE)`.
+      i Logical subscript `c(TRUE, FALSE)` must be size 1 or 3, not 2
+
+---
+
+    Code
+      test[c(NA, FALSE), ]
+    Condition
+      Error in `test[c(NA, FALSE), ]`:
+      ! Can't subset rows with `c(NA, FALSE)`.
+      i Logical subscript `c(NA, FALSE)` must be size 1 or 3, not 2
+
+---
+
+    Code
       test[mean, ]
     Condition
       Error in `test[mean, ]`:
