@@ -370,9 +370,9 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
         call = error_env
       )
     }
-    if (all(j < 0)) {
+    if (max(j) < 0) {
       j <- setdiff(seq_len(n_cols), abs(j))
-    } else if (any(j < 0) && any(j > 0)) {
+    } else if (min(j) < 0) {
       sign_start <- sign(j[j != 0])[1]
       loc <- if (sign_start == -1) {
         which(sign(j) == 1)[1]
