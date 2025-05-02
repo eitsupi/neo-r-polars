@@ -106,6 +106,16 @@
 # `[` operator works to subset rows only
 
     Code
+      test[c(-1, NA), ]
+    Condition
+      Error in `test[c(-1, NA), ]`:
+      ! Can't subset rows with `c(-1, NA)`.
+      x Negative locations can't have missing values.
+      i Subscript `c(-1, NA)` has 1 missing values at location 2.
+
+---
+
+    Code
       test[-2:1, ]
     Condition
       Error in `test[-2:1, ]`:

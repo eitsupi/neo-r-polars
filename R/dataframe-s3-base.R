@@ -213,9 +213,9 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
   }
 
   # If logical, `i` must be of length 1 or number of rows
-  if (is_bare_logical(i)) {
+  x <- if (is_bare_logical(i)) {
     if (length(i) %in% c(1L, n_rows)) {
-      idx <- i
+      x$filter(i)
     } else {
       abort(
         c(
@@ -232,13 +232,31 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
   } else {
     seq_n_rows <- seq_len(n_rows)
     # Negative indices -> drop those rows
-    # Do not accept mixing negative and positive indices
+    # - Do not accept NA values in negative indices
+    # - Do not accept mixing negative and positive indices
     if (is_bare_numeric(i)) {
-      # TODO: NA indices are ignored for now
-      i <- i[!is.na(i)]
-      if (all(i < 0)) {
-        i <- setdiff(seq_n_rows, abs(i))
-      } else if (any(i < 0) && any(i > 0)) {
+      if (all(i < 0, na.rm = TRUE)) {
+        n_na <- sum(is.na(i))
+        if (n_na > 0) {
+          if (n_na < length(i)) {
+            abort(
+              c(
+                sprintf("Can't subset rows with `%s`.", deparse(i_arg)),
+                x = "Negative locations can't have missing values.",
+                i = sprintf(
+                  "Subscript `%s` has %s missing values at location %s.",
+                  deparse(i_arg),
+                  n_na,
+                  oxford_comma(which(is.na(i)), final = "and")
+                )
+              )
+            )
+          }
+          # If all values are NA, do nothing for i
+        } else {
+          i <- setdiff(seq_len(n_rows), abs(i))
+        }
+      } else if (any(i < 0, na.rm = TRUE)) {
         sign_start <- sign(i[i != 0])[1]
         loc <- if (sign_start == -1) {
           which(sign(i) == 1)[1]
@@ -261,10 +279,15 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
       }
     }
 
-    idx <- seq_n_rows %in% i
+    idx <- i
+    idx[!idx %in% seq_len(n_rows)] <- NA
+    # idx may be character (only including integer-like strings),
+    # so convert to numeric before subtracting 1
+    if (is_character(idx)) mode(idx) <- "numeric"
+    # Similar to Python Polars' _convert_series_to_indices
+    indices <- as_polars_series(idx - 1L)$cast(pl$UInt32, strict = TRUE)
+    select_rows_by_index(x, indices)
   }
-
-  x <- x$filter(pl$lit(idx))
 
   #### Columns -----------------------------------------------------
 

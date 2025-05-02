@@ -95,15 +95,31 @@ test_that("`[` operator works to subset rows only", {
     test[1:2, ],
     pl$DataFrame(a = 1:2, b = 4:5, c = 7:8)
   )
-  # TODO
-  # expect_identical(
-  #   test[c(1, 10), ],
-  #   pl$DataFrame(a = c(1L, NA_integer_), b = c(4L, NA_integer_), c = c(7L, NA_integer_))
-  # )
+  expect_identical(
+    test[c(1, 10), ],
+    pl$DataFrame(a = c(1L, NA_integer_), b = c(4L, NA_integer_), c = c(7L, NA_integer_))
+  )
+  expect_identical(
+    test[c(2, 1, 1), ],
+    pl$DataFrame(a = c(2L, 1L, 1L), b = c(5L, 4L, 4L), c = c(8L, 7L, 7L))
+  )
+  expect_identical(
+    test[c(2, 10000, 1), ],
+    pl$DataFrame(a = c(2L, NA_integer_, 1L), b = c(5L, NA_integer_, 4L), c = c(8L, NA_integer_, 7L))
+  )
+  expect_identical(
+    test[c(2, NA), ],
+    pl$DataFrame(a = c(2L, NA_integer_), b = c(5L, NA_integer_), c = c(8L, NA_integer_))
+  )
   expect_identical(
     test[-2:-1, ],
     pl$DataFrame(a = 3L, b = 6L, c = 9L)
   )
+  expect_identical(
+    test[NA_integer_, ],
+    pl$DataFrame(a = NA_integer_, b = NA_integer_, c = NA_integer_)
+  )
+  expect_snapshot(test[c(-1, NA), ], error = TRUE)
   expect_snapshot(test[-2:1, ], error = TRUE)
   expect_snapshot(test[1:-2, ], error = TRUE)
   expect_snapshot(test[1.5, ], error = TRUE)
@@ -117,11 +133,10 @@ test_that("`[` operator works to subset rows only", {
     test[c("1", "2"), ],
     pl$DataFrame(a = 1:2, b = 4:5, c = 7:8)
   )
-  # TODO
-  # expect_identical(
-  #   test["foo", ],
-  #   pl$DataFrame(a = NA_integer_, b = NA_integer_, c = NA_integer_)
-  # )
+  expect_identical(
+    test["foo", ],
+    pl$DataFrame(a = NA_integer_, b = NA_integer_, c = NA_integer_)
+  )
 
   ### Logical
   expect_identical(test[TRUE, ], test)
