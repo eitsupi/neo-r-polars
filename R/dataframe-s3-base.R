@@ -176,13 +176,14 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
   i <- i %||% FALSE
   j <- j %||% character()
 
-  # $height doesn't exist for LazyFrame but we may still hit the branches that
-  # require it if the user does lf[TRUE,] or lf[FALSE,] for instance.
-  x_height <- if (called_from_lazy_s3_method) {
-    NULL
+  # Same as `nrow(x)`, but `nrow()` calls `$collect_schema()` internally
+  # which is expensive for LazyFrame, so we should avoid it.
+  n_rows <- if (called_from_lazy_s3_method) {
+    NA_integer_
   } else {
     x$height
   }
+  n_cols <- length(cols)
 
   #### Rows -----------------------------------------------------
 
@@ -213,7 +214,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
 
   # If logical, `i` must be of length 1 or number of rows
   if (is_bare_logical(i)) {
-    if (length(i) %in% c(1L, x_height)) {
+    if (length(i) %in% c(1L, n_rows)) {
       idx <- i
     } else {
       abort(
@@ -222,18 +223,21 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
           i = sprintf(
             "Logical subscript `%s` must be size 1 or %s, not %s",
             deparse(i_arg),
-            x_height,
+            n_rows,
             length(i)
           )
         )
       )
     }
   } else {
+    seq_n_rows <- seq_len(n_rows)
     # Negative indices -> drop those rows
     # Do not accept mixing negative and positive indices
     if (is_bare_numeric(i)) {
+      # TODO: NA indices are ignored for now
+      i <- i[!is.na(i)]
       if (all(i < 0)) {
-        i <- setdiff(seq_len(x_height), abs(i))
+        i <- setdiff(seq_n_rows, abs(i))
       } else if (any(i < 0) && any(i > 0)) {
         sign_start <- sign(i[i != 0])[1]
         loc <- if (sign_start == -1) {
@@ -257,7 +261,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
       }
     }
 
-    idx <- seq_len(x_height) %in% i
+    idx <- seq_n_rows %in% i
   }
 
   x <- x$filter(pl$lit(idx))
@@ -311,19 +315,19 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
   # - logical but must be of length 1 or number of columns
   # - character, should not contain non-existing column names
   to_select <- if (is_bare_numeric(j)) {
-    wrong_locs <- j[j > length(cols)]
+    wrong_locs <- j[j > n_cols]
     if (length(wrong_locs) > 0) {
       abort(
         c(
           "Can't subset columns past the end.",
           i = sprintf("Location(s) %s don't exist.", oxford_comma(wrong_locs, final = "and")),
-          i = sprintf("There are only %s columns.", length(cols))
+          i = sprintf("There are only %s columns.", n_cols)
         ),
         call = error_env
       )
     }
     if (all(j < 0)) {
-      j <- setdiff(seq_len(length(cols)), abs(j))
+      j <- setdiff(seq_len(n_cols), abs(j))
     } else if (any(j < 0) && any(j > 0)) {
       sign_start <- sign(j[j != 0])[1]
       loc <- if (sign_start == -1) {
@@ -363,7 +367,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
       j
     }
   } else if (is_bare_logical(j)) {
-    if (length(j) %in% c(1L, length(cols))) {
+    if (length(j) %in% c(1L, n_cols)) {
       cols[j]
     } else {
       abort(
@@ -372,7 +376,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
           i = sprintf(
             "Logical subscript `%s` must be size 1 or %s, not %s",
             deparse(j_arg),
-            length(cols),
+            n_cols,
             length(j)
           )
         ),

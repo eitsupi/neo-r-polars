@@ -177,9 +177,10 @@
     Condition
       Error in `test[1:2, ]`:
       ! Cannot subset rows of a LazyFrame with `[`.
-      i There are several functions that can be used to get a specific range of rows.
-      * `$slice()` can be used to get a slice of rows.
+      i There are several functions that can be used to get a specific rows.
+      * `$slice()` can be used to get a slice of rows with start index and length.
       * `$gather_every()` can be used to take every nth row.
+      * `$filter()` can be used to filter rows based on a condition.
       * `$reverse()` can be used to reverse the order of rows.
 
 ---
@@ -189,9 +190,10 @@
     Condition
       Error in `test[1:2, "a"]`:
       ! Cannot subset rows of a LazyFrame with `[`.
-      i There are several functions that can be used to get a specific range of rows.
-      * `$slice()` can be used to get a slice of rows.
+      i There are several functions that can be used to get a specific rows.
+      * `$slice()` can be used to get a slice of rows with start index and length.
       * `$gather_every()` can be used to take every nth row.
+      * `$filter()` can be used to filter rows based on a condition.
       * `$reverse()` can be used to reverse the order of rows.
 
 ---
@@ -201,8 +203,9 @@
     Condition
       Error in `test[c(FALSE, FALSE), ]`:
       ! Cannot subset rows of a LazyFrame with `[`.
-      i There are several functions that can be used to get a specific range of rows.
-      * `$slice()` can be used to get a slice of rows.
+      i There are several functions that can be used to get a specific rows.
+      * `$slice()` can be used to get a slice of rows with start index and length.
       * `$gather_every()` can be used to take every nth row.
+      * `$filter()` can be used to filter rows based on a condition.
       * `$reverse()` can be used to reverse the order of rows.
 

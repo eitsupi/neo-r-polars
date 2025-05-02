@@ -44,16 +44,17 @@ tail.polars_lazy_frame <- tail.polars_data_frame
   if (!missing(i)) {
     n_real_args <- nargs() - !missing(drop)
     if (n_real_args > 2) {
-      # We want to allow lf[TRUE, ], lf[FALSE,] and lf[NULL,].
-      if (is_null(i) || (is_bare_logical(i) && length(i) == 1 && isFALSE(i))) {
+      # We want to allow lf[TRUE, ], lf[FALSE, ] and lf[NULL, ].
+      if (is_null(i) || (is_bare_logical(i) && isFALSE(i))) {
         x <- x$clear()
-      } else if (!is_bare_logical(i) || length(i) != 1) {
+      } else if (!is_bare_logical(i) || !isTRUE(i)) {
         abort(
           c(
             `!` = "Cannot subset rows of a LazyFrame with `[`.",
-            i = "There are several functions that can be used to get a specific range of rows.",
-            `*` = "`$slice()` can be used to get a slice of rows.",
+            i = "There are several functions that can be used to get a specific rows.",
+            `*` = "`$slice()` can be used to get a slice of rows with start index and length.",
             `*` = "`$gather_every()` can be used to take every nth row.",
+            `*` = "`$filter()` can be used to filter rows based on a condition.",
             `*` = "`$reverse()` can be used to reverse the order of rows."
           )
         )
@@ -64,7 +65,5 @@ tail.polars_lazy_frame <- tail.polars_data_frame
     }
   }
 
-  # We must put `i` as an empty arg so that both missing(i) and nargs() work
-  # in the `polars_data_frame` method.
-  `[.polars_data_frame`(x, , j = j, drop = FALSE)
+  `[.polars_data_frame`(x, TRUE, j, drop = FALSE)
 }
