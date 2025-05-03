@@ -96,12 +96,20 @@ test_that("`[` operator works to subset rows only", {
     pl$DataFrame(a = 1:2, b = 4:5, c = 7:8)
   )
   expect_identical(
+    test[0:2, ],
+    pl$DataFrame(a = 1:2, b = 4:5, c = 7:8)
+  )
+  expect_identical(
     test[c(1, 10), ],
     pl$DataFrame(a = c(1L, NA_integer_), b = c(4L, NA_integer_), c = c(7L, NA_integer_))
   )
   expect_identical(
     test[c(2, 1, 1), ],
     pl$DataFrame(a = c(2L, 1L, 1L), b = c(5L, 4L, 4L), c = c(8L, 7L, 7L))
+  )
+  expect_identical(
+    test[c(2, 0, 1, 0), ],
+    pl$DataFrame(a = c(2L, 1L), b = c(5L, 4L), c = c(8L, 7L))
   )
   expect_identical(
     test[c(2, 10000, 1), ],
@@ -116,8 +124,16 @@ test_that("`[` operator works to subset rows only", {
     pl$DataFrame(a = 3L, b = 6L, c = 9L)
   )
   expect_identical(
+    test[-2:0, ],
+    pl$DataFrame(a = 3L, b = 6L, c = 9L)
+  )
+  expect_identical(
     test[NA_integer_, ],
     pl$DataFrame(a = NA_integer_, b = NA_integer_, c = NA_integer_)
+  )
+  expect_identical(
+    test[double(), ],
+    pl$DataFrame(a = integer(), b = integer(), c = integer())
   )
   expect_snapshot(test[c(-1, NA), ], error = TRUE)
   expect_snapshot(test[-2:1, ], error = TRUE)
@@ -128,6 +144,10 @@ test_that("`[` operator works to subset rows only", {
   expect_identical(
     test["1", ],
     pl$DataFrame(a = 1L, b = 4L, c = 7L)
+  )
+  expect_identical(
+    test["0", ],
+    pl$DataFrame(a = NA_integer_, b = NA_integer_, c = NA_integer_)
   )
   expect_identical(
     test[c("1", "2"), ],
