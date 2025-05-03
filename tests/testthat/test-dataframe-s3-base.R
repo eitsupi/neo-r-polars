@@ -31,6 +31,11 @@ test_that("`[` operator works to subset columns only", {
 
   ### Indices
   expect_identical(test[1], pl$DataFrame(a = 1:3))
+  expect_identical(test[0], pl$DataFrame())
+  expect_identical(test[0:1], pl$DataFrame(a = 1:3))
+  expect_identical(test[c(1, 0, 3)], pl$DataFrame(a = 1:3, c = 7:9))
+  expect_identical(test[double()], pl$DataFrame())
+  expect_identical(test[-2:0], pl$DataFrame(c = 7:9))
   expect_warning(
     expect_identical(test[1, drop = TRUE], pl$DataFrame(a = 1:3)),
     "`drop` argument ignored for subsetting a DataFrame",

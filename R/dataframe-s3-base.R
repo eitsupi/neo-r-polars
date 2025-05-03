@@ -363,7 +363,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
   #   and negative indices
   # - logical but must be of length 1 or number of columns
   # - character, should not contain non-existing column names
-  to_select <- if (is_bare_numeric(j)) {
+  to_select <- if (is_integerish(j)) {
     wrong_locs <- j[j > n_cols]
     if (length(wrong_locs) > 0) {
       abort(
@@ -375,9 +375,15 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
         call = error_env
       )
     }
-    if (max(j) < 0) {
-      j <- setdiff(seq_len(n_cols), abs(j))
-    } else if (min(j) < 0) {
+
+    if (length(j) == 0L || min(j) >= 0) {
+      # Empty index or positive integer-ish
+      cols[j]
+    } else if (max(j) <= 0) {
+      # Negative indices
+      cols[setdiff(seq_len(n_cols), abs(j))]
+    } else {
+      # Mixing negative and positive indices (Not allowed)
       sign_start <- sign(j[j != 0])[1]
       loc <- if (sign_start == -1) {
         which(sign(j) == 1)[1]
@@ -398,8 +404,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
         call = error_env
       )
     }
-    cols[j]
-  } else if (is_bare_character(j)) {
+  } else if (is_character(j)) {
     non_existent_cols <- setdiff(j, cols)
     if (length(non_existent_cols) > 0L) {
       abort(
@@ -415,8 +420,9 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
     } else {
       j
     }
-  } else if (is_bare_logical(j)) {
-    if (length(j) %in% c(1L, n_cols)) {
+  } else if (is_logical(j)) {
+    length_j <- length(j)
+    if (length_j %in% c(1L, n_cols)) {
       cols[j]
     } else {
       abort(
@@ -426,7 +432,7 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
             "Logical subscript `%s` must be size 1 or %s, not %s",
             deparse(j_arg),
             n_cols,
-            length(j)
+            length_j
           )
         ),
         call = error_env
