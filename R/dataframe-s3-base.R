@@ -364,10 +364,12 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
   # - logical but must be of length 1 or number of columns
   # - character, should not contain non-existing column names
   to_select <- if (is_integerish(j)) {
-    if (length(j) == 0L || min(j) >= 0) {
+    max_j <- suppressWarnings(max(j))
+    min_j <- suppressWarnings(min(j))
+    if (min_j >= 0) {
       # Empty index or positive integer-ish
-      wrong_locs <- j[j > n_cols]
-      if (length(wrong_locs) > 0) {
+      if (max_j > n_cols) {
+        wrong_locs <- j[j > n_cols]
         abort(
           c(
             "Can't subset columns past the end.",
@@ -379,11 +381,11 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
       } else {
         cols[j]
       }
-    } else if (max(j) <= 0) {
+    } else if (max_j <= 0) {
       # Negative indices
       abs_j <- abs(j)
-      wrong_locs <- abs_j[abs_j > n_cols]
-      if (length(wrong_locs) > 0) {
+      if (min_j < -n_cols) {
+        wrong_locs <- abs_j[abs_j > n_cols]
         abort(
           c(
             "Can't negate columns past the end.",
