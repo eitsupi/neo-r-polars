@@ -216,7 +216,10 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
     # If non-NA logical vector, just passing it to $filter() is enough
     x$filter(i)
   } else {
-    # Else, we need to use `select_rows_by_index()` and calculate the indices in R
+    # Else, we need to use `select_rows_by_index()` and calculate the indices in R.
+    # For LazyFrame (n_rows is NA), this branch is unreachable.
+    # So this `seq_len()` should be safe.
+    seq_n_rows <- seq_len(n_rows)
     idx <- if (is_logical(i)) {
       # If logical, `i` must be of length 1 or number of rows
       if (!length(i) %in% c(1L, n_rows)) {
@@ -232,13 +235,10 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
           ),
           call = error_env
         )
+      } else {
+        seq_n_rows[i]
       }
-      seq_len(n_rows)[i]
     } else {
-      # For LazyFrame (n_rows is NA), this branch is unreachable.
-      # So this operation is safe.
-      seq_n_rows <- seq_len(n_rows)
-
       idx <- if (is_character(i)) {
         # Character case
         i
