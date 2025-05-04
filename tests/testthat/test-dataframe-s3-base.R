@@ -70,16 +70,38 @@ patrick::with_parameters_test_that(
     tbl <- tibble::tibble(a = 1:3, b = 4:6, c = 7:9)
     pl_df <- as_polars_df(tbl)
 
-    # Only specify the first argument
-    expect_equal(
-      pl_df[first_arg, ],
-      as_polars_df(tbl[first_arg, ])
-    )
-    # Returns single column
-    expect_equal(
-      pl_df[first_arg, "b"],
-      as_polars_df(tbl[first_arg, "b"])
-    )
+    # If row index is not one of TRUE, FALSE, or NULL,
+    # query for LazyFrame raises an error
+    if (is.null(first_arg) || isTRUE(first_arg) || isFALSE(first_arg)) {
+      # Only specify the first argument
+      expect_query_equal(
+        .input[first_arg, ],
+        pl_df,
+        as_polars_df(tbl[first_arg, ])
+      )
+      # Returns single column
+      expect_query_equal(
+        .input[first_arg, "b"],
+        pl_df,
+        as_polars_df(tbl[first_arg, "b"])
+      )
+    } else {
+      error_regexp <- "Cannot subset rows of a LazyFrame"
+      # Only specify the first argument
+      expect_eager_equal_lazy_error(
+        .input[first_arg, ],
+        pl_df,
+        as_polars_df(tbl[first_arg, ]),
+        regexp = error_regexp
+      )
+      # Returns single column
+      expect_eager_equal_lazy_error(
+        .input[first_arg, "b"],
+        pl_df,
+        as_polars_df(tbl[first_arg, "b"]),
+        regexp = error_regexp
+      )
+    }
   }
 )
 
@@ -105,6 +127,7 @@ patrick::with_parameters_test_that(
     pl_df <- pl$DataFrame(a = 1:3, b = 4:6, c = 7:9)
 
     expect_snapshot(pl_df[first_arg, ], error = TRUE)
+    expect_snapshot(pl_df$lazy()[first_arg, ], error = TRUE)
   }
 )
 
@@ -139,18 +162,22 @@ patrick::with_parameters_test_that(
     pl_df <- as_polars_df(tbl)
 
     # Only specify the second argument
-    expect_equal(
-      pl_df[, second_arg],
+    expect_query_equal(
+      .input[, second_arg],
+      pl_df,
       as_polars_df(tbl[, second_arg])
     )
-    # Returns single row
-    expect_equal(
-      pl_df[1, second_arg],
-      as_polars_df(tbl[1, second_arg])
+    # Returns single row (not supported for LazyFrame)
+    expect_eager_equal_lazy_error(
+      .input[1, second_arg],
+      pl_df,
+      as_polars_df(tbl[1, second_arg]),
+      regexp = "Cannot subset rows of a LazyFrame"
     )
     # Without commas, the first argument is treated as the second argument
-    expect_equal(
-      pl_df[second_arg],
+    expect_query_equal(
+      .input[second_arg],
+      pl_df,
       as_polars_df(tbl[second_arg])
     )
   }
@@ -187,8 +214,12 @@ patrick::with_parameters_test_that(
 
     # Only specify the second argument
     expect_snapshot(pl_df[, second_arg], error = TRUE)
+    ## Since `<lazyframe>$select()` does not raise an error if columns are duplicated,
+    ## we need to collect the result to raise an error here.
+    expect_snapshot(pl_df$lazy()[, second_arg]$collect(), error = TRUE)
     # Without commas, the first argument is treated as the second argument
     expect_snapshot(pl_df[second_arg], error = TRUE)
+    expect_snapshot(pl_df$lazy()[second_arg]$collect(), error = TRUE)
   }
 )
 
@@ -221,23 +252,37 @@ test_that("Special cases of `[` behavior", {
   pl_df <- pl$DataFrame(a = 1:3, b = 4:6, c = 7:9)
 
   # Empty args
-  expect_equal(pl_df[], pl_df)
+  expect_query_equal(
+    .input[],
+    pl_df,
+    pl_df
+  )
   # fmt: skip
   # <https://github.com/posit-dev/air/issues/330>
-  expect_equal(pl_df[, ], pl_df)
+  expect_query_equal(
+    .input[, ],
+    pl_df,
+    pl_df
+  )
 
   # Supports `"0"` row name
   # Tibble is buggy for `"0"` row name
   # <https://github.com/tidyverse/tibble/issues/1636>
   # TODO: move this to the parameterized test when the issue is fixed
-  expect_equal(
-    pl_df["0", ],
-    pl$DataFrame(a = NA_integer_, b = NA_integer_, c = NA_integer_)
+  expect_eager_equal_lazy_error(
+    .input["0", ],
+    pl_df,
+    pl$DataFrame(a = NA_integer_, b = NA_integer_, c = NA_integer_),
+    regexp = "Cannot subset rows of a LazyFrame"
   )
 
   # polars drops rows if columns are dropped.
   # R dataframe or arrow::Table keeps the rows. (In this case, returns `c(3L, 0L)`)
-  expect_identical(dim(pl_df[, NULL]), c(0L, 0L))
+  expect_query_equal(
+    .input[, NULL],
+    pl_df,
+    as_polars_df(NULL)
+  )
 
   # TODO: test behavior of x[i, , drop = TRUE] when it is clarified
   # https://github.com/tidyverse/tibble/issues/1570
