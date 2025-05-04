@@ -102,6 +102,14 @@ patrick::with_parameters_test_that(
         regexp = error_regexp
       )
     }
+
+    # Check the behavior if `drop = TRUE`.
+    # Since tbl[first_arg, , drop = TRUE] may return a vector,
+    # we need to convert it to a Series to ensure the same class.
+    expect_equal(
+      as_polars_series(pl_df[first_arg, , drop = TRUE]),
+      as_polars_series(tbl[first_arg, , drop = TRUE])
+    )
   }
 )
 
@@ -230,9 +238,12 @@ test_that("`[`'s drop argument works correctly", {
     pl_df[1, , drop = TRUE],
     pl$DataFrame(a = 1L, b = 4L, c = 7L)
   )
-  # TODO: polars drops the row if columns are dropped
   expect_equal(
-    pl_df[1, character(), drop = TRUE],
+    pl_df[, 1, drop = TRUE],
+    pl_df$to_series(0)
+  )
+  expect_equal(
+    pl_df[1, NULL, drop = TRUE],
     as_polars_df(NULL)
   )
 
@@ -257,9 +268,9 @@ test_that("Special cases of `[` behavior", {
     pl_df,
     pl_df
   )
-  # fmt: skip
-  # <https://github.com/posit-dev/air/issues/330>
   expect_query_equal(
+    # fmt: skip
+    # <https://github.com/posit-dev/air/issues/330>
     .input[, ],
     pl_df,
     pl_df
