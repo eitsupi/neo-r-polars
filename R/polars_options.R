@@ -42,7 +42,8 @@ polars_options <- function() {
     from_non_existent = getOption("polars.from_non_existent") %||% "raise"
   )
 
-  arg_match0(out[["df_knitr_print"]], c("auto"), arg_nm = "df_knitr_print") # TODO: complete possible values
+  # TODO: complete possible values
+  arg_match0(out[["df_knitr_print"]], c("auto"), arg_nm = "df_knitr_print")
   arg_match0(
     out[["from_int64"]],
     c("double", "character", "integer", "integer64"),
@@ -86,10 +87,10 @@ polars_options_reset <- function() {
 #' @export
 print.polars_options <- function(x, ...) {
   # Copied from the arrow package
-  # https://github.com/apache/arrow/blob/6f3bd2524c2abe3a4a278fc1c62fc5c49b56cab3/r/R/arrow-info.R#L149-L157
+  # nolint https://github.com/apache/arrow/blob/6f3bd2524c2abe3a4a278fc1c62fc5c49b56cab3/r/R/arrow-info.R#L149-L157
   print_key_values <- function(title, vals, ...) {
     df <- data.frame(vals, ...)
-    names(df) = ""
+    names(df) <- ""
 
     cat(title, ":\n========", sep = "")
     print(df)
