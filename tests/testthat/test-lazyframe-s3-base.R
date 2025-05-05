@@ -25,3 +25,18 @@ test_that("tail() works", {
     ignore_attr = TRUE
   )
 })
+
+test_that("`[`'s drop argument is not supported for LazyFrame", {
+  pl_lf <- pl$LazyFrame(a = 1:3, b = 4:6, c = 7:9)
+  warning_regex <- "`drop = TRUE` is not supported for LazyFrame"
+
+  expect_warning(pl_lf[, "a", drop = TRUE], regexp = warning_regex)
+  expect_warning(pl_lf["a", drop = TRUE], regexp = warning_regex)
+  expect_warning(pl_lf[drop = TRUE], regexp = warning_regex)
+
+  # drop should be named
+  expect_equal(
+    pl_lf[, "a", TRUE]$collect(),
+    pl_lf$select("a")$collect()
+  )
+})

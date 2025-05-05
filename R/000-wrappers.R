@@ -422,6 +422,13 @@ class(`PlRChainedWhen`) <- c("PlRChainedWhen__bundle", "savvy_neopolars__sealed"
   }
 }
 
+`PlRDataFrame_gather_with_series` <- function(self) {
+  function(`indices`) {
+    `indices` <- .savvy_extract_ptr(`indices`, "PlRSeries")
+    .savvy_wrap_PlRDataFrame(.Call(savvy_PlRDataFrame_gather_with_series__impl, `self`, `indices`))
+  }
+}
+
 `PlRDataFrame_get_column` <- function(self) {
   function(`name`) {
     .savvy_wrap_PlRSeries(.Call(savvy_PlRDataFrame_get_column__impl, `self`, `name`))
@@ -632,6 +639,7 @@ class(`PlRChainedWhen`) <- c("PlRChainedWhen__bundle", "savvy_neopolars__sealed"
   e$`columns` <- `PlRDataFrame_columns`(ptr)
   e$`dtypes` <- `PlRDataFrame_dtypes`(ptr)
   e$`equals` <- `PlRDataFrame_equals`(ptr)
+  e$`gather_with_series` <- `PlRDataFrame_gather_with_series`(ptr)
   e$`get_column` <- `PlRDataFrame_get_column`(ptr)
   e$`get_column_index` <- `PlRDataFrame_get_column_index`(ptr)
   e$`get_columns` <- `PlRDataFrame_get_columns`(ptr)
@@ -1104,12 +1112,6 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
   }
 }
 
-`PlRExpr_backward_fill` <- function(self) {
-  function(`limit` = NULL) {
-    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_backward_fill__impl, `self`, `limit`))
-  }
-}
-
 `PlRExpr_bin_base64_decode` <- function(self) {
   function(`strict`) {
     .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_bin_base64_decode__impl, `self`, `strict`))
@@ -1349,6 +1351,7 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
 
 `PlRExpr_diff` <- function(self) {
   function(`n`, `null_behavior`) {
+    `n` <- .savvy_extract_ptr(`n`, "PlRExpr")
     .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_diff__impl, `self`, `n`, `null_behavior`))
   }
 }
@@ -1754,12 +1757,6 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
   }
 }
 
-`PlRExpr_forward_fill` <- function(self) {
-  function(`limit` = NULL) {
-    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_forward_fill__impl, `self`, `limit`))
-  }
-}
-
 `PlRExpr_gather` <- function(self) {
   function(`idx`) {
     `idx` <- .savvy_extract_ptr(`idx`, "PlRExpr")
@@ -1977,9 +1974,9 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
 }
 
 `PlRExpr_list_gather` <- function(self) {
-  function(`index`, `null_on_oob`) {
-    `index` <- .savvy_extract_ptr(`index`, "PlRExpr")
-    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_list_gather__impl, `self`, `index`, `null_on_oob`))
+  function(`indices`, `null_on_oob`) {
+    `indices` <- .savvy_extract_ptr(`indices`, "PlRExpr")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_list_gather__impl, `self`, `indices`, `null_on_oob`))
   }
 }
 
@@ -2558,8 +2555,8 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
 }
 
 `PlRExpr_rolling_skew` <- function(self) {
-  function(`window_size`, `bias`) {
-    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_rolling_skew__impl, `self`, `window_size`, `bias`))
+  function(`window_size`, `bias`, `center`, `min_samples` = NULL) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_rolling_skew__impl, `self`, `window_size`, `bias`, `center`, `min_samples`))
   }
 }
 
@@ -2603,8 +2600,8 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
 }
 
 `PlRExpr_round` <- function(self) {
-  function(`decimals`) {
-    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_round__impl, `self`, `decimals`))
+  function(`decimals`, `mode`) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_round__impl, `self`, `decimals`, `mode`))
   }
 }
 
@@ -3198,7 +3195,6 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
   e$`arr_unique` <- `PlRExpr_arr_unique`(ptr)
   e$`arr_var` <- `PlRExpr_arr_var`(ptr)
   e$`as_str` <- `PlRExpr_as_str`(ptr)
-  e$`backward_fill` <- `PlRExpr_backward_fill`(ptr)
   e$`bin_base64_decode` <- `PlRExpr_bin_base64_decode`(ptr)
   e$`bin_base64_encode` <- `PlRExpr_bin_base64_encode`(ptr)
   e$`bin_contains` <- `PlRExpr_bin_contains`(ptr)
@@ -3302,7 +3298,6 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
   e$`first` <- `PlRExpr_first`(ptr)
   e$`floor` <- `PlRExpr_floor`(ptr)
   e$`floor_div` <- `PlRExpr_floor_div`(ptr)
-  e$`forward_fill` <- `PlRExpr_forward_fill`(ptr)
   e$`gather` <- `PlRExpr_gather`(ptr)
   e$`gather_every` <- `PlRExpr_gather_every`(ptr)
   e$`get` <- `PlRExpr_get`(ptr)

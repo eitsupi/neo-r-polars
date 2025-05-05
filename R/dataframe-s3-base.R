@@ -126,51 +126,69 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
 # https://tibble.tidyverse.org/articles/invariants.html#column-subsetting
 # TODO: add document
 #' @export
-`[.polars_data_frame` <- function(x, i, j, drop = FALSE) {
+`[.polars_data_frame` <- function(x, i, j, ..., drop = FALSE) {
+  # taken from tibble:::`[.tbl_df`
   cols <- names(x)
 
   # useful for error messages below
+  called_from_lazy_s3_method <- identical(caller_fn(), `[.polars_lazy_frame`)
+  if (isTRUE(called_from_lazy_s3_method)) {
+    # Necessary so that e.g. `test[mean]` prints "Can't subset columns with
+    # `mean`." and not "Can't subset columns with `j`."
+    j_arg <- env_get(caller_env(), "j_arg", default = NULL)
+    error_env <- caller_env()
+  } else {
+    j_arg <- substitute(j)
+    error_env <- current_env()
+  }
   i_arg <- substitute(i)
-  j_arg <- substitute(j)
 
-  # taken from tibble:::`[.tbl_df`
   if (missing(i)) {
-    i <- NULL
+    i <- TRUE
     i_arg <- NULL
-  } else if (is_null(i)) {
-    i <- integer()
   }
   if (missing(j)) {
-    j <- NULL
+    j <- cols
     j_arg <- NULL
-  } else if (is_null(j)) {
-    j <- integer()
   }
+
   n_real_args <- nargs() - !missing(drop)
   if (n_real_args <= 2L) {
     if (!missing(drop)) {
       warn(
         c(
-          `!` = "`drop` argument ignored for subsetting a frame with `x[j]`.",
+          `!` = "`drop` argument ignored for subsetting a DataFrame with `x[j]`.",
           i = "It has an effect only for `x[i, j]`."
         )
       )
       drop <- FALSE
     }
-    j <- i
-    i <- NULL
+    j <- if (!missing(i)) {
+      i
+    } else {
+      cols
+    }
+    i <- TRUE
     j_arg <- i_arg
     i_arg <- NULL
   }
 
-  if (is_null(i) && is_null(j)) {
-    return(x)
+  i <- i %||% FALSE
+  j <- j %||% character()
+
+  # Same as `nrow(x)`, but `nrow()` calls `$collect_schema()` internally
+  # which is expensive for LazyFrame, so we should avoid it.
+  n_rows <- if (called_from_lazy_s3_method) {
+    NA_integer_
+  } else {
+    x$height
   }
+  n_cols <- length(cols)
 
   #### Rows -----------------------------------------------------
 
   # check accepted types for subsetting rows
-  if (!is_null(i) && !is_bare_character(i) && !is_bare_numeric(i) && !is_bare_logical(i)) {
+  if (!is_bare_character(i) && !is_bare_numeric(i) && !is_bare_logical(i)) {
     abort(
       c(
         sprintf("Can't subset rows with `%s`.", deparse(i_arg)),
@@ -179,46 +197,89 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
           deparse(i_arg),
           obj_type_friendly(i)
         )
-      )
+      ),
+      call = error_env
     )
   }
 
-  if (is_bare_numeric(i) && !rlang::is_integerish(i)) {
+  if (is_bare_numeric(i) && !is_integerish(i)) {
     abort(
       c(
         sprintf("Can't subset rows with `%s`.", deparse(i_arg)),
         x = "Can't convert from `i` <double> to <integer> due to loss of precision."
-      )
+      ),
+      call = error_env
     )
   }
 
-  if (!is_null(i)) {
-    # If logical, `i` must be of length 1 or number of rows
-    if (is_bare_logical(i)) {
-      if (length(i) == 1 && isTRUE(i)) {
-        idx <- rep_len(TRUE, x$height)
-      } else if (length(i) == x$height) {
-        idx <- i
-      } else {
+  length_i <- length(i)
+  x <- if (is_logical(i) && !anyNA(i) && length_i %in% c(1L, n_rows)) {
+    # If non-NA logical vector, just passing it to $filter() is enough
+    x$filter(i)
+  } else {
+    # Else, we need to use `select_rows_by_index()` and calculate the indices in R.
+    # For LazyFrame (n_rows is NA), this branch is unreachable.
+    # So this `seq_len()` should be safe.
+    seq_n_rows <- seq_len(n_rows)
+    idx <- if (is_logical(i)) {
+      # If logical, `i` must be of length 1 or number of rows
+      if (!length_i %in% c(1L, n_rows)) {
         abort(
           c(
             `!` = sprintf("Can't subset rows with `%s`.", deparse(i_arg)),
             i = sprintf(
               "Logical subscript `%s` must be size 1 or %s, not %s",
               deparse(i_arg),
-              x$height,
-              length(i)
+              n_rows,
+              length_i
             )
-          )
+          ),
+          call = error_env
         )
+      } else {
+        seq_n_rows[i]
       }
     } else {
-      # Negative indices -> drop those rows
-      # Do not accept mixing negative and positive indices
-      if (is_bare_numeric(i)) {
-        if (all(i < 0)) {
-          i <- setdiff(seq_len(x$height), abs(i))
-        } else if (any(i < 0) && any(i > 0)) {
+      idx <- if (is_character(i)) {
+        # Character case
+        i
+      } else {
+        # Integer-ish case
+        # Negative indices -> drop those rows
+        # - Do not accept NA values in negative indices
+        # - Do not accept mixing negative and positive indices
+        if (length_i == 0L || suppressWarnings(min(i, na.rm = TRUE) >= 0)) {
+          # Empty index or positive integer-ish
+          # `0` is ignored
+          i[i > 0L]
+        } else if (suppressWarnings(max(i, na.rm = TRUE) <= 0)) {
+          n_na <- sum(is.na(i))
+          if (n_na > 0) {
+            if (n_na < length_i) {
+              # Negative indices containing NAs (Not allowed)
+              abort(
+                c(
+                  sprintf("Can't subset rows with `%s`.", deparse(i_arg)),
+                  x = "Negative locations can't have missing values.",
+                  i = sprintf(
+                    "Subscript `%s` has %s missing values at location %s.",
+                    deparse(i_arg),
+                    n_na,
+                    oxford_comma(which(is.na(i)), final = "and")
+                  )
+                ),
+                call = error_env
+              )
+            } else {
+              # If all values are NA, i will be used as the index
+              i
+            }
+          } else {
+            # Negative indices without NAs
+            setdiff(seq_n_rows, abs(i))
+          }
+        } else {
+          # Mixing negative and positive indices (Not allowed)
           sign_start <- sign(i[i != 0])[1]
           loc <- if (sign_start == -1) {
             which(sign(i) == 1)[1]
@@ -235,21 +296,29 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
                 if (sign_start == 1) "negative" else "positive",
                 loc
               )
-            )
+            ),
+            call = error_env
           )
         }
       }
 
-      idx <- seq_len(x$height) %in% i
+      # Need to replace invalid indices with NA
+      idx[!idx %in% seq_n_rows] <- NA
+      # Ensure idx is numeric for further processing
+      if (is_character(idx)) mode(idx) <- "numeric"
+      idx
     }
-
-    x <- x$filter(pl$lit(idx))
+    # Similar to Python Polars' _convert_series_to_indices,
+    # but we already check idx values above, so just need to
+    # convert to UInt32
+    indices <- as_polars_series(idx - 1L)$cast(pl$UInt32, strict = TRUE)
+    select_rows_by_index(x, indices)
   }
 
   #### Columns -----------------------------------------------------
 
   # check accepted types for subsetting columns
-  if (!is_null(j) && !is_bare_character(j) && !is_bare_numeric(j) && !is_bare_logical(j)) {
+  if (!is_bare_character(j) && !is_bare_numeric(j) && !is_bare_logical(j)) {
     abort(
       c(
         sprintf("Can't subset columns with `%s`.", deparse(j_arg)),
@@ -258,16 +327,18 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
           deparse(j_arg),
           obj_type_friendly(j)
         )
-      )
+      ),
+      call = error_env
     )
   }
 
-  if (is_bare_numeric(j) && !rlang::is_integerish(j)) {
+  if (is_bare_numeric(j) && !is_integerish(j)) {
     abort(
       c(
         sprintf("Can't subset columns with `%s`.", deparse(j_arg)),
         x = "Can't convert from `j` <double> to <integer> due to loss of precision."
-      )
+      ),
+      call = error_env
     )
   }
 
@@ -282,82 +353,111 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
           "It has missing value(s) at location %s.",
           oxford_comma(na_val, final = "and")
         )
-      )
+      ),
+      call = error_env
     )
   }
 
-  if (!is_null(j)) {
-    # Can be:
-    # - numeric but cannot beyond the number of columns, and cannot mix positive
-    #   and negative indices
-    # - logical but must be of length 1 or number of columns
-    # - character
-    if (is_bare_numeric(j)) {
-      wrong_locs <- j[j > length(cols)]
-      if (length(wrong_locs) > 0) {
+  # Can be:
+  # - numeric but cannot beyond the number of columns, and cannot mix positive
+  #   and negative indices
+  # - logical but must be of length 1 or number of columns
+  # - character, should not contain non-existing column names
+  to_select <- if (is_integerish(j)) {
+    max_j <- suppressWarnings(max(j))
+    min_j <- suppressWarnings(min(j))
+    if (min_j >= 0) {
+      # Empty index or positive integer-ish
+      if (max_j > n_cols) {
+        wrong_locs <- j[j > n_cols]
         abort(
           c(
             "Can't subset columns past the end.",
             i = sprintf("Location(s) %s don't exist.", oxford_comma(wrong_locs, final = "and")),
-            i = sprintf("There are only %s columns.", length(cols))
-          )
+            i = sprintf("There are only %s columns.", n_cols)
+          ),
+          call = error_env
         )
-      }
-      if (all(j < 0)) {
-        j <- setdiff(seq_len(length(cols)), abs(j))
-      } else if (any(j < 0) && any(j > 0)) {
-        sign_start <- sign(j[j != 0])[1]
-        loc <- if (sign_start == -1) {
-          which(sign(j) == 1)[1]
-        } else if (sign_start == 1) {
-          which(sign(j) == -1)[1]
-        }
-        abort(
-          c(
-            `!` = sprintf("Can't subset columns with `%s`.", deparse(j_arg)),
-            x = "Negative and positive locations can't be mixed.",
-            i = sprintf(
-              "Subscript `%s` has a %s value at location %s.",
-              deparse(j_arg),
-              if (sign_start == 1) "negative" else "positive",
-              loc
-            )
-          )
-        )
-      }
-      to_select <- cols[j]
-    } else if (is_bare_character(j)) {
-      to_select <- j
-    } else if (is_bare_logical(j)) {
-      if (length(j) == 1) {
-        to_select <- cols
-      } else if (length(j) == length(cols)) {
-        to_select <- cols[j]
       } else {
+        cols[j]
+      }
+    } else if (max_j <= 0) {
+      # Negative indices
+      abs_j <- abs(j)
+      if (min_j < -n_cols) {
+        wrong_locs <- abs_j[abs_j > n_cols]
         abort(
           c(
-            `!` = sprintf("Can't subset columns with `%s`.", deparse(j_arg)),
-            i = sprintf(
-              "Logical subscript `%s` must be size 1 or %s, not %s",
-              deparse(j_arg),
-              length(cols),
-              length(j)
-            )
-          )
+            "Can't negate columns past the end.",
+            i = sprintf("Location(s) %s don't exist.", oxford_comma(wrong_locs, final = "and")),
+            i = sprintf("There are only %s columns.", n_cols)
+          ),
+          call = error_env
         )
+      } else {
+        cols[setdiff(seq_len(n_cols), abs_j)]
       }
+    } else {
+      # Mixing negative and positive indices (Not allowed)
+      sign_start <- sign(j[j != 0])[1]
+      loc <- if (sign_start == -1) {
+        which(sign(j) == 1)[1]
+      } else if (sign_start == 1) {
+        which(sign(j) == -1)[1]
+      }
+      abort(
+        c(
+          `!` = sprintf("Can't subset columns with `%s`.", deparse(j_arg)),
+          x = "Negative and positive locations can't be mixed.",
+          i = sprintf(
+            "Subscript `%s` has a %s value at location %s.",
+            deparse(j_arg),
+            if (sign_start == 1) "negative" else "positive",
+            loc
+          )
+        ),
+        call = error_env
+      )
     }
-
-    # Don't do this too early because x[, TRUE, drop = TRUE] mustn't drop if
-    # x has more than 1 column
-    if (length(to_select) > 1) {
-      drop <- FALSE
+  } else if (is_character(j)) {
+    non_existent_cols <- setdiff(j, cols)
+    if (length(non_existent_cols) > 0L) {
+      abort(
+        c(
+          "Can't subset columns that don't exist.",
+          x = sprintf(
+            "Columns %s don't exist.",
+            oxford_comma(sprintf("`%s`", non_existent_cols), final = "and")
+          )
+        ),
+        call = error_env
+      )
+    } else {
+      j
     }
-
-    x <- x$select(to_select)
+  } else if (is_logical(j)) {
+    length_j <- length(j)
+    if (length_j %in% c(1L, n_cols)) {
+      cols[j]
+    } else {
+      abort(
+        c(
+          `!` = sprintf("Can't subset columns with `%s`.", deparse(j_arg)),
+          i = sprintf(
+            "Logical subscript `%s` must be size 1 or %s, not %s",
+            deparse(j_arg),
+            n_cols,
+            length_j
+          )
+        ),
+        call = error_env
+      )
+    }
   }
 
-  if (isTRUE(drop)) {
+  x <- x$select(to_select)
+
+  if (isTRUE(drop) && ncol(x) == 1L) {
     x$get_columns()[[1]]
   } else {
     x
