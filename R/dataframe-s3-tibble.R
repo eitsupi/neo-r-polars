@@ -41,13 +41,27 @@ as_tibble.polars_data_frame <- function(
   ambiguous = c("raise", "earliest", "latest", "null"),
   non_existent = c("raise", "null")
 ) {
-  int64 <- use_option_if_missing(int64, missing(int64), "double")
-  uint8 <- use_option_if_missing(uint8, missing(uint8), "integer")
-  date <- use_option_if_missing(date, missing(date), "Date")
-  time <- use_option_if_missing(time, missing(time), "hms")
-  decimal <- use_option_if_missing(decimal, missing(decimal), "double")
-  ambiguous <- use_option_if_missing(ambiguous, missing(ambiguous), "raise")
-  non_existent <- use_option_if_missing(non_existent, missing(non_existent), "raise")
+  if (missing(int64)) {
+    int64 <- missing_arg()
+  }
+  if (missing(uint8)) {
+    uint8 <- missing_arg()
+  }
+  if (missing(date)) {
+    date <- missing_arg()
+  }
+  if (missing(time)) {
+    time <- missing_arg()
+  }
+  if (missing(decimal)) {
+    decimal <- missing_arg()
+  }
+  if (missing(ambiguous)) {
+    ambiguous <- missing_arg()
+  }
+  if (missing(non_existent)) {
+    non_existent <- missing_arg()
+  }
   as_polars_df(x, ...)$to_struct()$to_r_vector(
     ensure_vector = FALSE,
     uint8 = uint8,

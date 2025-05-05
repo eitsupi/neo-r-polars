@@ -200,6 +200,14 @@ series__to_r_vector <- function(
   wrap({
     check_dots_empty0(...)
 
+    int64 <- use_option_if_missing(int64, missing(int64), "double")
+    uint8 <- use_option_if_missing(uint8, missing(uint8), "integer")
+    date <- use_option_if_missing(date, missing(date), "Date")
+    time <- use_option_if_missing(time, missing(time), "hms")
+    decimal <- use_option_if_missing(decimal, missing(decimal), "double")
+    ambiguous <- use_option_if_missing(ambiguous, missing(ambiguous), "raise")
+    non_existent <- use_option_if_missing(non_existent, missing(non_existent), "raise")
+
     uint8 <- arg_match0(uint8, c("integer", "raw"))
     int64 <- arg_match0(int64, c("double", "character", "integer", "integer64"))
     date <- arg_match0(date, c("Date", "IDate"))

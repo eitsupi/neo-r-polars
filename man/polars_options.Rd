@@ -18,8 +18,8 @@ values are option values.
 \description{
 \code{polars_options()} returns a list of options for polars. Options
 can be set with \code{\link[=options]{options()}}. Note that \strong{options must be prefixed with
-"polars."}, e.g to modify the option \code{to_r_vector_int64} you need to pass
-\code{options(polars.to_r_vector_int64 =)}. See below for a description of all
+"polars."}, e.g to modify the option \code{to_r_vector.int64} you need to pass
+\code{options(polars.to_r_vector.int64 =)}. See below for a description of all
 options.
 
 \code{polars_options_reset()} brings all polars options back to their default
@@ -29,7 +29,7 @@ value.
 The following options are available (in alphabetical order, with the
 default value in parenthesis):
 \itemize{
-\item for all \verb{to_r_vector_*} options, see arguments of \link[=series__to_r_vector]{to_r_vector()}.
+\item for all \verb{to_r_vector.*} options, see arguments of \link[=series__to_r_vector]{to_r_vector()}.
 \item \code{df_knitr_print} (TODO: possible values??)
 }
 }
@@ -38,7 +38,7 @@ default value in parenthesis):
 library(hms)
 polars_options()
 withr::with_options(
-  list(polars.to_r_vector_int64 = "character"),
+  list(polars.to_r_vector.int64 = "character"),
   polars_options()
 )
 \dontshow{\}) # examplesIf}

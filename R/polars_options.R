@@ -3,8 +3,8 @@
 #' @description
 #' `polars_options()` returns a list of options for polars. Options
 #' can be set with [`options()`]. Note that **options must be prefixed with
-#' "polars."**, e.g to modify the option `from_int64` you need to pass
-#' `options(polars.from_int64 =)`. See below for a description of all
+#' "polars."**, e.g to modify the option `to_r_vector.int64` you need to pass
+#' `options(polars.to_r_vector.int64 =)`. See below for a description of all
 #' options.
 #'
 #' `polars_options_reset()` brings all polars options back to their default
@@ -13,7 +13,7 @@
 #' @details The following options are available (in alphabetical order, with the
 #'   default value in parenthesis):
 #'
-#' * for all `from_*` options, see arguments of [to_r_vector()][series__to_r_vector].
+#' * for all `to_r_vector.*` options, see arguments of [to_r_vector()][series__to_r_vector].
 #' * `df_knitr_print` (TODO: possible values??)
 #'
 #' @return
@@ -27,41 +27,41 @@
 #' library(hms)
 #' polars_options()
 #' withr::with_options(
-#'   list(polars.from_int64 = "character"),
+#'   list(polars.to_r_vector.int64 = "character"),
 #'   polars_options()
 #' )
 polars_options <- function() {
   out <- list(
     df_knitr_print = getOption("polars.df_knitr_print") %||% "auto",
-    from_int64 = getOption("polars.from_int64") %||% "double",
-    from_uint8 = getOption("polars.from_uint8") %||% "integer",
-    from_date = getOption("polars.from_date") %||% "Date",
-    from_time = getOption("polars.from_time") %||% "hms",
-    from_decimal = getOption("polars.from_decimal") %||% "double",
-    from_ambiguous = getOption("polars.from_ambiguous") %||% "raise",
-    from_non_existent = getOption("polars.from_non_existent") %||% "raise"
+    to_r_vector.int64 = getOption("polars.to_r_vector.int64") %||% "double",
+    to_r_vector.uint8 = getOption("polars.to_r_vector.uint8") %||% "integer",
+    to_r_vector.date = getOption("polars.to_r_vector.date") %||% "Date",
+    to_r_vector.time = getOption("polars.to_r_vector.time") %||% "hms",
+    to_r_vector.decimal = getOption("polars.to_r_vector.decimal") %||% "double",
+    to_r_vector.ambiguous = getOption("polars.to_r_vector.ambiguous") %||% "raise",
+    to_r_vector.non_existent = getOption("polars.to_r_vector.non_existent") %||% "raise"
   )
 
   # TODO: complete possible values
   arg_match0(out[["df_knitr_print"]], c("auto"), arg_nm = "df_knitr_print")
   arg_match0(
-    out[["from_int64"]],
+    out[["to_r_vector.int64"]],
     c("double", "character", "integer", "integer64"),
-    arg_nm = "from_int64"
+    arg_nm = "to_r_vector.int64"
   )
-  arg_match0(out[["from_uint8"]], c("integer", "raw"), arg_nm = "from_uint8")
-  arg_match0(out[["from_date"]], c("Date", "IDate"), arg_nm = "from_date")
-  arg_match0(out[["from_time"]], c("hms", "ITime"), arg_nm = "from_time")
-  arg_match0(out[["from_decimal"]], c("double", "character"), arg_nm = "from_decimal")
+  arg_match0(out[["to_r_vector.uint8"]], c("integer", "raw"), arg_nm = "to_r_vector.uint8")
+  arg_match0(out[["to_r_vector.date"]], c("Date", "IDate"), arg_nm = "to_r_vector.date")
+  arg_match0(out[["to_r_vector.time"]], c("hms", "ITime"), arg_nm = "to_r_vector.time")
+  arg_match0(out[["to_r_vector.decimal"]], c("double", "character"), arg_nm = "to_r_vector.decimal")
   arg_match0(
-    out[["from_ambiguous"]],
+    out[["to_r_vector.ambiguous"]],
     c("raise", "earliest", "latest", "null"),
-    arg_nm = "from_ambiguous"
+    arg_nm = "to_r_vector.ambiguous"
   )
   arg_match0(
-    out[["from_non_existent"]],
+    out[["to_r_vector.non_existent"]],
     c("raise", "null"),
-    arg_nm = "from_non_existent"
+    arg_nm = "to_r_vector.non_existent"
   )
   structure(out, class = "polars_options")
 }
@@ -72,13 +72,13 @@ polars_options_reset <- function() {
   options(
     list(
       polars.df_knitr_print = "auto",
-      polars.from_int64 = "double",
-      polars.from_uint8 = "integer",
-      polars.from_date = "Date",
-      polars.from_time = "hms",
-      polars.from_decimal = "double",
-      polars.from_ambiguous = "raise",
-      polars.from_non_existent = "raise"
+      polars.to_r_vector.int64 = "double",
+      polars.to_r_vector.uint8 = "integer",
+      polars.to_r_vector.date = "Date",
+      polars.to_r_vector.time = "hms",
+      polars.to_r_vector.decimal = "double",
+      polars.to_r_vector.ambiguous = "raise",
+      polars.to_r_vector.non_existent = "raise"
     )
   )
 }
@@ -107,13 +107,13 @@ print.polars_options <- function(x, ...) {
 use_option_if_missing <- function(x, is_missing, default) {
   nm <- deparse(substitute(x))
   if (is_missing) {
-    x <- getOption(paste0("polars.from_", nm), default)
+    x <- getOption(paste0("polars.to_r_vector.", nm), default)
     if (!identical(x, default)) {
       inform(
         sprintf(
           '`%s` is overridden by the option "%s" with %s',
           nm,
-          paste0("polars.from_", nm),
+          paste0("polars.to_r_vector.", nm),
           rlang:::obj_type_friendly(x)
         ),
       )
