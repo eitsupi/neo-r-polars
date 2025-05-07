@@ -1,3 +1,4 @@
+# TODO: add engine_affinity
 #' Get and reset polars options
 #'
 #' @description
@@ -32,27 +33,31 @@
 #' )
 polars_options <- function() {
   out <- list(
-    df_knitr_print = getOption("polars.df_knitr_print") %||% "auto",
-    to_r_vector.int64 = getOption("polars.to_r_vector.int64") %||% "double",
-    to_r_vector.uint8 = getOption("polars.to_r_vector.uint8") %||% "integer",
-    to_r_vector.date = getOption("polars.to_r_vector.date") %||% "Date",
-    to_r_vector.time = getOption("polars.to_r_vector.time") %||% "hms",
-    to_r_vector.decimal = getOption("polars.to_r_vector.decimal") %||% "double",
-    to_r_vector.ambiguous = getOption("polars.to_r_vector.ambiguous") %||% "raise",
-    to_r_vector.non_existent = getOption("polars.to_r_vector.non_existent") %||% "raise"
+    df_knitr_print = getOption("polars.df_knitr_print", "auto"),
+    to_r_vector.uint8 = getOption("polars.to_r_vector.uint8", "integer"),
+    to_r_vector.int64 = getOption("polars.to_r_vector.int64", "double"),
+    to_r_vector.date = getOption("polars.to_r_vector.date", "Date"),
+    to_r_vector.time = getOption("polars.to_r_vector.time", "hms"),
+    to_r_vector.struct = getOption("polars.to_r_vector.struct", "dataframe"),
+    to_r_vector.as_clock_class = getOption("polars.to_r_vector.as_clock_class", FALSE),
+    to_r_vector.decimal = getOption("polars.to_r_vector.decimal", "double"),
+    to_r_vector.ambiguous = getOption("polars.to_r_vector.ambiguous", "raise"),
+    to_r_vector.non_existent = getOption("polars.to_r_vector.non_existent", "raise")
   )
 
   # TODO: complete possible values
   arg_match0(out[["df_knitr_print"]], c("auto"), arg_nm = "df_knitr_print")
+  arg_match0(out[["to_r_vector.uint8"]], c("integer", "raw"), arg_nm = "to_r_vector.uint8")
   arg_match0(
     out[["to_r_vector.int64"]],
     c("double", "character", "integer", "integer64"),
     arg_nm = "to_r_vector.int64"
   )
-  arg_match0(out[["to_r_vector.uint8"]], c("integer", "raw"), arg_nm = "to_r_vector.uint8")
   arg_match0(out[["to_r_vector.date"]], c("Date", "IDate"), arg_nm = "to_r_vector.date")
   arg_match0(out[["to_r_vector.time"]], c("hms", "ITime"), arg_nm = "to_r_vector.time")
+  arg_match0(out[["to_r_vector.struct"]], c("dataframe", "tibble"), arg_nm = "to_r_vector.struct")
   arg_match0(out[["to_r_vector.decimal"]], c("double", "character"), arg_nm = "to_r_vector.decimal")
+  check_bool(out[["to_r_vector.as_clock_class"]], arg = "to_r_vector.as_clock_class")
   arg_match0(
     out[["to_r_vector.ambiguous"]],
     c("raise", "earliest", "latest", "null"),
@@ -72,11 +77,13 @@ polars_options_reset <- function() {
   options(
     list(
       polars.df_knitr_print = "auto",
-      polars.to_r_vector.int64 = "double",
       polars.to_r_vector.uint8 = "integer",
+      polars.to_r_vector.int64 = "double",
       polars.to_r_vector.date = "Date",
       polars.to_r_vector.time = "hms",
+      polars.to_r_vector.struct = "dataframe",
       polars.to_r_vector.decimal = "double",
+      polars.to_r_vector.as_clock_class = FALSE,
       polars.to_r_vector.ambiguous = "raise",
       polars.to_r_vector.non_existent = "raise"
     )
@@ -104,17 +111,17 @@ print.polars_options <- function(x, ...) {
 #' @param is_missing Is `x` missing in the calling function?
 #' @param default The default of `x` in the calling function
 #' @noRd
-use_option_if_missing <- function(x, is_missing, default) {
+use_option_if_missing <- function(x, is_missing, default, prefix = "polars.") {
   nm <- deparse(substitute(x))
   if (is_missing) {
-    x <- getOption(paste0("polars.to_r_vector.", nm), default)
+    x <- getOption(paste0(prefix, nm), default)
     if (!identical(x, default)) {
       inform(
         sprintf(
           '`%s` is overridden by the option "%s" with %s',
           nm,
-          paste0("polars.to_r_vector.", nm),
-          rlang:::obj_type_friendly(x)
+          paste0(prefix, nm),
+          obj_type_friendly(x)
         ),
       )
     }

@@ -61,8 +61,7 @@ METHODS_EXCLUDE <- c(
 # TODO: support the mode argument
 #' @export
 as.vector.polars_series <- function(x, mode = "any") {
-  int64 <- use_option_if_missing(int64, TRUE, "double")
-  x$to_r_vector(ensure_vector = TRUE, int64 = int64) |>
+  x$to_r_vector(ensure_vector = TRUE) |>
     as.vector(mode = mode)
 }
 
