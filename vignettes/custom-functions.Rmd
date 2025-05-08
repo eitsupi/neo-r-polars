@@ -1,0 +1,115 @@
+---
+title: "Using custom functions or other R packages"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Using custom functions or other R packages}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(neopolars)
+```
+
+`polars` contains a large set of functions to manipulate variables, whether they are numerical, strings, dates, or other types.
+Still, it is sometimes necessary to apply custom functions either written by you or available in other R packages.
+This vignette details several ways to do that in the most computationally efficient way.
+
+## Writing functions using `polars` expressions
+
+One of `polars`' biggest strength is the composability of expressions.
+It is very easy to chain multiple functions to create custom functions.
+For example, `polars` doesn't provide a function to standardize a variable out-of-the-box, but we could definitely create one using expressions:
+
+```{r}
+pl_standardize <- function(x) {
+  (x - x$mean()) / x$std()
+}
+```
+
+And we can then run it in `$with_columns()` for instance:
+```{r}
+dat <- as_polars_df(mtcars[, c("carb", "mpg", "drat")])
+dat$with_columns(
+  carb_stand = pl_standardize(pl$col("carb"))
+)
+```
+
+## Using `purrr`
+
+`polars` expressions allow one to write their own functions, but it is sometimes necessary to use functions that already exist in other R packages.
+When this is the case, one should keep in mind that applying those functions that are external to `polars` will limit `polars`' strengths.
+In particular, `polars` is fast in part because it is able to detect the various transformations applied to the data and run them in parallel or cache them so that only the strict minimum of computations is made.
+Using `polars` expressions will also allow the code to be run in streaming mode, allowing for larger-than-memory data.
+When one uses functions that `polars` doesn't natively know, those benefits are lost.
+This is the reason why it is better to use `polars` expressions in your own functions if you can.
+
+To apply an external function to a `polars` object, one must convert this object to R, apply the function, and then convert it back to `polars`.
+Note that when you convert your `polars` object to R, you may run out of memory if your object is a LazyFrame that is too big to fit in memory once collected.
+Another crucial point is that we want the R function to run as fast as possible on the data.
+One way to do that is to take advantage of `purrr` to run the function [in parallel](https://purrr.tidyverse.org/dev/reference/parallelization.html).
+
+**Note:** at the time of writing, this requires the development version of `purrr` (1.0.4.9000).
+
+```{r}
+# Set the number of background processes to use
+mirai::daemons(3)
+
+dat |>
+  as.list(as_series = FALSE) |>
+  purrr::map(
+    \(s) {
+      stats::rnorm(s)
+    },
+    .parallel = TRUE
+  ) |>
+  _[] |>
+  as_polars_df()
+```
+
+Note that this applies the function on the entire DataFrame (or LazyFrame).
+To apply this to a subset of columns only, you can use `map_at()`:
+
+```{r}
+dat |>
+  as.list(as_series = FALSE) |>
+  purrr::map_at(
+    c("carb", "mpg"),
+    \(s) {
+      stats::rnorm(s)
+    },
+    .parallel = TRUE
+  ) |>
+  _[] |>
+  as_polars_df()
+```
+
+
+## Using `mirai`
+
+`mirai` is the package that is used by `purrr` in the background to run functions in parallel.
+It also provides functions mimicking the `purrr` API, such as `mirai_map()`:
+
+```{r}
+
+dat |>
+  as.list(as_series = FALSE) |>
+  mirai::mirai_map(
+    \(s) {
+      stats::rnorm(s)
+    }
+  ) |>
+  _[] |>
+  as_polars_df()
+```
+
+<!-- TODO: AFAIK (etienne) there's no equivalent to `purrr::map_at()`? -->
+
+<!-- Using `mirai` directly also allows more advanced usage, such as executing a query on a remote machine. This is not in the scope of this vignette and is addressed in [vignette to write](). -->
