@@ -55,6 +55,9 @@ as.list.polars_data_frame <- function(
   ambiguous = c("raise", "earliest", "latest", "null"),
   non_existent = c("raise", "null")
 ) {
+  if (missing(uint8)) {
+    uint8 <- missing_arg()
+  }
   if (missing(int64)) {
     int64 <- missing_arg()
   }
@@ -67,8 +70,14 @@ as.list.polars_data_frame <- function(
   if (missing(time)) {
     time <- missing_arg()
   }
+  if (missing(struct)) {
+    struct <- missing_arg()
+  }
   if (missing(decimal)) {
     decimal <- missing_arg()
+  }
+  if (missing(as_clock_class)) {
+    as_clock_class <- missing_arg()
   }
   if (missing(ambiguous)) {
     ambiguous <- missing_arg()
@@ -124,6 +133,9 @@ as.data.frame.polars_data_frame <- function(
   ambiguous = c("raise", "earliest", "latest", "null"),
   non_existent = c("raise", "null")
 ) {
+  if (missing(uint8)) {
+    uint8 <- missing_arg()
+  }
   if (missing(int64)) {
     int64 <- missing_arg()
   }
@@ -138,6 +150,9 @@ as.data.frame.polars_data_frame <- function(
   }
   if (missing(decimal)) {
     decimal <- missing_arg()
+  }
+  if (missing(as_clock_class)) {
+    as_clock_class <- missing_arg()
   }
   if (missing(ambiguous)) {
     ambiguous <- missing_arg()
