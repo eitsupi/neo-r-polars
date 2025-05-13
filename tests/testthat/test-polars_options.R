@@ -51,9 +51,24 @@ patrick::with_parameters_test_that(
       "polars.to_r_vector.decimal", "character",
       "polars.to_r_vector.as_clock_class", FALSE,
       "polars.to_r_vector.as_clock_class", TRUE,
+      "polars.to_r_vector.ambiguous", "raise",
+      "polars.to_r_vector.ambiguous", "earliest",
+      "polars.to_r_vector.ambiguous", "latest",
+      "polars.to_r_vector.ambiguous", "null",
+      "polars.to_r_vector.non_existent", "raise",
+      "polars.to_r_vector.non_existent", "null",
     )[-1, ] # remove the first dummy row
   },
   {
+    # Since the default value of each argument is "raise",
+    # if we do not exclude the naive time columns, all the tests will raise an error.
+    columns_to_drop <- switch(
+      opt_name,
+      polars.to_r_vector.as_clock_class = ifelse(opt_value, "", "^datetime_naive_may_.*$"),
+      polars.to_r_vector.ambiguous = "datetime_naive_may_non_existent",
+      polars.to_r_vector.non_existent = "datetime_naive_may_ambiguous",
+      "^datetime_naive_may_.*$"
+    )
     df <- pl$DataFrame(
       uint8 = as_polars_series(1:3)$cast(pl$UInt8),
       int64 = as_polars_series(1:3)$cast(pl$Int64),
@@ -62,22 +77,35 @@ patrick::with_parameters_test_that(
       struct = as_polars_series(data.frame(a = 1:3)),
       decimal = as_polars_series(1:3)$cast(pl$Decimal(10, 2)),
       duration = as_polars_series(1:3)$cast(pl$Duration("ms")),
-      datetime_without_tz = as_polars_series(1:3)$cast(pl$Datetime("ms")),
       datetime_with_tz = as_polars_series(1:3)$cast(pl$Datetime("ms", "Europe/London")),
-    )
+      datetime_naive_should_not_raise = as_polars_series(1:3)$cast(pl$Datetime("ms")),
+      datetime_naive_may_ambiguous = as_polars_series(c(
+        "2020-11-01 00:00:00",
+        "2020-11-01 01:00:00",
+        "2020-11-01 02:00:00"
+      ))$str$strptime(pl$Datetime("ms")),
+      datetime_naive_may_non_existent = as_polars_series(c(
+        "2020-03-08 00:00:00",
+        "2020-03-08 01:00:00",
+        "2020-03-08 02:00:00"
+      ))$str$strptime(pl$Datetime("ms")),
+    )$select(cs$exclude(columns_to_drop))
+
     series <- df$to_struct()
+    # Expect the following cases, the naive columns are dropped or treated without error
+    error <- identical(opt_value, "raise")
     withr::with_options(
       c(
         opt_value |>
           rlang::set_names(opt_name),
         list(width = 200) # To print all columns of tibble
       ),
-      withr::with_timezone("UTC", {
-        expect_snapshot(series$to_r_vector())
-        expect_snapshot(as.vector(series))
-        expect_snapshot(as.data.frame(df))
-        expect_snapshot(as.list(df, as_series = FALSE))
-        expect_snapshot(tibble::as_tibble(df))
+      withr::with_timezone("America/New_York", {
+        expect_snapshot(series$to_r_vector(), error = error)
+        expect_snapshot(as.vector(series), error = error)
+        expect_snapshot(as.data.frame(df), error = error)
+        expect_snapshot(as.list(df, as_series = FALSE), error = error)
+        expect_snapshot(tibble::as_tibble(df), error = error)
       })
     )
   }
