@@ -122,7 +122,7 @@ use_option_if_missing <- function(x, is_missing, default, prefix = "polars.") {
           nm,
           paste0(prefix, nm),
           obj_type_friendly(x)
-        ),
+        )
       )
     }
   }
