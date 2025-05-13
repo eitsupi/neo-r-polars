@@ -39,8 +39,8 @@ polars_options <- function() {
     to_r_vector.date = getOption("polars.to_r_vector.date", "Date"),
     to_r_vector.time = getOption("polars.to_r_vector.time", "hms"),
     to_r_vector.struct = getOption("polars.to_r_vector.struct", "dataframe"),
-    to_r_vector.as_clock_class = getOption("polars.to_r_vector.as_clock_class", FALSE),
     to_r_vector.decimal = getOption("polars.to_r_vector.decimal", "double"),
+    to_r_vector.as_clock_class = getOption("polars.to_r_vector.as_clock_class", FALSE),
     to_r_vector.ambiguous = getOption("polars.to_r_vector.ambiguous", "raise"),
     to_r_vector.non_existent = getOption("polars.to_r_vector.non_existent", "raise")
   )

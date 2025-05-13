@@ -47,9 +47,6 @@ as_tibble.polars_data_frame <- function(
   if (missing(int64)) {
     int64 <- missing_arg()
   }
-  if (missing(uint8)) {
-    uint8 <- missing_arg()
-  }
   if (missing(date)) {
     date <- missing_arg()
   }
