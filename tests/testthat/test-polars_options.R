@@ -64,9 +64,16 @@ patrick::with_parameters_test_that(
     # if we do not exclude the naive time columns, all the tests will raise an error.
     columns_to_drop <- switch(
       opt_name,
+      # If the option `as_clock_class` is `TRUE`, all naive datetime can be exported safely.
+      # Otherwise, may be error by default.
       polars.to_r_vector.as_clock_class = ifelse(opt_value, "", "^datetime_naive_may_.*$"),
+      # If the option is `ambiguous` is specified, naive datetime which may be ambiguous in the timezone
+      # may be exported safely. But non existent datetime causes error.
       polars.to_r_vector.ambiguous = "datetime_naive_may_non_existent",
+      # If the option is `non_existent` is specified, naive datetime which may be non existent in the timezone
+      # may be exported safely. But ambiguous datetime causes error.
       polars.to_r_vector.non_existent = "datetime_naive_may_ambiguous",
+      # By default, naive datetime can't be exported safely in timezone which has DST.
       "^datetime_naive_may_.*$"
     )
     df <- pl$DataFrame(
