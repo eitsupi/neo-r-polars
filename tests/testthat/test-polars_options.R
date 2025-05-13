@@ -67,11 +67,11 @@ patrick::with_parameters_test_that(
       # If the option `as_clock_class` is `TRUE`, all naive datetime can be exported safely.
       # Otherwise, may be error by default.
       polars.to_r_vector.as_clock_class = ifelse(opt_value, "", "^datetime_naive_may_.*$"),
-      # If the option is `ambiguous` is specified, naive datetime which may be ambiguous in the timezone
+      # If the option `ambiguous` is specified, naive datetime which is ambiguous in the timezone
       # may be exported safely. But non existent datetime causes error.
       polars.to_r_vector.ambiguous = "datetime_naive_may_non_existent",
-      # If the option is `non_existent` is specified, naive datetime which may be non existent in the timezone
-      # may be exported safely. But ambiguous datetime causes error.
+      # If the option `non_existent` is specified, naive datetime which is non existent
+      # in the timezone may be exported safely. But ambiguous datetime causes error.
       polars.to_r_vector.non_existent = "datetime_naive_may_ambiguous",
       # By default, naive datetime can't be exported safely in timezone which has DST.
       "^datetime_naive_may_.*$"
