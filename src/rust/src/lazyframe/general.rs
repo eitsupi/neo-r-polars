@@ -1206,6 +1206,9 @@ impl PlRLazyFrame {
         row_group_size: Option<NumericScalar>,
         data_page_size: Option<NumericScalar>,
         storage_options: Option<StringSexp>,
+        // TODO: support these arguments
+        // metadata,
+        // field_overwrites,
     ) -> Result<Self> {
         let path: PathBuf = path.into();
         let statistics = StatisticsOptions {
@@ -1234,6 +1237,8 @@ impl PlRLazyFrame {
             statistics,
             row_group_size,
             data_page_size,
+            key_value_metadata: None,
+            field_overwrites: vec![],
         };
         let cloud_options = match storage_options {
             Some(x) => {

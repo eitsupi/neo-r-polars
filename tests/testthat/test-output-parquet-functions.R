@@ -104,6 +104,8 @@ test_that("write_parquet: argument 'statistics'", {
 })
 
 test_that("write_parquet can create a hive partition", {
+  skip("partitioning is no longer supported")
+
   temp_dir <- withr::local_tempdir()
   dat <- as_polars_df(mtcars)
   on.exit(unlink(temp_dir))
@@ -155,6 +157,8 @@ test_that("write_parquet can create a hive partition", {
 })
 
 test_that("polars and arrow create the same hive partition", {
+  skip("partitioning is no longer supported")
+
   skip_if_not_installed("arrow")
 
   # arrow
