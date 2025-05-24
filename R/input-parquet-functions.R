@@ -67,14 +67,15 @@
 #' as_polars_df(mtcars)$write_parquet(temp_file)
 #' pl$scan_parquet(temp_file)$collect()
 #'
-#' # Write a hive-style partitioned parquet dataset
-#' temp_dir <- withr::local_tempdir()
-#' as_polars_df(mtcars)$write_parquet(temp_dir, partition_by = c("cyl", "gear"))
-#' list.files(temp_dir, recursive = TRUE)
-#'
-#' # If the path is a folder, Polars automatically tries to detect partitions
-#' # and includes them in the output
-#' pl$scan_parquet(temp_dir)$collect()
+# TODO: readd this example once partitioning is supported
+# # Write a hive-style partitioned parquet dataset
+# temp_dir <- withr::local_tempdir()
+# as_polars_df(mtcars)$write_parquet(temp_dir, partition_by = c("cyl", "gear"))
+# list.files(temp_dir, recursive = TRUE)
+#
+# # If the path is a folder, Polars automatically tries to detect partitions
+# # and includes them in the output
+# pl$scan_parquet(temp_dir)$collect()
 pl__scan_parquet <- function(
   source,
   ...,
@@ -146,14 +147,15 @@ pl__scan_parquet <- function(
 #' as_polars_df(mtcars)$write_parquet(temp_file)
 #' pl$read_parquet(temp_file)
 #'
-#' # Write a hive-style partitioned parquet dataset
-#' temp_dir <- withr::local_tempdir()
-#' as_polars_df(mtcars)$write_parquet(temp_dir, partition_by = c("cyl", "gear"))
-#' list.files(temp_dir, recursive = TRUE)
-#'
-#' # If the path is a folder, Polars automatically tries to detect partitions
-#' # and includes them in the output
-#' pl$read_parquet(temp_dir)
+# TODO: readd this example once partitioning is supported
+# # Write a hive-style partitioned parquet dataset
+# temp_dir <- withr::local_tempdir()
+# as_polars_df(mtcars)$write_parquet(temp_dir, partition_by = c("cyl", "gear"))
+# list.files(temp_dir, recursive = TRUE)
+#
+# # If the path is a folder, Polars automatically tries to detect partitions
+# # and includes them in the output
+# pl$read_parquet(temp_dir)
 pl__read_parquet <- function(
   source,
   ...,

@@ -99,13 +99,9 @@ dataframe__write_ipc <- function(
 ) {
   wrap({
     check_dots_empty0(...)
-    compression <- arg_match0(
-      compression %||% "uncompressed",
-      values = c("zstd", "lz4", "uncompressed")
-    )
-    compat_level <- arg_match_compat_level(compat_level)
 
-    self$`_df`$write_ipc(
+    # TODO: Update like https://github.com/pola-rs/polars/pull/22582
+    self$lazy()$sink_ipc(
       path = path,
       compression = compression,
       compat_level = compat_level,

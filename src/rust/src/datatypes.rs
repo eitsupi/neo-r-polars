@@ -60,7 +60,7 @@ impl std::fmt::Display for PlRDataType {
                     "Datetime(time_unit='{}', time_zone={})",
                     time_unit.to_ascii(),
                     match time_zone {
-                        Some(tz) => tz.to_string(),
+                        Some(tz) => format!("'{}'", tz),
                         None => "NULL".to_string(),
                     }
                 )

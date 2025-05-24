@@ -4,7 +4,7 @@
 \alias{expr__map_batches}
 \title{Apply a custom R function to a whole Series or sequence of Series.}
 \usage{
-expr__map_batches(lambda, return_dtype = NULL, ..., agg_list = FALSE)
+expr__map_batches(lambda, return_dtype = NULL, ...)
 }
 \arguments{
 \item{lambda}{Function to apply.}
@@ -15,11 +15,6 @@ the function. This can lead to unexpected results, so it is recommended to
 provide the return dtype.}
 
 \item{...}{These dots are for future extensions and must be empty.}
-
-\item{agg_list}{Aggregate the values of the expression into a list before
-applying the function. This parameter only works in a group-by context. The
-function will be invoked only once on a list of groups, rather than once per
-group.}
 }
 \value{
 A polars \link{expression}

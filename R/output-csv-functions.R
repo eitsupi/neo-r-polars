@@ -168,13 +168,9 @@ dataframe__write_csv <- function(
 ) {
   wrap({
     check_dots_empty0(...)
-    check_arg_is_1byte("separator", separator)
-    check_arg_is_1byte("quote_char", quote_char)
-    quote_style <- arg_match0(
-      quote_style,
-      values = c("necessary", "always", "never", "non_numeric")
-    )
-    self$`_df`$write_csv(
+
+    # TODO: Update like https://github.com/pola-rs/polars/pull/22582
+    self$lazy()$sink_csv(
       path = file,
       include_bom = include_bom,
       include_header = include_header,

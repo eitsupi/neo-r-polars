@@ -59,13 +59,6 @@
       ! Evaluation failed in `$collect()`.
       Caused by error:
       ! Invalid operation: list.gather operation not supported for dtypes `list[i32]` and `list[f64]`
-      
-      Resolved plan until failure:
-      
-      	---> FAILED HERE RESOLVING 'sink' <---
-       WITH_COLUMNS:
-       [col("x").list.gather([[1.0]])] 
-        DF ["x"]; PROJECT */1 COLUMNS
 
 ---
 

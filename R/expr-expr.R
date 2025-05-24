@@ -1036,10 +1036,10 @@ expr__over <- function(
     mapping_strategy <- arg_match0(mapping_strategy, c("group_to_rows", "join", "explode"))
 
     self$`_rexpr`$over(
-      partition_by,
       order_by = order_by,
       order_by_descending = FALSE, # does not work yet
       order_by_nulls_last = FALSE, # does not work yet
+      partition_by = partition_by,
       mapping_strategy = mapping_strategy
     )
   })
@@ -1095,11 +1095,11 @@ expr__filter <- function(...) {
 #' dtype will be inferred based on the first non-null value that is returned by
 #' the function. This can lead to unexpected results, so it is recommended to
 #' provide the return dtype.
-#' @param agg_list Aggregate the values of the expression into a list before
-#' applying the function. This parameter only works in a group-by context. The
-#' function will be invoked only once on a list of groups, rather than once per
-#' group.
 # TODO: uncomment when those arguments are supported
+# @param agg_list Aggregate the values of the expression into a list before
+# applying the function. This parameter only works in a group-by context. The
+# function will be invoked only once on a list of groups, rather than once per
+# group.
 # @param is_elementwise If `TRUE`, this can run in the streaming engine, but
 # may yield incorrect results in group-by. Ensure you know what you are doing!
 # @param returns_scalar If the function returns a scalar, by default it will
@@ -1172,8 +1172,7 @@ expr__filter <- function(...) {
 expr__map_batches <- function(
   lambda,
   return_dtype = NULL,
-  ...,
-  agg_list = FALSE
+  ...
 ) {
   wrap({
     check_dots_empty0(...)
@@ -1184,8 +1183,7 @@ expr__map_batches <- function(
       lambda = function(series) {
         as_polars_series(lambda(wrap(.savvy_wrap_PlRSeries(series))))$`_s`
       },
-      output_type = return_dtype$`_dt`,
-      agg_list = agg_list
+      output_type = return_dtype$`_dt`
     )
   })
 }
