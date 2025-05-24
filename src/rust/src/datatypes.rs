@@ -63,7 +63,10 @@ impl std::fmt::Display for PlRDataType {
                     f,
                     "Datetime(time_unit='{}', time_zone={})",
                     time_unit.to_ascii(),
-                    opt_string_to_string(time_zone.clone())
+                    match time_zone {
+                        Some(tz) => tz.to_string(),
+                        None => "NULL".to_string(),
+                    }
                 )
             }
             DataType::Duration(time_unit) => {
@@ -159,7 +162,7 @@ impl PlRDataType {
 
     pub fn new_datetime(time_unit: &str, time_zone: Option<&str>) -> Result<Self> {
         let time_unit = <Wrap<TimeUnit>>::try_from(time_unit)?.0;
-        let time_zone: Option<PlSmallStr> = time_zone.map(|s| s.into());
+        let time_zone = <Wrap<Option<TimeZone>>>::try_from(time_zone)?.0;
         Ok(DataType::Datetime(time_unit, time_zone).into())
     }
 
