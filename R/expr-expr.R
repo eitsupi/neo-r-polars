@@ -1118,35 +1118,36 @@ expr__filter <- function(...) {
 #'   which.max(elems)
 #' }))
 #'
-#' # In a group-by context, the `agg_list` parameter can improve performance if
-#' # used correctly. The following example has `agg_list = FALSE`, which causes
-#' # the function to be applied once per group. The input of the function is a
-#' # Series of type Int64. This is less efficient.
-#' df <- pl$DataFrame(
-#'   a = c(0, 1, 0, 1),
-#'   b = c(1, 2, 3, 4)
-#' )
-#' system.time({
-#'   print(
-#'     df$group_by("a")$agg(
-#'       pl$col("b")$map_batches(\(x) x + 2, agg_list = FALSE)
-#'     )
-#'   )
-#' })
-#'
-#' # Using `agg_list = TRUE` would be more efficient. In this example, the input
-#' # of the function is a Series of type List(Int64).
-#' system.time({
-#'   print(
-#'     df$group_by("a")$agg(
-#'       pl$col("b")$map_batches(
-#'         \(x) x$list$eval(pl$element() + 2),
-#'         agg_list = TRUE
-#'       )
-#'     )
-#'   )
-#' })
-#'
+# TODO: uncomment when agg_list is supported
+# # In a group-by context, the `agg_list` parameter can improve performance if
+# # used correctly. The following example has `agg_list = FALSE`, which causes
+# # the function to be applied once per group. The input of the function is a
+# # Series of type Int64. This is less efficient.
+# df <- pl$DataFrame(
+#   a = c(0, 1, 0, 1),
+#   b = c(1, 2, 3, 4)
+# )
+# system.time({
+#   print(
+#     df$group_by("a")$agg(
+#       pl$col("b")$map_batches(\(x) x + 2, agg_list = FALSE)
+#     )
+#   )
+# })
+#
+# # Using `agg_list = TRUE` would be more efficient. In this example, the input
+# # of the function is a Series of type List(Int64).
+# system.time({
+#   print(
+#     df$group_by("a")$agg(
+#       pl$col("b")$map_batches(
+#         \(x) x$list$eval(pl$element() + 2),
+#         agg_list = TRUE
+#       )
+#     )
+#   )
+# })
+#
 # TODO: uncomment when returns_scalar is supported
 # # Here’s an example of a function that returns a scalar, where we want it to
 # # stay as a scalar:

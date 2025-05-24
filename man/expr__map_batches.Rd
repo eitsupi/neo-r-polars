@@ -41,35 +41,6 @@ df$select(pl$all()$map_batches(\(x) {
   which.max(elems)
 }))
 
-# In a group-by context, the `agg_list` parameter can improve performance if
-# used correctly. The following example has `agg_list = FALSE`, which causes
-# the function to be applied once per group. The input of the function is a
-# Series of type Int64. This is less efficient.
-df <- pl$DataFrame(
-  a = c(0, 1, 0, 1),
-  b = c(1, 2, 3, 4)
-)
-system.time({
-  print(
-    df$group_by("a")$agg(
-      pl$col("b")$map_batches(\(x) x + 2, agg_list = FALSE)
-    )
-  )
-})
-
-# Using `agg_list = TRUE` would be more efficient. In this example, the input
-# of the function is a Series of type List(Int64).
-system.time({
-  print(
-    df$group_by("a")$agg(
-      pl$col("b")$map_batches(
-        \(x) x$list$eval(pl$element() + 2),
-        agg_list = TRUE
-      )
-    )
-  )
-})
-
 
 # Call a function that takes multiple arguments by creating a struct and
 # referencing its fields inside the function call.
