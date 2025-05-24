@@ -8,12 +8,12 @@ impl PlRExpr {
         Ok(self.inner.clone().list().len().into())
     }
 
-    pub fn list_contains(&self, other: &PlRExpr) -> Result<Self> {
+    pub fn list_contains(&self, other: &PlRExpr, nulls_equal: bool) -> Result<Self> {
         Ok(self
             .inner
             .clone()
             .list()
-            .contains(other.inner.clone())
+            .contains(other.inner.clone(), nulls_equal)
             .into())
     }
 

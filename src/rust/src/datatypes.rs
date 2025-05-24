@@ -45,10 +45,6 @@ impl std::fmt::Display for PlRDataType {
             opt.map_or_else(|| "NULL".to_string(), |v| v.to_string())
         }
 
-        fn opt_string_to_string(opt: Option<PlSmallStr>) -> String {
-            opt.map_or_else(|| "NULL".to_string(), |v| format!("'{v}'"))
-        }
-
         match &self.dt {
             DataType::Decimal(precision, scale) => {
                 write!(

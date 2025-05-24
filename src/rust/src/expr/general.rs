@@ -1,5 +1,5 @@
 use crate::map::lazy::map_single;
-use crate::{PlRDataType, PlRExpr, prelude::*};
+use crate::{PlRDataType, PlRExpr, RPolarsErr, prelude::*};
 use polars::lazy::dsl;
 use polars::series::ops::NullBehavior;
 use polars_core::chunked_array::cast::CastOptions;
@@ -234,13 +234,13 @@ impl PlRExpr {
 
     fn over(
         &self,
-        partition_by: ListSexp,
         order_by_descending: bool,
         order_by_nulls_last: bool,
         mapping_strategy: &str,
+        partition_by: Option<ListSexp>,
         order_by: Option<ListSexp>,
     ) -> Result<Self> {
-        let partition_by = <Wrap<Vec<Expr>>>::from(partition_by).0;
+        let partition_by = partition_by.map(|v| <Wrap<Vec<Expr>>>::from(v).0);
         let order_by = order_by.map(|order_by| {
             (
                 <Wrap<Vec<Expr>>>::from(order_by).0,
@@ -258,6 +258,7 @@ impl PlRExpr {
             .inner
             .clone()
             .over_with_options(partition_by, order_by, mapping_strategy)
+            .map_err(RPolarsErr::from)?
             .into())
     }
 
@@ -299,13 +300,8 @@ impl PlRExpr {
         Ok(self.inner.clone().all(ignore_nulls).into())
     }
 
-    fn map_batches(
-        &self,
-        lambda: FunctionSexp,
-        agg_list: bool,
-        output_type: Option<&PlRDataType>,
-    ) -> Result<Self> {
-        map_single(self, lambda, output_type, agg_list)
+    fn map_batches(&self, lambda: FunctionSexp, output_type: Option<&PlRDataType>) -> Result<Self> {
+        map_single(self, lambda, output_type)
     }
 
     fn cum_sum(&self, reverse: bool) -> Result<Self> {

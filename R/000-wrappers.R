@@ -978,9 +978,9 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
 }
 
 `PlRExpr_arr_contains` <- function(self) {
-  function(`other`) {
+  function(`other`, `nulls_equal`) {
     `other` <- .savvy_extract_ptr(`other`, "PlRExpr")
-    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_arr_contains__impl, `self`, `other`))
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_arr_contains__impl, `self`, `other`, `nulls_equal`))
   }
 }
 
@@ -1913,9 +1913,9 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
 }
 
 `PlRExpr_list_contains` <- function(self) {
-  function(`other`) {
+  function(`other`, `nulls_equal`) {
     `other` <- .savvy_extract_ptr(`other`, "PlRExpr")
-    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_list_contains__impl, `self`, `other`))
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_list_contains__impl, `self`, `other`, `nulls_equal`))
   }
 }
 
@@ -2121,9 +2121,9 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
 }
 
 `PlRExpr_map_batches` <- function(self) {
-  function(`lambda`, `agg_list`, `output_type` = NULL) {
+  function(`lambda`, `output_type` = NULL) {
     `output_type` <- .savvy_extract_ptr(`output_type`, "PlRDataType")
-    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_map_batches__impl, `self`, `lambda`, `agg_list`, `output_type`))
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_map_batches__impl, `self`, `lambda`, `output_type`))
   }
 }
 
@@ -2319,8 +2319,8 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
 }
 
 `PlRExpr_over` <- function(self) {
-  function(`partition_by`, `order_by_descending`, `order_by_nulls_last`, `mapping_strategy`, `order_by` = NULL) {
-    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_over__impl, `self`, `partition_by`, `order_by_descending`, `order_by_nulls_last`, `mapping_strategy`, `order_by`))
+  function(`order_by_descending`, `order_by_nulls_last`, `mapping_strategy`, `partition_by` = NULL, `order_by` = NULL) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_over__impl, `self`, `order_by_descending`, `order_by_nulls_last`, `mapping_strategy`, `partition_by`, `order_by`))
   }
 }
 
