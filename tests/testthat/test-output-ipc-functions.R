@@ -48,8 +48,10 @@ patrick::with_parameters_test_that(
   code = {
     df <- pl$DataFrame(
       int = 1:3,
-      chr = letters[1:3],
-      cat = factor(letters[1:3]),
+      # TODO: uncomment once the upstream issue is fixed
+      #   <https://github.com/pola-rs/polars/issues/22930>
+      # chr = letters[1:3],
+      # cat = factor(letters[1:3]),
     )
     tmpf <- withr::local_tempfile()
     expect_silent(df$write_ipc(tmpf, compression = compression, compat_level = compat_level))
