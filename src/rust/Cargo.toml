@@ -56,6 +56,11 @@ git = "https://github.com/pola-rs/polars.git"
 rev = "ee0903b7d8cf4ddfa2a2f342d9ab44dea6e67399"
 features = ["new_streaming"]
 
+[target.'cfg(not(target_os = "emscripten"))'.dependencies.polars-mem-engine]
+git = "https://github.com/pola-rs/polars.git"
+rev = "ee0903b7d8cf4ddfa2a2f342d9ab44dea6e67399"
+features = ["csv", "ipc", "json", "parquet"]
+
 [dependencies.polars]
 git = "https://github.com/pola-rs/polars.git"
 rev = "ee0903b7d8cf4ddfa2a2f342d9ab44dea6e67399"
