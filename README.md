@@ -3,6 +3,8 @@
 
 # polars
 
+<!-- TODO: add link to discord -->
+
 <!-- badges: start -->
 
 [![R-multiverse
@@ -11,8 +13,6 @@ status](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fcommunity.r-
 badge](https://rpolars.r-universe.dev/badges/polars)](https://rpolars.r-universe.dev)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/polars)](https://CRAN.R-project.org/package=polars)
-[![Dev
-R-CMD-check](https://github.com/pola-rs/r-polars/actions/workflows/check.yaml/badge.svg)](https://github.com/pola-rs/r-polars/actions/workflows/check.yaml)
 [![Docs dev
 version](https://img.shields.io/badge/docs-dev-blue.svg)](https://pola-rs.github.io/r-polars)
 <!-- badges: end -->
@@ -32,10 +32,13 @@ memory model.
 - Hybrid Streaming (larger-than-RAM datasets)
 - Rust \| Python \| NodeJS \| R \| …
 
-This `{polars}` R package provides the R bindings for Polars.
+This `{polars}` R package provides the R bindings for Polars. It can be
+used to convert R DataFrames to Polars DataFrames and vice versa, as
+well as to integrate with other common R packages.
 
 To learn more, read the [online
-documentation](https://pola-rs.github.io/r-polars/).
+documentation](https://pola-rs.github.io/r-polars/) for this R package,
+and the [user guide](https://docs.pola.rs/) for Python / Rust Polars.
 
 ## Installation
 
@@ -107,3 +110,5 @@ different syntaxes:
 - [tidypolars](https://tidypolars.etiennebacher.com/) allows one to use
   the [tidyverse](https://www.tidyverse.org/) syntax while using the
   power of polars.
+
+<!-- TODO: add governance section or something else -->
