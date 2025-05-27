@@ -118,12 +118,12 @@
 ---
 
     Code
-      as.vector(pl$Series("a", as.POSIXct("2020-01-01")))
+      as.vector(pl$Series("a", as.POSIXct("2020-01-01", tz = "UTC")))
     Message
-      `as.vector()` on a Polars Series of type datetime[ms] may drop some useful attributes.
+      `as.vector()` on a Polars Series of type datetime[ms, UTC] may drop some useful attributes.
       i It is recommended to use `$to_r_vector()` for finer control of the conversion from Polars to R.
     Output
-      [1] 1577833200
+      [1] 1577836800
 
 ---
 
