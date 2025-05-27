@@ -74,7 +74,7 @@ as.vector.polars_series <- function(x, mode = "any") {
           "`as.vector()` on a Polars Series of type %s may drop some useful attributes.",
           format(x$dtype, abbreviated = TRUE)
         ),
-        i = "It is recommended to use `$to_r_vector()` for finer control of the conversion from Polars to R."
+        i = "It is recommended to use `$to_r_vector()` for finer control of the conversion from Polars to R." # nolint: line_length_linter
       )
     )
   }
