@@ -31,3 +31,13 @@ test_that("S3 methods work", {
   expect_identical(mean(s), as_polars_series(1.5))
   expect_identical(median(s), as_polars_series(1.5))
 })
+
+test_that("as.vector() suggests $to_r_vector() for datatypes that need attributes", {
+  expect_silent(as.vector(pl$Series("a", 1:2)))
+
+  expect_snapshot(as.vector(pl$Series("a", 1:2)$cast(pl$Int64)))
+  expect_snapshot(as.vector(pl$Series("a", 1:2)$cast(pl$UInt8)))
+  expect_snapshot(as.vector(pl$Series("a", 1:2)$cast(pl$Decimal())))
+  expect_snapshot(as.vector(pl$Series("a", as.Date("2020-01-01"))))
+  expect_snapshot(as.vector(pl$Series("a", as.POSIXct("2020-01-01"))))
+})

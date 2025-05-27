@@ -75,3 +75,53 @@
       [208] "pct_change"             "bitwise_leading_ones"   "rolling_var"           
       [211] "arg_sort"               "repeat_by"              "mean"                  
 
+# as.vector() suggests $to_r_vector() for datatypes that need attributes
+
+    Code
+      as.vector(pl$Series("a", 1:2)$cast(pl$Int64))
+    Message
+      `as.vector()` on a Polars Series of type i64 may drop some useful attributes.
+      i It is recommended to use `$to_r_vector()` for finer control of the conversion from Polars to R.
+    Output
+      [1] 1 2
+
+---
+
+    Code
+      as.vector(pl$Series("a", 1:2)$cast(pl$UInt8))
+    Message
+      `as.vector()` on a Polars Series of type u8 may drop some useful attributes.
+      i It is recommended to use `$to_r_vector()` for finer control of the conversion from Polars to R.
+    Output
+      [1] 1 2
+
+---
+
+    Code
+      as.vector(pl$Series("a", 1:2)$cast(pl$Decimal()))
+    Message
+      `as.vector()` on a Polars Series of type decimal[*,0] may drop some useful attributes.
+      i It is recommended to use `$to_r_vector()` for finer control of the conversion from Polars to R.
+    Output
+      [1] 1 2
+
+---
+
+    Code
+      as.vector(pl$Series("a", as.Date("2020-01-01")))
+    Message
+      `as.vector()` on a Polars Series of type date may drop some useful attributes.
+      i It is recommended to use `$to_r_vector()` for finer control of the conversion from Polars to R.
+    Output
+      [1] 18262
+
+---
+
+    Code
+      as.vector(pl$Series("a", as.POSIXct("2020-01-01")))
+    Message
+      `as.vector()` on a Polars Series of type datetime[ms] may drop some useful attributes.
+      i It is recommended to use `$to_r_vector()` for finer control of the conversion from Polars to R.
+    Output
+      [1] 1577833200
+

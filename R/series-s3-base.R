@@ -61,6 +61,23 @@ METHODS_EXCLUDE <- c(
 # TODO: support the mode argument
 #' @export
 as.vector.polars_series <- function(x, mode = "any") {
+  needs_attributes <- c(
+    "polars_dtype_temporal",
+    "polars_dtype_int64",
+    "polars_dtype_uint8",
+    "polars_dtype_decimal"
+  )
+  if (inherits(x$dtype, needs_attributes)) {
+    inform(
+      c(
+        sprintf(
+          "`as.vector()` on a Polars Series of type %s may drop some useful attributes.",
+          format(x$dtype, abbreviated = TRUE)
+        ),
+        i = "It is recommended to use `$to_r_vector()` for finer control of the conversion from Polars to R."
+      )
+    )
+  }
   x$to_r_vector(ensure_vector = TRUE) |>
     as.vector(mode = mode)
 }
