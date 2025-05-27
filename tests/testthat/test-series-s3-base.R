@@ -40,4 +40,7 @@ test_that("as.vector() suggests $to_r_vector() for datatypes that need attribute
   expect_snapshot(as.vector(pl$Series("a", 1:2)$cast(pl$Decimal())))
   expect_snapshot(as.vector(pl$Series("a", as.Date("2020-01-01"))))
   expect_snapshot(as.vector(pl$Series("a", as.POSIXct("2020-01-01"))))
+
+  skip_if_not_installed("hms")
+  expect_snapshot(as.vector(pl$Series("a", hms::hms(1, 2, 3))))
 })

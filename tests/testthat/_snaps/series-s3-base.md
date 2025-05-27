@@ -125,3 +125,13 @@
     Output
       [1] 1577833200
 
+---
+
+    Code
+      as.vector(pl$Series("a", hms::hms(1, 2, 3)))
+    Message
+      `as.vector()` on a Polars Series of type time may drop some useful attributes.
+      i It is recommended to use `$to_r_vector()` for finer control of the conversion from Polars to R.
+    Output
+      [1] 10921
+
