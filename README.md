@@ -50,49 +50,52 @@ Sys.setenv(NOT_CRAN = "true")
 install.packages("polars", repos = "https://community.r-multiverse.org")
 ```
 
+More recent (unstable) version may be installed from the rpolars
+R-universe repository:
+
+``` r
+Sys.setenv(NOT_CRAN = "true")
+install.packages('polars', repos = c("https://rpolars.r-universe.dev", "https://cloud.r-project.org"))
+```
+
+<!-- TODO: link to the installation vignette -->
+
 ## Usage
 
 To avoid conflicts with other packages and base R function names,
 `{polars}`’s top level functions are hosted in the `pl` environment, and
-accessible via the `pl$` prefix. This means that `polars` queries
-written in Python and in R are very similar.
+accessible via the `pl$` prefix. And, most of the methods for `{polars}`
+objects should be called with the `$` operator. This means that `polars`
+queries written in Python and in R are very similar.
 
-For example, rewriting the Python example from
-<https://github.com/pola-rs/polars> in R:
+For example, writing the [example from the user guide of
+Python/Rust](https://docs.pola.rs/#example) in R:
 
 ``` r
 library(neopolars) # TODO: rename to polars
 
-df <- pl$DataFrame(
-  A = 1:5,
-  fruits = c("banana", "banana", "apple", "apple", "banana"),
-  B = 5:1,
-  cars = c("beetle", "audi", "beetle", "beetle", "beetle"),
-)
+# Prepare a CSV file
+csv_file <- tempfile(fileext = ".csv")
+write.csv(iris, csv_file, row.names = FALSE)
 
-# embarrassingly parallel execution & very expressive query language
-df$sort("fruits")$select(
-  "fruits",
-  "cars",
-  pl$lit("fruits")$alias("literal_string_fruits"),
-  pl$col("B")$filter(pl$col("cars") == "beetle")$sum(),
-  pl$col("A")$filter(pl$col("B") > 2)$sum()$over("cars")$alias("sum_A_by_cars"),
-  pl$col("A")$sum()$over("fruits")$alias("sum_A_by_fruits"),
-  pl$col("A")$reverse()$over("fruits")$alias("rev_A_by_fruits"),
-  pl$col("A")$sort_by("B")$over("fruits")$alias("sort_A_by_B_by_fruits"),
-)
-#> shape: (5, 8)
-#> ┌────────┬────────┬───────────────────────┬─────┬───────────────┬─────────────────┬─────────────────┬───────────────────────┐
-#> │ fruits ┆ cars   ┆ literal_string_fruits ┆ B   ┆ sum_A_by_cars ┆ sum_A_by_fruits ┆ rev_A_by_fruits ┆ sort_A_by_B_by_fruits │
-#> │ ---    ┆ ---    ┆ ---                   ┆ --- ┆ ---           ┆ ---             ┆ ---             ┆ ---                   │
-#> │ str    ┆ str    ┆ str                   ┆ i32 ┆ i32           ┆ i32             ┆ i32             ┆ i32                   │
-#> ╞════════╪════════╪═══════════════════════╪═════╪═══════════════╪═════════════════╪═════════════════╪═══════════════════════╡
-#> │ apple  ┆ beetle ┆ fruits                ┆ 11  ┆ 4             ┆ 7               ┆ 4               ┆ 4                     │
-#> │ apple  ┆ beetle ┆ fruits                ┆ 11  ┆ 4             ┆ 7               ┆ 3               ┆ 3                     │
-#> │ banana ┆ beetle ┆ fruits                ┆ 11  ┆ 4             ┆ 8               ┆ 5               ┆ 5                     │
-#> │ banana ┆ audi   ┆ fruits                ┆ 11  ┆ 2             ┆ 8               ┆ 2               ┆ 2                     │
-#> │ banana ┆ beetle ┆ fruits                ┆ 11  ┆ 4             ┆ 8               ┆ 1               ┆ 1                     │
-#> └────────┴────────┴───────────────────────┴─────┴───────────────┴─────────────────┴─────────────────┴───────────────────────┘
+# Create a query plan (LazyFrame) with filtering and group aggregation
+q <- pl$scan_csv(csv_file)$filter(pl$col("Sepal.Length") > 5)$group_by(
+  "Species",
+  .maintain_order = TRUE
+)$agg(pl$all()$sum())
+
+# Execute the query plan and collect the result as a Polars DataFrame
+q$collect()
+#> shape: (3, 5)
+#> ┌────────────┬──────────────┬─────────────┬──────────────┬─────────────┐
+#> │ Species    ┆ Sepal.Length ┆ Sepal.Width ┆ Petal.Length ┆ Petal.Width │
+#> │ ---        ┆ ---          ┆ ---         ┆ ---          ┆ ---         │
+#> │ str        ┆ f64          ┆ f64         ┆ f64          ┆ f64         │
+#> ╞════════════╪══════════════╪═════════════╪══════════════╪═════════════╡
+#> │ setosa     ┆ 116.9        ┆ 81.7        ┆ 33.2         ┆ 6.1         │
+#> │ versicolor ┆ 281.9        ┆ 131.8       ┆ 202.9        ┆ 63.3        │
+#> │ virginica  ┆ 324.5        ┆ 146.2       ┆ 273.1        ┆ 99.6        │
+#> └────────────┴──────────────┴─────────────┴──────────────┴─────────────┘
 ```
 
 The [Get Started
