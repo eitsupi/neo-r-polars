@@ -61,13 +61,8 @@ METHODS_EXCLUDE <- c(
 # TODO: support the mode argument
 #' @export
 as.vector.polars_series <- function(x, mode = "any") {
-  needs_attributes <- c(
-    "polars_dtype_temporal",
-    "polars_dtype_int64",
-    "polars_dtype_uint8",
-    "polars_dtype_decimal"
-  )
-  if (inherits(x$dtype, needs_attributes)) {
+  out <- x$to_r_vector(ensure_vector = TRUE)
+  if (!is.null(attributes(out))) {
     inform(
       c(
         sprintf(
@@ -78,7 +73,8 @@ as.vector.polars_series <- function(x, mode = "any") {
       )
     )
   }
-  x$to_r_vector(ensure_vector = TRUE) |>
+
+  out |>
     as.vector(mode = mode)
 }
 
