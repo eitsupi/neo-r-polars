@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# polars
+# polars *(R Polars)*
 
 <!-- TODO: add link to discord -->
 
@@ -17,7 +17,7 @@ status](https://www.r-pkg.org/badges/version/polars)](https://CRAN.R-project.org
 version](https://img.shields.io/badge/docs-dev-blue.svg)](https://pola-rs.github.io/r-polars)
 <!-- badges: end -->
 
-## Overview
+Polars R bindings.
 
 Polars is a DataFrame interface on top of an OLAP Query Engine
 implemented in Rust using [Apache Arrow Columnar
@@ -32,15 +32,15 @@ memory model.
 - Hybrid Streaming (larger-than-RAM datasets)
 - Rust \| Python \| NodeJS \| R \| …
 
-This `{polars}` R package provides the R bindings for Polars. It can be
+This `polars` R package provides the R bindings for Polars. It can be
 used to convert R DataFrames to Polars DataFrames and vice versa, as
 well as to integrate with other common R packages.
 
 To learn more, read the [online
 documentation](https://pola-rs.github.io/r-polars/) for this R package,
-and the [user guide](https://docs.pola.rs/) for Python / Rust Polars.
+and the [user guide](https://docs.pola.rs/) for Python/Rust Polars.
 
-## Installation
+## Install
 
 The recommended way to install this package is from the R-multiverse
 community repository:
@@ -62,11 +62,15 @@ install.packages('polars', repos = c("https://rpolars.r-universe.dev", "https://
 
 ## Usage
 
-To avoid conflicts with other packages and base R function names,
-`{polars}`’s top level functions are hosted in the `pl` environment, and
-accessible via the `pl$` prefix. And, most of the methods for `{polars}`
+To avoid conflicts with other packages and base R function names, many
+of `polars`’s functions are hosted in the `pl` environment, and
+accessible via the `pl$` prefix. And, most of the methods for `polars`
 objects should be called with the `$` operator. This means that `polars`
-queries written in Python and in R are very similar.
+queries written in Python and in R are very similar. Additionally, many
+functions are intended to match the Python Polars API.
+
+This means that Polars queries written in Python and in R are very
+similar.
 
 For example, writing the [example from the user guide of
 Python/Rust](https://docs.pola.rs/#example) in R:
@@ -85,7 +89,9 @@ q <- pl$scan_csv(csv_file)$filter(pl$col("Sepal.Length") > 5)$group_by(
 )$agg(pl$all()$sum())
 
 # Execute the query plan and collect the result as a Polars DataFrame
-q$collect()
+df <- q$collect()
+
+df
 #> shape: (3, 5)
 #> ┌────────────┬──────────────┬─────────────┬──────────────┬─────────────┐
 #> │ Species    ┆ Sepal.Length ┆ Sepal.Width ┆ Petal.Length ┆ Petal.Width │
@@ -98,14 +104,40 @@ q$collect()
 #> └────────────┴──────────────┴─────────────┴──────────────┴─────────────┘
 ```
 
+There are also some functions to manipulate `polars` objects using base
+R and some popular other packages.
+
+``` r
+# Subset a Polars DataFrame using the `[` operator
+df[1:2, 1:2]
+#> shape: (2, 2)
+#> ┌────────────┬──────────────┐
+#> │ Species    ┆ Sepal.Length │
+#> │ ---        ┆ ---          │
+#> │ str        ┆ f64          │
+#> ╞════════════╪══════════════╡
+#> │ setosa     ┆ 116.9        │
+#> │ versicolor ┆ 281.9        │
+#> └────────────┴──────────────┘
+
+# Execute a query plan and collect the result as a tibble data frame
+tibble::as_tibble(q)
+#> # A tibble: 3 × 5
+#>   Species    Sepal.Length Sepal.Width Petal.Length Petal.Width
+#>   <chr>             <dbl>       <dbl>        <dbl>       <dbl>
+#> 1 setosa             117.        81.7         33.2         6.1
+#> 2 versicolor         282.       132.         203.         63.3
+#> 3 virginica          324.       146.         273.         99.6
+```
+
 The [Get Started
 vignette](https://pola-rs.github.io/r-polars/vignettes/polars.html)
 (`vignette("polars")`) provides a more detailed introduction.
 
 ## Extensions
 
-While one can use polars as-is, other packages build on it to provide
-different syntaxes:
+While one can use this package as-is, other packages build on it to
+provide different APIs:
 
 - [polarssql](https://rpolars.github.io/r-polarssql/) provides a polars
   backend for [DBI](https://dbi.r-dbi.org/) and
@@ -114,4 +146,22 @@ different syntaxes:
   the [tidyverse](https://www.tidyverse.org/) syntax while using the
   power of polars.
 
-<!-- TODO: add governance section or something else -->
+## Maintainers
+
+- [SHIMA Tatsuya](https://github.com/eitsupi)
+- [Etienne Bacher](https://github.com/etiennebacher)
+
+Version 0 of this package was previously maintained by [Søren Havelund
+Welling](https://github.com/sorhawell).
+<!-- TODO: link to the v0 branch -->
+
+## Acknowledgements
+
+This package is based on the [Polars open source
+project](https://github.com/pola-rs/polars), originally founded by
+[Ritchie Vink](https://github.com/ritchie46) and developed by many
+contributors.
+
+## License
+
+MIT @ polars authors
