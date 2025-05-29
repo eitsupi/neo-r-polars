@@ -61,8 +61,9 @@ METHODS_EXCLUDE <- c(
 # TODO: support the mode argument
 #' @export
 as.vector.polars_series <- function(x, mode = "any") {
-  out <- x$to_r_vector(ensure_vector = TRUE)
-  if (!is.null(attributes(out))) {
+  out <- x$to_r_vector()
+  # browser()
+  if (is.data.frame(out) || (!is.null(attributes(out)) && is_atomic(out))) {
     inform(
       c(
         sprintf(

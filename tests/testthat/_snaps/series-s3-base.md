@@ -109,6 +109,18 @@
 ---
 
     Code
+      as.vector(s_struct)
+    Message
+      `as.vector()` on a Polars Series of type struct[1] may drop some useful attributes.
+      i It is recommended to use `$to_r_vector()` for finer control of the conversion from Polars to R.
+    Output
+      $x
+      [1] "2020-01-01"
+      
+
+---
+
+    Code
       as.vector(pl$Series("a", hms::hms(1, 2, 3)))
     Message
       `as.vector()` on a Polars Series of type time may drop some useful attributes.
