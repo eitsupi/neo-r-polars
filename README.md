@@ -20,26 +20,7 @@ version](https://img.shields.io/badge/docs-dev-blue.svg)](https://pola-rs.github
 Polars R bindings.
 
 Polars is a blazingly fast DataFrame library for manipulating structured
-data. The core is written in Rust, and available for Python, R and
-NodeJS.
-
-- **Fast**: Written from scratch in Rust, designed close to the machine
-  and without external dependencies.
-- **I/O**: First class support for all common data storage layers: local
-  & cloud storage.
-- **Intuitive API**: Write your queries the way they were intended.
-  Polars, internally, will determine the most efficient way to execute
-  using its query optimizer.
-- **Out of Core**: The streaming API allows you to process your results
-  without requiring all your data to be in memory at the same time.
-- **Parallel**: Utilises the power of your machine by dividing the
-  workload among the available CPU cores without any additional
-  configuration.
-- **Vectorized Query Engine**
-- **[Apache Arrow support](https://arrow.apache.org/)**: Polars can
-  consume and produce Arrow data often with zero-copy operations. Note
-  that Polars is not built on an official Arrow implementation. Instead,
-  Polars has its own compute and buffer implementations.
+data. The core is written in Rust.
 
 The goal of Polars is to provide a lightning fast DataFrame library
 that:
@@ -50,9 +31,6 @@ that:
 - A consistent and predictable API.
 - Adheres to a strict schema (data-types should be known before running
   the query).
-
-Polars is written in Rust which gives it C/C++ performance and allows it
-to fully control performance-critical parts in a query engine.
 
 This `polars` R package provides the R bindings for Polars. It can be
 used to convert R DataFrames to Polars DataFrames and vice versa, as
@@ -72,7 +50,7 @@ Sys.setenv(NOT_CRAN = "true")
 install.packages("polars", repos = "https://community.r-multiverse.org")
 ```
 
-More recent (unstable) version may be installed from the rpolars
+More recent (unreleased) version may be installed from the rpolars
 R-universe repository:
 
 ``` r
