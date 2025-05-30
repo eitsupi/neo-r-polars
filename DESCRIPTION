@@ -28,6 +28,7 @@ Suggests:
     ggplot2,
     hms,
     jsonlite,
+    mirai (>= 2.3.0),
     nanoarrow (>= 0.6.0),
     patrick (>= 0.3.0),
     testthat (>= 3.0.0),
