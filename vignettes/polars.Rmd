@@ -368,7 +368,7 @@ As a final example of how **polars** can be used for standard data wrangling
 tasks, let's implement a (left) join. For this example, we'll borrow some
 datasets from the **nycflights13** package.
 
-```{r}
+```{r, eval = requireNamespace("nycflights13", quietly = TRUE)}
 data("flights", "planes", package = "nycflights13")
 flights <- as_polars_df(flights)
 planes <- as_polars_df(planes)
