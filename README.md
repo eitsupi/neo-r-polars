@@ -17,8 +17,6 @@ status](https://www.r-pkg.org/badges/version/polars)](https://CRAN.R-project.org
 version](https://img.shields.io/badge/docs-dev-blue.svg)](https://pola-rs.github.io/r-polars)
 <!-- badges: end -->
 
-Polars R bindings.
-
 Polars is a blazingly fast DataFrame library for manipulating structured
 data. The core is written in Rust.
 
@@ -50,7 +48,7 @@ Sys.setenv(NOT_CRAN = "true")
 install.packages("polars", repos = "https://community.r-multiverse.org")
 ```
 
-More recent (unreleased) version may be installed from the rpolars
+More recent (development) version may be installed from the rpolars
 R-universe repository:
 
 ``` r
@@ -64,12 +62,13 @@ install.packages('polars', repos = c("https://rpolars.r-universe.dev", "https://
 
 To avoid conflicts with other packages and base R function names, many
 of `polars`’s functions are hosted in the `pl` environment, and
-accessible via the `pl$` prefix. And, most of the methods for `polars`
-objects should be called with the `$` operator. This means that `polars`
-queries written in Python and in R are very similar. Additionally, many
-functions are intended to match the Python Polars API.
+accessible via the `pl$` prefix. Most of the functions for `polars`
+objects should be chained with the `$` operator.
 
-This means that Polars queries written in Python and in R are very
+Additionally, the majority of the functions are intended to match the
+Python Polars API.
+
+These mean that Polars queries written in Python and in R are very
 similar.
 
 For example, writing the [example from the user guide of
