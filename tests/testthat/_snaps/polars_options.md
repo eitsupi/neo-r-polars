@@ -93,8 +93,8 @@
     Code
       as.vector(series)
     Message
-      `as.vector()` on a Polars Series of type struct[9] may drop some useful attributes.
-      i It is recommended to use `$to_r_vector()` for finer control of the conversion from Polars to R.
+      i `as.vector()` on a Polars Series of type struct[9] may drop some useful attributes.
+      i Use `$to_r_vector()` instead for finer control of the conversion from Polars to R.
     Output
       $uint8
       [1] 1 2 3
@@ -209,8 +209,8 @@
       as.vector(series)
     Message
       `uint8` is overridden by the option "polars.to_r_vector.uint8" with the string "raw"
-      `as.vector()` on a Polars Series of type struct[9] may drop some useful attributes.
-      i It is recommended to use `$to_r_vector()` for finer control of the conversion from Polars to R.
+      i `as.vector()` on a Polars Series of type struct[9] may drop some useful attributes.
+      i Use `$to_r_vector()` instead for finer control of the conversion from Polars to R.
     Output
       $uint8
       [1] 01 02 03
@@ -328,8 +328,8 @@
     Code
       as.vector(series)
     Message
-      `as.vector()` on a Polars Series of type struct[9] may drop some useful attributes.
-      i It is recommended to use `$to_r_vector()` for finer control of the conversion from Polars to R.
+      i `as.vector()` on a Polars Series of type struct[9] may drop some useful attributes.
+      i Use `$to_r_vector()` instead for finer control of the conversion from Polars to R.
     Output
       $uint8
       [1] 1 2 3
@@ -444,8 +444,8 @@
       as.vector(series)
     Message
       `int64` is overridden by the option "polars.to_r_vector.int64" with the string "character"
-      `as.vector()` on a Polars Series of type struct[9] may drop some useful attributes.
-      i It is recommended to use `$to_r_vector()` for finer control of the conversion from Polars to R.
+      i `as.vector()` on a Polars Series of type struct[9] may drop some useful attributes.
+      i Use `$to_r_vector()` instead for finer control of the conversion from Polars to R.
     Output
       $uint8
       [1] 1 2 3
@@ -566,8 +566,8 @@
       as.vector(series)
     Message
       `int64` is overridden by the option "polars.to_r_vector.int64" with the string "integer"
-      `as.vector()` on a Polars Series of type struct[9] may drop some useful attributes.
-      i It is recommended to use `$to_r_vector()` for finer control of the conversion from Polars to R.
+      i `as.vector()` on a Polars Series of type struct[9] may drop some useful attributes.
+      i Use `$to_r_vector()` instead for finer control of the conversion from Polars to R.
     Output
       $uint8
       [1] 1 2 3
@@ -688,8 +688,8 @@
       as.vector(series)
     Message
       `int64` is overridden by the option "polars.to_r_vector.int64" with the string "integer64"
-      `as.vector()` on a Polars Series of type struct[9] may drop some useful attributes.
-      i It is recommended to use `$to_r_vector()` for finer control of the conversion from Polars to R.
+      i `as.vector()` on a Polars Series of type struct[9] may drop some useful attributes.
+      i Use `$to_r_vector()` instead for finer control of the conversion from Polars to R.
     Output
       $uint8
       [1] 1 2 3
@@ -809,8 +809,8 @@
     Code
       as.vector(series)
     Message
-      `as.vector()` on a Polars Series of type struct[9] may drop some useful attributes.
-      i It is recommended to use `$to_r_vector()` for finer control of the conversion from Polars to R.
+      i `as.vector()` on a Polars Series of type struct[9] may drop some useful attributes.
+      i Use `$to_r_vector()` instead for finer control of the conversion from Polars to R.
     Output
       $uint8
       [1] 1 2 3
@@ -925,8 +925,8 @@
       as.vector(series)
     Message
       `date` is overridden by the option "polars.to_r_vector.date" with the string "IDate"
-      `as.vector()` on a Polars Series of type struct[9] may drop some useful attributes.
-      i It is recommended to use `$to_r_vector()` for finer control of the conversion from Polars to R.
+      i `as.vector()` on a Polars Series of type struct[9] may drop some useful attributes.
+      i Use `$to_r_vector()` instead for finer control of the conversion from Polars to R.
     Output
       $uint8
       [1] 1 2 3
@@ -1044,8 +1044,8 @@
     Code
       as.vector(series)
     Message
-      `as.vector()` on a Polars Series of type struct[9] may drop some useful attributes.
-      i It is recommended to use `$to_r_vector()` for finer control of the conversion from Polars to R.
+      i `as.vector()` on a Polars Series of type struct[9] may drop some useful attributes.
+      i Use `$to_r_vector()` instead for finer control of the conversion from Polars to R.
     Output
       $uint8
       [1] 1 2 3
@@ -1160,8 +1160,8 @@
       as.vector(series)
     Message
       `time` is overridden by the option "polars.to_r_vector.time" with the string "ITime"
-      `as.vector()` on a Polars Series of type struct[9] may drop some useful attributes.
-      i It is recommended to use `$to_r_vector()` for finer control of the conversion from Polars to R.
+      i `as.vector()` on a Polars Series of type struct[9] may drop some useful attributes.
+      i Use `$to_r_vector()` instead for finer control of the conversion from Polars to R.
     Output
       $uint8
       [1] 1 2 3
@@ -1275,8 +1275,8 @@
     Code
       as.vector(series)
     Message
-      `as.vector()` on a Polars Series of type struct[9] may drop some useful attributes.
-      i It is recommended to use `$to_r_vector()` for finer control of the conversion from Polars to R.
+      i `as.vector()` on a Polars Series of type struct[9] may drop some useful attributes.
+      i Use `$to_r_vector()` instead for finer control of the conversion from Polars to R.
     Output
       $uint8
       [1] 1 2 3
@@ -1393,8 +1393,8 @@
       as.vector(series)
     Message
       `struct` is overridden by the option "polars.to_r_vector.struct" with the string "tibble"
-      `as.vector()` on a Polars Series of type struct[9] may drop some useful attributes.
-      i It is recommended to use `$to_r_vector()` for finer control of the conversion from Polars to R.
+      i `as.vector()` on a Polars Series of type struct[9] may drop some useful attributes.
+      i Use `$to_r_vector()` instead for finer control of the conversion from Polars to R.
     Output
       $uint8
       [1] 1 2 3
@@ -1512,8 +1512,8 @@
     Code
       as.vector(series)
     Message
-      `as.vector()` on a Polars Series of type struct[9] may drop some useful attributes.
-      i It is recommended to use `$to_r_vector()` for finer control of the conversion from Polars to R.
+      i `as.vector()` on a Polars Series of type struct[9] may drop some useful attributes.
+      i Use `$to_r_vector()` instead for finer control of the conversion from Polars to R.
     Output
       $uint8
       [1] 1 2 3
@@ -1628,8 +1628,8 @@
       as.vector(series)
     Message
       `decimal` is overridden by the option "polars.to_r_vector.decimal" with the string "character"
-      `as.vector()` on a Polars Series of type struct[9] may drop some useful attributes.
-      i It is recommended to use `$to_r_vector()` for finer control of the conversion from Polars to R.
+      i `as.vector()` on a Polars Series of type struct[9] may drop some useful attributes.
+      i Use `$to_r_vector()` instead for finer control of the conversion from Polars to R.
     Output
       $uint8
       [1] 1 2 3
@@ -1747,8 +1747,8 @@
     Code
       as.vector(series)
     Message
-      `as.vector()` on a Polars Series of type struct[9] may drop some useful attributes.
-      i It is recommended to use `$to_r_vector()` for finer control of the conversion from Polars to R.
+      i `as.vector()` on a Polars Series of type struct[9] may drop some useful attributes.
+      i Use `$to_r_vector()` instead for finer control of the conversion from Polars to R.
     Output
       $uint8
       [1] 1 2 3
@@ -1863,8 +1863,8 @@
       as.vector(series)
     Message
       `as_clock_class` is overridden by the option "polars.to_r_vector.as_clock_class" with `TRUE`
-      `as.vector()` on a Polars Series of type struct[11] may drop some useful attributes.
-      i It is recommended to use `$to_r_vector()` for finer control of the conversion from Polars to R.
+      i `as.vector()` on a Polars Series of type struct[11] may drop some useful attributes.
+      i Use `$to_r_vector()` instead for finer control of the conversion from Polars to R.
     Output
       $uint8
       [1] 1 2 3
@@ -2055,8 +2055,8 @@
       as.vector(series)
     Message
       `ambiguous` is overridden by the option "polars.to_r_vector.ambiguous" with the string "earliest"
-      `as.vector()` on a Polars Series of type struct[10] may drop some useful attributes.
-      i It is recommended to use `$to_r_vector()` for finer control of the conversion from Polars to R.
+      i `as.vector()` on a Polars Series of type struct[10] may drop some useful attributes.
+      i Use `$to_r_vector()` instead for finer control of the conversion from Polars to R.
     Output
       $uint8
       [1] 1 2 3
@@ -2183,8 +2183,8 @@
       as.vector(series)
     Message
       `ambiguous` is overridden by the option "polars.to_r_vector.ambiguous" with the string "latest"
-      `as.vector()` on a Polars Series of type struct[10] may drop some useful attributes.
-      i It is recommended to use `$to_r_vector()` for finer control of the conversion from Polars to R.
+      i `as.vector()` on a Polars Series of type struct[10] may drop some useful attributes.
+      i Use `$to_r_vector()` instead for finer control of the conversion from Polars to R.
     Output
       $uint8
       [1] 1 2 3
@@ -2311,8 +2311,8 @@
       as.vector(series)
     Message
       `ambiguous` is overridden by the option "polars.to_r_vector.ambiguous" with the string "null"
-      `as.vector()` on a Polars Series of type struct[10] may drop some useful attributes.
-      i It is recommended to use `$to_r_vector()` for finer control of the conversion from Polars to R.
+      i `as.vector()` on a Polars Series of type struct[10] may drop some useful attributes.
+      i Use `$to_r_vector()` instead for finer control of the conversion from Polars to R.
     Output
       $uint8
       [1] 1 2 3
@@ -2489,8 +2489,8 @@
       as.vector(series)
     Message
       `non_existent` is overridden by the option "polars.to_r_vector.non_existent" with the string "null"
-      `as.vector()` on a Polars Series of type struct[10] may drop some useful attributes.
-      i It is recommended to use `$to_r_vector()` for finer control of the conversion from Polars to R.
+      i `as.vector()` on a Polars Series of type struct[10] may drop some useful attributes.
+      i Use `$to_r_vector()` instead for finer control of the conversion from Polars to R.
     Output
       $uint8
       [1] 1 2 3
