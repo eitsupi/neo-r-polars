@@ -225,12 +225,10 @@ dat$tail(10)$max() |>
 Below, we will introduce several other methods, including `$select()`, `$filter()`,
 and `$group_by()` which allow us to do powerful data manipulations easily. To give
 you a small taste, we now take group-wise means:
-<!--
-TODO-REWRITE: implement this
+
 ```{r}
 dat$group_by("cyl")$mean()
 ```
- -->
 
 
 ## Subset
@@ -337,10 +335,9 @@ indo_wide <- indo$pivot(values = "conc", index = "time", on = "Subject")
 indo_wide
 ```
 
-To go from wide to long, we use the `$melt()` method.
+To go from wide to long, we use the `$unpivot()` method.
 
 ```{r}
-# indo_wide$melt(id_vars = "time") # default column names are "variable" and "value"
 indo_wide$unpivot(index = "time", variable_name = "subject", value_name = "conc")
 ```
 
@@ -515,22 +512,29 @@ unlink("airquality-ds", recursive = TRUE)
 
 ## Execute R functions within a Polars query
 
-It is possible to mix R code with Polars by passing R functions to **polars**.
-This can unlock a lot of flexibility, but note that it can inhibit performance.
-R functions are typically slower, so we recommend using native Polars functions
-and expressions wherever possible.
+You may want to apply functions that are not supported natively in Polars,
+for instance because they come from another R package. When this is the case,
+you can use the package `mirai` to perform computations in parallel.
+
+This can unlock a lot of flexibility, but note that it can inhibit performance
+since it doesn't take advantage of Polars optimizations anymore. R functions are
+also typically slower, so we recommend using native Polars functions and
+expressions wherever possible.
 
 ```{r}
-as_polars_df(iris)$select(
-  pl$col("Sepal.Length")$map_batches(\(s) {
-    # map with a R function
-    x <- as.vector(s) # convert from Polars Series to a native R vector
-    x[x >= 5] <- 10
-    x[1:10] # if return is R vector, it will automatically be converted to Polars Series again
-  })
-) |>
-  as.data.frame()
+mirai::daemons(4)
+
+pl$DataFrame(a = 1, b = 2, c = 3, d = 4)$cast(pl$Int128) |>
+  as.list() |>
+  mirai::mirai_map(\(s) {
+    s * 2L
+  }) |>
+  _[] |>
+  as_polars_df()
 ```
+
+<!-- TODO-REWRITE: add link -->
+This is explained in more details in the vignette on ["Using custom functions"]().
 
 ## Data types
 
