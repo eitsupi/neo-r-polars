@@ -1,3 +1,16 @@
+test_that("Optional package suggestion", {
+  with_mocked_bindings(
+    {
+      expect_snapshot(
+        as_polars_series(1)$to_r_vector()
+      )
+    },
+    is_vctrs_installed = \() FALSE,
+    is_blob_installed = \() FALSE,
+    is_hms_installed = \() FALSE,
+  )
+})
+
 patrick::with_parameters_test_that(
   "uint8 conversion",
   .cases = {
@@ -80,9 +93,9 @@ test_that("int64 argument error", {
   )
   with_mocked_bindings(
     {
-      expect_error(
+      expect_snapshot(
         as_polars_series(1)$to_r_vector(int64 = "integer64"),
-        "If the `int64` argument is set to 'integer64', the `bit64` package must be installed"
+        error = TRUE
       )
     },
     is_bit64_installed = function() FALSE
@@ -160,9 +173,9 @@ test_that("time argument error", {
   )
   with_mocked_bindings(
     {
-      expect_error(
+      expect_snapshot(
         as_polars_series(1)$to_r_vector(time = "ITime"),
-        r"(If the `time` argument is set to 'ITime', the `data\.table` package must be installed)"
+        error = TRUE
       )
     },
     is_datatable_installed = function() FALSE
@@ -303,4 +316,52 @@ patrick::with_parameters_test_that(
 
     expect_identical(series_duration$to_r_vector(as_clock_class = TRUE), duration_vec)
   }
+)
+
+patrick::with_parameters_test_that(
+  "ambiguous argument '{ambiguous}'",
+  .cases = {
+    # fmt: skip
+    tibble::tribble(
+      ~ambiguous,
+      "raise",
+      "earliest",
+      "latest",
+      "null",
+    )
+  },
+  withr::with_timezone("America/New_York", {
+    ambiguous_time_chr <- c("2020-11-01 00:00:00", "2020-11-01 01:00:00", "2020-11-01 02:00:00")
+    series_ambiguous <- as_polars_series(ambiguous_time_chr)$str$strptime(
+      pl$Datetime(),
+      "%F %T"
+    )
+    expect_snapshot(
+      series_ambiguous$to_r_vector(ambiguous = ambiguous),
+      error = ambiguous == "raise"
+    )
+  })
+)
+
+patrick::with_parameters_test_that(
+  "non_existent argument '{non_existent}'",
+  .cases = {
+    # fmt: skip
+    tibble::tribble(
+      ~non_existent,
+      "raise",
+      "null",
+    )
+  },
+  withr::with_timezone("America/New_York", {
+    non_existent_time_chr <- c("2020-03-08 02:00:00", "2020-03-08 03:00:00")
+    series_non_existent <- as_polars_series(non_existent_time_chr)$str$strptime(
+      pl$Datetime(),
+      "%F %T"
+    )
+    expect_snapshot(
+      series_non_existent$to_r_vector(non_existent = non_existent),
+      error = non_existent == "raise"
+    )
+  })
 )

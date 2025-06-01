@@ -13,6 +13,7 @@ patrick::with_parameters_test_that(
 
     withr::with_timezone(
       "UTC",
+      # nolint start: line_length_linter
       # fmt: skip
       tibble::tribble(
         ~.test_name, ~x, ~expected_name, ~expected_dtype,
@@ -51,6 +52,7 @@ patrick::with_parameters_test_that(
         "ITime", data.table::as.ITime(c(NA, 3600, 86400, -1)), "", pl$Time,
         "vctrs_unspecified", vctrs::unspecified(3L), "", pl$Null,
       )
+      # nolint end
     )
   },
   code = {
@@ -102,10 +104,10 @@ patrick::with_parameters_test_that(
 test_that("Before 0-oclock or after 24-oclock hms must be rejected", {
   skip_if_not_installed("hms")
 
-  hms_24 <- hms::as_hms(c(NA, "24:00:00", "04:00:00"))
+  hms_24 <- hms::as_hms(c(NA, "24:00:00", "23:59:59.999999"))
   hms_minus_1 <- hms::as_hms(c(NA, -3600, 0))
-  expect_error(as_polars_series(hms_24), "not supported")
-  expect_error(as_polars_series(hms_minus_1), "not supported")
+  expect_snapshot(as_polars_series(hms_24), error = TRUE)
+  expect_snapshot(as_polars_series(hms_minus_1), error = TRUE)
 })
 
 test_that("as_polars_series(<list>, strict = TRUE)", {
@@ -183,7 +185,6 @@ test_that("as_polars_series works for vctrs_rcrd", {
   skip_if_not_installed("tibble")
 
   # Sample vctrs_rcrd class
-  # From https://github.com/r-lib/vctrs/blob/8d98911aa64e36dbc249cbc8802618638fd0c603/vignettes/pillar.Rmd#L54-L85
   latlon <- function(lat, lon) {
     vctrs::new_rcrd(list(lat = lat, lon = lon), class = "earth_latlon")
   }
@@ -294,6 +295,8 @@ patrick::with_parameters_test_that(
   "nanoarrow_array/nanoarrow_array_stream support",
   .cases = {
     skip_if_not_installed("nanoarrow")
+    # arrow is required for create int16/int64 array from object of type integer
+    skip_if_not_installed("arrow")
     # TODO: add more types
     # fmt: skip
     tibble::tribble(

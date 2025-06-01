@@ -10,7 +10,7 @@
     env_get(x, name)
   } else if (name %in% method_names) {
     fn <- polars_series_arr_methods[[name]]
-    self <- x
+    self <- x # nolint: object_usage_linter
     environment(fn) <- environment()
     fn
   } else if (name %in% dispatched_method_names) {
@@ -44,7 +44,7 @@
     env_get(x, name)
   } else if (name %in% method_names) {
     fn <- polars_series_bin_methods[[name]]
-    self <- x
+    self <- x # nolint: object_usage_linter
     environment(fn) <- environment()
     fn
   } else if (name %in% dispatched_method_names) {
@@ -78,7 +78,7 @@
     env_get(x, name)
   } else if (name %in% method_names) {
     fn <- polars_series_cat_methods[[name]]
-    self <- x
+    self <- x # nolint: object_usage_linter
     environment(fn) <- environment()
     fn
   } else if (name %in% dispatched_method_names) {
@@ -112,7 +112,7 @@
     env_get(x, name)
   } else if (name %in% method_names) {
     fn <- polars_series_dt_methods[[name]]
-    self <- x
+    self <- x # nolint: object_usage_linter
     environment(fn) <- environment()
     fn
   } else if (name %in% dispatched_method_names) {
@@ -146,7 +146,7 @@
     env_get(x, name)
   } else if (name %in% method_names) {
     fn <- polars_series_list_methods[[name]]
-    self <- x
+    self <- x # nolint: object_usage_linter
     environment(fn) <- environment()
     fn
   } else if (name %in% dispatched_method_names) {
@@ -180,7 +180,7 @@
     env_get(x, name)
   } else if (name %in% method_names) {
     fn <- polars_series_str_methods[[name]]
-    self <- x
+    self <- x # nolint: object_usage_linter
     environment(fn) <- environment()
     fn
   } else if (name %in% dispatched_method_names) {
@@ -214,7 +214,7 @@
     env_get(x, name)
   } else if (name %in% method_names) {
     fn <- polars_series_struct_methods[[name]]
-    self <- x
+    self <- x # nolint: object_usage_linter
     environment(fn) <- environment()
     fn
   } else if (name %in% dispatched_method_names) {
