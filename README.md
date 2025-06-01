@@ -29,8 +29,8 @@ The goal of Polars is to deliver fast, efficient data processing that:
   the query).
 
 This `polars` R package provides the R bindings for Polars. It can be
-used to process Polars DataFrames and LazyFrames, convert objects
-between Polars and R, and can be integrated with other common R
+used to process Polars DataFrames and other data structures, convert
+objects between Polars and R, and can be integrated with other common R
 packages.
 
 To learn more, read the [online
