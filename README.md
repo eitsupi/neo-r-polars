@@ -17,22 +17,21 @@ status](https://www.r-pkg.org/badges/version/polars)](https://CRAN.R-project.org
 version](https://img.shields.io/badge/docs-dev-blue.svg)](https://pola-rs.github.io/r-polars)
 <!-- badges: end -->
 
-Polars is a blazingly fast DataFrame library for manipulating structured
-data. The core is written in Rust.
+Polars is a blazingly fast DataFrame library, written in Rust.
 
-The goal of Polars is to provide a lightning fast DataFrame library
-that:
+The goal of Polars is to deliver fast, efficient data processing that:
 
 - Utilizes all available cores on your machine.
 - Optimizes queries to reduce unneeded work/memory allocations.
 - Handles datasets much larger than your available RAM.
-- A consistent and predictable API.
+- Follows a consistent and predictable API.
 - Adheres to a strict schema (data-types should be known before running
   the query).
 
 This `polars` R package provides the R bindings for Polars. It can be
-used to convert R DataFrames to Polars DataFrames and vice versa, as
-well as to integrate with other common R packages.
+used to process Polars DataFrames and LazyFrames, convert objects
+between Polars and R, and can be integrated with other common R
+packages.
 
 To learn more, read the [online
 documentation](https://pola-rs.github.io/r-polars/) for this R package,
