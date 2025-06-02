@@ -185,7 +185,6 @@ nav:
             - join: man/lazyframe__join.md
             - last: man/lazyframe__last.md
             - merge_sorted: man/lazyframe__merge_sorted.md
-            - quantile: man/lazyframe__quantile.md
             - rename: man/lazyframe__rename.md
             - reverse: man/lazyframe__reverse.md
             - rolling: man/lazyframe__rolling.md
@@ -460,6 +459,7 @@ nav:
             - cum_sum: man/pl__cum_sum.md
             - date_range: man/pl__date_range.md
             - date_ranges: man/pl__date_ranges.md
+            - date: man/pl__date.md
             - datetime: man/pl__datetime.md
             - datetime_range: man/pl__datetime_range.md
             - datetime_ranges: man/pl__datetime_ranges.md
@@ -720,6 +720,7 @@ nav:
         - neopolars-package: man/neopolars-package.md
         - pl: man/pl.md
         - polars_duration_string: man/polars_duration_string.md
+        - polars_options: man/polars_options.md
         - show_versions: man/pl__show_versions.md
   - About: about.md
   - Changelog: NEWS.md

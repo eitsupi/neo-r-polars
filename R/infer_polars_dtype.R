@@ -2,15 +2,17 @@
 #' Infer Polars DataType corresponding to a given R object
 #'
 #' @description
-#' [infer_polars_dtype()] is a helper function used to quickly find the [DataType] corresponding to an R object,
-#' in order words, it infers the type of the Polars [Series] that would be constructed from the object.
+#' [infer_polars_dtype()] is a helper function used to quickly find the [DataType]
+#' corresponding to an R object, in order words, it infers the type of the Polars [Series]
+#' that would be constructed from the object.
 #' In many cases, this function simply performs something like `head(x, 0) |> as_polars_series()`.
 #' It is much faster than actually constructing a [Series] using the entire object.
 #' This function is similar to [nanoarrow::infer_nanoarrow_schema()].
 #'
 #' [is_convertible_to_polars_series()] and [is_convertible_to_polars_expr()] are helper functions
 #' that check if the object can be converted to a [Series] or [Expr] respectively.
-#' These functions call [infer_polars_dtype()] internally and return `TRUE` if the type can be inferred without error.
+#' These functions call [infer_polars_dtype()] internally and return `TRUE`
+#' if the type can be inferred without error.
 #' (Or, that object is already a Polars [Expr] for [is_convertible_to_polars_expr()].)
 #' @details
 #' S3 objects based on atomic vectors or classes built on [the vctrs package][vctrs::vctrs-package]
@@ -59,6 +61,7 @@ infer_polars_dtype <- function(x, ...) {
 
 #' @rdname infer_polars_dtype
 #' @export
+# nolint start: object_length_linter
 is_convertible_to_polars_series <- function(x, ...) {
   tryCatch(
     {
@@ -68,6 +71,7 @@ is_convertible_to_polars_series <- function(x, ...) {
     error = function(e) FALSE
   )
 }
+# nolint end
 
 #' @rdname infer_polars_dtype
 #' @export
@@ -75,10 +79,12 @@ is_convertible_to_polars_expr <- function(x, ...) {
   is_polars_expr(x) || is_convertible_to_polars_series(x, ...)
 }
 
+# nolint start: object_length_linter
 infer_polars_dtype_default_impl <- function(x, ...) {
   as_polars_series(x[0L]) |>
     infer_polars_dtype(...)
 }
+# nolint end
 
 #' @rdname infer_polars_dtype
 #' @export
@@ -112,7 +118,7 @@ infer_polars_dtype.polars_data_frame <- function(x, ...) {
 infer_polars_dtype.polars_expr <- function(x, name = NULL, ...) {
   abort(
     c(
-      "passing polars expression objects to `infer_polars_dtype()` is not supported.",
+      "Passing Polars expression objects to `infer_polars_dtype()` is not supported.",
       i = "You may want to eval the expression with `pl$select()` first."
     )
   )
@@ -126,7 +132,7 @@ infer_polars_dtype.polars_lazy_frame <- infer_polars_dtype.polars_data_frame
 #' @export
 infer_polars_dtype.NULL <- function(x, ...) {
   if (missing(x)) {
-    abort("The `x` argument of `infer_polars_dtype()` can't be missing")
+    abort("The `x` argument of `infer_polars_dtype()` can't be missing.")
   }
   pl$Null
 }
@@ -226,6 +232,7 @@ infer_polars_dtype.vctrs_vctr <- function(x, ...) {
   }
 }
 
+# nolint start: object_length_linter
 infer_polars_dtype_vctrs_rcrd_impl <- function(x, ...) {
   field_names <- vctrs::fields(x)
   inner_dtypes <- field_names |>
@@ -236,3 +243,4 @@ infer_polars_dtype_vctrs_rcrd_impl <- function(x, ...) {
 
   pl$Struct(!!!structure(inner_dtypes, names = field_names))
 }
+# nolint end

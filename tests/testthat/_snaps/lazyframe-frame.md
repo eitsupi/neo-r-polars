@@ -134,7 +134,7 @@
     Code
       df$describe()
     Output
-      shape: (8, 6)
+      shape: (9, 6)
       ┌────────────┬──────────┬────────┬─────────────────────────┬──────┬──────┐
       │ statistic  ┆ float    ┆ string ┆ date                    ┆ cat  ┆ bool │
       │ ---        ┆ ---      ┆ ---    ┆ ---                     ┆ ---  ┆ ---  │
@@ -146,6 +146,7 @@
       │ std        ┆ 0.353553 ┆ null   ┆ null                    ┆ null ┆ null │
       │ min        ┆ 1.5      ┆ a      ┆ 2024-01-20              ┆ zz   ┆ 0.0  │
       │ 25%        ┆ 1.5      ┆ null   ┆ 2024-01-20              ┆ null ┆ null │
+      │ 50%        ┆ 2.0      ┆ null   ┆ 2024-01-21              ┆ null ┆ null │
       │ 75%        ┆ 2.0      ┆ null   ┆ 2024-01-21              ┆ null ┆ null │
       │ max        ┆ 2.0      ┆ b      ┆ 2024-01-21              ┆ a    ┆ 1.0  │
       └────────────┴──────────┴────────┴─────────────────────────┴──────┴──────┘
@@ -175,6 +176,26 @@
 ---
 
     Code
+      pl$DataFrame()$describe()
+    Condition
+      Error:
+      ! Evaluation failed in `$describe()`.
+      Caused by error:
+      ! Can't describe a DataFrame without any columns
+
+---
+
+    Code
+      pl$LazyFrame()$describe()
+    Condition
+      Error:
+      ! Evaluation failed in `$describe()`.
+      Caused by error:
+      ! Can't describe a LazyFrame without any columns
+
+---
+
+    Code
       df$describe(percentiles = 0.1)
     Output
       shape: (7, 6)
@@ -197,7 +218,7 @@
     Code
       df$select(pl$col("cat")$cast(pl$Categorical("lexical")))$describe()
     Output
-      shape: (8, 2)
+      shape: (9, 2)
       ┌────────────┬──────┐
       │ statistic  ┆ cat  │
       │ ---        ┆ ---  │
@@ -209,6 +230,7 @@
       │ std        ┆ null │
       │ min        ┆ a    │
       │ 25%        ┆ null │
+      │ 50%        ┆ null │
       │ 75%        ┆ null │
       │ max        ┆ zz   │
       └────────────┴──────┘
@@ -222,4 +244,22 @@
       ! Evaluation failed in `$collect()`.
       Caused by error in `as_polars_lf(mtcars)$collect()`:
       ! `engine` must be one of "auto", "in-memory", "streaming", or "old-streaming", not "gpu".
+
+# group_by() warns with arg maintain_order
+
+    Code
+      dat$group_by("a", maintain_order = TRUE)$agg()
+    Condition
+      Warning:
+      ! In `$group_by()`, `...` contain an argument named `maintain_order`.
+      i You may want to specify the argument `.maintain_order` instead.
+    Output
+      shape: (1, 2)
+      ┌─────┬────────────────┐
+      │ a   ┆ maintain_order │
+      │ --- ┆ ---            │
+      │ i32 ┆ bool           │
+      ╞═════╪════════════════╡
+      │ 1   ┆ true           │
+      └─────┴────────────────┘
 

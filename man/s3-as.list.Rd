@@ -75,6 +75,7 @@ One of the followings:
 One of the followings:
 \itemize{
 \item \code{"hms"} (default): Convert to the \link[hms:hms]{hms::hms} class.
+If the \link[hms:hms-package]{hms} package is not installed, a warning will be shown.
 \item \code{"ITime"}: Convert to the \link[data.table:IDateTime]{data.table::ITime} class.
 The \link[data.table:data.table]{data.table} package must be installed.
 }}
@@ -132,11 +133,12 @@ A \link{list}
 }
 \description{
 These S3 methods call \code{\link[=dataframe__get_columns]{as_polars_df(x, ...)$get_columns()}} with
-\code{\link[rlang:set_names]{rlang::set_names()}}, or, \code{as_polars_df(x, ...)$to_struct()$to_r_vector(ensure_vector = TRUE)}
+\code{\link[rlang:set_names]{rlang::set_names()}}, or, \code{as_polars_df(x, ...)$to_struct()$to_r_vector() |> as.list()}
 depending on the \code{as_series} argument.
 }
 \details{
-Arguments other than \code{x} and \code{as_series} are passed to \code{\link[=series__to_r_vector]{<Series>$to_r_vector()}},
+Arguments other than \code{x} and \code{as_series} are passed to
+\code{\link[=series__to_r_vector]{<Series>$to_r_vector()}},
 so they are ignored when \code{as_series=TRUE}.
 }
 \examples{
