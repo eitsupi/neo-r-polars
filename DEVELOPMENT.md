@@ -269,7 +269,7 @@ pl$lit(1)$any(TRUE)
 
 #### Dynamic Dots
 
-Varible length arguments in Python (like `*args` or `**kwargs`) can be implemented in R using `...`.
+Variable length arguments in Python (like `*args` or `**kwargs`) can be implemented in R using `...`.
 In R, we can use `rlang::list2()` to handle these arguments, which is a feature known as Dynamic Dots.
 
 For example, the `LazyFrame.select()` method in Python Polars is defined as follows:
