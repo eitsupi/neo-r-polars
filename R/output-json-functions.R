@@ -104,7 +104,8 @@ dataframe__write_json <- function(file) {
 #' jsonlite::stream_in(file(destination))
 dataframe__write_ndjson <- function(file) {
   wrap({
-    self$`_df`$write_ndjson(file)
+    # TODO: Update like https://github.com/pola-rs/polars/pull/22582
+    self$lazy()$sink_ndjson(file)
     invisible(self)
   })
 }

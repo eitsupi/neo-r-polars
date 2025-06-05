@@ -1036,10 +1036,10 @@ expr__over <- function(
     mapping_strategy <- arg_match0(mapping_strategy, c("group_to_rows", "join", "explode"))
 
     self$`_rexpr`$over(
-      partition_by,
       order_by = order_by,
       order_by_descending = FALSE, # does not work yet
       order_by_nulls_last = FALSE, # does not work yet
+      partition_by = partition_by,
       mapping_strategy = mapping_strategy
     )
   })
@@ -1095,11 +1095,11 @@ expr__filter <- function(...) {
 #' dtype will be inferred based on the first non-null value that is returned by
 #' the function. This can lead to unexpected results, so it is recommended to
 #' provide the return dtype.
-#' @param agg_list Aggregate the values of the expression into a list before
-#' applying the function. This parameter only works in a group-by context. The
-#' function will be invoked only once on a list of groups, rather than once per
-#' group.
 # TODO: uncomment when those arguments are supported
+# @param agg_list Aggregate the values of the expression into a list before
+# applying the function. This parameter only works in a group-by context. The
+# function will be invoked only once on a list of groups, rather than once per
+# group.
 # @param is_elementwise If `TRUE`, this can run in the streaming engine, but
 # may yield incorrect results in group-by. Ensure you know what you are doing!
 # @param returns_scalar If the function returns a scalar, by default it will
@@ -1118,35 +1118,36 @@ expr__filter <- function(...) {
 #'   which.max(elems)
 #' }))
 #'
-#' # In a group-by context, the `agg_list` parameter can improve performance if
-#' # used correctly. The following example has `agg_list = FALSE`, which causes
-#' # the function to be applied once per group. The input of the function is a
-#' # Series of type Int64. This is less efficient.
-#' df <- pl$DataFrame(
-#'   a = c(0, 1, 0, 1),
-#'   b = c(1, 2, 3, 4)
-#' )
-#' system.time({
-#'   print(
-#'     df$group_by("a")$agg(
-#'       pl$col("b")$map_batches(\(x) x + 2, agg_list = FALSE)
-#'     )
-#'   )
-#' })
-#'
-#' # Using `agg_list = TRUE` would be more efficient. In this example, the input
-#' # of the function is a Series of type List(Int64).
-#' system.time({
-#'   print(
-#'     df$group_by("a")$agg(
-#'       pl$col("b")$map_batches(
-#'         \(x) x$list$eval(pl$element() + 2),
-#'         agg_list = TRUE
-#'       )
-#'     )
-#'   )
-#' })
-#'
+# TODO: uncomment when agg_list is supported
+# # In a group-by context, the `agg_list` parameter can improve performance if
+# # used correctly. The following example has `agg_list = FALSE`, which causes
+# # the function to be applied once per group. The input of the function is a
+# # Series of type Int64. This is less efficient.
+# df <- pl$DataFrame(
+#   a = c(0, 1, 0, 1),
+#   b = c(1, 2, 3, 4)
+# )
+# system.time({
+#   print(
+#     df$group_by("a")$agg(
+#       pl$col("b")$map_batches(\(x) x + 2, agg_list = FALSE)
+#     )
+#   )
+# })
+#
+# # Using `agg_list = TRUE` would be more efficient. In this example, the input
+# # of the function is a Series of type List(Int64).
+# system.time({
+#   print(
+#     df$group_by("a")$agg(
+#       pl$col("b")$map_batches(
+#         \(x) x$list$eval(pl$element() + 2),
+#         agg_list = TRUE
+#       )
+#     )
+#   )
+# })
+#
 # TODO: uncomment when returns_scalar is supported
 # # Here’s an example of a function that returns a scalar, where we want it to
 # # stay as a scalar:
@@ -1172,8 +1173,7 @@ expr__filter <- function(...) {
 expr__map_batches <- function(
   lambda,
   return_dtype = NULL,
-  ...,
-  agg_list = FALSE
+  ...
 ) {
   wrap({
     check_dots_empty0(...)
@@ -1184,8 +1184,7 @@ expr__map_batches <- function(
       lambda = function(series) {
         as_polars_series(lambda(wrap(.savvy_wrap_PlRSeries(series))))$`_s`
       },
-      output_type = return_dtype$`_dt`,
-      agg_list = agg_list
+      output_type = return_dtype$`_dt`
     )
   })
 }
