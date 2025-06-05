@@ -3,6 +3,12 @@
 This package has a unique structure for several reasons,
 so here are some points that may help with development.
 
+For more general information on development, please refer to the following documents:
+
+- [Savvy User Guide](https://yutannihilation.github.io/savvy/guide/): How to create R packages using Savvy.
+- [Tidyverse style guide](https://style.tidyverse.org/): Coding style for the R part.
+- [Tidy design principles](https://design.tidyverse.org/): Principles for designing R packages in the Tidyverse ecosystem.
+
 ## Translation from Python Polars
 
 ### Basic Translation
