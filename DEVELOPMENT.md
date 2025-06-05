@@ -5,7 +5,7 @@ so here are some points that may help with development.
 
 For more general information on development, please refer to the following documents:
 
-- [Savvy User Guide](https://yutannihilation.github.io/savvy/guide/): How to create R packages using Savvy.
+- [Savvy User Guide](https://yutannihilation.github.io/savvy/guide/): How to create R packages using savvy.
 - [Tidyverse style guide](https://style.tidyverse.org/): Coding style for the R part.
 - [Tidy design principles](https://design.tidyverse.org/): Principles for designing R packages in the Tidyverse ecosystem.
 
@@ -13,7 +13,7 @@ For more general information on development, please refer to the following docum
 
 ### Basic Translation
 
-R Polars is an R binding for Polars, which mimics Python Polars using `savvy` instead of `pyo3` and R instead of Python.
+R Polars is an R binding for Polars, which mimics Python Polars using savvy instead of pyo3 and R instead of Python.
 Let's briefly check the differences between them and see how to implement functions/methods that exist in Python Polars in R Polars.
 
 For example, the `sum` method of Expr in Python Polars is defined as follows in the Rust side:
