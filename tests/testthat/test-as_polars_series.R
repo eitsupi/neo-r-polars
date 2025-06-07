@@ -76,9 +76,16 @@ test_that("as_polars_series.default throws an error", {
 })
 
 test_that("as_polars_series.polars_expr throws an error", {
-  expect_error(
+  expect_snapshot(
     as_polars_series(pl$lit(1)),
-    r"(You can evaluating the expression with `pl\$select\(\)`)"
+    error = TRUE
+  )
+
+  dat <- pl$DataFrame(a = 1, b = 2)
+  exprs <- list("a", pl$col("b") + 1)
+  expect_snapshot(
+    dat$select(exprs),
+    error = TRUE
   )
 })
 
