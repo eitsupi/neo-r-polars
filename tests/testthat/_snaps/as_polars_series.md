@@ -434,6 +434,17 @@
       Error in `as_polars_series()`:
       ! a <foo> object can't be converted to a polars Series.
 
+# as_polars_series.polars_expr throws an error
+
+    Code
+      as_polars_series(pl$lit(1))
+    Condition
+      Error in `as_polars_series()`:
+      ! Passing Polars expression objects to `as_polars_series()` is not supported.
+      i You can try to:
+      * evaluate the expression with `pl$select()`;
+      * use `!!!` if the input is a list or a vector of expressions or column names.
+
 # Before 0-oclock or after 24-oclock hms must be rejected
 
     Code
