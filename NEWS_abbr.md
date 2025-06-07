@@ -122,7 +122,6 @@ TODO: see https://github.com/rpolars/r-polars0/pull/4
   2. to force some arguments to be named. We now throw an error if an argument
      is not named while it should be, for example:
       ``` r
-      library(neopolars)
       df <- pl$DataFrame(a = 1:4)
       df$with_columns(pl$col("a")$shift(1, 3))
       #> Error in `df$with_columns()`:
