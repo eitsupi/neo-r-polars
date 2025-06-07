@@ -56,72 +56,6 @@ TODO: see https://github.com/rpolars/r-polars0/pull/4
   columns should be handled), use either `$to_r_vector()` or set options for the
   entire session with `polars_options()`.
 
-* The class names `PTime` and `rpolars_raw_list` (used to handle time and binary
-  variables) are removed. One should use the classes provided in packages
-  `hms` and `blob` instead.
-
-  ```r
-  ### OLD
-  r_df <- tibble::tibble(
-    time = hms::as_hms(c("12:00:00", NA, "14:00:00")),
-    binary = blob::as_blob(c(1L, NA, 2L)),
-  )
-
-  # R to Polars
-  pl_df <- as_polars_df(r_df)
-  pl_df
-  #> shape: (3, 2)
-  #> ┌─────────┬──────────────┐
-  #> │ time    ┆ binary       │
-  #> │ ---     ┆ ---          │
-  #> │ f64     ┆ list[binary] │
-  #> ╞═════════╪══════════════╡
-  #> │ 43200.0 ┆ [b"\x01"]    │
-  #> │ null    ┆ []           │
-  #> │ 50400.0 ┆ [b"\x02"]    │
-  #> └─────────┴──────────────┘
-
-  # Polars to R
-  tibble::as_tibble(pl_df)
-  #> # A tibble: 3 × 2
-  #>    time binary
-  #>   <dbl> <list>
-  #> 1 43200 <rplrs_r_ [1]>
-  #> 2    NA <rplrs_r_ [0]>
-  #> 3 50400 <rplrs_r_ [1]>
-  ```
-
-  ```r
-  ### NEW
-  r_df <- tibble::tibble(
-    time = hms::as_hms(c("12:00:00", NA, "14:00:00")),
-    binary = blob::as_blob(c(1L, NA, 2L)),
-  )
-
-  ## R to Polars
-  pl_df <- as_polars_df(r_df)
-  pl_df
-  #> shape: (3, 2)
-  #> ┌──────────┬─────────┐
-  #> │ time     ┆ binary  │
-  #> │ ---      ┆ ---     │
-  #> │ time     ┆ binary  │
-  #> ╞══════════╪═════════╡
-  #> │ 12:00:00 ┆ b"\x01" │
-  #> │ null     ┆ null    │
-  #> │ 14:00:00 ┆ b"\x02" │
-  #> └──────────┴─────────┘
-
-  ## Polars to R
-  tibble::as_tibble(pl_df)
-  #> # A tibble: 3 × 2
-  #>   time      binary
-  #>   <time>    <blob>
-  #> 1 12:00  <raw 1 B>
-  #> 2    NA         NA
-  #> 3 14:00  <raw 1 B>
-  ```
-
 * In general, `polars`now uses dots (`...`) in two scenarios:
 
   1. to pass an unlimited number of inputs (for instance in `select()`, `cast()`,
@@ -259,6 +193,72 @@ TODO: see https://github.com/rpolars/r-polars0/pull/4
 
   Use `as_polars_df()` and `as_polars_lf()` to convert existing R `data.frame`
   to their `polars` equivalents.
+
+* The class names `PTime` and `rpolars_raw_list` (used to handle time and binary
+  variables) are removed. One should use the classes provided in packages
+  `hms` and `blob` instead.
+
+  ```r
+  ### OLD
+  r_df <- tibble::tibble(
+    time = hms::as_hms(c("12:00:00", NA, "14:00:00")),
+    binary = blob::as_blob(c(1L, NA, 2L)),
+  )
+
+  # R to Polars
+  pl_df <- as_polars_df(r_df)
+  pl_df
+  #> shape: (3, 2)
+  #> ┌─────────┬──────────────┐
+  #> │ time    ┆ binary       │
+  #> │ ---     ┆ ---          │
+  #> │ f64     ┆ list[binary] │
+  #> ╞═════════╪══════════════╡
+  #> │ 43200.0 ┆ [b"\x01"]    │
+  #> │ null    ┆ []           │
+  #> │ 50400.0 ┆ [b"\x02"]    │
+  #> └─────────┴──────────────┘
+
+  # Polars to R
+  tibble::as_tibble(pl_df)
+  #> # A tibble: 3 × 2
+  #>    time binary
+  #>   <dbl> <list>
+  #> 1 43200 <rplrs_r_ [1]>
+  #> 2    NA <rplrs_r_ [0]>
+  #> 3 50400 <rplrs_r_ [1]>
+  ```
+
+  ```r
+  ### NEW
+  r_df <- tibble::tibble(
+    time = hms::as_hms(c("12:00:00", NA, "14:00:00")),
+    binary = blob::as_blob(c(1L, NA, 2L)),
+  )
+
+  ## R to Polars
+  pl_df <- as_polars_df(r_df)
+  pl_df
+  #> shape: (3, 2)
+  #> ┌──────────┬─────────┐
+  #> │ time     ┆ binary  │
+  #> │ ---      ┆ ---     │
+  #> │ time     ┆ binary  │
+  #> ╞══════════╪═════════╡
+  #> │ 12:00:00 ┆ b"\x01" │
+  #> │ null     ┆ null    │
+  #> │ 14:00:00 ┆ b"\x02" │
+  #> └──────────┴─────────┘
+
+  ## Polars to R
+  tibble::as_tibble(pl_df)
+  #> # A tibble: 3 × 2
+  #>   time      binary
+  #>   <time>    <blob>
+  #> 1 12:00  <raw 1 B>
+  #> 2    NA         NA
+  #> 3 14:00  <raw 1 B>
+  ```
 
 
 ### Other changes
