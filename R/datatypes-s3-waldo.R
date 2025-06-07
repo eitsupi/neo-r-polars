@@ -1,7 +1,11 @@
+# nolint start: object_name_linter
+
 # exported in zzz.R
 compare_proxy.polars_dtype <- function(x, path) {
   list(
-    object = x$`_dt`$as_str(abbreviated = FALSE),
+    object = format(x, abbreviated = FALSE),
     path = path
   )
 }
+
+# nolint end

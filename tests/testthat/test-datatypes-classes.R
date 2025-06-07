@@ -1,6 +1,7 @@
 patrick::with_parameters_test_that(
   "data types print",
   .cases = {
+    # nolint start: line_length_linter
     # fmt: skip
     tibble::tribble(
       ~.test_name, ~object,
@@ -38,6 +39,7 @@ patrick::with_parameters_test_that(
       "Categorical()", pl$Categorical(),
       "Enum(c('a', 'b', 'c'))", pl$Enum(c("a", "b", "c")),
     )
+    # nolint end
   },
   code = {
     expect_snapshot(print(class(object)))
@@ -50,14 +52,14 @@ patrick::with_parameters_test_that(
   .cases = {
     # fmt: skip
     tibble::tribble(
-      ~.test_name, ~categories, ~error_message,
-      "non-character", 1:5, "`categories` must be a character vector, not an integer vector",
-      "NA", c("a", NA_character_), "`categories` can't contain NA values",
-      "duplicated", c("c", "b", "a", "b", "a"), "Enum categories must be unique; found duplicated: b, a",
+      ~.test_name, ~categories,
+      "non-character", 1:5,
+      "NA", c("a", NA_character_),
+      "duplicated", c("c", "b", "a", "b", "a"),
     )
   },
   code = {
-    expect_error(pl$Enum(categories), error_message)
+    expect_snapshot(pl$Enum(categories), error = TRUE)
   }
 )
 

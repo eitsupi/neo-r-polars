@@ -85,7 +85,9 @@
       Caused by error:
       ! Evaluation failed in `$exclude()`.
       Caused by error:
-      ! cannot exclude by both column name and dtype; use a selector instead
+      ! Invalid `...` elements.
+      * All elements in `...` must be either single strings or Polars data types.
+      i `cs$exclude()` accepts mixing column names and Polars data types.
 
 ---
 
@@ -218,11 +220,8 @@
 
     Code
       pl$lit(1:5)$diff(99^99)
-    Condition
-      Error:
-      ! Evaluation failed in `$diff()`.
-      Caused by error:
-      ! 3.697296376497268e197 is out of range that can be safely converted to i64
+    Output
+      Series[literal].diff([3.6973e197])
 
 ---
 

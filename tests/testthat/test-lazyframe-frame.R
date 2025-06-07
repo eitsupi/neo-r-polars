@@ -1,3 +1,47 @@
+patrick::with_parameters_test_that(
+  "roundtrip around serialization",
+  .cases = {
+    tmpf <- withr::local_tempfile(fileext = ".arrow")
+    pl$DataFrame(a = 1, b = "foo")$write_ipc(tmpf)
+
+    # fmt: skip
+    tibble::tribble(
+      ~.test_name, ~x,
+      "empty", as_polars_lf(NULL),
+      "dataframe", pl$LazyFrame(a = 1:3, b = letters[1:3]),
+      "scan", pl$scan_ipc(tmpf),
+    )
+  },
+  code = {
+    serialized <- x$serialize()
+    expect_type(serialized, "raw")
+
+    expect_equal(pl$deserialize_lf(serialized)$collect(), x$collect())
+  }
+)
+
+test_that("Can't serialize lazyframe includes map function", {
+  expect_snapshot(
+    pl$LazyFrame()$select(pl$lit(1)$map_batches(\(x) x + 1))$serialize(),
+    error = TRUE
+  )
+})
+
+test_that("deserialize lazyframe' error", {
+  expect_snapshot(
+    pl$deserialize_lf(0L),
+    error = TRUE
+  )
+  expect_snapshot(
+    pl$deserialize_lf(raw(0)),
+    error = TRUE
+  )
+  expect_snapshot(
+    pl$deserialize_lf(as.raw(1:100)),
+    error = TRUE
+  )
+})
+
 test_that("select works lazy/eager", {
   .data <- pl$DataFrame(
     int32 = 1:5,
@@ -117,7 +161,7 @@ test_that("slice/head/tail works lazy/eager", {
     .input$slice(0, -2),
     .data,
     pl$DataFrame(foo = 1:3, bar = 6:8),
-    r"(negative slice length \(-2\) are invalid for LazyFrame)"
+    r"(Negative slice `length` \(-2\) are invalid for LazyFrame)"
   )
 
   # head
@@ -135,7 +179,7 @@ test_that("slice/head/tail works lazy/eager", {
     .input$head(-4),
     .data,
     pl$DataFrame(foo = 1L, bar = 6L),
-    r"(negative slice length \(-4\) are invalid for LazyFrame)"
+    r"(Negative slice `length` \(-4\) are invalid for LazyFrame)"
   )
 
   # tail
@@ -2288,13 +2332,13 @@ test_that("describe() works", {
     "`percentiles` must all be in the range [0, 1]",
     fixed = TRUE
   )
-  expect_error(
+  expect_snapshot(
     pl$DataFrame()$describe(),
-    "cannot describe a DataFrame without any columns"
+    error = TRUE
   )
-  expect_error(
+  expect_snapshot(
     pl$LazyFrame()$describe(),
-    "cannot describe a LazyFrame without any columns"
+    error = TRUE
   )
 
   expect_snapshot(df$describe(percentiles = 0.1))
@@ -2408,5 +2452,21 @@ test_that("error and warning from collect engines", {
   )
   expect_deprecated(
     as_polars_lf(mtcars)$collect(streaming = FALSE)
+  )
+})
+
+test_that("group_by() warns with arg maintain_order", {
+  dat <- pl$select(
+    a = 1L,
+    b = 1:3,
+  )
+  expect_query_warning(
+    .input$group_by("a", maintain_order = TRUE)$agg(),
+    .input = dat,
+    "contain an argument named `maintain_order`"
+  )
+
+  expect_snapshot(
+    dat$group_by("a", maintain_order = TRUE)$agg()
   )
 })

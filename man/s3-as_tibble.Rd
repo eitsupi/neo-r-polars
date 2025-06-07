@@ -86,6 +86,7 @@ One of the followings:
 One of the followings:
 \itemize{
 \item \code{"hms"} (default): Convert to the \link[hms:hms]{hms::hms} class.
+If the \link[hms:hms-package]{hms} package is not installed, a warning will be shown.
 \item \code{"ITime"}: Convert to the \link[data.table:IDateTime]{data.table::ITime} class.
 The \link[data.table:data.table]{data.table} package must be installed.
 }}
@@ -135,9 +136,11 @@ A \link[tibble:tbl_df-class]{tibble}
 }
 \description{
 This S3 method is basically a shortcut of
-\code{\link[=series__to_r_vector]{as_polars_df(x, ...)$to_struct()$to_r_vector(ensure_vector = FALSE, struct = "tibble")}}.
+\code{\link{as_polars_df(x, ...)$to_struct()$to_r_vector(struct = "tibble")}}
+\link{series__to_r_vector}.
 Additionally, you can check or repair the column names by specifying the \code{.name_repair} argument.
-Because polars \link{DataFrame} allows empty column name, which is not generally valid column name in R data frame.
+Because polars \link{DataFrame} allows empty column name, which is not generally valid column name
+in R data frame.
 }
 \examples{
 \dontshow{if (requireNamespace("tibble", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
@@ -156,6 +159,7 @@ tibble::as_tibble(df$lazy(), .name_repair = "unique")
 }
 \seealso{
 \itemize{
-\item \code{\link[=as.data.frame.polars_data_frame]{as.data.frame(<polars_object>)}}: Export the polars object as a basic data frame.
+\item \code{\link[=as.data.frame.polars_data_frame]{as.data.frame(<polars_object>)}}:
+Export the polars object as a basic data frame.
 }
 }

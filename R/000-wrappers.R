@@ -422,6 +422,13 @@ class(`PlRChainedWhen`) <- c("PlRChainedWhen__bundle", "savvy_neopolars__sealed"
   }
 }
 
+`PlRDataFrame_gather_with_series` <- function(self) {
+  function(`indices`) {
+    `indices` <- .savvy_extract_ptr(`indices`, "PlRSeries")
+    .savvy_wrap_PlRDataFrame(.Call(savvy_PlRDataFrame_gather_with_series__impl, `self`, `indices`))
+  }
+}
+
 `PlRDataFrame_get_column` <- function(self) {
   function(`name`) {
     .savvy_wrap_PlRSeries(.Call(savvy_PlRDataFrame_get_column__impl, `self`, `name`))
@@ -518,6 +525,12 @@ class(`PlRChainedWhen`) <- c("PlRChainedWhen__bundle", "savvy_neopolars__sealed"
   function(`n`, `with_replacement`, `shuffle`, `seed` = NULL) {
     `n` <- .savvy_extract_ptr(`n`, "PlRSeries")
     .savvy_wrap_PlRDataFrame(.Call(savvy_PlRDataFrame_sample_n__impl, `self`, `n`, `with_replacement`, `shuffle`, `seed`))
+  }
+}
+
+`PlRDataFrame_serialize_binary` <- function(self) {
+  function() {
+    .Call(savvy_PlRDataFrame_serialize_binary__impl, `self`)
   }
 }
 
@@ -626,6 +639,7 @@ class(`PlRChainedWhen`) <- c("PlRChainedWhen__bundle", "savvy_neopolars__sealed"
   e$`columns` <- `PlRDataFrame_columns`(ptr)
   e$`dtypes` <- `PlRDataFrame_dtypes`(ptr)
   e$`equals` <- `PlRDataFrame_equals`(ptr)
+  e$`gather_with_series` <- `PlRDataFrame_gather_with_series`(ptr)
   e$`get_column` <- `PlRDataFrame_get_column`(ptr)
   e$`get_column_index` <- `PlRDataFrame_get_column_index`(ptr)
   e$`get_columns` <- `PlRDataFrame_get_columns`(ptr)
@@ -642,6 +656,7 @@ class(`PlRChainedWhen`) <- c("PlRChainedWhen__bundle", "savvy_neopolars__sealed"
   e$`rechunk` <- `PlRDataFrame_rechunk`(ptr)
   e$`sample_frac` <- `PlRDataFrame_sample_frac`(ptr)
   e$`sample_n` <- `PlRDataFrame_sample_n`(ptr)
+  e$`serialize_binary` <- `PlRDataFrame_serialize_binary`(ptr)
   e$`set_column_names` <- `PlRDataFrame_set_column_names`(ptr)
   e$`shape` <- `PlRDataFrame_shape`(ptr)
   e$`slice` <- `PlRDataFrame_slice`(ptr)
@@ -668,6 +683,10 @@ class(`PlRChainedWhen`) <- c("PlRChainedWhen__bundle", "savvy_neopolars__sealed"
 `PlRDataFrame` <- new.env(parent = emptyenv())
 
 ### associated functions for PlRDataFrame
+
+`PlRDataFrame`$`deserialize_binary` <- function(`data`) {
+  .savvy_wrap_PlRDataFrame(.Call(savvy_PlRDataFrame_deserialize_binary__impl, `data`))
+}
 
 `PlRDataFrame`$`init` <- function(`columns`) {
   .savvy_wrap_PlRDataFrame(.Call(savvy_PlRDataFrame_init__impl, `columns`))
@@ -1093,12 +1112,6 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
   }
 }
 
-`PlRExpr_backward_fill` <- function(self) {
-  function(`limit` = NULL) {
-    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_backward_fill__impl, `self`, `limit`))
-  }
-}
-
 `PlRExpr_bin_base64_decode` <- function(self) {
   function(`strict`) {
     .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_bin_base64_decode__impl, `self`, `strict`))
@@ -1338,6 +1351,7 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
 
 `PlRExpr_diff` <- function(self) {
   function(`n`, `null_behavior`) {
+    `n` <- .savvy_extract_ptr(`n`, "PlRExpr")
     .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_diff__impl, `self`, `n`, `null_behavior`))
   }
 }
@@ -1743,12 +1757,6 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
   }
 }
 
-`PlRExpr_forward_fill` <- function(self) {
-  function(`limit` = NULL) {
-    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_forward_fill__impl, `self`, `limit`))
-  }
-}
-
 `PlRExpr_gather` <- function(self) {
   function(`idx`) {
     `idx` <- .savvy_extract_ptr(`idx`, "PlRExpr")
@@ -1966,9 +1974,9 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
 }
 
 `PlRExpr_list_gather` <- function(self) {
-  function(`index`, `null_on_oob`) {
-    `index` <- .savvy_extract_ptr(`index`, "PlRExpr")
-    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_list_gather__impl, `self`, `index`, `null_on_oob`))
+  function(`indices`, `null_on_oob`) {
+    `indices` <- .savvy_extract_ptr(`indices`, "PlRExpr")
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_list_gather__impl, `self`, `indices`, `null_on_oob`))
   }
 }
 
@@ -2547,8 +2555,8 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
 }
 
 `PlRExpr_rolling_skew` <- function(self) {
-  function(`window_size`, `bias`) {
-    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_rolling_skew__impl, `self`, `window_size`, `bias`))
+  function(`window_size`, `bias`, `center`, `min_samples` = NULL) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_rolling_skew__impl, `self`, `window_size`, `bias`, `center`, `min_samples`))
   }
 }
 
@@ -2592,8 +2600,8 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
 }
 
 `PlRExpr_round` <- function(self) {
-  function(`decimals`) {
-    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_round__impl, `self`, `decimals`))
+  function(`decimals`, `mode`) {
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_round__impl, `self`, `decimals`, `mode`))
   }
 }
 
@@ -3187,7 +3195,6 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
   e$`arr_unique` <- `PlRExpr_arr_unique`(ptr)
   e$`arr_var` <- `PlRExpr_arr_var`(ptr)
   e$`as_str` <- `PlRExpr_as_str`(ptr)
-  e$`backward_fill` <- `PlRExpr_backward_fill`(ptr)
   e$`bin_base64_decode` <- `PlRExpr_bin_base64_decode`(ptr)
   e$`bin_base64_encode` <- `PlRExpr_bin_base64_encode`(ptr)
   e$`bin_contains` <- `PlRExpr_bin_contains`(ptr)
@@ -3291,7 +3298,6 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
   e$`first` <- `PlRExpr_first`(ptr)
   e$`floor` <- `PlRExpr_floor`(ptr)
   e$`floor_div` <- `PlRExpr_floor_div`(ptr)
-  e$`forward_fill` <- `PlRExpr_forward_fill`(ptr)
   e$`gather` <- `PlRExpr_gather`(ptr)
   e$`gather_every` <- `PlRExpr_gather_every`(ptr)
   e$`get` <- `PlRExpr_get`(ptr)
@@ -3772,9 +3778,15 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
   }
 }
 
-`PlRLazyFrame_serialize` <- function(self) {
+`PlRLazyFrame_serialize_binary` <- function(self) {
   function() {
-    .Call(savvy_PlRLazyFrame_serialize__impl, `self`)
+    .Call(savvy_PlRLazyFrame_serialize_binary__impl, `self`)
+  }
+}
+
+`PlRLazyFrame_serialize_json` <- function(self) {
+  function() {
+    .Call(savvy_PlRLazyFrame_serialize_json__impl, `self`)
   }
 }
 
@@ -3940,7 +3952,8 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
   e$`rolling` <- `PlRLazyFrame_rolling`(ptr)
   e$`select` <- `PlRLazyFrame_select`(ptr)
   e$`select_seq` <- `PlRLazyFrame_select_seq`(ptr)
-  e$`serialize` <- `PlRLazyFrame_serialize`(ptr)
+  e$`serialize_binary` <- `PlRLazyFrame_serialize_binary`(ptr)
+  e$`serialize_json` <- `PlRLazyFrame_serialize_json`(ptr)
   e$`shift` <- `PlRLazyFrame_shift`(ptr)
   e$`sink_csv` <- `PlRLazyFrame_sink_csv`(ptr)
   e$`sink_ipc` <- `PlRLazyFrame_sink_ipc`(ptr)
@@ -3971,6 +3984,10 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_neopolars__sealed")
 `PlRLazyFrame` <- new.env(parent = emptyenv())
 
 ### associated functions for PlRLazyFrame
+
+`PlRLazyFrame`$`deserialize_binary` <- function(`data`) {
+  .savvy_wrap_PlRLazyFrame(.Call(savvy_PlRLazyFrame_deserialize_binary__impl, `data`))
+}
 
 `PlRLazyFrame`$`new_from_csv` <- function(`source`, `separator`, `has_header`, `ignore_errors`, `skip_rows`, `cache`, `missing_utf8_is_empty_string`, `low_memory`, `rechunk`, `skip_rows_after_header`, `encoding`, `try_parse_dates`, `eol_char`, `raise_if_empty`, `truncate_ragged_lines`, `decimal_comma`, `glob`, `retries`, `row_index_offset`, `comment_prefix` = NULL, `quote_char` = NULL, `null_values` = NULL, `infer_schema_length` = NULL, `row_index_name` = NULL, `n_rows` = NULL, `overwrite_dtype` = NULL, `schema` = NULL, `storage_options` = NULL, `file_cache_ttl` = NULL, `include_file_paths` = NULL) {
   .savvy_wrap_PlRLazyFrame(.Call(savvy_PlRLazyFrame_new_from_csv__impl, `source`, `separator`, `has_header`, `ignore_errors`, `skip_rows`, `cache`, `missing_utf8_is_empty_string`, `low_memory`, `rechunk`, `skip_rows_after_header`, `encoding`, `try_parse_dates`, `eol_char`, `raise_if_empty`, `truncate_ragged_lines`, `decimal_comma`, `glob`, `retries`, `row_index_offset`, `comment_prefix`, `quote_char`, `null_values`, `infer_schema_length`, `row_index_name`, `n_rows`, `overwrite_dtype`, `schema`, `storage_options`, `file_cache_ttl`, `include_file_paths`))
@@ -4232,6 +4249,12 @@ class(`PlRSQLContext`) <- c("PlRSQLContext__bundle", "savvy_neopolars__sealed")
   }
 }
 
+`PlRSeries_serialize` <- function(self) {
+  function() {
+    .Call(savvy_PlRSeries_serialize__impl, `self`)
+  }
+}
+
 `PlRSeries_slice` <- function(self) {
   function(`offset`, `length` = NULL) {
     .savvy_wrap_PlRSeries(.Call(savvy_PlRSeries_slice__impl, `self`, `offset`, `length`))
@@ -4264,9 +4287,9 @@ class(`PlRSQLContext`) <- c("PlRSQLContext__bundle", "savvy_neopolars__sealed")
 }
 
 `PlRSeries_to_r_vector` <- function(self) {
-  function(`ensure_vector`, `uint8`, `int64`, `date`, `time`, `struct`, `decimal`, `as_clock_class`, `ambiguous`, `non_existent`, `local_time_zone`) {
+  function(`uint8`, `int64`, `date`, `time`, `struct`, `decimal`, `as_clock_class`, `ambiguous`, `non_existent`, `local_time_zone`) {
     `ambiguous` <- .savvy_extract_ptr(`ambiguous`, "PlRExpr")
-    .Call(savvy_PlRSeries_to_r_vector__impl, `self`, `ensure_vector`, `uint8`, `int64`, `date`, `time`, `struct`, `decimal`, `as_clock_class`, `ambiguous`, `non_existent`, `local_time_zone`)
+    .Call(savvy_PlRSeries_to_r_vector__impl, `self`, `uint8`, `int64`, `date`, `time`, `struct`, `decimal`, `as_clock_class`, `ambiguous`, `non_existent`, `local_time_zone`)
   }
 }
 
@@ -4295,6 +4318,7 @@ class(`PlRSQLContext`) <- c("PlRSQLContext__bundle", "savvy_neopolars__sealed")
   e$`rem` <- `PlRSeries_rem`(ptr)
   e$`rename` <- `PlRSeries_rename`(ptr)
   e$`reshape` <- `PlRSeries_reshape`(ptr)
+  e$`serialize` <- `PlRSeries_serialize`(ptr)
   e$`slice` <- `PlRSeries_slice`(ptr)
   e$`struct_fields` <- `PlRSeries_struct_fields`(ptr)
   e$`struct_unnest` <- `PlRSeries_struct_unnest`(ptr)
@@ -4311,6 +4335,10 @@ class(`PlRSQLContext`) <- c("PlRSQLContext__bundle", "savvy_neopolars__sealed")
 `PlRSeries` <- new.env(parent = emptyenv())
 
 ### associated functions for PlRSeries
+
+`PlRSeries`$`deserialize` <- function(`data`) {
+  .savvy_wrap_PlRSeries(.Call(savvy_PlRSeries_deserialize__impl, `data`))
+}
 
 `PlRSeries`$`from_arrow_c_stream` <- function(`stream_ptr`) {
   .savvy_wrap_PlRSeries(.Call(savvy_PlRSeries_from_arrow_c_stream__impl, `stream_ptr`))

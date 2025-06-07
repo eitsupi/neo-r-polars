@@ -5,10 +5,7 @@ use crate::prelude::*;
 use crate::{PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame, PlRSeries, RPolarsErr};
 use polars::prelude::cloud::CloudOptions;
 use polars::series::ops::NullBehavior;
-use savvy::{
-    ListSexp, NumericScalar, NumericSexp, NumericTypedSexp, OwnedIntegerSexp, Sexp, StringSexp,
-    TypedSexp,
-};
+use savvy::{ListSexp, NumericScalar, NumericSexp, NumericTypedSexp, Sexp, StringSexp, TypedSexp};
 use search_sorted::SearchSortedSide;
 pub mod base_date;
 mod chunked_array;
@@ -731,6 +728,19 @@ impl TryFrom<&str> for Wrap<AsofStrategy> {
     }
 }
 
+impl TryFrom<&str> for Wrap<RoundMode> {
+    type Error = savvy::Error;
+
+    fn try_from(round_mode: &str) -> Result<Self, Self::Error> {
+        let parsed = match round_mode {
+            "half_to_even" => RoundMode::HalfToEven,
+            "half_away_from_zero" => RoundMode::HalfAwayFromZero,
+            _ => return Err("unreachable".to_string().into()),
+        };
+        Ok(Wrap(parsed))
+    }
+}
+
 impl TryFrom<&str> for Wrap<CsvEncoding> {
     type Error = String;
 
@@ -865,9 +875,9 @@ impl TryFrom<Sexp> for Wrap<CompatLevel> {
 
     fn try_from(value: Sexp) -> Result<Self, Self::Error> {
         if value.is_numeric() {
-            <NumericScalar>::try_from(value).and_then(|v| <Wrap<CompatLevel>>::try_from(v))
+            <NumericScalar>::try_from(value).and_then(<Wrap<CompatLevel>>::try_from)
         } else if value.is_string() {
-            <&str>::try_from(value).and_then(|v| <Wrap<CompatLevel>>::try_from(v))
+            <&str>::try_from(value).and_then(<Wrap<CompatLevel>>::try_from)
         } else {
             Err("Invalid compat level".to_string().into())
         }

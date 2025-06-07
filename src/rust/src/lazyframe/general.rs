@@ -2,14 +2,12 @@ use crate::{
     PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame, PlRLazyGroupBy, PlRSeries, RPolarsErr,
     prelude::{sync_on_close::SyncOnCloseType, *},
 };
-use polars::io::cloud::CloudOptions;
 use polars::io::{HiveOptions, RowIndex};
 use savvy::{
     ListSexp, LogicalSexp, NumericScalar, OwnedListSexp, OwnedStringSexp, Result, Sexp, StringSexp,
     savvy,
 };
-use std::num::NonZeroUsize;
-use std::path::PathBuf;
+use std::{num::NonZeroUsize, path::PathBuf};
 
 #[savvy]
 impl PlRLazyFrame {
@@ -334,12 +332,6 @@ impl PlRLazyFrame {
             out.set_value_unchecked(1, Sexp::try_from(timings)?.0);
         };
         Ok(out.into())
-    }
-
-    fn serialize(&self) -> Result<Sexp> {
-        let dump = serde_json::to_string(&self.ldf.logical_plan)
-            .map_err(|err| RPolarsErr::Other(err.to_string()))?;
-        dump.try_into()
     }
 
     fn select_seq(&mut self, exprs: ListSexp) -> Result<Self> {
@@ -1267,7 +1259,12 @@ impl PlRLazyFrame {
         };
         self.ldf
             .clone()
-            .sink_parquet(&path, options, cloud_options, sink_options)
+            .sink_parquet(
+                SinkTarget::Path(Arc::new(path)),
+                options,
+                cloud_options,
+                sink_options,
+            )
             .map(PlRLazyFrame::from)
             .map_err(RPolarsErr::from)
             .map_err(Into::into)
@@ -1356,7 +1353,12 @@ impl PlRLazyFrame {
 
         self.ldf
             .clone()
-            .sink_csv(&path, options, cloud_options, sink_options)
+            .sink_csv(
+                SinkTarget::Path(Arc::new(path)),
+                options,
+                cloud_options,
+                sink_options,
+            )
             .map(PlRLazyFrame::from)
             .map_err(RPolarsErr::from)
             .map_err(Into::into)
@@ -1372,10 +1374,26 @@ impl PlRLazyFrame {
         mkdir: bool,
         storage_options: Option<StringSexp>,
     ) -> Result<Self> {
+        let path: PathBuf = path.into();
         let options = JsonWriterOptions {};
-        let _retries = <Wrap<usize>>::try_from(retries)?.0;
+        let retries = <Wrap<usize>>::try_from(retries)?.0;
 
-        let cloud_options = Some(CloudOptions::default());
+        let cloud_options = match storage_options {
+            Some(x) => {
+                let out = <Wrap<Vec<(String, String)>>>::try_from(x).map_err(|_| {
+                    RPolarsErr::Other(
+                        "`storage_options` must be a named character vector".to_string(),
+                    )
+                })?;
+                Some(out.0)
+            }
+            None => None,
+        };
+        let cloud_options = {
+            let cloud_options =
+                parse_cloud_options(path.to_str().unwrap(), cloud_options.unwrap_or_default())?;
+            Some(cloud_options.with_max_retries(retries))
+        };
         let sync_on_close = <Wrap<SyncOnCloseType>>::try_from(sync_on_close)?.0;
         let sink_options = SinkOptions {
             sync_on_close,
@@ -1384,10 +1402,15 @@ impl PlRLazyFrame {
         };
 
         let ldf = self.ldf.clone();
-        ldf.sink_json(path, options, cloud_options, sink_options)
-            .map(PlRLazyFrame::from)
-            .map_err(RPolarsErr::from)
-            .map_err(Into::into)
+        ldf.sink_json(
+            SinkTarget::Path(Arc::new(path)),
+            options,
+            cloud_options,
+            sink_options,
+        )
+        .map(PlRLazyFrame::from)
+        .map_err(RPolarsErr::from)
+        .map_err(Into::into)
     }
 
     fn sink_ipc(
@@ -1438,7 +1461,12 @@ impl PlRLazyFrame {
 
         self.ldf
             .clone()
-            .sink_ipc(&path, options, cloud_options, sink_options)
+            .sink_ipc(
+                SinkTarget::Path(Arc::new(path)),
+                options,
+                cloud_options,
+                sink_options,
+            )
             .map(PlRLazyFrame::from)
             .map_err(RPolarsErr::from)
             .map_err(Into::into)

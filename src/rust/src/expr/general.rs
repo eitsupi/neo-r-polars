@@ -277,10 +277,13 @@ impl PlRExpr {
         Ok(self.inner.clone().pow(exponent.inner.clone()).into())
     }
 
-    fn diff(&self, n: NumericScalar, null_behavior: &str) -> Result<Self> {
-        let n = <Wrap<i64>>::try_from(n)?.0;
+    fn diff(&self, n: &PlRExpr, null_behavior: &str) -> Result<Self> {
         let null_behavior = <Wrap<NullBehavior>>::try_from(null_behavior)?.0;
-        Ok(self.inner.clone().diff(n, null_behavior).into())
+        Ok(self
+            .inner
+            .clone()
+            .diff(n.inner.clone(), null_behavior)
+            .into())
     }
 
     fn reshape(&self, dimensions: NumericSexp) -> Result<Self> {
@@ -739,9 +742,10 @@ impl PlRExpr {
             .into())
     }
 
-    fn round(&self, decimals: NumericScalar) -> Result<Self> {
+    fn round(&self, decimals: NumericScalar, mode: &str) -> Result<Self> {
         let decimals = <Wrap<u32>>::try_from(decimals)?.0;
-        Ok(self.inner.clone().round(decimals).into())
+        let mode = <Wrap<RoundMode>>::try_from(mode)?.0;
+        Ok(self.inner.clone().round(decimals, mode).into())
     }
 
     fn round_sig_figs(&self, digits: NumericScalar) -> Result<Self> {
@@ -766,22 +770,6 @@ impl PlRExpr {
             (None, None) => expr,
         };
         Ok(out.into())
-    }
-
-    fn backward_fill(&self, limit: Option<NumericScalar>) -> Result<Self> {
-        let limit: FillNullLimit = match limit {
-            Some(x) => Some(<Wrap<u32>>::try_from(x)?.0),
-            None => None,
-        };
-        Ok(self.inner.clone().backward_fill(limit).into())
-    }
-
-    fn forward_fill(&self, limit: Option<NumericScalar>) -> Result<Self> {
-        let limit: FillNullLimit = match limit {
-            Some(x) => Some(<Wrap<u32>>::try_from(x)?.0),
-            None => None,
-        };
-        Ok(self.inner.clone().forward_fill(limit).into())
     }
 
     fn shift(&self, n: &PlRExpr, fill_value: Option<&PlRExpr>) -> Result<Self> {

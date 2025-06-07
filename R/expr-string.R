@@ -183,8 +183,9 @@ expr_str_to_time <- function(format = NULL, ..., strict = TRUE, cache = TRUE) {
 #' e.g.: `"%F %T%.3f"` => [`pl$Datetime("ms")`][pl__Datetime].
 #' If no fractional second component is found, the default is `"us"` (microsecond).
 #' @param time_zone for the resulting [Datetime][pl__Datetime] column.
-#' @param exact If `TRUE` (default), require an exact format match. If `FALSE`, allow the format to match
-#' anywhere in the target string. Note that using `exact = FALSE` introduces a performance
+#' @param exact If `TRUE` (default), require an exact format match.
+#' If `FALSE`, allow the format to match anywhere in the target string.
+#' Note that using `exact = FALSE` introduces a performance
 #' penalty - cleaning your data beforehand will almost certainly be more performant.
 #' @inherit as_polars_expr return
 #' @seealso
@@ -285,7 +286,12 @@ expr_str_concat <- function(
   ...,
   ignore_nulls = TRUE
 ) {
-  deprecate_warn("$str$concat() is deprecated as of 0.18.0. Use $str$join() instead.")
+  deprecate_warn(
+    c(
+      `!` = "`$str$concat()` is deprecated.",
+      i = "Use `$str$join()` instead."
+    )
+  )
   self$`_rexpr`$str_join(delimiter, ignore_nulls) |>
     wrap()
 }
@@ -541,7 +547,7 @@ expr_str_pad_start <- function(length, fill_char = " ") {
 #' @param pattern A character or something can be coerced to a string [Expr]
 #' of a valid regex pattern, compatible with the [regex crate](https://docs.rs/regex/latest/regex/).
 #' @inheritParams rlang::args_dots_empty
-#' @param literal Logical. If `TRUE` (default), treat `pattern` as a literal string,
+#' @param literal Logical. If `TRUE`, treat `pattern` as a literal string,
 #' not as a regular expression.
 #' @param strict Logical. If `TRUE` (default), raise an error if the underlying pattern is
 #' not a valid regex, otherwise mask out with a null value.
@@ -1094,7 +1100,8 @@ expr_str_replace_many <- function(patterns, replace_with, ascii_case_insensitive
 #' All group names are strings. If your pattern contains unnamed groups, their
 #' numerical position is converted to a string. See examples.
 #' @param pattern A character of a valid regular expression pattern containing
-#' at least one capture group, compatible with the [regex crate](https://docs.rs/regex/latest/regex/).
+#' at least one capture group, compatible with the
+#' [regex crate](https://docs.rs/regex/latest/regex/).
 #' @inherit as_polars_expr return
 #'
 #' @examples

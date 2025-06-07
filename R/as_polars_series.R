@@ -14,14 +14,14 @@
 #' all elements must have the same type.
 #' So the [as_polars_series()] function automatically casts all elements to the same type
 #' or throws an error, depending on the `strict` argument.
-#' We can check the [data type][DataType] of the [Series] that will be created from the [list] by using the
-#' [infer_polars_dtype()] function in advance.
+#' We can check the [data type][DataType] of the [Series] that will be created from
+#' the [list] by using the [infer_polars_dtype()] function in advance.
 #' If you want to create a list with all elements of the same type in R,
 #' consider using the [vctrs::list_of()] function.
 #'
 #' Since a [list] can contain another [list], the `strict` argument is also used
-#' when creating [Series] from the inner [list] in the case of classes constructed on top of a [list],
-#' such as [data.frame] or [vctrs_rcrd][vctrs::new_rcrd].
+#' when creating [Series] from the inner [list] in the case of classes constructed
+#' on top of a [list], such as [data.frame] or [vctrs_rcrd][vctrs::new_rcrd].
 #'
 #' ## S3 method for [Date]
 #'
@@ -55,7 +55,8 @@
 #' the internal representation of seconds.
 #' Please check the [clock_duration][clock::duration-helper] documentation for more details.
 #'
-#' ## S3 methods for [polars_data_frame][DataFrame], [polars_lazy_frame][LazyFrame], and [data.frame]
+#' ## S3 methods for [polars_data_frame][DataFrame], [polars_lazy_frame][LazyFrame],
+#' and [data.frame]
 #'
 #' These methods are shortcuts for `as_polars_df(x, ...)$to_struct()`.
 #' See [as_polars_df()] and [`<DataFrame>$to_struct()`][dataframe__to_struct] for more details.
@@ -211,7 +212,7 @@ as_polars_series.polars_lazy_frame <- as_polars_series.polars_data_frame
 as_polars_series.polars_expr <- function(x, name = NULL, ...) {
   abort(
     c(
-      "passing polars expression objects to `as_polars_series()` is not supported.",
+      "Passing Polars expression objects to `as_polars_series()` is not supported.",
       i = "You can evaluating the expression with `pl$select()`."
     )
   )
@@ -384,8 +385,13 @@ as_polars_series.hms <- function(x, name = NULL, ...) {
   wrap({
     if (suppressWarnings(max(x, na.rm = TRUE) >= 86400.0 || min(x, na.rm = TRUE) < 0.0)) {
       abort(c(
-        "Conversion from `hms` vectors to polars series containing values greater than 24-oclocks or less than 0-oclocks is not supported.",
-        i = "If you want to treat the vector as `difftime`, use `vctrs::vec_cast(x, difftime(0, 0))` before converting to a polars series."
+        "Conversion from hms object to Polars Series failed.",
+        `*` = sprintf(
+          "Only values 00:00:00 <= `x` < 24:00:00 are supported, got: %s to %s",
+          x[which.min(x)],
+          x[which.max(x)]
+        ),
+        i = "To treat the object `x` as difftime, use `vctrs::vec_cast(x, difftime(0, 0))` first."
       ))
     }
 

@@ -456,11 +456,22 @@ expr__exclude <- function(...) {
   wrap({
     check_dots_unnamed()
     by <- list2(...)
-    exclude_cols <- Filter(is.character, by)
+    exclude_cols <- Filter(is_string, by)
     exclude_dtypes <- Filter(is_polars_dtype, by)
 
-    if (length(exclude_cols) > 0 && length(exclude_dtypes) > 0) {
-      abort("cannot exclude by both column name and dtype; use a selector instead")
+    unknown <- Filter(
+      \(x) !is_string(x) && !is_polars_dtype(x),
+      by
+    )
+
+    if (length(unknown) > 0 || length(exclude_cols) > 0 && length(exclude_dtypes) > 0) {
+      abort(
+        c(
+          "Invalid `...` elements.",
+          `*` = "All elements in `...` must be either single strings or Polars data types.",
+          i = "`cs$exclude()` accepts mixing column names and Polars data types."
+        )
+      )
     } else if (length(exclude_cols) > 0) {
       self$`_rexpr`$exclude(unlist(exclude_cols))
     } else if (length(exclude_dtypes) > 0) {
@@ -1239,7 +1250,7 @@ expr__xor <- function(other) {
 expr__diff <- function(n = 1, null_behavior = c("ignore", "drop")) {
   wrap({
     null_behavior <- arg_match0(null_behavior, c("ignore", "drop"))
-    self$`_rexpr`$diff(n, null_behavior)
+    self$`_rexpr`$diff(as_polars_expr(n)$`_rexpr`, null_behavior)
   })
 }
 
@@ -2730,20 +2741,30 @@ expr__rolling_quantile <- function(
 #' Apply a rolling skew over values
 #'
 #' @inherit expr__rolling_max description params details
-#' @inheritParams expr__skew
-#'
 #' @inherit as_polars_expr return
+#' @inheritParams expr__skew
+#' @param min_samples The number of values in the window that should be non-null before computing
+#' a result. If set to `NULL` (default), it will be set equal to `window_size`.
+#' @param center Set the labels at the center of the window.
 #' @examples
 #' df <- pl$DataFrame(a = c(1, 4, 2, 9))
 #' df$with_columns(
 #'   rolling_skew = pl$col("a")$rolling_skew(3)
 #' )
-expr__rolling_skew <- function(window_size, ..., bias = TRUE) {
+expr__rolling_skew <- function(
+  window_size,
+  ...,
+  bias = TRUE,
+  min_samples = NULL,
+  center = FALSE
+) {
   wrap({
     check_dots_empty0(...)
     self$`_rexpr`$rolling_skew(
       window_size = window_size,
-      bias = bias
+      bias = bias,
+      min_samples = min_samples,
+      center = center
     )
   })
 }
@@ -3561,8 +3582,10 @@ expr__append <- function(other, ..., upcast = TRUE) {
 
 #' Fill missing values with the next non-null value
 #'
-#' @param limit The number of consecutive null values to backward fill.
+#' `r lifecycle::badge("superseded")`
+#' This is an alias of [`$fill_null(strategy = "backward")`][expr__fill_null].
 #'
+#' @param limit The number of consecutive null values to backward fill.
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
@@ -3573,14 +3596,16 @@ expr__append <- function(other, ..., upcast = TRUE) {
 #' df$select(pl$all()$backward_fill())
 #' df$select(pl$all()$backward_fill(limit = 1))
 expr__backward_fill <- function(limit = NULL) {
-  self$`_rexpr`$backward_fill(limit) |>
+  self$fill_null(strategy = "backward", limit = limit) |>
     wrap()
 }
 
 #' Fill missing values with the last non-null value
 #'
-#' @param limit The number of consecutive null values to forward fill.
+#' `r lifecycle::badge("superseded")`
+#' This is an alias of [`$fill_null(strategy = "forward")`][expr__fill_null].
 #'
+#' @param limit The number of consecutive null values to forward fill.
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
@@ -3591,7 +3616,7 @@ expr__backward_fill <- function(limit = NULL) {
 #' df$select(pl$all()$forward_fill())
 #' df$select(pl$all()$forward_fill(limit = 1))
 expr__forward_fill <- function(limit = NULL) {
-  self$`_rexpr`$forward_fill(limit) |>
+  self$fill_null(strategy = "forward", limit = limit) |>
     wrap()
 }
 
@@ -3927,7 +3952,7 @@ expr__fill_null <- function(value, strategy = NULL, limit = NULL) {
       )
     }
     if (!strategy %in% c("forward", "backward") && !is.null(limit)) {
-      abort("can only specify `limit` when strategy is set to 'backward' or 'forward'")
+      abort('Can only specify `limit` when strategy is set to "backward" or "forward".')
     }
     if (!missing(value)) {
       self$`_rexpr`$fill_null(as_polars_expr(value, as_lit = TRUE)$`_rexpr`)
@@ -3991,20 +4016,6 @@ expr__gather_every <- function(n, offset = 0) {
     self$`_rexpr`$gather_every(n, offset)
   })
 }
-
-# TODO-REWRITE: Requires $map_batches()
-# #' Print the value that this expression evaluates to and pass on the value
-# #'
-# #' @param fmt How to format the expression. Use `"{}"` where you want to print
-# #' the value of the expression.
-# #'
-# #' @inherit as_polars_expr return
-# #' @examples
-# #' df <- pl$DataFrame(foo = c(1, 1, 2))
-# #' df$select(pl$col("foo")$cum_sum()$inspect("value is: {}")$alias("bar"))
-# expr__format <- function(fmt) {
-#
-# }
 
 #' Fill null values using interpolation
 #'
@@ -4468,7 +4479,7 @@ expr__sample <- function(
     check_dots_empty0(...)
     if (!is.null(fraction)) {
       if (!is.null(n)) {
-        abort("cannot specify both `n` and `fraction`")
+        abort("Can't specify both `n` and `fraction`.")
       }
       self$`_rexpr`$sample_frac(
         as_polars_expr(fraction, as_lit = TRUE)$`_rexpr`,
@@ -4493,17 +4504,20 @@ expr__sample <- function(
 #' Round underlying floating point data by decimals digits
 #'
 #' @param decimals Number of decimals to round by.
+#' @param mode Rounding mode. One of `"half_to_even"` (default) or `"half_away_from_zero"`.
 #'
 #' @inherit as_polars_expr return
 #' @examples
-#' df <- pl$DataFrame(a = c(0.33, 0.52, 1.02, 1.17))
+#' df <- pl$DataFrame(a = c(0.5, 1.5, 2.5, 3.5))
 #'
 #' df$with_columns(
-#'   rounded = pl$col("a")$round(1)
+#'   half_to_even = pl$col("a")$round(0),
+#'   half_away_from_zero = pl$col("a")$round(0, "half_away_from_zero"),
 #' )
-expr__round <- function(decimals) {
+expr__round <- function(decimals, mode = c("half_to_even", "half_away_from_zero")) {
   wrap({
-    self$`_rexpr`$round(decimals)
+    mode <- arg_match0(mode, values = c("half_to_even", "half_away_from_zero"))
+    self$`_rexpr`$round(decimals, mode)
   })
 }
 
