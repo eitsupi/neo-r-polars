@@ -1,0 +1,274 @@
+# NEWS
+
+## polars 1.0.0
+
+This is a completely rewritten new version of the polars R package. This still
+follows Python Polars' API, but there are also some breaking changes compared to
+the previous R Polars implementation.
+
+Installation instructions for the rewritten version are now identical to the
+instructions for the old version. The old version (referred to as `polars0` in
+the docs) can be installed from R-universe with:
+
+```r
+TODO: see https://github.com/rpolars/r-polars0/pull/4
+```
+
+### Breaking changes
+
+* The class names of `polars` objects have changed:
+  - `RPolarsLazyFrame` -> `polars_lazy_frame`
+  - `RPolarsDataFrame` -> `polars_data_frame`
+  - `RPolarsSeries` -> `polars_series`
+  - `RPolarsExpr` -> `polars_expr`
+
+* Conversion from unknown classes to Polars objects now fail. Developers can
+  specify how those objects should be handled by `polars` by creating a method
+  for `as_polars_series.<my-object>`.
+
+  ```r
+  ### OLD
+  a <- 1
+  class(a) <- "foo"
+  as_polars_series(a)
+  #> polars Series: shape: (1,)
+  #> Series: '' [f64]
+  #> [
+  #>         1.0
+  #> ]
+  ```
+
+  ```r
+  ### NEW
+  a <- 1
+  class(a) <- "foo"
+  as_polars_series(a)
+  #> Error:
+  #> a <foo> object can't be converted to a polars Series.
+  #> Run `rlang::last_trace()` to see where the error occurred.
+  ```
+
+* Conversion from `polars` to R types has been revamped: `$to_r()`, `$to_list()`
+  and `$to_data_frame()` no longer exist. Instead, you must use `as.data.frame()`,
+  `as.list()` and `as.vector()`.
+
+  If finer control is needed (for instance to specify how integer-64 or date
+  columns should be handled), use either `$to_r_vector()` or set options for the
+  entire session with `polars_options()`.
+
+* The class names `PTime` and `rpolars_raw_list` (used to handle time and binary
+  variables) are removed. One should use the classes provided in packages
+  `hms` and `blob` instead.
+
+  ```r
+  ### OLD
+  r_df <- tibble::tibble(
+    time = hms::as_hms(c("12:00:00", NA, "14:00:00")),
+    binary = blob::as_blob(c(1L, NA, 2L)),
+  )
+
+  # R to Polars
+  pl_df <- as_polars_df(r_df)
+  pl_df
+  #> shape: (3, 2)
+  #> ┌─────────┬──────────────┐
+  #> │ time    ┆ binary       │
+  #> │ ---     ┆ ---          │
+  #> │ f64     ┆ list[binary] │
+  #> ╞═════════╪══════════════╡
+  #> │ 43200.0 ┆ [b"\x01"]    │
+  #> │ null    ┆ []           │
+  #> │ 50400.0 ┆ [b"\x02"]    │
+  #> └─────────┴──────────────┘
+
+  # Polars to R
+  tibble::as_tibble(pl_df)
+  #> # A tibble: 3 × 2
+  #>    time binary
+  #>   <dbl> <list>
+  #> 1 43200 <rplrs_r_ [1]>
+  #> 2    NA <rplrs_r_ [0]>
+  #> 3 50400 <rplrs_r_ [1]>
+  ```
+
+  ```r
+  ### NEW
+  r_df <- tibble::tibble(
+    time = hms::as_hms(c("12:00:00", NA, "14:00:00")),
+    binary = blob::as_blob(c(1L, NA, 2L)),
+  )
+
+  ## R to Polars
+  pl_df <- as_polars_df(r_df)
+  pl_df
+  #> shape: (3, 2)
+  #> ┌──────────┬─────────┐
+  #> │ time     ┆ binary  │
+  #> │ ---      ┆ ---     │
+  #> │ time     ┆ binary  │
+  #> ╞══════════╪═════════╡
+  #> │ 12:00:00 ┆ b"\x01" │
+  #> │ null     ┆ null    │
+  #> │ 14:00:00 ┆ b"\x02" │
+  #> └──────────┴─────────┘
+
+  ## Polars to R
+  tibble::as_tibble(pl_df)
+  #> # A tibble: 3 × 2
+  #>   time      binary
+  #>   <time>    <blob>
+  #> 1 12:00  <raw 1 B>
+  #> 2    NA         NA
+  #> 3 14:00  <raw 1 B>
+  ```
+
+* In general, `polars`now uses dots (`...`) in two scenarios:
+
+  1. to pass an unlimited number of inputs (for instance in `select()`, `cast()`,
+     or `group_by()`), using [dynamic-dots](https://rlang.r-lib.org/reference/dyn-dots.html).
+
+    For example, if you used to pass a vector of column names or a list of
+    expressions, you now need to expand it with `!!!`:
+    ``` r
+    ### OLD
+    dat <- as_polars_df(head(mtcars, 3))
+    my_exprs <- list(pl$col("drat") + 1, "mpg", "cyl")
+    dat$select(my_exprs)
+    #> shape: (6, 3)
+    #> ┌──────┬──────┬─────┐
+    #> │ drat ┆ mpg  ┆ cyl │
+    #> │ ---  ┆ ---  ┆ --- │
+    #> │ f64  ┆ f64  ┆ f64 │
+    #> ╞══════╪══════╪═════╡
+    #> │ 4.9  ┆ 21.0 ┆ 6.0 │
+    #> │ 4.9  ┆ 21.0 ┆ 6.0 │
+    #> │ 4.85 ┆ 22.8 ┆ 4.0 │
+    #> └──────┴──────┴─────┘
+
+    ### NEW
+    dat$select(!!!my_exprs)
+    #> shape: (3, 3)
+    #> ┌──────┬──────┬─────┐
+    #> │ drat ┆ mpg  ┆ cyl │
+    #> │ ---  ┆ ---  ┆ --- │
+    #> │ f64  ┆ f64  ┆ f64 │
+    #> ╞══════╪══════╪═════╡
+    #> │ 4.9  ┆ 21.0 ┆ 6.0 │
+    #> │ 4.9  ┆ 21.0 ┆ 6.0 │
+    #> │ 4.85 ┆ 22.8 ┆ 4.0 │
+    #> └──────┴──────┴─────┘
+    ```
+
+    This also affects `pl$col()`:
+    ```r
+    ### OLD
+    pl$col(c("foo", "bar"), "baz")
+    #> polars Expr: cols(["foo", "bar", "baz"])
+    ```
+
+    ```r
+    ### NEW
+    pl$col(c("foo", "bar"), "baz")
+    #> Error in `pl$col()`:
+    #> ! Evaluation failed in `$col()`.
+    #> Caused by error in `pl$col()`:
+    #> ! Invalid input for `pl$col()`.
+    #> • `pl$col()` accepts either single strings or Polars data types.
+
+    pl$col(!!!c("foo", "bar"), "baz")
+    #> cols(["foo", "bar", "baz"])
+    ```
+
+    Another important change in functions that accept dynamic dots is that
+    additional arguments are prefixed with `.`. For example, `group_by()` now
+    takes dynamic dots, meaning that the argument `maintain_order` is renamed
+    `.maintain_order` (for now, we add a warning if we detect an argument named
+    `maintain_order` in the dots).
+
+  2. to force some arguments to be named. We now throw an error if an argument
+     is not named while it should be, for example:
+      ``` r
+      library(neopolars)
+      df <- pl$DataFrame(a = 1:4)
+      df$with_columns(pl$col("a")$shift(1, 3))
+      #> Error in `df$with_columns()`:
+      #> ! Evaluation failed in `$with_columns()`.
+      #> Caused by error:
+      #> ! Evaluation failed in `$with_columns()`.
+      #> Caused by error:
+      #> ! Evaluation failed in `$shift()`.
+      #> Caused by error:
+      #> ! `...` must be empty.
+      #> ✖ Problematic argument:
+      #> • ..1 = 3
+      #> ℹ Did you forget to name an argument?
+
+      df$with_columns(pl$col("a")$shift(1, fill_value = 3))
+      #> shape: (4, 1)
+      #> ┌─────┐
+      #> │ a   │
+      #> │ --- │
+      #> │ f64 │
+      #> ╞═════╡
+      #> │ 3.0 │
+      #> │ 1.0 │
+      #> │ 2.0 │
+      #> │ 3.0 │
+      #> └─────┘
+      ```
+
+* Related to the extended use of dynamic dots, `pl$DataFrame()` and
+  `pl$LazyFrame()` more accurately convert input to the correct datatype, for
+  instance when the input is an R `data.frame`:
+
+  ```r
+  ### OLD
+  pl$DataFrame(data.frame(x = 1, y = "a"))
+  #> shape: (1, 2)
+  #> ┌─────┬─────┐
+  #> │ x   ┆ y   │
+  #> │ --- ┆ --- │
+  #> │ f64 ┆ str │
+  #> ╞═════╪═════╡
+  #> │ 1.0 ┆ a   │
+  #> └─────┴─────┘
+  ```
+
+  ```r
+  ### NEW
+  pl$DataFrame(data.frame(x = 1, y = "a"))
+  #> shape: (1, 1)
+  #> ┌───────────┐
+  #> │           │
+  #> │ ---       │
+  #> │ struct[2] │
+  #> ╞═══════════╡
+  #> │ {1.0,"a"} │
+  #> └───────────┘
+
+  pl$DataFrame(!!!data.frame(x = 1, y = "a"))
+  #> shape: (1, 2)
+  #> ┌─────┬─────┐
+  #> │ x   ┆ y   │
+  #> │ --- ┆ --- │
+  #> │ f64 ┆ str │
+  #> ╞═════╪═════╡
+  #> │ 1.0 ┆ a   │
+  #> └─────┴─────┘
+  ```
+
+  Use `as_polars_df()` and `as_polars_lf()` to convert existing R `data.frame`
+  to their `polars` equivalents.
+
+
+### Other changes
+
+* Passing a Series with a single value in `$with_columns()` now works:
+
+  ```r
+  series <- pl$Series("foo", 1)
+  pl$DataFrame(bar = 1:2)$with_columns(series)
+  ```
+
+
+
