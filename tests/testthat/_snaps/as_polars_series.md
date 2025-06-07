@@ -445,6 +445,23 @@
       * evaluate the expression with `pl$select()`;
       * use `!!!` if the input is a list or a vector of expressions or column names.
 
+---
+
+    Code
+      dat$select(exprs)
+    Condition
+      Error in `dat$select()`:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$select()`.
+      Caused by error in `as_polars_expr()`:
+      ! Evaluation failed.
+      Caused by error in `as_polars_series()`:
+      ! Passing Polars expression objects to `as_polars_series()` is not supported.
+      i You can try to:
+      * evaluate the expression with `pl$select()`;
+      * use `!!!` if the input is a list or a vector of expressions or column names.
+
 # Before 0-oclock or after 24-oclock hms must be rejected
 
     Code
