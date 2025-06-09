@@ -443,7 +443,7 @@
       ! Passing Polars expression objects to `as_polars_series()` is not supported.
       i You can try to:
       * evaluate the expression with `pl$select()`;
-      * use `!!!` if the input is a list or a vector of expressions or column names.
+      * use `!!!` on the input if the function uses dynamic-dots.
 
 ---
 
@@ -460,7 +460,7 @@
       ! Passing Polars expression objects to `as_polars_series()` is not supported.
       i You can try to:
       * evaluate the expression with `pl$select()`;
-      * use `!!!` if the input is a list or a vector of expressions or column names.
+      * use `!!!` on the input if the function uses dynamic-dots.
 
 # Before 0-oclock or after 24-oclock hms must be rejected
 
