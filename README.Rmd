@@ -128,8 +128,8 @@ provide different APIs:
 - [SHIMA Tatsuya](https://github.com/eitsupi)
 - [Etienne Bacher](https://github.com/etiennebacher)
 
-Version 0 of this package was previously maintained by [Søren Havelund Welling](https://github.com/sorhawell).
-<!-- TODO: link to the v0 branch -->
+[Version 0 of R Polars](https://github.com/rpolars/r-polars0) was previously maintained by
+[Søren Havelund Welling](https://github.com/sorhawell).
 
 ## Acknowledgements
 
