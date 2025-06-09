@@ -29,7 +29,6 @@ test_that("tail() works", {
 patrick::with_parameters_test_that(
   "Row subsetting with `[` returns the same rows as tibble",
   .cases = {
-    # fmt: skip
     tibble::tribble(
       ~.test_name, ~first_arg,
       "NULL", NULL,
@@ -116,7 +115,6 @@ patrick::with_parameters_test_that(
 patrick::with_parameters_test_that(
   "Row subsetting with `[` raise error for {.test_name}: {rlang::quo_text(first_arg)}",
   .cases = {
-    # fmt: skip
     tibble::tribble(
       ~.test_name, ~first_arg,
       "positive not integer-ish", 1.005,
@@ -142,7 +140,6 @@ patrick::with_parameters_test_that(
 patrick::with_parameters_test_that(
   "Column subsetting with `[` returns the same rows as tibble",
   .cases = {
-    # fmt: skip
     tibble::tribble(
       ~.test_name, ~second_arg,
       "NULL", NULL,
@@ -194,7 +191,6 @@ patrick::with_parameters_test_that(
 patrick::with_parameters_test_that(
   "Column subsetting with `[` raise error for {.test_name}: {rlang::quo_text(second_arg)}",
   .cases = {
-    # fmt: skip
     tibble::tribble(
       ~.test_name, ~second_arg,
       "positive not integer-ish", 1.005,
