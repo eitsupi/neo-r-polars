@@ -441,26 +441,7 @@
     Condition
       Error in `as_polars_series()`:
       ! Passing Polars expression objects to `as_polars_series()` is not supported.
-      i You can try to:
-      * evaluate the expression with `pl$select()`;
-      * use `!!!` on the input if the function uses dynamic-dots.
-
----
-
-    Code
-      dat$select(exprs)
-    Condition
-      Error in `dat$select()`:
-      ! Evaluation failed in `$select()`.
-      Caused by error:
-      ! Evaluation failed in `$select()`.
-      Caused by error in `as_polars_expr()`:
-      ! Evaluation failed.
-      Caused by error in `as_polars_series()`:
-      ! Passing Polars expression objects to `as_polars_series()` is not supported.
-      i You can try to:
-      * evaluate the expression with `pl$select()`;
-      * use `!!!` on the input if the function uses dynamic-dots.
+      i You can evaluate the expression with `pl$select()`.
 
 # Before 0-oclock or after 24-oclock hms must be rejected
 

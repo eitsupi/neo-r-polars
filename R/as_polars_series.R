@@ -213,9 +213,7 @@ as_polars_series.polars_expr <- function(x, name = NULL, ...) {
   abort(
     c(
       "Passing Polars expression objects to `as_polars_series()` is not supported.",
-      i = "You can try to:",
-      "*" = "evaluate the expression with `pl$select()`;",
-      "*" = "use `!!!` on the input if the function uses dynamic-dots."
+      i = "You can evaluate the expression with `pl$select()`."
     )
   )
 }

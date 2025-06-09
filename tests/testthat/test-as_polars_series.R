@@ -80,13 +80,6 @@ test_that("as_polars_series.polars_expr throws an error", {
     as_polars_series(pl$lit(1)),
     error = TRUE
   )
-
-  dat <- pl$DataFrame(a = 1, b = 2)
-  exprs <- list("a", pl$col("b") + 1)
-  expect_snapshot(
-    dat$select(exprs),
-    error = TRUE
-  )
 })
 
 patrick::with_parameters_test_that(
