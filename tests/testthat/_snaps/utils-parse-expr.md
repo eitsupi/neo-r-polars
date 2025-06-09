@@ -1,4 +1,4 @@
-# clear error message when passing lists or vectors to dynamic dots
+# clear error message when passing lists with some Polars expr to dynamic dots
 
     Code
       dat$select(exprs)
