@@ -76,9 +76,9 @@ test_that("as_polars_series.default throws an error", {
 })
 
 test_that("as_polars_series.polars_expr throws an error", {
-  expect_snapshot(
+  expect_error(
     as_polars_series(pl$lit(1)),
-    error = TRUE
+    r"(You can evaluate the expression with `pl\$select\(\)`)"
   )
 })
 
