@@ -7,7 +7,7 @@
       ! Evaluation failed in `$select()`.
       Caused by error:
       ! Evaluation failed in `$select()`.
-      Caused by error in `parse_into_list_of_expressions()`:
+      Caused by error:
       ! `...` doesn't accept inputs of type list.
       i Use `!!!` on the input(s), e.g. `!!!my_list`.
 

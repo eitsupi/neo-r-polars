@@ -2,27 +2,25 @@
 #' @noRd
 parse_into_list_of_expressions <- function(..., `__structify` = FALSE) {
   dots <- list2(...)
-  not_spliced <- vapply(
-    dots,
-    \(x) {
-      if (!is_bare_list(x)) {
-        return(FALSE)
+  call <- caller_env()
+  try_fetch(
+    lapply(dots, \(x) as_polars_expr(x, structify = `__structify`)$`_rexpr`),
+    error = function(cnd) {
+      err_call <- error_call(call)[[1]]
+      msg <- cnd$parent$message
+      if (!is.null(msg) && grepl("Passing Polars expression objects to", msg)) {
+        abort(
+          c(
+            "`...` doesn't accept inputs of type list.",
+            "i" = "Use `!!!` on the input(s), e.g. `!!!my_list`."
+          ),
+          call = call
+        )
+      } else {
+        zap()
       }
-      elem_are_expr <- vapply(x, \(elem) is_polars_expr(elem), FUN.VALUE = logical(1))
-      any(elem_are_expr)
-    },
-    FUN.VALUE = logical(1)
+    }
   )
-
-  if (any(not_spliced)) {
-    abort(
-      c(
-        "`...` doesn't accept inputs of type list.",
-        "i" = "Use `!!!` on the input(s), e.g. `!!!my_list`."
-      )
-    )
-  }
-  lapply(dots, \(x) as_polars_expr(x, structify = `__structify`)$`_rexpr`)
 }
 
 .structify_expression <- function(expr) {
