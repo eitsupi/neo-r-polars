@@ -29,7 +29,8 @@ test_that("tail() works", {
 patrick::with_parameters_test_that(
   "Row subsetting with `[` returns the same rows as tibble",
   .cases = {
-    # fmt: skip
+    skip_if_not_installed("tibble", minimum_version = "3.3.0")
+
     tibble::tribble(
       ~.test_name, ~first_arg,
       "NULL", NULL,
@@ -50,8 +51,10 @@ patrick::with_parameters_test_that(
       "scalar int NA", NA_integer_,
       "numeric length 0", double(),
       "character scalar 1", "1",
+      "character scalar 0", "0",
       "character scalar 1.0", "1.0",
       "character slice", c("1", "2"),
+      "character includes smaller than 1", c("-1", "0", "1"),
       "character reverse slice", c("2", "1"),
       "character scalar non-numeric", "foo",
       "character includes NA", c("2", NA),
@@ -116,7 +119,6 @@ patrick::with_parameters_test_that(
 patrick::with_parameters_test_that(
   "Row subsetting with `[` raise error for {.test_name}: {rlang::quo_text(first_arg)}",
   .cases = {
-    # fmt: skip
     tibble::tribble(
       ~.test_name, ~first_arg,
       "positive not integer-ish", 1.005,
@@ -142,7 +144,6 @@ patrick::with_parameters_test_that(
 patrick::with_parameters_test_that(
   "Column subsetting with `[` returns the same rows as tibble",
   .cases = {
-    # fmt: skip
     tibble::tribble(
       ~.test_name, ~second_arg,
       "NULL", NULL,
@@ -194,7 +195,6 @@ patrick::with_parameters_test_that(
 patrick::with_parameters_test_that(
   "Column subsetting with `[` raise error for {.test_name}: {rlang::quo_text(second_arg)}",
   .cases = {
-    # fmt: skip
     tibble::tribble(
       ~.test_name, ~second_arg,
       "positive not integer-ish", 1.005,
@@ -274,17 +274,6 @@ test_that("Special cases of `[` behavior", {
     .input[, ],
     pl_df,
     pl_df
-  )
-
-  # Supports `"0"` row name
-  # Tibble is buggy for `"0"` row name
-  # <https://github.com/tidyverse/tibble/issues/1636>
-  # TODO: move this to the parameterized test when the issue is fixed
-  expect_eager_equal_lazy_error(
-    .input["0", ],
-    pl_df,
-    pl$DataFrame(a = NA_integer_, b = NA_integer_, c = NA_integer_),
-    regexp = "Cannot subset rows of a LazyFrame"
   )
 
   # polars drops rows if columns are dropped.
