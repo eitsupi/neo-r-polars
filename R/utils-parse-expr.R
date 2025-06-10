@@ -6,7 +6,6 @@ parse_into_list_of_expressions <- function(..., `__structify` = FALSE) {
   try_fetch(
     lapply(dots, \(x) as_polars_expr(x, structify = `__structify`)$`_rexpr`),
     error = function(cnd) {
-      err_call <- error_call(call)[[1]]
       msg <- cnd$parent$message
       if (!is.null(msg) && grepl("Passing Polars expression objects to", msg)) {
         abort(
