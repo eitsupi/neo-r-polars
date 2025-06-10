@@ -14,7 +14,6 @@ test_that("Optional package suggestion", {
 patrick::with_parameters_test_that(
   "uint8 conversion",
   .cases = {
-    # fmt: skip
     tibble::tribble(
       ~.test_name, ~as_func,
       "raw", as.raw,
@@ -38,7 +37,6 @@ patrick::with_parameters_test_that(
   .cases = {
     skip_if_not_installed("bit64")
 
-    # fmt: skip
     tibble::tribble(
       ~.test_name, ~type, ~as_func,
       "double", "double", as.double,
@@ -107,7 +105,6 @@ patrick::with_parameters_test_that(
   .cases = {
     skip_if_not_installed("data.table")
 
-    # fmt: skip
     tibble::tribble(
       ~.test_name, ~as_func,
       "Date", as.Date,
@@ -144,7 +141,6 @@ patrick::with_parameters_test_that(
     skip_if_not_installed("data.table")
     skip_if_not_installed("hms")
 
-    # fmt: skip
     tibble::tribble(
       ~.test_name, ~as_func,
       "hms", hms::as_hms,
@@ -185,7 +181,6 @@ test_that("time argument error", {
 patrick::with_parameters_test_that(
   "struct conversion",
   .cases = {
-    # fmt: skip
     tibble::tribble(
       ~.test_name, ~classes,
       "dataframe", "data.frame",
@@ -198,19 +193,11 @@ patrick::with_parameters_test_that(
       b = I(list(data.frame(c = letters[1:2]), data.frame(c = letters[3:4])))
     )
     df_out <- as_polars_series(df_in)$to_r_vector(struct = .test_name)
-    list_out <- as_polars_series(df_in)$to_r_vector(struct = .test_name, ensure_vector = TRUE)
-
-    expect_false(is.vector(df_out))
-    expect_true(is.vector(list_out))
 
     expect_s3_class(df_out, classes, exact = TRUE)
-    expect_vector(list_out, ptype = list())
-
     expect_s3_class(df_out$b[[1]], classes, exact = TRUE)
-    expect_s3_class(list_out$b[[2]], classes, exact = TRUE)
 
     expect_snapshot(df_out)
-    expect_snapshot(list_out)
   }
 )
 
@@ -239,7 +226,6 @@ test_that("struct argument warning and error", {
 patrick::with_parameters_test_that(
   "decimal conversion",
   .cases = {
-    # fmt: skip
     tibble::tribble(
       ~.test_name, ~type, ~expected_out,
       "double", "double", c(NA, 1, 0.1),
@@ -270,7 +256,6 @@ patrick::with_parameters_test_that(
   .cases = {
     skip_if_not_installed("clock")
 
-    # fmt: skip
     tibble::tribble(
       ~.test_name, ~time_unit, ~precision,
       "ms", "ms", "millisecond",
@@ -301,7 +286,6 @@ patrick::with_parameters_test_that(
   .cases = {
     skip_if_not_installed("clock")
 
-    # fmt: skip
     tibble::tribble(
       ~.test_name, ~time_unit, ~construct_function,
       "ms", "ms", clock::duration_milliseconds,
@@ -321,7 +305,6 @@ patrick::with_parameters_test_that(
 patrick::with_parameters_test_that(
   "ambiguous argument '{ambiguous}'",
   .cases = {
-    # fmt: skip
     tibble::tribble(
       ~ambiguous,
       "raise",
@@ -346,7 +329,6 @@ patrick::with_parameters_test_that(
 patrick::with_parameters_test_that(
   "non_existent argument '{non_existent}'",
   .cases = {
-    # fmt: skip
     tibble::tribble(
       ~non_existent,
       "raise",

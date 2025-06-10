@@ -31,12 +31,13 @@ Suggests:
     knitr,
     mirai (>= 2.3.0),
     nanoarrow (>= 0.6.0),
+    nycflights13,
     patrick (>= 0.3.0),
     pkgload,
     purrr,
     rmarkdown,
     testthat (>= 3.0.0),
-    tibble,
+    tibble (>= 3.3.0),
     vctrs,
     withr
 Config/Needs/dev: devtools, lifecycle, readr, glue
