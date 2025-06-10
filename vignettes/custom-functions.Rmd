@@ -25,8 +25,8 @@ This vignette details several ways to do that in the most computationally effici
 ## Writing functions using `polars` expressions
 
 One of `polars`' biggest strength is the composability of expressions.
-Chain multiple functions to create custom functions is quite simple.
-For example, `polars` doesn't provide a function to standardize a variable out-of-the-box, but we could definitely create one using expressions:
+Chaining multiple functions to create custom functions is quite simple.
+For example, `polars` doesn't provide a built-in function to standardize a variable, but we could create one using expressions:
 
 ```{r}
 pl_standardize <- function(x) {
@@ -51,7 +51,7 @@ Using `polars` expressions will also allow the code to be run in streaming mode,
 When one uses functions that `polars` doesn't natively know, those benefits are lost.
 This is the reason why it is better to use `polars` expressions in your own functions if you can.
 
-To apply an external function to a `polars` object, one must convert this object to R, apply the function, and then convert it back to `polars`.
+To apply an external function to a `polars` object, we must convert this object to R, apply the function, and then convert it back to `polars`.
 If you come from Python Polars, this is a big difference.
 In Python Polars, several functions (for instance `map_batches()` and `map_elements()`) allow one to pass custom functions.
 Those are not in the R implementation because we cannot guarantee that they will function correctly in streaming mode.
@@ -60,7 +60,7 @@ Note that when you convert your `polars` object to R, you may run out of memory 
 Another crucial point is that we want the R function to run as fast as possible on the data.
 One way to do that is to take advantage of `purrr` to run the function [in parallel](https://purrr.tidyverse.org/dev/reference/parallelization.html).
 
-**Note:** at the time of writing, this requires the development version of `purrr` (1.0.4.9000).
+**Note:** at the time of writing, this requires the development version of `purrr` (1.0.4.9000) and the package `mirai`.
 
 ```{r}
 # Set the number of background processes to use
@@ -68,29 +68,18 @@ mirai::daemons(3)
 
 dat |>
   as.list(as_series = FALSE) |>
-  purrr::map(
-    \(s) {
-      scale(s)[, 1]
-    },
-    .parallel = TRUE
-  ) |>
+  purrr::map(\(s) scale(s)[, 1], .parallel = TRUE) |>
   _[] |>
   as_polars_df()
 ```
 
 Note that this applies the function on the entire DataFrame (or LazyFrame).
-To apply this to a subset of columns only, you can use `map_at()`:
+To apply this to a subset of columns only, we can use `map_at()`:
 
 ```{r}
 dat |>
   as.list(as_series = FALSE) |>
-  purrr::map_at(
-    c("carb", "mpg"),
-    \(s) {
-      scale(s)[, 1]
-    },
-    .parallel = TRUE
-  ) |>
+  purrr::map_at(c("carb", "mpg"), \(s) scale(s)[, 1], .parallel = TRUE) |>
   _[] |>
   as_polars_df()
 ```
@@ -105,11 +94,7 @@ It also provides some functions mimicking the `purrr` API, such as `mirai_map()`
 
 dat |>
   as.list(as_series = FALSE) |>
-  mirai::mirai_map(
-    \(s) {
-      scale(s)[, 1]
-    }
-  ) |>
+  mirai::mirai_map(\(s) scale(s)[, 1]) |>
   _[] |>
   as_polars_df()
 ```
