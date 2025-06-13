@@ -2,11 +2,11 @@
 #' @noRd
 parse_into_list_of_expressions <- function(..., `__structify` = FALSE) {
   dots <- list2(...)
-  indices_list <- which(vapply(dots, is.list, logical(1)))
   call <- caller_env()
   try_fetch(
     lapply(dots, \(x) as_polars_expr(x, structify = `__structify`)$`_rexpr`),
     error = function(cnd) {
+      indices_list <- which(vapply(dots, is.list, logical(1)))
       if (length(indices_list) > 0) {
         if (length(indices_list) > 3) {
           indices_list <- indices_list[1:3]
