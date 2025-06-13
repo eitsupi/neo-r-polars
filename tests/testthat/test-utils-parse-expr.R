@@ -5,6 +5,10 @@ test_that("clear error message when passing lists with some Polars expr to dynam
     dat$select(exprs),
     error = TRUE
   )
+  expect_snapshot(
+    dat$select(exprs, exprs, exprs, exprs),
+    error = TRUE
+  )
 
   vals <- list(1:2, 3:4)
   expect_equal(
