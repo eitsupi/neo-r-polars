@@ -10,8 +10,8 @@ parse_into_list_of_expressions <- function(..., `__structify` = FALSE) {
       if (!is.null(msg) && grepl("Passing Polars expression objects to", msg)) {
         abort(
           c(
-            "`...` doesn't accept inputs of type list.",
-            "i" = "Use `!!!` on the input(s), e.g. `!!!my_list`."
+            "`...` doesn't accept inputs of type list with Polars expressions.",
+            "i" = "Perhaps you forgot to use `!!!` on the input(s), e.g. `!!!my_list`?"
           ),
           call = call
         )
