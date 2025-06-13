@@ -18,7 +18,8 @@
 #'   for each element of the list.
 #' - All elements of the list must be converted to [Series] by [as_polars_series()].
 #' - All of the [Series] must be converted to the same length, except for the case of length 1,
-#'   which will be recycled to match the length of the other [Series] if they have a length other than 1.
+#'   which will be recycled to match the length of the other [Series]
+#'   if they have a length other than 1.
 #' - The name of the each element is used as the column name of the [DataFrame].
 #'   For unnamed elements, the column name will be an empty string `""` or if the element is
 #'   a [Series],
