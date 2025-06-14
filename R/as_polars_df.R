@@ -182,15 +182,18 @@ as_polars_df.list <- function(x, ...) {
   # Series with length 1 should be recycled
   length_of_series <- vapply(list_of_series, length, integer(1))
 
-  # n_rows must be -Inf, 0, 2, 3, ..., because series with length 1 will be recycled even if
-  # the other series have length 0.
-  n_rows <- suppressWarnings(max(length_of_series[length_of_series != 1L]))
-
-  list_of_plr_series <- if (is.infinite(n_rows)) {
-    # This case all series have length 1
+  list_of_plr_series <- if (identical(unique(length_of_series), 1L)) {
     list_of_series |>
       lapply(\(series) series$`_s`)
   } else {
+    # We call `pl$select()` in the lapply() below, which passes `list()` to
+    # `as_polars_df.list()`. Therefore, `length_of_series` is `integer(0)`
+    # so `max()` throws a warning.
+    if (identical(length_of_series, integer(0))) {
+      n_rows <- 0
+    } else {
+      n_rows <- max(length_of_series[length_of_series != 1L])
+    }
     list_of_series |>
       lapply(
         \(series) {
