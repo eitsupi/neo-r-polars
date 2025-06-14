@@ -553,3 +553,9 @@ they are called in R (e.g., _Boolean_ in Polars is equivalent to `logical()` in
 R). This might occasionally require you to look up a specific type. But the good
 news is that **polars** generally does a good job of inferring types
 automatically.
+
+
+<!-- Reset daemons to avoid errors in other vignettes that might use them -->
+```{r, echo=FALSE}
+daemons(0)
+```
