@@ -557,5 +557,5 @@ automatically.
 
 <!-- Reset daemons to avoid errors in other vignettes that might use them -->
 ```{r, echo=FALSE}
-daemons(0)
+mirai::daemons(0)
 ```
