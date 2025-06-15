@@ -188,7 +188,7 @@ as_polars_df.list <- function(x, ...) {
     list_of_series |>
       lapply(\(series) series$`_s`)
   } else {
-    n_rows <- max(setdiff(unique_lengths, 1L))
+    n_rows <- max(unique_lengths[unique_lengths != 1L])
     list_of_series |>
       lapply(
         \(series) {
