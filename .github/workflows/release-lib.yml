@@ -185,7 +185,14 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          packages: any::pkgload, any::testthat, any::knitr, any::patrick
+          # Only install minimum dependencies for testing
+          packages: >-
+            any::pkgload,
+            any::testthat,
+            any::knitr,
+            any::patrick,
+            any::blob,
+            any::hms
 
       - name: R test
         shell: Rscript {0}
