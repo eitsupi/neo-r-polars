@@ -103,9 +103,8 @@ jobs:
           LIBR_POLARS_PROFILE: release # TODO: support changing profile via this envvar
         run: |
           # make sure savvy is built from source because rust-cache doesn't work well.
-          (find ~/.cargo/registry/ rust/target -name 'savvy-*' | xargs rm -rf) || true
+          (find ~/.cargo/registry/ src/rust/target -name 'savvy-*' -print0 | xargs -0 rm -rf) || true
 
-          LIB_PATH="$(pwd)/src/rust/target/${TARGET}/${LIBR_POLARS_PROFILE}/${LIB_NAME}.a"
           ARTIFACT_NAME="${LIB_NAME}-${LIB_VERSION}-${TARGET}.tar.gz"
           Rscript -e 'pkgbuild::compile_dll(debug = FALSE)'
 
@@ -214,7 +213,7 @@ jobs:
       - name: create checksums
         working-directory: libs
         run: |
-          sha256sum * >"../sha256sums.txt"
+          sha256sum ./* >"../sha256sums.txt"
 
       - name: create release
         uses: softprops/action-gh-release@v2
