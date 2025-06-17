@@ -1243,8 +1243,8 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
 }
 
 `PlRExpr_compute_tree_format` <- function(self) {
-  function(`display_as_dot`) {
-    .Call(savvy_PlRExpr_compute_tree_format__impl, `self`, `display_as_dot`)
+  function(`display_as_dot`, `schema` = NULL) {
+    .Call(savvy_PlRExpr_compute_tree_format__impl, `self`, `display_as_dot`, `schema`)
   }
 }
 
@@ -1303,9 +1303,9 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
 }
 
 `PlRExpr_cumulative_eval` <- function(self) {
-  function(`expr`, `min_periods`, `parallel`) {
+  function(`expr`, `min_periods`) {
     `expr` <- .savvy_extract_ptr(`expr`, "PlRExpr")
-    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_cumulative_eval__impl, `self`, `expr`, `min_periods`, `parallel`))
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_cumulative_eval__impl, `self`, `expr`, `min_periods`))
   }
 }
 
@@ -1939,9 +1939,9 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
 }
 
 `PlRExpr_list_eval` <- function(self) {
-  function(`expr`, `parallel`) {
+  function(`expr`) {
     `expr` <- .savvy_extract_ptr(`expr`, "PlRExpr")
-    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_list_eval__impl, `self`, `expr`, `parallel`))
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_list_eval__impl, `self`, `expr`))
   }
 }
 
@@ -2183,8 +2183,8 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
 }
 
 `PlRExpr_meta_pop` <- function(self) {
-  function() {
-    .Call(savvy_PlRExpr_meta_pop__impl, `self`)
+  function(`schema` = NULL) {
+    .Call(savvy_PlRExpr_meta_pop__impl, `self`, `schema`)
   }
 }
 
@@ -2598,9 +2598,9 @@ class(`PlRDataType`) <- c("PlRDataType__bundle", "savvy_neopolars__sealed")
 }
 
 `PlRExpr_search_sorted` <- function(self) {
-  function(`element`, `side`) {
+  function(`element`, `side`, `descending`) {
     `element` <- .savvy_extract_ptr(`element`, "PlRExpr")
-    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_search_sorted__impl, `self`, `element`, `side`))
+    .savvy_wrap_PlRExpr(.Call(savvy_PlRExpr_search_sorted__impl, `self`, `element`, `side`, `descending`))
   }
 }
 

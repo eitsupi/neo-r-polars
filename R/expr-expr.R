@@ -2447,10 +2447,16 @@ expr__sign <- function() {
 #'   three = pl$col("values")$search_sorted(3),
 #'   six = pl$col("values")$search_sorted(6),
 #' )
-expr__search_sorted <- function(element, side = c("any", "left", "right")) {
+expr__search_sorted <- function(
+  element,
+  side = c("any", "left", "right"),
+  ...,
+  descending = FALSE
+) {
   wrap({
+    check_dots_empty0(...)
     side <- arg_match0(side, values = c("any", "left", "right"))
-    self$`_rexpr`$search_sorted(as_polars_expr(element)$`_rexpr`, side)
+    self$`_rexpr`$search_sorted(as_polars_expr(element)$`_rexpr`, side, descending)
   })
 }
 

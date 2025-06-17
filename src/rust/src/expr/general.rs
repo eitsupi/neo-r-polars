@@ -526,17 +526,12 @@ impl PlRExpr {
         Ok(self.inner.clone().dot(expr.inner.clone()).into())
     }
 
-    fn cumulative_eval(
-        &self,
-        expr: &PlRExpr,
-        min_periods: NumericScalar,
-        parallel: bool,
-    ) -> Result<Self> {
+    fn cumulative_eval(&self, expr: &PlRExpr, min_periods: NumericScalar) -> Result<Self> {
         let min_periods = <Wrap<usize>>::try_from(min_periods)?.0;
         Ok(self
             .inner
             .clone()
-            .cumulative_eval(expr.inner.clone(), min_periods, parallel)
+            .cumulative_eval(expr.inner.clone(), min_periods)
             .into())
     }
 
@@ -623,12 +618,12 @@ impl PlRExpr {
             .into())
     }
 
-    fn search_sorted(&self, element: &PlRExpr, side: &str) -> Result<Self> {
+    fn search_sorted(&self, element: &PlRExpr, side: &str, descending: bool) -> Result<Self> {
         let side = <Wrap<SearchSortedSide>>::try_from(side)?.0;
         Ok(self
             .inner
             .clone()
-            .search_sorted(element.inner.clone(), side)
+            .search_sorted(element.inner.clone(), side, descending)
             .into())
     }
 

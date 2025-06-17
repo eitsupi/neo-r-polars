@@ -1,4 +1,4 @@
-use crate::{PlRExpr, RPolarsErr, datatypes::PlRDataType, prelude::*};
+use crate::{PlRExpr, datatypes::PlRDataType, prelude::*};
 use polars::lazy::dsl;
 use savvy::{NumericScalar, Result, savvy};
 
@@ -24,20 +24,13 @@ pub fn int_ranges(
     dtype: &PlRDataType,
 ) -> Result<PlRExpr> {
     let dtype = dtype.dt.clone();
-    if !dtype.is_integer() {
-        return Err(RPolarsErr::from(
-            polars_err!(ComputeError: "non-integer `dtype` passed to `int_ranges`: {:?}", dtype),
-        )
-        .into());
-    }
-
-    let mut result = dsl::int_ranges(start.inner.clone(), end.inner.clone(), step.inner.clone());
-
-    if dtype != DataType::Int64 {
-        result = result.cast(DataType::List(Box::new(dtype)))
-    }
-
-    Ok(result.into())
+    Ok(dsl::int_ranges(
+        start.inner.clone(),
+        end.inner.clone(),
+        step.inner.clone(),
+        dtype,
+    )
+    .into())
 }
 
 #[savvy]

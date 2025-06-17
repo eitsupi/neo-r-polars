@@ -137,13 +137,8 @@ impl PlRExpr {
             .into())
     }
 
-    fn list_eval(&self, expr: &PlRExpr, parallel: bool) -> Result<Self> {
-        Ok(self
-            .inner
-            .clone()
-            .list()
-            .eval(expr.inner.clone(), parallel)
-            .into())
+    fn list_eval(&self, expr: &PlRExpr) -> Result<Self> {
+        Ok(self.inner.clone().list().eval(expr.inner.clone()).into())
     }
 
     // fn list_to_struct(

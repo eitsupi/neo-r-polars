@@ -539,7 +539,6 @@ expr_list_tail <- function(n = 5L) {
 
 #' Run any polars expression on the sub-lists' values
 #'
-#' @inheritParams rlang::args_dots_empty
 #' @param expr Expression to run. Note that you can select an element with
 #'   `pl$element()`, `pl$first()`, and more. See Examples.
 #' @param parallel Run all expressions in parallel. Don't activate this blindly.
@@ -576,11 +575,9 @@ expr_list_tail <- function(n = 5L) {
 #' df$select(
 #'   pl$col("b")$list$eval(pl$element()$str$join(" "))$list$first()
 #' )
-expr_list_eval <- function(expr, ..., parallel = FALSE) {
-  wrap({
-    check_dots_empty0(...)
-    self$`_rexpr`$list_eval(as_polars_expr(expr)$`_rexpr`, parallel)
-  })
+expr_list_eval <- function(expr) {
+  self$`_rexpr`$list_eval(as_polars_expr(expr)$`_rexpr`) |>
+    wrap()
 }
 
 #' Evaluate whether all boolean values in a sub-list are true

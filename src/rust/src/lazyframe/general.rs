@@ -53,7 +53,7 @@ impl PlRLazyFrame {
         comm_subexpr_elim: bool,
         cluster_with_columns: bool,
         collapse_joins: bool,
-        streaming: bool,
+        streaming: bool, // TODO: remove
         _eager: bool,
         _check_order: bool,
     ) -> Result<Self> {
@@ -70,7 +70,6 @@ impl PlRLazyFrame {
             .with_comm_subplan_elim(comm_subplan_elim)
             .with_comm_subexpr_elim(comm_subexpr_elim)
             .with_cluster_with_columns(cluster_with_columns)
-            .with_streaming(streaming)
             ._with_eager(_eager)
             .with_projection_pushdown(projection_pushdown);
 
