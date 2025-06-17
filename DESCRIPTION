@@ -42,6 +42,7 @@ Suggests:
     vctrs,
     withr
 Remotes:
+    r-lib/carrier,
     tidyverse/purrr
 Config/Needs/dev: devtools, lifecycle, readr, glue
 Config/Needs/lint: fs, lintr
