@@ -21,6 +21,7 @@ Suggests:
     arrow,
     bit64,
     blob,
+    carrier,
     cli,
     clock,
     curl,
