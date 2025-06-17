@@ -4,7 +4,6 @@ patrick::with_parameters_test_that(
     tmpf <- withr::local_tempfile(fileext = ".arrow")
     pl$DataFrame(a = 1, b = "foo")$write_ipc(tmpf)
 
-    # fmt: skip
     tibble::tribble(
       ~.test_name, ~x,
       "empty", as_polars_lf(NULL),
@@ -921,7 +920,6 @@ test_that("fill_null() works on date/datetime", {
 patrick::with_parameters_test_that(
   "fill_null(): arg 'strategy' works",
   .cases = {
-    # fmt: skip
     tibble::tribble(
       ~.strategy, ~.a, ~.b,
       "forward", c(1.5, 2, 2, NaN), c(1.5, 1.5, 1.5, 4),
@@ -1456,12 +1454,15 @@ test_that("shift() works", {
     df,
     pl$DataFrame(mpg = c("a", "a", "21.0"), cyl = c("a", "a", "6.0"))
   )
-  # TODO: add a check with expression in fill_value when this is resolved:
-  # https://github.com/pola-rs/polars/issues/21280
   expect_query_error(
     .input$shift(2, 999),
     df,
     "Did you forget to name an argument"
+  )
+  expect_query_error(
+    .input$shift(2, fill_value = pl$col("mpg")),
+    df,
+    "'fill_value' must be scalar value"
   )
 })
 

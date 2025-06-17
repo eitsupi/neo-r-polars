@@ -378,7 +378,9 @@ test_that("slice", {
   df <- pl$DataFrame(!!!l)
 
   r_slice <- function(x, o, n = NULL) {
-    if (is.null(n)) n <- max(length(x) - o, 1L)
+    if (is.null(n)) {
+      n <- max(length(x) - o, 1L)
+    }
     if (o >= 0) {
       o <- o + 1
     } else {
@@ -525,7 +527,7 @@ test_that("eval", {
   )
   expect_snapshot(
     df$with_columns(
-      pl$concat_list(list("a", "b"))$list$eval(pl$element(), TRUE)
+      pl$concat_list("a", "b")$list$eval(pl$element(), TRUE)
     ),
     error = TRUE
   )
