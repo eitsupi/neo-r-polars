@@ -514,7 +514,7 @@ unlink("airquality-ds", recursive = TRUE)
 
 You may want to apply functions that are not supported natively in Polars,
 for instance because they come from another R package. When this is the case,
-you can use the package `mirai` to perform computations in parallel.
+you can use the package `purrr` to perform computations in parallel.
 
 This can unlock a lot of flexibility, but note that it can inhibit performance
 since it doesn't take advantage of Polars optimizations anymore. R functions are
@@ -526,9 +526,7 @@ mirai::daemons(4)
 
 pl$DataFrame(a = 1, b = 2, c = 3, d = 4)$cast(pl$Int128) |>
   as.list() |>
-  mirai::mirai_map(\(s) {
-    s * 2L
-  }) |>
+  purrr::map(purrr::in_parallel(\(s) s * 2L)) |>
   _[] |>
   as_polars_df()
 ```
