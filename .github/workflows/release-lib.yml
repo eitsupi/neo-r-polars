@@ -186,6 +186,7 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           # Only install minimum dependencies for testing
+          # TODO: move to the DESCRIPTION file
           packages: >-
             any::pkgload,
             any::testthat,
