@@ -87,27 +87,12 @@ dat |>
 ```
 
 
-## Using `mirai`
-
-`mirai` is the package that is used by `purrr` in the background to run functions in parallel.
-It also provides some functions mimicking the `purrr` API, such as `mirai_map()`:
-
-```{r}
-dat |>
-  as.list(as_series = FALSE) |>
-  mirai::mirai_map(\(s) scale(s)[, 1]) |>
-  _[] |>
-  as_polars_df()
-```
-
-<!-- Etienne: TODO? I don't know if this is correct. "Using `mirai` directly also allows more advanced usage, such as executing a query on a remote machine. This is not in the scope of this vignette and is addressed in [vignette to write]()". -->
-
 ## Conclusion
 
 Using custom functions is sometimes necessary when processing data.
 `polars` allows one to chain many expressions, thus making it possible to create custom functions that benefit from all its optimizations, such as parallelism and streaming mode.
 
-While using `polars` expressions is the recommended way to write custom functions, one can also apply functions by converting the DataFrame or LazyFrame to R first, and then use `purrr` or `mirai` to run functions in parallel.
+While using `polars` expressions is the recommended way to write custom functions, one can also apply functions by converting the DataFrame or LazyFrame to R first, and then use `purrr` to run functions in parallel.
 
 <!-- Reset daemons to avoid errors in other vignettes that might use them -->
 ```{r, echo=FALSE}
