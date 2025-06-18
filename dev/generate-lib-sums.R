@@ -40,8 +40,8 @@ if (identical(current_lib_version, latest_released_lib_version)) {
   message("Current lib version is available via the binary release.")
   write_bin_lib_data(
     lib_data_file_path,
-    glue::glue("{base_url}{tag_prefix }{latest_released_lib_version}/sha256sums.txt"),
-    glue::glue("{base_url}{tag_prefix }{latest_released_lib_version}/")
+    glue::glue("{base_url}{tag_prefix}{latest_released_lib_version}/sha256sums.txt"),
+    glue::glue("{base_url}{tag_prefix}{latest_released_lib_version}/")
   )
 } else {
   message("Current lib version is not available via binary releases.")
