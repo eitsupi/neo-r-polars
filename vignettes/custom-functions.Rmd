@@ -96,6 +96,6 @@ Using custom functions is sometimes necessary when processing data.
 While using `polars` expressions is the recommended way to write custom functions, one can also apply functions by converting the DataFrame or LazyFrame to R first, and then use `purrr` to run functions in parallel.
 
 <!-- Reset daemons to avoid errors in other vignettes that might use them -->
-```{r, echo=FALSE}
+```{r, include=FALSE}
 mirai::daemons(0)
 ```

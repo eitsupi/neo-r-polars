@@ -555,6 +555,6 @@ automatically.
 
 
 <!-- Reset daemons to avoid errors in other vignettes that might use them -->
-```{r, echo=FALSE}
+```{r, include=FALSE}
 mirai::daemons(0)
 ```
