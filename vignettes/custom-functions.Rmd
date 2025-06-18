@@ -19,15 +19,15 @@ check_purrr_version <- packageVersion("purrr") >= "1.0.4.9000"
 library(neopolars)
 ```
 
-`polars` contains a large set of functions to manipulate variables, whether they are numerical, strings, dates, or other types.
+polars contains a large set of functions to manipulate variables, whether they are numerical, strings, dates, or other types.
 Still, it is sometimes necessary to apply custom functions either written by you or available in other R packages.
 This vignette details several ways to do that in the most computationally efficient way.
 
-## Writing functions using `polars` expressions
+## Writing functions using polars expressions
 
-One of `polars`' biggest strength is the composability of expressions.
+One of polars' biggest strength is the composability of expressions.
 Chaining multiple functions to create custom functions is quite simple.
-For example, `polars` doesn't provide a built-in function to standardize a variable, but we could create one using expressions:
+For example, polars doesn't provide a built-in function to standardize a variable, but we could create one using expressions:
 
 ```{r}
 pl_standardize <- function(x) {
@@ -43,25 +43,25 @@ dat$with_columns(
 )
 ```
 
-## Using `purrr`
+## Using purrr
 
-`polars` expressions allow one to write their own functions, but it is sometimes necessary to use functions that already exist in other R packages.
-When this is the case, one should keep in mind that applying functions that are external to `polars` will limit `polars`' strengths.
-In particular, `polars` is fast in part because it is able to detect the various transformations applied to the data and run them in parallel or cache them so that only the strict minimum of computations is made.
-Using `polars` expressions will also allow the code to be run in streaming mode, allowing for larger-than-memory data.
-When one uses functions that `polars` doesn't natively know, those benefits are lost.
-This is the reason why it is better to use `polars` expressions in your own functions if you can.
+polars expressions allow one to write their own functions, but it is sometimes necessary to use functions that already exist in other R packages.
+When this is the case, one should keep in mind that applying functions that are external to polars will limit polars' strengths.
+In particular, polars is fast in part because it is able to detect the various transformations applied to the data and run them in parallel or cache them so that only the strict minimum of computations is made.
+Using polars expressions will also allow the code to be run in streaming mode, allowing for larger-than-memory data.
+When one uses functions that polars doesn't natively know, those benefits are lost.
+This is the reason why it is better to use polars expressions in your own functions if you can.
 
-To apply an external function to a `polars` object, we must convert this object to R, apply the function, and then convert it back to `polars`.
+To apply an external function to a polars object, we must convert this object to R, apply the function, and then convert it back to polars.
 If you come from Python Polars, this is a big difference.
 In Python Polars, several functions (for instance `map_batches()` and `map_elements()`) allow one to pass custom functions.
 Those are not in the R implementation because we cannot guarantee that they will function correctly in streaming mode.
 
-Note that when you convert your `polars` object to R, you may run out of memory if your object is a LazyFrame that is too big to fit in memory once collected.
+Note that when you convert your polars object to R, you may run out of memory if your object is a LazyFrame that is too big to fit in memory once collected.
 Another crucial point is that we want the R function to run as fast as possible on the data.
-One way to do that is to take advantage of `purrr` to run the function [in parallel](https://purrr.tidyverse.org/dev/reference/in_parallel.html).
+One way to do that is to take advantage of purrr to run the function [in parallel](https://purrr.tidyverse.org/dev/reference/in_parallel.html).
 
-**Note:** at the time of writing, this requires the development version of `purrr` (1.0.4.9000) and the package `mirai`.
+**Note:** at the time of writing, this requires the development version of purrr (1.0.4.9000) and the package mirai.
 
 ```{r, eval=check_purrr_version}
 library(purrr)
@@ -91,9 +91,9 @@ dat |>
 ## Conclusion
 
 Using custom functions is sometimes necessary when processing data.
-`polars` allows one to chain many expressions, thus making it possible to create custom functions that benefit from all its optimizations, such as parallelism and streaming mode.
+polars allows one to chain many expressions, thus making it possible to create custom functions that benefit from all its optimizations, such as parallelism and streaming mode.
 
-While using `polars` expressions is the recommended way to write custom functions, one can also apply functions by converting the DataFrame or LazyFrame to R first, and then use `purrr` to run functions in parallel.
+While using polars expressions is the recommended way to write custom functions, one can also apply functions by converting the DataFrame or LazyFrame to R first, and then use purrr to run functions in parallel.
 
 <!-- Reset daemons to avoid errors in other vignettes that might use them -->
 ```{r, include=FALSE}
