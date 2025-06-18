@@ -231,7 +231,15 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         if: env.TEST_BIN_LIB == 'true'
         with:
-          extra-packages: any::pkgload
+          # Only install minimum dependencies for testing
+          # TODO: move to the DESCRIPTION file
+          packages: >-
+            any::pkgload,
+            any::testthat,
+            any::knitr,
+            any::patrick,
+            any::blob,
+            any::hms
 
       - name: Install with pre-built binary
         if: env.TEST_BIN_LIB == 'true'
