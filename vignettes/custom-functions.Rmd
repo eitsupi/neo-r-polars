@@ -12,6 +12,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+check_purrr_version <- packageVersion("purrr") >= "1.0.4.9000"
 ```
 
 ```{r setup}
@@ -62,7 +63,7 @@ One way to do that is to take advantage of `purrr` to run the function [in paral
 
 **Note:** at the time of writing, this requires the development version of `purrr` (1.0.4.9000) and the package `mirai`.
 
-```{r}
+```{r, eval=check_purrr_version}
 library(purrr)
 
 # Set the number of background processes to use
@@ -78,7 +79,7 @@ dat |>
 Note that this applies the function on the entire DataFrame (or LazyFrame).
 To apply this to a subset of columns only, we can use `map_at()`:
 
-```{r}
+```{r, eval=check_purrr_version}
 dat |>
   as.list(as_series = FALSE) |>
   map_at(c("carb", "mpg"), in_parallel(\(s) scale(s)[, 1])) |>

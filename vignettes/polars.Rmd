@@ -13,6 +13,7 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 options(rmarkdown.html_vignette.check_title = FALSE)
+check_purrr_version <- packageVersion("purrr") >= "1.0.4.9000"
 ```
 
 ## What is Polars?
@@ -521,7 +522,7 @@ since it doesn't take advantage of Polars optimizations anymore. R functions are
 also typically slower, so we recommend using native Polars functions and
 expressions wherever possible.
 
-```{r}
+```{r, eval=check_purrr_version}
 mirai::daemons(4)
 
 pl$DataFrame(a = 1, b = 2, c = 3, d = 4)$cast(pl$Int128) |>
