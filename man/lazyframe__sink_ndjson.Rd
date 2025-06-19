@@ -32,6 +32,8 @@ this to \code{FALSE} will be slightly faster.}
 
 \item{type_coercion}{A logical, indicats type coercion optimization.}
 
+\item{_type_check}{For internal use only.}
+
 \item{predicate_pushdown}{A logical, indicats predicate pushdown optimization.}
 
 \item{projection_pushdown}{A logical, indicats projection pushdown optimization.}

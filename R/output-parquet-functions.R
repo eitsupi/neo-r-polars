@@ -41,6 +41,7 @@
 #' this to `FALSE` will be slightly faster.
 #' @inheritParams lazyframe__collect
 #' @inheritParams pl__scan_parquet
+#' @param _type_check For internal use only.
 #'
 #' @return Invisibly returns the input LazyFrame
 #'
