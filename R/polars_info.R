@@ -1,4 +1,21 @@
+#' Report information of the package
+#'
+#' This function reports the following information:
+#' - Package versions (the Polars R package version and the dependent Rust
+#'   Polars crate version)
+#' - [Number of threads used by Polars][pl_thread_pool_size]
+#' - Rust feature flags (See `vignette("install", "polars")` for details)
+#' - Code completion mode: either `"deactivated"`, `"rstudio"`, or `"native"`.
+#'   See [polars_code_completion_activate()].
+#'
+#' @return A list with information of the package
 #' @export
+#' @examples
+#' polars_info()
+#'
+#' polars_info()$versions
+#'
+#' polars_info()$features$nightly
 polars_info <- function() {
   # Similar to arrow::arrow_info()
   out <- list(
