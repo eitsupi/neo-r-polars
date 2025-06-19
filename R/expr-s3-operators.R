@@ -13,13 +13,6 @@
 #' - [`<Expr>$pow()`][expr__pow]
 #' - [`<Expr>$mod()`][expr__mod]
 #' - [`<Expr>$floor_div()`][expr__floor_div]
-#' - [`<Series>$add()`][series__add]
-#' - [`<Series>$sub()`][series__sub]
-#' - [`<Series>$mul()`][series__mul]
-#' - [`<Series>$true_div()`][series__true_div]
-#' - [`<Series>$pow()`][series__pow]
-#' - [`<Series>$mod()`][series__mod]
-#' - [`<Series>$floor_div()`][series__floor_div]
 #'
 #' @examples
 #' pl$lit(5) + 10

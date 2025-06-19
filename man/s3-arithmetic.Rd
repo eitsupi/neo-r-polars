@@ -70,12 +70,5 @@ as_polars_series(5) + 10
 \item \code{\link[=expr__pow]{<Expr>$pow()}}
 \item \code{\link[=expr__mod]{<Expr>$mod()}}
 \item \code{\link[=expr__floor_div]{<Expr>$floor_div()}}
-\item \code{\link[=series__add]{<Series>$add()}}
-\item \code{\link[=series__sub]{<Series>$sub()}}
-\item \code{\link[=series__mul]{<Series>$mul()}}
-\item \code{\link[=series__true_div]{<Series>$true_div()}}
-\item \code{\link[=series__pow]{<Series>$pow()}}
-\item \code{\link[=series__mod]{<Series>$mod()}}
-\item \code{\link[=series__floor_div]{<Series>$floor_div()}}
 }
 }
