@@ -186,7 +186,6 @@ lazygroupby__quantile <- function(
   interpolation = c("nearest", "higher", "lower", "midpoint", "linear")
 ) {
   wrap({
-    check_dots_empty0(...)
     self$agg(pl$all()$quantile(quantile = quantile, interpolation = interpolation))
   })
 }
