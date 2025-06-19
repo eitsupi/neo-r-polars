@@ -10,14 +10,6 @@
 \alias{\%/\%.polars_expr}
 \alias{^.polars_expr}
 \alias{<.polars_expr}
-\alias{>.polars_expr}
-\alias{<=.polars_expr}
-\alias{>=.polars_expr}
-\alias{==.polars_expr}
-\alias{!=.polars_expr}
-\alias{!.polars_expr}
-\alias{&.polars_expr}
-\alias{|.polars_expr}
 \title{Arithmetic operators for Polars objects}
 \usage{
 \method{+}{polars_expr}(e1, e2)
@@ -35,22 +27,6 @@
 \method{^}{polars_expr}(e1, e2)
 
 \method{<}{polars_expr}(e1, e2)
-
-\method{>}{polars_expr}(e1, e2)
-
-\method{<=}{polars_expr}(e1, e2)
-
-\method{>=}{polars_expr}(e1, e2)
-
-\method{==}{polars_expr}(e1, e2)
-
-\method{!=}{polars_expr}(e1, e2)
-
-\method{!}{polars_expr}(e1)
-
-\method{&}{polars_expr}(e1, e2)
-
-\method{|}{polars_expr}(e1, e2)
 }
 \arguments{
 \item{x, y}{numeric type of Polars objects or objects that can be coerced
