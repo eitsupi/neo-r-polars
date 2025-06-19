@@ -1,8 +1,9 @@
 #' Arithmetic operators for Polars objects
 #'
 #' @name s3-arithmetic
-#' @param x,y numeric type of Polars objects or objects that can be coerced
-#' such. Only `+` accepts two string inputs.
+#' @param e1,e2 Polars objects of numeric type or objects that can be coerced
+#' to a polars object of numeric type. Only `+` can work with two string
+#' inputs.
 #'
 #' @return A Polars object the same type as the input.
 #' @seealso
