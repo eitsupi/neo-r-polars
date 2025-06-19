@@ -183,7 +183,6 @@ groupby__sum <- function() {
 #' df$group_by("grp")$quantile(0.5)
 groupby__quantile <- function(
   quantile,
-  ...,
   interpolation = c("nearest", "higher", "lower", "midpoint", "linear")
 ) {
   wrap({
