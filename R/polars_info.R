@@ -3,10 +3,8 @@
 #' This function reports the following information:
 #' - Package versions (the Polars R package version and the dependent Rust
 #'   Polars crate version)
-#' - [Number of threads used by Polars][pl_thread_pool_size]
+#' - Number of threads used by Polars
 #' - Rust feature flags (See `vignette("install", "polars")` for details)
-#' - Code completion mode: either `"deactivated"`, `"rstudio"`, or `"native"`.
-#'   See [polars_code_completion_activate()].
 #'
 #' @return A list with information of the package
 #' @export
