@@ -125,6 +125,15 @@ If \code{storage_options} is not provided, Polars will try to infer the
 information from environment variables.}
 
 \item{retries}{Number of retries if accessing a cloud instance fails.}
+
+\item{sync_on_close}{Sync to disk when before closing a file. Must be one of:
+\itemize{
+\item \code{"none"}: does not sync;
+\item \code{"data"}: syncs the file contents;
+\item \code{"all"}: syncs the file contents and metadata.
+}}
+
+\item{mkdir}{Recursively create all the directories in the path.}
 }
 \value{
 Invisibly returns the input LazyFrame
