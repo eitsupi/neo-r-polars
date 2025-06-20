@@ -4,7 +4,12 @@
 \alias{expr__search_sorted}
 \title{Find indices where elements should be inserted to maintain order}
 \usage{
-expr__search_sorted(element, side = c("any", "left", "right"))
+expr__search_sorted(
+  element,
+  side = c("any", "left", "right"),
+  ...,
+  descending = FALSE
+)
 }
 \arguments{
 \item{element}{Expression or scalar value.}

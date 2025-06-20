@@ -936,3 +936,25 @@ impl TryFrom<&str> for Wrap<Option<IpcCompression>> {
         Ok(Wrap(parsed))
     }
 }
+
+impl TryFrom<&str> for Wrap<Option<TimeZone>> {
+    type Error = savvy::Error;
+
+    fn try_from(tz: &str) -> Result<Self, Self::Error> {
+        TimeZone::opt_try_new(tz.into())
+            .map_err(RPolarsErr::from)
+            .map_err(Into::into)
+            .map(Wrap)
+    }
+}
+
+impl TryFrom<Option<&str>> for Wrap<Option<TimeZone>> {
+    type Error = savvy::Error;
+
+    fn try_from(tz: Option<&str>) -> Result<Self, Self::Error> {
+        match tz {
+            Some(tz) => <Wrap<Option<TimeZone>>>::try_from(tz),
+            None => Ok(Wrap(None)),
+        }
+    }
+}
