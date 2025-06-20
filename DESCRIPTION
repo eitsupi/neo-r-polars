@@ -21,6 +21,7 @@ Suggests:
     arrow,
     bit64,
     blob,
+    carrier,
     cli,
     clock,
     curl,
@@ -28,15 +29,21 @@ Suggests:
     ggplot2,
     hms,
     jsonlite,
+    knitr,
     mirai (>= 2.3.0),
     nanoarrow (>= 0.6.0),
     nycflights13,
     patrick (>= 0.3.0),
     pkgload,
+    purrr,
+    rmarkdown,
     testthat (>= 3.0.0),
     tibble (>= 3.3.0),
     vctrs,
     withr
+Remotes:
+    r-lib/carrier,
+    tidyverse/purrr
 Config/Needs/dev: devtools, lifecycle, readr, glue
 Config/Needs/lint: fs, lintr
 Config/Needs/website: etiennebacher/altdoc, future.apply
@@ -49,3 +56,4 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 SystemRequirements: Cargo (Rust's package manager), rustc
+VignetteBuilder: knitr
