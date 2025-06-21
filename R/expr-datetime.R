@@ -255,7 +255,7 @@ expr_dt_combine <- function(time, time_unit = c("us", "ns", "ms")) {
 # nolint start: line_length_linter
 #' - For [Date/Time/Datetime][DataType], refer to the
 #'   [chrono strftime documentation][https://docs.rs/chrono/latest/chrono/format/strftime/index.html]
-# nolint: end
+# nolint end
 #'   for specification. Example: `"%y-%m-%d"`.
 #'   Special case `"iso"` will use the ISO8601 format.
 #' - For [Duration][DataType], `"iso"` or `"polars"` can be used.
