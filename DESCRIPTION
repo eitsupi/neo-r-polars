@@ -28,6 +28,7 @@ Suggests:
     ggplot2,
     hms,
     jsonlite,
+    knitr,
     mirai (>= 2.3.0),
     nanoarrow (>= 0.6.0),
     nycflights13,
