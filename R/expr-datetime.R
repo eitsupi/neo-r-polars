@@ -252,8 +252,10 @@ expr_dt_combine <- function(time, time_unit = c("us", "ns", "ms")) {
 #' @param format Single string of format to use, or `NULL` (default).
 #' `NULL` will be treated as `"iso"`.
 #' Available formats depend on the column [data type][DataType]:
+# nolint start: line_length_linter
 #' - For [Date/Time/Datetime][DataType], refer to the
 #'   [chrono strftime documentation][https://docs.rs/chrono/latest/chrono/format/strftime/index.html]
+# nolint: end
 #'   for specification. Example: `"%y-%m-%d"`.
 #'   Special case `"iso"` will use the ISO8601 format.
 #' - For [Duration][DataType], `"iso"` or `"polars"` can be used.
@@ -303,7 +305,9 @@ expr_dt_to_string <- function(format = NULL) {
 #' @param format Single string of format to use, or `NULL`.
 #' `NULL` will be treated as `"iso"`.
 #' Available formats depend on the column [data type][DataType]:
+# nolint start: line_length_linter
 #' - For [Date/Time/Datetime][DataType], refer to the [chrono strftime documentation][https://docs.rs/chrono/latest/chrono/format/strftime/index.html] for specification.
+# nolint end
 #'   Example: `"%y-%m-%d"`. Special case `"iso"` will use the ISO8601 format.
 #' - For [Duration][DataType], `"iso"` or `"polars"` can be used.
 #'   The `"iso"` format string results in ISO8601 duration string output,
