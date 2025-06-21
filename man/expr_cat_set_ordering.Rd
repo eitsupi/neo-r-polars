@@ -20,19 +20,3 @@ A polars \link{expression}
 \description{
 Determine how this categorical series should be sorted.
 }
-\examples{
-df <- pl$DataFrame(
-  cats = factor(c("z", "z", "k", "a", "b")),
-  vals = c(3, 1, 2, 2, 3)
-)
-
-# sort by the string value of categories
-df$with_columns(
-  pl$col("cats")$cat$set_ordering("lexical")
-)$sort("cats", "vals")
-
-# sort by the underlying value of categories
-df$with_columns(
-  pl$col("cats")$cat$set_ordering("physical")
-)$sort("cats", "vals")
-}
