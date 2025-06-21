@@ -2639,8 +2639,11 @@ lazyframe__describe <- function(
 #'
 #' @details
 #' The calling frame is automatically registered as a table in the SQL context
-#' under the name `"self"`. If you want access to the DataFrames and LazyFrames
-#' found in the current globals, use the top-level [`pl$sql()`][pl__sql].
+#' under the name `"self"`.
+#'
+# TODO: to add in the docs if pl$sql() is added later
+# If you want access to the DataFrames and LazyFrames found in the current
+# globals, use the top-level [`pl$sql()`][pl__sql].
 #'
 #' More control over registration and execution behaviour is available by using
 #' the [`SQLContext`][pl__SQLContext] object.
