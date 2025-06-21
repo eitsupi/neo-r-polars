@@ -20,6 +20,12 @@
 #' see the section about floating point numbers for more information.
 #'
 #' @details
+#' ## Datetime representation
+#'
+#' The underlying representation of datetime is a 64-bit signed integer. The
+#' integer indicates the number of time units since the Unix epoch (1970-01-01
+#' 00:00:00). The number can be negative to indicate datetimes before the epoch.
+#'
 #' ## Full data types table
 #'
 # nolint start: line_length_linter

@@ -69,6 +69,13 @@ This is not to be conflated with the special value \code{NaN} in floating number
 see the section about floating point numbers for more information.
 }
 \details{
+\subsection{Datetime representation}{
+
+The underlying representation of datetime is a 64-bit signed integer. The
+integer indicates the number of time units since the Unix epoch (1970-01-01
+00:00:00). The number can be negative to indicate datetimes before the epoch.
+}
+
 \subsection{Full data types table}{\tabular{ll}{
    Type(s) \tab Details \cr
    \code{Boolean} \tab Boolean type that is bit packed efficiently. \cr

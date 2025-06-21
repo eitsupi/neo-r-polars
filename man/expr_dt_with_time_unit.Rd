@@ -15,16 +15,3 @@ A polars \link{expression}
 \description{
 This is deprecated. Cast to Int64 and then to Datetime instead.
 }
-\examples{
-df <- pl$select(
-  date = pl$datetime_range(
-    start = as.Date("2001-1-1"),
-    end = as.Date("2001-1-3"),
-    interval = "1d1s"
-  )
-)
-df$with_columns(
-  with_time_unit_ns = pl$col("date")$dt$with_time_unit(),
-  with_time_unit_ms = pl$col("date")$dt$with_time_unit(time_unit = "ms")
-)
-}
