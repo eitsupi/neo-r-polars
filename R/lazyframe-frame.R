@@ -1700,7 +1700,7 @@ lazyframe__unnest <- function(...) {
 #' @param offset Offset of the window. Default is `-period`.
 #'
 #' @inherit expr__rolling_max params details
-#' @return A [LazyGroupBy][LazyGroupBy_class] object
+#' @return An object of class `polars_lazy_group_by`
 #' @seealso
 #' - [`<LazyFrame>$group_by_dynamic()`][lazyframe__group_by_dynamic]
 #' @examples
@@ -1823,8 +1823,7 @@ lazyframe__rolling <- function(
 #' - 1i # length 1
 #' - 10i # length 10
 #'
-# TODO: Add LazyGroupBy docs
-#' @return A [LazyGroupBy] object
+#' @return An object of class `polars_lazy_group_by`
 #' @seealso
 #' - [`<LazyFrame>$rolling()`][lazyframe__rolling]
 #'
