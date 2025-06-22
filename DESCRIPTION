@@ -1,6 +1,6 @@
-Package: neopolars
+Package: polars
 Title: R Bindings for the 'polars' Rust Library
-Version: 0.0.0.9000
+Version: 0.0.9000.9000
 Authors@R: c(
     person("Tatsuya", "Shima", , "ts1s1andn@gmail.com", role = c("aut", "cre")),
     person("Etienne", "Bacher", , "etienne.bacher@protonmail.com", role = "aut",
@@ -28,18 +28,21 @@ Suggests:
     ggplot2,
     hms,
     jsonlite,
+    knitr,
     mirai (>= 2.3.0),
     nanoarrow (>= 0.6.0),
     nycflights13,
     patrick (>= 0.3.0),
     pkgload,
+    rmarkdown,
     testthat (>= 3.0.0),
     tibble (>= 3.3.0),
     vctrs,
     withr
-Config/Needs/dev: devtools, lifecycle, readr, glue
+Config/Needs/dev: devtools, lifecycle, readr, glue, RcppTOML, semver
 Config/Needs/lint: fs, lintr
 Config/Needs/website: etiennebacher/altdoc, future.apply
+Config/polars/lib-version: 1.0.0-alpha.2
 Config/testthat/edition: 3
 Config/testthat/parallel: true
 Config/testthat/start-first: lazyframe-frame, *-s3-base, polars_options,
@@ -48,3 +51,4 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 SystemRequirements: Cargo (Rust's package manager), rustc
+VignetteBuilder: knitr
