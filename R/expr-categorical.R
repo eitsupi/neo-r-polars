@@ -36,6 +36,8 @@ expr_cat_get_categories <- function() {
 
 #' Set Ordering
 #'
+#' @description
+#' `r lifecycle::badge("deprecated")`
 #' Determine how this categorical series should be sorted.
 #'
 #' @param ordering string either 'physical' or 'lexical'

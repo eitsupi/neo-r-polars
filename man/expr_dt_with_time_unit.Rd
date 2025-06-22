@@ -13,5 +13,6 @@ expr_dt_with_time_unit(time_unit = c("ns", "us", "ms"))
 A polars \link{expression}
 }
 \description{
-This is deprecated. Cast to Int64 and then to Datetime instead.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+Cast to Int64 and then to Datetime instead.
 }

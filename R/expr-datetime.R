@@ -702,7 +702,8 @@ expr_dt_timestamp <- function(time_unit = c("us", "ns", "ms")) {
 # TODO: mark deprecated in news before next release
 #' Set time unit of a Series of dtype Datetime or Duration
 #' @description
-#' This is deprecated. Cast to Int64 and then to Datetime instead.
+#' `r lifecycle::badge("deprecated")`
+#' Cast to Int64 and then to Datetime instead.
 #'
 #' @inheritParams expr_dt_timestamp
 #' @inherit as_polars_expr return
