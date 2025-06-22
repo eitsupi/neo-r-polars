@@ -16,6 +16,11 @@ nightly = ["polars/nightly"]
 [profile.release]
 panic = "unwind"
 
+[profile.dist-release]
+inherits = "release"
+codegen-units = 1
+lto = "fat"
+
 [lints.clippy]
 too_many_arguments = "allow"
 
