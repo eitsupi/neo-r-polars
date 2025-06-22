@@ -96,7 +96,7 @@ jobs:
           TARGET: ${{ matrix.target }}
           LIBR_POLARS_BUILD: "true"
           LIBR_POLARS_FEATURES: nightly
-          LIBR_POLARS_PROFILE: release # TODO: support changing profile via this envvar
+          LIBR_POLARS_PROFILE: dist-release
         run: |
           # make sure savvy is built from source because rust-cache doesn't work well.
           (find ~/.cargo/registry/ src/rust/target -name 'savvy-*' -print0 | xargs -0 rm -rf) || true
