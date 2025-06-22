@@ -704,6 +704,7 @@ nav:
         - s3-as_tibble: man/s3-as_tibble.md
         - s3-as.data.frame: man/s3-as.data.frame.md
         - s3-as.list: man/s3-as.list.md
+        - s3-arithmetic: man/s3-arithmetic.md
       SQL Interface:
         - SQLContext: man/pl__SQLContext.md
         - sql_context__execute: man/sql_context__execute.md
@@ -722,6 +723,7 @@ nav:
         - pl: man/pl.md
         - polars_duration_string: man/polars_duration_string.md
         - polars_options: man/polars_options.md
+        - polars_info: man/polars_info.md
         - show_versions: man/pl__show_versions.md
   - About: about.md
   - Changelog: NEWS.md
