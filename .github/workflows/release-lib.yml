@@ -63,7 +63,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: "src/rust -> target"
-          shared-key: ${{ matrix.target }}-release # TODO: change to dist-release
+          shared-key: ${{ matrix.target }}-dist-release
 
       - name: prep for musl
         if: endsWith(matrix.target, '-musl')
