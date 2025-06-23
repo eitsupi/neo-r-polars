@@ -16,7 +16,7 @@ check_purrr_version <- packageVersion("purrr") >= "1.0.4.9000"
 ```
 
 ```{r setup}
-library(neopolars)
+library(polars)
 ```
 
 polars contains a large set of functions to manipulate variables, whether they are numerical, strings, dates, or other types.
