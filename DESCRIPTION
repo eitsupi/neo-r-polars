@@ -21,6 +21,7 @@ Suggests:
     arrow,
     bit64,
     blob,
+    carrier,
     cli,
     clock,
     curl,
@@ -34,11 +35,15 @@ Suggests:
     nycflights13,
     patrick (>= 0.3.0),
     pkgload,
+    purrr,
     rmarkdown,
     testthat (>= 3.0.0),
     tibble (>= 3.3.0),
     vctrs,
     withr
+Remotes:
+    r-lib/carrier,
+    tidyverse/purrr
 Config/Needs/dev: devtools, lifecycle, readr, glue, RcppTOML, semver
 Config/Needs/lint: fs, lintr
 Config/Needs/website: etiennebacher/altdoc, future.apply
