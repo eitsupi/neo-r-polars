@@ -4,13 +4,11 @@
 \alias{expr_list_eval}
 \title{Run any polars expression on the sub-lists' values}
 \usage{
-expr_list_eval(expr, ..., parallel = FALSE)
+expr_list_eval(expr)
 }
 \arguments{
 \item{expr}{Expression to run. Note that you can select an element with
 \code{pl$element()}, \code{pl$first()}, and more. See Examples.}
-
-\item{...}{These dots are for future extensions and must be empty.}
 
 \item{parallel}{Run all expressions in parallel. Don't activate this blindly.
 Parallelism is worth it if there is enough work to do per thread. This

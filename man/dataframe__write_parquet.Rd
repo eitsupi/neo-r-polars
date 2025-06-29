@@ -12,8 +12,6 @@ dataframe__write_parquet(
   statistics = TRUE,
   row_group_size = NULL,
   data_page_size = NULL,
-  partition_by = NULL,
-  partition_chunk_size_bytes = 4294967296,
   storage_options = NULL,
   retries = 2
 )
@@ -63,14 +61,6 @@ may reduce memory pressure and improve writing speeds.}
 \item{data_page_size}{Size of the data page in bytes. If \code{NULL} (default), it
 is set to 1024^2 bytes.}
 
-\item{partition_by}{A character vector indicating column(s) to partition by.
-A partitioned dataset will be written if this is specified.}
-
-\item{partition_chunk_size_bytes}{Approximate size to split DataFrames within
-a single partition when writing. Note this is calculated using the size of
-the DataFrame in memory (the size of the output file may differ depending
-on the file format / compression).}
-
 \item{storage_options}{Named vector containing options that indicate how to
 connect to a cloud provider. The cloud providers currently supported are
 AWS, GCP, and Azure.
@@ -102,10 +92,5 @@ dat = as_polars_df(mtcars)
 # write data to a single parquet file
 destination = withr::local_tempfile(fileext = ".parquet")
 dat$write_parquet(destination)
-
-# write data to folder with a hive-partitioned structure
-dest_folder = withr::local_tempdir()
-dat$write_parquet(dest_folder, partition_by = c("gear", "cyl"))
-list.files(dest_folder, recursive = TRUE)
 \dontshow{\}) # examplesIf}
 }
