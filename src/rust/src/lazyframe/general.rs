@@ -1,3 +1,4 @@
+use super::sink::RSinkTarget;
 use crate::{
     PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame, PlRLazyGroupBy, PlRSeries, RPolarsErr,
     prelude::{sync_on_close::SyncOnCloseType, *},
@@ -1204,7 +1205,7 @@ impl PlRLazyFrame {
 
     fn sink_parquet(
         &self,
-        path: &str,
+        target: Sexp,
         compression: &str,
         stat_min: bool,
         stat_max: bool,
@@ -1224,7 +1225,8 @@ impl PlRLazyFrame {
     ) -> Result<Self> {
         #[cfg(not(target_arch = "wasm32"))]
         {
-            let path: PathBuf = path.into();
+            let target: RSinkTarget = target.try_into()?;
+
             let statistics = StatisticsOptions {
                 min_value: stat_min,
                 max_value: stat_max,
@@ -1265,10 +1267,15 @@ impl PlRLazyFrame {
                 }
                 None => None,
             };
-            let cloud_options = {
-                let cloud_options =
-                    parse_cloud_options(path.to_str().unwrap(), cloud_options.unwrap_or_default())?;
-                Some(cloud_options.with_max_retries(retries))
+            let cloud_options = match target.base_path() {
+                None => None,
+                Some(base_path) => {
+                    let cloud_options = parse_cloud_options(
+                        base_path.to_str().unwrap(),
+                        cloud_options.unwrap_or_default(),
+                    )?;
+                    Some(cloud_options.with_max_retries(retries))
+                }
             };
             let sync_on_close = <Wrap<SyncOnCloseType>>::try_from(sync_on_close)?.0;
             let sink_options = SinkOptions {
@@ -1276,17 +1283,28 @@ impl PlRLazyFrame {
                 maintain_order,
                 mkdir,
             };
-            self.ldf
-                .clone()
-                .sink_parquet(
-                    SinkTarget::Path(Arc::new(path)),
-                    options,
-                    cloud_options,
-                    sink_options,
-                )
-                .map(PlRLazyFrame::from)
-                .map_err(RPolarsErr::from)
-                .map_err(Into::into)
+
+            ({
+                let ldf = self.ldf.clone();
+                match target {
+                    RSinkTarget::File(target) => {
+                        ldf.sink_parquet(target, options, cloud_options, sink_options)
+                    }
+                    RSinkTarget::Partition(partition) => ldf.sink_parquet_partitioned(
+                        Arc::new(partition.base_path),
+                        None,
+                        partition.variant,
+                        options,
+                        cloud_options,
+                        sink_options,
+                        partition.per_partition_sort_by,
+                        None,
+                    ),
+                }
+            })
+            .map(Into::into)
+            .map_err(RPolarsErr::from)
+            .map_err(Into::into)
         }
         #[cfg(target_arch = "wasm32")]
         {
@@ -1296,7 +1314,7 @@ impl PlRLazyFrame {
 
     fn sink_csv(
         &self,
-        path: &str,
+        target: Sexp,
         include_bom: bool,
         include_header: bool,
         separator: &str,
@@ -1318,7 +1336,8 @@ impl PlRLazyFrame {
     ) -> Result<Self> {
         #[cfg(not(target_arch = "wasm32"))]
         {
-            let path: PathBuf = path.into();
+            let target: RSinkTarget = target.try_into()?;
+
             let quote_style = match quote_style {
                 Some(x) => <Wrap<QuoteStyle>>::try_from(x)?.0,
                 None => QuoteStyle::default(),
@@ -1365,10 +1384,15 @@ impl PlRLazyFrame {
                 }
                 None => None,
             };
-            let cloud_options = {
-                let cloud_options =
-                    parse_cloud_options(path.to_str().unwrap(), cloud_options.unwrap_or_default())?;
-                Some(cloud_options.with_max_retries(retries))
+            let cloud_options = match target.base_path() {
+                None => None,
+                Some(base_path) => {
+                    let cloud_options = parse_cloud_options(
+                        base_path.to_str().unwrap(),
+                        cloud_options.unwrap_or_default(),
+                    )?;
+                    Some(cloud_options.with_max_retries(retries))
+                }
             };
             let sync_on_close = <Wrap<SyncOnCloseType>>::try_from(sync_on_close)?.0;
             let sink_options = SinkOptions {
@@ -1377,17 +1401,27 @@ impl PlRLazyFrame {
                 mkdir,
             };
 
-            self.ldf
-                .clone()
-                .sink_csv(
-                    SinkTarget::Path(Arc::new(path)),
-                    options,
-                    cloud_options,
-                    sink_options,
-                )
-                .map(PlRLazyFrame::from)
-                .map_err(RPolarsErr::from)
-                .map_err(Into::into)
+            ({
+                let ldf = self.ldf.clone();
+                match target {
+                    RSinkTarget::File(target) => {
+                        ldf.sink_csv(target, options, cloud_options, sink_options)
+                    }
+                    RSinkTarget::Partition(partition) => ldf.sink_csv_partitioned(
+                        Arc::new(partition.base_path),
+                        None,
+                        partition.variant,
+                        options,
+                        cloud_options,
+                        sink_options,
+                        partition.per_partition_sort_by,
+                        None,
+                    ),
+                }
+            })
+            .map(Into::into)
+            .map_err(RPolarsErr::from)
+            .map_err(Into::into)
         }
         #[cfg(target_arch = "wasm32")]
         {
@@ -1397,7 +1431,7 @@ impl PlRLazyFrame {
 
     fn sink_json(
         &self,
-        path: &str,
+        target: Sexp,
         retries: NumericScalar,
         sync_on_close: &str,
         maintain_order: bool,
@@ -1406,7 +1440,8 @@ impl PlRLazyFrame {
     ) -> Result<Self> {
         #[cfg(not(target_arch = "wasm32"))]
         {
-            let path: PathBuf = path.into();
+            let target: RSinkTarget = target.try_into()?;
+
             let options = JsonWriterOptions {};
             let retries = <Wrap<usize>>::try_from(retries)?.0;
 
@@ -1421,10 +1456,15 @@ impl PlRLazyFrame {
                 }
                 None => None,
             };
-            let cloud_options = {
-                let cloud_options =
-                    parse_cloud_options(path.to_str().unwrap(), cloud_options.unwrap_or_default())?;
-                Some(cloud_options.with_max_retries(retries))
+            let cloud_options = match target.base_path() {
+                None => None,
+                Some(base_path) => {
+                    let cloud_options = parse_cloud_options(
+                        base_path.to_str().unwrap(),
+                        cloud_options.unwrap_or_default(),
+                    )?;
+                    Some(cloud_options.with_max_retries(retries))
+                }
             };
             let sync_on_close = <Wrap<SyncOnCloseType>>::try_from(sync_on_close)?.0;
             let sink_options = SinkOptions {
@@ -1433,14 +1473,25 @@ impl PlRLazyFrame {
                 mkdir,
             };
 
-            let ldf = self.ldf.clone();
-            ldf.sink_json(
-                SinkTarget::Path(Arc::new(path)),
-                options,
-                cloud_options,
-                sink_options,
-            )
-            .map(PlRLazyFrame::from)
+            ({
+                let ldf = self.ldf.clone();
+                match target {
+                    RSinkTarget::File(target) => {
+                        ldf.sink_json(target, options, cloud_options, sink_options)
+                    }
+                    RSinkTarget::Partition(partition) => ldf.sink_json_partitioned(
+                        Arc::new(partition.base_path),
+                        None,
+                        partition.variant,
+                        options,
+                        cloud_options,
+                        sink_options,
+                        partition.per_partition_sort_by,
+                        None,
+                    ),
+                }
+            })
+            .map(Into::into)
             .map_err(RPolarsErr::from)
             .map_err(Into::into)
         }
@@ -1452,7 +1503,7 @@ impl PlRLazyFrame {
 
     fn sink_ipc(
         &self,
-        path: &str,
+        target: Sexp,
         compression: &str,
         compat_level: Sexp,
         retries: NumericScalar,
@@ -1463,7 +1514,7 @@ impl PlRLazyFrame {
     ) -> Result<Self> {
         #[cfg(not(target_arch = "wasm32"))]
         {
-            let path: PathBuf = path.into();
+            let target: RSinkTarget = target.try_into()?;
 
             let retries = <Wrap<usize>>::try_from(retries)?.0;
             let compression: Option<IpcCompression> =
@@ -1486,10 +1537,15 @@ impl PlRLazyFrame {
                 }
                 None => None,
             };
-            let cloud_options = {
-                let cloud_options =
-                    parse_cloud_options(path.to_str().unwrap(), cloud_options.unwrap_or_default())?;
-                Some(cloud_options.with_max_retries(retries))
+            let cloud_options = match target.base_path() {
+                None => None,
+                Some(base_path) => {
+                    let cloud_options = parse_cloud_options(
+                        base_path.to_str().unwrap(),
+                        cloud_options.unwrap_or_default(),
+                    )?;
+                    Some(cloud_options.with_max_retries(retries))
+                }
             };
             let sync_on_close = <Wrap<SyncOnCloseType>>::try_from(sync_on_close)?.0;
             let sink_options = SinkOptions {
@@ -1498,17 +1554,27 @@ impl PlRLazyFrame {
                 mkdir,
             };
 
-            self.ldf
-                .clone()
-                .sink_ipc(
-                    SinkTarget::Path(Arc::new(path)),
-                    options,
-                    cloud_options,
-                    sink_options,
-                )
-                .map(PlRLazyFrame::from)
-                .map_err(RPolarsErr::from)
-                .map_err(Into::into)
+            ({
+                let ldf = self.ldf.clone();
+                match target {
+                    RSinkTarget::File(target) => {
+                        ldf.sink_ipc(target, options, cloud_options, sink_options)
+                    }
+                    RSinkTarget::Partition(partition) => ldf.sink_ipc_partitioned(
+                        Arc::new(partition.base_path),
+                        None,
+                        partition.variant,
+                        options,
+                        cloud_options,
+                        sink_options,
+                        partition.per_partition_sort_by,
+                        None,
+                    ),
+                }
+            })
+            .map(Into::into)
+            .map_err(RPolarsErr::from)
+            .map_err(Into::into)
         }
         #[cfg(target_arch = "wasm32")]
         {

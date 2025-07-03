@@ -83,6 +83,8 @@ lazyframe__sink_csv <- function(
 ) {
   wrap({
     check_dots_empty0(...)
+
+    target <- arg_to_sink_target(path)
     check_arg_is_1byte("separator", separator)
     check_arg_is_1byte("quote_char", quote_char)
     quote_style <- arg_match0(
@@ -107,7 +109,7 @@ lazyframe__sink_csv <- function(
     )
 
     lf <- lf$sink_csv(
-      path = path,
+      target = target,
       include_bom = include_bom,
       include_header = include_header,
       separator = separator,

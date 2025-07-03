@@ -85,6 +85,8 @@ lazyframe__sink_parquet <- function(
 ) {
   wrap({
     check_dots_empty0(...)
+
+    target <- arg_to_sink_target(path)
     compression <- arg_match0(
       compression,
       values = c("lz4", "uncompressed", "snappy", "gzip", "lzo", "brotli", "zstd")
@@ -125,7 +127,7 @@ lazyframe__sink_parquet <- function(
     }
 
     lf <- lf$sink_parquet(
-      path = path,
+      target = target,
       compression = compression,
       compression_level = compression_level,
       stat_min = statistics[["min"]],

@@ -40,6 +40,8 @@ lazyframe__sink_ipc <- function(
 ) {
   wrap({
     check_dots_empty0(...)
+
+    target <- arg_to_sink_target(path)
     compression <- arg_match0(
       compression %||% "uncompressed",
       values = c("zstd", "lz4", "uncompressed")
@@ -63,7 +65,7 @@ lazyframe__sink_ipc <- function(
     )
 
     lf <- lf$sink_ipc(
-      path = path,
+      target = target,
       compression = compression,
       compat_level = compat_level,
       maintain_order = maintain_order,
