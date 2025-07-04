@@ -227,18 +227,12 @@ lazyframe__group_by <- function(..., .maintain_order = FALSE) {
 #' to with_columns.
 #' @param collapse_joins Collapse a join and filters into a faster join.
 #' @param no_optimization A logical. If `TRUE`, turn off (certain) optimizations.
-#' @param streaming `r lifecycle::badge("deprecated")`
-#' A logical. If `TRUE`, process the query in batches to handle larger-than-memory data.
-#' If `FALSE` (default), the entire query is processed in a single batch.
-#' Note that streaming mode is considered unstable.
-#' It may be changed at any point without it being considered a breaking change.
 #' @param engine The engine name to use for processing the query.
 #' One of the followings:
 #' - `"auto"` (default): Select the engine automatically.
 #'   The `"in-memory"` engine will be selected for most cases.
 #' - `"in-memory"`: Use the in-memory engine.
 #' - `"streaming"`: `r lifecycle::badge("experimental")` Use the (new) streaming engine.
-#' - `"old-streaming"`: `r lifecycle::badge("superseded")` Use the old streaming engine.
 #' @param _eager A logical, indicates to turn off multi-node optimizations and
 #' the other optimizations. This option is intended for internal use only.
 #' @param _check_order,_type_check For internal use only.
@@ -261,7 +255,7 @@ lazyframe__group_by <- function(..., .maintain_order = FALSE) {
 #'
 #' # Collect in streaming mode
 #' lf$group_by("a")$agg(pl$all()$sum())$collect(
-#'   streaming = TRUE
+#'   engine = "streaming"
 #' )
 lazyframe__collect <- function(
   ...,
@@ -276,30 +270,13 @@ lazyframe__collect <- function(
   cluster_with_columns = TRUE,
   collapse_joins = TRUE,
   no_optimization = FALSE,
-  engine = c("auto", "in-memory", "streaming", "old-streaming"),
-  streaming = FALSE,
+  engine = c("auto", "in-memory", "streaming"),
   `_check_order` = TRUE,
   `_eager` = FALSE
 ) {
   wrap({
     check_dots_empty0(...)
-    engine <- arg_match0(engine, c("auto", "in-memory", "streaming", "old-streaming"))
-    # TODO: remove the streaming argument
-    if (!missing(streaming)) {
-      deprecate_warn(
-        c(
-          "The `streaming` argument is deprecated and will be removed in the future.",
-          i = "Use `engine = \"old-streaming\"` for traditional streaming mode.",
-          i = "Use `engine = \"streaming\"` for the new streaming mode.",
-          i = "Use `engine = \"in-memory\"` for non-streaming mode."
-        ),
-        always = TRUE
-      )
-      if (isTRUE(streaming)) {
-        engine <- "old-streaming"
-      }
-      if (isFALSE(streaming)) engine <- "in-memory"
-    }
+    engine <- arg_match0(engine, c("auto", "in-memory", "streaming"))
 
     if (isTRUE(no_optimization) || isTRUE(`_eager`)) {
       predicate_pushdown <- FALSE
@@ -323,7 +300,6 @@ lazyframe__collect <- function(
       comm_subexpr_elim = comm_subexpr_elim,
       cluster_with_columns = cluster_with_columns,
       collapse_joins = collapse_joins,
-      streaming = FALSE,
       `_check_order` = `_check_order`,
       `_eager` = `_eager`
     )
@@ -391,7 +367,6 @@ lazyframe__profile <- function(
   comm_subexpr_elim = TRUE,
   cluster_with_columns = TRUE,
   collapse_joins = TRUE,
-  streaming = FALSE,
   no_optimization = FALSE,
   `_check_order` = TRUE,
   show_plot = FALSE,
@@ -426,7 +401,6 @@ lazyframe__profile <- function(
       comm_subexpr_elim = comm_subexpr_elim,
       cluster_with_columns = cluster_with_columns,
       collapse_joins = collapse_joins,
-      streaming = streaming,
       `_check_order` = `_check_order`,
       `_eager` = FALSE
     )
@@ -491,7 +465,6 @@ lazyframe__explain <- function(
   comm_subexpr_elim = TRUE,
   cluster_with_columns = TRUE,
   collapse_joins = TRUE,
-  streaming = FALSE,
   `_check_order` = TRUE
 ) {
   wrap({
@@ -511,7 +484,6 @@ lazyframe__explain <- function(
         comm_subexpr_elim = comm_subexpr_elim,
         cluster_with_columns = cluster_with_columns,
         collapse_joins = collapse_joins,
-        streaming = streaming,
         `_check_order` = `_check_order`,
         `_eager` = FALSE
       )
@@ -1983,7 +1955,6 @@ lazyframe__to_dot <- function(
   comm_subexpr_elim = TRUE,
   cluster_with_columns = TRUE,
   collapse_joins = TRUE,
-  streaming = FALSE,
   `_check_order` = TRUE
 ) {
   ldf <- self$`_ldf`$optimization_toggle(
@@ -1997,7 +1968,6 @@ lazyframe__to_dot <- function(
     comm_subexpr_elim = comm_subexpr_elim,
     cluster_with_columns = cluster_with_columns,
     collapse_joins = collapse_joins,
-    streaming = streaming,
     `_check_order` = `_check_order`,
     `_eager` = FALSE
   )

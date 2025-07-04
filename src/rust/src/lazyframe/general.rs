@@ -54,7 +54,6 @@ impl PlRLazyFrame {
         comm_subexpr_elim: bool,
         cluster_with_columns: bool,
         collapse_joins: bool,
-        streaming: bool, // TODO: remove
         _eager: bool,
         _check_order: bool,
     ) -> Result<Self> {
