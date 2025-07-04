@@ -154,13 +154,14 @@ lazyframe__sink_parquet <- function(
 #' @inheritParams lazyframe__sink_parquet
 #' @param file File path to which the result should be written. This should be
 #' a path to a directory if writing a partitioned dataset.
-# TODO: move to sink_parquet once partitioning is supported
-# @param partition_by A character vector indicating column(s) to partition by.
-# A partitioned dataset will be written if this is specified.
-# @param partition_chunk_size_bytes Approximate size to split DataFrames within
-# a single partition when writing. Note this is calculated using the size of
-# the DataFrame in memory (the size of the output file may differ depending
-# on the file format / compression).
+#' @param partition_by `r lifecycle::badge("experimental")`
+#' A character vector indicating column(s) to partition by.
+#' A partitioned dataset will be written if this is specified.
+#' @param partition_chunk_size_bytes `r lifecycle::badge("experimental")`
+#' Approximate size to split DataFrames within
+#' a single partition when writing. Note this is calculated using the size of
+#' the DataFrame in memory (the size of the output file may differ depending
+#' on the file format / compression).
 #'
 #' @return The input DataFrame is returned.
 #' @examplesIf requireNamespace("withr", quietly = TRUE)
@@ -170,11 +171,10 @@ lazyframe__sink_parquet <- function(
 #' destination = withr::local_tempfile(fileext = ".parquet")
 #' dat$write_parquet(destination)
 #'
-# TODO: readd this example once partitioning is supported
-# # write data to folder with a hive-partitioned structure
-# dest_folder = withr::local_tempdir()
-# dat$write_parquet(dest_folder, partition_by = c("gear", "cyl"))
-# list.files(dest_folder, recursive = TRUE)
+#' # write data to folder with a hive-partitioned structure
+#' dest_folder = withr::local_tempdir()
+#' dat$write_parquet(dest_folder, partition_by = c("gear", "cyl"))
+#' list.files(dest_folder, recursive = TRUE)
 dataframe__write_parquet <- function(
   file,
   ...,
@@ -183,23 +183,40 @@ dataframe__write_parquet <- function(
   statistics = TRUE,
   row_group_size = NULL,
   data_page_size = NULL,
+  partition_by = NULL,
+  partition_chunk_size_bytes = 4294967296,
   storage_options = NULL,
   retries = 2
 ) {
   wrap({
     check_dots_empty0(...)
 
-    # TODO: Update like https://github.com/pola-rs/polars/pull/22582
+    target <- file
+    mkdir <- FALSE
+
+    if (!is.null(partition_by)) {
+      if (!is_string(file)) {
+        abort(c(
+          "Invalid `file` argument in the case when `partition_by` is specified.",
+          x = sprintf("Expected single string, got: %s", obj_type_friendly(file))
+        ))
+      }
+
+      target <- pl$PartitionByKey(file, by = partition_by)
+      mkdir <- TRUE
+    }
+
     self$lazy()$sink_parquet(
-      path = file,
+      path = target,
       compression = compression,
       compression_level = compression_level,
       statistics = statistics,
       row_group_size = row_group_size,
       data_page_size = data_page_size,
       storage_options = storage_options,
-      retries = retries
+      retries = retries,
+      mkdir = mkdir,
     )
-    invisible(self)
   })
+  invisible(self)
 }
