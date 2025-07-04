@@ -1460,8 +1460,6 @@ expr__cum_count <- function(..., reverse = FALSE) {
 #' @inheritParams rlang::args_dots_empty
 #' @param min_periods Number of valid values (i.e. `length - null_count`) there
 #' should be in the window before the expression is evaluated.
-#' @param parallel Run in parallel. Don’t do this in a group by or another
-#' operation that already has much parallelization.
 #'
 #' @details
 #' This can be really slow as it can have `O(n^2)` complexity. Don’t use this
@@ -1476,14 +1474,10 @@ expr__cum_count <- function(..., reverse = FALSE) {
 #'     pl$element()$first() - pl$element()$last()**2
 #'   )
 #' )
-expr__cumulative_eval <- function(expr, ..., min_periods = 1, parallel = FALSE) {
+expr__cumulative_eval <- function(expr, ..., min_periods = 1) {
   wrap({
     check_dots_empty0(...)
-    self$`_rexpr`$cumulative_eval(
-      as_polars_expr(expr)$`_rexpr`,
-      min_periods,
-      parallel
-    )
+    self$`_rexpr`$cumulative_eval(as_polars_expr(expr)$`_rexpr`, min_periods)
   })
 }
 
@@ -2433,12 +2427,13 @@ expr__sign <- function() {
 #' This returns -1 if x is lower than 0, 0 if x == 0, and 1 if x is greater
 #' than 0.
 #'
+#' @inheritParams rlang::args_dots_empty
 #' @param element Expression or scalar value.
 #' @param side Must be one of the following:
 #' * `"any"`: the index of the first suitable location found is given;
 #' * `"left"`: the index of the leftmost suitable location found is given;
 #' * `"right"`: the index the rightmost suitable location found is given.
-#'
+#' @param descending Boolean indicating whether the values are descending or not.
 #' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(values = c(1, 2, 3, 5))

@@ -68,24 +68,15 @@ of each node that is executed.
 The units of the timings are microseconds.
 }
 \examples{
-## Simplest use case
-pl$LazyFrame()$select(pl$lit(2) + 2)$profile()
+lf <- pl$LazyFrame(
+  a = c("a", "b", "a", "b", "b", "c"),
+  b = 1:6,
+  c = 6:1,
+)
 
-## Use $profile() to compare two queries
-
-# -1-  map each Species-group with native polars
-as_polars_lf(iris)$
-  sort("Sepal.Length")$
-  group_by("Species", maintain_order = TRUE)$
-  agg(pl$col(pl$Float64)$first() + 5)$
-  profile()
-## some R function, prints `.` for each time called by polars
-#  cat(".")
-#  s$to_r()[1] + 5
-#  sort("Sepal.Length")$
-#  group_by("Species", maintain_order = TRUE)$
-#  agg(pl$col(pl$Float64)$map_elements(r_func))$
-#  profile()
+lf$group_by("a", .maintain_order = TRUE)$agg(
+  pl$all()$sum()
+)$sort("a")$profile()
 }
 \seealso{
 \itemize{

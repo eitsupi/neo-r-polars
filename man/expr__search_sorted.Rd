@@ -20,6 +20,10 @@ expr__search_sorted(
 \item \code{"left"}: the index of the leftmost suitable location found is given;
 \item \code{"right"}: the index the rightmost suitable location found is given.
 }}
+
+\item{...}{These dots are for future extensions and must be empty.}
+
+\item{descending}{Boolean indicating whether the values are descending or not.}
 }
 \value{
 A polars \link{expression}

@@ -541,11 +541,6 @@ expr_list_tail <- function(n = 5L) {
 #'
 #' @param expr Expression to run. Note that you can select an element with
 #'   `pl$element()`, `pl$first()`, and more. See Examples.
-#' @param parallel Run all expressions in parallel. Don't activate this blindly.
-#'   Parallelism is worth it if there is enough work to do per thread. This
-#'   likely should not be used in the `$group_by()` context, because groups are
-#'   already executed in parallel.
-#'
 #' @inherit as_polars_expr return
 #'
 #' @examples

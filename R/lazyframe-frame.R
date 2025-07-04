@@ -330,31 +330,16 @@ lazyframe__collect <- function(
 #'  - [`$collect()`][lazyframe__collect] - regular collect.
 #'  - [`$sink_parquet()`][lazyframe__sink_parquet()] streams query to a parquet file.
 #'  - [`$sink_ipc()`][lazyframe__sink_ipc()] streams query to a arrow file.
-#'
 #' @examples
-#' ## Simplest use case
-#' pl$LazyFrame()$select(pl$lit(2) + 2)$profile()
+#' lf <- pl$LazyFrame(
+#'   a = c("a", "b", "a", "b", "b", "c"),
+#'   b = 1:6,
+#'   c = 6:1,
+#' )
 #'
-#' ## Use $profile() to compare two queries
-#'
-#' # -1-  map each Species-group with native polars
-#' as_polars_lf(iris)$
-#'   sort("Sepal.Length")$
-#'   group_by("Species", maintain_order = TRUE)$
-#'   agg(pl$col(pl$Float64)$first() + 5)$
-#'   profile()
-# TODO-REWRITE: uncomment when map_elements() is implemented
-# 2-  map each Species-group of each numeric column with an R function
-#' ## some R function, prints `.` for each time called by polars
-# r_func <- \(s) {
-#' #  cat(".")
-#' #  s$to_r()[1] + 5
-# }
-# as_polars_lf(iris)$
-#' #  sort("Sepal.Length")$
-#' #  group_by("Species", maintain_order = TRUE)$
-#' #  agg(pl$col(pl$Float64)$map_elements(r_func))$
-#' #  profile()
+#' lf$group_by("a", .maintain_order = TRUE)$agg(
+#'   pl$all()$sum()
+#' )$sort("a")$profile()
 lazyframe__profile <- function(
   ...,
   type_coercion = TRUE,
@@ -384,10 +369,6 @@ lazyframe__profile <- function(
       cluster_with_columns <- FALSE
       collapse_joins <- FALSE
       `_check_order` <- FALSE
-    }
-
-    if (isTRUE(streaming)) {
-      comm_subplan_elim <- FALSE
     }
 
     lf <- self$`_ldf`$optimization_toggle(
