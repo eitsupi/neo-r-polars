@@ -12,10 +12,6 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-
-rust_toolchain_version <- RcppTOML::parseTOML(normalizePath(
-  "./src/rust/rust-toolchain.toml"
-))$toolchain$channel
 ```
 
 The `polars` package can be installed from R-universe or GitHub.
@@ -143,8 +139,6 @@ Currently `full_features` would work as a combination of the following features.
     See `?pl_thread_pool_size` for details.
 - Features for nightly toolchain
   - `nightly` for nightly toolchain features and SIMD.
-
-Note that nightly features requires the Rust nightly toolchain `r rust_toolchain_version`.
 
 #### Profile
 
