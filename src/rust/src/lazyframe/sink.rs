@@ -167,10 +167,8 @@ impl TryFrom<&str> for Wrap<SyncOnCloseType> {
 
 impl From<Option<ListSexp>> for Wrap<Option<Vec<SortColumn>>> {
     fn from(opt_value: Option<ListSexp>) -> Self {
-        let opt_value = match opt_value {
-            Some(value) => Some(<Wrap<Vec<Expr>>>::from(value).0),
-            None => None,
-        };
-        Wrap(parse_per_partition_sort_by(opt_value))
+        Wrap(parse_per_partition_sort_by(
+            opt_value.map(|value| <Wrap<Vec<Expr>>>::from(value).0),
+        ))
     }
 }

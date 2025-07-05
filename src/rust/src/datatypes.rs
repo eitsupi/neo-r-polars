@@ -60,7 +60,7 @@ impl std::fmt::Display for PlRDataType {
                     "Datetime(time_unit='{}', time_zone={})",
                     time_unit.to_ascii(),
                     match time_zone {
-                        Some(tz) => format!("'{}'", tz),
+                        Some(tz) => format!("'{tz}'"),
                         None => "NULL".to_string(),
                     }
                 )
@@ -105,7 +105,7 @@ impl std::fmt::Display for PlRDataType {
                     })
                     .collect::<Vec<_>>()
                     .join(", ");
-                write!(f, "Struct({})", fields)
+                write!(f, "Struct({fields})")
             }
             DataType::Categorical(_, ordering) => {
                 write!(
@@ -259,7 +259,7 @@ impl PlRDataType {
         if abbreviated {
             self.dt.clone().to_string().try_into()
         } else {
-            format!("{}", self).try_into()
+            format!("{self}").try_into()
         }
     }
 

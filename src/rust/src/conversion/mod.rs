@@ -66,7 +66,7 @@ impl TryFrom<&str> for PlRDataType {
             "Null" => DataType::Null,
             "Unknown" => DataType::Unknown(Default::default()),
             _ => {
-                return Err(format!("'{}' is not a valid data type name.", name));
+                return Err(format!("'{name}' is not a valid data type name."));
             }
         };
         Ok(Self { dt })
