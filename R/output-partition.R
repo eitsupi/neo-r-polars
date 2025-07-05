@@ -1,5 +1,5 @@
 # The env for storing the partitioning scheme methods
-polars_partitioning_scheme__methods <- new.env(parent = emptyenv())
+polars_partitioning_scheme__methods <- new.env(parent = emptyenv()) # nolint: object_name_linter
 
 #' @export
 wrap.PlRPartitioning <- function(x, ...) {
