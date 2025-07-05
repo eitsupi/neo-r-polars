@@ -37,6 +37,7 @@ Suggests:
     nycflights13,
     patrick (>= 0.3.0),
     pkgload,
+    RcppTOML,
     rmarkdown,
     testthat (>= 3.0.0),
     tibble (>= 3.3.0),
