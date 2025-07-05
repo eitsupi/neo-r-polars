@@ -40,6 +40,7 @@ wrap.PlRLazyFrame <- function(x, ...) {
   self <- new.env(parent = emptyenv())
   self$`_ldf` <- x
 
+  # nolint start: line_length_linter
   makeActiveBinding(
     "columns",
     function() {
@@ -66,6 +67,7 @@ wrap.PlRLazyFrame <- function(x, ...) {
     },
     self
   )
+  # nolint end
 
   class(self) <- c("polars_lazy_frame", "polars_object")
   self
