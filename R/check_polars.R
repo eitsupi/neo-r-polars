@@ -277,7 +277,9 @@ check_polars_series <- function(
 
 #' @rdname check_polars
 #' @export
+# nolint start: object_name_linter
 check_polars_partitioning_scheme <- function(
+  # nolint end: object_name_linter
   x,
   ...,
   allow_null = FALSE,
