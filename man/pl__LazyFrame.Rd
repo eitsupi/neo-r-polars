@@ -35,14 +35,6 @@ and is the preferred (and highest-performance) mode of operation for polars.
 \details{
 The \code{pl$LazyFrame(...)} function is a shortcut for \code{pl$DataFrame(...)$lazy()}.
 }
-\section{Active bindings}{
-
-\itemize{
-\item \code{columns}: \verb{$columns} returns a character vector with the names of the columns.
-\item \code{width}: \verb{$width} returns a integer with the number of columns of the DataFrame.
-}
-}
-
 \examples{
 # Constructing a LazyFrame from vectors:
 pl$LazyFrame(a = 1:2, b = 3:4)

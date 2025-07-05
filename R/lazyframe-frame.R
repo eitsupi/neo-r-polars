@@ -9,11 +9,6 @@
 #' @aliases polars_lazy_frame LazyFrame
 #' @inheritParams pl__DataFrame
 #' @return A polars [LazyFrame]
-#'
-#' @section Active bindings:
-#' - `columns`: `$columns` returns a character vector with the names of the columns.
-#' - `width`: `$width` returns a integer with the number of columns of the DataFrame.
-#'
 #' @seealso
 #' - [`<LazyFrame>$collect()`][lazyframe__collect]: Materialize a [LazyFrame] into a [DataFrame].
 #' @examples
@@ -47,7 +42,7 @@ wrap.PlRLazyFrame <- function(x, ...) {
       warn(
         c(
           "Determining the column names of a LazyFrame requires resolving its schema, which is a potentially expensive operation.",
-          "i" = "Use `names(<lazyframe>$collect_schema())` to get the column names without this warning."
+          "i" = "Use `names(<lazyframe>)` to get the column names without this warning."
         )
       )
       names(self$`_ldf`$collect_schema())
@@ -60,7 +55,7 @@ wrap.PlRLazyFrame <- function(x, ...) {
       warn(
         c(
           "Determining the width of a LazyFrame requires resolving its schema, which is a potentially expensive operation.",
-          "i" = "Use `length(<lazyframe>$collect_schema())` to get the width without this warning."
+          "i" = "Use `length(<lazyframe>)` to get the width without this warning."
         )
       )
       length(self$`_ldf`$collect_schema())
