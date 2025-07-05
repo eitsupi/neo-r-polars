@@ -13,10 +13,7 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-rust_toolchain_version = read.dcf(
-  system.file("DESCRIPTION", package = "polars"),
-  fields = "Config/polars/RustToolchainVersion", all = TRUE
-)[1, 1]
+rust_toolchain_version <- RcppTOML::parseTOML("src/rust/rust-toolchain.toml")$toolchain$channel
 ```
 
 The `polars` package can be installed from R-universe or GitHub.
