@@ -13,7 +13,7 @@
 #'   If the size reaches the maximum size, it is closed and a new file is opened.
 #' - [`pl$PartitionParted()`][polars_partitioning_scheme]: This is a specialized version of
 #'   [`pl$PartitionByKey()`][polars_partitioning_scheme].
-#'   Where as [`pl$PartitionByKey()`][polars_partitioning_scheme] accepts data in any order,
+#'   Whereas [`pl$PartitionByKey()`][polars_partitioning_scheme] accepts data in any order,
 #'   this scheme expects the input data to be pre-grouped or pre-sorted.
 #'   This scheme suffers a lot less overhead, but may not be always applicable.
 #'   Each new value of the key expressions starts a new partition,
@@ -53,8 +53,10 @@
 #'   ),
 #'   mkdir = TRUE
 #' )
-#' list.files(temp_dir_2, full.names = TRUE) |>
-#'   lapply(\(x) nrow(read.csv(x)))
+#'
+#' files <- list.files(temp_dir_2, full.names = TRUE)
+#' files
+#' lapply(files, \(x) nrow(read.csv(x)))
 #' @name polars_partitioning_scheme
 NULL
 

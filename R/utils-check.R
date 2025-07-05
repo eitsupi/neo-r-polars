@@ -169,7 +169,7 @@ arg_match_compat_level <- function(arg, arg_nm = caller_arg(arg), error_call = c
 arg_to_sink_target <- function(arg, arg_nm = caller_arg(arg), error_call = caller_env()) {
   if (is_string(arg)) {
     arg
-  } else if (inherits(arg, "polars_partitioning_scheme")) {
+  } else if (is_polars_partitioning_scheme(arg)) {
     arg$`_r_partitioning`
   } else {
     abort(

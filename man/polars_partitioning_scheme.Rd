@@ -57,7 +57,7 @@ is buffered before writing to the file.
 If the size reaches the maximum size, it is closed and a new file is opened.
 \item \code{\link[=polars_partitioning_scheme]{pl$PartitionParted()}}: This is a specialized version of
 \code{\link[=polars_partitioning_scheme]{pl$PartitionByKey()}}.
-Where as \code{\link[=polars_partitioning_scheme]{pl$PartitionByKey()}} accepts data in any order,
+Whereas \code{\link[=polars_partitioning_scheme]{pl$PartitionByKey()}} accepts data in any order,
 this scheme expects the input data to be pre-grouped or pre-sorted.
 This scheme suffers a lot less overhead, but may not be always applicable.
 Each new value of the key expressions starts a new partition,
@@ -87,7 +87,9 @@ as_polars_lf(mtcars)$sink_csv(
   ),
   mkdir = TRUE
 )
-list.files(temp_dir_2, full.names = TRUE) |>
-  lapply(\(x) nrow(read.csv(x)))
+
+files <- list.files(temp_dir_2, full.names = TRUE)
+files
+lapply(files, \(x) nrow(read.csv(x)))
 \dontshow{\}) # examplesIf}
 }
