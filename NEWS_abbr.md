@@ -2,16 +2,23 @@
 
 ## polars 1.0.0
 
-This is a completely rewritten new version of the polars R package. This still
-follows Python Polars' API, but there are also some breaking changes compared to
-the previous R Polars implementation.
+This is a completely rewritten new version of the polars R package. It improves
+the internal structure of the package and catches up with Python Polars' API.
+At the time of writing, this version of R Polars matches Python Polars 1.31.0.
+
+Therefore it contains many breaking changes compared to the previous R Polars
+implementation. Some of those breaking changes are explained below, but many
+others are due to modifications of function names, argument names, or argument
+positions. There are too many to list here, so you should refer to the [Python
+Polars API docs](https://docs.pola.rs/api/python/dev/reference/index.html).
 
 Installation instructions for the rewritten version are now identical to the
 instructions for the old version. The old version (referred to as `polars0` in
 the docs) can be installed from R-universe with:
 
 ```r
-TODO: see https://github.com/rpolars/r-polars0/pull/4
+Sys.setenv(NOT_CRAN = "true")
+install.packages("polars0", repos = "https://rpolars.r-universe.dev")
 ```
 
 ### Breaking changes
@@ -56,7 +63,7 @@ TODO: see https://github.com/rpolars/r-polars0/pull/4
   columns should be handled), use either `$to_r_vector()` or set options for the
   entire session with `polars_options()`.
 
-* In general, `polars`now uses dots (`...`) in two scenarios:
+* In general, `polars` now uses dots (`...`) in two scenarios:
 
   1. to pass an unlimited number of inputs (for instance in `select()`, `cast()`,
      or `group_by()`), using [dynamic-dots](https://rlang.r-lib.org/reference/dyn-dots.html).
