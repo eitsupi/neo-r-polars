@@ -1,5 +1,12 @@
-use crate::{PlRExpr, prelude::*};
-use savvy::{NumericScalar, Result, savvy};
+use crate::{
+    PlRExpr,
+    error::RPolarsErr,
+    prelude::*,
+    r_threads::ThreadCom,
+    r_udf::{CONFIG, RUdf},
+};
+use polars::prelude::array::ArrToStructNameGenerator;
+use savvy::{FunctionArgs, FunctionSexp, NumericScalar, Result, Sexp, StringSexp, savvy};
 
 #[savvy]
 impl PlRExpr {
@@ -110,21 +117,26 @@ impl PlRExpr {
             .into())
     }
 
-    // fn arr_to_struct(&self, fields: Robj) -> Result<Self> {
-    //     let fields = robj_to!(Option, Robj, fields)?.map(|robj| {
-    //         let par_fn: ParRObj = robj.into();
-    //         let f: Arc<(dyn Fn(usize) -> pl::PlSmallStr + Send + Sync + 'static)> =
-    //             pl::Arc::new(move |idx: usize| {
-    //                 let thread_com = ThreadCom::from_global(&CONFIG);
-    //                 thread_com.send(RFnSignature::FnF64ToString(par_fn.clone(), idx as f64));
-    //                 let s = thread_com.recv().unwrap_string();
-    //                 let s: pl::PlSmallStr = s.into();
-    //                 s
-    //             });
-    //         f
-    //     });
-    //     Ok(Ok(RPolarsExpr(self.inner.clone().arr().to_struct(fields))))
-    // }
+    fn arr_to_struct(&self, name_gen: Option<FunctionSexp>) -> Result<Self> {
+        let name_gen = name_gen.map(|lambda| {
+            Arc::new(move |idx: usize| {
+                let args = FunctionArgs::new();
+                args.add("idx", idx as i32).unwrap();
+                let eval = lambda.call(args).unwrap();
+                let out = Sexp(eval.inner());
+                let out = StringSexp::try_from(out).unwrap().into();
+                out
+            }) as ArrToStructNameGenerator
+        });
+
+        Ok(self
+            .inner
+            .clone()
+            .arr()
+            .to_struct(name_gen)
+            .map_err(RPolarsErr::from)?
+            .into())
+    }
 
     fn arr_shift(&self, n: &PlRExpr) -> Result<Self> {
         Ok(self.inner.clone().arr().shift(n.inner.clone()).into())
