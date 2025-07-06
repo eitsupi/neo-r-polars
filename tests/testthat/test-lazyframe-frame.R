@@ -2471,18 +2471,6 @@ test_that("group_by() warns with arg maintain_order", {
 })
 
 test_that("active bindings", {
-  expect_warning(
-    expect_identical(
-      as_polars_lf(mtcars)$width,
-      11L
-    ),
-    "Determining the width of a LazyFrame requires"
-  )
-  expect_warning(
-    expect_identical(
-      as_polars_lf(mtcars)$columns,
-      names(mtcars)
-    ),
-    "Determining the column names of a LazyFrame requires"
-  )
+  expect_snapshot(as_polars_lf(mtcars)$width)
+  expect_snapshot(as_polars_lf(mtcars)$columns)
 })
