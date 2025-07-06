@@ -300,15 +300,15 @@ test_that("read/scan: arg 'decimal_comma' works", {
 })
 
 test_that("can read compressed CSV files", {
-  skip_if_not_installed("R.utils")
+  skip_if_not_installed("data.table")
 
-  df <- pl$DataFrame(col1 = letters, col2 = 1:26)
-  path <- withr::local_tempfile(fileext = "csv")
-  df$write_csv(path)
+  df <- data.frame(col1 = letters, col2 = 1:26)
+  df_pl <- as_polars_df(df)
+  path <- withr::local_tempfile(fileext = ".csv.gz")
+  data.table::fwrite(df, path, compress = "gzip")
 
-  gz_path <- R.utils::gzip(path)
   expect_equal(
-    pl$read_csv(gz_path)$cast(col2 = pl$Int32),
-    df
+    pl$read_csv(path)$cast(col2 = pl$Int32),
+    df_pl
   )
 })
