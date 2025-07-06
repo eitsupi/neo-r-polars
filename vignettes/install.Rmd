@@ -7,20 +7,21 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
+```{r}
+#| include: false
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 ```
 
-The `polars` package can be installed from R-universe or GitHub.
+The polars package can be installed from R-multiverse.
 
 Some platforms can install pre-compiled binaries, and others will need to build from source.
 
 ## How to install
 
-### From R-universe (recommended)
+### From R-multiverse (recommended)
 
 Installing the latest release version.
 
@@ -33,55 +34,13 @@ install.packages("polars", repos = "https://community.r-multiverse.org")
 - On the other platforms, the pre-built Rust library binary will be downloaded while building the R source package.
 - If the pre-built Rust library binary is not available, the Rust library will be built from source (provided that Rust is installed).
 
-### From GitHub releases
+### From GitHub
 
-Binary packages for the amd64 architecture are available.
-
-#### Linux (x86_64)
-
-```r
-install.packages(
-  "https://github.com/pola-rs/r-polars/releases/latest/download/polars__x86_64-pc-linux-gnu.gz",
-  repos = NULL
-)
-```
-
-#### Windows (x86_64)
-
-```r
-install.packages(
-  "https://github.com/pola-rs/r-polars/releases/latest/download/polars.zip",
-  repos = NULL
-)
-```
-
-#### macOS (x86_64, a.k.a. Intel)
-
-```r
-install.packages(
-  "https://github.com/pola-rs/r-polars/releases/latest/download/polars__x86_64-apple-darwin20.tgz",
-  repos = NULL
-)
-```
-
-#### macOS (aarch64, a.k.a. Apple Silicon)
-
-```r
-install.packages(
-  "https://github.com/pola-rs/r-polars/releases/latest/download/polars__aarch64-apple-darwin20.tgz",
-  repos = NULL
-)
-```
-
-### From GitHub commits
-
-Installing from GitHub commits or GitHub releases can be done using the `{remotes}` package's functions.
-
-For example, installing the version 0.9.0 from the GitHub release.
+Installing from the GitHub repository can be done using the `{remotes}` package's functions.
 
 ```r
 Sys.setenv(NOT_CRAN = "true") # Enable installation with pre-built Rust library binary, or enable Rust caching
-remotes::install_github("pola-rs/r-polars@v0.9.0")
+remotes::install_github("pola-rs/r-polars@fe76af47c482835162e4c5a0e20d20b1fd956dc2") # Install from a specific commit
 ```
 
 ## Details of installation
@@ -126,24 +85,19 @@ At this time, the following environment variables can be used to change the Rust
 
 #### Features
 
-The feature flags can be set by the `LIBR_POLARS_FEATURES` environment variable.
-For example, to enable the `full_features` feature, set the environment variable as like `LIBR_POLARS_FEATURES="full_features"`.
+The feature flags can be set by the `LIBR_POLARS_FEATURES` environment variable,
+which will be passed to the `--features` option of the `cargo build` command.
+For example, to enable the `nightly` feature, set the environment variable as like `LIBR_POLARS_FEATURES="nightly"`.
 
-Currently `full_features` would work as a combination of the following features.
-
-- The `default` feature
-  - `sql` for enable `pl$SQLContext()`.
-- Features for CRAN compatibility
-  - `disable_limit_max_threads`, this feature disables the automatic limit of the maximum number of threads to 2 for CRAN compatibility,
-    and the maximum number of threads is used by default.
-    See `?pl_thread_pool_size` for details.
-- Features for nightly toolchain
-  - `nightly` for nightly toolchain features and SIMD.
+- `nightly` for nightly toolchain features and SIMD.
+  If this feature is enabled, the nightly Rust toolchain will be downloaded and used.
+  (By the `src/rust/rust-toolchain.toml` file)
 
 #### Profile
 
 The profile can be set by the `LIBR_POLARS_PROFILE` environment variable.
-For example, to build with more optimization, set the environment variable as like `LIBR_POLARS_PROFILE="release-optimized"`.
+For example, to build with more optimization, set the environment variable as like
+`LIBR_POLARS_PROFILE="dist-release"`.
 
 ### Minimum Supported Rust Version (MSRV)
 
