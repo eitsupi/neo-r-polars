@@ -2,7 +2,6 @@ patrick::with_parameters_test_that(
   "use pl$DataFrame() to construct a DataFrame",
   .cases = {
     # nolint start: line_length_linter
-    # fmt: skip
     tibble::tribble(
       ~.test_name, ~object, ~expected,
       "simple", pl$DataFrame(a = 1, b = list("b"), ), as_polars_df(list(a = 1, b = list("b"))),
@@ -18,7 +17,7 @@ patrick::with_parameters_test_that(
 )
 
 test_that("pl$DataFrame() requires series the same length", {
-  expect_error(pl$DataFrame(a = 1:2, b = "foo"), "lengths don't match")
+  expect_error(pl$DataFrame(a = 1:2, b = 1:3), "lengths don't match")
 })
 
 test_that("pl$DataFrame() rejects expressions", {
@@ -31,7 +30,6 @@ test_that("pl$DataFrame() rejects expressions", {
 patrick::with_parameters_test_that(
   "roundtrip around serialization",
   .cases = {
-    # fmt: skip
     tibble::tribble(
       ~.test_name, ~x,
       "empty", as_polars_df(NULL),

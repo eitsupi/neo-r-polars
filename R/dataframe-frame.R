@@ -42,7 +42,7 @@
 #' Name-value pairs of objects to be converted to polars [Series]
 #' by the [as_polars_series()] function.
 #' Each [Series] will be used as a column of the [DataFrame].
-#' All values must be the same length.
+#' All values must be the same length or length 1.
 #' Each name will be used as the column name. If the name is empty,
 #' the original name of the [Series] will be used.
 #' @param .schema_overrides `r lifecycle::badge("experimental")`
@@ -321,7 +321,7 @@ dataframe__get_column_index <- function(name) {
 #' @inherit lazyframe__group_by description params
 #' @details Within each group, the order of the rows is always preserved,
 #' regardless of the `maintain_order` argument.
-#' @return [GroupBy][GroupBy_class] (a DataFrame with special groupby methods like `$agg()`)
+#' @return An object of class `polars_group_by`
 #' @seealso
 #' - [`<DataFrame>$partition_by()`][dataframe__partition_by]
 #' @examples
@@ -1172,20 +1172,6 @@ dataframe__join_asof <- function(
     wrap()
 }
 
-#' @inherit lazyframe__quantile title params
-#'
-#' @inherit as_polars_df return
-#' @examples
-#' df <- pl$DataFrame(a = 1:4, b = c(1, 2, 1, 1))
-#' df$quantile(0.7)
-dataframe__quantile <- function(
-  quantile,
-  interpolation = c("nearest", "higher", "lower", "midpoint", "linear")
-) {
-  self$lazy()$quantile(quantile, interpolation)$collect(`_eager` = TRUE) |>
-    wrap()
-}
-
 #' @inherit lazyframe__fill_nan title params
 #'
 #' @inherit as_polars_df return
@@ -1780,8 +1766,7 @@ dataframe__is_empty <- function() {
 
 #' @inherit lazyframe__rolling title description params
 #'
-#' @return [RollingGroupBy][RollingGroupBy_class] (a DataFrame with special
-#' rolling groupby methods like `$agg()`).
+#' @return An object of class `polars_rolling_group_by`
 #' @seealso
 #' - [`<DataFrame>$group_by_dynamic()`][dataframe__group_by_dynamic]
 #' @examples
@@ -1982,7 +1967,7 @@ dataframe__sample <- function(
 #' @inherit lazyframe__group_by_dynamic title description params details
 #'
 # TODO: Add GroupBy docs
-#' @return A [GroupByDynamic] object
+#' @return An object of class `polars_group_by_dynamic`
 #' @seealso
 #' - [`<DataFrame>$rolling()`][dataframe__rolling]
 #'

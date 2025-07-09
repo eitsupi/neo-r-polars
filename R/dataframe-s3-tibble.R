@@ -4,8 +4,7 @@
 #' Export the polars object as a tibble data frame
 #'
 #' This S3 method is basically a shortcut of
-#' [`as_polars_df(x, ...)$to_struct()$to_r_vector(struct = "tibble")`]
-#' [series__to_r_vector].
+#' [`as_polars_df(x, ...)$to_struct()$to_r_vector(struct = "tibble")`][series__to_r_vector].
 #' Additionally, you can check or repair the column names by specifying the `.name_repair` argument.
 #' Because polars [DataFrame] allows empty column name, which is not generally valid column name
 #' in R data frame.
@@ -31,7 +30,14 @@
 as_tibble.polars_data_frame <- function(
   x,
   ...,
-  .name_repair = c("check_unique", "unique", "universal", "minimal"),
+  .name_repair = c(
+    "check_unique",
+    "unique",
+    "universal",
+    "minimal",
+    "unique_quiet",
+    "universal_quiet"
+  ),
   uint8 = c("integer", "raw"),
   int64 = c("double", "character", "integer", "integer64"),
   date = c("Date", "IDate"),
