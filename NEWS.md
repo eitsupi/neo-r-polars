@@ -29,7 +29,7 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
   - `RPolarsSeries` -> `polars_series`
   - `RPolarsExpr` -> `polars_expr`
 
-* Conversion from unknown classes to Polars objects now fail. Developers can
+* Conversion from unknown classes to Polars objects now fails. Developers can
   specify how those objects should be handled by `polars` by creating a method
   for `as_polars_series.<my-object>`.
 
@@ -202,7 +202,7 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
   #> └─────┴─────┘
   ```
 
-  Use `as_polars_df()` and `as_polars_lf()` to convert existing R `data.frame`
+  Use `as_polars_df()` and `as_polars_lf()` to convert existing R `data.frame`s
   to their `polars` equivalents.
 
 * The class names `PTime` and `rpolars_raw_list` (used to handle time and binary
@@ -308,7 +308,7 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
   not guaranteed to interact correctly with the streaming engine. To apply
   functions from external packages or custom functions that cannot be translated
   to polars syntax, we now recommend converting the data to a `data.frame` and
-  use the parallel framework of `purrr` (>= 1.1.0) for efficiency. The vignette
+  using the parallel framework of `purrr` (>= 1.1.0) for efficiency. The vignette
   "Using custom functions" contains more details about this.
 
 
