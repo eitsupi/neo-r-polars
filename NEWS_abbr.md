@@ -59,9 +59,10 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
   and `$to_data_frame()` no longer exist. Instead, you must use `as.data.frame()`,
   `as.list()` and `as.vector()`.
 
-  If finer control is needed (for instance to specify how integer-64 or date
-  columns should be handled), use either `$to_r_vector()` or set options for the
-  entire session with `polars_options()`.
+  `as.vector()` will remove attributes that might be useful, for instance to
+  convert Int64 values using the `bit64` package or to convert Time values using
+  the `hms` package. If finer control is needed, use either `$to_r_vector()` or
+  set options for the entire session with `polars_options()`.
 
 * In general, `polars` now uses dots (`...`) in two scenarios:
 
@@ -271,9 +272,23 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
 
 ### Other changes
 
-* Passing a Series with a single value in `$with_columns()` now works:
+* R objects that convert to a Series of length 1 are now treated like scalar
+  values when converting to `polars` Expr:
 
   ```r
+  ### OLD
+  series <- pl$Series("foo", 1)
+  pl$DataFrame(bar = 1:2)$with_columns(series)
+  #> [...truncated...]
+  #> Encountered the following error in Rust-Polars:
+  #>     	Series foo, length 1 doesn't match the DataFrame height of 2
+  #>
+  #>     If you want expression: Series[foo] to be broadcasted, ensure it is a
+  #>     scalar (for instance by adding '.first()').
+  ```
+
+  ```r
+  ### NEW
   series <- pl$Series("foo", 1)
   pl$DataFrame(bar = 1:2)$with_columns(series)
   ```
