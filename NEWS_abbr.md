@@ -291,6 +291,15 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
   ### NEW
   series <- pl$Series("foo", 1)
   pl$DataFrame(bar = 1:2)$with_columns(series)
+  #> shape: (2, 2)
+  #> ┌─────┬─────┐
+  #> │ bar ┆ foo │
+  #> │ --- ┆ --- │
+  #> │ i32 ┆ f64 │
+  #> ╞═════╪═════╡
+  #> │ 1   ┆ 1.0 │
+  #> │ 2   ┆ 1.0 │
+  #> └─────┴─────┘
   ```
 
 * `map_batches()` still exists but its usage is discouraged. This function is
