@@ -70,7 +70,7 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
 
     For example, if you used to pass a vector of column names or a list of
     expressions, you now need to expand it with `!!!`:
-    ``` r
+    ```r
     ### OLD
     dat <- as_polars_df(head(mtcars, 3))
     my_exprs <- list(pl$col("drat") + 1, "mpg", "cyl")
@@ -85,7 +85,9 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
     #> │ 4.9  ┆ 21.0 ┆ 6.0 │
     #> │ 4.85 ┆ 22.8 ┆ 4.0 │
     #> └──────┴──────┴─────┘
+    ```
 
+    ```r
     ### NEW
     dat$select(!!!my_exprs)
     #> shape: (3, 3)
