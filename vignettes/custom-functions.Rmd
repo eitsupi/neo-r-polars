@@ -68,7 +68,7 @@ library(purrr)
 mirai::daemons(3)
 
 dat |>
-  as.list(as_series = FALSE) |>
+  as.data.frame() |>
   map(in_parallel(\(s) scale(s)[, 1])) |>
   _[] |>
   as_polars_df()
@@ -79,7 +79,7 @@ To apply this to a subset of columns only, we can use `map_at()`:
 
 ```{r, eval=check_purrr_version}
 dat |>
-  as.list(as_series = FALSE) |>
+  as.data.frame() |>
   map_at(c("carb", "mpg"), in_parallel(\(s) scale(s)[, 1])) |>
   _[] |>
   as_polars_df()
