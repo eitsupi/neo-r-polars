@@ -69,65 +69,65 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
   1. to pass an unlimited number of inputs (for instance in `select()`, `cast()`,
      or `group_by()`), using [dynamic-dots](https://rlang.r-lib.org/reference/dyn-dots.html).
 
-    For example, if you used to pass a vector of column names or a list of
-    expressions, you now need to expand it with `!!!`:
-    ```r
-    ### OLD
-    dat <- as_polars_df(head(mtcars, 3))
-    my_exprs <- list(pl$col("drat") + 1, "mpg", "cyl")
-    dat$select(my_exprs)
-    #> shape: (6, 3)
-    #> ┌──────┬──────┬─────┐
-    #> │ drat ┆ mpg  ┆ cyl │
-    #> │ ---  ┆ ---  ┆ --- │
-    #> │ f64  ┆ f64  ┆ f64 │
-    #> ╞══════╪══════╪═════╡
-    #> │ 4.9  ┆ 21.0 ┆ 6.0 │
-    #> │ 4.9  ┆ 21.0 ┆ 6.0 │
-    #> │ 4.85 ┆ 22.8 ┆ 4.0 │
-    #> └──────┴──────┴─────┘
-    ```
+     For example, if you used to pass a vector of column names or a list of
+     expressions, you now need to expand it with `!!!`:
+     ```r
+     ### OLD
+     dat <- as_polars_df(head(mtcars, 3))
+     my_exprs <- list(pl$col("drat") + 1, "mpg", "cyl")
+     dat$select(my_exprs)
+     #> shape: (6, 3)
+     #> ┌──────┬──────┬─────┐
+     #> │ drat ┆ mpg  ┆ cyl │
+     #> │ ---  ┆ ---  ┆ --- │
+     #> │ f64  ┆ f64  ┆ f64 │
+     #> ╞══════╪══════╪═════╡
+     #> │ 4.9  ┆ 21.0 ┆ 6.0 │
+     #> │ 4.9  ┆ 21.0 ┆ 6.0 │
+     #> │ 4.85 ┆ 22.8 ┆ 4.0 │
+     #> └──────┴──────┴─────┘
+     ```
 
-    ```r
-    ### NEW
-    dat$select(!!!my_exprs)
-    #> shape: (3, 3)
-    #> ┌──────┬──────┬─────┐
-    #> │ drat ┆ mpg  ┆ cyl │
-    #> │ ---  ┆ ---  ┆ --- │
-    #> │ f64  ┆ f64  ┆ f64 │
-    #> ╞══════╪══════╪═════╡
-    #> │ 4.9  ┆ 21.0 ┆ 6.0 │
-    #> │ 4.9  ┆ 21.0 ┆ 6.0 │
-    #> │ 4.85 ┆ 22.8 ┆ 4.0 │
-    #> └──────┴──────┴─────┘
-    ```
+     ```r
+     ### NEW
+     dat$select(!!!my_exprs)
+     #> shape: (3, 3)
+     #> ┌──────┬──────┬─────┐
+     #> │ drat ┆ mpg  ┆ cyl │
+     #> │ ---  ┆ ---  ┆ --- │
+     #> │ f64  ┆ f64  ┆ f64 │
+     #> ╞══════╪══════╪═════╡
+     #> │ 4.9  ┆ 21.0 ┆ 6.0 │
+     #> │ 4.9  ┆ 21.0 ┆ 6.0 │
+     #> │ 4.85 ┆ 22.8 ┆ 4.0 │
+     #> └──────┴──────┴─────┘
+     ```
 
-    This also affects `pl$col()`:
-    ```r
-    ### OLD
-    pl$col(c("foo", "bar"), "baz")
-    #> polars Expr: cols(["foo", "bar", "baz"])
-    ```
+     This also affects `pl$col()`:
+     ```r
+     ### OLD
+     pl$col(c("foo", "bar"), "baz")
+     #> polars Expr: cols(["foo", "bar", "baz"])
+     ```
 
-    ```r
-    ### NEW
-    pl$col(c("foo", "bar"), "baz")
-    #> Error in `pl$col()`:
-    #> ! Evaluation failed in `$col()`.
-    #> Caused by error in `pl$col()`:
-    #> ! Invalid input for `pl$col()`.
-    #> • `pl$col()` accepts either single strings or Polars data types.
+     ```r
+     ### NEW
+     pl$col(c("foo", "bar"), "baz")
+     #> Error in `pl$col()`:
+     #> ! Evaluation failed in `$col()`.
+     #> Caused by error in `pl$col()`:
+     #> ! Invalid input for `pl$col()`.
+     #> • `pl$col()` accepts either single strings or Polars data types.
 
-    pl$col(!!!c("foo", "bar"), "baz")
-    #> cols(["foo", "bar", "baz"])
-    ```
+     pl$col(!!!c("foo", "bar"), "baz")
+     #> cols(["foo", "bar", "baz"])
+     ```
 
-    Another important change in functions that accept dynamic dots is that
-    additional arguments are prefixed with `.`. For example, `group_by()` now
-    takes dynamic dots, meaning that the argument `maintain_order` is renamed
-    `.maintain_order` (for now, we add a warning if we detect an argument named
-    `maintain_order` in the dots).
+     Another important change in functions that accept dynamic dots is that
+     additional arguments are prefixed with `.`. For example, `group_by()` now
+     takes dynamic dots, meaning that the argument `maintain_order` is renamed
+     `.maintain_order` (for now, we add a warning if we detect an argument named
+     `maintain_order` in the dots).
 
   2. to force some arguments to be named. We now throw an error if an argument
      is not named while it should be, for example:
