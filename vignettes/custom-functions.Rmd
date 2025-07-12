@@ -59,9 +59,7 @@ Those are not in the R implementation because we cannot guarantee that they will
 
 Note that when you convert your polars object to R, you may run out of memory if your object is a LazyFrame that is too big to fit in memory once collected.
 Another crucial point is that we want the R function to run as fast as possible on the data.
-One way to do that is to take advantage of purrr to run the function [in parallel](https://purrr.tidyverse.org/dev/reference/in_parallel.html).
-
-**Note:** at the time of writing, this requires the development version of purrr (1.0.4.9000) and the package mirai.
+One way to do that is to take advantage of purrr to run the function [in parallel](https://purrr.tidyverse.org/reference/in_parallel.html).
 
 ```{r, eval=check_purrr_version}
 library(purrr)
