@@ -2431,7 +2431,7 @@ test_that("count() works", {
 
 patrick::with_parameters_test_that(
   "engine arguments of collect works",
-  engine = c("auto", "in-memory", "streaming", "old-streaming"),
+  engine = c("auto", "in-memory", "streaming"),
   {
     df <- pl$DataFrame(a = 1:4, b = letters[1:4])
 
@@ -2448,11 +2448,9 @@ test_that("error and warning from collect engines", {
     error = TRUE
   )
 
-  expect_deprecated(
-    as_polars_lf(mtcars)$collect(streaming = TRUE)
-  )
-  expect_deprecated(
-    as_polars_lf(mtcars)$collect(streaming = FALSE)
+  expect_snapshot(
+    as_polars_lf(mtcars)$collect(engine = "old-streaming"),
+    error = TRUE
   )
 })
 
@@ -2470,4 +2468,9 @@ test_that("group_by() warns with arg maintain_order", {
   expect_snapshot(
     dat$group_by("a", maintain_order = TRUE)$agg()
   )
+})
+
+test_that("active bindings", {
+  expect_snapshot(as_polars_lf(mtcars)$width)
+  expect_snapshot(as_polars_lf(mtcars)$columns)
 })

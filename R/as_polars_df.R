@@ -155,7 +155,7 @@ as_polars_df.polars_lazy_frame <- function(
   comm_subexpr_elim = TRUE,
   cluster_with_columns = TRUE,
   no_optimization = FALSE,
-  engine = c("auto", "in-memory", "streaming", "old-streaming")
+  engine = c("auto", "in-memory", "streaming")
 ) {
   x$collect(
     type_coercion = type_coercion,
@@ -180,8 +180,7 @@ as_polars_df.list <- function(x, ...) {
   list_of_series <- lapply(x, \(column) eval(call2("as_polars_series", column, !!!.args)))
 
   # Series with length 1 should be recycled
-  unique_lengths <- vapply(list_of_series, length, integer(1)) |>
-    unique()
+  unique_lengths <- unique(lengths(list_of_series))
   n_lengths <- length(unique_lengths)
 
   list_of_plr_series <- if (n_lengths <= 1L) {

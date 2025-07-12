@@ -431,6 +431,7 @@ nav:
             - arr_std: man/expr_arr_std.md
             - arr_sum: man/expr_arr_sum.md
             - arr_to_list: man/expr_arr_to_list.md
+            - arr_to_struct: man/expr_arr_to_struct.md
             - arr_unique: man/expr_arr_unique.md
             - arr_var: man/expr_arr_var.md
         - Binary:
@@ -521,6 +522,7 @@ nav:
             - list_sum: man/expr_list_sum.md
             - list_tail: man/expr_list_tail.md
             - list_to_array: man/expr_list_to_array.md
+            - list_to_struct: man/expr_list_to_struct.md
             - list_unique: man/expr_list_unique.md
             - list_var: man/expr_list_var.md
         - Meta:
@@ -699,6 +701,7 @@ nav:
         - scan_parquet: man/pl__scan_parquet.md
         - sink_parquet: man/lazyframe__sink_parquet.md
         - write_parquet: man/dataframe__write_parquet.md
+        - partitioning_scheme: man/polars_partitioning_scheme.md
       S3 methods:
         - s3-as_nanoarrow_array_stream: man/s3-as_nanoarrow_array_stream.md
         - s3-as_tibble: man/s3-as_tibble.md
@@ -725,5 +728,6 @@ nav:
         - polars_options: man/polars_options.md
         - polars_info: man/polars_info.md
         - show_versions: man/pl__show_versions.md
+        - thread_pool_size: man/pl__thread_pool_size.md
   - About: about.md
   - Changelog: NEWS.md
