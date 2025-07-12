@@ -276,13 +276,12 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
   pl$DataFrame(bar = 1:2)$with_columns(series)
   ```
 
-* `map_batches()` and `map_elements()` still exist but their usage is
-  discouraged. Those functions are not guaranteed to interact correctly with
-  the streaming engine. To apply functions from external packages or custom
-  functions that cannot be translated to polars syntax, we now recommend
-  converting the data to a `data.frame` and use the parallel framework of
-  `purrr` for efficiency. The vignette "Using custom functions" contains more
-  details about this.
+* `map_batches()` still exists but its usage is discouraged. This function is
+  not guaranteed to interact correctly with the streaming engine. To apply
+  functions from external packages or custom functions that cannot be translated
+  to polars syntax, we now recommend converting the data to a `data.frame` and
+  use the parallel framework of `purrr` (>= 1.1.0) for efficiency. The vignette
+  "Using custom functions" contains more details about this.
 
 
 
