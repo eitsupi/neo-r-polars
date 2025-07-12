@@ -90,6 +90,8 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
 
      ```r
      ### NEW
+     dat <- as_polars_df(head(mtcars, 3))
+     my_exprs <- list(pl$col("drat") + 1, "mpg", "cyl")
      dat$select(!!!my_exprs)
      #> shape: (3, 3)
      #> ┌──────┬──────┬─────┐
