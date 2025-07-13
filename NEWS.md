@@ -23,14 +23,14 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
 
 ### Breaking changes
 
-* The class names of `polars` objects have changed:
+* The class names of polars objects have changed:
   - `RPolarsLazyFrame` -> `polars_lazy_frame`
   - `RPolarsDataFrame` -> `polars_data_frame`
   - `RPolarsSeries` -> `polars_series`
   - `RPolarsExpr` -> `polars_expr`
 
 * Conversion from unknown classes to Polars objects now fails. Developers can
-  specify how those objects should be handled by `polars` by creating a method
+  specify how those objects should be handled by polars by creating a method
   for `as_polars_series.<my-object>`.
 
   ```r
@@ -55,7 +55,7 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
   #> Run `rlang::last_trace()` to see where the error occurred.
   ```
 
-* Conversion from `polars` to R types has been revamped: `$to_r()`, `$to_list()`
+* Conversion from polars to R types has been revamped: `$to_r()`, `$to_list()`
   and `$to_data_frame()` no longer exist. Instead, you must use `as.data.frame()`,
   `as.list()` and `as.vector()`.
 
@@ -64,7 +64,7 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
   the `hms` package. If finer control is needed, use either `$to_r_vector()` or
   set options for the entire session with `polars_options()`.
 
-* In general, `polars` now uses dots (`...`) in two scenarios:
+* In general, polars now uses dots (`...`) in two scenarios:
 
   1. to pass an unlimited number of inputs (for instance in `select()`, `cast()`,
      or `group_by()`), using [dynamic-dots](https://rlang.r-lib.org/reference/dyn-dots.html).
@@ -203,7 +203,7 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
   ```
 
   Use `as_polars_df()` and `as_polars_lf()` to convert existing R `data.frame`s
-  to their `polars` equivalents.
+  to their polars equivalents.
 
 * The class names `PTime` and `rpolars_raw_list` (used to handle time and binary
   variables) are removed. One should use the classes provided in packages
@@ -275,7 +275,7 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
 ### Other changes
 
 * R objects that convert to a Series of length 1 are now treated like scalar
-  values when converting to `polars` Expr:
+  values when converting to polars Expr:
 
   ```r
   ### OLD
