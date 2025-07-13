@@ -12,8 +12,10 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-purrr_parallel_available <- packageVersion("purrr") >= "1.0.4.9000" &&
-  requireNamespace("mirai", quietly = TRUE)
+purrr_parallel_available <- rlang::is_installed(
+  c("purrr", "carrier", "mirai"),
+  version = c("1.1.0", "0.2.0", "2.4.0")
+)
 ```
 
 ```{r setup}
