@@ -31,7 +31,7 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
 
 * Conversion from unknown classes to Polars objects now fails. Developers can
   specify how those objects should be handled by polars by creating a method
-  for `as_polars_series.<my-object>`.
+  for `as_polars_series.my_class`.
 
   ```r
   ### OLD
@@ -55,13 +55,13 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
   #> Run `rlang::last_trace()` to see where the error occurred.
   ```
 
-* Conversion from polars to R types has been revamped: `$to_r()`, `$to_list()`
-  and `$to_data_frame()` no longer exist. Instead, you must use `as.data.frame()`,
-  `as.list()` and `as.vector()`.
+* Conversion from polars objects to R vectors has been revamped: `$to_r()`,
+  `$to_list()` and `$to_data_frame()` no longer exist. Instead, you must use
+  `as.data.frame()`, `as.list()` and `as.vector()`.
 
   `as.vector()` will remove attributes that might be useful, for instance to
-  convert Int64 values using the `bit64` package or to convert Time values using
-  the `hms` package. If finer control is needed, use either `$to_r_vector()` or
+  convert Int64 values using the bit64 package or to convert Time values using
+  the hms package. If finer control is needed, use either `$to_r_vector()` or
   set options for the entire session with `polars_options()`.
 
 * In general, polars now uses dots (`...`) in two scenarios:
@@ -207,7 +207,7 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
 
 * The class names `PTime` and `rpolars_raw_list` (used to handle time and binary
   variables) are removed. One should use the classes provided in packages
-  `hms` and `blob` instead.
+  hms and blob instead.
 
   ```r
   ### OLD
@@ -275,7 +275,7 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
 ### Other changes
 
 * R objects that convert to a Series of length 1 are now treated like scalar
-  values when converting to polars Expr:
+  values when converting to polars expressions:
 
   ```r
   ### OLD
@@ -308,8 +308,8 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
   not guaranteed to interact correctly with the streaming engine. To apply
   functions from external packages or custom functions that cannot be translated
   to polars syntax, we now recommend converting the data to a `data.frame` and
-  using the parallel framework of `purrr` (>= 1.1.0) for efficiency. The vignette
-  "Using custom functions" contains more details about this.
+  using purrr (note that as of 1.1.0, purrr enables parallel computation).
+  The vignette "Using custom functions" contains more details about this.
 
 
 
