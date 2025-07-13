@@ -304,7 +304,7 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
   #> └─────┴─────┘
   ```
 
-* `map_batches()` still exists but its usage is discouraged. This function is
+* `<expr>$map_batches()` still exists but its usage is discouraged. This function is
   not guaranteed to interact correctly with the streaming engine. To apply
   functions from external packages or custom functions that cannot be translated
   to polars syntax, we now recommend converting the data to a `data.frame` and
