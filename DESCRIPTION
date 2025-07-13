@@ -36,6 +36,7 @@ Suggests:
     nanoarrow (>= 0.6.0),
     nycflights13,
     patrick (>= 0.3.0),
+    pillar,
     pkgload,
     rmarkdown,
     testthat (>= 3.0.0),
