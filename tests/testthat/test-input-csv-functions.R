@@ -18,6 +18,7 @@ test_that("read/scan: basic test", {
 })
 
 test_that("read/scan: works with URLs", {
+  skip_if_not_installed("curl")
   skip_if_offline()
   # single URL
   out <- pl$read_csv(
@@ -295,5 +296,19 @@ test_that("read/scan: arg 'decimal_comma' works", {
   expect_equal(
     pl$read_csv(tmpf, separator = "|", decimal_comma = TRUE),
     pl$DataFrame(a = c(1.5, 2), b = c("a", NA), c = c(2L, NA))$cast(c = pl$Int64)
+  )
+})
+
+test_that("can read compressed CSV files", {
+  skip_if_not_installed("data.table")
+
+  df <- data.frame(col1 = letters, col2 = 1:26)
+  df_pl <- as_polars_df(df)
+  path <- withr::local_tempfile(fileext = ".csv.gz")
+  data.table::fwrite(df, path, compress = "gzip")
+
+  expect_equal(
+    pl$read_csv(path)$cast(col2 = pl$Int32),
+    df_pl
   )
 })

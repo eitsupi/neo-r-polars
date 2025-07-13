@@ -4,7 +4,7 @@
 \alias{expr__map_batches}
 \title{Apply a custom R function to a whole Series or sequence of Series.}
 \usage{
-expr__map_batches(lambda, return_dtype = NULL, ..., agg_list = FALSE)
+expr__map_batches(lambda, return_dtype = NULL, ...)
 }
 \arguments{
 \item{lambda}{Function to apply.}
@@ -15,11 +15,6 @@ the function. This can lead to unexpected results, so it is recommended to
 provide the return dtype.}
 
 \item{...}{These dots are for future extensions and must be empty.}
-
-\item{agg_list}{Aggregate the values of the expression into a list before
-applying the function. This parameter only works in a group-by context. The
-function will be invoked only once on a list of groups, rather than once per
-group.}
 }
 \value{
 A polars \link{expression}
@@ -27,14 +22,8 @@ A polars \link{expression}
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-The output of this custom function is presumed to be either a Series, or a
-scalar that will be converted into a Series. If the result is a scalar and
-you want it to stay as a scalar, pass in \code{returns_scalar = TRUE}.
-
-If you want to apply a custom function elementwise over single values, see
-\link[=expr__map_elements]{map_elements()}. A reasonable use case for map
-functions is transforming the values represented by an expression using a
-third-party package.
+The output of this custom function is presumed to be either a Series, or an
+R vector that will be converted into a Series by \code{\link[=as_polars_series]{as_polars_series()}}.
 }
 \examples{
 df <- pl$DataFrame(
@@ -42,39 +31,9 @@ df <- pl$DataFrame(
   cosine = c(1.0, 0.0, -1.0, 0.0)
 )
 df$select(pl$all()$map_batches(\(x) {
-  elems <- as.vector(x)
-  which.max(elems)
+  x$to_r_vector() |>
+    which.max()
 }))
-
-# In a group-by context, the `agg_list` parameter can improve performance if
-# used correctly. The following example has `agg_list = FALSE`, which causes
-# the function to be applied once per group. The input of the function is a
-# Series of type Int64. This is less efficient.
-df <- pl$DataFrame(
-  a = c(0, 1, 0, 1),
-  b = c(1, 2, 3, 4)
-)
-system.time({
-  print(
-    df$group_by("a")$agg(
-      pl$col("b")$map_batches(\(x) x + 2, agg_list = FALSE)
-    )
-  )
-})
-
-# Using `agg_list = TRUE` would be more efficient. In this example, the input
-# of the function is a Series of type List(Int64).
-system.time({
-  print(
-    df$group_by("a")$agg(
-      pl$col("b")$map_batches(
-        \(x) x$list$eval(pl$element() + 2),
-        agg_list = TRUE
-      )
-    )
-  )
-})
-
 
 # Call a function that takes multiple arguments by creating a struct and
 # referencing its fields inside the function call.

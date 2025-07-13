@@ -1,4 +1,19 @@
+#' Report information of the package
+#'
+#' This function reports the following information:
+#' - Package versions (the Polars R package version and the dependent Rust
+#'   Polars crate version)
+#' - Number of threads used by Polars
+#' - Rust feature flags (See `vignette("install", "polars")` for details)
+#'
+#' @return A list with information of the package
 #' @export
+#' @examples
+#' polars_info()
+#'
+#' polars_info()$versions
+#'
+#' polars_info()$features$nightly
 polars_info <- function() {
   # Similar to arrow::arrow_info()
   out <- list(
@@ -11,11 +26,11 @@ polars_info <- function() {
       nightly = feature_nightly_enabled()
     )
   )
-  structure(out, class = "polars_info")
+  structure(out, class = "polars_info_list")
 }
 
 #' @export
-print.polars_info <- function(x, ...) {
+print.polars_info_list <- function(x, ...) {
   # Copied from the arrow package
   # https://github.com/apache/arrow/blob/6f3bd2524c2abe3a4a278fc1c62fc5c49b56cab3/r/R/arrow-info.R#L149-L157 # nolint
   print_key_values <- function(title, vals, ...) {

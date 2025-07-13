@@ -107,8 +107,7 @@ as.list.polars_data_frame <- function(
 #' Export the polars object as an R DataFrame
 #'
 #' This S3 method is a shortcut for
-#' [`as_polars_df(x, ...)$to_struct()$to_r_vector(struct = "dataframe")`]
-#' [series__to_r_vector].
+#' [`as_polars_df(x, ...)$to_struct()$to_r_vector(struct = "dataframe")`][series__to_r_vector].
 #' @inheritParams as.list.polars_data_frame
 #' @return An [R data frame][data.frame]
 #' @examples
@@ -357,7 +356,9 @@ tail.polars_data_frame <- function(x, n = 6L, ...) x$tail(n = n)
       # Need to replace invalid indices with NA
       idx[!idx %in% seq_n_rows] <- NA
       # Ensure idx is numeric for further processing
-      if (is_character(idx)) mode(idx) <- "numeric"
+      if (is_character(idx)) {
+        mode(idx) <- "numeric"
+      }
       idx
     }
     # Similar to Python Polars' _convert_series_to_indices,
