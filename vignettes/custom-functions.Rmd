@@ -86,7 +86,7 @@ mirai::daemons(3)
 ```
 
 ```{r, eval=purrr_parallel_available}
-#| echo: false
+#| include: false
 # Ensure load the package to the daemons
 mirai::everywhere({
   if (!rlang::is_installed("polars")) pkgload::load_all()
@@ -134,7 +134,7 @@ dat |>
 After running the parallel computations, it is a good practice
 to stop the background processes to free up resources.
 
-```{r}
+```{r, eval=purrr_parallel_available}
 mirai::daemons(0)
 ```
 
