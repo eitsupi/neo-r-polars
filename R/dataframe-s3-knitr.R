@@ -1,3 +1,5 @@
+# nolint start: object_name_linter
+
 #' knit print polars DataFrame
 #'
 #' Mimics Python Polars' NotebookFormatter
@@ -19,3 +21,5 @@
 knit_print.polars_data_frame <- function(x, ...) {
   knit_print_impl(x, ..., from_series = FALSE)
 }
+
+# nolint end

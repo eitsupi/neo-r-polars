@@ -4,9 +4,9 @@ knit_print_impl <- function(x, ..., from_series = FALSE, call = caller_env()) {
 
   if (
     isTRUE(polars_df_knitr_print == "html") ||
-      (isTRUE(polars_df_knitr_print != "default") &&
+      isTRUE(polars_df_knitr_print != "default") &&
         !isTRUE(rmarkdown_df_print %in% c("default", "tibble")) &&
-        knitr::is_html_output())
+        knitr::is_html_output()
   ) {
     x |>
       format_df_as_html(
