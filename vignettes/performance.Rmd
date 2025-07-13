@@ -48,7 +48,7 @@ take this into account, sorting data before filtering it can slow down our
 pipeline significantly.
 
 ```{r}
-countries = c(
+countries <- c(
   "France",
   "Germany",
   "United Kingdom",
@@ -62,7 +62,7 @@ countries = c(
 )
 
 set.seed(123)
-test = data.frame(
+test <- data.frame(
   country = sample(countries, 1e6, TRUE),
   x = sample(1:100, 1e6, TRUE),
   y = sample(1:1000, 1e6, TRUE)
@@ -90,9 +90,6 @@ bench::mark(
 #> 2 filter_sort     2.4s     2.4s    0.417     67.1MB    0.835
 ```
 
-
-
-
 ## How does `polars` help?
 
 We have seen that the order in which functions are applied matters a lot. But it
@@ -112,18 +109,17 @@ observations. For the purpose of this vignette, we can create a `LazyFrame`
 directly in our session, but if the data was stored in a CSV file for instance,
 we would have to scan it first with `pl$scan_csv()`:
 
-
 ```{r}
-library(neopolars) # TODO: replace by polars
+library(polars)
 
 set.seed(123)
-df_test = pl$DataFrame(
+df_test <- pl$DataFrame(
   country = sample(countries, 1e7, TRUE),
   x = sample(1:100, 1e7, TRUE),
   y = sample(1:1000, 1e7, TRUE)
 )
 
-lf_test = df_test$lazy()
+lf_test <- df_test$lazy()
 ```
 
 Now, we can convert the base R code above to a `polars` query:
@@ -134,10 +130,11 @@ df_test$sort(pl$col("country"))$filter(
 )
 ```
 
-This works for the `DataFrame`, that uses eager execution. For the `LazyFrame`, we can write the same query:
+This works for the `DataFrame`, that uses eager execution.
+For the `LazyFrame`, we can write the same query:
 
 ```{r}
-lazy_query = lf_test$sort(pl$col("country"))$filter(
+lazy_query <- lf_test$sort(pl$col("country"))$filter(
   pl$col("country")$is_in(list(c("United Kingdom", "Japan", "Vietnam")))
 )
 
@@ -194,9 +191,6 @@ Polars runs a lot of optimizations in the background, the entire list can be
 found [here](https://docs.pola.rs/user-guide/lazy/optimizations/).
 
 
-<!-- TODO: adapt this to mention purrr/mirai instead of map_batches() -->
-
-<!--
 # Use `polars` functions
 
 `polars` comes with a large number of built-in, optimized, basic functions that
@@ -220,15 +214,8 @@ bench::mark(
       grepl("na", s)
     })
   ),
-  grepl_nv = df_test$limit(1e6)$with_columns(
-    pl$col("country")$apply(\(str) {
-      grepl("na", str)
-    }, return_type = pl$Boolean)
-  ),
   iterations = 10
 )
-
-
 #> Warning: Some expressions had a GC in every iteration; so filtering is
 #> disabled.
 #> # A tibble: 3 × 6
@@ -236,12 +223,10 @@ bench::mark(
 #>   <bch:expr> <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
 #> 1 contains   387.02ms 432.12ms     2.27   401.86KB    0
 #> 2 grepl         2.06s    2.11s     0.466  114.79MB    0.512
-#> 3 grepl_nv      6.42s    6.52s     0.153    7.65MB   10.3
 ```
 
-Using custom R functions can be useful, but when possible, you should use the
-functions provided by `polars`. See the Reference tab for a complete list of
-functions. -->
+If you have to use external functions (for instance provided by another package),
+you can use the package purrr for that. See the vignette "Using custom functions".
 
 
 # Streaming data
