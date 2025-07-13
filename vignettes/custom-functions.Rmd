@@ -111,14 +111,12 @@ To apply this to a subset of columns only, we can use `purrr::map_at()`.
 In this case, instead of using `as.data.frame()` to convert all data to R,
 we can use `as.list()` to convert the polars DataFrame to a list of Series
 and only convert some Series to R, thus avoiding unnecessary conversions between
-Polars and R.
+Polars and R[^serialization].
 
-In technical terms, polars Series and other objects are wrappers around external pointers,
-which usually cannot be sent to other processes.
-However, this package has built-in integration with `{mirai}`,
+[^serialization]: In technical terms, polars Series and other objects are wrappers around external pointers,
+which usually cannot be sent to other processes. However, this package has built-in integration with `{mirai}`,
 which registers the serialization and deserialization functions for Series and other objects
-when the package is loaded.
-This allows users to treat Series and other polars objects like regular R objects.
+when the package is loaded. This allows users to treat Series and other polars objects like regular R objects.
 
 ```{r, eval=purrr_parallel_available}
 dat |>
