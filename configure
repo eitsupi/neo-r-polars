@@ -1,5 +1,216 @@
-if [ "$(uname)" = "Emscripten" ]; then
-  TARGET="wasm32-unknown-emscripten"
+#!/bin/sh
+
+export PATH="$PATH:$HOME/.cargo/bin"
+
+NOT_CRAN=${NOT_CRAN:-"false"}
+
+LIB_BUILD=${LIBR_POLARS_BUILD:-""}
+# Passed to the --feature flag of cargo build
+FEATURES=${LIBR_POLARS_FEATURES:-""}
+# Passed to the --profile flag of cargo build
+PROFILE=${LIBR_POLARS_PROFILE:-"release"}
+
+# Detect if this is on R-universe.
+MY_UNIVERSE=${MY_UNIVERSE:-""}
+
+LIBNAME="libr_polars.a"
+LIB_DEFAULT_PATH="$(pwd)/tools/${LIBNAME}"
+LIB_PATH=${LIBR_POLARS_PATH:-${LIB_DEFAULT_PATH}}
+
+check_cargo() {
+  if [ ! "$(command -v cargo)" ]; then
+    cat <<EOF
+------------------------- [RUST NOT FOUND] -------------------------
+The 'cargo' command was not found on the PATH. Please install rustc
+from: https://www.rust-lang.org/tools/install
+
+Alternatively, you may install cargo from your OS package manager:
+  - Debian/Ubuntu: apt-get install cargo
+  - Fedora/CentOS: dnf install cargo
+  - macOS: brew install rustc
+--------------------------------------------------------------------
+EOF
+    exit 1
+  else
+    cat <<EOF
+--------------------------- [RUST FOUND] ---------------------------
+$(cargo -V)
+
+$(rustc -vV)
+--------------------------------------------------------------------
+EOF
+  fi
+}
+
+check_rustup() {
+  if [ "$(command -v rustup)" ]; then
+    root_dir="$(pwd)"
+    # Change to the src directory to detect rust-toolchain.toml
+    cd "${root_dir}/src" || true
+    cat <<EOF
+-------------------------- [RUSTUP FOUND] --------------------------
+$(rustup show)
+--------------------------------------------------------------------
+EOF
+    cd "${root_dir}" || true
+  else
+    cat <<EOF
+------------------------ [RUSTUP NOT FOUND] ------------------------
+The 'rustup' command was not found on the PATH.
+--------------------------------------------------------------------
+EOF
+  fi
+}
+
+check_emscripten() {
+  if [ "$(uname)" = "Emscripten" ]; then
+    cat <<EOF
+-------------------- [NIGHTLY TOOLCHAIN NEEDED] --------------------
+It seems that building for Emscripten.
+'polars' requires a very recent Rust nightly toolchain.
+So using the rust-toolchain.toml file to set the toolchain.
+--------------------------------------------------------------------
+EOF
+    export TARGET="wasm32-unknown-emscripten"
+    # Set these for to use the project specific nightly toolchain
+    NOT_CRAN="true"
+    FEATURES="${FEATURES:-"nightly"}"
+  fi
+}
+
+check_bin_lib() {
+  if [ "${NOT_CRAN}" = "true" ] && [ -z "${LIB_BUILD}" ]; then
+    LIB_BUILD="false"
+  fi
+
+  # On R-universe, we try to download the pre-built binary from GitHub releases.
+  if [ -n "${MY_UNIVERSE}" ] && [ -z "${LIB_BUILD}" ]; then
+    cat <<EOF
+--------------------- [SETTING FOR R-UNIVERSE] ---------------------
+It seems that this is on R-universe <${MY_UNIVERSE}>.
+Trying to download pre-built binary.
+--------------------------------------------------------------------
+EOF
+    LIB_BUILD="false"
+  fi
+
+  if [ "${LIB_BUILD}" = "false" ]; then
+    if [ -f "tools/lib-sums.tsv" ] && [ ! -f "${LIB_PATH}" ]; then
+      cat <<EOF
+---------------- [TRY TO DOWNLOAD PRE-BUILT BINARY] ----------------
+The library was not found at <${LIB_PATH}>.
+Trying to download pre-built binary from the Internet...
+--------------------------------------------------------------------
+EOF
+      "${R_HOME}/bin${R_ARCH_BIN}/Rscript" "tools/prep-lib.R" && echo "Done!" ||
+        echo "Failed to download pre-built binary."
+    fi
+
+    if [ -f "${LIB_PATH}" ] && [ "${LIB_PATH}" != "${LIB_DEFAULT_PATH}" ]; then
+      cat <<EOF
+------------------------- [COPYING BINARY] -------------------------
+Copying <${LIB_PATH}> to <${LIB_DEFAULT_PATH}>.
+--------------------------------------------------------------------
+EOF
+      mkdir -p "$(dirname "${LIB_DEFAULT_PATH}")"
+      cp "${LIB_PATH}" "${LIB_DEFAULT_PATH}" && echo "Done!" || echo "Failed to copy binary."
+    fi
+
+    if [ -f "${LIB_DEFAULT_PATH}" ]; then
+      cat <<EOF
+---------------------- [LIBRARY BINARY FOUND] ----------------------
+The library was found at <${LIB_DEFAULT_PATH}>. No need to build it.
+
+Note: rustc version: $(command -v rustc >/dev/null && rustc -V || echo "Not found")
+--------------------------------------------------------------------
+EOF
+      export TARGET=""
+      generate_makevars
+    fi
+    cat <<EOF
+-------------------- [LIBRARY BINARY NOT FOUND] --------------------
+The library was not found at <${LIB_PATH}>.
+Falling back to building from source.
+--------------------------------------------------------------------
+EOF
+  fi
+}
+
+generate_makevars() {
+  for suffix in "" ".win"; do
+    makefile="src/Makevars${suffix}"
+    sed \
+      -e "s|@TARGET@|${TARGET}|" \
+      -e "s|@PROFILE@|${PROFILE}|" \
+      -e "s|@FEATURES@|${FEATURES}|" \
+      "$makefile.in" >"$makefile"
+  done
+
+  exit 0
+}
+
+copy_rust_toolchain_toml() {
+  # The file for setting the toolchain is included in the src/rust directory, which is the root directory of the Rust package.
+  # However, this is ignored during the R package build because the cargo build command is executed in the src directory.
+  # This ignored behavior is actually desirable to avoid unexpected file downloads on the user's computer,
+  # but in CI environments or when the user opts in, the rust-toolchain.toml file is copied to src/rust
+  # so that it can be recognized during the R package build.
+  path_from="$(pwd)/src/rust/rust-toolchain.toml"
+  path_to="$(pwd)/src/rust-toolchain.toml"
+
+  cat <<EOF
+------------------ [RUST TOOLCHAIN CONFIGURATION] ------------------
+The Rust toolchain file was found at <${path_from}>.
+Copying it to <${path_to}>.
+--------------------------------------------------------------------
+EOF
+  cp "${path_from}" "${path_to}" && echo "Done!" ||
+    echo "Failed to copy ${path_from} to ${path_to}."
+}
+
+check_feature() {
+  cat <<EOF
+------------------------- [FEATURES CHECK] -------------------------
+Selected features: '${FEATURES}'
+--------------------------------------------------------------------
+EOF
+  # TODO: needs documented, and maybe also use on R-universe?
+  if echo "${FEATURES}" | grep -q nightly && [ "${NOT_CRAN}" = "true" ]; then
+    cat <<EOF
+-------------------- [NIGHTLY TOOLCHAIN NEEDED] --------------------
+The 'nightly' feature requires a specific version of the Rust nightly toolchain.
+So using the rust-toolchain.toml file to set the toolchain.
+--------------------------------------------------------------------
+EOF
+    copy_rust_toolchain_toml
+
+    # Try to add the target
+    root_dir="$(pwd)"
+    cd "${root_dir}/src" || true
+    rustup target add "${TARGET}" || echo "Failed to add target ${TARGET}."
+
+    # For Emscripten build, the rust-src is needed for to include the stdlib to reduce the size of the binary.
+    if [ "${TARGET}" = "wasm32-unknown-emscripten" ]; then
+      rustup component add rust-src || echo "Failed to add rust-src."
+    fi
+    cd "${root_dir}" || true
+  fi
+}
+
+# catch DEBUG envvar, which is passed from pkgbuild::compile_dll()
+if [ "${DEBUG}" = "true" ]; then
+  PROFILE=dev
 fi
 
-sed -e "s/@TARGET@/${TARGET}/" src/Makevars.in > src/Makevars
+check_emscripten
+check_bin_lib
+check_cargo
+
+# This needs rustc to be installed
+TARGET="${TARGET:-$(rustc -vV | grep host | cut -d' ' -f2)}"
+
+# They need the TARGET to be set
+check_feature
+check_rustup
+
+generate_makevars

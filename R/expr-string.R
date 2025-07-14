@@ -5,14 +5,10 @@ namespace_expr_str <- function(x) {
   self <- new.env(parent = emptyenv())
   self$`_rexpr` <- x$`_rexpr`
 
-  lapply(names(polars_expr_str_methods), function(name) {
-    fn <- polars_expr_str_methods[[name]]
-    environment(fn) <- environment()
-    assign(name, fn, envir = self)
-  })
-
   class(self) <- c(
-    "polars_namespace_expr", "polars_object"
+    "polars_namespace_expr_str",
+    "polars_namespace_expr",
+    "polars_object"
   )
   self
 }
@@ -23,7 +19,7 @@ namespace_expr_str <- function(x) {
 #' Similar to the [strptime()] function.
 #'
 #' When parsing a Datetime the column precision will be inferred from the format
-#' string, if given, e.g.: `"%F %T%.3f"` => [`pl$Datetime("ms")`][pl_Datetime].
+#' string, if given, e.g.: `"%F %T%.3f"` => [`pl$Datetime("ms")`][pl__Datetime].
 #' If no fractional second component is found then the default is `"us"` (microsecond).
 # TODO: link to data type docs
 #' @param dtype The data type to convert into. Can be either `pl$Date`,
@@ -97,13 +93,14 @@ namespace_expr_str <- function(x) {
 #'   strict = FALSE
 #' ))
 expr_str_strptime <- function(
-    dtype,
-    format = NULL,
-    ...,
-    strict = TRUE,
-    exact = TRUE,
-    cache = TRUE,
-    ambiguous = c("raise", "earliest", "latest", "null")) {
+  dtype,
+  format = NULL,
+  ...,
+  strict = TRUE,
+  exact = TRUE,
+  cache = TRUE,
+  ambiguous = c("raise", "earliest", "latest", "null")
+) {
   wrap({
     check_dots_empty0(...)
     check_polars_dtype(dtype)
@@ -114,8 +111,12 @@ expr_str_strptime <- function(
           as_polars_expr(as_lit = TRUE)
       }
       self$`_rexpr`$str_to_datetime(
-        format = format, time_unit = dtype$time_unit, time_zone = dtype$time_zone,
-        strict = strict, exact = exact, cache = cache,
+        format = format,
+        time_unit = dtype$time_unit,
+        time_zone = dtype$time_zone,
+        strict = strict,
+        exact = exact,
+        cache = cache,
         ambiguous = ambiguous$`_rexpr`
       )
     } else if ("polars_dtype_date" %in% dtype_class) {
@@ -148,7 +149,10 @@ expr_str_to_date <- function(format = NULL, ..., strict = TRUE, exact = TRUE, ca
   wrap({
     check_dots_empty0(...)
     self$`_rexpr`$str_to_date(
-      format = format, strict = strict, exact = exact, cache = cache
+      format = format,
+      strict = strict,
+      exact = exact,
+      cache = cache
     )
   })
 }
@@ -176,11 +180,12 @@ expr_str_to_time <- function(format = NULL, ..., strict = TRUE, cache = TRUE) {
 #' @inheritParams expr_str_strptime
 #' @param time_unit Unit of time for the resulting Datetime column. If `NULL` (default),
 #' the time unit is inferred from the format string if given,
-#' e.g.: `"%F %T%.3f"` => [`pl$Datetime("ms")`][pl_Datetime].
+#' e.g.: `"%F %T%.3f"` => [`pl$Datetime("ms")`][pl__Datetime].
 #' If no fractional second component is found, the default is `"us"` (microsecond).
-#' @param time_zone for the resulting [Datetime][pl_Datetime] column.
-#' @param exact If `TRUE` (default), require an exact format match. If `FALSE`, allow the format to match
-#' anywhere in the target string. Note that using `exact = FALSE` introduces a performance
+#' @param time_zone for the resulting [Datetime][pl__Datetime] column.
+#' @param exact If `TRUE` (default), require an exact format match.
+#' If `FALSE`, allow the format to match anywhere in the target string.
+#' Note that using `exact = FALSE` introduces a performance
 #' penalty - cleaning your data beforehand will almost certainly be more performant.
 #' @inherit as_polars_expr return
 #' @seealso
@@ -191,14 +196,15 @@ expr_str_to_time <- function(format = NULL, ..., strict = TRUE, cache = TRUE) {
 #' df$select(pl$col("x")$str$to_datetime("%Y-%m-%d %H:%M%#z"))
 #' df$select(pl$col("x")$str$to_datetime(time_unit = "ms"))
 expr_str_to_datetime <- function(
-    format = NULL,
-    ...,
-    time_unit = NULL,
-    time_zone = NULL,
-    strict = TRUE,
-    exact = TRUE,
-    cache = TRUE,
-    ambiguous = c("raise", "earliest", "latest", "null")) {
+  format = NULL,
+  ...,
+  time_unit = NULL,
+  time_zone = NULL,
+  strict = TRUE,
+  exact = TRUE,
+  cache = TRUE,
+  ambiguous = c("raise", "earliest", "latest", "null")
+) {
   wrap({
     check_dots_empty0(...)
     if (!is_polars_expr(ambiguous)) {
@@ -206,8 +212,12 @@ expr_str_to_datetime <- function(
         as_polars_expr(as_lit = TRUE)
     }
     self$`_rexpr`$str_to_datetime(
-      format = format, time_unit = time_unit, time_zone = time_zone,
-      strict = strict, exact = exact, cache = cache,
+      format = format,
+      time_unit = time_unit,
+      time_zone = time_zone,
+      strict = strict,
+      exact = exact,
+      cache = cache,
       ambiguous = ambiguous$`_rexpr`
     )
   })
@@ -261,9 +271,10 @@ expr_str_len_chars <- function() {
 #'
 #' df$select(pl$col("foo")$str$join("-", ignore_nulls = FALSE))
 expr_str_join <- function(
-    delimiter = "",
-    ...,
-    ignore_nulls = TRUE) {
+  delimiter = "",
+  ...,
+  ignore_nulls = TRUE
+) {
   wrap({
     check_dots_empty0(...)
     self$`_rexpr`$str_join(delimiter, ignore_nulls)
@@ -271,10 +282,16 @@ expr_str_join <- function(
 }
 
 expr_str_concat <- function(
-    delimiter = "",
-    ...,
-    ignore_nulls = TRUE) {
-  deprecate_warn("$str$concat() is deprecated as of 0.18.0. Use $str$join() instead.")
+  delimiter = "",
+  ...,
+  ignore_nulls = TRUE
+) {
+  deprecate_warn(
+    c(
+      `!` = "`$str$concat()` is deprecated.",
+      i = "Use `$str$join()` instead."
+    )
+  )
   self$`_rexpr`$str_join(delimiter, ignore_nulls) |>
     wrap()
 }
@@ -284,7 +301,9 @@ expr_str_concat <- function(
 #' @description Transform to uppercase variant.
 #' @inherit as_polars_expr return
 #' @examples
-#' pl$lit(c("A", "b", "c", "1", NA))$str$to_uppercase()$to_series()
+#' pl$select(
+#'   pl$lit(c("A", "b", "c", "1", NA))$str$to_uppercase()
+#' )$to_series()
 expr_str_to_uppercase <- function() {
   self$`_rexpr`$str_to_uppercase() |>
     wrap()
@@ -295,29 +314,29 @@ expr_str_to_uppercase <- function() {
 #' @description Transform to lowercase variant.
 #' @inherit as_polars_expr return
 #' @examples
-#' pl$lit(c("A", "b", "c", "1", NA))$str$to_lowercase()$to_series()
+#' pl$select(
+#'   pl$lit(c("A", "b", "c", "1", NA))$str$to_lowercase()
+#' )$to_series()
 expr_str_to_lowercase <- function() {
   self$`_rexpr`$str_to_lowercase() |>
     wrap()
 }
 
-# TODO-REWRITE: uncomment this
-# #' Convert a string to titlecase
-# #'
-# #' @description Transform to titlecase variant.
-# #' @inherit as_polars_expr return
-# #' @details
-# #' This method is only available with the "nightly" feature.
-# #' See [polars_info()] for more details.
-# #' @examplesIf polars_info()$features$nightly
-# #' pl$lit(c("hello there", "HI, THERE", NA))$str$to_titlecase()$to_series()
-# expr_str_to_titlecase <- function() {
-#   check_feature("nightly", "in $to_titlecase():")
-
-#   self$`_rexpr`$str_to_titlecase(self) |>
-#     wrap()
-# }
-
+#' Convert a string to titlecase
+#'
+#' @description Transform to titlecase variant.
+#' @inherit as_polars_expr return
+#' @details
+#' This method is only available with the "nightly" feature.
+#' See [polars_info()] for more details.
+#' @examplesIf polars_info()$features$nightly
+#' pl$select(
+#'   pl$lit(c("hello there", "HI, THERE", NA))$str$to_titlecase()
+#' )$to_series()
+expr_str_to_titlecase <- function() {
+  self$`_rexpr`$str_to_titlecase() |>
+    wrap()
+}
 
 #' Strip leading and trailing characters
 #'
@@ -400,7 +419,7 @@ expr_str_strip_chars_end <- function(characters = NULL) {
 #' @details
 #' This method strips the exact character sequence provided in `prefix` from
 #' the start of the input. To strip a set of characters in any order, use
-#' [`$strip_chars_start()`][expr_str_chars_start] instead.
+#' [`$strip_chars_start()`][expr_str_strip_chars_start] instead.
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -423,7 +442,7 @@ expr_str_strip_prefix <- function(prefix = NULL) {
 #' @details
 #' This method strips the exact character sequence provided in `suffix` from
 #' the end of the input. To strip a set of characters in any order, use
-#' [`$strip_chars_end()`][expr_str_chars_end] instead.
+#' [`$strip_chars_end()`][expr_str_strip_chars_end] instead.
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -525,10 +544,10 @@ expr_str_pad_start <- function(length, fill_char = " ") {
 #' on [grouping and flags](https://docs.rs/regex/latest/regex/#grouping-and-flags)
 #' for additional information about the use of inline expression modifiers.
 #'
-#' @param pattern A character or something can be coerced to a string [Expr][Expr_class]
+#' @param pattern A character or something can be coerced to a string [Expr]
 #' of a valid regex pattern, compatible with the [regex crate](https://docs.rs/regex/latest/regex/).
 #' @inheritParams rlang::args_dots_empty
-#' @param literal Logical. If `TRUE` (default), treat `pattern` as a literal string,
+#' @param literal Logical. If `TRUE`, treat `pattern` as a literal string,
 #' not as a regular expression.
 #' @param strict Logical. If `TRUE` (default), raise an error if the underlying pattern is
 #' not a valid regex, otherwise mask out with a null value.
@@ -671,6 +690,7 @@ expr_str_decode <- function(encoding, ..., strict = TRUE) {
   wrap({
     check_dots_empty0(...)
     encoding <- arg_match0(encoding, values = c("hex", "base64"))
+    # fmt: skip
     switch(encoding,
       "hex" = self$`_rexpr`$str_hex_decode(strict),
       "base64" = self$`_rexpr`$str_base64_decode(strict),
@@ -697,6 +717,7 @@ expr_str_decode <- function(encoding, ..., strict = TRUE) {
 expr_str_encode <- function(encoding) {
   wrap({
     encoding <- arg_match0(encoding, values = c("hex", "base64"))
+    # fmt: skip
     switch(encoding,
       "hex" = self$`_rexpr`$str_hex_encode(),
       "base64" = self$`_rexpr`$str_base64_encode(),
@@ -854,7 +875,7 @@ expr_str_splitn <- function(by, n) {
 #' @section Capture groups:
 #' The dollar sign (`$`) is a special character related to capture groups.
 #' To refer to a literal dollar sign, use `$$` instead or set `literal` to `TRUE`.
-#' @param value A character or an [Expr][Expr_class] of string
+#' @param value A character or an [Expr] of string
 #' that will replace the matched substring.
 #' @param n A number of matches to replace.
 #' Note that regex replacement with `n > 1` not yet supported,
@@ -879,7 +900,7 @@ expr_str_splitn <- function(by, n) {
 #'
 #' # Apply case-insensitive string replacement using the `(?i)` flag.
 #' df <- pl$DataFrame(
-#'   city = "Philadelphia",
+#'   city = rep("Philadelphia", 4),
 #'   season = c("Spring", "Summer", "Autumn", "Winter"),
 #'   weather = c("Rainy", "Sunny", "Cloudy", "Snowy")
 #' )
@@ -889,10 +910,14 @@ expr_str_splitn <- function(by, n) {
 expr_str_replace <- function(pattern, value, ..., literal = FALSE, n = 1L) {
   wrap({
     check_dots_empty0(...)
-    self$`_rexpr`$str_replace(as_polars_expr(pattern, as_lit = TRUE)$`_rexpr`, as_polars_expr(value, as_lit = TRUE)$`_rexpr`, literal, n)
+    self$`_rexpr`$str_replace(
+      as_polars_expr(pattern, as_lit = TRUE)$`_rexpr`,
+      as_polars_expr(value, as_lit = TRUE)$`_rexpr`,
+      literal,
+      n
+    )
   })
 }
-
 
 
 #' Replace all matching regex/literal substrings with a new string value
@@ -916,7 +941,7 @@ expr_str_replace <- function(pattern, value, ..., literal = FALSE, n = 1L) {
 #'
 #' # Apply case-insensitive string replacement using the `(?i)` flag.
 #' df <- pl$DataFrame(
-#'   city = "Philadelphia",
+#'   city = rep("Philadelphia", 4),
 #'   season = c("Spring", "Summer", "Autumn", "Winter"),
 #'   weather = c("Rainy", "Sunny", "Cloudy", "Snowy")
 #' )
@@ -928,7 +953,11 @@ expr_str_replace <- function(pattern, value, ..., literal = FALSE, n = 1L) {
 expr_str_replace_all <- function(pattern, value, ..., literal = FALSE) {
   wrap({
     check_dots_empty0(...)
-    self$`_rexpr`$str_replace_all(as_polars_expr(pattern, as_lit = TRUE)$`_rexpr`, as_polars_expr(value, as_lit = TRUE)$`_rexpr`, literal)
+    self$`_rexpr`$str_replace_all(
+      as_polars_expr(pattern, as_lit = TRUE)$`_rexpr`,
+      as_polars_expr(value, as_lit = TRUE)$`_rexpr`,
+      literal
+    )
   })
 }
 
@@ -989,11 +1018,11 @@ expr_str_reverse <- function() {
     wrap()
 }
 
-#' Use the aho-corasick algorithm to find matches
+#' Use the Aho-Corasick algorithm to find matches
 #'
 #' This function determines if any of the patterns find a match.
 #' @inherit expr_str_contains params return
-#' @param patterns Character vector or something can be coerced to strings [Expr][Expr_class]
+#' @param patterns Character vector or something can be coerced to strings [Expr]
 #' of a valid regex pattern, compatible with the [regex crate](https://docs.rs/regex/latest/regex/).
 #' @param ascii_case_insensitive Enable ASCII-aware case insensitive matching.
 #' When this option is enabled, searching will be performed without respect to
@@ -1015,11 +1044,14 @@ expr_str_reverse <- function() {
 expr_str_contains_any <- function(patterns, ..., ascii_case_insensitive = FALSE) {
   wrap({
     check_dots_empty0(...)
-    self$`_rexpr`$str_contains_any(as_polars_expr(patterns, as_lit = TRUE)$`_rexpr`, ascii_case_insensitive)
+    self$`_rexpr`$str_contains_any(
+      as_polars_expr(patterns, as_lit = TRUE)$`_rexpr`,
+      ascii_case_insensitive
+    )
   })
 }
 
-#' Use the aho-corasick algorithm to replace many matches
+#' Use the Aho-Corasick algorithm to replace many matches
 #'
 #' This function replaces several matches at once.
 #'
@@ -1068,7 +1100,8 @@ expr_str_replace_many <- function(patterns, replace_with, ascii_case_insensitive
 #' All group names are strings. If your pattern contains unnamed groups, their
 #' numerical position is converted to a string. See examples.
 #' @param pattern A character of a valid regular expression pattern containing
-#' at least one capture group, compatible with the [regex crate](https://docs.rs/regex/latest/regex/).
+#' at least one capture group, compatible with the
+#' [regex crate](https://docs.rs/regex/latest/regex/).
 #' @inherit as_polars_expr return
 #'
 #' @examples
@@ -1193,7 +1226,7 @@ expr_str_tail <- function(n) {
 }
 
 
-#' Use the aho-corasick algorithm to extract matches
+#' Use the Aho-Corasick algorithm to extract matches
 #'
 #' @param patterns String patterns to search. This can be an Expr or something
 #' coercible to an Expr. Strings are parsed as column names.
@@ -1218,11 +1251,18 @@ expr_str_tail <- function(n) {
 #' )
 #'
 #' df$select(pl$col("values")$str$extract_many("patterns"))
-expr_str_extract_many <- function(patterns, ..., ascii_case_insensitive = FALSE, overlapping = FALSE) {
+expr_str_extract_many <- function(
+  patterns,
+  ...,
+  ascii_case_insensitive = FALSE,
+  overlapping = FALSE
+) {
   wrap({
     check_dots_empty0(...)
     self$`_rexpr`$str_extract_many(
-      as_polars_expr(patterns)$`_rexpr`, ascii_case_insensitive, overlapping
+      as_polars_expr(patterns)$`_rexpr`,
+      ascii_case_insensitive,
+      overlapping
     )
   })
 }

@@ -56,17 +56,18 @@
 #'
 #' df$filter(pl$col("end") > pl$datetime(2024, 6, 1))
 pl__datetime <- function(
-    year,
-    month,
-    day,
-    hour = NULL,
-    minute = NULL,
-    second = NULL,
-    microsecond = NULL,
-    ...,
-    time_unit = c("us", "ns", "ms"),
-    time_zone = NULL,
-    ambiguous = c("raise", "earliest", "latest", "null")) {
+  year,
+  month,
+  day,
+  hour = NULL,
+  minute = NULL,
+  second = NULL,
+  microsecond = NULL,
+  ...,
+  time_unit = c("us", "ns", "ms"),
+  time_zone = NULL,
+  ambiguous = c("raise", "earliest", "latest", "null")
+) {
   wrap({
     check_dots_empty0(...)
 
@@ -108,6 +109,24 @@ pl__datetime <- function(
   })
 }
 
+#' Create a Polars literal expression of type Date
+#'
+#' @inherit pl__datetime params return
+#' @examples
+#' df <- pl$DataFrame(month = 1:3, day = 4:6)
+#' df$with_columns(pl$date(2024, pl$col("month"), pl$col("day")))
+#'
+#' # We can also use `pl$date()` for filtering:
+#' df <- pl$DataFrame(
+#'   start = rep(as.Date("2024-01-01"), 3),
+#'   end = as.Date(c("2024-05-01", "2024-07-01", "2024-09-01"))
+#' )
+#' df$filter(pl$col("end") > pl$date(2024, 6, 1))
+pl__date <- function(year, month, day) {
+  pl__datetime(year, month, day)$cast(pl$Date)$alias("date") |>
+    wrap()
+}
+
 # TODO: more examples
 #' Create polars Duration from distinct time components
 #'
@@ -129,9 +148,11 @@ pl__datetime <- function(
 #' which represents a column or literal number of minutes, or `NULL` (default).
 #' @param seconds Something can be coerced to an [polars expression][Expr] by [as_polars_expr()]
 #' which represents a column or literal number of seconds, or `NULL` (default).
-#' @param milliseconds Something can be coerced to an [polars expression][Expr] by [as_polars_expr()]
+#' @param milliseconds Something can be coerced to an [polars expression][Expr]
+#' by [as_polars_expr()]
 #' which represents a column or literal number of milliseconds, or `NULL` (default).
-#' @param microseconds Something can be coerced to an [polars expression][Expr] by [as_polars_expr()]
+#' @param microseconds Something can be coerced to an [polars expression][Expr]
+#' by [as_polars_expr()]
 #' which represents a column or literal number of microseconds, or `NULL` (default).
 #' @param nanoseconds Something can be coerced to an [polars expression][Expr] by [as_polars_expr()]
 #' which represents a column or literal number of nanoseconds, or `NULL` (default).
@@ -154,16 +175,17 @@ pl__datetime <- function(
 #'   add_hours = pl$col("dt") + pl$duration(hours = pl$col("add"))
 #' )
 pl__duration <- function(
-    ...,
-    weeks = NULL,
-    days = NULL,
-    hours = NULL,
-    minutes = NULL,
-    seconds = NULL,
-    milliseconds = NULL,
-    microseconds = NULL,
-    nanoseconds = NULL,
-    time_unit = NULL) {
+  ...,
+  weeks = NULL,
+  days = NULL,
+  hours = NULL,
+  minutes = NULL,
+  seconds = NULL,
+  milliseconds = NULL,
+  microseconds = NULL,
+  nanoseconds = NULL,
+  time_unit = NULL
+) {
   wrap({
     check_dots_empty0(...)
 
@@ -211,13 +233,16 @@ pl__duration <- function(
   })
 }
 
-# TODO: support `schema` argument
 #' Collect columns into a struct column
 #'
-#' @inherit as_polars_expr return
 #' @inheritParams lazyframe__select
+#' @param .schema Optional schema that explicitly defines the struct field
+#' dtypes. If no columns or expressions are provided, `.schema` keys are used
+#' to define columns.
+#'
+#' @inherit as_polars_expr return
 #' @examples
-#' # Collect all columns of a dataframe into a struct by passing pl.all().
+#' # Collect all columns of a dataframe into a struct by passing pl$all().
 #' df <- pl$DataFrame(
 #'   int = 1:2,
 #'   str = c("a", "b"),
@@ -226,12 +251,35 @@ pl__duration <- function(
 #' )
 #' df$select(pl$struct(pl$all())$alias("my_struct"))
 #'
+#' # Collect selected columns into a struct by either passing a list of
+#' # columns, or by specifying each column as a positional argument.
+#' df$select(pl$struct("int", FALSE)$alias("my_struct"))
+#'
 #' # Name each struct field.
 #' df$select(pl$struct(p = "int", q = "bool")$alias("my_struct"))$schema
-pl__struct <- function(...) {
-  parse_into_list_of_expressions(...) |>
-    as_struct() |>
-    wrap()
+#'
+#' # Pass a schema to specify the datatype of each field in the struct:
+#' struct_schema <- list(int = pl$UInt32, list = pl$List(pl$Float32))
+#' df$select(
+#'   new_struct = pl$struct(pl$col("int", "list"), .schema = struct_schema)
+#' )$unnest("new_struct")
+pl__struct <- function(..., .schema = NULL) {
+  wrap({
+    rexprs <- parse_into_list_of_expressions(...)
+    if (is.null(.schema)) {
+      as_struct(rexprs)
+    } else {
+      check_list_of_polars_dtype(.schema)
+      if (length(rexprs) == 0L) {
+        expr <- parse_into_list_of_expressions(!!!names(.schema)) |>
+          as_struct() |>
+          wrap()
+      } else {
+        expr <- wrap(as_struct(rexprs))
+      }
+      expr$cast(pl$Struct(!!!.schema), strict = FALSE)
+    }
+  })
 }
 
 #' Horizontally concatenate columns into a single list column
@@ -265,5 +313,41 @@ pl__concat_list <- function(...) {
     check_dots_unnamed()
     parse_into_list_of_expressions(...) |>
       concat_list()
+  })
+}
+
+#' Horizontally concatenate columns into a single string column
+#'
+#' Operates in linear time.
+#'
+#' @param ... <[`dynamic-dots`][rlang::dyn-dots]> Columns to concatenate into a
+#' single string column. Accepts expression input. Strings are parsed as column
+#' names, other non-expression inputs are parsed as literals. Non-`String`
+#' columns are cast to `String`.
+#' @param separator String that will be used to separate the values of each
+#' column.
+#' @param ignore_nulls If `FALSE` (default), null values will be propagated,
+#' i.e. if the row contains any null values, the output is null.
+#'
+#' @inherit as_polars_expr return
+#' @examples
+#' df <- pl$DataFrame(
+#'   a = 1:3,
+#'   b = c("dogs", "cats", NA),
+#'   c = c("play", "swim", "walk")
+#' )
+#' df$with_columns(
+#'   full_sentence = pl$concat_str(
+#'     pl$col("a") * 2L,
+#'     pl$col("b"),
+#'     pl$col("c"),
+#'     separator = " ",
+#'   )
+#' )
+pl__concat_str <- function(..., separator = "", ignore_nulls = FALSE) {
+  wrap({
+    check_dots_unnamed()
+    exprs <- parse_into_list_of_expressions(...)
+    concat_str(exprs, separator, ignore_nulls)
   })
 }

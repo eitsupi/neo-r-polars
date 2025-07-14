@@ -8,6 +8,7 @@
 \method{as.data.frame}{polars_data_frame}(
   x,
   ...,
+  uint8 = c("integer", "raw"),
   int64 = c("double", "character", "integer", "integer64"),
   date = c("Date", "IDate"),
   time = c("hms", "ITime"),
@@ -20,6 +21,7 @@
 \method{as.data.frame}{polars_lazy_frame}(
   x,
   ...,
+  uint8 = c("integer", "raw"),
   int64 = c("double", "character", "integer", "integer64"),
   date = c("Date", "IDate"),
   time = c("hms", "ITime"),
@@ -33,6 +35,14 @@
 \item{x}{A polars object}
 
 \item{...}{Passed to \code{\link[=as_polars_df]{as_polars_df()}}.}
+
+\item{uint8}{Determine how to convert Polars' UInt8 type values to R type.
+One of the followings:
+\itemize{
+\item \code{"integer"} (default): Convert to the R's \link{integer} type.
+\item \code{"raw"}: Convert to the R's \link{raw} type.
+If the value is \code{null}, export as \code{00}.
+}}
 
 \item{int64}{Determine how to convert Polars' Int64, UInt32, or UInt64 type values to R type.
 One of the followings:
@@ -58,6 +68,7 @@ One of the followings:
 One of the followings:
 \itemize{
 \item \code{"hms"} (default): Convert to the \link[hms:hms]{hms::hms} class.
+If the \link[hms:hms-package]{hms} package is not installed, a warning will be shown.
 \item \code{"ITime"}: Convert to the \link[data.table:IDateTime]{data.table::ITime} class.
 The \link[data.table:data.table]{data.table} package must be installed.
 }}
@@ -107,7 +118,7 @@ An \link[=data.frame]{R data frame}
 }
 \description{
 This S3 method is a shortcut for
-\code{\link[=series__to_r_vector]{as_polars_df(x, ...)$to_struct()$to_r_vector(ensure_vector = FALSE, struct = "dataframe")}}.
+\code{\link[=series__to_r_vector]{as_polars_df(x, ...)$to_struct()$to_r_vector(struct = "dataframe")}}.
 }
 \examples{
 df <- as_polars_df(list(a = 1:3, b = 4:6))

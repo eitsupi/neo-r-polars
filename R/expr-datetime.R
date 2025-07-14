@@ -5,13 +5,11 @@ namespace_expr_dt <- function(x) {
   self <- new.env(parent = emptyenv())
   self$`_rexpr` <- x$`_rexpr`
 
-  lapply(names(polars_expr_dt_methods), function(name) {
-    fn <- polars_expr_dt_methods[[name]]
-    environment(fn) <- environment()
-    assign(name, fn, envir = self)
-  })
-
-  class(self) <- c("polars_namespace_expr", "polars_object")
+  class(self) <- c(
+    "polars_namespace_expr_dt",
+    "polars_namespace_expr",
+    "polars_object"
+  )
   self
 }
 
@@ -71,7 +69,9 @@ expr_dt_convert_time_zone <- function(time_zone) {
 #' )
 
 #' df$with_columns(
-#'   London_to_Amsterdam = pl$col("london_timezone")$dt$replace_time_zone(time_zone="Europe/Amsterdam")
+#'   London_to_Amsterdam = pl$col("london_timezone")$dt$replace_time_zone(
+#'     time_zone="Europe/Amsterdam"
+#'   )
 #' )
 #' # You can use `ambiguous` to deal with ambiguous datetimes:
 #' dates <- c(
@@ -94,10 +94,11 @@ expr_dt_convert_time_zone <- function(time_zone) {
 #'   )
 #' )
 expr_dt_replace_time_zone <- function(
-    time_zone,
-    ...,
-    ambiguous = c("raise", "earliest", "latest", "null"),
-    non_existent = c("raise", "null")) {
+  time_zone,
+  ...,
+  ambiguous = c("raise", "earliest", "latest", "null"),
+  non_existent = c("raise", "null")
+) {
   wrap({
     check_dots_empty0(...)
     non_existent <- arg_match0(non_existent, c("raise", "null"))
@@ -251,8 +252,10 @@ expr_dt_combine <- function(time, time_unit = c("us", "ns", "ms")) {
 #' @param format Single string of format to use, or `NULL` (default).
 #' `NULL` will be treated as `"iso"`.
 #' Available formats depend on the column [data type][DataType]:
+# nolint start: line_length_linter
 #' - For [Date/Time/Datetime][DataType], refer to the
-#'   [chrono strftime documentation][https://docs.rs/chrono/latest/chrono/format/strftime/index.html]
+#'   [chrono strftime documentation](https://docs.rs/chrono/latest/chrono/format/strftime/index.html)
+# nolint end
 #'   for specification. Example: `"%y-%m-%d"`.
 #'   Special case `"iso"` will use the ISO8601 format.
 #' - For [Duration][DataType], `"iso"` or `"polars"` can be used.
@@ -302,10 +305,10 @@ expr_dt_to_string <- function(format = NULL) {
 #' @param format Single string of format to use, or `NULL`.
 #' `NULL` will be treated as `"iso"`.
 #' Available formats depend on the column [data type][DataType]:
-#' - For [Date/Time/Datetime][DataType], refer to the
-#'   [chrono strftime documentation][https://docs.rs/chrono/latest/chrono/format/strftime/index.html]
-#'   for specification. Example: `"%y-%m-%d"`.
-#'   Special case `"iso"` will use the ISO8601 format.
+# nolint start: line_length_linter
+#' - For [Date/Time/Datetime][DataType], refer to the [chrono strftime documentation](https://docs.rs/chrono/latest/chrono/format/strftime/index.html) for specification.
+# nolint end
+#'   Example: `"%y-%m-%d"`. Special case `"iso"` will use the ISO8601 format.
 #' - For [Duration][DataType], `"iso"` or `"polars"` can be used.
 #'   The `"iso"` format string results in ISO8601 duration string output,
 #'   and `"polars"` results in the same form seen in the polars print representation.
@@ -448,12 +451,11 @@ expr_dt_weekday <- function() {
 #'
 #' @inherit as_polars_expr return
 #' @examples
-#' df <- pl$DataFrame(
+#' df <- pl$select(
 #'   date = pl$date_range(
 #'     as.Date("2020-12-25"),
 #'     as.Date("2021-1-05"),
-#'     interval = "1d",
-#'     time_zone = "GMT"
+#'     interval = "1d"
 #'   )
 #' )
 #' df$with_columns(
@@ -493,7 +495,7 @@ expr_dt_ordinal_day <- function() {
 #'
 #' @inherit as_polars_expr return
 #' @examples
-#' df <- pl$DataFrame(
+#' df <- pl$select(
 #'   date = pl$datetime_range(
 #'     as.Date("2020-12-25"),
 #'     as.Date("2021-1-05"),
@@ -647,7 +649,7 @@ expr_dt_nanosecond <- function() {
 #'
 #' @inherit as_polars_expr return
 #' @examples
-#' df <- pl$DataFrame(date = pl$date_range(as.Date("2001-1-1"), as.Date("2001-1-3")))
+#' df <- pl$select(date = pl$date_range(as.Date("2001-1-1"), as.Date("2001-1-3")))
 #'
 #' df$with_columns(
 #'   epoch_ns = pl$col("date")$dt$epoch(),
@@ -656,12 +658,17 @@ expr_dt_nanosecond <- function() {
 expr_dt_epoch <- function(time_unit = c("us", "ns", "ms", "s", "d")) {
   wrap({
     time_unit <- arg_match0(time_unit, values = c("us", "ns", "ms", "s", "d"))
+    # fmt: skip
     switch(time_unit,
       "ms" = ,
       "us" = ,
       "ns" = self$`_rexpr`$dt_timestamp(time_unit),
       "s" = self$`_rexpr`$dt_epoch_seconds(),
-      "d" = self$`_rexpr`$cast(pl$Date$`_dt`, strict = TRUE, wrap_numerical = FALSE)$cast(pl$Int32$`_dt`, strict = TRUE, wrap_numerical = FALSE),
+      "d" = self$`_rexpr`$cast(
+        pl$Date$`_dt`, strict = TRUE, wrap_numerical = FALSE
+      )$cast(
+        pl$Int32$`_dt`, strict = TRUE, wrap_numerical = FALSE
+      ),
       abort("Unreachable")
     )
   })
@@ -695,25 +702,19 @@ expr_dt_timestamp <- function(time_unit = c("us", "ns", "ms")) {
 # TODO: mark deprecated in news before next release
 #' Set time unit of a Series of dtype Datetime or Duration
 #' @description
-#' This is deprecated. Cast to Int64 and then to Datetime instead.
+#' `r lifecycle::badge("deprecated")`
+#' Cast to Int64 and then to Datetime instead.
 #'
 #' @inheritParams expr_dt_timestamp
 #' @inherit as_polars_expr return
-#' @examples
-#' df <- pl$select(
-#'   date = pl$datetime_range(
-#'     start = as.Date("2001-1-1"),
-#'     end = as.Date("2001-1-3"),
-#'     interval = "1d1s"
-#'   )
-#' )
-#' df$with_columns(
-#'   with_time_unit_ns = pl$col("date")$dt$with_time_unit(),
-#'   with_time_unit_ms = pl$col("date")$dt$with_time_unit(time_unit = "ms")
-#' )
 expr_dt_with_time_unit <- function(time_unit = c("ns", "us", "ms")) {
   wrap({
-    deprecate_warn("$dt$with_time_unit() is deprecated. Cast to Int64 and to Datetime(<desired unit>) instead.")
+    deprecate_warn(
+      c(
+        `!` = "`$dt$with_time_unit()` is deprecated.",
+        i = "Cast to Int64 and then to Datetime with the desired time unit instead."
+      )
+    )
     time_unit <- arg_match0(time_unit, values = c("ns", "us", "ms"))
     self$`_rexpr`$dt_with_time_unit(time_unit)
   })
@@ -1076,7 +1077,8 @@ expr_dt_date <- function() {
 #' @param n An integer value or a [polars expression][Expr] representing the number of
 #' business days to offset by.
 #' @param week_mask Non-NA logical vector of length 7, representing the days of
-#' the week to count. The default is Monday to Friday (`c(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE)`).
+#' the week to count. The default is Monday to Friday
+#' (`c(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE)`).
 #' If you wanted to count only Monday to Thursday, you would pass
 #' `c(TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE)`.
 #' @param holidays A [Date] class vector, representing the holidays to exclude from the count.
@@ -1107,16 +1109,17 @@ expr_dt_date <- function() {
 #'   rolled_forwards = pl$col("start")$dt$add_business_days(0, roll = "forward")
 #' )
 expr_dt_add_business_days <- function(
-    n,
-    ...,
-    week_mask = c(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE),
-    holidays = as.Date(integer(0)),
-    roll = c("raise", "backward", "forward")) {
+  n,
+  ...,
+  week_mask = c(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE),
+  holidays = as.Date(integer(0)),
+  roll = c("raise", "backward", "forward")
+) {
   wrap({
     check_dots_empty0(...)
 
     if (!(is_scalar_integerish(n) && !anyNA(n)) && !is_polars_expr(n)) {
-      abort("`n` must be a single non-`NA` integer-ish value or a polars expression.")
+      abort("`n` must be a single non-`NA` integer-ish value or a Polars expression.")
     }
     if (!(is_logical(week_mask, n = 7L) && !anyNA(week_mask))) {
       abort("`week_mask` must be a vector with 7 logical values, without any `NA`.")

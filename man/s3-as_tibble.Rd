@@ -8,7 +8,9 @@
 \method{as_tibble}{polars_data_frame}(
   x,
   ...,
-  .name_repair = c("check_unique", "unique", "universal", "minimal"),
+  .name_repair = c("check_unique", "unique", "universal", "minimal", "unique_quiet",
+    "universal_quiet"),
+  uint8 = c("integer", "raw"),
   int64 = c("double", "character", "integer", "integer64"),
   date = c("Date", "IDate"),
   time = c("hms", "ITime"),
@@ -21,7 +23,9 @@
 \method{as_tibble}{polars_lazy_frame}(
   x,
   ...,
-  .name_repair = c("check_unique", "unique", "universal", "minimal"),
+  .name_repair = c("check_unique", "unique", "universal", "minimal", "unique_quiet",
+    "universal_quiet"),
+  uint8 = c("integer", "raw"),
   int64 = c("double", "character", "integer", "integer64"),
   date = c("Date", "IDate"),
   time = c("hms", "ITime"),
@@ -43,6 +47,8 @@
 \item \code{"check_unique"}: (default value), no name repair, but check they are
 \code{unique},
 \item \code{"universal"}: Make the names \code{unique} and syntactic
+\item \code{"unique_quiet"}: Same as \code{"unique"}, but "quiet"
+\item \code{"universal_quiet"}: Same as \code{"universal"}, but "quiet"
 \item a function: apply custom name repair (e.g., \code{.name_repair = make.names}
 for names in the style of base R).
 \item A purrr-style anonymous function, see \code{\link[rlang:as_function]{rlang::as_function()}}
@@ -51,6 +57,14 @@ for names in the style of base R).
 This argument is passed on as \code{repair} to \code{\link[vctrs:vec_as_names]{vctrs::vec_as_names()}}.
 See there for more details on these terms and the strategies used
 to enforce them.}
+
+\item{uint8}{Determine how to convert Polars' UInt8 type values to R type.
+One of the followings:
+\itemize{
+\item \code{"integer"} (default): Convert to the R's \link{integer} type.
+\item \code{"raw"}: Convert to the R's \link{raw} type.
+If the value is \code{null}, export as \code{00}.
+}}
 
 \item{int64}{Determine how to convert Polars' Int64, UInt32, or UInt64 type values to R type.
 One of the followings:
@@ -76,6 +90,7 @@ One of the followings:
 One of the followings:
 \itemize{
 \item \code{"hms"} (default): Convert to the \link[hms:hms]{hms::hms} class.
+If the \link[hms:hms-package]{hms} package is not installed, a warning will be shown.
 \item \code{"ITime"}: Convert to the \link[data.table:IDateTime]{data.table::ITime} class.
 The \link[data.table:data.table]{data.table} package must be installed.
 }}
@@ -125,9 +140,10 @@ A \link[tibble:tbl_df-class]{tibble}
 }
 \description{
 This S3 method is basically a shortcut of
-\code{\link[=series__to_r_vector]{as_polars_df(x, ...)$to_struct()$to_r_vector(ensure_vector = FALSE, struct = "tibble")}}.
+\code{\link[=series__to_r_vector]{as_polars_df(x, ...)$to_struct()$to_r_vector(struct = "tibble")}}.
 Additionally, you can check or repair the column names by specifying the \code{.name_repair} argument.
-Because polars \link{DataFrame} allows empty column name, which is not generally valid column name in R data frame.
+Because polars \link{DataFrame} allows empty column name, which is not generally valid column name
+in R data frame.
 }
 \examples{
 \dontshow{if (requireNamespace("tibble", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
@@ -146,6 +162,7 @@ tibble::as_tibble(df$lazy(), .name_repair = "unique")
 }
 \seealso{
 \itemize{
-\item \code{\link[=as.data.frame.polars_data_frame]{as.data.frame(<polars_object>)}}: Export the polars object as a basic data frame.
+\item \code{\link[=as.data.frame.polars_data_frame]{as.data.frame(<polars_object>)}}:
+Export the polars object as a basic data frame.
 }
 }

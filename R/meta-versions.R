@@ -1,10 +1,14 @@
 .dependencies <- c(
+  "arrow",
   "bit64",
   "blob",
   "cli",
   "clock",
   "data.table",
+  "ggplot2",
   "hms",
+  "mirai",
+  "nanoarrow",
   "tibble",
   "vctrs"
 )

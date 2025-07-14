@@ -1,20 +1,35 @@
 [package]
 name = "r-polars"
-version = "0.1.0"
-edition = "2021"
+version = "1.0.0-beta.1"
+edition = "2024"
+rust-version = "1.85.0"
 publish = false
 
 [lib]
 crate-type = ["staticlib", "lib"]
 
+[features]
+default = []
+# also includes simd
+nightly = ["polars/nightly"]
+
 [profile.release]
 panic = "unwind"
 
+[profile.dist-release]
+inherits = "release"
+codegen-units = 1
+lto = "fat"
+
+[lints.clippy]
+too_many_arguments = "allow"
+
 [dependencies]
 ciborium = "0.2"
+either = "1.15"
 flume = "0.11"
-polars-core = { git = "https://github.com/pola-rs/polars.git", rev = "841c387d99d7024037556c4ef79d96bf2caac397", default-features = false }
-polars-error = { git = "https://github.com/pola-rs/polars.git", rev = "841c387d99d7024037556c4ef79d96bf2caac397", default-features = false }
+polars-core = { git = "https://github.com/pola-rs/polars.git", rev = "171c8474b11e9e62209f5f7f03615f24fe62da98" }
+polars-error = { git = "https://github.com/pola-rs/polars.git", rev = "171c8474b11e9e62209f5f7f03615f24fe62da98" }
 savvy = { version = "0.8", features = ["use-custom-error"] }
 serde_json = "1"
 state = "0.6"
@@ -22,45 +37,80 @@ strum = "0.26"
 strum_macros = "0.26"
 thiserror = "2"
 
+# These features are enabled by default, but not supported on emscripten
+# <https://github.com/pola-rs/polars/blob/93ceaccdac6f05c9b07a5117f3a4a90c238dbd29/.github/workflows/test-pyodide.yml#L40-L45>
+[target.'cfg(not(target_os = "emscripten"))'.dependencies.polars]
+git = "https://github.com/pola-rs/polars.git"
+rev = "171c8474b11e9e62209f5f7f03615f24fe62da98"
+default-features = false
+features = [
+    "aws",
+    "azure",
+    "cloud",
+    "csv",
+    "extract_jsonpath",
+    "gcp",
+    "http",
+    "ipc",
+    "ipc_streaming",
+    "json",
+    "parquet",
+]
+
+[target.'cfg(not(target_os = "emscripten"))'.dependencies.polars-lazy]
+git = "https://github.com/pola-rs/polars.git"
+rev = "171c8474b11e9e62209f5f7f03615f24fe62da98"
+default-features = false
+features = ["new_streaming"]
+
+[target.'cfg(not(target_os = "emscripten"))'.dependencies.polars-mem-engine]
+git = "https://github.com/pola-rs/polars.git"
+rev = "171c8474b11e9e62209f5f7f03615f24fe62da98"
+default-features = false
+features = ["csv", "ipc", "json", "parquet"]
+
 [dependencies.polars]
 git = "https://github.com/pola-rs/polars.git"
-rev = "841c387d99d7024037556c4ef79d96bf2caac397"
+rev = "171c8474b11e9e62209f5f7f03615f24fe62da98"
+default-features = false
 features = [
     "abs",
     "approx_unique",
+    "arg_where",
     "array_any_all",
     "array_count",
     "array_to_struct",
+    "asof_join",
     "binary_encoding",
+    "bitwise",
     "business",
-    "cloud",
     "concat_str",
+    "cross_join",
     "cse",
-    "csv",
     "cum_agg",
     "cutqcut",
+    "decompress",
     "diagonal_concat",
     "diff",
+    "dot_diagram",
     "dot_product",
     "dtype-full",
     "dynamic_group_by",
     "ewma",
     "ewma_by",
     "extract_groups",
-    "extract_jsonpath",
     "find_many",
+    "fmt",
     "fused",
     "hist",
+    "iejoin",
     "interpolate",
     "interpolate_by",
-    "ipc",
-    "ipc_streaming",
     "is_between",
     "is_first_distinct",
     "is_in",
     "is_last_distinct",
     "is_unique",
-    "json",
     "lazy",
     "list_any_all",
     "list_count",
@@ -71,15 +121,17 @@ features = [
     "list_sets",
     "list_to_struct",
     "log",
+    "merge_sorted",
     "meta",
     "mode",
     "moment",
-    "month_start",
     "month_end",
+    "month_start",
     "offset_by",
-    "parquet",
+    "partition_by",
     "pct_change",
     "peaks",
+    "pivot",
     "product",
     "propagate_nans",
     "random",
@@ -94,10 +146,11 @@ features = [
     "round_series",
     "row_hash",
     "search_sorted",
+    "semi_anti_join",
     "serde",
     "serde-lazy",
     "sign",
-    "streaming",
+    "sql",
     "strings",
     "string_encoding",
     "string_pad",
@@ -105,9 +158,10 @@ features = [
     "string_to_integer",
     "temporal",
     "timezones",
+    "to_dummies",
     "top_k",
     "trigonometry",
-    "unique_counts"
+    "unique_counts",
 ]
 
 [target.'cfg(all(any(not(target_family = "unix"), target_os = "emscripten", allocator = "mimalloc")))'.dependencies]

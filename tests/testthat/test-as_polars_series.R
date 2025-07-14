@@ -13,15 +13,17 @@ patrick::with_parameters_test_that(
 
     withr::with_timezone(
       "UTC",
+      # nolint start: line_length_linter
       tibble::tribble(
         ~.test_name, ~x, ~expected_name, ~expected_dtype,
         "polars_series", as_polars_series(1L, "foo"), "foo", pl$Int32,
         "polars_data_frame", pl$DataFrame(a = 1L, y = TRUE), "", pl$Struct(a = pl$Int32, y = pl$Boolean),
+        "polars_lazy_frame", pl$LazyFrame(a = 1L, y = TRUE), "", pl$Struct(a = pl$Int32, y = pl$Boolean),
         "double", c(1.0, NA), "", pl$Float64,
         "integer", c(1L, NA), "", pl$Int32,
         "character", c("foo", NA), "", pl$String,
         "logical", c(TRUE, FALSE, NA), "", pl$Boolean,
-        "raw", charToRaw("foo"), "", pl$Binary,
+        "raw", charToRaw("foo"), "", pl$UInt8,
         "array", array(1:24, c(2, 3, 4)), "", pl$Array(pl$Int32, c(3, 2)),
         "factor", factor("foo"), "", pl$Categorical(),
         "Date", as.Date(c("2021-01-01", NA)), "", pl$Date,
@@ -41,45 +43,46 @@ patrick::with_parameters_test_that(
         "NULL", NULL, "", pl$Null,
         "list", list("foo", 1L, NULL, NA, vctrs::unspecified(), as_polars_series(NULL), list(NULL)), "", pl$List(pl$String),
         "list (casting failed)", list(list("bar"), "foo"), "", pl$List(pl$String),
+        "numeric_version", numeric_version(c(NA, "4.2.2"), strict = FALSE), "", pl$List(pl$Int32),
+        "numeric_version (0-length)", numeric_version(character()), "", pl$List(pl$Int32),
         "AsIs", I(1L), "", pl$Int32,
         "data.frame", data.frame(x = 1L, y = TRUE), "", pl$Struct(x = pl$Int32, y = pl$Boolean),
         "integer64", bit64::as.integer64(c(NA, "-9223372036854775807", "9223372036854775807")), "", pl$Int64,
         "ITime", data.table::as.ITime(c(NA, 3600, 86400, -1)), "", pl$Time,
         "vctrs_unspecified", vctrs::unspecified(3L), "", pl$Null,
       )
+      # nolint end
     )
   },
   code = {
-    withr::with_timezone(
-      "UTC",
-      {
-        pl_series <- as_polars_series(x, argument_should_be_ignored = "foo")
-        expect_s3_class(pl_series, "polars_series")
-        expect_snapshot(print(pl_series))
+    withr::with_timezone("UTC", {
+      pl_series <- as_polars_series(x, argument_should_be_ignored = "foo")
+      expect_s3_class(pl_series, "polars_series")
+      expect_snapshot(print(pl_series))
 
-        expect_equal(pl_series$name, expected_name)
-        expect_equal(pl_series$dtype, expected_dtype)
+      expect_equal(pl_series$name, expected_name)
+      expect_equal(pl_series$dtype, expected_dtype)
 
-        expect_equal(as_polars_series(x, name = "bar")$name, "bar")
-      }
-    )
+      expect_equal(as_polars_series(x, name = "bar")$name, "bar")
+    })
   }
 )
 
 test_that("as_polars_series.default throws an error", {
   x <- 1
   class(x) <- "foo"
-  expect_error(as_polars_series(x), "Unsupported class")
+  expect_snapshot(as_polars_series(x), error = TRUE)
 })
 
 test_that("as_polars_series.polars_expr throws an error", {
   expect_error(
     as_polars_series(pl$lit(1)),
-    r"(You can evaluating the expression with `pl\$select\(\))"
+    r"(You can evaluate the expression with `pl\$select\(\)`)"
   )
 })
 
-patrick::with_parameters_test_that("difftime's units (mins, hours, days) support",
+patrick::with_parameters_test_that(
+  "difftime's units (mins, hours, days) support",
   .cases = {
     tibble::tribble(
       ~.test_name, ~expected_series,
@@ -99,10 +102,10 @@ patrick::with_parameters_test_that("difftime's units (mins, hours, days) support
 test_that("Before 0-oclock or after 24-oclock hms must be rejected", {
   skip_if_not_installed("hms")
 
-  hms_24 <- hms::as_hms(c(NA, "24:00:00", "04:00:00"))
+  hms_24 <- hms::as_hms(c(NA, "24:00:00", "23:59:59.999999"))
   hms_minus_1 <- hms::as_hms(c(NA, -3600, 0))
-  expect_error(as_polars_series(hms_24), "not supported")
-  expect_error(as_polars_series(hms_minus_1), "not supported")
+  expect_snapshot(as_polars_series(hms_24), error = TRUE)
+  expect_snapshot(as_polars_series(hms_minus_1), error = TRUE)
 })
 
 test_that("as_polars_series(<list>, strict = TRUE)", {
@@ -158,6 +161,21 @@ test_that("as_polars_series(<POSIXlt>) works for ambiguous time as like clock::a
   )
 })
 
+test_that("as_polars_series(<POSIXlt>) works for leap second as like str_to_datetime()", {
+  chr_vec <- c(
+    "2005-12-31 23:59:59",
+    "2005-12-31 23:59:60",
+    "2005-12-31 23:59:60.123456789",
+    "2006-01-01 00:00:00"
+  )
+  lt_vec <- as.POSIXlt(chr_vec, tz = "UTC")
+
+  expect_equal(
+    as_polars_series(lt_vec),
+    as_polars_series(chr_vec)$str$to_datetime(time_unit = "ns", time_zone = "UTC")
+  )
+})
+
 # TODO: more tests for system time
 
 test_that("as_polars_series works for vctrs_rcrd", {
@@ -165,7 +183,6 @@ test_that("as_polars_series works for vctrs_rcrd", {
   skip_if_not_installed("tibble")
 
   # Sample vctrs_rcrd class
-  # From https://github.com/r-lib/vctrs/blob/8d98911aa64e36dbc249cbc8802618638fd0c603/vignettes/pillar.Rmd#L54-L85
   latlon <- function(lat, lon) {
     vctrs::new_rcrd(list(lat = lat, lon = lon), class = "earth_latlon")
   }
@@ -186,7 +203,8 @@ test_that("as_polars_series works for vctrs_rcrd", {
   )
 })
 
-patrick::with_parameters_test_that("clock datetime classes support",
+patrick::with_parameters_test_that(
+  "clock datetime classes support",
   {
     skip_if_not_installed("clock")
 
@@ -197,6 +215,7 @@ patrick::with_parameters_test_that("clock datetime classes support",
       "2212-01-01T12:34:56.123456789"
     )
 
+    # fmt: skip
     expected_time_unit <- switch(precision,
       nanosecond = "ns",
       microsecond = "us",
@@ -235,7 +254,8 @@ patrick::with_parameters_test_that("clock datetime classes support",
   .test_name = precision
 )
 
-patrick::with_parameters_test_that("clock duration class support",
+patrick::with_parameters_test_that(
+  "clock duration class support",
   .cases = {
     skip_if_not_installed("clock")
 
@@ -265,5 +285,64 @@ patrick::with_parameters_test_that("clock duration class support",
     expect_equal(as_polars_series(clock_duration, name = "foo")$name, "foo")
 
     expect_equal(series_duration$dtype, pl$Duration(time_unit))
+  }
+)
+
+patrick::with_parameters_test_that(
+  "nanoarrow_array/nanoarrow_array_stream support",
+  .cases = {
+    skip_if_not_installed("nanoarrow")
+    # arrow is required for create int16/int64 array from object of type integer
+    skip_if_not_installed("arrow")
+    # TODO: add more types
+    tibble::tribble(
+      ~.test_name, ~na_array,
+      "int16", nanoarrow::as_nanoarrow_array(1:10, schema = nanoarrow::na_int16()),
+      "int32", nanoarrow::as_nanoarrow_array(1:10, schema = nanoarrow::na_int32()),
+      "int64", nanoarrow::as_nanoarrow_array(1:10, schema = nanoarrow::na_int64()),
+    )
+  },
+  code = {
+    series_from_array_default <- as_polars_series(na_array)
+    series_from_stream_default <- as_polars_series(nanoarrow::as_nanoarrow_array_stream(na_array))
+    series_from_array_named <- as_polars_series(na_array, name = "foo")
+    series_from_stream_named <- as_polars_series(
+      nanoarrow::as_nanoarrow_array_stream(na_array),
+      name = "foo"
+    )
+
+    expect_s3_class(series_from_array_default, "polars_series")
+    expect_identical(series_from_array_default$name, "")
+    expect_snapshot(print(series_from_array_default))
+    expect_equal(series_from_array_default, series_from_stream_default)
+    expect_equal(series_from_array_named, series_from_stream_named)
+  }
+)
+
+patrick::with_parameters_test_that(
+  "arrow RecordBatchReader and Tabular objects support",
+  .cases = {
+    skip_if_not_installed("arrow")
+    tibble::tribble(
+      ~.test_name, ~construct_function,
+      "table", arrow::as_arrow_table,
+      "record_batch", arrow::as_record_batch,
+      "record_batch_reader", arrow::as_record_batch_reader,
+    )
+  },
+  code = {
+    obj <- data.frame(
+      int = 1:2,
+      chr = letters[1:2],
+      lst = I(list(TRUE, NA))
+    ) |>
+      construct_function()
+
+    series_default <- as_polars_series(obj)
+    series_named <- as_polars_series(obj, name = "foo")
+
+    expect_s3_class(series_default, "polars_series")
+    expect_identical(series_named$name, "foo")
+    expect_snapshot(print(series_default))
   }
 )

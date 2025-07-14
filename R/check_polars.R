@@ -9,6 +9,7 @@
 #' - `*_df`: For [polars data frames][DataFrame].
 #' - `*_expr`: For [polars expressions][Expr].
 #' - `*_lf`: For [polars lazy frames][LazyFrame].
+#' - `*_partitioning_scheme`: For [polars partitioning schemes][polars_partitioning_scheme].
 #' - `*_selector`: For [polars selectors][cs].
 #' - `*_series`: For [polars series][Series].
 #'
@@ -26,6 +27,8 @@
 #' @return
 #' - `is_polars_*` functions return `TRUE` or `FALSE`.
 #' - `check_polars_*` functions return `NULL` invisibly if the input is valid.
+#' @seealso
+#' - [infer_polars_dtype()]: Check if the object can be converted to a [Series].
 #' @examples
 #' is_polars_df(as_polars_df(mtcars))
 #' is_polars_df(mtcars)
@@ -79,6 +82,12 @@ is_polars_series <- function(x) {
 
 #' @rdname check_polars
 #' @export
+is_polars_partitioning_scheme <- function(x) {
+  inherits(x, "polars_partitioning_scheme")
+}
+
+#' @rdname check_polars
+#' @export
 is_list_of_polars_dtype <- function(x, n = NULL) {
   is_list_of_polars_dtype_impl <- function(x) {
     for (i in seq_along(x)) {
@@ -95,11 +104,12 @@ is_list_of_polars_dtype <- function(x, n = NULL) {
 #' @rdname check_polars
 #' @export
 check_polars_dtype <- function(
-    x,
-    ...,
-    allow_null = FALSE,
-    arg = caller_arg(x),
-    call = caller_env()) {
+  x,
+  ...,
+  allow_null = FALSE,
+  arg = caller_arg(x),
+  call = caller_env()
+) {
   if (!missing(x)) {
     if (is_polars_dtype(x)) {
       return(invisible(NULL))
@@ -123,11 +133,12 @@ check_polars_dtype <- function(
 #' @rdname check_polars
 #' @export
 check_polars_df <- function(
-    x,
-    ...,
-    allow_null = FALSE,
-    arg = caller_arg(x),
-    call = caller_env()) {
+  x,
+  ...,
+  allow_null = FALSE,
+  arg = caller_arg(x),
+  call = caller_env()
+) {
   if (!missing(x)) {
     if (is_polars_df(x)) {
       return(invisible(NULL))
@@ -151,11 +162,12 @@ check_polars_df <- function(
 #' @rdname check_polars
 #' @export
 check_polars_expr <- function(
-    x,
-    ...,
-    allow_null = FALSE,
-    arg = caller_arg(x),
-    call = caller_env()) {
+  x,
+  ...,
+  allow_null = FALSE,
+  arg = caller_arg(x),
+  call = caller_env()
+) {
   if (!missing(x)) {
     if (is_polars_expr(x)) {
       return(invisible(NULL))
@@ -179,11 +191,12 @@ check_polars_expr <- function(
 #' @rdname check_polars
 #' @export
 check_polars_lf <- function(
-    x,
-    ...,
-    allow_null = FALSE,
-    arg = caller_arg(x),
-    call = caller_env()) {
+  x,
+  ...,
+  allow_null = FALSE,
+  arg = caller_arg(x),
+  call = caller_env()
+) {
   if (!missing(x)) {
     if (is_polars_lf(x)) {
       return(invisible(NULL))
@@ -207,11 +220,12 @@ check_polars_lf <- function(
 #' @rdname check_polars
 #' @export
 check_polars_selector <- function(
-    x,
-    ...,
-    allow_null = FALSE,
-    arg = caller_arg(x),
-    call = caller_env()) {
+  x,
+  ...,
+  allow_null = FALSE,
+  arg = caller_arg(x),
+  call = caller_env()
+) {
   if (!missing(x)) {
     if (is_polars_selector(x)) {
       return(invisible(NULL))
@@ -235,11 +249,12 @@ check_polars_selector <- function(
 #' @rdname check_polars
 #' @export
 check_polars_series <- function(
-    x,
-    ...,
-    allow_null = FALSE,
-    arg = caller_arg(x),
-    call = caller_env()) {
+  x,
+  ...,
+  allow_null = FALSE,
+  arg = caller_arg(x),
+  call = caller_env()
+) {
   if (!missing(x)) {
     if (is_polars_series(x)) {
       return(invisible(NULL))
@@ -260,15 +275,47 @@ check_polars_series <- function(
   )
 }
 
+#' @rdname check_polars
+#' @export
+# nolint start: object_name_linter
+check_polars_partitioning_scheme <- function(
+  # nolint end: object_name_linter
+  x,
+  ...,
+  allow_null = FALSE,
+  arg = caller_arg(x),
+  call = caller_env()
+) {
+  if (!missing(x)) {
+    if (is_polars_partitioning_scheme(x)) {
+      return(invisible(NULL))
+    }
+    if (allow_null && is_null(x)) {
+      return(invisible(NULL))
+    }
+  }
+
+  stop_input_type(
+    x,
+    "a polars partitioning scheme",
+    ...,
+    allow_na = FALSE,
+    allow_null = allow_null,
+    arg = arg,
+    call = call
+  )
+}
+
 # TODO: improve the error when x is a list of other objects
 #' @rdname check_polars
 #' @export
 check_list_of_polars_dtype <- function(
-    x,
-    ...,
-    allow_null = FALSE,
-    arg = caller_arg(x),
-    call = caller_env()) {
+  x,
+  ...,
+  allow_null = FALSE,
+  arg = caller_arg(x),
+  call = caller_env()
+) {
   if (!missing(x)) {
     if (is_list_of_polars_dtype(x)) {
       return(invisible(NULL))

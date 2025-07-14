@@ -1,8 +1,9 @@
 mod general;
 mod io;
+mod serde;
 
 use crate::prelude::*;
-use savvy::{savvy, EnvironmentSexp};
+use savvy::{EnvironmentSexp, savvy};
 
 #[savvy]
 #[derive(Clone)]

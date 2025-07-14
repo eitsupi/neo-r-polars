@@ -1,0 +1,87 @@
+name: Test documentation
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/test-docs.yml
+      - altdoc/mkdocs.yml
+      - man/**
+      - vignettes/**
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/test-docs.yml
+      - altdoc/mkdocs.yml
+      - man/**
+      - vignettes/**
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check missing man pages in mkdocs.yml
+        run: |
+          YAML_FILE="altdoc/mkdocs.yml"
+          MAN_LIST=(man/*.Rd)
+          VIGNETTES_LIST=(vignettes/*.Rmd)
+
+          # Track missing files
+          missing=0
+
+          for file in "${MAN_LIST[@]}"; do
+              base=$(basename "$file" .Rd)
+              expected_name="$base.md"
+
+              if ! grep -q "$expected_name" "$YAML_FILE"; then
+                  echo "Missing man page in mkdocs.yml: $expected_name"
+                  missing=1
+              fi
+          done
+
+          for file in "${VIGNETTES_LIST[@]}"; do
+              base=$(basename "$file" .Rmd)
+              expected_name="$base.md"
+
+              if ! grep -q "$expected_name" "$YAML_FILE"; then
+                  echo "Missing vignette in mkdocs.yml: $expected_name"
+                  missing=1
+              fi
+          done
+
+          if [ "$missing" -ne 0 ]; then
+              echo "One or more man pages are not referenced in mkdocs.yml."
+              exit 1
+          fi
+
+      - name: Check pages in mkdocs.yml that don't exist in "man" folder
+        run: |
+          YAML_FILE="altdoc/mkdocs.yml"
+          missing=0
+
+          while read -r md_path; do
+              rd_file="${md_path%.md}.Rd"
+              if [ ! -f "$rd_file" ]; then
+                  echo "Missing: $rd_file"
+                  missing=1
+              fi
+          done < <(grep -oP 'man/\S+?\.md' "$YAML_FILE")
+
+          # Exit with error if any files are missing
+          if [ "$missing" -ne 0 ]; then
+              echo "One or more man pages are referenced in mkdocs.yml but don't exist in 'man'."
+              exit 1
+          fi

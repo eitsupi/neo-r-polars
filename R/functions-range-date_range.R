@@ -7,9 +7,9 @@
 #'
 #' @inheritParams rlang::args_dots_empty
 #' @param start Lower bound of the date range. Something that can be coerced to
-#' a Date or a [Datetime][DataType_Datetime] expression. See examples for details.
+#' a Date or a [Datetime][pl__Datetime] expression. See examples for details.
 #' @param end Upper bound of the date range. Something that can be coerced to a
-#' Date or a [Datetime][DataType_Datetime] expression. See examples for details.
+#' Date or a [Datetime][pl__Datetime] expression. See examples for details.
 #' @param interval Interval of the range periods, specified as a [difftime]
 #' object or using the Polars duration string language. See the `Polars
 #' duration string language` section for details. Must consist of full days.
@@ -38,11 +38,12 @@
 #'   )
 #' )
 pl__date_range <- function(
-    start,
-    end,
-    interval = "1d",
-    ...,
-    closed = c("both", "left", "none", "right")) {
+  start,
+  end,
+  interval = "1d",
+  ...,
+  closed = c("both", "left", "none", "right")
+) {
   wrap({
     check_dots_empty0(...)
     check_date_or_datetime(start)
@@ -89,11 +90,12 @@ pl__date_range <- function(
 #'   date_range_lit = pl$date_ranges("start", pl$lit(as.Date("2022-01-02")))
 #' )
 pl__date_ranges <- function(
-    start,
-    end,
-    interval = "1d",
-    ...,
-    closed = c("both", "left", "none", "right")) {
+  start,
+  end,
+  interval = "1d",
+  ...,
+  closed = c("both", "left", "none", "right")
+) {
   wrap({
     check_dots_empty0(...)
     check_date_or_datetime(start)

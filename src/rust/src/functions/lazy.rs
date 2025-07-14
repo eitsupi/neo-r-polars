@@ -1,11 +1,11 @@
-use crate::{prelude::*, PlRDataFrame, PlRExpr, PlRLazyFrame, PlRSeries, RPolarsErr};
+use crate::{PlRDataFrame, PlRDataType, PlRExpr, PlRLazyFrame, PlRSeries, RPolarsErr, prelude::*};
 use polars::functions;
 use polars::lazy::dsl;
-use savvy::{savvy, ListSexp, NumericSexp, RawSexp, Result, StringSexp};
+use savvy::{ListSexp, LogicalSexp, NumericSexp, RawSexp, Result, StringSexp, savvy};
 
 macro_rules! set_unwrapped_or_0 {
     ($($var:ident),+ $(,)?) => {
-        $(let $var = $var.map(|e| e.inner).unwrap_or(dsl::lit(0));)+
+        $(let $var = $var.map(|e| e.inner.clone()).unwrap_or(dsl::lit(0));)+
     };
 }
 
@@ -22,24 +22,24 @@ pub fn as_struct(exprs: ListSexp) -> Result<PlRExpr> {
 
 #[savvy]
 pub fn datetime(
-    year: PlRExpr,
-    month: PlRExpr,
-    day: PlRExpr,
+    year: &PlRExpr,
+    month: &PlRExpr,
+    day: &PlRExpr,
     time_unit: &str,
-    ambiguous: PlRExpr,
-    hour: Option<PlRExpr>,
-    minute: Option<PlRExpr>,
-    second: Option<PlRExpr>,
-    microsecond: Option<PlRExpr>,
+    ambiguous: &PlRExpr,
+    hour: Option<&PlRExpr>,
+    minute: Option<&PlRExpr>,
+    second: Option<&PlRExpr>,
+    microsecond: Option<&PlRExpr>,
     time_zone: Option<&str>,
 ) -> Result<PlRExpr> {
-    let year = year.inner;
-    let month = month.inner;
-    let day = day.inner;
+    let year = year.inner.clone();
+    let month = month.inner.clone();
+    let day = day.inner.clone();
     set_unwrapped_or_0!(hour, minute, second, microsecond);
-    let ambiguous = ambiguous.inner;
+    let ambiguous = ambiguous.inner.clone();
     let time_unit = <Wrap<TimeUnit>>::try_from(time_unit)?.0;
-    let time_zone = time_zone.map(|x| x.into());
+    let time_zone = <Wrap<Option<TimeZone>>>::try_from(time_zone)?.0;
     let args = DatetimeArgs {
         year,
         month,
@@ -58,14 +58,14 @@ pub fn datetime(
 #[savvy]
 pub fn duration(
     time_unit: &str,
-    weeks: Option<PlRExpr>,
-    days: Option<PlRExpr>,
-    hours: Option<PlRExpr>,
-    minutes: Option<PlRExpr>,
-    seconds: Option<PlRExpr>,
-    milliseconds: Option<PlRExpr>,
-    microseconds: Option<PlRExpr>,
-    nanoseconds: Option<PlRExpr>,
+    weeks: Option<&PlRExpr>,
+    days: Option<&PlRExpr>,
+    hours: Option<&PlRExpr>,
+    minutes: Option<&PlRExpr>,
+    seconds: Option<&PlRExpr>,
+    milliseconds: Option<&PlRExpr>,
+    microseconds: Option<&PlRExpr>,
+    nanoseconds: Option<&PlRExpr>,
 ) -> Result<PlRExpr> {
     set_unwrapped_or_0!(
         weeks,
@@ -143,27 +143,7 @@ pub fn last() -> Result<PlRExpr> {
 }
 
 #[savvy]
-pub fn lit_from_bool(value: bool) -> Result<PlRExpr> {
-    Ok(dsl::lit(value).into())
-}
-
-#[savvy]
-pub fn lit_from_i32(value: i32) -> Result<PlRExpr> {
-    Ok(dsl::lit(value).into())
-}
-
-#[savvy]
-pub fn lit_from_f64(value: f64) -> Result<PlRExpr> {
-    Ok(dsl::lit(value).into())
-}
-
-#[savvy]
-pub fn lit_from_str(value: &str) -> Result<PlRExpr> {
-    Ok(dsl::lit(value).into())
-}
-
-#[savvy]
-pub fn lit_from_raw(value: RawSexp) -> Result<PlRExpr> {
+pub fn lit_bin_from_raw(value: RawSexp) -> Result<PlRExpr> {
     Ok(dsl::lit(value.as_slice()).into())
 }
 
@@ -263,4 +243,53 @@ pub fn concat_lf_diagonal(
     )
     .map_err(RPolarsErr::from)?;
     Ok(lf.into())
+}
+
+#[savvy]
+pub fn concat_str(s: ListSexp, separator: &str, ignore_nulls: bool) -> Result<PlRExpr> {
+    let s = <Wrap<Vec<Expr>>>::from(s).0;
+    Ok(dsl::concat_str(s, separator, ignore_nulls).into())
+}
+
+#[savvy]
+pub fn arg_where(condition: &PlRExpr) -> Result<PlRExpr> {
+    Ok(dsl::arg_where(condition.inner.clone()).into())
+}
+
+#[savvy]
+pub fn arg_sort_by(
+    by: ListSexp,
+    descending: LogicalSexp,
+    nulls_last: LogicalSexp,
+    maintain_order: bool,
+    multithreaded: bool,
+) -> Result<PlRExpr> {
+    let by = <Wrap<Vec<Expr>>>::from(by).0;
+    Ok(dsl::arg_sort_by(
+        by,
+        SortMultipleOptions {
+            descending: descending.to_vec(),
+            nulls_last: nulls_last.to_vec(),
+            maintain_order,
+            multithreaded,
+            limit: None,
+        },
+    )
+    .into())
+}
+
+#[savvy]
+#[allow(non_snake_case)]
+pub fn repeat_(value: &PlRExpr, n: &PlRExpr, dtype: Option<&PlRDataType>) -> Result<PlRExpr> {
+    let mut value = value.inner.clone();
+    let n = n.inner.clone();
+    if let Some(dtype) = dtype {
+        value = value.cast(dtype.dt.clone());
+    }
+    Ok(dsl::repeat(value, n).into())
+}
+
+#[savvy]
+pub fn len() -> Result<PlRExpr> {
+    Ok(dsl::len().into())
 }

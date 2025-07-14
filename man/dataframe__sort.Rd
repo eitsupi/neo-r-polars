@@ -2,7 +2,7 @@
 % Please edit documentation in R/dataframe-frame.R
 \name{dataframe__sort}
 \alias{dataframe__sort}
-\title{Sort a DataFrame}
+\title{Sort a DataFrame by the given columns}
 \usage{
 dataframe__sort(
   ...,
@@ -12,21 +12,44 @@ dataframe__sort(
   maintain_order = FALSE
 )
 }
+\arguments{
+\item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> Column(s) to sort by. Can be
+character values indicating column names or Expr(s).}
+
+\item{descending}{Sort in descending order. When sorting by multiple
+columns, this can be specified per column by passing a logical vector.}
+
+\item{nulls_last}{Place null values last. When sorting by multiple
+columns, this can be specified per column by passing a logical vector.}
+
+\item{multithreaded}{Sort using multiple threads.}
+
+\item{maintain_order}{Whether the order should be maintained if elements are
+equal. If \code{TRUE}, streaming is not possible and performance might be worse
+since this requires a stable search.}
+}
 \value{
 A polars \link{DataFrame}
 }
 \description{
-Sort a DataFrame
+Sort a DataFrame by the given columns
 }
 \examples{
-df <- mtcars
-df$mpg[1] <- NA
-df <- as_polars_df(df)
-df$sort("mpg")
-df$sort("mpg", nulls_last = TRUE)
-df$sort("cyl", "mpg")
-df$sort(c("cyl", "mpg"))
-df$sort(c("cyl", "mpg"), descending = TRUE)
-df$sort(c("cyl", "mpg"), descending = c(TRUE, FALSE))
-df$sort(pl$col("cyl"), pl$col("mpg"))
+df <- pl$DataFrame(
+  a = c(1, 2, NA, 4),
+  b = c(6, 5, 4, 3),
+  c = c("a", "c", "b", "a")
+)
+
+# Pass a single column name to sort by that column.
+df$sort("a")
+
+# Sorting by expressions is also supported
+df$sort(pl$col("a") + pl$col("b") * 2, nulls_last = TRUE)
+
+# Sort by multiple columns by passing a vector of columns
+df$sort(c("c", "a"), descending = TRUE)
+
+# Or use positional arguments to sort by multiple columns in the same way
+df$sort("c", "a", descending = c(FALSE, TRUE))
 }

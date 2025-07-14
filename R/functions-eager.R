@@ -1,7 +1,7 @@
 #' Combine multiple DataFrames, LazyFrames, or Series into a single object
 #'
 #' @param ... <[`dynamic-dots`][rlang::dyn-dots]> [DataFrames][DataFrame],
-#' [LazyFrames], [Series]. All elements must have the same class.
+#' [LazyFrames][LazyFrame], [Series]. All elements must have the same class.
 #' @param how Strategy to concatenate items. Must be one of:
 #' * `"vertical"`: applies multiple vstack operations;
 #' * `"vertical_relaxed"`: same as `"vertical"`, but additionally coerces
@@ -14,11 +14,14 @@
 #'   Int64);
 #' * `"horizontal"`: stacks Series from DataFrames horizontally and fills with
 #'   `null` if the lengths don’t match;
-#' * `"align"`: Combines frames horizontally, auto-determining the common key
-#'   columns and aligning rows using the same logic as `align_frames`; this
-#'   behaviour is patterned after a full outer join, but does not handle
-#'   column-name collision. (If you need more control, you should use a
-#'   suitable join method instead).
+#' * `"align"`, `"align_full"`, `"align_left"`, `"align_right"`: Combines
+#'   frames horizontally, auto-determining the common key columns and aligning
+#'   rows using the same logic as `align_frames` (note that `"align"` is an
+#'   alias for `"align_full"`). The "align" strategy determines the type of
+#'   join used to align the frames, equivalent to the "how" parameter on
+#'   `align_frames`. Note that the common join columns are automatically
+#'   coalesced, but other column collisions will raise an error (if you need
+#'   more control over this you should use a suitable `join` method directly).
 #'
 #' [Series] only support the `"vertical"` strategy.
 #' @param rechunk Make sure that the result data is in contiguous memory.
@@ -51,18 +54,14 @@
 #' df_a2 <- pl$DataFrame(id = 2:3, y = 5:6)
 #' df_a3 <- pl$DataFrame(id = c(1L, 3L), z = 7:8)
 #' pl$concat(df_a1, df_a2, df_a3, how = "align")
+#' pl$concat(df_a1, df_a2, df_a3, how = "align_left")
+#' pl$concat(df_a1, df_a2, df_a3, how = "align_right")
 pl__concat <- function(
-    ...,
-    how = c(
-      "vertical",
-      "vertical_relaxed",
-      "diagonal",
-      "diagonal_relaxed",
-      "horizontal",
-      "align"
-    ),
-    rechunk = FALSE,
-    parallel = TRUE) {
+  ...,
+  how = "vertical",
+  rechunk = FALSE,
+  parallel = TRUE
+) {
   check_dots_unnamed()
   dots <- list2(...)
   how <- arg_match0(
@@ -73,7 +72,10 @@ pl__concat <- function(
       "diagonal",
       "diagonal_relaxed",
       "horizontal",
-      "align"
+      "align",
+      "align_full",
+      "align_left",
+      "align_right"
     )
   )
 
@@ -83,7 +85,9 @@ pl__concat <- function(
 
   first <- dots[[1]]
 
-  if (length(dots) == 1 && (is_polars_df(first) || is_polars_series(first) || is_polars_lf(first))) {
+  if (
+    length(dots) == 1 && (is_polars_df(first) || is_polars_series(first) || is_polars_lf(first))
+  ) {
     return(first)
   }
 
@@ -91,39 +95,51 @@ pl__concat <- function(
     all(vapply(dots, is_polars_lf, FUN.VALUE = logical(1))) ||
     all(vapply(dots, is_polars_series, FUN.VALUE = logical(1)))
   if (!all_df_lf_series) {
+    # TODO: show which elements are not of the same class
     abort(
-      "All elements in `...` must be of the same class (`polars_data_frame`, `polars_lazy_frame`, or `polars_series`)."
+      c(
+        "Invalid `...` elements.",
+        `*` = "All elements must be of the same class.",
+        `*` = "`polars_data_frame`, `polars_lazy_frame`, or `polars_series` are supported."
+      )
     )
   }
 
-  if (how == "align") {
+  if (startsWith(how, "align")) {
     if (!is_polars_df(first) && !is_polars_lf(first)) {
-      abort(r"("align" strategy is only supported on DataFrames and LazyFrames.)")
+      abort(sprintf('`how = "%s"` is only supported on DataFrames and LazyFrames.', how))
     }
+
+    join_method <- switch(
+      how,
+      "align" = ,
+      "align_full" = "full",
+      "align_left" = "left",
+      "align_right" = "right",
+      "unreachable"
+    )
 
     all_columns <- lapply(dots, \(x) names(x))
     common_cols <- Reduce(intersect, all_columns)
+    output_column_order <- unique(unlist(all_columns))
     if (length(common_cols) == 0) {
-      abort("'align' strategy requires at least one common column.")
+      abort('"align" strategy requires at least one common column.')
     }
 
-    # align the frame data using a full outer join with no suffix-resolution
-    # (so we raise an error in case of column collision, like "horizontal")
     lfs <- lapply(dots, as_polars_lf)
-    # TODO: requires <lazyframe>$join
-    abort("TODO")
     lf <- Reduce(
       x = lfs,
       \(x, y) {
         x$join(
           y,
-          how = "full", on = common_cols, suffix = "_PL_CONCAT_RIGHT"
-        )$with_columns(
-          !!!lapply(common_cols, \(col) pl$coalesce(pl$col(col), pl$col(paste0(col, "_PL_CONCAT_RIGHT"))))
-        )$drop(paste0(common_cols, "_PL_CONCAT_RIGHT"))
+          on = common_cols,
+          how = join_method,
+          maintain_order = "right_left",
+          coalesce = TRUE
+        )
       },
-      accumulate = TRUE
-    )$sort(common_cols)
+      accumulate = FALSE
+    )$sort(common_cols)$select(output_column_order)
 
     if (is_polars_df(first)) {
       out <- lf$collect()
@@ -134,6 +150,7 @@ pl__concat <- function(
   }
 
   if (is_polars_df(first)) {
+    # fmt: skip
     out <- switch(how,
       vertical = {
         dots |>
@@ -180,6 +197,7 @@ pl__concat <- function(
       abort("Unreachable")
     )
   } else if (is_polars_lf(first)) {
+    # fmt: skip
     out <- switch(how,
       vertical = ,
       vertical_relaxed = {
@@ -210,6 +228,7 @@ pl__concat <- function(
     ) |>
       wrap()
   } else if (is_polars_series(first)) {
+    # fmt: skip
     out <- switch(how,
       vertical = {
         dots |>
@@ -217,7 +236,7 @@ pl__concat <- function(
           concat_series() |>
           wrap()
       },
-      abort("Series only supports 'vertical' concat strategy.")
+      abort('Series only supports `how = "vertical"`.')
     )
   } else {
     abort("Unreachable")

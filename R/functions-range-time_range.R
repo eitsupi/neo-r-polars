@@ -19,20 +19,18 @@
 #'   )
 #' )
 pl__time_range <- function(
-    start = NULL,
-    end = NULL,
-    interval = "1h",
-    ...,
-    closed = c("both", "left", "none", "right")) {
+  start = NULL,
+  end = NULL,
+  interval = "1h",
+  ...,
+  closed = c("both", "left", "none", "right")
+) {
   wrap({
     check_dots_empty0(...)
     closed <- arg_match0(closed, values = c("both", "left", "none", "right"))
     interval <- parse_as_duration_string(interval)
-    for (unit in c("y", "mo", "w", "d")) {
-      if (grepl(unit, interval)) {
-        abort(sprintf("invalid unit in `interval`: found '%s'", unit))
-      }
-    }
+    check_time_units(interval)
+
     start <- start %||% pl$lit(0)$cast(pl$Time)
     end <- end %||% pl$lit(86399999999999)$cast(pl$Time)
 
@@ -59,20 +57,18 @@ pl__time_range <- function(
 #' )
 #' df$with_columns(time_range = pl$time_ranges("start", "end"))
 pl__time_ranges <- function(
-    start = NULL,
-    end = NULL,
-    interval = "1h",
-    ...,
-    closed = c("both", "left", "none", "right")) {
+  start = NULL,
+  end = NULL,
+  interval = "1h",
+  ...,
+  closed = c("both", "left", "none", "right")
+) {
   wrap({
     check_dots_empty0(...)
     closed <- arg_match0(closed, values = c("both", "left", "none", "right"))
     interval <- parse_as_duration_string(interval)
-    for (unit in c("y", "mo", "w", "d")) {
-      if (grepl(unit, interval)) {
-        abort(sprintf("invalid unit in `interval`: found '%s'", unit))
-      }
-    }
+    check_time_units(interval)
+
     start <- start %||% pl$lit(0)$cast(pl$Time)
     end <- end %||% pl$lit(86399999999999)$cast(pl$Time)
 
@@ -83,4 +79,18 @@ pl__time_ranges <- function(
       closed
     )
   })
+}
+
+check_time_units <- function(interval) {
+  for (unit in c("y", "mo", "w", "d")) {
+    if (grepl(unit, interval)) {
+      abort(
+        c(
+          sprintf("Invalid unit in `interval`, found '%s'", unit),
+          i = 'Units "y", "mo", "w", and "d" are not supported.'
+        ),
+        call = caller_env()
+      )
+    }
+  }
 }

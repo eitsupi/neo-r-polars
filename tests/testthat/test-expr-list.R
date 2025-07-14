@@ -49,9 +49,9 @@ test_that("list$sum max min mean", {
   )
 
   r_res <- pl$DataFrame(
-    sum  = sapply(ints, sum, na.rm = TRUE),
-    max  = sapply(ints, max, na.rm = TRUE),
-    min  = sapply(ints, min, na.rm = TRUE),
+    sum = sapply(ints, sum, na.rm = TRUE),
+    max = sapply(ints, max, na.rm = TRUE),
+    min = sapply(ints, min, na.rm = TRUE),
     mean = sapply(ints, mean, na.rm = TRUE)
   )
   expect_equal(p_res, r_res)
@@ -65,9 +65,9 @@ test_that("list$sum max min mean", {
   )
 
   r_res <- pl$DataFrame(
-    sum  = sapply(floats, sum, na.rm = TRUE),
-    max  = sapply(floats, max, na.rm = TRUE),
-    min  = sapply(floats, min, na.rm = TRUE),
+    sum = sapply(floats, sum, na.rm = TRUE),
+    max = sapply(floats, max, na.rm = TRUE),
+    min = sapply(floats, min, na.rm = TRUE),
     mean = sapply(floats, mean, na.rm = TRUE)
   )
 
@@ -94,12 +94,12 @@ test_that("list$unique list$sort", {
   )
   df <- pl$DataFrame(!!!l)
   p_res <- df$select(pl$all()$list$unique()$list$sort())
-  r_res <- pl$DataFrame(!!!lapply(l, lapply, \(x)  sort(unique(x), na.last = FALSE)))
+  r_res <- pl$DataFrame(!!!lapply(l, lapply, \(x) sort(unique(x), na.last = FALSE)))
   expect_equal(p_res, r_res)
 
   df <- pl$DataFrame(!!!l)
   p_res <- df$select(pl$all()$list$unique()$list$sort(descending = TRUE))
-  r_res <- pl$DataFrame(!!!lapply(l, lapply, \(x)  sort(unique(x), na.last = FALSE, decr = TRUE)))
+  r_res <- pl$DataFrame(!!!lapply(l, lapply, \(x) sort(unique(x), na.last = FALSE, decr = TRUE)))
   expect_equal(p_res, r_res)
 
   expect_snapshot(
@@ -134,37 +134,44 @@ test_that("list$get", {
 
   for (i in -5:5) {
     p_res <- df$select(pl$all()$list$get(i))
-    r_res <- pl$DataFrame(!!!lapply(l, sapply, \(x) {
-      if (i >= 0) {
-        x[i + 1]
-      } else if (i < 0) {
-        rev(x)[-i]
-      } else {
-        stop("internal error in test")
-      }
-    }))
+    r_res <- pl$DataFrame(
+      !!!lapply(l, sapply, \(x) {
+        if (i >= 0) {
+          x[i + 1]
+        } else if (i < 0) {
+          rev(x)[-i]
+        } else {
+          stop("internal error in test")
+        }
+      })
+    )
     expect_equal(p_res, r_res)
   }
 })
 
 test_that("gather", {
-  l <- list(1:3, 1:2, 1:1)
-  l_roundtrip <- pl$DataFrame(x = l)$with_columns(pl$col("x")$list$gather(lapply(l, "-", 1L)))
-  expect_equal(l_roundtrip, pl$DataFrame(x = l))
+  dat <- pl$DataFrame(x = list(1:3, 4:5, 6L))
 
-
-  l <- list(1:3, 4:5, 6L)
   expect_equal(
-    pl$DataFrame(x = l)$with_columns(pl$col("x")$list$gather(list(c(0:3), 0L, 0L), null_on_oob = TRUE)),
+    dat$with_columns(pl$col("x")$list$gather(
+      list(c(0:3), 0L, 0L),
+      null_on_oob = TRUE
+    )),
     pl$DataFrame(x = list(c(1:3, NA), 4L, 6L))
   )
-
   expect_snapshot(
-    pl$DataFrame(x = l)$with_columns(pl$col("x")$list$gather(list(c(0:3), 0L, 0L))),
+    dat$with_columns(pl$col("x")$list$gather(1L, null_on_oob = TRUE))
+  )
+  expect_snapshot(
+    dat$with_columns(pl$col("x")$list$gather(list(1), null_on_oob = TRUE)),
     error = TRUE
   )
   expect_snapshot(
-    pl$DataFrame(x = l)$with_columns(pl$col("x")$list$gather(1, TRUE)),
+    dat$with_columns(pl$col("x")$list$gather(list(c(0:3), 0L, 0L))),
+    error = TRUE
+  )
+  expect_snapshot(
+    dat$with_columns(pl$col("x")$list$gather(1, TRUE)),
     error = TRUE
   )
 })
@@ -184,19 +191,28 @@ test_that("gather_every", {
   )
 
   # wrong n
-  expect_snapshot(df$select(
-    out = pl$col("a")$list$gather_every(-1)
-  ), error = TRUE)
+  expect_snapshot(
+    df$select(
+      out = pl$col("a")$list$gather_every(-1)
+    ),
+    error = TRUE
+  )
 
   # missing n
-  expect_snapshot(df$select(
-    out = pl$col("a")$list$gather_every()
-  ), error = TRUE)
+  expect_snapshot(
+    df$select(
+      out = pl$col("a")$list$gather_every()
+    ),
+    error = TRUE
+  )
 
   # wrong offset
-  expect_snapshot(df$select(
-    out = pl$col("a")$list$gather_every(n = 2, offset = -1)
-  ), error = TRUE)
+  expect_snapshot(
+    df$select(
+      out = pl$col("a")$list$gather_every(n = 2, offset = -1)
+    ),
+    error = TRUE
+  )
 })
 
 test_that("first last head tail", {
@@ -220,9 +236,11 @@ test_that("first last head tail", {
 
   for (i in 0:5) {
     p_res <- df$select(pl$all()$list$head(i))
-    r_res <- pl$DataFrame(!!!lapply(l, lapply, \(x) {
-      head(x, i)
-    }))
+    r_res <- pl$DataFrame(
+      !!!lapply(l, lapply, \(x) {
+        head(x, i)
+      })
+    )
     expect_equal(p_res, r_res)
   }
 
@@ -360,7 +378,9 @@ test_that("slice", {
   df <- pl$DataFrame(!!!l)
 
   r_slice <- function(x, o, n = NULL) {
-    if (is.null(n)) n <- max(length(x) - o, 1L)
+    if (is.null(n)) {
+      n <- max(length(x) - o, 1L)
+    }
     if (o >= 0) {
       o <- o + 1
     } else {
@@ -375,11 +395,9 @@ test_that("slice", {
   l_exp_slice <- pl$DataFrame(!!!lapply(l, lapply, r_slice, 0, 3))
   expect_equal(l_act_slice, l_exp_slice)
 
-
   l_act_slice <- df$select(pl$all()$list$slice(1, 3))
   l_exp_slice <- pl$DataFrame(!!!lapply(l, lapply, r_slice, 1, 3))
   expect_equal(l_act_slice, l_exp_slice)
-
 
   l_act_slice <- df$select(pl$all()$list$slice(1, 5))
   l_exp_slice <- pl$DataFrame(!!!lapply(l, lapply, r_slice, 1, 5))
@@ -460,41 +478,6 @@ test_that("concat", {
   )
 })
 
-
-# TODO-REWRITE: don't know how to adapt Rust code
-# test_that("to_struct", {
-#   l <- list(integer(), 1:2, 1:3, 1:2)
-#   df <- pl$DataFrame(a = l)
-#   act_1 <- df$select(pl$col("a")$list$to_struct(
-#     n_field_strategy = "first_non_null",
-#     fields = \(idx) paste0("hello_you_", idx)
-#   ))
-
-#   act_2 <- df$select(pl$col("a")$list$to_struct(
-#     n_field_strategy = "max_width",
-#     fields = \(idx) paste0("hello_you_", idx)
-#   ))
-
-
-#   exp_1 <- list(
-#     a = list(
-#       hello_you_0 = c(NA, 1L, 1L, 1L),
-#       hello_you_1 = c(NA, 2L, 2L, 2L)
-#     )
-#   )
-
-#   exp_2 <- list(
-#     a = list(
-#       hello_you_0 = c(NA, 1L, 1L, 1L),
-#       hello_you_1 = c(NA, 2L, 2L, 2L),
-#       hello_you_2 = c(NA, NA, 3L, NA)
-#     )
-#   )
-
-#   expect_equal(act_1, exp_1)
-#   expect_equal(act_2, exp_2)
-# })
-
 test_that("eval", {
   df <- pl$DataFrame(a = c(1, 8, 3), b = c(4, 5, 2))
   l_act <- df$with_columns(
@@ -507,12 +490,6 @@ test_that("eval", {
       b = c(4, 5, 2),
       rank = list(c(1, 2), c(2, 1), c(2, 1))
     )
-  )
-  expect_snapshot(
-    df$with_columns(
-      pl$concat_list(list("a", "b"))$list$eval(pl$element(), TRUE)
-    ),
-    error = TRUE
   )
 })
 
@@ -704,3 +681,36 @@ test_that("list$count_matches", {
     pl$DataFrame(x = c(0, 0, 2, 1, 0))$cast(pl$UInt32)
   )
 })
+
+patrick::with_parameters_test_that(
+  "list$to_struct with field = {rlang::quo_text(fields)}, n_field_strategy = {rlang::quo_text(n_field_strategy)}, upper_bound = {rlang::quo_text(upper_bound)}", # nolint: line_length_linter
+  .cases = {
+    expand.grid(
+      fields = list(
+        NULL,
+        \(x) sprintf("field-%s", x + 1),
+        ~ paste0("field-", . + 1)
+      ),
+      n_field_strategy = c("first_non_null", "max_width"),
+      upper_bound = c(1, 5),
+      stringsAsFactors = FALSE
+    ) |>
+      tibble::as_tibble() |>
+      # Add character cases (ignoring n_field_strategy and upper_bound)
+      vctrs::vec_rbind(tibble::tibble(fields = list(c("a"), c("a", "b", "c", "d"))))
+  },
+  code = {
+    expect_snapshot(
+      pl$DataFrame(
+        values = list(c(1, 2), c(1, 2, 3), c(1)),
+        .schema_overrides = list(values = pl$List(pl$Int64))
+      )$select(
+        pl$col("values")$list$to_struct(
+          fields = fields,
+          n_field_strategy = n_field_strategy,
+          upper_bound = upper_bound
+        )
+      )$unnest("values")
+    )
+  }
+)

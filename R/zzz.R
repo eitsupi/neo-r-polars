@@ -23,12 +23,6 @@
 #' @export
 pl <- new.env(parent = emptyenv())
 
-#' @export
-print.polars_object <- function(x, ...) {
-  cat("<polars_object>\n")
-  invisible(x)
-}
-
 # A function to collect objects to be assigned to the environment
 # These environments are used inside the wrap function etc.
 assign_objects_to_env <- function(env, obj_name_pattern, ..., search_env = parent.frame()) {
@@ -62,20 +56,30 @@ POLARS_STORE_ENVS <- list(
   "selector__" = polars_selector__methods,
   "namespace_series_" = polars_namespaces_series,
   "series__" = polars_series__methods,
+  "series_arr_" = polars_series_arr_methods,
   "series_bin_" = polars_series_bin_methods,
   "series_cat_" = polars_series_cat_methods,
   "series_dt_" = polars_series_dt_methods,
+  "series_list_" = polars_series_list_methods,
+  "series_str_" = polars_series_str_methods,
   "series_struct_" = polars_series_struct_methods,
   "lazyframe__" = polars_lazyframe__methods,
   "lazygroupby__" = polars_lazygroupby__methods,
   "dataframe__" = polars_dataframe__methods,
-  "groupby__" = polars_groupby__methods
+  "groupby__" = polars_groupby__methods,
+  "rolling_groupby__" = polars_rolling_groupby__methods,
+  "group_by_dynamic__" = polars_group_by_dynamic__methods,
+  "sql_context__" = polars_sql_context__methods
 )
 
 lapply(names(POLARS_STORE_ENVS), function(name) {
   target_env <- POLARS_STORE_ENVS[[name]]
   class(target_env) <- c("polars_object")
-  assign_objects_to_env(POLARS_STORE_ENVS[[name]], sprintf("^%s", name), search_env = parent.frame(2L))
+  assign_objects_to_env(
+    POLARS_STORE_ENVS[[name]],
+    sprintf("^%s", name),
+    search_env = parent.frame(2L)
+  )
 })
 
 # Avoid R CMD check's 'no visible binding for global variable' note
@@ -89,6 +93,13 @@ on_load(local_use_cli())
   run_on_load()
 
   # Register S3 methods for optional packages
+  s3_register("arrow::as_arrow_table", "polars_data_frame")
+  s3_register("arrow::as_record_batch_reader", "polars_data_frame")
+  s3_register("arrow::as_record_batch_reader", "polars_series")
+  s3_register("knitr::knit_print", "polars_data_frame")
+  s3_register("knitr::knit_print", "polars_series")
+  s3_register("nanoarrow::as_nanoarrow_array_stream", "polars_data_frame")
+  s3_register("nanoarrow::as_nanoarrow_array_stream", "polars_series")
   s3_register("tibble::as_tibble", "polars_data_frame")
   s3_register("tibble::as_tibble", "polars_lazy_frame")
   s3_register("waldo::compare_proxy", "polars_expr")

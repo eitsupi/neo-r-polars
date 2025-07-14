@@ -9,9 +9,11 @@
 #' (In other words, this function can be considered as an internal implementation to realize
 #' the `lit` function of the Polars API in other languages.)
 #'
-#' Because R objects are typically mapped to [Series], this function often calls [as_polars_series()] internally.
-#' However, unlike R, Polars has scalars of length 1, so if an R object is converted to a [Series] of length 1,
-#' this function get the first value of the Series and convert it to a scalar literal.
+#' Because R objects are typically mapped to [Series], this function often calls
+#' [as_polars_series()] internally.
+#' However, unlike R, Polars has scalars of length 1, so if an R object is converted to
+#' a [Series] of length 1, this function get the first value of the Series
+#' and convert it to a scalar literal.
 #' If you want to implement your own conversion from an R class to a Polars object,
 #' define an S3 method for [as_polars_series()] instead of this function.
 #'
@@ -26,35 +28,29 @@
 #'
 #' If the `as_lit` argument is `FALSE` (default), this function will call [`pl$col()`][pl__col] and
 #' the character vector is treated as column names.
+#' Otherwise, the default method is called.
 #'
-#' # Literal scalar mapping
+#' ## S3 method for [raw]
 #'
-#' Since R has no scalar class, each of the following types of length 1 cases is specially
-#' converted to a scalar literal.
+#' If the `raw_as_binary` argument is `TRUE` (default), the raw vector is converted to
+#' a [Binary][DataType] type scalar. Otherwise, the default method is called.
 #'
-#' - character: String
-#' - logical: Boolean
-#' - integer: Int32
-#' - double: Float64
-#'
-#' These types' `NA` is converted to a `null` literal with casting to the corresponding Polars type.
-#'
-#' The [raw] type vector is converted to a Binary scalar.
-#'
-#' - raw: Binary
+#' ## S3 method for `NULL`
 #'
 #' `NULL` is converted to a Null type `null` literal.
 #'
-#' - NULL: Null
-#'
-#' For other R class, the default S3 method is called and R object will be converted via
-#' [as_polars_series()]. So the type mapping is defined by [as_polars_series()].
 #' @inheritParams as_polars_series
+#' @param keep_series A logical value indicating whether to treat the object as a [Series] or
+#' scalar value. If `TRUE`, the output is ensured to be a [Series] literal even if
+#' the length of the object is `1`.
 #' @param as_lit A logical value indicating whether to treat vector as literal values or not.
 #' This argument is always set to `TRUE` when calling this function from [`pl$lit()`][pl__lit],
 #' and expects to return literal values. See examples for details.
-#' @param structify A logical. If `TRUE`, convert multi-column expressions to a single struct expression
-#' by calling [`pl$struct()`][pl__struct]. Otherwise (default), done nothing.
+#' @param raw_as_binary A logical value indicating whether to convert [raw] vector to
+#' a [Binary][DataType] type scalar. If `TRUE` (default), the output is a [Binary][DataType]
+#' type scalar instead of [UInt8][DataType] type literal.
+#' @param structify A logical. If `TRUE`, convert multi-column expressions to a single struct
+#' expression by calling [`pl$struct()`][pl__struct]. Otherwise (default), done nothing.
 #' @return A polars [expression]
 #' @seealso
 #' - [as_polars_series()]: R -> Polars type mapping is mostly defined by this function.
@@ -70,30 +66,26 @@
 #' as_polars_expr(NA_character_, as_lit = TRUE)
 #' as_polars_expr(c("a", "b"), as_lit = TRUE)
 #'
-#' # logical
-#' as_polars_expr(logical(0))
-#' as_polars_expr(TRUE)
-#' as_polars_expr(NA)
-#' as_polars_expr(c(TRUE, FALSE))
+#' # raw
+#' as_polars_expr(as.raw(1))
+#' as_polars_expr(as.raw(1), raw_as_binary = FALSE)
+#' as_polars_expr(charToRaw("foo"))
+#' as_polars_expr(charToRaw("foo"), raw_as_binary = FALSE)
 #'
-#' # integer
+#' # NULL
+#' as_polars_expr(NULL)
+#'
+#' # default method (for integer)
 #' as_polars_expr(integer(0))
 #' as_polars_expr(1L)
 #' as_polars_expr(NA_integer_)
 #' as_polars_expr(c(1L, 2L))
 #'
-#' # double
+#' # default method (for double)
 #' as_polars_expr(double(0))
 #' as_polars_expr(1)
 #' as_polars_expr(NA_real_)
 #' as_polars_expr(c(1, 2))
-#'
-#' # raw
-#' as_polars_expr(raw(0))
-#' as_polars_expr(charToRaw("foo"))
-#'
-#' # NULL
-#' as_polars_expr(NULL)
 #'
 #' # default method (for list)
 #' as_polars_expr(list())
@@ -105,8 +97,7 @@
 #' as_polars_expr(as.Date("2021-01-01"))
 #' as_polars_expr(as.Date(c("2021-01-01", "2021-01-02")))
 #'
-#' # polars_series
-#' ## Unlike the default method, this method does not extract the first value
+#' # default method (for Series)
 #' as_polars_series(1) |>
 #'   as_polars_expr()
 #'
@@ -118,17 +109,30 @@ as_polars_expr <- function(x, ...) {
   UseMethod("as_polars_expr")
 }
 
+# TODO: replace wrap to try_fetch
 #' @rdname as_polars_expr
 #' @export
-as_polars_expr.default <- function(x, ...) {
+as_polars_expr.default <- function(x, ..., keep_series = FALSE) {
   wrap({
-    series <- as_polars_series(x, name = "literal", ...)
+    is_series <- is_polars_series(x)
 
-    if (series$len() == 1L) {
-      # Treat as scalar
-      lit_from_series_first(series$`_s`)
+    # If x is already a Series, avoid renaming to "literal"
+    series <- if (is_series) {
+      x
     } else {
+      as_polars_series(x, name = "literal", ...)
+    }
+
+    if (series$len() != 1L || isTRUE(keep_series)) {
       lit_from_series(series$`_s`)
+    } else {
+      # Treat as scalar
+      if (is_series) {
+        # If x is a Series, keep the name of the Series
+        lit_from_series_first(series$`_s`)$alias(x$name)
+      } else {
+        lit_from_series_first(series$`_s`)
+      }
     }
   })
 }
@@ -145,84 +149,23 @@ as_polars_expr.polars_expr <- function(x, ..., structify = FALSE) {
 
 #' @rdname as_polars_expr
 #' @export
-as_polars_expr.polars_series <- function(x, ...) {
-  lit_from_series(x$`_s`) |>
-    wrap()
-}
-
-#' @rdname as_polars_expr
-#' @export
 as_polars_expr.character <- function(x, ..., as_lit = FALSE) {
-  wrap({
-    if (isFALSE(as_lit)) {
-      pl$col(!!!x)
-    } else {
-      if (length(x) == 1L) {
-        if (identical(x, NA_character_)) {
-          lit_null()$cast(pl$String$`_dt`, strict = TRUE, wrap_numerical = FALSE)
-        } else {
-          lit_from_str(x)
-        }
-      } else {
-        as_polars_expr.default(x)
-      }
-    }
-  })
+  if (isFALSE(as_lit)) {
+    pl$col(!!!x)
+  } else {
+    NextMethod()
+  }
 }
 
 #' @rdname as_polars_expr
 #' @export
-as_polars_expr.logical <- function(x, ...) {
-  wrap({
-    if (length(x) == 1L) {
-      if (identical(x, NA)) {
-        lit_null()$cast(pl$Boolean$`_dt`, strict = TRUE, wrap_numerical = FALSE)
-      } else {
-        lit_from_bool(x)
-      }
-    } else {
-      as_polars_expr.default(x)
-    }
-  })
-}
-
-#' @rdname as_polars_expr
-#' @export
-as_polars_expr.integer <- function(x, ...) {
-  wrap({
-    if (length(x) == 1L) {
-      if (identical(x, NA_integer_)) {
-        lit_null()$cast(pl$Int32$`_dt`, strict = TRUE, wrap_numerical = FALSE)
-      } else {
-        lit_from_i32(x)
-      }
-    } else {
-      as_polars_expr.default(x)
-    }
-  })
-}
-
-#' @rdname as_polars_expr
-#' @export
-as_polars_expr.double <- function(x, ...) {
-  wrap({
-    if (length(x) == 1L) {
-      if (identical(x, NA_real_)) {
-        lit_null()$cast(pl$Float64$`_dt`, strict = TRUE, wrap_numerical = FALSE)
-      } else {
-        lit_from_f64(x)
-      }
-    } else {
-      as_polars_expr.default(x)
-    }
-  })
-}
-
-#' @rdname as_polars_expr
-#' @export
-as_polars_expr.raw <- function(x, ...) {
-  lit_from_raw(x) |>
-    wrap()
+as_polars_expr.raw <- function(x, ..., raw_as_binary = TRUE) {
+  if (isTRUE(raw_as_binary)) {
+    lit_bin_from_raw(x) |>
+      wrap()
+  } else {
+    NextMethod()
+  }
 }
 
 #' @rdname as_polars_expr

@@ -1,12 +1,27 @@
-use crate::{prelude::*, PlRDataFrame, PlRDataType, PlRSeries, RPolarsErr};
+use crate::{PlRDataFrame, PlRDataType, PlRSeries, RPolarsErr, prelude::*};
 use polars_core::series::IsSorted;
-use savvy::{r_println, savvy, NumericScalar, NumericSexp, Result, Sexp};
+use savvy::{NullSexp, NumericScalar, NumericSexp, OwnedRawSexp, RawSexp, Result, Sexp, savvy};
+use std::io::Cursor;
 
 #[savvy]
 impl PlRSeries {
-    fn print(&self) -> Result<()> {
-        r_println!("{:?}", self.series);
-        Ok(())
+    fn as_str(&self) -> Result<Sexp> {
+        format!("{:?}", self.series).try_into()
+    }
+
+    // Similar to `__getstate__` in Python
+    fn serialize(&self) -> Result<Sexp> {
+        let bytes = self.series.serialize_to_bytes().map_err(RPolarsErr::from)?;
+        OwnedRawSexp::try_from_iter(bytes).map(Into::into)
+    }
+
+    // Similar to `__setstate__` in Python
+    fn deserialize(data: RawSexp) -> Result<Self> {
+        let mut cursor = Cursor::new(data.as_slice());
+        let series = Series::deserialize_from_reader(&mut cursor).map_err(|_| {
+            RPolarsErr::Other("The input value is not a valid serialized Series.".to_string())
+        })?;
+        Ok(series.into())
     }
 
     fn struct_unnest(&self) -> Result<PlRDataFrame> {
@@ -66,6 +81,38 @@ impl PlRSeries {
             .reshape_array(&dimensions)
             .map_err(RPolarsErr::from)?;
         Ok(out.into())
+    }
+
+    fn get_fmt(&self, str_len_limit: NumericScalar) -> Result<Sexp> {
+        let str_len_limit = <Wrap<usize>>::try_from(str_len_limit)?.0;
+
+        // Same as Python Polars' `PySeries::get_fmt`
+        fn get_fmt_each(series: &Series, index: usize, str_len_limit: usize) -> String {
+            let v = format!("{}", series.get(index).unwrap());
+            if let DataType::String | DataType::Categorical(_, _) | DataType::Enum(_, _) =
+                series.dtype()
+            {
+                let v_no_quotes = &v[1..v.len() - 1];
+                let v_trunc = &v_no_quotes[..v_no_quotes
+                    .char_indices()
+                    .take(str_len_limit)
+                    .last()
+                    .map(|(i, c)| i + c.len_utf8())
+                    .unwrap_or(0)];
+                if v_no_quotes == v_trunc {
+                    v
+                } else {
+                    format!("\"{v_trunc}…")
+                }
+            } else {
+                v
+            }
+        }
+
+        (0..self.series.len())
+            .map(|i| get_fmt_each(&self.series, i, str_len_limit))
+            .collect::<Vec<_>>()
+            .try_into()
     }
 
     fn clone(&self) -> Result<Self> {
@@ -132,5 +179,21 @@ impl PlRSeries {
 
     fn n_chunks(&self) -> Result<Sexp> {
         (self.series.n_chunks() as i32).try_into()
+    }
+
+    fn chunk_lengths(&self) -> Result<Sexp> {
+        let lengths: std::result::Result<Vec<i32>, _> =
+            self.series.chunk_lengths().map(<i32>::try_from).collect();
+        lengths?.try_into()
+    }
+
+    pub fn rechunk(&mut self, in_place: bool) -> Result<Sexp> {
+        let series = self.series.rechunk();
+        if in_place {
+            self.series = series;
+            Ok(NullSexp.into())
+        } else {
+            PlRSeries::new(series).try_into()
+        }
     }
 }

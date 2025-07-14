@@ -7,13 +7,14 @@
 expr__backward_fill(limit = NULL)
 }
 \arguments{
-\item{fill}{The number of consecutive null values to backward fill.}
+\item{limit}{The number of consecutive null values to backward fill.}
 }
 \value{
 A polars \link{expression}
 }
 \description{
-Fill missing values with the next non-null value
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#superseded}{\figure{lifecycle-superseded.svg}{options: alt='[Superseded]'}}}{\strong{[Superseded]}}
+This is an alias of \code{\link[=expr__fill_null]{$fill_null(strategy = "backward")}}.
 }
 \examples{
 df <- pl$DataFrame(

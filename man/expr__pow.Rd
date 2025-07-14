@@ -4,7 +4,7 @@
 \alias{expr__pow}
 \title{Exponentiation using two expressions}
 \usage{
-expr__pow(other)
+expr__pow(exponent)
 }
 \arguments{
 \item{exponent}{Numeric literal or expression value.}
@@ -25,6 +25,6 @@ df$with_columns(
 }
 \seealso{
 \itemize{
-\item \link[=S3_arithmetic]{Arithmetic operators}
+\item \link[=s3-arithmetic]{Arithmetic operators}
 }
 }

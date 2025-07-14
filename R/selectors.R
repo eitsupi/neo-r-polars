@@ -120,6 +120,24 @@ selector__and <- function(other) {
   }
 }
 
+selector__xor <- function(other) {
+  if (is_column(other)) {
+    other <- cs$by_name(other$meta$output_name())
+  }
+  if (is_polars_selector(other)) {
+    wrap_to_selector(
+      self$meta$`_as_selector`()$meta$`_selector_xor`(other),
+      name = "xor",
+      parameters = list(
+        self = self,
+        other = other
+      )
+    )
+  } else {
+    self$as_expr()$xor(other)
+  }
+}
+
 selector__as_expr <- function() {
   self$`_rexpr` |>
     wrap()
@@ -244,11 +262,11 @@ cs__alphanumeric <- function(ascii_only = FALSE, ..., ignore_spaces = FALSE) {
 #'
 #' @inherit cs__all return seealso
 #' @examples
-#' df <- pl$DataFrame(
+#' df <- pl$select(
 #'   a = charToRaw("hello"),
-#'   b = "world",
+#'   b = pl$lit("world"),
 #'   c = charToRaw("!"),
-#'   d = ":"
+#'   d = pl$lit(":"),
 #' )
 #'
 #' # Select binary columns:
@@ -686,11 +704,11 @@ cs__exclude <- function(...) {
   dtypes <- Filter(is_polars_dtype, input)
   selectors <- Filter(is_polars_selector, input)
   unknown <- Filter(
-    \(x) !is_character(x) && !is_polars_dtype(x) && !is_polars_selector(x),
+    \(x) !is_string(x) && !is_polars_dtype(x) && !is_polars_selector(x),
     input
   )
   if (length(unknown) > 0) {
-    abort("`...` can only contain column names, regexes, polars data types or polars selectors.")
+    abort("`...` can only contain column names, regexes, Polars data types or polars selectors.")
   }
 
   selected <- list()
@@ -775,8 +793,14 @@ cs__float <- function() {
 #' df$select(!cs$integer())
 cs__integer <- function() {
   list_dtypes <- list(
-    pl$Int8, pl$Int16, pl$Int32, pl$Int64,
-    pl$UInt8, pl$UInt16, pl$UInt32, pl$UInt64
+    pl$Int8,
+    pl$Int16,
+    pl$Int32,
+    pl$Int64,
+    pl$UInt8,
+    pl$UInt16,
+    pl$UInt32,
+    pl$UInt64
   )
   wrap_to_selector(
     pl$col(!!!list_dtypes),
@@ -871,9 +895,16 @@ cs__matches <- function(pattern) {
 #' df$select(!cs$numeric())
 cs__numeric <- function() {
   list_dtypes <- list(
-    pl$Float32, pl$Float64,
-    pl$Int8, pl$Int16, pl$Int32, pl$Int64,
-    pl$UInt8, pl$UInt16, pl$UInt32, pl$UInt64
+    pl$Float32,
+    pl$Float64,
+    pl$Int8,
+    pl$Int16,
+    pl$Int32,
+    pl$Int64,
+    pl$UInt8,
+    pl$UInt16,
+    pl$UInt32,
+    pl$UInt64
   )
   wrap_to_selector(
     pl$col(!!!list_dtypes),
@@ -1002,7 +1033,9 @@ cs__temporal <- function() {
     pl$col(!!!list_dtypes),
     name = "temporal",
     parameters = list_dtypes
-  ) | cs$datetime() | cs$duration()
+  ) |
+    cs$datetime() |
+    cs$duration()
 }
 
 #' Select all time columns

@@ -5,14 +5,10 @@ namespace_expr_meta <- function(x) {
   self <- new.env(parent = emptyenv())
   self$`_rexpr` <- x$`_rexpr`
 
-  lapply(names(polars_expr_meta_methods), function(name) {
-    fn <- polars_expr_meta_methods[[name]]
-    environment(fn) <- environment()
-    assign(name, fn, envir = self)
-  })
-
   class(self) <- c(
-    "polars_namespace_expr", "polars_object"
+    "polars_namespace_expr_meta",
+    "polars_namespace_expr",
+    "polars_object"
   )
   self
 }
@@ -21,7 +17,7 @@ namespace_expr_meta <- function(x) {
 #'
 #' @inherit as_polars_expr return
 #' @examples
-#' e <- pl$col(c("a", "b"))$name$suffix("_foo")
+#' e <- pl$col("a", "b")$name$suffix("_foo")
 #' e$meta$has_multiple_outputs()
 expr_meta_has_multiple_outputs <- function() {
   self$`_rexpr`$meta_has_multiple_outputs() |>
@@ -98,6 +94,11 @@ expr_meta__selector_sub <- function(other) {
     wrap()
 }
 
+expr_meta__selector_xor <- function(other) {
+  self$`_rexpr`$`_meta_selector_xor`(other$`_rexpr`) |>
+    wrap()
+}
+
 expr_meta__as_selector <- function() {
   self$`_rexpr`$`_meta_as_selector`() |>
     wrap()
@@ -130,6 +131,7 @@ expr_meta_serialize <- function(..., format = c("binary", "json")) {
   wrap({
     check_dots_empty0(...)
     format <- arg_match0(format, c("binary", "json"))
+    # fmt: skip
     switch(format,
       binary = self$`_rexpr`$serialize_binary(),
       json = self$`_rexpr`$serialize_json(),
@@ -140,6 +142,7 @@ expr_meta_serialize <- function(..., format = c("binary", "json")) {
 
 #' Indicate if this expression is the same as another expression
 #'
+#' @param other Expression to compare with.
 #' @inherit as_polars_expr return
 #' @examples
 #' foo_bar <- pl$col("foo")$alias("bar")
@@ -155,6 +158,7 @@ expr_meta_eq <- function(other) {
 
 #' Indicate if this expression is not the same as another expression
 #'
+#' @inheritParams expr_meta_eq
 #' @inherit as_polars_expr return
 #' @examples
 #' foo_bar <- pl$col("foo")$alias("bar")
@@ -264,7 +268,7 @@ expr_meta_show_graph <- function(
 #'
 #' e <- pl$col("foo") * pl$col("bar")
 #' e$meta$is_column_selection()
-#' 
+#'
 #' e <- cs$starts_with("foo")
 #' e$meta$is_column_selection()
 expr_meta_is_column_selection <- function(..., allow_aliasing = FALSE) {
@@ -281,10 +285,10 @@ expr_meta_is_column_selection <- function(..., allow_aliasing = FALSE) {
 #' e <- pl$col("foo")
 #' e$meta$is_column()
 #'
-#' e <- pl.col("foo") * pl.col("bar")
+#' e <- pl$col("foo") * pl$col("bar")
 #' e$meta$is_column()
 #'
-#' e <- pl.col(r"^col.*\d+$")
+#' e <- pl$col("^col\\.*\\d+$")
 #' e$meta$is_column()
 expr_meta_is_column <- function() {
   wrap({
@@ -308,12 +312,11 @@ expr_meta_is_regex_projection <- function() {
 #'
 #' @inherit as_polars_expr return
 #' @examples
-#' e <- pl$col("foo")$alias("bar")
-#' pop <- e$meta$pop()
-#' pop
+#' e <- pl$col("foo") + pl$col("bar")
+#' first <- e$meta$pop()[[1]]
 #'
-#' pop[[1]]$meta$eq(pl$col("foo"))
-#' pop[[1]]$meta$eq(pl$col("foo"))
+#' first$meta$eq(pl$col("bar"))
+#' first$meta$eq(pl$col("foo"))
 expr_meta_pop <- function() {
   lapply(self$`_rexpr`$meta_pop(), \(ptr) {
     .savvy_wrap_PlRExpr(ptr) |>

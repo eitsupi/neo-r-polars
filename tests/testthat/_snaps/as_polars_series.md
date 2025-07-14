@@ -20,6 +20,17 @@
       	{1,true}
       ]
 
+# as_polars_series works for classes polars_lazy_frame
+
+    Code
+      print(pl_series)
+    Output
+      shape: (1,)
+      Series: '' [struct[2]]
+      [
+      	{1,true}
+      ]
+
 # as_polars_series works for classes double
 
     Code
@@ -74,10 +85,12 @@
     Code
       print(pl_series)
     Output
-      shape: (1,)
-      Series: '' [binary]
+      shape: (3,)
+      Series: '' [u8]
       [
-      	b"foo"
+      	102
+      	111
+      	111
       ]
 
 # as_polars_series works for classes array
@@ -329,6 +342,28 @@
       	["foo"]
       ]
 
+# as_polars_series works for classes numeric_version
+
+    Code
+      print(pl_series)
+    Output
+      shape: (2,)
+      Series: '' [list[i32]]
+      [
+      	[]
+      	[4, 2, 2]
+      ]
+
+# as_polars_series works for classes numeric_version (0-length)
+
+    Code
+      print(pl_series)
+    Output
+      shape: (0,)
+      Series: '' [list[i32]]
+      [
+      ]
+
 # as_polars_series works for classes AsIs
 
     Code
@@ -390,6 +425,38 @@
       	null
       	null
       ]
+
+# as_polars_series.default throws an error
+
+    Code
+      as_polars_series(x)
+    Condition
+      Error in `as_polars_series()`:
+      ! a <foo> object can't be converted to a polars Series.
+
+# Before 0-oclock or after 24-oclock hms must be rejected
+
+    Code
+      as_polars_series(hms_24)
+    Condition
+      Error in `as_polars_series()`:
+      ! Evaluation failed.
+      Caused by error in `as_polars_series()`:
+      ! Conversion from hms object to Polars Series failed.
+      * Only values 00:00:00 <= `x` < 24:00:00 are supported, got: 23:59:59.999999 to 24:00:00
+      i To treat the object `x` as difftime, use `vctrs::vec_cast(x, difftime(0, 0))` first.
+
+---
+
+    Code
+      as_polars_series(hms_minus_1)
+    Condition
+      Error in `as_polars_series()`:
+      ! Evaluation failed.
+      Caused by error in `as_polars_series()`:
+      ! Conversion from hms object to Polars Series failed.
+      * Only values 00:00:00 <= `x` < 24:00:00 are supported, got: -01:00:00 to 00:00:00
+      i To treat the object `x` as difftime, use `vctrs::vec_cast(x, difftime(0, 0))` first.
 
 # as_polars_series works for vctrs_rcrd
 
@@ -849,5 +916,101 @@
       	-1ns
       	0ns
       	1ns
+      ]
+
+# nanoarrow_array/nanoarrow_array_stream support int16
+
+    Code
+      print(series_from_array_default)
+    Output
+      shape: (10,)
+      Series: '' [i16]
+      [
+      	1
+      	2
+      	3
+      	4
+      	5
+      	6
+      	7
+      	8
+      	9
+      	10
+      ]
+
+# nanoarrow_array/nanoarrow_array_stream support int32
+
+    Code
+      print(series_from_array_default)
+    Output
+      shape: (10,)
+      Series: '' [i32]
+      [
+      	1
+      	2
+      	3
+      	4
+      	5
+      	6
+      	7
+      	8
+      	9
+      	10
+      ]
+
+# nanoarrow_array/nanoarrow_array_stream support int64
+
+    Code
+      print(series_from_array_default)
+    Output
+      shape: (10,)
+      Series: '' [i64]
+      [
+      	1
+      	2
+      	3
+      	4
+      	5
+      	6
+      	7
+      	8
+      	9
+      	10
+      ]
+
+# arrow RecordBatchReader and Tabular objects support table
+
+    Code
+      print(series_default)
+    Output
+      shape: (2,)
+      Series: '' [struct[3]]
+      [
+      	{1,"a",[true]}
+      	{2,"b",[null]}
+      ]
+
+# arrow RecordBatchReader and Tabular objects support record_batch
+
+    Code
+      print(series_default)
+    Output
+      shape: (2,)
+      Series: '' [struct[3]]
+      [
+      	{1,"a",[true]}
+      	{2,"b",[null]}
+      ]
+
+# arrow RecordBatchReader and Tabular objects support record_batch_reader
+
+    Code
+      print(series_default)
+    Output
+      shape: (2,)
+      Series: '' [struct[3]]
+      [
+      	{1,"a",[true]}
+      	{2,"b",[null]}
       ]
 

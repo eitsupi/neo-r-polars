@@ -1,5 +1,7 @@
-patrick::with_parameters_test_that("check_polars functions work",
+patrick::with_parameters_test_that(
+  "check_polars functions work",
   .cases = {
+    # nolint start: line_length_linter
     tibble::tribble(
       ~.test_name, ~is_func, ~check_func, ~ok_object,
       "dtype", is_polars_dtype, check_polars_dtype, pl$Int8,
@@ -10,6 +12,7 @@ patrick::with_parameters_test_that("check_polars functions work",
       "series", is_polars_series, check_polars_series, as_polars_series(1:10),
       "list of dtype", is_list_of_polars_dtype, check_list_of_polars_dtype, list(pl$Int8, pl$String),
     )
+    # nolint end
   },
   code = {
     test_func_null_not_allow <- function(x) {

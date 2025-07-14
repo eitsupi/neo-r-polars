@@ -1,20 +1,19 @@
 use crate::map::lazy::map_single;
-use crate::{prelude::*, PlRDataType, PlRExpr};
+use crate::{PlRDataType, PlRExpr, RPolarsErr, prelude::*};
 use polars::lazy::dsl;
 use polars::series::ops::NullBehavior;
 use polars_core::chunked_array::cast::CastOptions;
 use polars_core::series::IsSorted;
 use savvy::{
-    r_println, savvy, FunctionSexp, ListSexp, LogicalSexp, NumericScalar, NumericSexp, Result,
-    StringSexp,
+    FunctionSexp, ListSexp, LogicalSexp, NumericScalar, NumericSexp, Result, Sexp, StringSexp,
+    savvy,
 };
 use std::ops::Neg;
 
 #[savvy]
 impl PlRExpr {
-    fn print(&self) -> Result<()> {
-        r_println!("{:?}", self.inner);
-        Ok(())
+    fn as_str(&self) -> Result<Sexp> {
+        format!("{:?}", self.inner).try_into()
     }
 
     fn abs(&self) -> Result<Self> {
@@ -235,13 +234,13 @@ impl PlRExpr {
 
     fn over(
         &self,
-        partition_by: ListSexp,
         order_by_descending: bool,
         order_by_nulls_last: bool,
         mapping_strategy: &str,
+        partition_by: Option<ListSexp>,
         order_by: Option<ListSexp>,
     ) -> Result<Self> {
-        let partition_by = <Wrap<Vec<Expr>>>::from(partition_by).0;
+        let partition_by = partition_by.map(|v| <Wrap<Vec<Expr>>>::from(v).0);
         let order_by = order_by.map(|order_by| {
             (
                 <Wrap<Vec<Expr>>>::from(order_by).0,
@@ -259,6 +258,7 @@ impl PlRExpr {
             .inner
             .clone()
             .over_with_options(partition_by, order_by, mapping_strategy)
+            .map_err(RPolarsErr::from)?
             .into())
     }
 
@@ -278,10 +278,13 @@ impl PlRExpr {
         Ok(self.inner.clone().pow(exponent.inner.clone()).into())
     }
 
-    fn diff(&self, n: NumericScalar, null_behavior: &str) -> Result<Self> {
-        let n = <Wrap<i64>>::try_from(n)?.0;
+    fn diff(&self, n: &PlRExpr, null_behavior: &str) -> Result<Self> {
         let null_behavior = <Wrap<NullBehavior>>::try_from(null_behavior)?.0;
-        Ok(self.inner.clone().diff(n, null_behavior).into())
+        Ok(self
+            .inner
+            .clone()
+            .diff(n.inner.clone(), null_behavior)
+            .into())
     }
 
     fn reshape(&self, dimensions: NumericSexp) -> Result<Self> {
@@ -297,13 +300,15 @@ impl PlRExpr {
         Ok(self.inner.clone().all(ignore_nulls).into())
     }
 
-    fn map_batches(
-        &self,
-        lambda: FunctionSexp,
-        agg_list: bool,
-        output_type: Option<&PlRDataType>,
-    ) -> Result<Self> {
-        map_single(self, lambda, output_type, agg_list)
+    fn map_batches(&self, lambda: FunctionSexp, output_type: Option<&PlRDataType>) -> Result<Self> {
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            map_single(self, lambda, output_type)
+        }
+        #[cfg(target_arch = "wasm32")]
+        {
+            Err(RPolarsErr::Other(format!("Not supported in WASM")).into())
+        }
     }
 
     fn cum_sum(&self, reverse: bool) -> Result<Self> {
@@ -508,8 +513,12 @@ impl PlRExpr {
         Ok(self.inner.clone().is_duplicated().into())
     }
 
-    fn is_in(&self, expr: &PlRExpr) -> Result<Self> {
-        Ok(self.inner.clone().is_in(expr.inner.clone()).into())
+    fn is_in(&self, expr: &PlRExpr, nulls_equal: bool) -> Result<Self> {
+        Ok(self
+            .inner
+            .clone()
+            .is_in(expr.inner.clone(), nulls_equal)
+            .into())
     }
 
     fn sqrt(&self) -> Result<Self> {
@@ -524,17 +533,12 @@ impl PlRExpr {
         Ok(self.inner.clone().dot(expr.inner.clone()).into())
     }
 
-    fn cumulative_eval(
-        &self,
-        expr: &PlRExpr,
-        min_periods: NumericScalar,
-        parallel: bool,
-    ) -> Result<Self> {
+    fn cumulative_eval(&self, expr: &PlRExpr, min_periods: NumericScalar) -> Result<Self> {
         let min_periods = <Wrap<usize>>::try_from(min_periods)?.0;
         Ok(self
             .inner
             .clone()
-            .cumulative_eval(expr.inner.clone(), min_periods, parallel)
+            .cumulative_eval(expr.inner.clone(), min_periods)
             .into())
     }
 
@@ -621,12 +625,12 @@ impl PlRExpr {
             .into())
     }
 
-    fn search_sorted(&self, element: &PlRExpr, side: &str) -> Result<Self> {
+    fn search_sorted(&self, element: &PlRExpr, side: &str, descending: bool) -> Result<Self> {
         let side = <Wrap<SearchSortedSide>>::try_from(side)?.0;
         Ok(self
             .inner
             .clone()
-            .search_sorted(element.inner.clone(), side)
+            .search_sorted(element.inner.clone(), side, descending)
             .into())
     }
 
@@ -736,9 +740,10 @@ impl PlRExpr {
             .into())
     }
 
-    fn round(&self, decimals: NumericScalar) -> Result<Self> {
+    fn round(&self, decimals: NumericScalar, mode: &str) -> Result<Self> {
         let decimals = <Wrap<u32>>::try_from(decimals)?.0;
-        Ok(self.inner.clone().round(decimals).into())
+        let mode = <Wrap<RoundMode>>::try_from(mode)?.0;
+        Ok(self.inner.clone().round(decimals, mode).into())
     }
 
     fn round_sig_figs(&self, digits: NumericScalar) -> Result<Self> {
@@ -765,27 +770,11 @@ impl PlRExpr {
         Ok(out.into())
     }
 
-    fn backward_fill(&self, limit: Option<NumericScalar>) -> Result<Self> {
-        let limit: FillNullLimit = match limit {
-            Some(x) => Some(<Wrap<u32>>::try_from(x)?.0.into()),
-            None => None,
-        };
-        Ok(self.inner.clone().backward_fill(limit).into())
-    }
-
-    fn forward_fill(&self, limit: Option<NumericScalar>) -> Result<Self> {
-        let limit: FillNullLimit = match limit {
-            Some(x) => Some(<Wrap<u32>>::try_from(x)?.0.into()),
-            None => None,
-        };
-        Ok(self.inner.clone().forward_fill(limit).into())
-    }
-
-    fn shift(&self, n: PlRExpr, fill_value: Option<PlRExpr>) -> Result<Self> {
+    fn shift(&self, n: &PlRExpr, fill_value: Option<&PlRExpr>) -> Result<Self> {
         let expr = self.inner.clone();
         let out = match fill_value {
             Some(v) => expr.shift_and_fill(n.inner.clone(), v.inner.clone()),
-            None => expr.shift(n.inner),
+            None => expr.shift(n.inner.clone()),
         };
         Ok(out.into())
     }
@@ -800,7 +789,7 @@ impl PlRExpr {
         limit: Option<NumericScalar>,
     ) -> Result<Self> {
         let limit: FillNullLimit = match limit {
-            Some(x) => Some(<Wrap<u32>>::try_from(x)?.0.into()),
+            Some(x) => Some(<Wrap<u32>>::try_from(x)?.0),
             None => None,
         };
         let strategy = parse_fill_null_strategy(strategy, limit)?;
@@ -870,10 +859,7 @@ impl PlRExpr {
         labels: Option<StringSexp>,
     ) -> Result<Self> {
         let breaks: Vec<f64> = breaks.as_slice_f64().into();
-        let labels = match labels {
-            Some(x) => Some(x.to_vec()),
-            None => None,
-        };
+        let labels = labels.map(|x| x.to_vec());
         Ok(self
             .inner
             .clone()
@@ -890,10 +876,7 @@ impl PlRExpr {
         labels: Option<StringSexp>,
     ) -> Result<Self> {
         let probs: Vec<f64> = probs.as_slice_f64().into();
-        let labels = match labels {
-            Some(x) => Some(x.to_vec()),
-            None => None,
-        };
+        let labels = labels.map(|x| x.to_vec());
         Ok(self
             .inner
             .clone()
@@ -910,10 +893,7 @@ impl PlRExpr {
         labels: Option<StringSexp>,
     ) -> Result<Self> {
         let n_bins = <Wrap<usize>>::try_from(n_bins)?.0;
-        let labels = match labels {
-            Some(x) => Some(x.to_vec()),
-            None => None,
-        };
+        let labels = labels.map(|x| x.to_vec());
         Ok(self
             .inner
             .clone()

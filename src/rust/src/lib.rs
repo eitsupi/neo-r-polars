@@ -6,6 +6,7 @@ mod datatypes;
 mod error;
 mod expr;
 mod functions;
+mod info;
 mod lazyframe;
 mod lazygroupby;
 mod map;
@@ -13,6 +14,7 @@ mod prelude;
 mod r_threads;
 mod r_udf;
 mod series;
+mod sql;
 
 use crate::conversion::Wrap;
 use crate::dataframe::PlRDataFrame;

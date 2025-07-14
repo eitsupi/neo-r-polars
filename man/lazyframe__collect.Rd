@@ -7,6 +7,7 @@
 lazyframe__collect(
   ...,
   type_coercion = TRUE,
+  `_type_check` = TRUE,
   predicate_pushdown = TRUE,
   projection_pushdown = TRUE,
   simplify_expression = TRUE,
@@ -14,8 +15,10 @@ lazyframe__collect(
   comm_subplan_elim = TRUE,
   comm_subexpr_elim = TRUE,
   cluster_with_columns = TRUE,
+  collapse_joins = TRUE,
   no_optimization = FALSE,
-  streaming = FALSE,
+  engine = c("auto", "in-memory", "streaming"),
+  `_check_order` = TRUE,
   `_eager` = FALSE
 )
 }
@@ -32,21 +35,31 @@ lazyframe__collect(
 
 \item{slice_pushdown}{A logical, indicats slice pushdown optimization.}
 
-\item{comm_subplan_elim}{A logical, indicats tring to cache branching subplans that occur on self-joins or unions.}
+\item{comm_subplan_elim}{A logical, indicats tring to cache branching subplans that occur
+on self-joins or unions.}
 
 \item{comm_subexpr_elim}{A logical, indicats tring to cache common subexpressions.}
 
-\item{cluster_with_columns}{A logical, indicats to combine sequential independent calls to with_columns.}
+\item{cluster_with_columns}{A logical, indicats to combine sequential independent calls
+to with_columns.}
+
+\item{collapse_joins}{Collapse a join and filters into a faster join.}
 
 \item{no_optimization}{A logical. If \code{TRUE}, turn off (certain) optimizations.}
 
-\item{streaming}{A logical. If \code{TRUE}, process the query in batches to handle larger-than-memory data.
-If \code{FALSE} (default), the entire query is processed in a single batch.
-Note that streaming mode is considered unstable.
-It may be changed at any point without it being considered a breaking change.}
+\item{engine}{The engine name to use for processing the query.
+One of the followings:
+\itemize{
+\item \code{"auto"} (default): Select the engine automatically.
+The \code{"in-memory"} engine will be selected for most cases.
+\item \code{"in-memory"}: Use the in-memory engine.
+\item \code{"streaming"}: \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Use the (new) streaming engine.
+}}
 
-\item{_eager}{A logical, indicates to turn off multi-node optimizations and the other optimizations.
-This option is intended for internal use only.}
+\item{_check_order, _type_check}{For internal use only.}
+
+\item{_eager}{A logical, indicates to turn off multi-node optimizations and
+the other optimizations. This option is intended for internal use only.}
 }
 \value{
 A polars \link{DataFrame}
@@ -65,6 +78,14 @@ lf$group_by("a")$agg(pl$all()$sum())$collect()
 
 # Collect in streaming mode
 lf$group_by("a")$agg(pl$all()$sum())$collect(
-  streaming = TRUE
+  engine = "streaming"
 )
+}
+\seealso{
+\itemize{
+\item \code{\link[=lazyframe__profile]{$profile()}} - same as \verb{$collect()} but also returns
+a table with each operation profiled.
+\item \code{\link[=lazyframe__sink_parquet]{$sink_parquet()}} streams query to a parquet file.
+\item \code{\link[=lazyframe__sink_ipc]{$sink_ipc()}} streams query to a arrow file.
+}
 }

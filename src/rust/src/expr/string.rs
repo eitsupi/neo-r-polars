@@ -1,5 +1,5 @@
-use crate::{prelude::*, PlRDataType, PlRExpr, RPolarsErr};
-use savvy::{savvy, NumericScalar, Result};
+use crate::{PlRDataType, PlRExpr, RPolarsErr, prelude::*};
+use savvy::{NumericScalar, Result, savvy};
 
 #[savvy]
 impl PlRExpr {
@@ -28,9 +28,19 @@ impl PlRExpr {
         Ok(self.inner.clone().str().to_lowercase().into())
     }
 
-    // fn str_to_titlecase(&self) -> Result<Self> {
-    //     f_str_to_titlecase(self)
-    // }
+    fn str_to_titlecase(&self) -> Result<Self> {
+        #[cfg(feature = "nightly")]
+        {
+            Ok(self.inner.clone().str().to_titlecase().into())
+        }
+        #[cfg(not(feature = "nightly"))]
+        {
+            Err(RPolarsErr::Other(
+                "The 'nightly' feature is not enabled for this build.".to_string(),
+            )
+            .into())
+        }
+    }
 
     fn str_strip_chars(&self, characters: &PlRExpr) -> Result<Self> {
         Ok(self
@@ -264,7 +274,7 @@ impl PlRExpr {
             Some(x) => Some(<Wrap<TimeUnit>>::try_from(x)?.0),
             None => None,
         };
-        let time_zone: Option<PlSmallStr> = time_zone.map(|x| x.into());
+        let time_zone = <Wrap<Option<TimeZone>>>::try_from(time_zone)?.0;
 
         Ok(self
             .inner

@@ -5,13 +5,11 @@ namespace_expr_list <- function(x) {
   self <- new.env(parent = emptyenv())
   self$`_rexpr` <- x$`_rexpr`
 
-  lapply(names(polars_expr_list_methods), function(name) {
-    fn <- polars_expr_list_methods[[name]]
-    environment(fn) <- environment()
-    assign(name, fn, envir = self)
-  })
-
-  class(self) <- c("polars_namespace_expr", "polars_object")
+  class(self) <- c(
+    "polars_namespace_expr_list",
+    "polars_namespace_expr",
+    "polars_object"
+  )
   self
 }
 
@@ -170,7 +168,7 @@ expr_list_concat <- function(other) {
 #' @inheritParams rlang::args_dots_empty
 #' @param null_on_oob If `TRUE`, return `null` if an index is out of bounds.
 #' Otherwise, raise an error.
-#' @return [Expr][expr_class]
+#' @inherit as_polars_expr return
 #' @examples
 #' df <- pl$DataFrame(
 #'   values = list(c(2, 2, NA), c(1, 2, 3), NA, NULL),
@@ -195,7 +193,7 @@ expr_list_get <- function(index, ..., null_on_oob = TRUE) {
 #' index, use [`$list$get()`][expr_list_get]. The indices may be defined in a
 #' single column, or by sub-lists in another column of dtype List.
 #'
-#' @param index An Expr or something coercible to an Expr, that can return
+#' @param indices An Expr or something coercible to an Expr, that can return
 #'   several indices. Values are 0-indexed (so index 0 would return the
 #'   first item of every sub-list) and negative values start from the end (index
 #'   `-1` returns the last item). If the index is out of bounds, it will return
@@ -214,23 +212,24 @@ expr_list_get <- function(index, ..., null_on_oob = TRUE) {
 #' )
 #'
 #' df$with_columns(
-#'   gathered = pl$col("a")$list$gather(2, null_on_oob = TRUE)
+#'   gathered = pl$col("a")$list$gather(list(2L), null_on_oob = TRUE)
 #' )
 #'
-#' # by some column name, must cast to an Int/Uint type to work
+#' # Indices must be an List(Int/Uint) type to work.
+#' # So we may need to cast the column to List(UInt) first.
 #' df$with_columns(
 #'   gathered = pl$col("a")$list$gather(pl$col("a")$cast(pl$List(pl$UInt64)), null_on_oob = TRUE)
 #' )
-expr_list_gather <- function(index, ..., null_on_oob = FALSE) {
+expr_list_gather <- function(indices, ..., null_on_oob = FALSE) {
   wrap({
     check_dots_empty0(...)
-    self$`_rexpr`$list_gather(as_polars_expr(index)$`_rexpr`, null_on_oob)
+    self$`_rexpr`$list_gather(as_polars_expr(indices)$`_rexpr`, null_on_oob)
   })
 }
 
 #' Take every `n`-th value starting from offset in sub-lists
 #'
-#' @inheritParams expr_gather_every
+#' @inheritParams expr__gather_every
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -280,9 +279,9 @@ expr_list_last <- function() {
 #'
 #' @param item Item that will be checked for membership. Can be an Expr or
 #' something coercible to an Expr. Strings are not parsed as columns.
-#'
+#' @param nulls_equal If `TRUE`, treat null as a distinct value. Null values will not propagate.
 #' @inherit as_polars_expr return
-#'
+#' @inheritParams rlang::args_dots_empty
 #' @examples
 #' df <- pl$DataFrame(
 #'   a = list(3:1, NULL, 1:2),
@@ -292,9 +291,11 @@ expr_list_last <- function() {
 #'   with_expr = pl$col("a")$list$contains(pl$col("item")),
 #'   with_lit = pl$col("a")$list$contains(1)
 #' )
-expr_list_contains <- function(item) {
-  self$`_rexpr`$list_contains(as_polars_expr(item, as_lit = TRUE)$`_rexpr`) |>
-    wrap()
+expr_list_contains <- function(item, ..., nulls_equal = TRUE) {
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$list_contains(as_polars_expr(item, as_lit = TRUE)$`_rexpr`, nulls_equal)
+  })
 }
 
 #' Join elements of every sub-list
@@ -304,7 +305,7 @@ expr_list_contains <- function(item) {
 #'
 #' @param separator String to separate the items with. Can be an Expr. Strings
 #'   are *not* parsed as columns.
-#' @inheritParams pl_concat_str
+#' @inheritParams pl__concat_str
 #' @inheritParams rlang::args_dots_empty
 #'
 #' @inherit as_polars_expr return
@@ -383,7 +384,7 @@ expr_list_diff <- function(n = 1, null_behavior = c("ignore", "drop")) {
 
 #' Shift list values by the given number of indices
 #'
-#' @inheritParams DataFrame_shift
+#' @inheritParams dataframe__shift
 #'
 #' @inherit as_polars_expr return
 #'
@@ -479,72 +480,10 @@ expr_list_tail <- function(n = 5L) {
   })
 }
 
-# TODO-REWRITE: implement this
-# #' Convert a Series of type `List` to `Struct`
-# #'
-# #' @param n_field_strategy Strategy to determine the number of fields of the
-# #'   struct. If `"first_non_null"` (default), set number of fields equal to the
-# #'   length of the first non zero-length list. If `"max_width"`, the number of
-# #'   fields is the maximum length of a list.
-# #'
-# #' @param fields If the name and number of the desired fields is known in
-# #'   advance, a list of field names can be given, which will be assigned by
-# #'   index. Otherwise, to dynamically assign field names, a custom R function
-# #'   that takes an R double and outputs a string value can be used. If
-# #'   `NULL` (default), fields will be `field_0`, `field_1` ... `field_n`.
-
-# #' @param upper_bound A `LazyFrame` needs to know the schema at all time. The
-# #'   caller therefore must provide an `upper_bound` of struct fields that will
-# #'   be set. If set incorrectly, downstream operation may fail. For instance an
-# #'   `all()$sum()` expression will look in the current schema to determine which
-# #'   columns to select. When operating on a `DataFrame`, the schema does not
-# #'   need to be tracked or pre-determined, as the result will be eagerly
-# #'   evaluated, so you can leave this parameter unset.
-# #'
-# #' @inherit as_polars_expr return
-# #'
-# #' @examples
-# #' df <- pl$DataFrame(a = list(1:2, 1:3))
-# #'
-# #' # this discards the third value of the second list as the struct length is
-# #' # determined based on the length of the first non-empty list
-# #' df$with_columns(
-# #'   struct = pl$col("a")$list$to_struct()
-# #' )
-# #'
-# #' # we can use "max_width" to keep all values
-# #' df$with_columns(
-# #'   struct = pl$col("a")$list$to_struct(n_field_strategy = "max_width")
-# #' )
-# #'
-# #' # pass a custom function that will name all fields by adding a prefix
-# #' df2 <- df$with_columns(
-# #'   pl$col("a")$list$to_struct(
-# #'     fields = \(idx) paste0("col_", idx)
-# #'   )
-# #' )
-# #' df2
-# #'
-# #' df2$unnest()
-# expr_list_to_struct <- function(
-#     n_field_strategy = c("first_non_null", "max_width"),
-#     fields = NULL,
-#     upper_bound = 0) {
-#   wrap({
-#     n_field_strategy <- arg_match0(n_field_strategy, values = c("first_non_null", "max_width"))
-#     self$`_rexpr`$list_to_struct(n_field_strategy, fields, upper_bound)
-#   })
-# }
-
 #' Run any polars expression on the sub-lists' values
 #'
 #' @param expr Expression to run. Note that you can select an element with
 #'   `pl$element()`, `pl$first()`, and more. See Examples.
-#' @param parallel Run all expressions in parallel. Don't activate this blindly.
-#'   Parallelism is worth it if there is enough work to do per thread. This
-#'   likely should not be used in the `$group_by()` context, because groups are
-#'   already executed in parallel.
-#'
 #' @inherit as_polars_expr return
 #'
 #' @examples
@@ -574,11 +513,9 @@ expr_list_tail <- function(n = 5L) {
 #' df$select(
 #'   pl$col("b")$list$eval(pl$element()$str$join(" "))$list$first()
 #' )
-expr_list_eval <- function(expr, ..., parallel = FALSE) {
-  wrap({
-    check_dots_empty0(...)
-    self$`_rexpr`$list_eval(as_polars_expr(expr)$`_rexpr`, parallel)
-  })
+expr_list_eval <- function(expr) {
+  self$`_rexpr`$list_eval(as_polars_expr(expr)$`_rexpr`) |>
+    wrap()
 }
 
 #' Evaluate whether all boolean values in a sub-list are true
@@ -685,10 +622,12 @@ expr_list_set_difference <- function(other) {
 #' df$with_columns(
 #'   symmetric_difference = pl$col("a")$list$set_symmetric_difference("b")
 #' )
+# nolint start: object_length_linter
 expr_list_set_symmetric_difference <- function(other) {
   self$`_rexpr`$list_set_operation(as_polars_expr(other)$`_rexpr`, "symmetric_difference") |>
     wrap()
 }
+# nolint end
 
 #' Returns a column with a separate row for every list element
 #'
@@ -717,8 +656,13 @@ expr_list_explode <- function() {
 #'   sample = pl$col("values")$list$sample(n = pl$col("n"), seed = 1)
 #' )
 expr_list_sample <- function(
-    n = NULL, ..., fraction = NULL, with_replacement = FALSE, shuffle = FALSE,
-    seed = NULL) {
+  n = NULL,
+  ...,
+  fraction = NULL,
+  with_replacement = FALSE,
+  shuffle = FALSE,
+  seed = NULL
+) {
   wrap({
     check_dots_empty0(...)
     if (!is.null(n) && !is.null(fraction)) {
@@ -726,16 +670,21 @@ expr_list_sample <- function(
     } else if (!is.null(n)) {
       self$`_rexpr`$list_sample_n(as_polars_expr(n)$`_rexpr`, with_replacement, shuffle, seed)
     } else {
-      self$`_rexpr`$list_sample_frac(as_polars_expr(fraction %||% 1)$`_rexpr`, with_replacement, shuffle, seed)
+      self$`_rexpr`$list_sample_frac(
+        as_polars_expr(fraction %||% 1)$`_rexpr`,
+        with_replacement,
+        shuffle,
+        seed
+      )
     }
   })
 }
 
 #' Compute the standard deviation in every sub-list
 #'
-#' @param "Delta Degrees of Freedom": the divisor used in the calculation is
-#' `N - ddof`, where `N` represents the number of elements. By default ddof is
-#' 1.
+#' @param ddof "Delta Degrees of Freedom": the divisor used in the calculation
+#' is `N - ddof`, where `N` represents the number of elements. By default
+#' `ddof` is 1.
 #'
 #' @inherit as_polars_expr return
 #' @examples
@@ -793,6 +742,89 @@ expr_list_median <- function() {
 expr_list_to_array <- function(width) {
   self$`_rexpr`$list_to_array(width) |>
     wrap()
+}
+
+# TODO: link to pl__Unknown
+#' Convert the Series of type List to a Series of type Struct
+#'
+#' @details It is recommended to set `upper_bound` to the correct output size
+#' of the struct. If this is not set, Polars will not know the output type of
+#' this operation and will set it to `Unknown` which can lead to errors because
+#' Polars is not able to resolve the query.
+#'
+#' For performance reasons, the length of the first non-null sublist is used to
+#' determine the number of output fields by default.
+#' If the sublists can be of different lengths then `n_field_strategy="max_width"`
+#' must be used to obtain the expected result.
+#' @inherit as_polars_expr return
+#' @inheritParams expr_arr_to_struct
+#' @param n_field_strategy One of `"first_non_null"` or `"max_width"`.
+#'   Strategy to determine the number of fields of the struct.
+#'
+#'   - `"first_non_null"` (default): Set number of fields equal to
+#'     the length of the first non zero-length sublist.
+#'   - `"max_width"`: Set number of fields as max length of all sublists.
+#'
+#'   If the `field` argument is character, this argument will be ignored.
+#' @param upper_bound Single positive integer value or `NULL` (default).
+#'   A [LazyFrame] needs to know the schema at all times,
+#'   so the caller must provide an upper bound of the number of struct fields
+#'   that will be created; if set incorrectly, subsequent operations may fail.
+#'   When operating on a DataFrame, the schema does not need to be tracked
+#'   or pre-determined, as the result will be eagerly evaluated,
+#'   so this argument can be `NULL`.
+#'   If the `fields` argument is character, this argument will be ignored.
+#' @examples
+#' df <- pl$DataFrame(n = list(c(0, 1), c(0, 1, 2)))
+#'
+#' # Convert list to struct with default field name assignment:
+#'
+#' # This will become a struct with 2 fields.
+#' df$select(pl$col("n")$list$to_struct())$unnest("n")
+#'
+#' # As the shorter sublist comes first,
+#' # we must use the max_width strategy to force a search for the longest.
+#' # This will become a struct with 3 fields.
+#' df$select(
+#'   pl$col("n")$list$to_struct(n_field_strategy = "max_width")
+#' )$unnest("n")
+#'
+#' # Convert list to struct with field name assignment by
+#' # function/index:
+#' df$select(
+#'   pl$col("n")$list$to_struct(
+#'     fields = \(idx) paste0("n", idx + 1),
+#'     n_field_strategy = "max_width"
+#'   )
+#' )$unnest("n")
+#'
+#' # Convert list to struct with field name assignment by
+#' # index from a list of names:
+#' df$select(pl$col("n")$list$to_struct(
+#'   fields = c("one", "two", "three"))
+#' )$unnest("n")
+expr_list_to_struct <- function(
+  n_field_strategy = c("first_non_null", "max_width"),
+  fields = NULL,
+  upper_bound = NULL
+) {
+  wrap({
+    if (is_character(fields)) {
+      if (anyNA(fields)) {
+        abort("`field` character must not contain NA values.")
+      }
+      self$`_rexpr`$list_to_struct_fixed_width(fields)
+    } else {
+      n_field_strategy <- arg_match0(n_field_strategy, values = c("first_non_null", "max_width"))
+      name_gen <- if (is.null(fields)) {
+        NULL
+      } else {
+        fields <- as_function(fields)
+        \(idx) fields(idx)
+      }
+      self$`_rexpr`$list_to_struct(n_field_strategy, name_gen, upper_bound)
+    }
+  })
 }
 
 #' Drop all null values in every sub-list

@@ -19,11 +19,17 @@ expr__rolling_std(
 \item{weights}{An optional slice with the same length as the window that
 will be multiplied elementwise with the values in the window.}
 
+\item{...}{These dots are for future extensions and must be empty.}
+
 \item{min_periods}{The number of values in the window that should be
 non-null before computing a result. If \code{NULL} (default), it will be set
 equal to \code{window_size}.}
 
 \item{center}{If \code{TRUE}, set the labels at the center of the window.}
+
+\item{ddof}{"Delta Degrees of Freedom": the divisor used in the calculation
+is \code{N - ddof}, where \code{N} represents the number of elements. By default
+\code{ddof} is 1.}
 }
 \value{
 A polars \link{expression}

@@ -9,11 +9,6 @@
       ! Evaluation failed in `$collect()`.
       Caused by error:
       ! field not found: aaa
-      
-      Resolved plan until failure:
-      
-      	---> FAILED HERE RESOLVING 'select' <---
-      DF ["struct_col"]; PROJECT */1 COLUMNS
 
 # struct$json_encode
 

@@ -1,9 +1,9 @@
-use crate::{prelude::*, PlRExpr, RPolarsErr};
+use crate::{PlRExpr, RPolarsErr, prelude::*};
 use polars::lazy::dsl;
-use polars_core::utils::arrow::array::Utf8ViewArray;
+use polars_core::utils::{arrow::array::Utf8ViewArray, try_get_supertype};
 use savvy::{
-    r_println, savvy, EnvironmentSexp, ListSexp, NullSexp, NumericScalar, NumericSexp,
-    OwnedListSexp, OwnedRealSexp, OwnedStringSexp, Result, Sexp, StringSexp,
+    EnvironmentSexp, ListSexp, NullSexp, NumericScalar, NumericSexp, OwnedListSexp, OwnedRealSexp,
+    OwnedStringSexp, Result, Sexp, StringSexp, TypedSexp, savvy,
 };
 
 // As not like in Python, define the data type class in
@@ -45,10 +45,6 @@ impl std::fmt::Display for PlRDataType {
             opt.map_or_else(|| "NULL".to_string(), |v| v.to_string())
         }
 
-        fn opt_string_to_string(opt: Option<PlSmallStr>) -> String {
-            opt.map_or_else(|| "NULL".to_string(), |v| format!("'{v}'"))
-        }
-
         match &self.dt {
             DataType::Decimal(precision, scale) => {
                 write!(
@@ -63,7 +59,10 @@ impl std::fmt::Display for PlRDataType {
                     f,
                     "Datetime(time_unit='{}', time_zone={})",
                     time_unit.to_ascii(),
-                    opt_string_to_string(time_zone.clone())
+                    match time_zone {
+                        Some(tz) => format!("'{tz}'"),
+                        None => "NULL".to_string(),
+                    }
                 )
             }
             DataType::Duration(time_unit) => {
@@ -106,7 +105,7 @@ impl std::fmt::Display for PlRDataType {
                     })
                     .collect::<Vec<_>>()
                     .join(", ");
-                write!(f, "Struct({})", fields)
+                write!(f, "Struct({fields})")
             }
             DataType::Categorical(_, ordering) => {
                 write!(
@@ -145,21 +144,21 @@ impl PlRDataType {
         name.try_into().map_err(savvy::Error::from)
     }
 
-    pub fn new_decimal(scale: Option<NumericScalar>, precision: Option<NumericScalar>) -> Result<Self> {
+    pub fn new_decimal(
+        scale: Option<NumericScalar>,
+        precision: Option<NumericScalar>,
+    ) -> Result<Self> {
         let precision = precision
             .map(<Wrap<usize>>::try_from)
             .transpose()?
             .map(|p| p.0);
-        let scale = scale
-            .map(<Wrap<usize>>::try_from)
-            .transpose()?
-            .map(|s| s.0);
+        let scale = scale.map(<Wrap<usize>>::try_from).transpose()?.map(|s| s.0);
         Ok(DataType::Decimal(precision, scale).into())
     }
 
     pub fn new_datetime(time_unit: &str, time_zone: Option<&str>) -> Result<Self> {
         let time_unit = <Wrap<TimeUnit>>::try_from(time_unit)?.0;
-        let time_zone: Option<PlSmallStr> = time_zone.map(|s| s.into());
+        let time_zone = <Wrap<Option<TimeZone>>>::try_from(time_zone)?.0;
         Ok(DataType::Datetime(time_unit, time_zone).into())
     }
 
@@ -211,9 +210,57 @@ impl PlRDataType {
         Ok(DataType::Struct(<Wrap<Vec<Field>>>::try_from(fields)?.0).into())
     }
 
-    fn print(&self) -> Result<()> {
-        r_println!("{}", self);
-        Ok(())
+    // A function to get supertype of a list of data types
+    pub fn infer_supertype(dtypes: ListSexp, strict: bool) -> Result<Self> {
+        let dtype_vec: Vec<Option<DataType>> = dtypes
+            .values_iter()
+            .map(|dtype| match dtype.into_typed() {
+                TypedSexp::Null(_) => None,
+                TypedSexp::Environment(e) => {
+                    <&PlRDataType>::try_from(e).ok().map(|dt| dt.dt.clone())
+                }
+                _ => unreachable!("Only accept a list of PlRDataType"),
+            })
+            .collect();
+
+        if strict {
+            let expected_dtype = dtype_vec
+                .iter()
+                .find(|opt_dt| opt_dt.is_some())
+                .map(|opt_dt| opt_dt.as_ref().unwrap().clone())
+                .unwrap_or(DataType::Null);
+            for (i, dt) in dtype_vec.iter().enumerate() {
+                if let Some(dt) = dt {
+                    if dt != &expected_dtype {
+                        return Err(
+                            format!("If `strict = TRUE`, all elements of the list except `NULL` must have the same datatype. expected: `{}`, got: `{}` at index: {}", expected_dtype, dt, i + 1).into()
+                        );
+                    }
+                }
+            }
+            Ok(expected_dtype.into())
+        } else {
+            let dtype = dtype_vec
+                .iter()
+                .map(|opt_dt| {
+                    if let Some(dt) = opt_dt {
+                        dt.clone()
+                    } else {
+                        DataType::Null
+                    }
+                })
+                .reduce(|acc, b| try_get_supertype(&acc, &b).unwrap_or(DataType::Null))
+                .unwrap_or(DataType::Null);
+            Ok(dtype.into())
+        }
+    }
+
+    fn as_str(&self, abbreviated: bool) -> Result<Sexp> {
+        if abbreviated {
+            self.dt.clone().to_string().try_into()
+        } else {
+            format!("{self}").try_into()
+        }
     }
 
     fn _get_dtype_names(&self) -> Result<Sexp> {

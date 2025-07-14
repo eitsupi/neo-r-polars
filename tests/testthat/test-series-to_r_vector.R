@@ -1,3 +1,37 @@
+test_that("Optional package suggestion", {
+  with_mocked_bindings(
+    {
+      expect_snapshot(
+        as_polars_series(1)$to_r_vector()
+      )
+    },
+    is_vctrs_installed = \() FALSE,
+    is_blob_installed = \() FALSE,
+    is_hms_installed = \() FALSE,
+  )
+})
+
+patrick::with_parameters_test_that(
+  "uint8 conversion",
+  .cases = {
+    tibble::tribble(
+      ~.test_name, ~as_func,
+      "raw", as.raw,
+      "integer", as.integer,
+    )
+  },
+  code = {
+    double_vec <- c(NA, 0, 16, 255)
+    series_uint8 <- as_polars_series(double_vec)$cast(pl$UInt8)
+
+    out <- series_uint8$to_r_vector(uint8 = .test_name)
+
+    # `as.raw(NA)` returns `as.raw(0)` and warns, so we should suppress the warning
+    expected <- suppressWarnings(as_func(double_vec))
+    expect_identical(out, expected)
+  }
+)
+
 patrick::with_parameters_test_that(
   "int64 conversion",
   .cases = {
@@ -57,9 +91,9 @@ test_that("int64 argument error", {
   )
   with_mocked_bindings(
     {
-      expect_error(
+      expect_snapshot(
         as_polars_series(1)$to_r_vector(int64 = "integer64"),
-        "If the `int64` argument is set to 'integer64', the `bit64` package must be installed"
+        error = TRUE
       )
     },
     is_bit64_installed = function() FALSE
@@ -135,9 +169,9 @@ test_that("time argument error", {
   )
   with_mocked_bindings(
     {
-      expect_error(
+      expect_snapshot(
         as_polars_series(1)$to_r_vector(time = "ITime"),
-        r"(If the `time` argument is set to 'ITime', the `data\.table` package must be installed)"
+        error = TRUE
       )
     },
     is_datatable_installed = function() FALSE
@@ -159,19 +193,11 @@ patrick::with_parameters_test_that(
       b = I(list(data.frame(c = letters[1:2]), data.frame(c = letters[3:4])))
     )
     df_out <- as_polars_series(df_in)$to_r_vector(struct = .test_name)
-    list_out <- as_polars_series(df_in)$to_r_vector(struct = .test_name, ensure_vector = TRUE)
-
-    expect_false(is.vector(df_out))
-    expect_true(is.vector(list_out))
 
     expect_s3_class(df_out, classes, exact = TRUE)
-    expect_vector(list_out, ptype = list())
-
     expect_s3_class(df_out$b[[1]], classes, exact = TRUE)
-    expect_s3_class(list_out$b[[2]], classes, exact = TRUE)
 
     expect_snapshot(df_out)
-    expect_snapshot(list_out)
   }
 )
 
@@ -225,7 +251,8 @@ test_that("decimal argument error", {
   )
 })
 
-patrick::with_parameters_test_that("datetime conversion to clock classes",
+patrick::with_parameters_test_that(
+  "datetime conversion to clock classes",
   .cases = {
     skip_if_not_installed("clock")
 
@@ -254,7 +281,8 @@ patrick::with_parameters_test_that("datetime conversion to clock classes",
   }
 )
 
-patrick::with_parameters_test_that("duration conversion to clock class",
+patrick::with_parameters_test_that(
+  "duration conversion to clock class",
   .cases = {
     skip_if_not_installed("clock")
 
@@ -272,4 +300,50 @@ patrick::with_parameters_test_that("duration conversion to clock class",
 
     expect_identical(series_duration$to_r_vector(as_clock_class = TRUE), duration_vec)
   }
+)
+
+patrick::with_parameters_test_that(
+  "ambiguous argument '{ambiguous}'",
+  .cases = {
+    tibble::tribble(
+      ~ambiguous,
+      "raise",
+      "earliest",
+      "latest",
+      "null",
+    )
+  },
+  withr::with_timezone("America/New_York", {
+    ambiguous_time_chr <- c("2020-11-01 00:00:00", "2020-11-01 01:00:00", "2020-11-01 02:00:00")
+    series_ambiguous <- as_polars_series(ambiguous_time_chr)$str$strptime(
+      pl$Datetime(),
+      "%F %T"
+    )
+    expect_snapshot(
+      series_ambiguous$to_r_vector(ambiguous = ambiguous),
+      error = ambiguous == "raise"
+    )
+  })
+)
+
+patrick::with_parameters_test_that(
+  "non_existent argument '{non_existent}'",
+  .cases = {
+    tibble::tribble(
+      ~non_existent,
+      "raise",
+      "null",
+    )
+  },
+  withr::with_timezone("America/New_York", {
+    non_existent_time_chr <- c("2020-03-08 02:00:00", "2020-03-08 03:00:00")
+    series_non_existent <- as_polars_series(non_existent_time_chr)$str$strptime(
+      pl$Datetime(),
+      "%F %T"
+    )
+    expect_snapshot(
+      series_non_existent$to_r_vector(non_existent = non_existent),
+      error = non_existent == "raise"
+    )
+  })
 )

@@ -7,15 +7,15 @@
 expr_str_replace(pattern, value, ..., literal = FALSE, n = 1L)
 }
 \arguments{
-\item{pattern}{A character or something can be coerced to a string \link[=Expr_class]{Expr}
+\item{pattern}{A character or something can be coerced to a string \link{Expr}
 of a valid regex pattern, compatible with the \href{https://docs.rs/regex/latest/regex/}{regex crate}.}
 
-\item{value}{A character or an \link[=Expr_class]{Expr} of string
+\item{value}{A character or an \link{Expr} of string
 that will replace the matched substring.}
 
 \item{...}{These dots are for future extensions and must be empty.}
 
-\item{literal}{Logical. If \code{TRUE} (default), treat \code{pattern} as a literal string,
+\item{literal}{Logical. If \code{TRUE}, treat \code{pattern} as a literal string,
 not as a regular expression.}
 
 \item{n}{A number of matches to replace.
@@ -57,7 +57,7 @@ df$with_columns(
 
 # Apply case-insensitive string replacement using the `(?i)` flag.
 df <- pl$DataFrame(
-  city = "Philadelphia",
+  city = rep("Philadelphia", 4),
   season = c("Spring", "Summer", "Autumn", "Winter"),
   weather = c("Rainy", "Sunny", "Cloudy", "Snowy")
 )

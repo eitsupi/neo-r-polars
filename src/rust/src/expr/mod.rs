@@ -1,5 +1,6 @@
 mod array;
 mod binary;
+mod bitwise;
 mod categorical;
 mod datetime;
 mod general;
@@ -11,7 +12,7 @@ mod serde;
 mod string;
 mod r#struct;
 use polars::lazy::dsl::Expr;
-use savvy::{savvy, EnvironmentSexp};
+use savvy::{EnvironmentSexp, savvy};
 
 #[savvy]
 #[repr(transparent)]

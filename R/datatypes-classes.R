@@ -1,4 +1,5 @@
-# Unlike Python Polars, the DataType object is defined on the Rust side, so this file provide wrappers
+# Unlike Python Polars, the DataType object is defined on the Rust side,
+# so this file provide wrappers
 
 # TODO: link to data type mapping vignette
 # TODO: floating point numbers section
@@ -21,6 +22,7 @@
 #' @details
 #' ## Full data types table
 #'
+# nolint start: line_length_linter
 #' | Type(s)                                        | Details                                                                         |
 #' | ---------------------------------------------- | ------------------------------------------------------------------------------- |
 #' | `Boolean`                                      | Boolean type that is bit packed efficiently.                                    |
@@ -40,7 +42,7 @@
 #' | `Enum` `r lifecycle::badge("experimental")`    | Efficient ordered encoding of a set of predetermined string categories.         |
 #' | `Struct`                                       | Composite product type that can store multiple fields.                          |
 #' | `Null`                                         | Represents null values.                                                         |
-#'
+# nolint end
 #' @name polars_dtype
 #' @aliases DataType
 #' @examples
@@ -67,6 +69,7 @@
 #' pl$Enum(c("a", "b", "c"))
 #' pl$Struct(a = pl$Int32, b = pl$String)
 #' pl$Null
+#' pl$Unknown
 NULL
 
 # The env for storing data type methods
@@ -78,47 +81,33 @@ wrap.PlRDataType <- function(x, ...) {
   self$`_dt` <- x
   dtype_names <- x$`_get_dtype_names`()
 
-  lapply(names(polars_datatype__methods), function(name) {
-    fn <- polars_datatype__methods[[name]]
-    environment(fn) <- environment()
-    assign(name, fn, envir = self)
-  })
-
-  ## Enum only method
-  if ("polars_dtype_enum" %in% dtype_names) {
-    fn <- function(other) {
-      wrap({
-        check_polars_dtype(other)
-        if (!inherits(other, "polars_dtype_enum")) {
-          abort("`other` must be a Enum data type")
-        }
-
-        PlRDataType$new_enum(unique(c(self$categories, other$categories)))
-      })
-    }
-    environment(fn) <- environment()
-    assign("union", fn, envir = self)
-  }
-
   # Bindings mimic attributes of DataType classes of Python Polars
   env_bind(self, !!!x$`_get_datatype_fields`())
 
   ## _inner is a pointer now, so it should be wrapped
   if (exists("_inner", envir = self)) {
-    makeActiveBinding("inner", function() {
-      .savvy_wrap_PlRDataType(self$`_inner`) |>
-        wrap()
-    }, self)
+    makeActiveBinding(
+      "inner",
+      function() {
+        .savvy_wrap_PlRDataType(self$`_inner`) |>
+          wrap()
+      },
+      self
+    )
   }
 
   ## _fields is a list of pointers now, so they should be wrapped
   if (exists("_fields", envir = self)) {
-    makeActiveBinding("fields", function() {
-      lapply(self$`_fields`, function(x) {
-        .savvy_wrap_PlRDataType(x) |>
-          wrap()
-      })
-    }, self)
+    makeActiveBinding(
+      "fields",
+      function() {
+        lapply(self$`_fields`, function(x) {
+          .savvy_wrap_PlRDataType(x) |>
+            wrap()
+        })
+      },
+      self
+    )
   }
 
   class(self) <- c(dtype_names, "polars_dtype", "polars_object")
@@ -144,7 +133,8 @@ on_load({
     "Binary",
     "Date",
     "Time",
-    "Null"
+    "Null",
+    "Unknown"
   ) |>
     lapply(function(name) {
       makeActiveBinding(name, function() PlRDataType$new_from_name(name) |> wrap(), pl)
@@ -154,8 +144,8 @@ on_load({
 #' @rdname polars_dtype
 #' @param precision Single integer or `NULL` (default), maximum number of digits in each number.
 #' If `NULL`, the precision is inferred.
-#' @param scale Single integer or `NULL`. Number of digits to the right of the decimal point in each number.
-#' The default is `0`.
+#' @param scale Single integer or `NULL`. Number of digits to the right of the decimal point
+#' in each number. The default is `0`.
 pl__Decimal <- function(precision = NULL, scale = 0L) {
   PlRDataType$new_decimal(scale = scale, precision = precision) |>
     wrap()
@@ -201,7 +191,7 @@ pl__Enum <- function(categories) {
 
     if (anyDuplicated(categories)) {
       abort(sprintf(
-        "Enum categories must be unique; found duplicated: %s",
+        "Enum categories must be unique, found duplicated: %s",
         toString(categories[which(duplicated(categories))])
       ))
     }

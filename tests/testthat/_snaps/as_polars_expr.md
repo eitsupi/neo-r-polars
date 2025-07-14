@@ -8,6 +8,13 @@
 ---
 
     Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
+    Output
+      Series[literal]
+
+---
+
+    Code
       selected_out
     Output
       shape: (0, 1)
@@ -18,12 +25,29 @@
       ╞═════════╡
       └─────────┘
 
+---
+
+    Code
+      lf$collect()
+    Condition
+      Error in `lf$collect()`:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! lengths don't match: unable to add a column of length 0 to a DataFrame of height 10
+
 # as_polars_expr works for classes chr (1)
 
     Code
       out
     Output
-      String(foo)
+      "foo"
+
+---
+
+    Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
+    Output
+      Series[literal]
 
 ---
 
@@ -49,6 +73,13 @@
 ---
 
     Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
+    Output
+      Series[literal]
+
+---
+
+    Code
       selected_out
     Output
       shape: (2, 1)
@@ -61,12 +92,29 @@
       │ bar     │
       └─────────┘
 
+---
+
+    Code
+      lf$collect()
+    Condition
+      Error in `lf$collect()`:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! lengths don't match: unable to add a column of length 2 to a DataFrame of height 10
+
 # as_polars_expr works for classes chr NA
 
     Code
       out
     Output
-      null.strict_cast(String)
+      null
+
+---
+
+    Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
+    Output
+      Series[literal]
 
 ---
 
@@ -92,6 +140,13 @@
 ---
 
     Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
+    Output
+      Series[literal]
+
+---
+
+    Code
       selected_out
     Output
       shape: (0, 1)
@@ -102,12 +157,29 @@
       ╞═════════╡
       └─────────┘
 
+---
+
+    Code
+      lf$collect()
+    Condition
+      Error in `lf$collect()`:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! lengths don't match: unable to add a column of length 0 to a DataFrame of height 10
+
 # as_polars_expr works for classes lgl (1)
 
     Code
       out
     Output
       true
+
+---
+
+    Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
+    Output
+      Series[literal]
 
 ---
 
@@ -133,6 +205,13 @@
 ---
 
     Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
+    Output
+      Series[literal]
+
+---
+
+    Code
       selected_out
     Output
       shape: (2, 1)
@@ -145,12 +224,29 @@
       │ false   │
       └─────────┘
 
+---
+
+    Code
+      lf$collect()
+    Condition
+      Error in `lf$collect()`:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! lengths don't match: unable to add a column of length 2 to a DataFrame of height 10
+
 # as_polars_expr works for classes lgl NA
 
     Code
       out
     Output
-      null.strict_cast(Boolean)
+      null
+
+---
+
+    Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
+    Output
+      Series[literal]
 
 ---
 
@@ -176,6 +272,13 @@
 ---
 
     Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
+    Output
+      Series[literal]
+
+---
+
+    Code
       selected_out
     Output
       shape: (0, 1)
@@ -186,12 +289,29 @@
       ╞═════════╡
       └─────────┘
 
+---
+
+    Code
+      lf$collect()
+    Condition
+      Error in `lf$collect()`:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! lengths don't match: unable to add a column of length 0 to a DataFrame of height 10
+
 # as_polars_expr works for classes int (1)
 
     Code
       out
     Output
-      dyn int: 1
+      1
+
+---
+
+    Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
+    Output
+      Series[literal]
 
 ---
 
@@ -217,6 +337,13 @@
 ---
 
     Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
+    Output
+      Series[literal]
+
+---
+
+    Code
       selected_out
     Output
       shape: (2, 1)
@@ -229,12 +356,29 @@
       │ 2       │
       └─────────┘
 
+---
+
+    Code
+      lf$collect()
+    Condition
+      Error in `lf$collect()`:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! lengths don't match: unable to add a column of length 2 to a DataFrame of height 10
+
 # as_polars_expr works for classes int NA
 
     Code
       out
     Output
-      null.strict_cast(Int32)
+      null
+
+---
+
+    Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
+    Output
+      Series[literal]
 
 ---
 
@@ -260,6 +404,13 @@
 ---
 
     Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
+    Output
+      Series[literal]
+
+---
+
+    Code
       selected_out
     Output
       shape: (0, 1)
@@ -270,12 +421,29 @@
       ╞═════════╡
       └─────────┘
 
+---
+
+    Code
+      lf$collect()
+    Condition
+      Error in `lf$collect()`:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! lengths don't match: unable to add a column of length 0 to a DataFrame of height 10
+
 # as_polars_expr works for classes dbl (1)
 
     Code
       out
     Output
-      dyn float: 1.0
+      1.0
+
+---
+
+    Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
+    Output
+      Series[literal]
 
 ---
 
@@ -301,6 +469,13 @@
 ---
 
     Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
+    Output
+      Series[literal]
+
+---
+
+    Code
       selected_out
     Output
       shape: (2, 1)
@@ -313,12 +488,29 @@
       │ 2.0     │
       └─────────┘
 
+---
+
+    Code
+      lf$collect()
+    Condition
+      Error in `lf$collect()`:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! lengths don't match: unable to add a column of length 2 to a DataFrame of height 10
+
 # as_polars_expr works for classes dbl NaN
 
     Code
       out
     Output
-      dyn float: NaN
+      NaN
+
+---
+
+    Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
+    Output
+      Series[literal]
 
 ---
 
@@ -339,7 +531,14 @@
     Code
       out
     Output
-      null.strict_cast(Float64)
+      null
+
+---
+
+    Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
+    Output
+      Series[literal]
 
 ---
 
@@ -360,7 +559,14 @@
     Code
       out
     Output
-      [binary value]
+      b""
+
+---
+
+    Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
+    Output
+      b""
 
 ---
 
@@ -381,7 +587,14 @@
     Code
       out
     Output
-      [binary value]
+      b"a"
+
+---
+
+    Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
+    Output
+      b"a"
 
 ---
 
@@ -402,7 +615,14 @@
     Code
       out
     Output
-      [binary value]
+      b"ab"
+
+---
+
+    Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
+    Output
+      b"ab"
 
 ---
 
@@ -422,6 +642,13 @@
 
     Code
       out
+    Output
+      null
+
+---
+
+    Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
     Output
       null
 
@@ -449,6 +676,13 @@
 ---
 
     Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
+    Output
+      Series[literal]
+
+---
+
+    Code
       selected_out
     Output
       shape: (0, 1)
@@ -459,12 +693,29 @@
       ╞════════════╡
       └────────────┘
 
+---
+
+    Code
+      lf$collect()
+    Condition
+      Error in `lf$collect()`:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! lengths don't match: unable to add a column of length 0 to a DataFrame of height 10
+
 # as_polars_expr works for classes list (1)
 
     Code
       out
     Output
       [true]
+
+---
+
+    Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
+    Output
+      Series[literal]
 
 ---
 
@@ -490,6 +741,13 @@
 ---
 
     Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
+    Output
+      Series[literal]
+
+---
+
+    Code
       selected_out
     Output
       shape: (2, 1)
@@ -502,10 +760,27 @@
       │ [false]    │
       └────────────┘
 
+---
+
+    Code
+      lf$collect()
+    Condition
+      Error in `lf$collect()`:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! lengths don't match: unable to add a column of length 2 to a DataFrame of height 10
+
 # as_polars_expr works for classes Date (0)
 
     Code
       out
+    Output
+      Series[literal]
+
+---
+
+    Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
     Output
       Series[literal]
 
@@ -522,12 +797,29 @@
       ╞═════════╡
       └─────────┘
 
+---
+
+    Code
+      lf$collect()
+    Condition
+      Error in `lf$collect()`:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! lengths don't match: unable to add a column of length 0 to a DataFrame of height 10
+
 # as_polars_expr works for classes Date (1)
 
     Code
       out
     Output
       1970-01-01
+
+---
+
+    Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
+    Output
+      Series[literal]
 
 ---
 
@@ -553,6 +845,13 @@
 ---
 
     Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
+    Output
+      Series[literal]
+
+---
+
+    Code
       selected_out
     Output
       shape: (2, 1)
@@ -565,10 +864,27 @@
       │ 1970-01-02 │
       └────────────┘
 
+---
+
+    Code
+      lf$collect()
+    Condition
+      Error in `lf$collect()`:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! lengths don't match: unable to add a column of length 2 to a DataFrame of height 10
+
 # as_polars_expr works for classes POSIXct (UTC) (0)
 
     Code
       out
+    Output
+      Series[literal]
+
+---
+
+    Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
     Output
       Series[literal]
 
@@ -585,12 +901,29 @@
       ╞═══════════════════╡
       └───────────────────┘
 
+---
+
+    Code
+      lf$collect()
+    Condition
+      Error in `lf$collect()`:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! lengths don't match: unable to add a column of length 0 to a DataFrame of height 10
+
 # as_polars_expr works for classes POSIXct (UTC) (1)
 
     Code
       out
     Output
       1970-01-01 00:00:00 UTC
+
+---
+
+    Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
+    Output
+      Series[literal]
 
 ---
 
@@ -616,6 +949,13 @@
 ---
 
     Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
+    Output
+      Series[literal]
+
+---
+
+    Code
       selected_out
     Output
       shape: (2, 1)
@@ -628,10 +968,27 @@
       │ 1970-01-01 00:00:01 UTC │
       └─────────────────────────┘
 
+---
+
+    Code
+      lf$collect()
+    Condition
+      Error in `lf$collect()`:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! lengths don't match: unable to add a column of length 2 to a DataFrame of height 10
+
 # as_polars_expr works for classes series (0)
 
     Code
       out
+    Output
+      Series
+
+---
+
+    Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
     Output
       Series
 
@@ -648,10 +1005,27 @@
       ╞══════╡
       └──────┘
 
+---
+
+    Code
+      lf$collect()
+    Condition
+      Error in `lf$collect()`:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! lengths don't match: unable to add a column of length 0 to a DataFrame of height 10
+
 # as_polars_expr works for classes series (1)
 
     Code
       out
+    Output
+      true.alias("")
+
+---
+
+    Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
     Output
       Series
 
@@ -679,6 +1053,13 @@
 ---
 
     Code
+      as_polars_expr(x, as_lit = TRUE, keep_series = TRUE)
+    Output
+      Series
+
+---
+
+    Code
       selected_out
     Output
       shape: (2, 1)
@@ -690,4 +1071,14 @@
       │ true  │
       │ false │
       └───────┘
+
+---
+
+    Code
+      lf$collect()
+    Condition
+      Error in `lf$collect()`:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! lengths don't match: unable to add a column of length 2 to a DataFrame of height 10
 

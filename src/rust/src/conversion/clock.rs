@@ -24,8 +24,8 @@ pub struct ZonedTime {
 // https://github.com/r-lib/vctrs/blob/c27b6988bd2f02aa970b6d14a640eccb299e03bb/src/type-integer64.c#L117-L156
 impl From<&Int64Chunked> for Float64Pair {
     fn from(ca: &Int64Chunked) -> Self {
-        let mut left = OwnedRealSexp::new(ca.len()).unwrap();
-        let mut right = OwnedRealSexp::new(ca.len()).unwrap();
+        let mut left = unsafe { OwnedRealSexp::new_without_init(ca.len()).unwrap() };
+        let mut right = unsafe { OwnedRealSexp::new_without_init(ca.len()).unwrap() };
         for (i, v) in ca.into_iter().enumerate() {
             if let Some(v) = v {
                 let x_u64 =
@@ -45,7 +45,7 @@ impl From<&Int64Chunked> for Float64Pair {
 
 impl From<&DurationChunked> for Duration {
     fn from(ca: &DurationChunked) -> Self {
-        let ca_i64 = &ca.0;
+        let ca_i64 = &ca.phys;
         let value = Float64Pair::from(ca_i64);
         let precision: i32 = match ca.time_unit() {
             TimeUnit::Nanoseconds => 10,
@@ -58,7 +58,7 @@ impl From<&DurationChunked> for Duration {
 
 impl From<&DatetimeChunked> for TimePoint {
     fn from(ca: &DatetimeChunked) -> Self {
-        let ca_i64 = &ca.0;
+        let ca_i64 = &ca.phys;
         let value = Float64Pair::from(ca_i64);
         let precision: i32 = match ca.time_unit() {
             TimeUnit::Nanoseconds => 10,

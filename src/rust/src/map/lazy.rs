@@ -1,8 +1,8 @@
 use crate::{
+    PlRDataType, PlRExpr,
     prelude::*,
     r_threads::ThreadCom,
-    r_udf::{RUdf, RUdfSignature, CONFIG},
-    PlRDataType, PlRExpr,
+    r_udf::{CONFIG, RUdf, RUdfSignature},
 };
 use savvy::{FunctionSexp, Result};
 
@@ -10,8 +10,8 @@ pub fn map_single(
     rexpr: &PlRExpr,
     lambda: FunctionSexp,
     output_type: Option<&PlRDataType>,
-    agg_list: bool,
     // TODO: support these options
+    // agg_list: bool,
     // is_elementwise: bool,
     // returns_scalar: bool,
 ) -> Result<PlRExpr> {
@@ -33,9 +33,5 @@ pub fn map_single(
         None => Ok(field.clone()),
     });
 
-    if agg_list {
-        Ok(rexpr.inner.clone().map_list(func, output_map).into())
-    } else {
-        Ok(rexpr.inner.clone().map(func, output_map).into())
-    }
+    Ok(rexpr.inner.clone().map(func, output_map).into())
 }

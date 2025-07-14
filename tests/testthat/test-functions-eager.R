@@ -34,7 +34,8 @@ patrick::with_parameters_test_that(
     list(fun = pl$LazyFrame, how = "vertical"),
     list(fun = pl$LazyFrame, how = "horizontal"),
     list(fun = pl$LazyFrame, how = "diagonal")
-  )
+  ),
+  .interpret_glue = FALSE
 )
 
 test_that("concat() on length-1 input return input for Series", {
@@ -82,7 +83,8 @@ test_that("how = 'vertical' works", {
   # works with Series
   expect_equal(
     pl$concat(
-      as_polars_series(1:2, "a"), as_polars_series(5:1, "b"),
+      as_polars_series(1:2, "a"),
+      as_polars_series(5:1, "b"),
       how = "vertical"
     ),
     as_polars_series(c(1:2, 5:1), "a")
@@ -118,8 +120,12 @@ test_that("how = 'horizontal' works", {
   expect_equal(
     pl$concat(df, df2, df3, how = "horizontal"),
     pl$DataFrame(
-      a = 1:2, b = letters[1:2], a2 = 1:2, b2 = letters[1:2],
-      a3 = 1:2, b3 = letters[1:2]
+      a = 1:2,
+      b = letters[1:2],
+      a2 = 1:2,
+      b2 = letters[1:2],
+      a3 = 1:2,
+      b3 = letters[1:2]
     )
   )
 
@@ -137,8 +143,12 @@ test_that("how = 'horizontal' works", {
   expect_equal(
     pl$concat(lf, lf2, lf3, how = "horizontal")$collect(),
     pl$DataFrame(
-      a = 1:2, b = letters[1:2], a2 = 1:2, b2 = letters[1:2],
-      a3 = 1:2, b3 = letters[1:2]
+      a = 1:2,
+      b = letters[1:2],
+      a2 = 1:2,
+      b2 = letters[1:2],
+      a3 = 1:2,
+      b3 = letters[1:2]
     )
   )
 
@@ -156,7 +166,9 @@ test_that("how = 'diagonal' works", {
   expect_equal(
     pl$concat(df, df2, how = "diagonal"),
     pl$DataFrame(
-      a = c(1:2, NA, NA), b = c(1:2, 1:2), b2 = c(NA, NA, "a", "b")
+      a = c(1:2, NA, NA),
+      b = c(1:2, 1:2),
+      b2 = c(NA, NA, "a", "b")
     )
   )
 
@@ -175,7 +187,9 @@ test_that("how = 'diagonal' works", {
   expect_equal(
     pl$concat(lf, lf2, how = "diagonal")$collect(),
     pl$DataFrame(
-      a = c(1:2, NA, NA), b = c(1:2, 1:2), b2 = c(NA, NA, "a", "b")
+      a = c(1:2, NA, NA),
+      b = c(1:2, 1:2),
+      b2 = c(NA, NA, "a", "b")
     )
   )
 
@@ -192,7 +206,9 @@ test_that("how = 'diagonal_relaxed' works", {
   expect_equal(
     pl$concat(df, df2, how = "diagonal_relaxed"),
     pl$DataFrame(
-      a = c(1:2, NA, NA), b = c("1", "2", "a", "b"), b2 = c(NA, NA, "a", "b")
+      a = c(1:2, NA, NA),
+      b = c("1", "2", "a", "b"),
+      b2 = c(NA, NA, "a", "b")
     )
   )
 
@@ -202,9 +218,74 @@ test_that("how = 'diagonal_relaxed' works", {
   expect_equal(
     pl$concat(lf, lf2, how = "diagonal_relaxed")$collect(),
     pl$DataFrame(
-      a = c(1:2, NA, NA), b = c("1", "2", "a", "b"), b2 = c(NA, NA, "a", "b")
+      a = c(1:2, NA, NA),
+      b = c("1", "2", "a", "b"),
+      b2 = c(NA, NA, "a", "b")
     )
   )
 })
 
-# TODO: test for "align" when pl$coalesce() is implemented
+test_that("how = 'align', 'align_left', 'align_right', 'align_full' works", {
+  df1 <- pl$DataFrame(id = 1:2, x = 3:4)
+  df2 <- pl$DataFrame(id = 2:3, y = 5:6)
+  df3 <- pl$DataFrame(id = c(1L, 3L), z = 7:8)
+
+  expect_query_equal(
+    pl$concat(.input, .input2, .input3, how = "align"),
+    .input = df1,
+    .input2 = df2,
+    .input3 = df3,
+    pl$DataFrame(
+      id = 1:3,
+      x = c(3L, 4L, NA),
+      y = c(NA, 5L, 6L),
+      z = c(7L, NA, 8L)
+    )
+  )
+  expect_query_equal(
+    pl$concat(.input, .input2, .input3, how = "align_full"),
+    .input = df1,
+    .input2 = df2,
+    .input3 = df3,
+    pl$DataFrame(
+      id = 1:3,
+      x = c(3L, 4L, NA),
+      y = c(NA, 5L, 6L),
+      z = c(7L, NA, 8L)
+    )
+  )
+  expect_query_equal(
+    pl$concat(.input, .input2, .input3, how = "align_left"),
+    .input = df1,
+    .input2 = df2,
+    .input3 = df3,
+    pl$DataFrame(
+      id = 1:2,
+      x = c(3L, 4L),
+      y = c(NA, 5L),
+      z = c(7L, NA)
+    )
+  )
+  expect_query_equal(
+    pl$concat(.input, .input2, .input3, how = "align_right"),
+    .input = df1,
+    .input2 = df2,
+    .input3 = df3,
+    pl$DataFrame(
+      id = c(1L, 3L),
+      x = c(NA_integer_, NA_integer_),
+      y = c(NA, 6L),
+      z = c(7L, 8L)
+    )
+  )
+
+  ## Errors
+  expect_snapshot(
+    pl$concat(pl$Series("a", 1:2), pl$Series("b", 1:2), how = "align"),
+    error = TRUE
+  )
+  expect_snapshot(
+    pl$concat(pl$DataFrame(a = 1), pl$DataFrame(b = 1), how = "align"),
+    error = TRUE
+  )
+})

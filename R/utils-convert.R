@@ -42,6 +42,9 @@ NULL
 #' # A single difftime is converted to a duration string
 #' parse_as_duration_string(as.difftime(1, units = "days"))
 parse_as_duration_string <- function(x) {
+  if (is.null(x)) {
+    return(NULL)
+  }
   UseMethod("parse_as_duration_string")
 }
 
@@ -74,6 +77,7 @@ parse_as_duration_string.difftime <- function(x) {
     )
   }
 
+  # fmt: skip
   unit <- switch(attr(x, "units"),
     weeks = "w",
     days = "d",
@@ -135,6 +139,7 @@ parse_as_duration_string.clock_duration <- function(x) {
 
   precision <- clock::duration_precision(x)
 
+  # fmt: skip
   unit <- switch(precision,
     nanosecond = "ns",
     microsecond = "us",

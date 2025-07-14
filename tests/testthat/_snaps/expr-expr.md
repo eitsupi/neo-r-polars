@@ -1,3 +1,39 @@
+# map_batches works
+
+    Code
+      .data$select(pl$col("a")$map_batches(function(...) integer))
+    Condition
+      Error:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$collect()`.
+      Caused by error in `as_polars_series()`:
+      ! a function can't be converted to a polars Series.
+      Error:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! User function raised an error
+
+---
+
+    Code
+      .data$select(pl$col("a")$map_batches(function(...) 0+1i))
+    Condition
+      Error:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$collect()`.
+      Caused by error in `as_polars_series()`:
+      ! the complex number 0+1i can't be converted to a polars Series.
+      Error:
+      ! Evaluation failed in `$select()`.
+      Caused by error:
+      ! Evaluation failed in `$collect()`.
+      Caused by error:
+      ! User function raised an error
+
 # $over() with mapping_strategy
 
     Code
@@ -8,9 +44,9 @@
       Caused by error:
       ! Evaluation failed in `$collect()`.
       Caused by error:
-      ! the length of the window expression did not match that of the group
+      ! lengths don't match: the length of the window expression did not match that of the group
       
-      Error originated in expression: 'col("val").top_k([dyn float: 2.0]).over([col("a")])'
+      Error originated in expression: 'col("val").top_k([2.0]).over([col("a")])'
 
 # to_physical + cast
 
@@ -49,7 +85,9 @@
       Caused by error:
       ! Evaluation failed in `$exclude()`.
       Caused by error:
-      ! cannot exclude by both column name and dtype; use a selector instead
+      ! Invalid `...` elements.
+      * All elements in `...` must be either single strings or Polars data types.
+      i `cs$exclude()` accepts mixing column names and Polars data types.
 
 ---
 
@@ -137,7 +175,7 @@
       Caused by error:
       ! `closed` must be one of "both", "left", "right", or "none", not "foo".
 
-# rolling_*_by only works with date/datetime
+# rolling_*_by only works with date, datetime, or integers
 
     Code
       df$select(pl$col("a")$rolling_min_by(1, window_size = "2d"))
@@ -182,11 +220,8 @@
 
     Code
       pl$lit(1:5)$diff(99^99)
-    Condition
-      Error:
-      ! Evaluation failed in `$diff()`.
-      Caused by error:
-      ! 3.697296376497268e197 is out of range that can be safely converted to i64
+    Output
+      Series[literal].diff([3.6973e197])
 
 ---
 
@@ -206,7 +241,17 @@
       Error:
       ! Evaluation failed in `$reshape()`.
       Caused by error:
-      ! Argument `dimensions` must be numeric, not character
+      ! `dimensions` only accepts integer-ish values.
+
+---
+
+    Code
+      pl$lit(1:12)$reshape(NaN)
+    Condition
+      Error:
+      ! Evaluation failed in `$reshape()`.
+      Caused by error:
+      ! `dimensions` must not contain any NA values.
 
 ---
 
@@ -216,7 +261,7 @@
       Error:
       ! Evaluation failed in `$reshape()`.
       Caused by error:
-      ! Should not reach here!
+      ! `dimensions` only accepts integer-ish values.
 
 # shuffle
 

@@ -1,11 +1,25 @@
 ^\.devcontainer$
+^\.github$
 ^\.vscode$
 ^LICENSE\.md$
+^\.cache$
 ^\.task$
 ^Taskfile\.yml$
+^\.editorconfig$
+^air\.toml$
+^\.lintr\.R$
+^\.lycheeignore$
 
+^dev$
 ^src/Makevars$
-^src/rust/.cargo$
+^src/Makevars\.win$
+^src/rust/\.cargo$
+^src/rust-toolchain\.toml$
 ^src/rust/target$
+^bootstrap\.R$
 ^README\.Rmd$
 ^DEVELOPMENT\.md$
+^\.mega-linter\.yml$
+
+^altdoc$
+^docs$

@@ -8,7 +8,8 @@
 \method{as.list}{polars_data_frame}(
   x,
   ...,
-  as_series = FALSE,
+  as_series = TRUE,
+  uint8 = c("integer", "raw"),
   int64 = c("double", "character", "integer", "integer64"),
   date = c("Date", "IDate"),
   time = c("hms", "ITime"),
@@ -22,7 +23,8 @@
 \method{as.list}{polars_lazy_frame}(
   x,
   ...,
-  as_series = FALSE,
+  as_series = TRUE,
+  uint8 = c("integer", "raw"),
   int64 = c("double", "character", "integer", "integer64"),
   date = c("Date", "IDate"),
   time = c("hms", "ITime"),
@@ -39,7 +41,15 @@
 \item{...}{Passed to \code{\link[=as_polars_df]{as_polars_df()}}.}
 
 \item{as_series}{Whether to convert each column to an \link[=vector]{R vector} or a \link{Series}.
-If \code{TRUE}, return a list of \link{Series}, otherwise a list of \link[=vector]{vectors} (default).}
+If \code{TRUE} (default), return a list of \link{Series}, otherwise a list of \link[=vector]{vectors}.}
+
+\item{uint8}{Determine how to convert Polars' UInt8 type values to R type.
+One of the followings:
+\itemize{
+\item \code{"integer"} (default): Convert to the R's \link{integer} type.
+\item \code{"raw"}: Convert to the R's \link{raw} type.
+If the value is \code{null}, export as \code{00}.
+}}
 
 \item{int64}{Determine how to convert Polars' Int64, UInt32, or UInt64 type values to R type.
 One of the followings:
@@ -65,6 +75,7 @@ One of the followings:
 One of the followings:
 \itemize{
 \item \code{"hms"} (default): Convert to the \link[hms:hms]{hms::hms} class.
+If the \link[hms:hms-package]{hms} package is not installed, a warning will be shown.
 \item \code{"ITime"}: Convert to the \link[data.table:IDateTime]{data.table::ITime} class.
 The \link[data.table:data.table]{data.table} package must be installed.
 }}
@@ -121,11 +132,13 @@ One of the followings:
 A \link{list}
 }
 \description{
-This S3 method calls \code{\link[=dataframe__get_columns]{as_polars_df(x, ...)$get_columns()}} or
-\code{as_polars_df(x, ...)$to_struct()$to_r_vector(ensure_vector = TRUE)} depending on the \code{as_series} argument.
+These S3 methods call \code{\link[=dataframe__get_columns]{as_polars_df(x, ...)$get_columns()}} with
+\code{\link[rlang:set_names]{rlang::set_names()}}, or, \code{as_polars_df(x, ...)$to_struct()$to_r_vector() |> as.list()}
+depending on the \code{as_series} argument.
 }
 \details{
-Arguments other than \code{x} and \code{as_series} are passed to \code{\link[=series__to_r_vector]{<Series>$to_r_vector()}},
+Arguments other than \code{x} and \code{as_series} are passed to
+\code{\link[=series__to_r_vector]{<Series>$to_r_vector()}},
 so they are ignored when \code{as_series=TRUE}.
 }
 \examples{

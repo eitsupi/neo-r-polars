@@ -34,7 +34,7 @@ as_polars_df(x, ...)
   comm_subexpr_elim = TRUE,
   cluster_with_columns = TRUE,
   no_optimization = FALSE,
-  streaming = FALSE
+  engine = c("auto", "in-memory", "streaming")
 )
 
 \method{as_polars_df}{list}(x, ...)
@@ -66,38 +66,53 @@ from the struct \link{Series}. In this case, the \code{column_name} argument is 
 
 \item{slice_pushdown}{A logical, indicats slice pushdown optimization.}
 
-\item{comm_subplan_elim}{A logical, indicats tring to cache branching subplans that occur on self-joins or unions.}
+\item{comm_subplan_elim}{A logical, indicats tring to cache branching subplans that occur
+on self-joins or unions.}
 
 \item{comm_subexpr_elim}{A logical, indicats tring to cache common subexpressions.}
 
-\item{cluster_with_columns}{A logical, indicats to combine sequential independent calls to with_columns.}
+\item{cluster_with_columns}{A logical, indicats to combine sequential independent calls
+to with_columns.}
 
 \item{no_optimization}{A logical. If \code{TRUE}, turn off (certain) optimizations.}
 
-\item{streaming}{A logical. If \code{TRUE}, process the query in batches to handle larger-than-memory data.
-If \code{FALSE} (default), the entire query is processed in a single batch.
-Note that streaming mode is considered unstable.
-It may be changed at any point without it being considered a breaking change.}
+\item{engine}{The engine name to use for processing the query.
+One of the followings:
+\itemize{
+\item \code{"auto"} (default): Select the engine automatically.
+The \code{"in-memory"} engine will be selected for most cases.
+\item \code{"in-memory"}: Use the in-memory engine.
+\item \code{"streaming"}: \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Use the (new) streaming engine.
+}}
 }
 \value{
 A polars \link{DataFrame}
 }
 \description{
 The \code{\link[=as_polars_df]{as_polars_df()}} function creates a \link[=DataFrame]{polars DataFrame} from various R objects.
-\link[=DataFrame]{Polars DataFrame} is based on a sequence of \link[=Series]{Polars Series},
-so basically, the input object is converted to a \link{list} of
-\link[=Series]{Polars Series} by \code{\link[=as_polars_series]{as_polars_series()}},
-then a \link[=DataFrame]{Polars DataFrame} is created from the list.
+Because \link[=DataFrame]{Polars DataFrame} can be converted to a \link[=pl__Struct]{struct type} \link{Series}
+and vice versa, objects that are converted to a \link[=pl__Struct]{struct type} type \link{Series} by
+\code{\link[=as_polars_series]{as_polars_series()}} are supported by this function.
 }
 \details{
-The default method of \code{\link[=as_polars_df]{as_polars_df()}} throws an error,
-so we need to define methods for the classes we want to support.
+\subsection{Default S3 method}{
+
+Basically, this method is a shortcut for \code{as_polars_series(x, ...)$struct$unnest()}.
+Before converting the object to a \link{Series}, the \code{\link[=infer_polars_dtype]{infer_polars_dtype()}} function is used
+to check if the object can be converted to a \link[=pl__Struct]{struct dtype}.
+}
+
 \subsection{S3 method for \link{list}}{
 \itemize{
-\item The argument \code{...} (except \code{name}) is passed to \code{\link[=as_polars_series]{as_polars_series()}} for each element of the list.
-\item All elements of the list must be converted to the same length of \link{Series} by \code{\link[=as_polars_series]{as_polars_series()}}.
+\item The argument \code{...} (except \code{name}) is passed to \code{\link[=as_polars_series]{as_polars_series()}}
+for each element of the list.
+\item All elements of the list must be converted to \link{Series} by \code{\link[=as_polars_series]{as_polars_series()}}.
+\item All of the \link{Series} must be converted to the same length, except for the case of length 1,
+which will be recycled to match the length of the other \link{Series}
+if they have a length other than 1.
 \item The name of the each element is used as the column name of the \link{DataFrame}.
-For unnamed elements, the column name will be an empty string \code{""} or if the element is a \link{Series},
+For unnamed elements, the column name will be an empty string \code{""} or if the element is
+a \link{Series},
 the column name will be the name of the \link{Series}.
 }
 }
@@ -112,8 +127,10 @@ the column name will be the name of the \link{Series}.
 \subsection{S3 method for \link[=Series]{polars_series}}{
 
 This is a shortcut for \code{\link[=series__to_frame]{<Series>$to_frame()}} or
-\code{\link[=series_struct_unnest]{<Series>$struct$unnest()}}, depending on the \code{from_struct} argument and the \link{Series} data type.
-The \code{column_name} argument is passed to the \code{name} argument of the \code{\link[=series__to_frame]{$to_frame()}} method.
+\code{\link[=series_struct_unnest]{<Series>$struct$unnest()}}, depending on the \code{from_struct} argument
+and the \link{Series} data type.
+The \code{column_name} argument is passed to the \code{name} argument of the
+\code{\link[=series__to_frame]{$to_frame()}} method.
 }
 
 \subsection{S3 method for \link[=LazyFrame]{polars_lazy_frame}}{
@@ -145,6 +162,7 @@ as_polars_df(s_struct)
 \seealso{
 \itemize{
 \item \code{\link[=as.list.polars_data_frame]{as.list(<polars_data_frame>)}}: Export the DataFrame as an R list.
-\item \code{\link[=as.data.frame.polars_data_frame]{as.data.frame(<polars_data_frame>)}}: Export the DataFrame as an R data frame.
+\item \code{\link[=as.data.frame.polars_data_frame]{as.data.frame(<polars_data_frame>)}}:
+Export the DataFrame as an R data frame.
 }
 }

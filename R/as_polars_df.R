@@ -2,20 +2,27 @@
 #' Create a Polars DataFrame from an R object
 #'
 #' The [as_polars_df()] function creates a [polars DataFrame][DataFrame] from various R objects.
-#' [Polars DataFrame][DataFrame] is based on a sequence of [Polars Series][Series],
-#' so basically, the input object is converted to a [list] of
-#' [Polars Series][Series] by [as_polars_series()],
-#' then a [Polars DataFrame][DataFrame] is created from the list.
+#' Because [Polars DataFrame][DataFrame] can be converted to a [struct type][pl__Struct] [Series]
+#' and vice versa, objects that are converted to a [struct type][pl__Struct] type [Series] by
+#' [as_polars_series()] are supported by this function.
 #'
-#' The default method of [as_polars_df()] throws an error,
-#' so we need to define methods for the classes we want to support.
+#' ## Default S3 method
+#'
+#' Basically, this method is a shortcut for `as_polars_series(x, ...)$struct$unnest()`.
+#' Before converting the object to a [Series], the [infer_polars_dtype()] function is used
+#' to check if the object can be converted to a [struct dtype][pl__Struct].
 #'
 #' ## S3 method for [list]
 #'
-#' - The argument `...` (except `name`) is passed to [as_polars_series()] for each element of the list.
-#' - All elements of the list must be converted to the same length of [Series] by [as_polars_series()].
+#' - The argument `...` (except `name`) is passed to [as_polars_series()]
+#'   for each element of the list.
+#' - All elements of the list must be converted to [Series] by [as_polars_series()].
+#' - All of the [Series] must be converted to the same length, except for the case of length 1,
+#'   which will be recycled to match the length of the other [Series]
+#'   if they have a length other than 1.
 #' - The name of the each element is used as the column name of the [DataFrame].
-#'   For unnamed elements, the column name will be an empty string `""` or if the element is a [Series],
+#'   For unnamed elements, the column name will be an empty string `""` or if the element is
+#'   a [Series],
 #'   the column name will be the name of the [Series].
 #'
 #' ## S3 method for [data.frame]
@@ -26,8 +33,10 @@
 #' ## S3 method for [polars_series][Series]
 #'
 #' This is a shortcut for [`<Series>$to_frame()`][series__to_frame] or
-#' [`<Series>$struct$unnest()`][series_struct_unnest], depending on the `from_struct` argument and the [Series] data type.
-#' The `column_name` argument is passed to the `name` argument of the [`$to_frame()`][series__to_frame] method.
+#' [`<Series>$struct$unnest()`][series_struct_unnest], depending on the `from_struct` argument
+#' and the [Series] data type.
+#' The `column_name` argument is passed to the `name` argument of the
+#' [`$to_frame()`][series__to_frame] method.
 #'
 #' ## S3 method for [polars_lazy_frame][LazyFrame]
 #'
@@ -43,7 +52,8 @@
 #' from the struct [Series]. In this case, the `column_name` argument is ignored.
 #' @seealso
 #' - [`as.list(<polars_data_frame>)`][as.list.polars_data_frame]: Export the DataFrame as an R list.
-#' - [`as.data.frame(<polars_data_frame>)`][as.data.frame.polars_data_frame]: Export the DataFrame as an R data frame.
+#' - [`as.data.frame(<polars_data_frame>)`][as.data.frame.polars_data_frame]:
+#'   Export the DataFrame as an R data frame.
 #' @examples
 #' # list
 #' as_polars_df(list(a = 1:2, b = c("foo", "bar")))
@@ -72,18 +82,46 @@ as_polars_df <- function(x, ...) {
 #' @rdname as_polars_df
 #' @export
 as_polars_df.default <- function(x, ...) {
-  abort(
-    paste0("Unsupported class for `as_polars_df()`: ", toString(class(x))),
-    call = parent.frame()
+  dtype <- try_fetch(
+    infer_polars_dtype(x, ...),
+    error = function(cnd) {
+      abort(
+        c(
+          "This object can't be converted to a Polars Series, and hence to a Polars DataFrame.",
+          `*` = sprintf(
+            "%s can't be converted to a Polars Series by `as_polars_series()`.",
+            obj_type_friendly(x)
+          ),
+          i = "The object must be converted to a struct type Series by `as_polars_series()` first."
+        ),
+        parent = cnd
+      )
+    }
   )
+  if (inherits(dtype, "polars_dtype_struct")) {
+    as_polars_series(x, ...)$struct$unnest()
+  } else {
+    abort(
+      c(
+        "This object is not supported for the default method of `as_polars_df()`.",
+        `*` = sprintf(
+          "It requires `x` to be Series with struct type, got: %s.",
+          format(dtype, abbreviated = TRUE)
+        ),
+        i = "Use `infer_polars_dtype()` to check the data type of the object."
+      )
+    )
+  }
 }
 
 #' @rdname as_polars_df
 #' @export
 as_polars_df.polars_series <- function(
-    x, ...,
-    column_name = NULL,
-    from_struct = TRUE) {
+  x,
+  ...,
+  column_name = NULL,
+  from_struct = TRUE
+) {
   if (isTRUE(from_struct) && inherits(x$dtype, "polars_dtype_struct")) {
     x$struct$unnest()
   } else {
@@ -106,16 +144,19 @@ as_polars_df.polars_group_by <- function(x, ...) {
 #' @rdname as_polars_df
 #' @export
 as_polars_df.polars_lazy_frame <- function(
-    x, ..., type_coercion = TRUE,
-    predicate_pushdown = TRUE,
-    projection_pushdown = TRUE,
-    simplify_expression = TRUE,
-    slice_pushdown = TRUE,
-    comm_subplan_elim = TRUE,
-    comm_subexpr_elim = TRUE,
-    cluster_with_columns = TRUE,
-    no_optimization = FALSE,
-    streaming = FALSE) {
+  x,
+  ...,
+  type_coercion = TRUE,
+  predicate_pushdown = TRUE,
+  projection_pushdown = TRUE,
+  simplify_expression = TRUE,
+  slice_pushdown = TRUE,
+  comm_subplan_elim = TRUE,
+  comm_subexpr_elim = TRUE,
+  cluster_with_columns = TRUE,
+  no_optimization = FALSE,
+  engine = c("auto", "in-memory", "streaming")
+) {
   x$collect(
     type_coercion = type_coercion,
     predicate_pushdown = predicate_pushdown,
@@ -125,7 +166,8 @@ as_polars_df.polars_lazy_frame <- function(
     comm_subplan_elim = comm_subplan_elim,
     comm_subexpr_elim = comm_subexpr_elim,
     cluster_with_columns = cluster_with_columns,
-    streaming = streaming
+    no_optimization = no_optimization,
+    engine = engine
   )
 }
 
@@ -135,7 +177,31 @@ as_polars_df.list <- function(x, ...) {
   .args <- list2(...)
   # Should not pass the `name` argument
   .args$name <- NULL
-  lapply(x, \(column) eval(call2("as_polars_series", column, !!!.args))$`_s`) |>
+  list_of_series <- lapply(x, \(column) eval(call2("as_polars_series", column, !!!.args)))
+
+  # Series with length 1 should be recycled
+  unique_lengths <- unique(lengths(list_of_series))
+  n_lengths <- length(unique_lengths)
+
+  list_of_plr_series <- if (n_lengths <= 1L) {
+    list_of_series |>
+      lapply(\(series) series$`_s`)
+  } else {
+    n_rows <- max(unique_lengths[unique_lengths != 1L])
+    list_of_series |>
+      lapply(
+        \(series) {
+          if (length(series) == 1L) {
+            # Recycle the series with length 1
+            pl$select(pl$repeat_(series, n_rows))$to_series()$`_s`
+          } else {
+            series$`_s`
+          }
+        }
+      )
+  }
+
+  list_of_plr_series |>
     PlRDataFrame$init() |>
     wrap()
 }

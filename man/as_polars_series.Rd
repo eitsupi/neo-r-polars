@@ -5,6 +5,7 @@
 \alias{as_polars_series.default}
 \alias{as_polars_series.polars_series}
 \alias{as_polars_series.polars_data_frame}
+\alias{as_polars_series.polars_lazy_frame}
 \alias{as_polars_series.double}
 \alias{as_polars_series.integer}
 \alias{as_polars_series.character}
@@ -15,6 +16,7 @@
 \alias{as_polars_series.POSIXct}
 \alias{as_polars_series.POSIXlt}
 \alias{as_polars_series.difftime}
+\alias{as_polars_series.numeric_version}
 \alias{as_polars_series.hms}
 \alias{as_polars_series.blob}
 \alias{as_polars_series.array}
@@ -22,6 +24,10 @@
 \alias{as_polars_series.list}
 \alias{as_polars_series.AsIs}
 \alias{as_polars_series.data.frame}
+\alias{as_polars_series.nanoarrow_array_stream}
+\alias{as_polars_series.nanoarrow_array}
+\alias{as_polars_series.RecordBatchReader}
+\alias{as_polars_series.ArrowTabular}
 \alias{as_polars_series.integer64}
 \alias{as_polars_series.ITime}
 \alias{as_polars_series.vctrs_unspecified}
@@ -39,6 +45,8 @@ as_polars_series(x, name = NULL, ...)
 \method{as_polars_series}{polars_series}(x, name = NULL, ...)
 
 \method{as_polars_series}{polars_data_frame}(x, name = NULL, ...)
+
+\method{as_polars_series}{polars_lazy_frame}(x, name = NULL, ...)
 
 \method{as_polars_series}{double}(x, name = NULL, ...)
 
@@ -60,6 +68,8 @@ as_polars_series(x, name = NULL, ...)
 
 \method{as_polars_series}{difftime}(x, name = NULL, ...)
 
+\method{as_polars_series}{numeric_version}(x, name = NULL, ...)
+
 \method{as_polars_series}{hms}(x, name = NULL, ...)
 
 \method{as_polars_series}{blob}(x, name = NULL, ...)
@@ -73,6 +83,14 @@ as_polars_series(x, name = NULL, ...)
 \method{as_polars_series}{AsIs}(x, name = NULL, ...)
 
 \method{as_polars_series}{data.frame}(x, name = NULL, ...)
+
+\method{as_polars_series}{nanoarrow_array_stream}(x, name = NULL, ...)
+
+\method{as_polars_series}{nanoarrow_array}(x, name = NULL, ...)
+
+\method{as_polars_series}{RecordBatchReader}(x, name = NULL, ...)
+
+\method{as_polars_series}{ArrowTabular}(x, name = NULL, ...)
 
 \method{as_polars_series}{integer64}(x, name = NULL, ...)
 
@@ -121,12 +139,14 @@ In R, a \link{list} can contain elements of different types, but in Polars (Apac
 all elements must have the same type.
 So the \code{\link[=as_polars_series]{as_polars_series()}} function automatically casts all elements to the same type
 or throws an error, depending on the \code{strict} argument.
+We can check the \link[=DataType]{data type} of the \link{Series} that will be created from
+the \link{list} by using the \code{\link[=infer_polars_dtype]{infer_polars_dtype()}} function in advance.
 If you want to create a list with all elements of the same type in R,
 consider using the \code{\link[vctrs:list_of]{vctrs::list_of()}} function.
 
 Since a \link{list} can contain another \link{list}, the \code{strict} argument is also used
-when creating \link{Series} from the inner \link{list} in the case of classes constructed on top of a \link{list},
-such as \link{data.frame} or \link[vctrs:new_rcrd]{vctrs_rcrd}.
+when creating \link{Series} from the inner \link{list} in the case of classes constructed
+on top of a \link{list}, such as \link{data.frame} or \link[vctrs:new_rcrd]{vctrs_rcrd}.
 }
 
 \subsection{S3 method for \link{Date}}{
@@ -167,9 +187,12 @@ the internal representation of seconds.
 Please check the \link[clock:duration-helper]{clock_duration} documentation for more details.
 }
 
-\subsection{S3 method for \link[=DataFrame]{polars_data_frame}}{
+\subsection{S3 methods for \link[=DataFrame]{polars_data_frame}, \link[=LazyFrame]{polars_lazy_frame},}{
 
-This method is a shortcut for \code{\link[=dataframe__to_struct]{<DataFrame>$to_struct()}}.
+and \link{data.frame}
+
+These methods are shortcuts for \code{as_polars_df(x, ...)$to_struct()}.
+See \code{\link[=as_polars_df]{as_polars_df()}} and \code{\link[=dataframe__to_struct]{<DataFrame>$to_struct()}} for more details.
 }
 }
 \examples{
@@ -186,7 +209,7 @@ as_polars_series(c(NA, "foo", "bar"))
 as_polars_series(c(NA, TRUE, FALSE))
 
 # raw
-as_polars_series(charToRaw("foo"))
+as_polars_series(as.raw(c(0, 16, 255)))
 
 # factor
 as_polars_series(factor(c(NA, "a", "b")))
@@ -216,6 +239,9 @@ as.difftime(c(0.0005, 0.0010, 0.0015, 0.0020), units = "secs") |>
 
 as.difftime(c(0.0005, 0.0010, 0.0015, 0.0020), units = "weeks") |>
   as_polars_series()
+
+# numeric_version
+as_polars_series(getRversion())
 
 # NULL
 as_polars_series(NULL)
@@ -274,5 +300,6 @@ if (requireNamespace("clock", quietly = TRUE)) {
 \itemize{
 \item \code{\link[=series__to_r_vector]{<Series>$to_r_vector()}}: Export the Series as an R vector.
 \item \code{\link[=as_polars_df]{as_polars_df()}}: Create a Polars DataFrame from an R object.
+\item \code{\link[=infer_polars_dtype]{infer_polars_dtype()}}: Infer the Polars \link{DataType} corresponding to an R object.
 }
 }

@@ -5,13 +5,11 @@ namespace_expr_cat <- function(x) {
   self <- new.env(parent = emptyenv())
   self$`_rexpr` <- x$`_rexpr`
 
-  lapply(names(polars_expr_cat_methods), function(name) {
-    fn <- polars_expr_cat_methods[[name]]
-    environment(fn) <- environment()
-    assign(name, fn, envir = self)
-  })
-
-  class(self) <- c("polars_namespace_expr", "polars_object")
+  class(self) <- c(
+    "polars_namespace_expr_cat",
+    "polars_namespace_expr",
+    "polars_object"
+  )
   self
 }
 
@@ -38,6 +36,8 @@ expr_cat_get_categories <- function() {
 
 #' Set Ordering
 #'
+#' @description
+#' `r lifecycle::badge("deprecated")`
 #' Determine how this categorical series should be sorted.
 #'
 #' @param ordering string either 'physical' or 'lexical'
@@ -46,24 +46,14 @@ expr_cat_get_categories <- function() {
 #' - `"lexical"`: use the string values to determine the order.
 #'
 #' @inherit as_polars_expr return
-#' @examples
-#' df <- pl$DataFrame(
-#'   cats = factor(c("z", "z", "k", "a", "b")),
-#'   vals = c(3, 1, 2, 2, 3)
-#' )
-#'
-#' # sort by the string value of categories
-#' df$with_columns(
-#'   pl$col("cats")$cat$set_ordering("lexical")
-#' )$sort("cats", "vals")
-#'
-#' # sort by the underlying value of categories
-#' df$with_columns(
-#'   pl$col("cats")$cat$set_ordering("physical")
-#' )$sort("cats", "vals")
 expr_cat_set_ordering <- function(ordering) {
   wrap({
-    deprecate_warn("$cat$set_ordering() is deprecated. Use pl$Categorical(<ordering>) when initiating the variable or with $cast() instead.")
+    deprecate_warn(
+      c(
+        `!` = "$cat$set_ordering() is deprecated.",
+        i = "Use `pl$Categorical(<ordering>)` when initiating or with `$cast()` instead."
+      )
+    )
     ordering <- arg_match0(ordering, values = c("lexical", "physical"))
     self$`_rexpr`$cat_set_ordering(ordering)
   })

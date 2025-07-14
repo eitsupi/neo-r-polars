@@ -7,7 +7,8 @@
 #'
 #' ## Default S3 method
 #'
-#' Create a [DataFrame] by calling [as_polars_df()] and then create a [LazyFrame] from the [DataFrame].
+#' Create a [DataFrame] by calling [as_polars_df()] and then create
+#' a [LazyFrame] from the [DataFrame].
 #' Additional arguments `...` are passed to [as_polars_df()].
 #' @inherit pl__LazyFrame return
 #' @inheritParams as_polars_df
@@ -19,7 +20,15 @@ as_polars_lf <- function(x, ...) {
 #' @rdname as_polars_lf
 #' @export
 as_polars_lf.default <- function(x, ...) {
-  as_polars_df(x, ...)$lazy()
+  try_fetch(
+    as_polars_df(x, ...)$lazy(),
+    error = function(cnd) {
+      abort(
+        "Failed to create a polars LazyFrame.",
+        parent = cnd
+      )
+    }
+  )
 }
 
 #' @rdname as_polars_lf

@@ -1,6 +1,6 @@
-use crate::{prelude::*, PlRExpr};
+use crate::{PlRExpr, prelude::*};
 use polars::prelude::*;
-use savvy::{savvy, NumericScalar, NumericSexp, Result};
+use savvy::{NumericScalar, NumericSexp, Result, savvy};
 
 #[savvy]
 impl PlRExpr {
@@ -12,10 +12,7 @@ impl PlRExpr {
         min_periods: Option<NumericScalar>,
     ) -> Result<Self> {
         let window_size = <Wrap<usize>>::try_from(window_size)?.0;
-        let weights: Option<Vec<f64>> = match weights {
-            Some(x) => Some(x.as_slice_f64().into()),
-            None => None,
-        };
+        let weights: Option<Vec<f64>> = weights.map(|x| x.as_slice_f64().into());
         let min_periods: usize = match min_periods {
             Some(x) => <Wrap<usize>>::try_from(x)?.0,
             None => window_size,
@@ -60,10 +57,7 @@ impl PlRExpr {
         min_periods: Option<NumericScalar>,
     ) -> Result<Self> {
         let window_size = <Wrap<usize>>::try_from(window_size)?.0;
-        let weights: Option<Vec<f64>> = match weights {
-            Some(x) => Some(x.as_slice_f64().into()),
-            None => None,
-        };
+        let weights: Option<Vec<f64>> = weights.map(|x| x.as_slice_f64().into());
         let min_periods: usize = match min_periods {
             Some(x) => <Wrap<usize>>::try_from(x)?.0,
             None => window_size,
@@ -108,10 +102,7 @@ impl PlRExpr {
         min_periods: Option<NumericScalar>,
     ) -> Result<Self> {
         let window_size = <Wrap<usize>>::try_from(window_size)?.0;
-        let weights: Option<Vec<f64>> = match weights {
-            Some(x) => Some(x.as_slice_f64().into()),
-            None => None,
-        };
+        let weights: Option<Vec<f64>> = weights.map(|x| x.as_slice_f64().into());
         let min_periods: usize = match min_periods {
             Some(x) => <Wrap<usize>>::try_from(x)?.0,
             None => window_size,
@@ -156,10 +147,7 @@ impl PlRExpr {
         min_periods: Option<NumericScalar>,
     ) -> Result<Self> {
         let window_size = <Wrap<usize>>::try_from(window_size)?.0;
-        let weights: Option<Vec<f64>> = match weights {
-            Some(x) => Some(x.as_slice_f64().into()),
-            None => None,
-        };
+        let weights: Option<Vec<f64>> = weights.map(|x| x.as_slice_f64().into());
         let min_periods: usize = match min_periods {
             Some(x) => <Wrap<usize>>::try_from(x)?.0,
             None => window_size,
@@ -208,10 +196,7 @@ impl PlRExpr {
     ) -> Result<Self> {
         let ddof = <Wrap<u8>>::try_from(ddof)?.0;
         let window_size = <Wrap<usize>>::try_from(window_size)?.0;
-        let weights: Option<Vec<f64>> = match weights {
-            Some(x) => Some(x.as_slice_f64().into()),
-            None => None,
-        };
+        let weights: Option<Vec<f64>> = weights.map(|x| x.as_slice_f64().into());
         let min_periods: usize = match min_periods {
             Some(x) => <Wrap<usize>>::try_from(x)?.0,
             None => window_size,
@@ -262,10 +247,7 @@ impl PlRExpr {
     ) -> Result<Self> {
         let ddof = <Wrap<u8>>::try_from(ddof)?.0;
         let window_size = <Wrap<usize>>::try_from(window_size)?.0;
-        let weights: Option<Vec<f64>> = match weights {
-            Some(x) => Some(x.as_slice_f64().into()),
-            None => None,
-        };
+        let weights: Option<Vec<f64>> = weights.map(|x| x.as_slice_f64().into());
         let min_periods: usize = match min_periods {
             Some(x) => <Wrap<usize>>::try_from(x)?.0,
             None => window_size,
@@ -314,10 +296,7 @@ impl PlRExpr {
         min_periods: Option<NumericScalar>,
     ) -> Result<Self> {
         let window_size = <Wrap<usize>>::try_from(window_size)?.0;
-        let weights: Option<Vec<f64>> = match weights {
-            Some(x) => Some(x.as_slice_f64().into()),
-            None => None,
-        };
+        let weights: Option<Vec<f64>> = weights.map(|x| x.as_slice_f64().into());
         let min_periods: usize = match min_periods {
             Some(x) => <Wrap<usize>>::try_from(x)?.0,
             None => window_size,
@@ -364,10 +343,7 @@ impl PlRExpr {
         min_periods: Option<NumericScalar>,
     ) -> Result<Self> {
         let window_size = <Wrap<usize>>::try_from(window_size)?.0;
-        let weights: Option<Vec<f64>> = match weights {
-            Some(x) => Some(x.as_slice_f64().into()),
-            None => None,
-        };
+        let weights: Option<Vec<f64>> = weights.map(|x| x.as_slice_f64().into());
         let interpolation = <Wrap<QuantileMethod>>::try_from(interpolation)?.0;
         let min_periods: usize = match min_periods {
             Some(x) => <Wrap<usize>>::try_from(x)?.0,
@@ -414,9 +390,26 @@ impl PlRExpr {
             .into())
     }
 
-    fn rolling_skew(&self, window_size: NumericScalar, bias: bool) -> Result<Self> {
+    fn rolling_skew(
+        &self,
+        window_size: NumericScalar,
+        bias: bool,
+        center: bool,
+        min_samples: Option<NumericScalar>,
+    ) -> Result<Self> {
         let window_size = <Wrap<usize>>::try_from(window_size)?.0;
-        Ok(self.inner.clone().rolling_skew(window_size, bias).into())
+        let min_periods: usize = match min_samples {
+            Some(x) => <Wrap<usize>>::try_from(x)?.0,
+            None => window_size,
+        };
+        let options = RollingOptionsFixedWindow {
+            window_size,
+            weights: None,
+            min_periods,
+            center,
+            fn_params: Some(RollingFnParams::Skew { bias }),
+        };
+        Ok(self.inner.clone().rolling_skew(options).into())
     }
 
     // fn rolling_map(

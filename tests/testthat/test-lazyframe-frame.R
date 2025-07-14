@@ -1,3 +1,46 @@
+patrick::with_parameters_test_that(
+  "roundtrip around serialization",
+  .cases = {
+    tmpf <- withr::local_tempfile(fileext = ".arrow")
+    pl$DataFrame(a = 1, b = "foo")$write_ipc(tmpf)
+
+    tibble::tribble(
+      ~.test_name, ~x,
+      "empty", as_polars_lf(NULL),
+      "dataframe", pl$LazyFrame(a = 1:3, b = letters[1:3]),
+      "scan", pl$scan_ipc(tmpf),
+    )
+  },
+  code = {
+    serialized <- x$serialize()
+    expect_type(serialized, "raw")
+
+    expect_equal(pl$deserialize_lf(serialized)$collect(), x$collect())
+  }
+)
+
+test_that("Can't serialize lazyframe includes map function", {
+  expect_snapshot(
+    pl$LazyFrame()$select(pl$lit(1)$map_batches(\(x) x + 1))$serialize(),
+    error = TRUE
+  )
+})
+
+test_that("deserialize lazyframe' error", {
+  expect_snapshot(
+    pl$deserialize_lf(0L),
+    error = TRUE
+  )
+  expect_snapshot(
+    pl$deserialize_lf(raw(0)),
+    error = TRUE
+  )
+  expect_snapshot(
+    pl$deserialize_lf(as.raw(1:100)),
+    error = TRUE
+  )
+})
+
 test_that("select works lazy/eager", {
   .data <- pl$DataFrame(
     int32 = 1:5,
@@ -17,6 +60,30 @@ test_that("select works lazy/eager", {
   )
   expect_query_equal(
     .input$select(foo = "int32"),
+    .data,
+    pl$DataFrame(foo = 1:5)
+  )
+})
+
+test_that("select_seq() works", {
+  .data <- pl$DataFrame(
+    int32 = 1:5,
+    int64 = as_polars_series(1:5)$cast(pl$Int64),
+    string = letters[1:5],
+  )
+
+  expect_query_equal(
+    .input$select_seq("int32"),
+    .data,
+    pl$DataFrame(int32 = 1:5)
+  )
+  expect_query_equal(
+    .input$select_seq(pl$lit("int32")),
+    .data,
+    pl$DataFrame(literal = "int32")
+  )
+  expect_query_equal(
+    .input$select_seq(foo = "int32"),
     .data,
     pl$DataFrame(foo = 1:5)
   )
@@ -93,7 +160,7 @@ test_that("slice/head/tail works lazy/eager", {
     .input$slice(0, -2),
     .data,
     pl$DataFrame(foo = 1:3, bar = 6:8),
-    r"(negative slice length \(-2\) are invalid for LazyFrame)"
+    r"(Negative slice `length` \(-2\) are invalid for LazyFrame)"
   )
 
   # head
@@ -111,7 +178,7 @@ test_that("slice/head/tail works lazy/eager", {
     .input$head(-4),
     .data,
     pl$DataFrame(foo = 1L, bar = 6L),
-    r"(negative slice length \(-4\) are invalid for LazyFrame)"
+    r"(Negative slice `length` \(-4\) are invalid for LazyFrame)"
   )
 
   # tail
@@ -131,4 +198,2279 @@ test_that("slice/head/tail works lazy/eager", {
     pl$DataFrame(foo = 5L, bar = 10L),
     r"(-4\.0 is out of range that can be safely converted to u32)"
   )
+})
+
+test_that("with_columns: basic usage", {
+  df <- pl$DataFrame(x = 1:2)
+
+  expect_query_equal(
+    .input$with_columns(y = 1 + pl$col("x"), z = pl$col("x")^2),
+    df,
+    pl$DataFrame(x = 1:2, y = c(2, 3), z = c(1, 4))
+  )
+
+  # cannot reuse defined variable in same statement
+  expect_query_error(
+    .input$with_columns(y = 1 + pl$col("x"), z = pl$col("y")^2),
+    df,
+    "Column(s) not found: y",
+    fixed = TRUE
+  )
+
+  # chaining multiple with_columns works
+  expect_query_equal(
+    .input$with_columns(y = 1 + pl$col("x"))$with_columns(z = pl$col("y")^2),
+    df,
+    pl$DataFrame(x = 1:2, y = c(2, 3), z = c(4, 9))
+  )
+})
+
+test_that("with_columns can create list variables", {
+  df <- pl$DataFrame(x = 1:2)
+
+  expect_query_equal(
+    .input$with_columns(y = list(1:2, 3:4)),
+    df,
+    pl$DataFrame(x = 1:2, y = list(1:2, 3:4))
+  )
+
+  expect_query_equal(
+    .input$with_columns(y = list(1:2, 3:4), z = list(c("a", "b"), c("c", "d"))),
+    df,
+    pl$DataFrame(x = 1:2, y = list(1:2, 3:4), z = list(c("a", "b"), c("c", "d")))
+  )
+})
+
+test_that("with_columns_seq: basic usage", {
+  df <- pl$DataFrame(x = 1:2)
+
+  expect_query_equal(
+    .input$with_columns_seq(y = 1 + pl$col("x"), z = pl$col("x")^2),
+    df,
+    pl$DataFrame(x = 1:2, y = c(2, 3), z = c(1, 4))
+  )
+
+  # cannot reuse defined variable in same statement
+  expect_query_error(
+    .input$with_columns_seq(y = 1 + pl$col("x"), z = pl$col("y")^2),
+    df,
+    "Column(s) not found: y",
+    fixed = TRUE
+  )
+
+  # chaining multiple with_columns_seq works
+  expect_query_equal(
+    .input$with_columns_seq(y = 1 + pl$col("x"))$with_columns_seq(z = pl$col("y")^2),
+    df,
+    pl$DataFrame(x = 1:2, y = c(2, 3), z = c(4, 9))
+  )
+})
+
+test_that("with_columns_seq can create list variables", {
+  df <- pl$DataFrame(x = 1:2)
+
+  expect_query_equal(
+    .input$with_columns_seq(y = list(1:2, 3:4)),
+    df,
+    pl$DataFrame(x = 1:2, y = list(1:2, 3:4))
+  )
+
+  expect_query_equal(
+    .input$with_columns_seq(y = list(1:2, 3:4), z = list(c("a", "b"), c("c", "d"))),
+    df,
+    pl$DataFrame(x = 1:2, y = list(1:2, 3:4), z = list(c("a", "b"), c("c", "d")))
+  )
+})
+
+test_that("bottom_k works", {
+  df <- pl$DataFrame(
+    a = c("a", "b", "a", "b", "b", "c"),
+    b = c(2, 1, 1, 3, 2, 1)
+  )
+  expect_query_equal(
+    .input$bottom_k(4, by = "b"),
+    df,
+    pl$DataFrame(a = c("b", "a", "c", "a"), b = c(1, 1, 1, 2))
+  )
+  expect_query_equal(
+    .input$bottom_k(4, by = c("a", "b")),
+    df,
+    pl$DataFrame(a = c("a", "a", "b", "b"), b = c(1, 2, 1, 2))
+  )
+  expect_query_error(
+    .input$bottom_k(4, by = 1),
+    df,
+    "lengths don't match"
+  )
+})
+
+test_that("top_k works", {
+  df <- pl$DataFrame(
+    a = c("a", "b", "a", "b", "b", "c"),
+    b = c(2, 1, 1, 3, 2, 1)
+  )
+  expect_query_equal(
+    .input$top_k(4, by = "b"),
+    df,
+    pl$DataFrame(a = c("b", "a", "b", "b"), b = c(3, 2, 2, 1))
+  )
+  expect_query_equal(
+    .input$top_k(4, by = c("a", "b")),
+    df,
+    pl$DataFrame(a = c("c", "b", "b", "b"), b = c(1, 3, 2, 1))
+  )
+  expect_query_error(
+    .input$top_k(4, by = 1),
+    df,
+    "lengths don't match"
+  )
+})
+
+test_that("merge_sorted works", {
+  df1 <- pl$DataFrame(
+    name = c("steve", "elise", "bob"),
+    age = c(42, 44, 18)
+  )$sort("age")
+
+  df2 <- pl$DataFrame(
+    name = c("anna", "megan", "steve", "thomas"),
+    age = c(21, 33, 42, 20)
+  )$sort("age")
+
+  expect_query_equal(
+    .input$merge_sorted(.input2, key = "age"),
+    .input = df1,
+    .input2 = df2,
+    pl$DataFrame(
+      name = c("bob", "thomas", "anna", "megan", "steve", "steve", "elise"),
+      age = c(18, 20, 21, 33, 42, 42, 44)
+    )
+  )
+  expect_query_error(
+    .input$merge_sorted(.input2, key = "foobar"),
+    .input = df1,
+    .input2 = df2,
+    'Column(s) not found: "foobar" not found',
+    fixed = TRUE
+  )
+})
+
+test_that("$to_dot() works", {
+  lf <- as_polars_lf(mtcars)
+  expect_snapshot(cat(lf$to_dot()))
+  expect_snapshot(cat(lf$select("am")$to_dot()))
+})
+
+test_that("set_sorted works", {
+  df1 <- pl$DataFrame(
+    name = c("steve", "elise", "bob"),
+    age = c(42, 44, 18)
+  )$set_sorted("age")
+
+  expect_true(df1$flags[["age"]][["SORTED_ASC"]])
+  expect_false(df1$flags[["name"]][["SORTED_ASC"]])
+
+  df1 <- pl$DataFrame(
+    name = c("steve", "elise", "bob"),
+    age = c(42, 44, 18)
+  )$set_sorted("age", descending = TRUE)
+
+  expect_true(df1$flags[["age"]][["SORTED_DESC"]])
+  expect_false(df1$flags[["name"]][["SORTED_DESC"]])
+})
+
+test_that("unique works", {
+  df <- pl$DataFrame(
+    foo = c(1, 2, 3, 1),
+    bar = c("a", "a", "a", "a"),
+    ham = c("b", "b", "b", "b"),
+  )
+  expect_query_equal(
+    .input$unique(maintain_order = TRUE),
+    .input = df,
+    pl$DataFrame(
+      foo = c(1, 2, 3),
+      bar = rep("a", 3),
+      ham = rep("b", 3)
+    )
+  )
+  expect_query_equal(
+    .input$unique(subset = c("bar", "ham"), maintain_order = TRUE),
+    .input = df,
+    pl$DataFrame(foo = 1, bar = "a", ham = "b")
+  )
+  expect_query_equal(
+    .input$unique(keep = "last", maintain_order = TRUE),
+    .input = df,
+    pl$DataFrame(
+      foo = c(2, 3, 1),
+      bar = rep("a", 3),
+      ham = rep("b", 3)
+    )
+  )
+  expect_query_error(
+    .input$unique(subset = "foobar", maintain_order = TRUE),
+    df,
+    'Column(s) not found: "foobar" not found',
+    fixed = TRUE
+  )
+  expect_query_error(
+    .input$unique(keep = "foobar", maintain_order = TRUE),
+    df,
+    "must be one of"
+  )
+})
+
+test_that("join: basic usage", {
+  df <- pl$DataFrame(
+    foo = 1:3,
+    bar = c(6, 7, 8),
+    ham = c("a", "b", "c")
+  )
+  other_df <- pl$DataFrame(
+    apple = c("x", "y", "z"),
+    ham = c("a", "b", "d")
+  )
+
+  # inner default
+  expect_query_equal(
+    .input$join(.input2, on = "ham"),
+    .input = df,
+    .input2 = other_df,
+    pl$DataFrame(
+      foo = 1:2,
+      bar = c(6, 7),
+      ham = c("a", "b"),
+      apple = c("x", "y")
+    )
+  )
+
+  # outer
+  expect_query_equal(
+    .input$join(.input2, on = "ham", how = "full"),
+    .input = df,
+    .input2 = other_df,
+    pl$DataFrame(
+      foo = c(1L, 2L, NA, 3L),
+      bar = c(6, 7, NA, 8),
+      ham = c("a", "b", NA, "c"),
+      apple = c("x", "y", "z", NA),
+      ham_right = c("a", "b", "d", NA)
+    )
+  )
+
+  # error on invalid 'how'
+  expect_query_error(
+    df$lazy()$join(other_df$lazy(), on = "ham", how = "foobar"),
+    "must be one of"
+  )
+  expect_query_error(
+    df$lazy()$join(other_df$lazy(), on = "ham", how = 42),
+    "must be a string or character vector"
+  )
+  # 'other' must be of same class
+  expect_query_error(
+    df$lazy()$join(other_df, on = "ham"),
+    "must be a polars lazy frame"
+  )
+})
+
+test_that("right join works", {
+  a <- pl$DataFrame(a = c(1, 2, 3), b = c(1, 2, 4))
+  b <- pl$DataFrame(a = c(1, 3), b = c(1, 3), c = c(1, 3))
+  expect_query_equal(
+    .input$join(.input2, on = "a", how = "right", coalesce = TRUE),
+    .input = a,
+    .input2 = b,
+    pl$DataFrame(
+      b = c(1, 4),
+      a = c(1, 3),
+      b_right = c(1, 3),
+      c = c(1, 3)
+    )
+  )
+  expect_query_equal(
+    .input$join(.input2, on = "a", how = "right", coalesce = FALSE),
+    .input = a,
+    .input2 = b,
+    pl$DataFrame(
+      a = c(1, 3),
+      b = c(1, 4),
+      a_right = c(1, 3),
+      b_right = c(1, 3),
+      c = c(1, 3)
+    )
+  )
+})
+
+test_that("semi and anti join", {
+  df_a <- pl$DataFrame(key = 1:3, payload = c("f", "i", NA))
+  df_b <- pl$DataFrame(key = c(3L, 4L, 5L, NA))
+
+  expect_query_equal(
+    .input$join(.input2, on = "key", how = "anti"),
+    .input = df_a,
+    .input2 = df_b,
+    pl$DataFrame(key = 1:2, payload = c("f", "i"))
+  )
+  expect_query_equal(
+    .input$join(.input2, on = "key", how = "semi"),
+    .input = df_a,
+    .input2 = df_b,
+    pl$DataFrame(key = 3L, payload = NA_character_)
+  )
+
+  df_a <- pl$DataFrame(a = c(1:3, 1L), b = c("a", "b", "c", "a"), payload = c(10L, 20L, 30L, 40L))
+  df_b <- pl$DataFrame(a = c(3L, 3L, 4L, 5L), b = c("c", "c", "d", "e"))
+
+  expect_query_equal(
+    .input$join(.input2, on = c("a", "b"), how = "anti"),
+    .input = df_a,
+    .input2 = df_b,
+    pl$DataFrame(a = c(1:2, 1L), b = c("a", "b", "a"), payload = c(10L, 20L, 40L))
+  )
+  expect_query_equal(
+    .input$join(.input2, on = c("a", "b"), how = "semi"),
+    .input = df_a,
+    .input2 = df_b,
+    pl$DataFrame(a = 3L, b = "c", payload = 30L)
+  )
+})
+
+test_that("cross join", {
+  dat <- pl$DataFrame(x = letters[1:3])
+  dat2 <- pl$DataFrame(y = 1:4)
+
+  expect_query_equal(
+    .input$join(.input2, how = "cross"),
+    .input = dat,
+    .input2 = dat2,
+    pl$DataFrame(
+      x = rep(letters[1:3], each = 4),
+      y = rep(1:4, 3)
+    )
+  )
+  expect_query_error(
+    dat$join(.input2, how = "cross", on = "foo"),
+    "cross join should not pass join keys"
+  )
+  expect_query_error(
+    dat$join(.input2, how = "cross", left_on = "foo", right_on = "foo2"),
+    "cross join should not pass join keys"
+  )
+
+  # one empty dataframe
+  dat_empty <- pl$DataFrame(y = character())
+  expect_query_equal(
+    .input$join(.input2, how = "cross"),
+    .input = dat,
+    .input2 = dat_empty,
+    pl$DataFrame(x = character(), y = character())
+  )
+  expect_query_equal(
+    .input$join(.input2, how = "cross"),
+    .input = dat_empty,
+    .input2 = dat,
+    pl$DataFrame(y = character(), x = character())
+  )
+
+  # suffix works
+  expect_query_equal(
+    .input$join(.input, how = "cross"),
+    .input = dat,
+    pl$DataFrame(
+      x = rep(letters[1:3], each = 3),
+      x_right = rep(letters[1:3], 3)
+    )
+  )
+})
+
+test_that("argument 'validate' works", {
+  df1 <- pl$DataFrame(x = letters[1:5], y = 1:5)
+  df2 <- pl$DataFrame(x = c("a", letters[1:4]), y2 = 6:10)
+
+  expect_query_error(
+    df1$lazy()$join(df2$lazy(), on = "x", validate = "1:1"),
+    "join keys did not fulfill 1:1 validation"
+  )
+  expect_query_error(
+    df1$lazy()$join(df2$lazy(), on = "x", validate = "m:1"),
+    "join keys did not fulfill m:1 validation"
+  )
+  expect_query_error(
+    df2$lazy()$join(df1$lazy(), on = "x", validate = "1:m"),
+    "join keys did not fulfill 1:m validation"
+  )
+  expect_query_error(
+    df2$lazy()$join(df1$lazy(), on = "x", validate = "foobar"),
+    "must be one of"
+  )
+})
+
+test_that("argument 'join_nulls' works", {
+  df1 <- pl$DataFrame(x = c(NA, letters[1:2]), y = 1:3)
+  df2 <- pl$DataFrame(x = c(NA, letters[2:3]), y2 = 4:6)
+
+  # discard nulls by default
+  expect_query_equal(
+    .input$join(.input2, on = "x"),
+    .input = df1,
+    .input2 = df2,
+    pl$DataFrame(x = "b", y = 3L, y2 = 5L)
+  )
+
+  # consider nulls as a valid key
+  expect_query_equal(
+    .input$join(.input2, on = "x", join_nulls = TRUE),
+    .input = df1,
+    .input2 = df2,
+    pl$DataFrame(x = c(NA, "b"), y = c(1L, 3L), y2 = c(4L, 5L))
+  )
+
+  # several nulls
+  df3 <- pl$DataFrame(x = c(NA, letters[2:3], NA), y2 = 4:7)
+  expect_query_equal(
+    .input$join(.input2, on = "x", join_nulls = TRUE),
+    .input = df1,
+    .input2 = df3,
+    pl$DataFrame(x = c(NA, "b", NA), y = c(1L, 3L, 1L), y2 = c(4L, 5L, 7L))
+  )
+})
+
+test_that("drop_nans works", {
+  df <- pl$DataFrame(
+    foo = c(1, NaN, 2.5),
+    bar = c(NaN, 110, 25.5),
+    ham = c("a", "b", NA)
+  )
+  expect_query_equal(
+    .input$drop_nans(),
+    .input = df,
+    pl$DataFrame(foo = 2.5, bar = 25.5, ham = NA_character_)
+  )
+  expect_query_equal(
+    .input$drop_nans("foo", "bar"),
+    .input = df,
+    pl$DataFrame(foo = 2.5, bar = 25.5, ham = NA_character_)
+  )
+  expect_query_equal(
+    .input$drop_nans("bar"),
+    .input = df,
+    pl$DataFrame(foo = c(NaN, 2.5), bar = c(110, 25.5), ham = c("b", NA))
+  )
+
+  df <- pl$DataFrame(
+    a = c(NaN, NaN, NaN, NaN),
+    b = c(10.0, 2.5, NaN, 5.25),
+    c = c(65.75, NaN, NaN, 10.5)
+  )
+  expect_query_equal(
+    .input$filter(!pl$all_horizontal(pl$all()$is_nan())),
+    .input = df,
+    pl$DataFrame(
+      a = c(NaN, NaN, NaN),
+      b = c(10.0, 2.5, 5.25),
+      c = c(65.75, NaN, 10.5)
+    )
+  )
+  expect_query_error(
+    .input$drop_nans(subset = cs$integer()),
+    .input = df,
+    "must be passed by position"
+  )
+})
+
+test_that("drop_nulls works", {
+  df <- pl$DataFrame(
+    foo = 1:3,
+    bar = c(6L, NA, 8L),
+    ham = c("a", "b", NA)
+  )
+  expect_query_equal(
+    .input$drop_nulls(),
+    .input = df,
+    pl$DataFrame(foo = 1L, bar = 6L, ham = "a")
+  )
+  expect_query_equal(
+    .input$drop_nulls("ham", "bar"),
+    .input = df,
+    pl$DataFrame(foo = 1L, bar = 6L, ham = "a")
+  )
+  expect_query_equal(
+    .input$drop_nulls(cs$integer()),
+    .input = df,
+    pl$DataFrame(foo = c(1L, 3L), bar = c(6L, 8L), ham = c("a", NA))
+  )
+  expect_query_error(
+    .input$drop_nulls(subset = cs$integer()),
+    .input = df,
+    "must be passed by position"
+  )
+})
+
+test_that("explain() works", {
+  lazy_query <- as_polars_lf(iris)$sort("Species")$filter(pl$col("Species") != "setosa")
+
+  expect_error(
+    lazy_query$explain(format = "foobar"),
+    "`format` must be one of"
+  )
+  expect_error(
+    lazy_query$explain(format = 1),
+    "`format` must be a string or character vector"
+  )
+
+  expect_snapshot(cat(lazy_query$explain(optimized = FALSE)))
+  expect_snapshot(cat(lazy_query$explain()))
+
+  expect_snapshot(cat(lazy_query$explain(format = "tree", optimized = FALSE)))
+  expect_snapshot(cat(lazy_query$explain(format = "tree", )))
+})
+
+test_that("$cast() works", {
+  df <- pl$DataFrame(
+    foo = 1:3,
+    bar = c(6, 7, 8),
+    ham = as.Date(c("2020-01-02", "2020-03-04", "2020-05-06"))
+  )
+
+  expect_query_equal(
+    .input$cast(foo = pl$Float32, bar = pl$UInt8),
+    df,
+    pl$DataFrame(
+      foo = 1:3,
+      bar = c(6, 7, 8),
+      ham = as.Date(c("2020-01-02", "2020-03-04", "2020-05-06")),
+      .schema_overrides = list(foo = pl$Float32, bar = pl$UInt8, ham = pl$Date)
+    )
+  )
+
+  expect_query_equal(
+    .input$cast(pl$String),
+    df,
+    pl$DataFrame(
+      foo = 1:3,
+      bar = c(6, 7, 8),
+      ham = as.Date(c("2020-01-02", "2020-03-04", "2020-05-06")),
+      .schema_overrides = list(foo = pl$String, bar = pl$String, ham = pl$String)
+    )
+  )
+
+  expect_query_equal(
+    .input$cast(),
+    df,
+    df
+  )
+
+  expect_query_error(.input$cast(1), df)
+  expect_query_error(.input$cast("a"), df)
+  expect_query_error(.input$cast(list(foo = "a")), df)
+  expect_query_error(.input$cast(list(), strict = 1), df)
+
+  # Test overflow error
+  df <- pl$DataFrame(x = 1024)
+
+  expect_query_error(
+    .input$cast(pl$Int8),
+    df,
+    "conversion from `f64` to `i8` failed"
+  )
+  expect_query_equal(
+    .input$cast(pl$Int8, .strict = FALSE),
+    df,
+    pl$DataFrame(x = NA_integer_, .schema_overrides = list(x = pl$Int8))
+  )
+})
+
+test_that("$gather_every() works", {
+  df <- pl$DataFrame(a = 1:4, b = 5:8)
+
+  expect_query_equal(
+    .input$gather_every(2),
+    df,
+    pl$DataFrame(a = c(1L, 3L), b = c(5L, 7L))
+  )
+  expect_query_equal(
+    .input$gather_every(2, offset = 1),
+    df,
+    pl$DataFrame(a = c(2L, 4L), b = c(6L, 8L))
+  )
+
+  # must specify n
+  expect_query_error(
+    .input$gather_every(),
+    df,
+    r"(argument "n" is missing)"
+  )
+
+  # offset must be positive
+  expect_query_error(
+    .input$gather_every(2, offset = -1),
+    df,
+    r"(-1.0 is out of range)"
+  )
+  expect_query_error(
+    .input$gather_every(2, offset = "a"),
+    df,
+    "must be numeric, not character"
+  )
+})
+
+test_that("fill_null(): basic usage", {
+  df <- pl$DataFrame(
+    a = c(1.5, 2, NA, NaN),
+    b = c(1, NA, NA, 4)
+  )
+  expect_query_equal(
+    .input$fill_null(99),
+    df,
+    pl$DataFrame(
+      a = c(1.5, 2, 99, NaN),
+      b = c(1, 99, 99, 4)
+    )
+  )
+  expect_query_equal(
+    .input$fill_null(pl$lit(99) + 1),
+    df,
+    pl$DataFrame(
+      a = c(1.5, 2, 100, NaN),
+      b = c(1, 100, 100, 4)
+    )
+  )
+
+  # can't pass "value" and "strategy"
+  expect_query_error(
+    .input$fill_null(99, strategy = "one"),
+    .input = df,
+    "Exactly one of `value` or `strategy`"
+  )
+
+  # arg "limit" works
+  expect_query_equal(
+    .input$fill_null(strategy = "forward", limit = 1),
+    df,
+    pl$DataFrame(
+      a = c(1.5, 2, 2, NaN),
+      b = c(1, 1, NA, 4)
+    )
+  )
+
+  # arg "matches_supertype" works
+  df <- df$cast(a = pl$Float32, b = pl$Int32)
+  expect_query_equal(
+    .input$fill_null(99),
+    df,
+    pl$DataFrame(
+      a = c(1.5, 2, 99, NaN),
+      b = c(1, 99, 99, 4)
+    )
+  )
+  expect_query_equal(
+    .input$fill_null(99, matches_supertype = FALSE),
+    df,
+    df
+  )
+})
+
+test_that("fill_null() fills categoricals if fill is character", {
+  df <- pl$DataFrame(
+    num = c(1, 2, NA),
+    str = c("a", "b", NA),
+    cat_lex = c("a", "b", NA),
+    cat_phy = c("a", "b", NA)
+  )$cast(cat_lex = pl$Categorical("lexical"), cat_phy = pl$Categorical("physical"))
+
+  expect_query_equal(
+    .input$fill_null("foobar"),
+    df,
+    pl$DataFrame(
+      num = c(1, 2, NA),
+      str = c("a", "b", "foobar"),
+      cat_lex = c("a", "b", "foobar"),
+      cat_phy = c("a", "b", "foobar")
+    )$cast(cat_lex = pl$Categorical("lexical"), cat_phy = pl$Categorical("physical"))
+  )
+})
+
+test_that("fill_null() works on date/datetime", {
+  df <- pl$DataFrame(
+    dt = as.Date(c("2020-01-01", NA)),
+    dtime = as.POSIXct(c("2020-01-01 00:00:00", NA), tz = "UTC")
+  )
+
+  expect_query_equal(
+    .input$fill_null(as.Date("2020-01-02")),
+    df,
+    pl$DataFrame(
+      dt = as.Date(c("2020-01-01", "2020-01-02")),
+      dtime = as.POSIXct(c("2020-01-01 00:00:00", NA), tz = "UTC")
+    )
+  )
+
+  expect_query_equal(
+    .input$fill_null(as.POSIXct("2020-01-02 00:00:00", tz = "UTC")),
+    df,
+    pl$DataFrame(
+      dt = as.Date(c("2020-01-01", NA)),
+      dtime = as.POSIXct(c("2020-01-01 00:00:00", "2020-01-02 00:00:00"), tz = "UTC")
+    )
+  )
+})
+
+patrick::with_parameters_test_that(
+  "fill_null(): arg 'strategy' works",
+  .cases = {
+    tibble::tribble(
+      ~.strategy, ~.a, ~.b,
+      "forward", c(1.5, 2, 2, NaN), c(1.5, 1.5, 1.5, 4),
+      "backward", c(1.5, 2, NaN, NaN), c(1.5, 4, 4, 4),
+      "min", c(1.5, 2, 1.5, NaN), c(1.5, 1.5, 1.5, 4),
+      "max", c(1.5, 2, 2, NaN), c(1.5, 4, 4, 4),
+      "zero", c(1.5, 2, 0, NaN), c(1.5, 0, 0, 4),
+      "one", c(1.5, 2, 1, NaN), c(1.5, 1, 1, 4),
+    )
+  },
+  code = {
+    df <- pl$DataFrame(
+      a = c(1.5, 2, NA, NaN),
+      b = c(1.5, NA, NA, 4)
+    )
+    expect_query_equal(
+      .input$fill_null(strategy = .strategy),
+      df,
+      pl$DataFrame(a = .a, b = .b)
+    )
+  }
+)
+
+patrick::with_parameters_test_that(
+  "rename() works",
+  {
+    dat <- do.call(fun, list(mtcars))
+    dat2 <- dat$rename(mpg = "miles_per_gallon", hp = "horsepower")
+    if (is_polars_lf(dat2)) {
+      dat2 <- dat2$collect()
+    }
+    nms <- names(dat2)
+    expect_false("hp" %in% nms)
+    expect_false("mpg" %in% nms)
+    expect_true("miles_per_gallon" %in% nms)
+    expect_true("horsepower" %in% nms)
+
+    expect_error(
+      dat$rename(),
+      "must be character, not NULL"
+    )
+  },
+  fun = c("as_polars_df", "as_polars_lf")
+)
+
+test_that("explode() works", {
+  df <- pl$DataFrame(
+    letters = c("a", "a", "b", "c"),
+    numbers = list(1, c(2, 3), c(4, 5), c(6, 7, 8)),
+    jumpers = list(1, c(2, 3), c(4, 5), c(6, 7, 8))
+  )
+
+  expected_df <- pl$DataFrame(
+    letters = c(rep("a", 3), "b", "b", rep("c", 3)),
+    numbers = c(1, 2, 3, 4, 5, 6, 7, 8),
+    jumpers = c(1, 2, 3, 4, 5, 6, 7, 8)
+  )
+
+  expect_query_equal(
+    .input$explode(c("numbers", "jumpers")),
+    df,
+    expected_df
+  )
+  expect_query_equal(
+    .input$explode("numbers", pl$col("jumpers")),
+    df,
+    expected_df
+  )
+
+  # empty values -> NA
+  df <- pl$DataFrame(
+    letters = c("a", "a", "b", "c"),
+    numbers = list(1, NULL, c(4, 5), c(6, 7, 8))
+  )
+  expect_query_equal(
+    .input$explode("numbers"),
+    df,
+    pl$DataFrame(
+      letters = c(rep("a", 2), "b", "b", rep("c", 3)),
+      numbers = c(1, NA, 4:8)
+    )
+  )
+
+  # several cols to explode test2
+  df <- pl$DataFrame(
+    letters = c("a", "a", "b", "c"),
+    numbers = list(1, NULL, c(4, 5), c(6, 7, 8)),
+    numbers2 = list(1, NULL, c(4, 5), c(6, 7, 8))
+  )
+  expect_query_equal(
+    .input$explode("numbers", pl$col("numbers2")),
+    df,
+    pl$DataFrame(
+      letters = c(rep("a", 2), "b", "b", rep("c", 3)),
+      numbers = c(1, NA, 4:8),
+      numbers2 = c(1, NA, 4:8)
+    )
+  )
+})
+
+test_that("unnest", {
+  df <- pl$DataFrame(
+    a = 1:5,
+    b = c("one", "two", "three", "four", "five"),
+    c = rep(TRUE, 5),
+    d = rep(42.0, 5),
+    e = rep(NaN, 5),
+    f = rep(NA_real_, 5)
+  )
+
+  df2 <- df$select(
+    pl$struct(c("a", "b", "c"))$alias("first_struct"),
+    pl$struct(c("d", "e", "f"))$alias("second_struct")
+  )
+
+  expect_query_equal(
+    .input$unnest("first_struct", "second_struct"),
+    .input = df2,
+    df
+  )
+
+  expect_query_equal(
+    .input$unnest(pl$col("first_struct", "second_struct")),
+    .input = df2,
+    df
+  )
+
+  expect_query_equal(
+    .input$unnest("first_struct"),
+    .input = df2,
+    df$select(
+      pl$col("a", "b", "c"),
+      pl$struct(c("d", "e", "f"))$alias("second_struct")
+    )
+  )
+  expect_query_error(
+    .input$unnest(a = "first_struct"),
+    .input = df,
+    "must be passed by position"
+  )
+})
+
+test_that("join_asof", {
+  l_gdp <- pl$DataFrame(
+    date = as.Date(c("2016-1-1", "2017-1-1", "2018-1-1", "2019-1-1")),
+    gdp = c(4164, 4411, 4566, 4696),
+    group = c("a", "a", "b", "b")
+  )$sort("date")
+
+  l_pop <- pl$DataFrame(
+    date = as.Date(c("2016-5-12", "2017-5-12", "2018-5-12", "2019-5-12")),
+    population = c(82.19, 82.66, 83.12, 83.52),
+    group_right = c("b", "b", "a", "a")
+  )$sort("date")
+
+  # argument "strategy"
+  expect_query_equal(
+    .input$join_asof(.input2, on = "date", strategy = "backward"),
+    .input = l_gdp,
+    .input2 = l_pop,
+    pl$DataFrame(
+      date = as.Date(c("2016-1-1", "2017-1-1", "2018-1-1", "2019-1-1")),
+      gdp = c(4164, 4411, 4566, 4696),
+      group = c("a", "a", "b", "b"),
+      population = c(NA, 82.19, 82.66, 83.12),
+      group_right = c(NA, "b", "b", "a")
+    )
+  )
+  expect_query_equal(
+    .input$join_asof(.input2, on = "date", strategy = "forward"),
+    .input = l_gdp,
+    .input2 = l_pop,
+    pl$DataFrame(
+      date = as.Date(c("2016-1-1", "2017-1-1", "2018-1-1", "2019-1-1")),
+      gdp = c(4164, 4411, 4566, 4696),
+      group = c("a", "a", "b", "b"),
+      population = c(82.19, 82.66, 83.12, 83.52),
+      group_right = c("b", "b", "a", "a")
+    )
+  )
+  expect_query_error(
+    .input$join_asof(.input2, on = "date", strategy = "foobar"),
+    .input = l_gdp,
+    .input2 = l_pop,
+    "must be one of"
+  )
+
+  # left_on / right_on
+  expect_query_equal(
+    .input$join_asof(.input2, left_on = "date", right_on = "date", strategy = "forward"),
+    .input = l_gdp,
+    .input2 = l_pop,
+    pl$DataFrame(
+      date = as.Date(c("2016-1-1", "2017-1-1", "2018-1-1", "2019-1-1")),
+      gdp = c(4164, 4411, 4566, 4696),
+      group = c("a", "a", "b", "b"),
+      population = c(82.19, 82.66, 83.12, 83.52),
+      group_right = c("b", "b", "a", "a")
+    )
+  )
+
+  # test by
+  expect_query_equal(
+    .input$join_asof(
+      .input2,
+      on = "date",
+      by_left = "group",
+      by_right = "group_right",
+      strategy = "backward"
+    ),
+    .input = l_gdp,
+    .input2 = l_pop,
+    pl$DataFrame(
+      date = as.Date(c("2016-01-01", "2017-01-01", "2018-01-01", "2019-01-01")),
+      gdp = c(4164, 4411, 4566, 4696),
+      group = c("a", "a", "b", "b"),
+      population = c(NA, NA, 82.66, 82.66),
+    )
+  )
+  expect_query_equal(
+    .input$join_asof(
+      .input2,
+      on = "date",
+      by_left = "group",
+      by_right = "group_right",
+      strategy = "forward"
+    ),
+    .input = l_gdp,
+    .input2 = l_pop,
+    pl$DataFrame(
+      date = as.Date(c("2016-01-01", "2017-01-01", "2018-01-01", "2019-01-01")),
+      gdp = c(4164, 4411, 4566, 4696),
+      group = c("a", "a", "b", "b"),
+      population = c(83.12, 83.12, NA, NA),
+    )
+  )
+
+  # tolerance exceeding 18w
+  expect_query_equal(
+    .input$join_asof(.input2, on = "date", strategy = "backward", tolerance = "18w"),
+    .input = l_gdp,
+    .input2 = l_pop,
+    pl$DataFrame(
+      date = as.Date(c("2016-1-1", "2017-1-1", "2018-1-1", "2019-1-1")),
+      gdp = c(4164, 4411, 4566, 4696),
+      group = c("a", "a", "b", "b"),
+      population = rep(NA_real_, 4),
+      group_right = rep(NA_character_, 4)
+    )
+  )
+  expect_query_equal(
+    .input$join_asof(.input2, on = "date", strategy = "backward", tolerance = 18 * 7),
+    .input = l_gdp,
+    .input2 = l_pop,
+    pl$DataFrame(
+      date = as.Date(c("2016-1-1", "2017-1-1", "2018-1-1", "2019-1-1")),
+      gdp = c(4164, 4411, 4566, 4696),
+      group = c("a", "a", "b", "b"),
+      population = rep(NA_real_, 4),
+      group_right = rep(NA_character_, 4)
+    )
+  )
+})
+
+test_that("filter() works", {
+  df <- pl$DataFrame(
+    x = c(1, 2, 3, 4, 5),
+    y = letters[1:5],
+    z = c(TRUE, TRUE, FALSE, TRUE, FALSE)
+  )
+
+  # using ==
+  expect_query_equal(
+    .input$filter(pl$col("x") == 1),
+    df,
+    pl$DataFrame(x = 1, y = "a", z = TRUE)
+  )
+  expect_query_equal(
+    .input$filter(pl$col("z")),
+    df,
+    pl$DataFrame(x = c(1, 2, 4), y = c("a", "b", "d"), z = c(TRUE, TRUE, TRUE))
+  )
+  expect_query_equal(
+    .input$filter(!pl$col("z")),
+    df,
+    pl$DataFrame(x = c(3, 5), y = c("c", "e"), z = c(FALSE, FALSE))
+  )
+
+  # using inequality operators
+  expect_query_equal(
+    .input$filter(pl$col("x") > 4),
+    df,
+    pl$DataFrame(x = 5, y = "e", z = FALSE)
+  )
+  expect_query_equal(
+    .input$filter(pl$col("x") >= 4),
+    df,
+    pl$DataFrame(x = c(4, 5), y = c("d", "e"), z = c(TRUE, FALSE))
+  )
+  expect_query_equal(
+    .input$filter(pl$col("x") < 2),
+    df,
+    pl$DataFrame(x = 1, y = "a", z = TRUE)
+  )
+  expect_query_equal(
+    .input$filter(pl$col("x") <= 2),
+    df,
+    pl$DataFrame(x = c(1, 2), y = c("a", "b"), z = c(TRUE, TRUE))
+  )
+  expect_query_equal(
+    .input$filter(pl$col("x") != 3),
+    df,
+    pl$DataFrame(
+      x = c(1, 2, 4, 5),
+      y = c("a", "b", "d", "e"),
+      z = c(TRUE, TRUE, TRUE, FALSE)
+    )
+  )
+
+  # using &
+  expect_query_equal(
+    .input$filter(pl$col("x") <= 3 & pl$col("z")),
+    df,
+    pl$DataFrame(x = c(1, 2), y = c("a", "b"), z = c(TRUE, TRUE))
+  )
+  expect_query_equal(
+    .input$filter(pl$col("x") <= 3, pl$col("z")),
+    df,
+    pl$DataFrame(x = c(1, 2), y = c("a", "b"), z = c(TRUE, TRUE))
+  )
+
+  # using |
+  expect_query_equal(
+    .input$filter(pl$col("x") <= 3 | pl$col("z")),
+    df,
+    pl$DataFrame(
+      x = c(1, 2, 3, 4),
+      y = c("a", "b", "c", "d"),
+      z = c(TRUE, TRUE, FALSE, TRUE)
+    )
+  )
+})
+
+test_that("filter with nulls", {
+  df <- pl$DataFrame(x = c(1, 2, NA))
+  expect_query_equal(
+    .input$filter(pl$col("x") == 1),
+    df,
+    pl$DataFrame(x = 1)
+  )
+  expect_query_equal(
+    .input$filter(pl$col("x")$is_null()),
+    df,
+    pl$DataFrame(x = NA_real_)
+  )
+})
+
+test_that("quantile", {
+  df <- pl$DataFrame(x = c(1, 2, 3, 1, 5, 6), y = 1:6)
+  expect_query_equal(
+    .input$quantile(1),
+    df,
+    pl$DataFrame(x = 6, y = 6)
+  )
+  expect_query_equal(
+    .input$quantile(0.5),
+    df,
+    pl$DataFrame(x = 3, y = 4)
+  )
+  expect_query_equal(
+    .input$quantile(0.5, "higher"),
+    df,
+    pl$DataFrame(x = 3, y = 4)
+  )
+  expect_query_equal(
+    .input$quantile(0.5, "lower"),
+    df,
+    pl$DataFrame(x = 2, y = 3)
+  )
+  expect_query_equal(
+    .input$quantile(0.5, "midpoint"),
+    df,
+    pl$DataFrame(x = 2.5, y = 3.5)
+  )
+  expect_query_equal(
+    .input$quantile(0.5, "linear"),
+    df,
+    pl$DataFrame(x = 2.5, y = 3.5)
+  )
+  expect_query_error(
+    .input$quantile(0.5, "foobar"),
+    df,
+    "must be one of"
+  )
+  expect_query_error(
+    .input$quantile(1.5, "linear"),
+    df,
+    "should be between"
+  )
+})
+
+test_that("drop() works", {
+  df <- pl$DataFrame(x = c(1, NA, 2), y = c(NA, 1, 2))
+  expect_query_equal(
+    .input$drop("x"),
+    df,
+    pl$DataFrame(y = c(NA, 1, 2))
+  )
+  expect_query_equal(
+    .input$drop("x", "y"),
+    df,
+    pl$DataFrame()
+  )
+  expect_query_equal(
+    .input$drop(cs$numeric()),
+    df,
+    pl$DataFrame()
+  )
+
+  # arg 'strict' works
+  expect_query_error(
+    .input$drop("foo"),
+    df,
+    r"("foo" not found)"
+  )
+  expect_query_equal(
+    .input$drop("foo", strict = FALSE),
+    df,
+    df
+  )
+})
+
+test_that("fill_nan() works", {
+  df <- pl$DataFrame(
+    a = c(1.5, 2, NaN, NA),
+    b = c(1.5, NaN, NaN, 4)
+  )
+  expect_query_equal(
+    .input$fill_nan(99),
+    df,
+    pl$DataFrame(
+      a = c(1.5, 2, 99, NA),
+      b = c(1.5, 99, 99, 4)
+    )
+  )
+  # string parsed as column names
+  expect_query_equal(
+    .input$fill_nan("a"),
+    df,
+    pl$DataFrame(
+      a = c(1.5, 2, NaN, NA),
+      b = c(1.5, 2, NaN, 4)
+    )
+  )
+  expect_query_error(
+    .input$fill_nan("foo"),
+    df,
+    "not found: foo"
+  )
+  # accepts expressions
+  expect_query_equal(
+    .input$fill_nan(pl$col("a") + 1),
+    df,
+    pl$DataFrame(
+      a = c(1.5, 2, NaN, NA),
+      b = c(1.5, 3, NaN, 4)
+    )
+  )
+  # casts to replacement type
+  expect_query_equal(
+    .input$fill_nan(pl$lit("a")),
+    df,
+    pl$DataFrame(
+      a = c("1.5", "2.0", "a", NA),
+      b = c("1.5", "a", "a", "4.0")
+    )
+  )
+})
+
+test_that("$clear() works", {
+  df <- pl$DataFrame(
+    a = c(NA, 2),
+    b = c("a", NA),
+    c = c(TRUE, TRUE)
+  )
+
+  expect_query_equal(
+    .input$clear(),
+    df,
+    pl$DataFrame(a = numeric(0), b = character(0), c = logical(0))
+  )
+
+  # n > number of rows
+  expect_query_equal(
+    .input$clear(3),
+    df,
+    pl$DataFrame(a = rep(NA_real_, 3), b = rep(NA_character_, 3), c = rep(NA, 3))
+  )
+
+  # error
+  expect_query_error(
+    .input$clear(-1),
+    df,
+    "greater than or equal to 0"
+  )
+  expect_query_error(
+    .input$clear(1.5),
+    df,
+    "must be an integer"
+  )
+})
+
+test_that("shift() works", {
+  df <- as_polars_df(mtcars[1:3, 1:2])
+  expect_query_equal(
+    .input$shift(2),
+    df,
+    pl$DataFrame(mpg = c(NA, NA, 21), cyl = c(NA, NA, 6))
+  )
+  expect_query_equal(
+    .input$shift(-2),
+    df,
+    pl$DataFrame(mpg = c(22.8, NA, NA), cyl = c(4, NA, NA))
+  )
+  expect_query_equal(
+    .input$shift(2, fill_value = 999),
+    df,
+    pl$DataFrame(mpg = c(999, 999, 21), cyl = c(999, 999, 6))
+  )
+  expect_query_equal(
+    .input$shift(2, fill_value = "a"),
+    df,
+    pl$DataFrame(mpg = c("a", "a", "21.0"), cyl = c("a", "a", "6.0"))
+  )
+  expect_query_error(
+    .input$shift(2, 999),
+    df,
+    "Did you forget to name an argument"
+  )
+  expect_query_error(
+    .input$shift(2, fill_value = pl$col("mpg")),
+    df,
+    "'fill_value' must be scalar value"
+  )
+})
+
+test_that("sort(): various errors", {
+  expect_query_error(
+    .input$sort(complex(1)),
+    pl$DataFrame(x = 1),
+    "can't be converted to a polars Series"
+  )
+  expect_query_error(
+    .input$sort(by = complex(1)),
+    pl$DataFrame(x = 1),
+    "must be passed by position"
+  )
+  expect_query_error(
+    .input$sort(),
+    pl$DataFrame(x = 1),
+    "at least one element"
+  )
+  # `descending` and `nulls_last` need either 1 or as many booleans as items
+  expect_query_error(
+    .input$sort("cyl", "mpg", "drat", descending = c(TRUE, FALSE)),
+    pl$DataFrame(x = 1),
+    "does not match"
+  )
+  expect_query_error(
+    .input$sort("cyl", "mpg", "drat", nulls_last = c(TRUE, FALSE)),
+    pl$DataFrame(x = 1),
+    "does not match"
+  )
+
+  # `descending` and `nulls_last` can only take booleans
+  expect_query_error(
+    .input$sort("cyl", "mpg", "drat", descending = 42),
+    pl$DataFrame(x = 1),
+    "must be a logical vector"
+  )
+  expect_query_error(
+    .input$sort("cyl", "mpg", "drat", descending = NULL),
+    pl$DataFrame(x = 1),
+    "must be a logical vector"
+  )
+  expect_query_error(
+    .input$sort("cyl", "mpg", "drat", nulls_last = 42),
+    pl$DataFrame(x = 1),
+    "must be a logical vector"
+  )
+  expect_query_error(
+    .input$sort("cyl", "mpg", "drat", nulls_last = NULL),
+    pl$DataFrame(x = 1),
+    "must be a logical vector"
+  )
+})
+
+test_that("sort(): basic behavior", {
+  df <- pl$DataFrame(
+    x = c(3, 3, 4, 1, 2),
+    y = c(2, 1, 5, 4, 3)
+  )
+  expect_query_equal(
+    .input$sort("x", maintain_order = TRUE),
+    df,
+    pl$DataFrame(x = c(1, 2, 3, 3, 4), y = c(4, 3, 2, 1, 5))
+  )
+  expect_query_equal(
+    .input$sort(pl$col("x"), maintain_order = TRUE),
+    df,
+    pl$DataFrame(x = c(1, 2, 3, 3, 4), y = c(4, 3, 2, 1, 5))
+  )
+  # several columns
+  expect_query_equal(
+    .input$sort("x", "y", maintain_order = TRUE),
+    df,
+    pl$DataFrame(x = c(1, 2, 3, 3, 4), y = c(4, 3, 1, 2, 5))
+  )
+  expect_query_equal(
+    .input$sort(pl$col("x"), pl$col("y"), maintain_order = TRUE),
+    df,
+    pl$DataFrame(x = c(1, 2, 3, 3, 4), y = c(4, 3, 1, 2, 5))
+  )
+  expect_query_equal(
+    .input$sort(c("x", "y"), maintain_order = TRUE),
+    df,
+    pl$DataFrame(x = c(1, 2, 3, 3, 4), y = c(4, 3, 1, 2, 5))
+  )
+})
+
+test_that("sort(): arg 'descending'", {
+  df <- pl$DataFrame(
+    x = c(3, 3, 4, 1, 2),
+    y = c(2, 1, 5, 4, 3)
+  )
+
+  # descending arg
+  expect_query_equal(
+    .input$sort("x", "y", maintain_order = TRUE, descending = TRUE),
+    df,
+    pl$DataFrame(x = c(4, 3, 3, 2, 1), y = c(5, 2, 1, 3, 4))
+  )
+
+  # descending arg: vector of boolean
+  expect_query_equal(
+    .input$sort("x", "y", maintain_order = TRUE, descending = c(TRUE, FALSE)),
+    df,
+    pl$DataFrame(x = c(4, 3, 3, 2, 1), y = c(5, 1, 2, 3, 4))
+  )
+
+  # expr: one increasing and one decreasing
+  expect_query_equal(
+    .input$sort(-pl$col("x"), pl$col("y"), maintain_order = TRUE),
+    df,
+    pl$DataFrame(x = c(4, 3, 3, 2, 1), y = c(5, 1, 2, 3, 4))
+  )
+})
+
+test_that("sort(): arg 'nulls_last'", {
+  df <- pl$DataFrame(
+    x = c(3, 3, 4, 1, 2),
+    y = c(2, 1, 5, 4, 3)
+  )
+
+  # nulls_last
+  df <- pl$DataFrame(
+    x = c(NA, 3, 4, 1, 2),
+    y = c(2, 1, 5, 4, 3)
+  )
+  expect_query_equal(
+    .input$sort("x", "y", maintain_order = TRUE, nulls_last = TRUE),
+    df,
+    pl$DataFrame(x = c(1, 2, 3, 4, NA), y = c(4, 3, 1, 5, 2))
+  )
+  expect_query_equal(
+    .input$sort("x", "y", maintain_order = TRUE, nulls_last = FALSE),
+    df,
+    pl$DataFrame(x = c(NA, 1, 2, 3, 4), y = c(2, 4, 3, 1, 5))
+  )
+})
+
+test_that("inequality joins work", {
+  east <- pl$DataFrame(
+    id = c(100, 101, 102),
+    dur = c(120, 140, 160),
+    rev = c(12, 14, 16),
+    cores = c(2, 8, 4)
+  )
+  west <- pl$DataFrame(
+    t_id = c(404, 498, 676, 742),
+    time = c(90, 130, 150, 170),
+    cost = c(9, 13, 15, 16),
+    cores = c(4, 2, 1, 4)
+  )
+
+  expect_query_equal(
+    .input$join_where(
+      .input2,
+      pl$col("dur") < pl$col("time"),
+      pl$col("rev") < pl$col("cost")
+    ),
+    .input = east,
+    .input2 = west,
+    pl$DataFrame(
+      id = rep(c(100, 101), 3:2),
+      dur = rep(c(120, 140), 3:2),
+      rev = rep(c(12, 14), 3:2),
+      cores = rep(c(2, 8), 3:2),
+      t_id = c(498, 676, 742, 676, 742),
+      time = c(130, 150, 170, 150, 170),
+      cost = c(13, 15, 16, 15, 16),
+      cores_right = c(2, 1, 4, 1, 4)
+    )
+  )
+
+  expect_query_error(
+    .input$join_where(
+      mtcars,
+      pl$col("dur") < pl$col("time"),
+      pl$col("rev") < pl$col("cost")
+    ),
+    .input = east,
+    "`other` must be a polars"
+  )
+})
+
+test_that("inequality joins require suffix when identical column names", {
+  east <- pl$DataFrame(
+    id = c(100, 101, 102),
+    dur = c(120, 140, 160),
+    rev = c(12, 14, 16),
+    cores = c(2, 8, 4)
+  )
+  west <- pl$DataFrame(
+    t_id = c(404, 498, 676, 742),
+    dur = c(90, 130, 150, 170),
+    rev = c(9, 13, 15, 16),
+    cores = c(4, 2, 1, 4)
+  )
+
+  expect_query_equal(
+    .input$join_where(
+      .input2,
+      pl$col("dur") < pl$col("dur_right"),
+      pl$col("rev") < pl$col("rev_right")
+    ),
+    .input = east,
+    .input2 = west,
+    pl$DataFrame(
+      id = rep(c(100, 101), 3:2),
+      dur = rep(c(120, 140), 3:2),
+      rev = rep(c(12, 14), 3:2),
+      cores = rep(c(2, 8), 3:2),
+      t_id = c(498, 676, 742, 676, 742),
+      dur_right = c(130, 150, 170, 150, 170),
+      rev_right = c(13, 15, 16, 15, 16),
+      cores_right = c(2, 1, 4, 1, 4)
+    )
+  )
+})
+
+test_that("unpivot() works", {
+  df <- pl$DataFrame(
+    a = c("x", "y", "z"),
+    b = c(1, 3, 5),
+    c = c(2, 4, 6)
+  )
+
+  expect_query_equal(
+    .input$unpivot(index = "a", on = c("b", "c")),
+    .input = df,
+    pl$DataFrame(
+      a = c("x", "y", "z", "x", "y", "z"),
+      variable = c("b", "b", "b", "c", "c", "c"),
+      value = c(1, 3, 5, 2, 4, 6)
+    )
+  )
+  expect_query_equal(
+    .input$unpivot(index = c("a", "b"), value_name = "c"),
+    .input = df,
+    pl$DataFrame(
+      a = c("x", "y", "z"),
+      b = c(1, 3, 5),
+      variable = rep("c", 3),
+      c = c(2, 4, 6)
+    )
+  )
+  expect_query_equal(
+    .input$unpivot(
+      index = c("a", "b"),
+      on = "c",
+      value_name = "alice",
+      variable_name = "bob"
+    ),
+    .input = df,
+    pl$DataFrame(
+      a = c("x", "y", "z"),
+      b = c(1, 3, 5),
+      bob = rep("c", 3),
+      alice = c(2, 4, 6)
+    )
+  )
+  expect_query_error(
+    .input$unpivot(
+      index = c("a", "b"),
+      foo = "c",
+      value_name = "alice",
+      variable_name = "bob"
+    ),
+    .input = df,
+    "must be empty"
+  )
+})
+
+test_that("various aggregation functions work", {
+  df <- pl$DataFrame(a = 1:4, b = c(1, 2, 1, 1))
+  expect_query_equal(
+    .input$sum(),
+    .input = df,
+    pl$DataFrame(a = 10L, b = 5)
+  )
+  expect_query_equal(
+    .input$min(),
+    .input = df,
+    pl$DataFrame(a = 1L, b = 1)
+  )
+  expect_query_equal(
+    .input$max(),
+    .input = df,
+    pl$DataFrame(a = 4L, b = 2)
+  )
+  expect_query_equal(
+    .input$mean(),
+    .input = df,
+    pl$DataFrame(a = 2.5, b = 1.25)
+  )
+  expect_query_equal(
+    .input$median(),
+    .input = df,
+    pl$DataFrame(a = 2.5, b = 1)
+  )
+  expect_query_equal(
+    .input$var(),
+    .input = df,
+    pl$DataFrame(a = var(1:4), b = var(c(1, 2, 1, 1)))
+  )
+  expect_query_equal(
+    .input$std(),
+    .input = df,
+    pl$DataFrame(a = sd(1:4), b = sd(c(1, 2, 1, 1)))
+  )
+})
+
+
+test_that("rolling: date variable", {
+  df <- pl$DataFrame(
+    dt = c(
+      "2020-01-01",
+      "2020-01-01",
+      "2020-01-01",
+      "2020-01-02",
+      "2020-01-03",
+      "2020-01-08"
+    ),
+    a = c(3, 7, 5, 9, 2, 1)
+  )$with_columns(
+    pl$col("dt")$str$strptime(pl$Date, format = NULL)
+  )
+
+  expect_query_equal(
+    .input$rolling(index_column = "dt", period = "2d")$agg(
+      pl$sum("a")$alias("sum_a"),
+      pl$min("a")$alias("min_a"),
+      pl$max("a")$alias("max_a")
+    )$select("sum_a", "min_a", "max_a"),
+    .input = df,
+    pl$DataFrame(
+      sum_a = c(15, 15, 15, 24, 11, 1),
+      min_a = c(3, 3, 3, 3, 2, 1),
+      max_a = c(7, 7, 7, 9, 9, 1)
+    )
+  )
+})
+
+test_that("rolling: datetime variable", {
+  df <- pl$DataFrame(
+    dt = c(
+      "2020-01-01 13:45:48",
+      "2020-01-01 16:42:13",
+      "2020-01-01 16:45:09",
+      "2020-01-02 18:12:48",
+      "2020-01-03 19:45:32",
+      "2020-01-08 23:16:43"
+    ),
+    a = c(3, 7, 5, 9, 2, 1)
+  )$with_columns(
+    pl$col("dt")$str$strptime(pl$Datetime("ms"), format = NULL)
+  )
+
+  expect_query_equal(
+    .input$rolling(index_column = "dt", period = "2d")$agg(
+      pl$sum("a")$alias("sum_a"),
+      pl$min("a")$alias("min_a"),
+      pl$max("a")$alias("max_a")
+    )$select("sum_a", "min_a", "max_a"),
+    .input = df,
+    pl$DataFrame(
+      sum_a = c(3, 10, 15, 24, 11, 1),
+      min_a = c(3, 3, 3, 3, 2, 1),
+      max_a = c(3, 7, 7, 9, 9, 1)
+    )
+  )
+})
+
+test_that("rolling: integer variable", {
+  df <- pl$DataFrame(
+    index = c(1L, 2L, 3L, 4L, 8L, 9L),
+    a = c(3, 7, 5, 9, 2, 1)
+  )
+  expect_query_equal(
+    .input$rolling(index_column = "index", period = "2i")$agg(
+      pl$sum("a")$alias("sum_a"),
+      pl$min("a")$alias("min_a"),
+      pl$max("a")$alias("max_a")
+    )$select("sum_a", "min_a", "max_a"),
+    .input = df,
+    pl$DataFrame(
+      sum_a = c(3, 10, 12, 14, 2, 3),
+      min_a = c(3, 3, 5, 5, 2, 1),
+      max_a = c(3, 7, 7, 9, 2, 2)
+    )
+  )
+})
+
+test_that("rolling: using difftime as period", {
+  df <- pl$DataFrame(
+    dt = c(
+      "2020-01-01",
+      "2020-01-01",
+      "2020-01-01",
+      "2020-01-02",
+      "2020-01-03",
+      "2020-01-08"
+    ),
+    a = c(3, 7, 5, 9, 2, 1)
+  )$with_columns(
+    pl$col("dt")$str$strptime(pl$Date, format = NULL)
+  )
+
+  expect_query_equal(
+    .input$rolling(
+      index_column = "dt",
+      period = as.difftime(2, units = "days")
+    )$agg(
+      pl$sum("a")$alias("sum_a")
+    ),
+    .input = df,
+    df$rolling(index_column = "dt", period = "2d")$agg(
+      pl$sum("a")$alias("sum_a")
+    )
+  )
+})
+
+test_that("rolling: error if period is negative", {
+  df <- pl$DataFrame(
+    index = c(1L, 2L, 3L, 4L, 8L, 9L),
+    a = c(3, 7, 5, 9, 2, 1)
+  )
+  expect_error(
+    df$rolling(index_column = "index", period = "-2i")$agg(pl$col("a")),
+    "rolling window period should be strictly positive"
+  )
+})
+
+test_that("rolling: argument 'group_by' works", {
+  df <- pl$DataFrame(
+    index = c(1L, 2L, 3L, 4L, 8L, 9L),
+    grp = c("a", "a", rep("b", 4)),
+    a = c(3, 7, 5, 9, 2, 1)
+  )
+
+  expect_query_equal(
+    .input$rolling(index_column = "index", period = "2i", group_by = pl$col("grp"))$agg(
+      pl$sum("a")$alias("sum_a"),
+      pl$min("a")$alias("min_a"),
+      pl$max("a")$alias("max_a")
+    )$select("sum_a", "min_a", "max_a"),
+    .input = df,
+    pl$DataFrame(
+      sum_a = c(3, 10, 5, 14, 2, 3),
+      min_a = c(3, 3, 5, 5, 2, 1),
+      max_a = c(3, 7, 5, 9, 2, 2)
+    )
+  )
+
+  # string is parsed as column name in "group_by"
+  expect_query_equal(
+    .input$rolling(index_column = "index", period = "2i", group_by = "grp")$agg(
+      pl$sum("a")$alias("sum_a")
+    ),
+    .input = df,
+    df$rolling(index_column = "index", period = "2i", group_by = pl$col("grp"))$agg(
+      pl$sum("a")$alias("sum_a")
+    )
+  )
+})
+
+test_that("rolling: error if index not int or date/time", {
+  df <- pl$DataFrame(
+    index = c(1:5, 6.0),
+    a = c(3, 7, 5, 9, 2, 1)
+  )
+
+  expect_error(
+    df$rolling(index_column = "index", period = "2i")$agg(
+      pl$sum("a")$alias("sum_a")
+    ),
+    "unsupported data type"
+  )
+})
+
+test_that("rolling: arg 'offset' works", {
+  df <- pl$DataFrame(
+    dt = c(
+      "2020-01-01",
+      "2020-01-01",
+      "2020-01-01",
+      "2020-01-02",
+      "2020-01-03",
+      "2020-01-08"
+    ),
+    a = c(3, 7, 5, 9, 2, 1)
+  )$with_columns(
+    pl$col("dt")$str$strptime(pl$Date, format = NULL)
+  )
+
+  expect_query_equal(
+    .input$rolling(index_column = "dt", period = "2d", offset = "1d")$agg(
+      pl$sum("a")$alias("sum_a"),
+      pl$min("a")$alias("min_a"),
+      pl$max("a")$alias("max_a")
+    )$select("sum_a", "min_a", "max_a"),
+    .input = df,
+    pl$DataFrame(
+      sum_a = c(2, 2, 2, NA, NA, NA),
+      min_a = c(2, 2, 2, NA, NA, NA),
+      max_a = c(2, 2, 2, NA, NA, NA)
+    )
+  )
+})
+
+test_that("with_row_index() works", {
+  df <- pl$DataFrame(x = c(1, 3, 5), y = c(2, 4, 6))
+  expect_query_equal(
+    .input$with_row_index(),
+    .input = df,
+    pl$DataFrame(index = 0:2, x = c(1, 3, 5), y = c(2, 4, 6))$cast(index = pl$UInt32)
+  )
+  expect_query_equal(
+    .input$with_row_index("id", offset = 1000),
+    .input = df,
+    pl$DataFrame(id = 1000:1002, x = c(1, 3, 5), y = c(2, 4, 6))$cast(id = pl$UInt32)
+  )
+  expect_query_error(
+    .input$with_row_index(offset = -1),
+    .input = df,
+    "cannot be negative"
+  )
+  expect_query_error(
+    .input$with_row_index(name = 1),
+    .input = df,
+    "must be character"
+  )
+})
+
+test_that("group_by_dynamic: date variable", {
+  df <- pl$DataFrame(
+    dt = as.Date(as.Date("2021-12-16"):as.Date("2021-12-22"), origin = "1970-01-01"),
+    n = 0:6
+  )
+
+  expect_query_equal(
+    .input$group_by_dynamic(index_column = "dt", every = "2d")$agg(
+      pl$col("n")$mean()
+    ),
+    .input = df,
+    pl$DataFrame(
+      dt = as.Date(c("2021-12-15", "2021-12-17", "2021-12-19", "2021-12-21")),
+      n = c(0, 1.5, 3.5, 5.5)
+    )
+  )
+})
+
+test_that("group_by_dynamic: datetime variable", {
+  df <- pl$DataFrame(
+    dt = c(
+      "2021-12-16 00:00:00",
+      "2021-12-16 00:30:00",
+      "2021-12-16 01:00:00",
+      "2021-12-16 01:30:00",
+      "2021-12-16 02:00:00",
+      "2021-12-16 02:30:00",
+      "2021-12-16 03:00:00"
+    ),
+    n = 0:6
+  )$with_columns(
+    pl$col("dt")$str$strptime(pl$Datetime("ms"), format = NULL)
+  )
+
+  expect_query_equal(
+    .input$group_by_dynamic(index_column = "dt", every = "1h")$agg(
+      pl$col("n")$mean()
+    ),
+    .input = df,
+    pl$DataFrame(
+      dt = c(
+        "2021-12-16 00:00:00",
+        "2021-12-16 01:00:00",
+        "2021-12-16 02:00:00",
+        "2021-12-16 03:00:00"
+      ),
+      n = c(0.5, 2.5, 4.5, 6)
+    )$with_columns(
+      pl$col("dt")$str$strptime(pl$Datetime("ms"), format = NULL)
+    )
+  )
+})
+
+test_that("group_by_dynamic: integer variable", {
+  df <- pl$DataFrame(idx = 0:5, n = 0:5)
+
+  expect_query_equal(
+    .input$group_by_dynamic("idx", every = "2i")$agg(pl$col("n")$mean()),
+    .input = df,
+    pl$DataFrame(
+      idx = c(0L, 2L, 4L),
+      n = c(0.5, 2.5, 4.5)
+    )
+  )
+})
+
+test_that("group_by_dynamic: error if every is negative", {
+  df <- pl$DataFrame(idx = 0:5, n = 0:5)
+
+  expect_error(
+    df$group_by_dynamic("idx", every = "-2i")$agg(pl$col("n")$mean()),
+    "'every' argument must be positive"
+  )
+})
+
+test_that("group_by_dynamic: arg 'closed' works", {
+  df <- pl$DataFrame(
+    dt = c(
+      "2021-12-16 00:00:00",
+      "2021-12-16 00:30:00",
+      "2021-12-16 01:00:00",
+      "2021-12-16 01:30:00",
+      "2021-12-16 02:00:00",
+      "2021-12-16 02:30:00",
+      "2021-12-16 03:00:00"
+    ),
+    n = 0:6
+  )$with_columns(
+    pl$col("dt")$str$strptime(pl$Datetime("ms"), format = NULL)
+  )
+
+  expect_query_equal(
+    .input$group_by_dynamic(index_column = "dt", closed = "right", every = "1h")$agg(pl$col(
+      "n"
+    )$mean()),
+    .input = df,
+    pl$DataFrame(
+      dt = c(
+        "2021-12-15 23:00:00",
+        "2021-12-16 00:00:00",
+        "2021-12-16 01:00:00",
+        "2021-12-16 02:00:00"
+      ),
+      n = c(0, 1.5, 3.5, 5.5)
+    )$with_columns(
+      pl$col("dt")$str$strptime(pl$Datetime("ms"), format = NULL)
+    )
+  )
+
+  expect_error(
+    df$group_by_dynamic(index_column = "dt", closed = "foobar", every = "1h")$agg(pl$col(
+      "n"
+    )$mean()),
+    "must be one of"
+  )
+})
+
+test_that("group_by_dynamic: arg 'label' works", {
+  df <- pl$DataFrame(
+    dt = c(
+      "2021-12-16 00:00:00",
+      "2021-12-16 00:30:00",
+      "2021-12-16 01:00:00",
+      "2021-12-16 01:30:00",
+      "2021-12-16 02:00:00",
+      "2021-12-16 02:30:00",
+      "2021-12-16 03:00:00"
+    ),
+    n = 0:6
+  )$with_columns(
+    pl$col("dt")$str$strptime(pl$Datetime("ms"), format = NULL)$dt$replace_time_zone("UTC")
+  )
+
+  expect_query_equal(
+    .input$group_by_dynamic(index_column = "dt", label = "right", every = "1h")$agg(
+      pl$col("n")$mean()
+    ),
+    .input = df,
+    pl$DataFrame(
+      dt = as.POSIXct(
+        c(
+          "2021-12-16 01:00:00",
+          "2021-12-16 02:00:00",
+          "2021-12-16 03:00:00",
+          "2021-12-16 04:00:00"
+        ),
+        tz = "UTC"
+      ),
+      n = c(0.5, 2.5, 4.5, 6)
+    )
+  )
+
+  expect_error(
+    df$group_by_dynamic(index_column = "dt", label = "foobar", every = "1h")$agg(
+      pl$col("n")$mean()
+    ),
+    "must be one of"
+  )
+})
+
+test_that("group_by_dynamic: arg 'start_by' works", {
+  df <- pl$DataFrame(
+    dt = as.Date(as.Date("2021-12-16"):as.Date("2021-12-22"), origin = "1970-01-01"),
+    n = 0:6
+  )
+
+  # 2021-12-16 is a Thursday so previous Monday is 2021-12-13 and next one is
+  # 2021-12-20
+  expect_query_equal(
+    .input$group_by_dynamic(index_column = "dt", start_by = "monday", every = "1w")$agg(pl$col(
+      "n"
+    )),
+    .input = df,
+    pl$DataFrame(
+      dt = as.Date(c("2021-12-13", "2021-12-20")),
+      n = list(0:3, 4:6)
+    )
+  )
+
+  expect_error(
+    df$group_by_dynamic(index_column = "dt", start_by = "foobar", every = "1h")$agg(
+      pl$col("n")$mean()
+    ),
+    "must be one of"
+  )
+})
+
+test_that("group_by_dynamic: argument 'by' works", {
+  df <- pl$DataFrame(
+    dt = c(
+      "2021-12-16 00:00:00",
+      "2021-12-16 00:30:00",
+      "2021-12-16 01:00:00",
+      "2021-12-16 01:30:00",
+      "2021-12-16 02:00:00",
+      "2021-12-16 02:30:00",
+      "2021-12-16 03:00:00"
+    ),
+    n = 0:6,
+    grp = c("a", "a", "a", "b", "b", "a", "a")
+  )$with_columns(
+    pl$col("dt")$str$strptime(pl$Datetime("ms"), format = NULL)
+  )
+
+  expect_query_equal(
+    .input$group_by_dynamic(index_column = "dt", every = "2h", group_by = pl$col("grp"))$agg(
+      pl$col("n")$mean()
+    ),
+    .input = df,
+    pl$DataFrame(
+      grp = c("a", "a", "b", "b"),
+      dt = as.POSIXct(
+        c(
+          "2021-12-16 00:00:00",
+          "2021-12-16 02:00:00",
+          "2021-12-16 00:00:00",
+          "2021-12-16 02:00:00"
+        )
+      ),
+      n = c(1, 5.5, 3, 4)
+    )
+  )
+
+  # string is parsed as column name in "by"
+  expect_query_equal(
+    .input$group_by_dynamic(index_column = "dt", every = "2h", group_by = "grp")$agg(
+      pl$col("n")$mean()
+    ),
+    .input = df,
+    pl$DataFrame(
+      grp = c("a", "a", "b", "b"),
+      dt = as.POSIXct(
+        c(
+          "2021-12-16 00:00:00",
+          "2021-12-16 02:00:00",
+          "2021-12-16 00:00:00",
+          "2021-12-16 02:00:00"
+        )
+      ),
+      n = c(1, 5.5, 3, 4)
+    )
+  )
+})
+
+test_that("group_by_dynamic: error if index not int or date/time", {
+  df <- pl$DataFrame(
+    index = c(1:5, 6.0),
+    a = c(3, 7, 5, 9, 2, 1)
+  )
+
+  expect_error(
+    df$group_by_dynamic(index_column = "index", every = "2i")$agg(
+      pl$sum("a")$alias("sum_a")
+    ),
+    "unsupported data type"
+  )
+})
+
+test_that("group_by_dynamic: arg 'offset' works", {
+  df <- pl$DataFrame(
+    dt = c(
+      "2020-01-01",
+      "2020-01-01",
+      "2020-01-01",
+      "2020-01-02",
+      "2020-01-03",
+      "2020-01-08"
+    ),
+    n = c(3, 10, 5, 9, 2, 1)
+  )$with_columns(
+    pl$col("dt")$str$strptime(pl$Date, format = NULL)
+  )
+
+  expect_query_equal(
+    .input$group_by_dynamic(index_column = "dt", every = "2d", offset = "1d")$agg(
+      pl$col("n")$mean()
+    ),
+    .input = df,
+    pl$DataFrame(
+      dt = as.Date(c("2019-12-31", "2020-01-02", "2020-01-08")),
+      n = c(6, 5.5, 1)
+    )
+  )
+})
+
+test_that("group_by_dynamic: arg 'include_boundaries' works", {
+  df <- pl$DataFrame(
+    dt = c(
+      "2020-01-01",
+      "2020-01-01",
+      "2020-01-01",
+      "2020-01-02",
+      "2020-01-03",
+      "2020-01-08"
+    ),
+    n = c(3, 7, 5, 9, 2, 1)
+  )$with_columns(
+    pl$col("dt")$str$strptime(pl$Date, format = NULL)
+  )
+
+  expect_query_equal(
+    .input$group_by_dynamic(
+      index_column = "dt",
+      every = "2d",
+      offset = "1d",
+      include_boundaries = TRUE
+    )$agg(pl$col("n")),
+    .input = df,
+    pl$DataFrame(
+      `_lower_boundary` = as.POSIXct(
+        c("2019-12-31 00:00:00", "2020-01-02 00:00:00", "2020-01-08 00:00:00")
+      ),
+      `_upper_boundary` = as.POSIXct(
+        c("2020-01-02 00:00:00", "2020-01-04 00:00:00", "2020-01-10 00:00:00")
+      ),
+      dt = as.Date(c("2019-12-31", "2020-01-02", "2020-01-08")),
+      n = list(c(3, 7, 5), c(9, 2), 1)
+    )
+  )
+})
+
+test_that("describe() works", {
+  df <- pl$DataFrame(
+    float = c(1.5, 2, NA),
+    string = c(letters[1:2], NA),
+    date = c(as.Date("2024-01-20"), as.Date("2024-01-21"), NA),
+    cat = factor(c("zz", "a", NA)),
+    bool = c(TRUE, FALSE, NA)
+  )
+  expect_snapshot(df$describe())
+  expect_snapshot(df$lazy()$describe())
+
+  expect_query_error(
+    .input$describe(percentiles = 1.1),
+    .input = df,
+    "`percentiles` must all be in the range [0, 1]",
+    fixed = TRUE
+  )
+  expect_snapshot(
+    pl$DataFrame()$describe(),
+    error = TRUE
+  )
+  expect_snapshot(
+    pl$LazyFrame()$describe(),
+    error = TRUE
+  )
+
+  expect_snapshot(df$describe(percentiles = 0.1))
+
+  # min/max different depending on categorical ordering
+  expect_snapshot(df$select(pl$col("cat")$cast(pl$Categorical("lexical")))$describe())
+})
+
+test_that("sql() works", {
+  lf <- pl$LazyFrame(a = 1:3, b = 6:8, c = c("z", "y", "x"))
+
+  expect_equal(
+    lf$sql("SELECT c, b FROM self WHERE a > 1")$collect(),
+    pl$DataFrame(c = c("y", "x"), b = 7:8)
+  )
+
+  # Can chain SQL and other functions
+  expect_equal(
+    lf$sql(
+      query = "
+         SELECT
+            a,
+            (a % 2 == 0) AS a_is_even,
+            (b::float4 / 2) AS 'b/2',
+            CONCAT_WS(':', c, c, c) AS c_c_c
+         FROM frame
+         ORDER BY a
+   ",
+      table_name = "frame",
+    )$filter(!pl$col("c_c_c")$str$starts_with("x"))$collect(),
+    pl$DataFrame(
+      a = 1:2,
+      a_is_even = c(FALSE, TRUE),
+      `b/2` = c(3, 3.5),
+      c_c_c = c("z:z:z", "y:y:y")
+    )$cast(`b/2` = pl$Float32)
+  )
+
+  # arg "table_name" works
+  expect_equal(
+    lf$sql(
+      query = "SELECT a FROM foobar",
+      table_name = "foobar",
+    )$collect(),
+    pl$DataFrame(a = 1:3)
+  )
+  expect_error(
+    lf$sql(
+      query = "SELECT a FROM wrong_name",
+      table_name = "foobar"
+    ),
+    "relation 'wrong_name' was not found"
+  )
+
+  expect_error(
+    lf$sql(
+      query = "SELECT a FROM self",
+      a = 1
+    ),
+    "must be empty"
+  )
+})
+
+test_that("reverse() works", {
+  df <- pl$DataFrame(key = c("a", "b", "c"), val = 1:3)
+  expect_query_equal(
+    .input$reverse(),
+    .input = df,
+    pl$DataFrame(key = c("c", "b", "a"), val = 3:1)
+  )
+
+  df <- pl$DataFrame()
+  expect_query_equal(.input$reverse(), .input = df, df)
+})
+
+test_that("count() works", {
+  df <- pl$DataFrame(
+    a = 1:4,
+    b = c(1, 2, 1, NA),
+    c = rep(NA, 4)
+  )
+
+  expect_query_equal(
+    .input$count(),
+    df,
+    pl$DataFrame(a = 4, b = 3, c = 0)$cast(pl$UInt32)
+  )
+})
+
+patrick::with_parameters_test_that(
+  "engine arguments of collect works",
+  engine = c("auto", "in-memory", "streaming"),
+  {
+    df <- pl$DataFrame(a = 1:4, b = letters[1:4])
+
+    expect_equal(
+      df$lazy()$collect(engine = engine),
+      df
+    )
+  }
+)
+
+test_that("error and warning from collect engines", {
+  expect_snapshot(
+    as_polars_lf(mtcars)$collect(engine = "gpu"),
+    error = TRUE
+  )
+
+  expect_snapshot(
+    as_polars_lf(mtcars)$collect(engine = "old-streaming"),
+    error = TRUE
+  )
+})
+
+test_that("group_by() warns with arg maintain_order", {
+  dat <- pl$select(
+    a = 1L,
+    b = 1:3,
+  )
+  expect_query_warning(
+    .input$group_by("a", maintain_order = TRUE)$agg(),
+    .input = dat,
+    "contain an argument named `maintain_order`"
+  )
+
+  expect_snapshot(
+    dat$group_by("a", maintain_order = TRUE)$agg()
+  )
+})
+
+test_that("active bindings", {
+  expect_snapshot(as_polars_lf(mtcars)$width)
+  expect_snapshot(as_polars_lf(mtcars)$columns)
 })
