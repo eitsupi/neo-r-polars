@@ -33,7 +33,7 @@
 # meta$tree_format
 
     Code
-      cat(e$meta$tree_format())
+      cat(e$meta$tree_format(FALSE))
     Output
                   0             1              2             3
          ┌──────────────────────────────────────────────────────────
@@ -66,6 +66,29 @@
        4 │                                │ col(bar) │  │ col(foo) │
          │                                ╰──────────╯  ╰──────────╯
 
+---
+
+    Code
+      cat(e$meta$tree_format(TRUE))
+    Output
+      graph {
+          n00 [label="binary: /", ordering="out"]
+          n00 -- n11
+          n00 -- n10
+          n10 [label="lit(2.0)", ordering="out"]
+          n11 [label="window", ordering="out"]
+          n11 -- n22
+          n11 -- n21
+          n21 [label="col(ham)", ordering="out"]
+          n22 [label="sum", ordering="out"]
+          n22 -- n32
+          n32 [label="binary: *", ordering="out"]
+          n32 -- n43
+          n32 -- n42
+          n42 [label="col(bar)", ordering="out"]
+          n43 [label="col(foo)", ordering="out"]
+      }
+
 # meta$serialize
 
     Code
@@ -92,27 +115,4 @@
           }
       }
        
-
-# meta$show_graph
-
-    Code
-      cat(my_expr$meta$show_graph(raw_output = TRUE))
-    Output
-      graph {
-          n00 [label="binary: /", ordering="out"]
-          n00 -- n11
-          n00 -- n10
-          n10 [label="lit(dyn float: 2.0)", ordering="out"]
-          n11 [label="window", ordering="out"]
-          n11 -- n22
-          n11 -- n21
-          n21 [label="col(ham)", ordering="out"]
-          n22 [label="sum", ordering="out"]
-          n22 -- n32
-          n32 [label="binary: *", ordering="out"]
-          n32 -- n43
-          n32 -- n42
-          n42 [label="col(bar)", ordering="out"]
-          n43 [label="col(foo)", ordering="out"]
-      }
 

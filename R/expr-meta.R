@@ -192,59 +192,27 @@ expr_meta_root_names <- function() {
 
 #' Format the expression as a tree
 #'
-#' @return A character vector
+#' @param as_dot If `TRUE`, show the dot syntax that can be used in other
+#' packages, such as `DiagrammeR`.
+#'
+#' @return
+#' A string, either with the tree itself it `as_dot = FALSE` or with the
+#' corresponding GraphViz code.
+#'
 #' @examples
 #' my_expr <- (pl$col("foo") * pl$col("bar"))$sum()$over(pl$col("ham")) / 2
-#' my_expr$meta$tree_format() |>
-#'   cat()
-expr_meta_tree_format <- function() {
-  self$`_rexpr`$meta_tree_format() |>
+#' cat(my_expr$meta$tree_format())
+#'
+#' \dontrun{
+#' # This output can be displayed with DiagrammeR for instance
+#' graph <- my_expr$meta$tree_format(as_dot = TRUE)
+#' DiagrammeR::grViz(graph)
+#' }
+expr_meta_tree_format <- function(as_dot = FALSE) {
+  self$`_rexpr`$compute_tree_format(display_as_dot = as_dot) |>
     wrap()
 }
 
-#' Format the expression as a Graphviz graph
-#' 
-#' Note that Graphviz must be installed to render the visualization (if not
-#' already present, you can download it here: 
-#' `<https://graphviz.org/download>`_).
-#' 
-#' @inheritParams rlang::args_dots_empty
-#' @param show Show the figure.
-#' @param output_path Write the figure to disk.
-#' @param raw_output Return dot syntax. This cannot be combined with `show` and
-#' / or `output_path`.
-#'
-#' @return 
-#' If `show = TRUE`, the same output as `DiagrammeR::grViz()`.
-#' If `raw_output = TRUE`, a string containing the GraphViz code for the graph.
-#' 
-#' @examplesIf requireNamespace("DiagrammeR", quietly = TRUE)
-#' my_expr <- (pl$col("foo") * pl$col("bar"))$sum()$over(pl$col("ham")) / 2
-#' my_expr$meta$show_graph()
-expr_meta_show_graph <- function(
-  ...,
-  show = TRUE,
-  output_path = NULL, 
-  raw_output = FALSE) {
-  wrap({
-    rlang::check_dots_empty0(...)
-    dot <- self$`_rexpr`$meta_show_graph() |>
-        wrap()
-    if (isTRUE(raw_output)) {
-      return(dot)
-    }
-    rlang::check_installed("DiagrammeR")
-    graph <- DiagrammeR::grViz(dot)
-    if (!is.null(output_path)) {
-      rlang::check_installed(c("DiagrammeRsvg", "rsvg"))
-      graph |> 
-        DiagrammeRsvg::export_svg() |> 
-        charToRaw() |> 
-        rsvg::rsvg_svg(output_path)
-    }
-    graph
-  })
-}
 
 #' Indicate if this expression only selects columns (optionally with aliasing)
 #'

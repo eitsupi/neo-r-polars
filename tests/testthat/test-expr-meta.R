@@ -101,8 +101,10 @@ test_that("meta$is_column_selection", {
 
 test_that("meta$tree_format", {
   e <- (pl$col("foo") * pl$col("bar"))$sum()$over(pl$col("ham")) / 2
-  expect_true(is.character(e$meta$tree_format()))
-  expect_snapshot(cat(e$meta$tree_format()))
+  expect_true(is.character(e$meta$tree_format(FALSE)))
+  expect_true(is.character(e$meta$tree_format(TRUE)))
+  expect_snapshot(cat(e$meta$tree_format(FALSE)))
+  expect_snapshot(cat(e$meta$tree_format(TRUE)))
 })
 
 test_that("meta$serialize", {
@@ -116,29 +118,5 @@ test_that("meta$serialize", {
   expect_snapshot(
     expr$meta$serialize(format = "json") |>
       jsonlite::prettify()
-  )
-})
-
-test_that("meta$show_graph", {
-  skip_if_not_installed("DiagrammeR")
-  skip_if_not_installed("DiagrammeRsvg")
-  skip_if_not_installed("rsvg")
-
-  my_expr <- (pl$col("foo") * pl$col("bar"))$sum()$over(pl$col("ham")) / 2
-
-  # default
-  expect_equal(class(my_expr$meta$show_graph()), c("grViz", "htmlwidget"))
-
-  # raw_output
-  expect_snapshot(cat(my_expr$meta$show_graph(raw_output = TRUE)))
-
-  # output_path
-  temp <- withr::local_tempfile(fileext = ".svg")
-  expect_silent(my_expr$meta$show_graph(output_path = temp))
-  expect_true(file.exists(temp))
-
-  expect_error(
-    my_expr$meta$show_graph(TRUE),
-    "Did you forget to"
   )
 })

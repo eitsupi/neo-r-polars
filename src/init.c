@@ -1694,16 +1694,6 @@ SEXP savvy_PlRExpr_meta_root_names__impl(SEXP self__) {
     return handle_result(res);
 }
 
-SEXP savvy_PlRExpr_meta_show_graph__impl(SEXP self__) {
-    SEXP res = savvy_PlRExpr_meta_show_graph__ffi(self__);
-    return handle_result(res);
-}
-
-SEXP savvy_PlRExpr_meta_tree_format__impl(SEXP self__) {
-    SEXP res = savvy_PlRExpr_meta_tree_format__ffi(self__);
-    return handle_result(res);
-}
-
 SEXP savvy_PlRExpr_meta_undo_aliases__impl(SEXP self__) {
     SEXP res = savvy_PlRExpr_meta_undo_aliases__ffi(self__);
     return handle_result(res);
@@ -3363,8 +3353,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_meta_output_name__impl", (DL_FUNC) &savvy_PlRExpr_meta_output_name__impl, 1},
     {"savvy_PlRExpr_meta_pop__impl", (DL_FUNC) &savvy_PlRExpr_meta_pop__impl, 2},
     {"savvy_PlRExpr_meta_root_names__impl", (DL_FUNC) &savvy_PlRExpr_meta_root_names__impl, 1},
-    {"savvy_PlRExpr_meta_show_graph__impl", (DL_FUNC) &savvy_PlRExpr_meta_show_graph__impl, 1},
-    {"savvy_PlRExpr_meta_tree_format__impl", (DL_FUNC) &savvy_PlRExpr_meta_tree_format__impl, 1},
     {"savvy_PlRExpr_meta_undo_aliases__impl", (DL_FUNC) &savvy_PlRExpr_meta_undo_aliases__impl, 1},
     {"savvy_PlRExpr_min__impl", (DL_FUNC) &savvy_PlRExpr_min__impl, 1},
     {"savvy_PlRExpr_mode__impl", (DL_FUNC) &savvy_PlRExpr_mode__impl, 1},

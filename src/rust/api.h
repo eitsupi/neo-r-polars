@@ -340,8 +340,6 @@ SEXP savvy_PlRExpr_meta_is_regex_projection__ffi(SEXP self__);
 SEXP savvy_PlRExpr_meta_output_name__ffi(SEXP self__);
 SEXP savvy_PlRExpr_meta_pop__ffi(SEXP self__, SEXP c_arg__schema);
 SEXP savvy_PlRExpr_meta_root_names__ffi(SEXP self__);
-SEXP savvy_PlRExpr_meta_show_graph__ffi(SEXP self__);
-SEXP savvy_PlRExpr_meta_tree_format__ffi(SEXP self__);
 SEXP savvy_PlRExpr_meta_undo_aliases__ffi(SEXP self__);
 SEXP savvy_PlRExpr_min__ffi(SEXP self__);
 SEXP savvy_PlRExpr_mode__ffi(SEXP self__);
