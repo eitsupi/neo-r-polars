@@ -196,8 +196,8 @@ expr_meta_root_names <- function() {
 #' packages, such as `DiagrammeR`.
 #'
 #' @return
-#' A string, either with the tree itself it `as_dot = FALSE` or with the
-#' corresponding GraphViz code.
+#' A string, either with the tree itself (if `as_dot = FALSE`) or with the
+#' corresponding GraphViz code (if `as_dot = TRUE`).
 #'
 #' @examples
 #' my_expr <- (pl$col("foo") * pl$col("bar"))$sum()$over(pl$col("ham")) / 2

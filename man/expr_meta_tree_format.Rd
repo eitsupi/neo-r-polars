@@ -11,8 +11,8 @@ expr_meta_tree_format(as_dot = FALSE)
 packages, such as \code{DiagrammeR}.}
 }
 \value{
-A string, either with the tree itself it \code{as_dot = FALSE} or with the
-corresponding GraphViz code.
+A string, either with the tree itself (if \code{as_dot = FALSE}) or with the
+corresponding GraphViz code (if \code{as_dot = TRUE}).
 }
 \description{
 Format the expression as a tree
