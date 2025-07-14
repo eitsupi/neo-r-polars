@@ -33,7 +33,7 @@
 # meta$tree_format
 
     Code
-      cat(e$meta$tree_format(FALSE))
+      cat(e$meta$tree_format())
     Output
                   0             1              2             3
          ┌──────────────────────────────────────────────────────────
@@ -69,7 +69,7 @@
 ---
 
     Code
-      cat(e$meta$tree_format(TRUE))
+      cat(e$meta$tree_format(as_dot = TRUE))
     Output
       graph {
           n00 [label="binary: /", ordering="out"]

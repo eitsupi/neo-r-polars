@@ -192,6 +192,7 @@ expr_meta_root_names <- function() {
 
 #' Format the expression as a tree
 #'
+#' @inheritParams rlang::args_dots_empty
 #' @param as_dot If `TRUE`, show the dot syntax that can be used in other
 #' packages, such as `DiagrammeR`.
 #'
@@ -208,9 +209,11 @@ expr_meta_root_names <- function() {
 #' graph <- my_expr$meta$tree_format(as_dot = TRUE)
 #' DiagrammeR::grViz(graph)
 #' }
-expr_meta_tree_format <- function(as_dot = FALSE) {
-  self$`_rexpr`$compute_tree_format(display_as_dot = as_dot) |>
-    wrap()
+expr_meta_tree_format <- function(..., as_dot = FALSE) {
+  wrap({
+    check_dots_empty0(...)
+    self$`_rexpr`$compute_tree_format(display_as_dot = as_dot)
+  })
 }
 
 
