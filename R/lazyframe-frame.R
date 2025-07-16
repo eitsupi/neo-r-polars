@@ -267,9 +267,6 @@ lazyframe__group_by <- function(..., .maintain_order = FALSE) {
 #' @param _eager A logical, indicates to turn off multi-node optimizations and
 #' the other optimizations. This option is intended for internal use only.
 #' @param _check_order,_type_check For internal use only.
-#'
-#' @inherit as_polars_df return
-#'
 #' @seealso
 #'  - [`$profile()`][lazyframe__profile] - same as `$collect()` but also returns
 #'    a table with each operation profiled.
