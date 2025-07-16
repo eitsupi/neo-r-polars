@@ -76,15 +76,6 @@ impl PlRLazyFrame {
         Ok(ldf.into())
     }
 
-    fn _fetch(&self, n_rows: NumericScalar) -> Result<PlRDataFrame> {
-        let n_rows = <Wrap<usize>>::try_from(n_rows)?.0;
-        let ldf = self.ldf.clone();
-        ldf.fetch(n_rows)
-            .map(PlRDataFrame::from)
-            .map_err(RPolarsErr::from)
-            .map_err(Into::into)
-    }
-
     fn filter(&mut self, predicate: &PlRExpr) -> Result<Self> {
         let ldf = self.ldf.clone();
         Ok(ldf.filter(predicate.inner.clone()).into())

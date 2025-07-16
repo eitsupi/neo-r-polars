@@ -2409,11 +2409,6 @@ SEXP savvy_PlRExpr_xor__impl(SEXP self__, SEXP c_arg__other) {
     return handle_result(res);
 }
 
-SEXP savvy_PlRLazyFrame__fetch__impl(SEXP self__, SEXP c_arg__n_rows) {
-    SEXP res = savvy_PlRLazyFrame__fetch__ffi(self__, c_arg__n_rows);
-    return handle_result(res);
-}
-
 SEXP savvy_PlRLazyFrame_bottom_k__impl(SEXP self__, SEXP c_arg__k, SEXP c_arg__by, SEXP c_arg__reverse) {
     SEXP res = savvy_PlRLazyFrame_bottom_k__ffi(self__, c_arg__k, c_arg__by, c_arg__reverse);
     return handle_result(res);
@@ -3501,7 +3496,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"savvy_PlRExpr_value_counts__impl", (DL_FUNC) &savvy_PlRExpr_value_counts__impl, 5},
     {"savvy_PlRExpr_var__impl", (DL_FUNC) &savvy_PlRExpr_var__impl, 2},
     {"savvy_PlRExpr_xor__impl", (DL_FUNC) &savvy_PlRExpr_xor__impl, 2},
-    {"savvy_PlRLazyFrame__fetch__impl", (DL_FUNC) &savvy_PlRLazyFrame__fetch__impl, 2},
     {"savvy_PlRLazyFrame_bottom_k__impl", (DL_FUNC) &savvy_PlRLazyFrame_bottom_k__impl, 4},
     {"savvy_PlRLazyFrame_cache__impl", (DL_FUNC) &savvy_PlRLazyFrame_cache__impl, 1},
     {"savvy_PlRLazyFrame_cast__impl", (DL_FUNC) &savvy_PlRLazyFrame_cast__impl, 3},

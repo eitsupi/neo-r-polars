@@ -3536,12 +3536,6 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_polars__sealed")
 
 ### wrapper functions for PlRLazyFrame
 
-`PlRLazyFrame__fetch` <- function(self) {
-  function(`n_rows`) {
-    .savvy_wrap_PlRDataFrame(.Call(savvy_PlRLazyFrame__fetch__impl, `self`, `n_rows`))
-  }
-}
-
 `PlRLazyFrame_bottom_k` <- function(self) {
   function(`k`, `by`, `reverse`) {
     .savvy_wrap_PlRLazyFrame(.Call(savvy_PlRLazyFrame_bottom_k__impl, `self`, `k`, `by`, `reverse`))
@@ -3914,7 +3908,6 @@ class(`PlRExpr`) <- c("PlRExpr__bundle", "savvy_polars__sealed")
 `.savvy_wrap_PlRLazyFrame` <- function(ptr) {
   e <- new.env(parent = emptyenv())
   e$.ptr <- ptr
-  e$`_fetch` <- `PlRLazyFrame__fetch`(ptr)
   e$`bottom_k` <- `PlRLazyFrame_bottom_k`(ptr)
   e$`cache` <- `PlRLazyFrame_cache`(ptr)
   e$`cast` <- `PlRLazyFrame_cast`(ptr)
