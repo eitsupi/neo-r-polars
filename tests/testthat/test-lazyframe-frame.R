@@ -2474,3 +2474,10 @@ test_that("active bindings", {
   expect_snapshot(as_polars_lf(mtcars)$width)
   expect_snapshot(as_polars_lf(mtcars)$columns)
 })
+
+test_that("`<lazyframe>$_fetch()`", {
+  expect_equal(
+    as_polars_lf(mtcars)$`_fetch`(5),
+    as_polars_df(mtcars[1:5, ])
+  )
+})
