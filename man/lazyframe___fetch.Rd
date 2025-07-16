@@ -38,10 +38,10 @@ lazyframe___fetch(
 
 \item{slice_pushdown}{A logical, indicates slice pushdown optimization.}
 
-\item{comm_subplan_elim}{A logical, indicates tring to cache branching subplans that occur
+\item{comm_subplan_elim}{A logical, indicates trying to cache branching subplans that occur
 on self-joins or unions.}
 
-\item{comm_subexpr_elim}{A logical, indicates tring to cache common subexpressions.}
+\item{comm_subexpr_elim}{A logical, indicates trying to cache common subexpressions.}
 
 \item{cluster_with_columns}{A logical, indicates to combine sequential independent calls
 to with_columns.}
