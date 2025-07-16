@@ -485,6 +485,7 @@ SEXP savvy_PlRExpr_var__ffi(SEXP self__, SEXP c_arg__ddof);
 SEXP savvy_PlRExpr_xor__ffi(SEXP self__, SEXP c_arg__other);
 
 // methods and associated functions for PlRLazyFrame
+SEXP savvy_PlRLazyFrame__fetch__ffi(SEXP self__, SEXP c_arg__n_rows);
 SEXP savvy_PlRLazyFrame_bottom_k__ffi(SEXP self__, SEXP c_arg__k, SEXP c_arg__by, SEXP c_arg__reverse);
 SEXP savvy_PlRLazyFrame_cache__ffi(SEXP self__);
 SEXP savvy_PlRLazyFrame_cast__ffi(SEXP self__, SEXP c_arg__dtypes, SEXP c_arg__strict);
