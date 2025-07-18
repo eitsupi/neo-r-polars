@@ -13,8 +13,8 @@
 #'   other Arrow implementations. The level can be specified as the name
 #'   (e.g., `"newest"`) or as a scalar integer (Currently, `0` or `1` is supported).
 #'
-#'   - `"newest"` `r lifecycle::badge("experimental")` (default): Use the highest level, currently same as `1`
-#'     (Low compatibility).
+#'   - `"newest"` `r lifecycle::badge("experimental")` (default):
+#'     Use the highest level, currently same as `1` (Low compatibility).
 #'   - `"oldest"`: Same as `0` (High compatibility).
 #' @examples
 #' tmpf <- tempfile(fileext = ".arrow")
