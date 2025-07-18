@@ -12,14 +12,9 @@ others are due to modifications of function names, argument names, or argument
 positions. There are too many to list here, so you should refer to the [Python
 Polars API docs](https://docs.pola.rs/api/python/dev/reference/index.html).
 
-Installation instructions for the rewritten version are now identical to the
-instructions for the old version. The old version (referred to as `polars0` in
-the docs) can be installed from R-universe with:
-
-```r
-Sys.setenv(NOT_CRAN = "true")
-install.packages("polars0", repos = "https://rpolars.r-universe.dev")
-```
+For compatibility, the old version (polars 0.22.4) is now available as a separate package named "polars0".
+We can install both polars and polars0 at the same time.
+See the [polars0 documentation](https://rpolars.github.io/r-polars0/) for details.
 
 ### Breaking changes
 
@@ -56,19 +51,39 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
   #> Run `rlang::last_trace()` to see where the error occurred.
   ```
 
-- Conversion from polars objects to R vectors has been revamped: `$to_r()`,
-  `$to_list()` and `$to_data_frame()` no longer exist. Instead, you must use
-  `as.data.frame()`, `as.list()` and `as.vector()`.
+- Conversion from polars objects to R vectors has been revamped: `<series>$to_r()`,
+  `<series>$to_list()` and `<dataframe>$to_data_frame()` no longer exist. Instead, you must use
+  `as.data.frame(<dataframe>)`, `as.list(<dataframe>)`, `as.vector(<series>)`, or `<series>$to_r_vector()`.
 
-  `as.vector()` will remove attributes that might be useful, for instance to
+  `as.vector(<series>)` will remove attributes that might be useful, for instance to
   convert Int64 values using the bit64 package or to convert Time values using
-  the hms package. If finer control is needed, use either `$to_r_vector()` or
-  set options for the entire session with `polars_options()`.
+  the hms package. If finer control is needed, use either `<series>$to_r_vector()`.
+
+  ```r
+  s_int64 <- as_polars_series(1:5)$cast(pl$Int64)
+
+  withr::with_options(
+    list(polars.to_r_vector.int64 = "integer64"),
+    as.vector(s_int64)
+  )
+  #> `int64` is overridden by the option "polars.to_r_vector.int64" with the string "integer64"
+  #> ℹ `as.vector()` on a Polars Series of type i64 may drop some useful attributes.
+  #> ℹ Use `$to_r_vector()` instead for finer control of the conversion from Polars to R.
+  #> [1] 4.940656e-324 9.881313e-324 1.482197e-323 1.976263e-323 2.470328e-323
+
+  withr::with_options(
+    list(polars.to_r_vector.int64 = "integer64"),
+    s_int64$to_r_vector()
+  )
+  #> `int64` is overridden by the option "polars.to_r_vector.int64" with the string "integer64"
+  #> integer64
+  #> [1] 1 2 3 4 5
+  ```
 
 - In general, polars now uses dots (`...`) in two scenarios:
 
-  1. to pass an unlimited number of inputs (for instance in `select()`, `cast()`,
-     or `group_by()`), using [dynamic-dots](https://rlang.r-lib.org/reference/dyn-dots.html).
+  1. to pass an unlimited number of inputs (for instance in `<lazyframe>$select()`, `<lazyframe>$cast()`,
+     or `<lazyframe>$group_by()`), using [dynamic-dots](https://rlang.r-lib.org/reference/dyn-dots.html).
 
      For example, if you used to pass a vector of column names or a list of
      expressions, you now need to expand it with `!!!`:
@@ -129,7 +144,7 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
      ```
 
      Another important change in functions that accept dynamic dots is that
-     additional arguments are prefixed with `.`. For example, `group_by()` now
+     additional arguments are prefixed with `.`. For example, `<lazyframe>$group_by()` now
      takes dynamic dots, meaning that the argument `maintain_order` is renamed
      `.maintain_order` (for now, we add a warning if we detect an argument named
      `maintain_order` in the dots).
