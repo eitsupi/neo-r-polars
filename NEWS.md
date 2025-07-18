@@ -60,24 +60,16 @@ See the [polars0 documentation](https://rpolars.github.io/r-polars0/) for detail
   the hms package. If finer control is needed, use either `<series>$to_r_vector()`.
 
   ```r
-  s_int64 <- as_polars_series(1:5)$cast(pl$Int64)
+  s_time <- as_polars_series(c("00:00", "12:00"))$str$to_time()
 
-  withr::with_options(
-    list(polars.to_r_vector.int64 = "integer64"),
-    as.vector(s_int64)
-  )
-  #> `int64` is overridden by the option "polars.to_r_vector.int64" with the string "integer64"
-  #> ℹ `as.vector()` on a Polars Series of type i64 may drop some useful attributes.
+  as.vector(s_time)
+  #> ℹ `as.vector()` on a Polars Series of type time may drop some useful attributes.
   #> ℹ Use `$to_r_vector()` instead for finer control of the conversion from Polars to R.
-  #> [1] 4.940656e-324 9.881313e-324 1.482197e-323 1.976263e-323 2.470328e-323
+  #> [1]     0 43200
 
-  withr::with_options(
-    list(polars.to_r_vector.int64 = "integer64"),
-    s_int64$to_r_vector()
-  )
-  #> `int64` is overridden by the option "polars.to_r_vector.int64" with the string "integer64"
-  #> integer64
-  #> [1] 1 2 3 4 5
+  s_time$to_r_vector()
+  #> 00:00:00
+  #> 12:00:00
   ```
 
 - In general, polars now uses dots (`...`) in two scenarios:
