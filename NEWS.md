@@ -23,13 +23,14 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
 
 ### Breaking changes
 
-* The class names of polars objects have changed:
+- The class names of polars objects have changed:
+
   - `RPolarsLazyFrame` -> `polars_lazy_frame`
   - `RPolarsDataFrame` -> `polars_data_frame`
   - `RPolarsSeries` -> `polars_series`
   - `RPolarsExpr` -> `polars_expr`
 
-* Conversion from unknown classes to Polars objects now fails. Developers can
+- Conversion from unknown classes to Polars objects now fails. Developers can
   specify how those objects should be handled by polars by creating a method
   for `as_polars_series.my_class`.
 
@@ -55,7 +56,7 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
   #> Run `rlang::last_trace()` to see where the error occurred.
   ```
 
-* Conversion from polars objects to R vectors has been revamped: `$to_r()`,
+- Conversion from polars objects to R vectors has been revamped: `$to_r()`,
   `$to_list()` and `$to_data_frame()` no longer exist. Instead, you must use
   `as.data.frame()`, `as.list()` and `as.vector()`.
 
@@ -64,13 +65,14 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
   the hms package. If finer control is needed, use either `$to_r_vector()` or
   set options for the entire session with `polars_options()`.
 
-* In general, polars now uses dots (`...`) in two scenarios:
+- In general, polars now uses dots (`...`) in two scenarios:
 
   1. to pass an unlimited number of inputs (for instance in `select()`, `cast()`,
      or `group_by()`), using [dynamic-dots](https://rlang.r-lib.org/reference/dyn-dots.html).
 
      For example, if you used to pass a vector of column names or a list of
      expressions, you now need to expand it with `!!!`:
+
      ```r
      ### OLD
      dat <- as_polars_df(head(mtcars, 3))
@@ -106,6 +108,7 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
      ```
 
      This also affects `pl$col()`:
+
      ```r
      ### OLD
      pl$col(c("foo", "bar"), "baz")
@@ -133,36 +136,37 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
 
   2. to force some arguments to be named. We now throw an error if an argument
      is not named while it should be, for example:
-      ``` r
-      df <- pl$DataFrame(a = 1:4)
-      df$with_columns(pl$col("a")$shift(1, 3))
-      #> Error in `df$with_columns()`:
-      #> ! Evaluation failed in `$with_columns()`.
-      #> Caused by error:
-      #> ! Evaluation failed in `$with_columns()`.
-      #> Caused by error:
-      #> ! Evaluation failed in `$shift()`.
-      #> Caused by error:
-      #> ! `...` must be empty.
-      #> ✖ Problematic argument:
-      #> • ..1 = 3
-      #> ℹ Did you forget to name an argument?
 
-      df$with_columns(pl$col("a")$shift(1, fill_value = 3))
-      #> shape: (4, 1)
-      #> ┌─────┐
-      #> │ a   │
-      #> │ --- │
-      #> │ f64 │
-      #> ╞═════╡
-      #> │ 3.0 │
-      #> │ 1.0 │
-      #> │ 2.0 │
-      #> │ 3.0 │
-      #> └─────┘
-      ```
+     ```r
+     df <- pl$DataFrame(a = 1:4)
+     df$with_columns(pl$col("a")$shift(1, 3))
+     #> Error in `df$with_columns()`:
+     #> ! Evaluation failed in `$with_columns()`.
+     #> Caused by error:
+     #> ! Evaluation failed in `$with_columns()`.
+     #> Caused by error:
+     #> ! Evaluation failed in `$shift()`.
+     #> Caused by error:
+     #> ! `...` must be empty.
+     #> ✖ Problematic argument:
+     #> • ..1 = 3
+     #> ℹ Did you forget to name an argument?
 
-* Related to the extended use of dynamic dots, `pl$DataFrame()` and
+     df$with_columns(pl$col("a")$shift(1, fill_value = 3))
+     #> shape: (4, 1)
+     #> ┌─────┐
+     #> │ a   │
+     #> │ --- │
+     #> │ f64 │
+     #> ╞═════╡
+     #> │ 3.0 │
+     #> │ 1.0 │
+     #> │ 2.0 │
+     #> │ 3.0 │
+     #> └─────┘
+     ```
+
+- Related to the extended use of dynamic dots, `pl$DataFrame()` and
   `pl$LazyFrame()` more accurately convert input to the correct datatype, for
   instance when the input is an R `data.frame`:
 
@@ -205,7 +209,7 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
   Use `as_polars_df()` and `as_polars_lf()` to convert existing R `data.frame`s
   to their polars equivalents.
 
-* The class names `PTime` and `rpolars_raw_list` (used to handle time and binary
+- The class names `PTime` and `rpolars_raw_list` (used to handle time and binary
   variables) are removed. One should use the classes provided in packages
   hms and blob instead.
 
@@ -271,10 +275,9 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
   #> 3 14:00  <raw 1 B>
   ```
 
-
 ### Other changes
 
-* R objects that convert to a Series of length 1 are now treated like scalar
+- R objects that convert to a Series of length 1 are now treated like scalar
   values when converting to polars expressions:
 
   ```r
@@ -304,12 +307,9 @@ install.packages("polars0", repos = "https://rpolars.r-universe.dev")
   #> └─────┴─────┘
   ```
 
-* `<expr>$map_batches()` still exists but its usage is discouraged. This function is
+- `<expr>$map_batches()` still exists but its usage is discouraged. This function is
   not guaranteed to interact correctly with the streaming engine. To apply
   functions from external packages or custom functions that cannot be translated
   to polars syntax, we now recommend converting the data to a `data.frame` and
   using purrr (note that as of 1.1.0, purrr enables parallel computation).
   The vignette "Using custom functions" contains more details about this.
-
-
-
