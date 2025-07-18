@@ -57,7 +57,7 @@ See the [polars0 documentation](https://rpolars.github.io/r-polars0/) for detail
 
   `as.vector(<series>)` will remove attributes that might be useful, for instance to
   convert Int64 values using the bit64 package or to convert Time values using
-  the hms package. If finer control is needed, use either `<series>$to_r_vector()`.
+  the hms package. So it is recommended to use `<series>$to_r_vector()` instead for usual conversions.
 
   ```r
   s_time <- as_polars_series(c("00:00", "12:00"))$str$to_time()
