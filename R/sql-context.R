@@ -86,7 +86,7 @@ sql_context__register_many <- function(...) {
 #'
 #' `r lifecycle::badge("experimental")`
 #' @inherit pl__SQLContext return
-#' @param name Names of the tables to unregister.
+#' @param names Names of the tables to unregister.
 #' @examples
 #' df <- pl$DataFrame(ints = 9:5)
 #' lf1 <- pl$LazyFrame(text = letters[1:3])

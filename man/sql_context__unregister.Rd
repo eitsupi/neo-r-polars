@@ -7,7 +7,7 @@
 sql_context__unregister(names)
 }
 \arguments{
-\item{name}{Names of the tables to unregister.}
+\item{names}{Names of the tables to unregister.}
 }
 \value{
 An object of class \code{"polars_sql_context"}
