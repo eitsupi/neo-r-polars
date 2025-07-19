@@ -741,7 +741,8 @@ expr_str_encode <- function(encoding) {
 #' To modify regular expression behaviour (such as multi-line matching) with flags,
 #' use the inline `(?iLmsuxU)` syntax. See the example.
 #'
-#' See the regex crate's section on [grouping and flags](https://docs.rs/regex/latest/regex/#grouping-and-flags)
+#' See the regex crate's section on
+#' [grouping and flags](https://docs.rs/regex/latest/regex/#grouping-and-flags)
 #' for additional information about the use of inline expression modifiers.
 #' @inherit as_polars_expr return
 #' @param pattern A valid regular expression pattern

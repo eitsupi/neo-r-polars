@@ -25,7 +25,8 @@ Extract the target capture group from provided patterns
 To modify regular expression behaviour (such as multi-line matching) with flags,
 use the inline \code{(?iLmsuxU)} syntax. See the example.
 
-See the regex crate's section on \href{https://docs.rs/regex/latest/regex/#grouping-and-flags}{grouping and flags}
+See the regex crate's section on
+\href{https://docs.rs/regex/latest/regex/#grouping-and-flags}{grouping and flags}
 for additional information about the use of inline expression modifiers.
 }
 \examples{
