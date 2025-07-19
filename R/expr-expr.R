@@ -4581,7 +4581,7 @@ expr__to_physical <- function() {
 #' Used in ewm_* functions
 #' @noRd
 prepare_alpha <- function(com = NULL, span = NULL, half_life = NULL, alpha = NULL) {
-  # TODO: Afther https://github.com/r-lib/rlang/issues/1647, switch to rlang::check_exclusive
+  # TODO: After https://github.com/r-lib/rlang/issues/1647, switch to rlang::check_exclusive
   n_specified <- list(com, span, half_life, alpha) |>
     vapply(\(x) !is.null(x), logical(1)) |>
     Reduce(`+`, x = _)
