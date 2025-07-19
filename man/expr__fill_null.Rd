@@ -11,7 +11,7 @@ expr__fill_null(value = NULL, strategy = NULL, limit = NULL)
 specified. Accepts expression input, strings are parsed as column names.}
 
 \item{strategy}{Strategy used to fill null values. If \code{value} is \code{NULL},
-Must be one of \code{"forward"}, \code{"backward"}, \code{"min"}, \code{"max"}, \code{"mean"}, \code{"zero"}, \code{"one"}.}
+must be one of \code{"forward"}, \code{"backward"}, \code{"min"}, \code{"max"}, \code{"mean"}, \code{"zero"}, \code{"one"}.}
 
 \item{limit}{Number of consecutive null values to fill when using the
 \code{"forward"} or \code{"backward"} strategy.}

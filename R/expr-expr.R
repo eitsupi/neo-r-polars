@@ -3859,7 +3859,7 @@ expr__fill_nan <- function(value) {
 #' @param value Value used to fill null values. Can be `NULL` if `strategy` is
 #'   specified. Accepts expression input, strings are parsed as column names.
 #' @param strategy Strategy used to fill null values. If `value` is `NULL`,
-#'   Must be one of `"forward"`, `"backward"`, `"min"`, `"max"`, `"mean"`, `"zero"`, `"one"`.
+#'   must be one of `"forward"`, `"backward"`, `"min"`, `"max"`, `"mean"`, `"zero"`, `"one"`.
 #' @param limit Number of consecutive null values to fill when using the
 #'   `"forward"` or `"backward"` strategy.
 #' @examples
@@ -3872,21 +3872,19 @@ expr__fill_nan <- function(value) {
 #' )
 expr__fill_null <- function(value = NULL, strategy = NULL, limit = NULL) {
   wrap({
-    check_exclusive_or_null(value, strategy)
+    check_null_exclusive(value, strategy)
 
     if (!is.null(strategy)) {
       strategy <- arg_match0(
         strategy,
         values = c("forward", "backward", "min", "max", "mean", "zero", "one")
       )
-    }
-    if (!strategy %in% c("forward", "backward") && !is.null(limit)) {
-      abort('Can only specify `limit` when `strategy` is set to "backward" or "forward".')
-    }
-    if (!is.null(value)) {
-      self$`_rexpr`$fill_null(as_polars_expr(value, as_lit = TRUE)$`_rexpr`)
-    } else {
+      if (!strategy %in% c("forward", "backward") && !is.null(limit)) {
+        abort('Can only specify `limit` when `strategy` is set to "backward" or "forward".')
+      }
       self$`_rexpr`$fill_null_with_strategy(strategy, limit)
+    } else {
+      self$`_rexpr`$fill_null(as_polars_expr(value, as_lit = TRUE)$`_rexpr`)
     }
   })
 }

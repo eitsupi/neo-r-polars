@@ -1047,7 +1047,7 @@ lazyframe__fill_null <- function(
 ) {
   wrap({
     check_dots_empty0(...)
-    check_exclusive_or_null(value, strategy)
+    check_null_exclusive(value, strategy)
 
     if (!is.null(value)) {
       if (is_polars_expr(value)) {
