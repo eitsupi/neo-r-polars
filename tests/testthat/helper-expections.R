@@ -36,7 +36,9 @@ expect_query_equal <- function(object, ...) {
     names(inputs_lazy) <- ".input"
   }
 
-  out_lazy <- rlang::eval_tidy(query, rlang::new_data_mask(rlang::env(!!!inputs_lazy)))$collect()
+  out_lazy <- rlang::eval_tidy(query, rlang::new_data_mask(rlang::env(!!!inputs_lazy)))$collect(
+    engine = "streaming"
+  )
   expect_equal(out_lazy, expected)
 
   out_eager <- rlang::eval_tidy(query, rlang::new_data_mask(rlang::env(!!!inputs)))
@@ -66,7 +68,7 @@ expect_query_error <- function(object, .input, regexp = NULL, class = NULL, .inp
         .input = as_polars_lf(.input),
         .input2 = as_polars_lf(.input2)
       ))
-    )$collect(),
+    )$collect(engine = "streaming"),
     regexp = regexp,
     class = class,
     ...
@@ -139,7 +141,7 @@ expect_eager_equal_lazy_error <- function(
     rlang::eval_tidy(
       query,
       rlang::new_data_mask(rlang::env(.input = as_polars_lf(input)))
-    )$collect(),
+    )$collect(engine = "streaming"),
     regexp = regexp,
     class = class,
     ...
