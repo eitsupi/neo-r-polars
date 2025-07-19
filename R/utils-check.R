@@ -141,7 +141,7 @@ check_exclusive_or_null <- function(x, y) {
   y_name <- quo_name(enquo(y))
   if (!missing(x) && !missing(y) && !is.null(x) && !is.null(y)) {
     abort(
-      paste0("Exactly one of `", x_name, "` or `", y_name, "` must be supplied."),
+      sprintf("Exactly one of `%s` or `%s` must be supplied.", x_name, y_name),
       call = caller_env()
     )
   }
