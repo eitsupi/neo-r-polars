@@ -2,7 +2,7 @@
 % Please edit documentation in R/sql-context.R
 \name{sql_context__unregister}
 \alias{sql_context__unregister}
-\title{Unregister one or frames by name}
+\title{Unregister one or more frames by name}
 \usage{
 sql_context__unregister(names)
 }

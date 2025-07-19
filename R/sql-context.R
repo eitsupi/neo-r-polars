@@ -82,7 +82,7 @@ sql_context__register_many <- function(...) {
   })
 }
 
-#' Unregister one or frames by name
+#' Unregister one or more frames by name
 #'
 #' `r lifecycle::badge("experimental")`
 #' @inherit pl__SQLContext return
