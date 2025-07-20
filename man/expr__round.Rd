@@ -4,7 +4,7 @@
 \alias{expr__round}
 \title{Round underlying floating point data by decimals digits}
 \usage{
-expr__round(decimals = 0, mode = c("half_to_even", "half_away_from_zero"))
+expr__round(decimals = 0L, mode = c("half_to_even", "half_away_from_zero"))
 }
 \arguments{
 \item{decimals}{Number of decimals to round by.}
