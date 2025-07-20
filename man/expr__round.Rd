@@ -31,7 +31,7 @@ df <- pl$DataFrame(
 )$cast(d = pl$Decimal(scale = 1))
 
 df$with_columns(
-  pl$all()$round(mode="half_away_from_zero")$name$suffix("_away"),
-  pl$all()$round(mode="half_to_even")$name$suffix("_to_even"),
+  pl$all()$round(mode = "half_away_from_zero")$name$suffix("_away"),
+  pl$all()$round(mode = "half_to_even")$name$suffix("_to_even"),
 )
 }
